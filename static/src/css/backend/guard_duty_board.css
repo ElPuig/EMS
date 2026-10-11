@@ -165,6 +165,19 @@
     opacity: 0.85;
 }
 
+/* Classes this guard has covered this course (issue #600): a small number after the name, for
+   sharing the covers out fairly. Plain text like the WC tag, so it never competes with the red of
+   an absence or the colour of a cover. */
+.o_guard_board_guard_count {
+    margin-left: 4px;
+    padding: 0 4px;
+    border-radius: 8px;
+    border: 1px solid currentColor;
+    font-size: 0.8em;
+    font-weight: normal;
+    opacity: 0.75;
+}
+
 /* Week navigation + date picker: the board used to be a pure weekday timetable, and only needs
    a real date now that absences (which happen on dates, not weekdays) are drawn on it. */
 .o_guard_board_date_input {
@@ -304,6 +317,49 @@
 .o_guard_board_proposed_tag {
     border-style: dashed;
     color: #6c757d;
+}
+
+/* Issue #605: the teacher an internal arrangement puts with the group instead; dashed while the
+   arrangement still waits for its notice to the families. */
+.o_guard_board_arrangement_tag {
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+.o_guard_board_arrangement_tag.o_guard_board_arrangement_pending {
+    border-style: dashed;
+    color: #6c757d;
+}
+
+/* Issue #605: arrangements the board detected for a class still left without anybody, and who
+   teaches a lesson instead after one (timetable tab). */
+.o_guard_board_options_tag {
+    border-style: dashed;
+    border-color: #0d6efd;
+    color: #0d6efd;
+}
+
+/* An arrangement that changes a teacher's entry or exit time: said on a line of its own under the
+   proposal (and under the option, in the dialog), so it stands out from those that change nobody's
+   working day while every row still ends with just its button. */
+.o_guard_board_action_schedule,
+.o_guard_cover_schedule_change {
+    color: #b35c00;
+}
+
+.o_guard_board_action_schedule {
+    font-size: 12px;
+}
+
+.o_guard_board_cell_substitute {
+    color: #0d6efd;
+}
+
+/* A guard who is with a group through an internal arrangement: struck out of the guard column,
+   nobody can ask them to cover anything else then. */
+.o_guard_board_guard_busy {
+    text-decoration: line-through;
+    opacity: 0.6;
 }
 
 /* A guard and every class they cover in the same row share one colour, a different one for each

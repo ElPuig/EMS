@@ -65,6 +65,15 @@ group, just always taken here rather than only as an edge case.
   already turned active filtering off for an unrelated reason must not resurrect a stale/archived
   calendar's own leftover rows here).
 - `_schedule_report_shift()` - overridden to always return `False` (see above).
+- `_schedule_report_block_detail(entries)` (issue #608) - the small second line of each block.
+  `ems.schedule_report_mixin`'s own version returns the block's room, which on a room's own
+  schedule would only repeat that room on every block; here it returns the block's group(s)
+  instead (their names, sorted, each once even when the block merges several co-teachers'
+  entries; empty for a block with no group). `get_schedule_report_lines()` puts it on each block
+  as `'detail'`, which the shared `ems.schedule_report_grid` template prints. The on-screen
+  widget (`schedule_grid_readonly_field.js`) mirrors it: on `ems.space` (`showsGroups`)
+  `blockDetail()` reads `group_ids` - declared in the form's embedded list for that purpose -
+  instead of the room.
 
 **Genuinely empty `@api.depends()` - worse off than the group's/student's own version, not just
 the same limitation.** A cross-model search can never be a real Odoo dependency (same structural

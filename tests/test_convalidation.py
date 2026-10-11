@@ -1191,3 +1191,57 @@ class TestConvalidation(TransactionCase):
         self._refuse(request.line_ids)
         self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
                          self.subject | self.other_subject)
+
+    # --- what the list opens on, by role (issue #610) --------------------------
+
+    def _one_request_per_open_state(self):
+        """`{state: request}`, one request in each state somebody still has to act on (and one
+        waiting for the applicant)."""
+        students = self.env['res.partner'].create([{
+            'name': f'Convalidation Student {index}', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': self.group.id, 'birth_date': '2000-01-01',
+        } for index in range(5)])
+        requests = {}
+        for state, student in zip(('pending', 'documentation', 'ministry', 'direction', 'in_progress'), students):
+            request = self._request(student=student)
+            request.sudo().write({'state': state})
+            requests[state] = request
+        return requests
+
+    def _pending_for(self, user, requests):
+        found = self.env['ems.convalidation'].with_user(user).search([
+            ('is_pending_for_me', '=', True), ('id', 'in', [request.id for request in requests.values()])])
+        return set(found.mapped('state'))
+
+    def test_each_role_finds_the_requests_waiting_for_them(self):
+        requests = self._one_request_per_open_state()
+
+        self.assertEqual(self._pending_for(self.head_of_studies, requests), {'pending', 'ministry'})
+        self.assertEqual(self._pending_for(self.director, requests), {'direction'},
+                         "the Director implies the Head of Studies' group, but only resolves")
+        self.assertEqual(self._pending_for(self.secretary, requests), {'in_progress'})
+
+    def test_the_administrator_and_several_roles_find_the_sum(self):
+        requests = self._one_request_per_open_state()
+        admin = create_role_user(self, 'academic_admin', 'test_convalidation_admin')
+        both = create_role_user(self, 'head_of_studies', 'test_convalidation_hos_secretary')
+        both.groups_id = [(4, self.env.ref('ems.group_secretary').id)]
+
+        self.assertEqual(self._pending_for(admin, requests), {'pending', 'ministry', 'direction', 'in_progress'})
+        self.assertEqual(self._pending_for(both, requests), {'pending', 'ministry', 'in_progress'})
+
+    def test_pending_for_me_follows_the_state_and_can_be_negated(self):
+        requests = self._one_request_per_open_state()
+        Convalidation = self.env['ems.convalidation'].with_user(self.secretary)
+        mine = Convalidation.browse(requests['in_progress'].id)
+        other = Convalidation.browse(requests['pending'].id)
+
+        self.assertTrue(mine.is_pending_for_me)
+        self.assertFalse(other.is_pending_for_me)
+        self.assertIn(other, Convalidation.search([('is_pending_for_me', '=', False)]))
+        self.assertNotIn(mine, Convalidation.search([('is_pending_for_me', '!=', True)]))
+
+    def test_the_list_opens_on_what_waits_for_the_user(self):
+        action = self.env.ref('ems.action_convalidation')
+        self.assertIn("'search_default_pending_for_me': 1", action.context)
+

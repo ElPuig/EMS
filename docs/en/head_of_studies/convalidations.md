@@ -38,7 +38,16 @@ The state only changes through the actions of each step, in the form's **Actions
 
 Navigate to: **Academic management → Convalidations**
 
-The list opens with every request waiting for the centre: **Pending the Head of Studies**, **In process at the Ministry**, **Pending the Director** and **Pending the secretariat**. Requests waiting for the applicant's documentation are left out: use the **Pending documentation** filter to see them. Remove the filters to see them all, or use **Completed**, **Rejected** and **Cancelled**.
+The list opens with the **Pending for me** filter on, which shows the requests waiting for you, according to your role:
+
+| Who opens the list | Requests shown |
+|---|---|
+| Head of Studies or Deputy | **Pending the Head of Studies** and **In process at the Ministry** |
+| Director | **Pending the Director** |
+| Secretariat | **Pending the secretariat** |
+| Administrator, or somebody with more than one of those roles | Those of every role they hold |
+
+Requests waiting for the applicant's documentation are never among them: use the **Pending documentation** filter to see them. Remove the **Pending for me** filter to see every request, or use the filter of a specific state (**Pending the Director**, **Completed**, **Rejected**, **Cancelled**...) to follow the ones that are in somebody else's hands.
 
 ![Convalidation request list](../../assets/head_of_studies/convalidations-list.png)
 

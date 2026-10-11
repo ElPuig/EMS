@@ -18,6 +18,8 @@
                 }
                 .gs-cell-label { display: block; font-weight: 600; }
                 .gs-cell-room { display: block; font-size: 9px; color: #fff; }
+                .gs-cell-content.gs-parallel { background-color: #6c757d; }
+                .gs-parallel-slot { font-weight: bold; white-space: nowrap; vertical-align: top; }
                 .gs-summary-table { width: 100%; margin-top: 16px; font-size: 10px; border-collapse: collapse; }
                 .gs-summary-table th { text-align: left; padding: 6px 10px; }
                 .gs-summary-table td { padding: 3px 10px; border-bottom: 1px solid #eee; }
@@ -40,10 +42,14 @@
                             <t t-foreach="line['cells']" t-as="cell">
                                 <td>
                                     <t t-foreach="cell['blocks']" t-as="block">
-                                        <span t-attf-class="gs-cell-content #{'gs-break' if not block['entries'][:1].subject_id else ''}"
+                                        <span t-if="block.get('parallel_blocks')" class="gs-cell-content gs-parallel">
+                                            <span class="gs-cell-label"><t t-esc="len(block['parallel_blocks'])"/> classes in parallel</span>
+                                        </span>
+                                        <span t-else="" t-attf-class="gs-cell-content #{'gs-break' if not block['entries'][:1].subject_id else ''}"
                                               t-att-style="'background-color:' + block['color'] if block['color'] else ''">
                                             <span class="gs-cell-label" t-esc="block['entries'][:1].non_teaching.name or block['entries'][:1].get_subject_display_label()"/>
-                                            <span t-if="block['entries'][:1].space_id" class="gs-cell-room" t-esc="block['entries'][:1].space_id.display_name"/>
+                                            <span t-if="block['subgroup']" class="gs-cell-room" t-esc="block['subgroup']"/>
+                                            <span t-if="block['detail']" class="gs-cell-room" t-esc="block['detail']"/>
                                         </span>
                                     </t>
                                 </td>
@@ -52,6 +58,33 @@
                     </t>
                 </tbody>
             </table>
+
+            <div t-if="parallel" class="gs-summary-wrap">
+                <table class="gs-summary-table">
+                    <thead>
+                        <tr>
+                            <th>Classes in parallel</th>
+                            <th>Subject</th>
+                            <th>Group</th>
+                            <th>Teacher(s)</th>
+                            <th>Classroom</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-foreach="parallel" t-as="slot">
+                            <t t-foreach="slot['classes']" t-as="row">
+                                <tr>
+                                    <td class="gs-parallel-slot"><t t-if="row_first" t-esc="slot['slot']"/></td>
+                                    <td t-esc="row['subject']"/>
+                                    <td t-esc="row['subgroup']"/>
+                                    <td t-esc="row['teachers']"/>
+                                    <td t-esc="row['room']"/>
+                                </tr>
+                            </t>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
 
             <div t-if="summary" class="gs-summary-wrap">
                 <table class="gs-summary-table">

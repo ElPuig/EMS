@@ -48,8 +48,9 @@ Students aren't added from here — see the **Students** tab to review who's ass
 1. Click **New**.
 2. Switch **Group Type** to **Reinforcement**. Level, Study, Tutor, Delegate and Sub-delegate disappear — they don't apply.
 3. Fill in a **Name** directly (e.g. `REF-MATHS`).
-4. Click **Save**.
-5. Add students the same way as for any other group: from the student's own form (or the enrolment flow), enrol them in a subject with this reinforcement group set as the **Group** — they can come from any main group/study. They then show up in this group's own **Enrolled** tab.
+4. If the group is a split, a flexible group or an optative, set **Main groups** to the groups its students come from (e.g. `ESO1A` for a split of 1A, or every 1st-year group for a 1st-year optative). Its classes will also appear in the schedule of each of those groups.
+5. Click **Save**.
+6. Add students the same way as for any other group: from the student's own form (or the enrolment flow), enrol them in a subject with this reinforcement group set as the **Group** — they can come from any main group/study. They then show up in this group's own **Enrolled** tab.
 
 ---
 

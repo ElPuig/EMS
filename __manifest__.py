@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.35.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.36.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -439,9 +439,9 @@
         'data/cat/attachments/btx/modality/plastic arts/ir.attachment.csv',
         'data/cat/attachments/btx/modality/sciences and technology/ir.attachment.csv',
         
-        'data/cat/ems.subject.csv',
         'data/cat/ems.level.csv',
         'data/cat/ems.study.csv',
+        'data/cat/ems.subject.csv',
         'data/cat/ems.content.csv',
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
@@ -454,11 +454,8 @@
         
         # Custom data entries (adapt it to your needs, for example, ESO subjects can differ between centers)        
         'data/custom/eso/ems.subject.csv',
-        'data/custom/eso/ems.study.csv',
         'data/custom/btx/ems.subject.csv',
-        'data/custom/btx/ems.study.csv',
         'data/custom/ccff/ems.subject.csv',
-        'data/custom/ccff/ems.study.csv',
         'data/custom/ccff/ems.outcome.csv',
         'data/custom/ccff/ems_enrollment_template_opt.xml',
         'data/custom/ccff/ems.planning-smx.csv',

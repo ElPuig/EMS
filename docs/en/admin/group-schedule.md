@@ -46,6 +46,22 @@ own Schedule tab. Topic and classroom, however, can also be edited directly here
 
 ---
 
+## Split Groups and Optatives
+
+When the group is divided into subgroups (a split, a flexible group, a course's optatives), every
+class of those subgroups also appears in the group's schedule, with the subgroup's name under the
+subject:
+
+- Up to **3 classes at the same time** are shown side by side.
+- With **4 or more** (for example, all the optatives of a course) a single **"N classes in
+  parallel"** block is shown. Below the grid, the **Classes in parallel** table lists, for each of
+  those blocks, the subgroup, subject, teacher and classroom of every class.
+
+For a subgroup's classes to appear here, the subgroup must have this group among its **Main
+groups** (see [Create a Reinforcement Group](groups.md#create-a-reinforcement-group)).
+
+---
+
 ## Editing a Block's Topic or Classroom
 
 **Required role:** Department Chief and above (Head of Studies, Deputy Head of Studies,

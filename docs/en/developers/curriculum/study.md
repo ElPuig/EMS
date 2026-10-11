@@ -206,4 +206,4 @@ The form also shows `public_schedule_url` (with a copy-to-clipboard button) when
 | File | Purpose |
 |------|---------|
 | `data/cat/ems.study.csv` | Production catalog: Catalan VET/Baccalaureate studies |
-| `data/custom/ccff/ems.study.csv`, `data/custom/btx/ems.study.csv`, `data/custom/eso/ems.study.csv` | Centre-specific extensions reusing the shared `data/cat` ids (see CLAUDE.md "extending a `data/cat/` record" exception) to attach the centre's own optional subjects |
+| `data/cat/ems.subject.csv`, `data/custom/{eso,btx,ccff}/ems.subject.csv` | Each subject's `study_ids`: the study's subject list is declared on the subject's side, so an upgrade never unlinks a subject the centre added from the app |

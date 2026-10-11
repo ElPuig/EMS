@@ -39,6 +39,15 @@ class EmsGroup(models.Model):
 			"if its schedule has no tutorship, the classroom where it spends the most teaching hours. "
 			"It can also be set by hand: the group's classes still in the old classroom move to the new one.")
 
+	# Issue #611: a split or optative class is a group of its own ('ESO1A G1', 'Francès (1r ESO)'), so
+	# without this link the main group's schedule has a hole wherever its students are split. A
+	# reinforcement group can belong to several main groups (an optative mixes a whole course).
+	parent_group_ids = fields.Many2many(string="Main groups", comodel_name="ems.group", relation="ems_group_parent_rel",
+		column1="subgroup_id", column2="parent_id", domain="[('group_type', '=', 'main')]",
+		help="The main groups whose students attend this group's classes. Its classes are also shown in the "
+			"schedule of each of them.")
+	subgroup_ids = fields.Many2many(string="Subgroups", comodel_name="ems.group", relation="ems_group_parent_rel",
+		column1="parent_id", column2="subgroup_id")
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
@@ -101,6 +110,14 @@ class EmsGroup(models.Model):
 			if group.delegate_id and group.delegate_id == group.subdelegate_id:
 				raise ValidationError(_("The delegate and the sub-delegate of a group must be different students."))
 
+	@api.constrains("group_type", "parent_group_ids")
+	def _check_parent_groups(self):
+		for group in self:
+			if group.parent_group_ids and group.group_type != "reinforcement":
+				raise ValidationError(_("Only a reinforcement group can belong to main groups."))
+			if group.parent_group_ids.filtered(lambda parent: parent.group_type != "main"):
+				raise ValidationError(_("A reinforcement group can only belong to main groups."))
+
 	def _compute_enrolled_student_ids(self):
 		for group in self:
 			group.enrolled_student_ids = self.env["ems.enrollment"].search([("group_id", "=", group.id)]).mapped("student_id") or False
@@ -159,6 +176,10 @@ class EmsGroup(models.Model):
 		if group_type == "reinforcement":
 			for field in ("level_id", "study_id", "course", "acronym", "tutor_id", "delegate_id", "subdelegate_id"):
 				vals.setdefault(field, False)
+			# A main group turned into a reinforcement one no longer has subgroups of its own.
+			vals.setdefault("subgroup_ids", [(5, 0, 0)])
+		elif group_type == "main":
+			vals.setdefault("parent_group_ids", [(5, 0, 0)])
 
 	def _sync_tutor_role(self, employees):
 		"""Keep 'employees' Tutor role and security groups in sync with whether they

@@ -45,6 +45,22 @@ directament des d'aquí — vegeu més avall.
 
 ---
 
+## Desdoblaments i optatives
+
+Quan el grup es reparteix en subgrups (un desdoblament, un grup flexible, les optatives d'un
+curs), cada classe d'aquests subgrups apareix també a l'horari del grup, amb el nom del subgrup
+sota l'assignatura:
+
+- Fins a **3 classes a la mateixa hora** es mostren l'una al costat de l'altra.
+- Amb **4 o més** (per exemple, totes les optatives d'un curs) es mostra un únic bloc
+  **"N classes en paral·lel"**. Sota la graella, la taula **Classes en paral·lel** detalla, per a
+  cadascun d'aquests blocs, el subgrup, l'assignatura, el docent i l'aula de cada classe.
+
+Perquè les classes d'un subgrup apareguin aquí, el subgrup ha de tenir aquest grup entre els seus
+**Grups principals** (vegeu [Crear un grup de reforç](groups.md#crear-un-grup-de-reforç)).
+
+---
+
 ## Editar el tema o l'aula d'un bloc
 
 **Rol necessari:** Cap de Departament o superior (Cap d'Estudis, Sotscap d'Estudis, Director/a,

@@ -13,13 +13,17 @@ Cada entrada i sortida que fas queda registrada automàticament. Aquesta pàgina
 ## Revisar els teus fitxatges
 
 1. Vés a **Fitxatges dels empleats → Assistència → Vista general**.
-2. La llista mostra tots els teus fitxatges d'entrada/sortida, els més recents primer.
+2. La llista mostra els teus fitxatges d'entrada/sortida del curs actual, els més recents primer, com una llista simple: cada registre és a un clic.
 
    ![Llista dels teus propis fitxatges](../../assets/teachers/assistencia-01-llistat.png)
 
 3. Fes clic a qualsevol registre per veure'n els detalls: hora d'entrada, hora de sortida i com es va registrar (quiosc, manual, etc.).
 
-> Aquí només veus els teus propis fitxatges — són privats per a tu i per al Cap d'Estudis / Cap d'Estudis Adjunt/a / Direcció / Administrador, que poden veure els de tothom.
+> Aquí només veus els teus propis fitxatges. A més de tu, els poden veure els qui són per sobre teu a la jerarquia — el teu Cap de departament o de seminari (només lectura) i el teu Cap d'Estudis o Adjunt/a —, Direcció i l'Administrador. Un centre també pot permetre que tots els caps d'estudis consultin els fitxatges de tothom.
+
+**Cursos anteriors.** Quan el centre passa a un curs nou, els fitxatges de l'anterior s'arxiven: no s'esborren, però ja no surten a la llista. Per veure'ls, obre el menú **Filtres** de la barra de cerca i marca **Arxivat**.
+
+**Si ets Cap de departament o de seminari**, la mateixa llista mostra també els fitxatges de les persones del teu departament (tothom qui és per sota teu a la jerarquia), només per consultar-los: no els pots canviar. Com que inclou diverses persones, la teva llista s'obre agrupada per mes i per empleat; desplega un grup per veure'n els registres.
 
 ---
 

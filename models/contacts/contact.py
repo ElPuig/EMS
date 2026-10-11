@@ -952,7 +952,11 @@ class ResPartner(models.Model):
                 self._ems_raise_student_id_required(name or _("This contact"))
             self._ems_check_student_id_available(entry.get('student_id'))
 
-        contact = super(ResPartner, self).create(values)
+        # Nobody follows a contact for having created it (issue #586): whoever registers students
+        # and families would get an email for every message a teacher later exchanges with them
+        # on the contact's chatter. Writing a message there is what makes someone a follower.
+        # with_env(): the flag must not outlive the creation, or it would also stop that.
+        contact = super(ResPartner, self.with_context(mail_create_nosubscribe=True)).create(values).with_env(self.env)
         contact._sync_category()
         for record, notes in zip(contact, private_notes):
             if notes:
@@ -1008,6 +1012,16 @@ class ResPartner(models.Model):
         # in ems.enrollment.default_get().
         if 'main_group_id' in values and not self.env.su:
             self._ems_check_main_group_change(values['main_group_id'])
+        # Only a student actually coming back (out of the archive, or from ex-student to
+        # student) gets their Google account reactivated: writing active=True on an active
+        # student - the Esfera import does it for every existing one, to bring back former
+        # students - must not reach Google at all.
+        returning = self.filtered(lambda partner: (
+            values.get('active') and not partner.active
+        ) or (
+            values.get('contact_type') == 'student'
+            and partner.contact_type in ('alumni', 'withdrawal', 'expelled')
+        ))
         old_main_groups = {}
         if 'main_group_id' in values and not self.env.su:
             old_main_groups = {partner.id: partner.main_group_id for partner in self}
@@ -1081,15 +1095,18 @@ class ResPartner(models.Model):
         if {'name', 'firstname', 'lastname'} & set(values):
             self._gw_enqueue_rename()
 
+        # Google Workspace: the IDALU is the account's Employee ID (#609).
+        if 'student_id' in values:
+            self._gw_enqueue_sync_idalu()
+
         # Google Workspace: archive -> schedule the suspension after a grace period
-        # (issue #388); unarchive -> call it off, or reactivate if the cron got there
+        # (issue #388); coming back -> call it off, or reactivate if the cron got there
         # first and the account is already suspended.
-        if 'active' in values:
-            if values['active']:
-                self._gw_cancel_scheduled_deactivation()
-                self._gw_enqueue_reactivate()
-            else:
-                self._gw_schedule_deactivation()
+        if returning:
+            returning._gw_cancel_scheduled_deactivation()
+            returning._gw_enqueue_reactivate()
+        if 'active' in values and not values['active']:
+            self._gw_schedule_deactivation()
 
         return contact
 
@@ -1301,6 +1318,35 @@ class ResPartner(models.Model):
             for field in ('delegate_id', 'subdelegate_id'):
                 if group[field] == partner:
                     group.sudo()[field] = False
+
+    @api.model
+    def _ems_unfollow_contact_creators(self):
+        """Takes off the followers of every contact whoever follows it only for having created
+        it (issue #586), back when creating a contact made you follow it: they received by email
+        every message a teacher exchanged with that student or family. Someone who has written
+        on the contact's chatter stays, that is a conversation of theirs. The administrator
+        account stops following every contact, whatever it wrote: its mailbox is the EMS one,
+        which nobody reads as a person. Returns how many follows were removed."""
+        self.env['mail.followers'].flush_model()
+        self.env['mail.message'].flush_model()
+        self.env.cr.execute("""
+            SELECT follower.id
+              FROM mail_followers follower
+              JOIN res_partner contact ON contact.id = follower.res_id
+              JOIN res_users creator ON creator.partner_id = follower.partner_id AND creator.share IS NOT TRUE
+             WHERE follower.res_model = 'res.partner'
+               AND (follower.partner_id = %(admin)s
+                    OR (creator.id = contact.create_uid
+                        AND NOT EXISTS (
+                            SELECT 1 FROM mail_message message
+                             WHERE message.model = 'res.partner' AND message.res_id = contact.id
+                               AND message.author_id = follower.partner_id
+                               AND message.message_type = 'comment')))
+        """, {'admin': self.env.ref('base.user_admin').partner_id.id})
+        followers = self.env['mail.followers'].sudo().browse(row[0] for row in self.env.cr.fetchall())
+        count = len(followers)
+        followers.unlink()
+        return count
 
     def _sync_category(self):
         # The "student" category doubles as the shared student-lifecycle marker: the

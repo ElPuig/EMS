@@ -13,6 +13,7 @@ class ems_settings(models.TransientModel):
    strike_duplicate_window = fields.Integer(related="company_id.strike_duplicate_window", readonly=False)
    strike_family_notification_mode = fields.Selection(related="company_id.strike_family_notification_mode", readonly=False)
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
+   ems_hos_all_attendances = fields.Boolean(related="company_id.ems_hos_all_attendances", readonly=False)
    auto_checkout_mode = fields.Selection(related="company_id.auto_checkout_mode", readonly=False)
    auto_checkout_time = fields.Float(related="company_id.auto_checkout_time", readonly=False)
    auto_checkout_retry_until = fields.Float(related="company_id.auto_checkout_retry_until", readonly=False)

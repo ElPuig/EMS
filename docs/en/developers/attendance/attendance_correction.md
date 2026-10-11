@@ -67,7 +67,17 @@ flowchart TD
     I --> E
 ```
 
-Since `group_head_of_studies` implies `group_tutor` which implies `group_teacher`, any Head of Studies/Deputy/Director/Academic Admin can also see and decide on **any** pending request (the group is global, not scoped per branch) — this is a known limitation of the v1 prototype, consistent with how `hr_attendance.group_hr_attendance_manager` already grants full attendance access today.
+That resolves who the request is **routed to** (the task). When nobody above the employee is a Head of Studies, `_find_approver()` falls back to whoever manages their area's attendance (`hr.employee.attendance_manager_id`) and only then to the administrators.
+
+**Who may decide** (`_check_is_approver()`, issue #543) is wider than the one person it is routed to, but scoped to the employee's own branch, never to every holder of the role centre-wide:
+
+| User | Decides |
+|---|---|
+| Head / Deputy Head of Studies | The requests of the employees below them in the chain of command (`hr.employee.tutor_scope_user_ids`) and of the area whose attendance they manage (`attendance_manager_id`) - the "double flow": hierarchy and area manager. Their own too, as before: nobody below the Director is above them. |
+| Director (`ems.group_director`) | Every request |
+| Administrator (`ems.group_academic_admin`) | Every request: above the whole hierarchy, although they appear nowhere in it |
+
+The record rules below show them exactly those requests, so another branch's Head of Studies does not even see the request. The centre-wide "Heads of Studies see everybody's attendance" setting (see [Employee attendance](../employees/employee_attendance.md)) only widens what they can *read* of `hr.attendance`; it never widens who decides.
 
 ---
 
@@ -102,10 +112,11 @@ Only Academic Admin can delete correction requests (audit trail is otherwise kep
 | Role | Create | Read | Write | Delete | Group XML ID |
 |------|:------:|:----:|:-----:|:------:|--------------|
 | Administrator | ✓ (any employee) | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
-| Head of Studies / Deputy / Director | ✓ (any employee) | ✓ | ✓ | — | `ems.group_head_of_studies` |
+| Head of Studies / Deputy | ✓ (own branch) | ✓ (own branch) | ✓ (own branch) | — | `ems.group_head_of_studies` |
+| Director | ✓ (any employee) | ✓ | ✓ | — | `ems.group_director` |
 | Teacher | ✓ (own only) | ✓ | — | — | `ems.group_teacher` |
 
-Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Studies unrestricted, including create (global group, see limitation above); Teacher restricted to `employee_id.user_id = user.id`, including on create — a plain Teacher cannot request a correction on another employee's behalf.
+Record rules (`security/rules/attendance.xml`): Admin and Director unrestricted (`rule_attendance_correction_admin`, `rule_attendance_correction_director`); Head of Studies restricted to their own branch, including on create (`rule_attendance_correction_hos`: `employee_id.tutor_scope_user_ids` contains the user, or `employee_id.attendance_manager_id` is the user); Teacher restricted to `employee_id.user_id = user.id`, including on create — a plain Teacher cannot request a correction on another employee's behalf.
 
 ---
 
@@ -139,9 +150,5 @@ Record rules (`security/rules/attendance.xml`): Admin unrestricted; Head of Stud
 | `data/main/ems.mail_activity_type.xml` | Adds the `mail_activity_attendance_correction` activity type |
 
 ---
-
-## Follow-ups (out of scope for v1)
-
-- Per-department scoping of Head of Studies visibility, if the flat/global model becomes a real problem in practice.
 
 Note: a dedicated `mail.template` for the decision email was considered and dropped — `message_post(partner_ids=...)` already emails the requester as a mail notification (visible in the chatter added to the form), which covers the "notify by email" requirement without extra plumbing.

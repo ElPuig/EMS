@@ -80,6 +80,12 @@ Production and CI never set `ems_server_role`, so nothing changes there. Tests t
 `_prepare_email_message`, so the guard does not interfere with them; `tests/test_dev_mail_guard.py`
 covers it.
 
+## Incoming mail
+
+The same role stops the machine from reading any mailbox: `fetchmail.server.fetch_mail()` returns
+without connecting, and `devel.sh` switches the restored incoming mail servers off. See
+[Chatter conversations and their answers by email](chatter_email_answers.md).
+
 ## Restoring a production dump for an investigation
 
 Even with both layers, lock the copy away from the Odoo service right after `pg_restore`, before

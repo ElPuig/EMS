@@ -17,8 +17,9 @@ DEFAULT_HOUR_TO = 15.0
 
 
 class EmsAbsencePending(models.Model):
-    """An absence the Head of Studies or their Deputy already knows is coming, entered on the
-    teacher's behalf until the teacher files the real request (issue #509). It only exists so the
+    """An absence the teacher's Department or Seminar Chief (issue #604), the Head of Studies or
+    their Deputy already knows is coming, entered on the teacher's behalf until the teacher files
+    the real request (issue #509). It only exists so the
     guard duty board can plan around it: once the teacher's own absence is filed, the two are
     linked for good and the real one is all that counts from then on."""
     _name = "ems.absence_pending"
@@ -49,14 +50,14 @@ class EmsAbsencePending(models.Model):
     def _domain_employee_id(self):
         """The same reach as the record rules: every teacher for a technical administrator
         (rule_absence_pending_system), otherwise the user's own branch of the hierarchy or the
-        teachers of the departments under the areas they manage (rule_absence_pending_hierarchy,
-        issue #569)."""
+        teachers of the departments they head or lead as Seminar Chief, and of those under the areas
+        they manage (rule_absence_pending_hierarchy, issue #569)."""
         domain = [('employee_type', '=', 'teacher')]
         if self.env.user.has_group('base.group_system'):
             return domain
         employees = self.env.user.employee_ids
-        return domain + ['|', ('id', 'child_of', employees.ids),
-                         ('department_id', 'child_of', employees.headed_department_ids.ids)]
+        departments = employees.headed_department_ids | employees.seminar_department_ids
+        return domain + ['|', ('id', 'child_of', employees.ids), ('department_id', 'child_of', departments.ids)]
 
     def _default_local_hour(self, hour):
         return self.datetime_to_odoo(self.time_float_to_utc_datetime(self.get_local_today(), hour))

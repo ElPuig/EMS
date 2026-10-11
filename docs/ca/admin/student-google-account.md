@@ -23,9 +23,13 @@ Si un alumne encara no té compte:
 1. Completa les dades que falten i desa la fitxa. El compte es crea de la mateixa manera.
 2. Si tot i així no es crea, clica **Crear compte de Google**. Aquesta opció no surt mentre el compte s'està creant.
 
-El compte es crea a la unitat organitzativa de menors o de majors d'edat, segons l'edat de l'alumne. A la secció **Documentació** de la pestanya **Secretaria** apareix el PDF de **Credencials de Google Workspace**, i si l'alumne té correu personal, també les rep per correu.
+El compte es crea a la unitat organitzativa de menors o de majors d'edat, segons l'edat de l'alumne, amb l'IDALU de l'alumne com a **ID d'empleat** (Employee ID) a Google (si després es corregeix l'IDALU a EMS, també s'actualitza a Google). A la secció **Documentació** de la pestanya **Secretaria** apareix el PDF de **Credencials de Google Workspace**, i si l'alumne té correu personal, també les rep per correu.
 
 Poden crear comptes administració, coordinació TAC, secretaria i el tutor o tutora de l'alumne (i els caps per sobre d'aquest tutor: cap de seminari, cap de departament, cap d'estudis i direcció).
+
+### Comptes creats fora d'EMS
+
+Si el compte de l'alumne s'ha creat directament a Google, marca **Assignar correu corporatiu manualment** a la seva fitxa (al costat de **Correu corporatiu**) perquè EMS no en creï un segon, i informa l'adreça que ja té a **Correu corporatiu**. La [importació des d'Esfera](../secretary/student-import-esfera.md) pot marcar-ho per a tot l'alumnat importat.
 
 ---
 

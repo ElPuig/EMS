@@ -23,9 +23,13 @@ Si un alumno aún no tiene cuenta:
 1. Completa los datos que faltan y guarda la ficha. La cuenta se crea de la misma manera.
 2. Si aun así no se crea, pulsa **Crear cuenta de Google**. Esta opción no aparece mientras la cuenta se está creando.
 
-La cuenta se crea en la unidad organizativa de menores o de mayores de edad, según la edad del alumno. En la sección **Documentación** de la pestaña **Secretaría** aparece el PDF de **Credenciales de Google Workspace**, y si el alumno tiene correo personal, también las recibe por correo.
+La cuenta se crea en la unidad organizativa de menores o de mayores de edad, según la edad del alumno, con el IDALU del alumno como **ID de empleado** (Employee ID) en Google (si después se corrige el IDALU en EMS, también se actualiza en Google). En la sección **Documentación** de la pestaña **Secretaría** aparece el PDF de **Credenciales de Google Workspace**, y si el alumno tiene correo personal, también las recibe por correo.
 
 Pueden crear cuentas administración, coordinación TAC, secretaría y el tutor o tutora del alumno (y los jefes por encima de ese tutor: jefe de seminario, jefe de departamento, jefe de estudios y dirección).
+
+### Cuentas creadas fuera de EMS
+
+Si la cuenta del alumno se ha creado directamente en Google, marca **Asignar correo corporativo manualmente** en su ficha (junto a **Correo corporativo**) para que EMS no cree una segunda, e informa la dirección que ya tiene en **Correo corporativo**. La [importación desde Esfera](../secretary/student-import-esfera.md) puede marcarlo para todo el alumnado importado.
 
 ---
 

@@ -38,7 +38,16 @@ El estado solo cambia con las acciones de cada paso, en el menú **Acciones** de
 
 Navega a: **Gestión académica → Convalidaciones**
 
-La lista se abre con todas las solicitudes que esperan al centro: **Pendientes de Jefatura de Estudios**, **En proceso Ministerio**, **Pendiente de dirección** y **Pendiente de secretaría**. Las que esperan la documentación del solicitante quedan fuera: usa el filtro **Pendiente de documentación** para verlas. Quita los filtros para verlas todas, o usa **Completadas**, **Rechazadas** y **Anuladas**.
+La lista se abre con el filtro **Pendientes de mí** activado, que muestra las solicitudes que te esperan a ti, según tu rol:
+
+| Quién abre la lista | Solicitudes que se muestran |
+|---|---|
+| JE o JEA | **Pendientes de Jefatura de Estudios** y **En proceso Ministerio** |
+| Dirección | **Pendiente de dirección** |
+| Secretaría | **Pendiente de secretaría** |
+| Administrador, o quien tiene más de uno de esos roles | Las de todos los roles que tiene |
+
+Las que esperan la documentación del solicitante no aparecen nunca: usa el filtro **Pendiente de documentación** para verlas. Quita el filtro **Pendientes de mí** para ver todas las solicitudes, o usa el filtro de un estado concreto (**Pendiente de dirección**, **Completadas**, **Rechazadas**, **Anuladas**...) para seguir las que están en manos de otra persona.
 
 ![Lista de solicitudes de convalidación](../../assets/head_of_studies/convalidations-list.png)
 

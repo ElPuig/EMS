@@ -34,6 +34,8 @@
                                         <field name="non_teaching_is_break"/>
                                         <field name="employee_id"/>
                                         <field name="space_id"/>
+                                        <!-- Issue #608: each block shows its group(s), read by the widget. -->
+                                        <field name="group_ids" widget="many2many_tags"/>
                                     </list>
                                 </field>
                             </page>

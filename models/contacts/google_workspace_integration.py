@@ -37,9 +37,15 @@ class ResPartnerGoogleWorkspace(models.Model):
         string="Google account deleted", default=False, copy=False, readonly=True,
         help="True once the corporate account has been deleted in Google. The address is "
              "kept on the record so it is never handed to a different student.")
+    google_ws_manual_email = fields.Boolean(
+        string="Assign corporate email manually", copy=False,
+        help="Tick it when the student's Google account was created outside EMS: EMS then "
+             "never creates one, and the existing address is filled in by hand (or with the "
+             "student data update wizard) as the corporate email.")
     google_ws_state = fields.Selection(
         selection=[
             ('none', 'No Google account'),
+            ('manual_pending', 'Waiting for the manual corporate email'),
             ('active', 'Google account active'),
             ('suspended', 'Google account suspended'),
         ],
@@ -69,11 +75,12 @@ class ResPartnerGoogleWorkspace(models.Model):
     # ------------------------------------------------------------------
     # Compute
     # ------------------------------------------------------------------
-    @api.depends('contact_type', 'student_email', 'google_ws_suspended')
+    @api.depends('contact_type', 'student_email', 'google_ws_suspended', 'google_ws_manual_email')
     def _compute_google_ws_state(self):
         for partner in self:
             if partner.contact_type != 'student' or not partner.student_email:
-                partner.google_ws_state = 'none'
+                manual = partner.contact_type == 'student' and partner.google_ws_manual_email
+                partner.google_ws_state = 'manual_pending' if manual else 'none'
             elif partner.google_ws_suspended:
                 partner.google_ws_state = 'suspended'
             else:
@@ -211,6 +218,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         return (
             self.contact_type == 'student'
             and not self.student_email
+            and not self.google_ws_manual_email
             and not self._gw_missing_fields()
         )
 
@@ -267,6 +275,20 @@ class ResPartnerGoogleWorkspace(models.Model):
                 identity_key='gw_rename_%s' % partner.id,
                 description="Rename Google Workspace account: %s" % partner.name,
             ).action_sync_google_account_name()
+
+    def _gw_enqueue_sync_idalu(self):
+        """Enqueue the IDALU sync for students that already have an account (deduplicated),
+        so an IDALU filled in or fixed in EMS reaches Google's Employee ID too (#609)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for partner in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email and r.student_id
+            and not r.google_ws_deleted
+        ):
+            partner.with_delay(
+                identity_key='gw_idalu_%s' % partner.id,
+                description="Sync IDALU to Google Workspace account: %s" % partner.name,
+            ).action_sync_google_account_idalu()
 
     def _gw_schedule_deactivation(self):
         """Open the grace period instead of suspending the account right away.
@@ -413,7 +435,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         if self.contact_type != 'student':
             return
         self._gw()._gw_lock_for_creation(self)
-        if self.student_email:
+        if self.student_email or self.google_ws_manual_email:
             return
 
         # Required data must be complete (Google rejects empty givenName/familyName,
@@ -444,8 +466,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             'orgUnitPath': ou,
         }
         if self.student_id:
-            # IDALU stored in the GWS custom schema "IDALU", field "IDALU".
-            base_body['customSchemas'] = {'IDALU': {'IDALU': self.student_id}}
+            base_body['externalIds'] = self._gw_idalu_external_ids()
         recovery_email = self.email or False
         if recovery_email:
             base_body['recoveryEmail'] = recovery_email
@@ -752,6 +773,28 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         self._gw()._gw_sync_account_name(
             self, self.student_email, self.firstname, self.lastname)
+
+    def _gw_idalu_external_ids(self):
+        """The IDALU as Google's Employee ID (an "organization" external ID)."""
+        self.ensure_one()
+        return [{'type': 'organization', 'value': self.student_id}]
+
+    def action_sync_google_account_idalu(self):
+        """Copy the student's IDALU onto their Google account's Employee ID (#609).
+
+        Suspended accounts get it too. Idempotent: the same value again is a no-op on
+        Google's side, so no chatter note for a successful sync.
+        """
+        self.ensure_one()
+        if not self.env.company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email or not self.student_id:
+            return
+        self._gw()._gw_patch_account(
+            self, self.student_email, {'externalIds': self._gw_idalu_external_ids()}, _(
+                "Google Workspace: the IDALU could not be saved on the account %s because it "
+                "no longer exists or is outside the managed organizational units.")
+            % self.student_email)
 
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.

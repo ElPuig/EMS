@@ -1388,6 +1388,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__active
+#: model:ir.model.fields,field_description:ems.field_hr_attendance__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1756,7 +1757,9 @@ msgid "Applies to Studies"
 msgstr "Aplica als estudis"
 
 #. module: ems
+#. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__to_apply model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__to_apply
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -1796,6 +1799,7 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -2512,6 +2516,7 @@ msgstr "Ciutat"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
 #: model:ir.model.fields,field_description:ems.field_ems_strike__space_id
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Classroom"
 msgstr "Aula"
 
@@ -2980,6 +2985,7 @@ msgstr "Dades descarregades"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__date
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Date"
 msgstr "Data"
 
@@ -3444,6 +3450,7 @@ msgstr "Emergència"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Employee"
 msgstr "Empleat"
 
@@ -4077,6 +4084,7 @@ msgstr "Compte de Google sense usuari EMS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__manual_pending
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__manual_pending
 msgid "Waiting for the manual corporate email"
 msgstr "Pendent del correu corporatiu manual"
 
@@ -4177,6 +4185,7 @@ msgstr "Atorgar accés"
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__group_id
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Group"
 msgstr "Grup"
 
@@ -5466,6 +5475,7 @@ msgstr "Notificar família/tutor"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__notice_id model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__notice_id
 msgid "Notice"
 msgstr "Comunicat"
 
@@ -9475,12 +9485,6 @@ msgstr "No s'ha trobat cap Cap d'Estudis a la cadena de comandament de %(employe
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "Only the resolved approver or an Academic Administrator can decide on this request."
-msgstr "Només l'aprovador resolt o un Administrador acadèmic pot decidir sobre aquesta sol·licitud."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "You must request a correction for the check-in and/or the check-out time."
 msgstr "Cal sol·licitar una correcció per a l'hora d'entrada i/o de sortida."
 
@@ -9605,6 +9609,8 @@ msgstr "Finalitzada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_manual_email
 msgid "Assign corporate email manually"
 msgstr "Assignar correu corporatiu manualment"
 
@@ -11464,6 +11470,7 @@ msgstr "Nota de l'última avaluació informada."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__group_name
 msgid "Group name"
 msgstr "Nom del grup"
 
@@ -13302,6 +13309,7 @@ msgstr "Taula d'absències -"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__duty_id
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Guard duty"
 msgstr "Guàrdia"
@@ -13947,17 +13955,6 @@ msgstr "Drets d'accés de l'equip TAC: pot crear i editar professorat."
 #: model:res.groups,comment:ems.group_tac_admin
 msgid "Access rights for the TAC coordinator. Currently identical to Manager."
 msgstr "Drets d'accés de la coordinació TAC. Actualment idèntics als de Gestor/a."
-
-#. module: ems
-#: model:res.groups,comment:ems.group_head_of_studies
-msgid ""
-"Access rights for Head of Studies / Deputy Head of Studies. Grants full "
-"read/write access to all employees' attendance records, and the right to "
-"create and edit teachers."
-msgstr ""
-"Drets d'accés de la prefectura d'estudis i la prefectura d'estudis adjunta. "
-"Concedeix accés complet de lectura i escriptura als registres d'assistència "
-"de tot el personal, i el dret a crear i editar professorat."
 
 #. module: ems
 #. odoo-python
@@ -15188,6 +15185,7 @@ msgstr "Resolta"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolved_by_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__signed_by_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__cover_type
 msgid "Resolved by"
 msgstr "Resolta per"
 
@@ -20250,6 +20248,7 @@ msgstr "Docent absent"
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__guard_employee_id
 #: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__cover_type__guard
 msgid "Guard teacher"
 msgstr "Docent de guàrdia"
 
@@ -21283,3 +21282,547 @@ msgstr "Visualització d'icones de recursos humans"
 #: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
 msgid "Show Hr Icon Display"
 msgstr "Mostra la icona de recursos humans"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."
+msgstr "Només un Cap d'estudis de la branca de l'empleat o un Administrador acadèmic pot decidir sobre aquesta sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_hos_all_attendances
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_hos_all_attendances
+msgid "Heads of Studies see everybody's attendance"
+msgstr "Els caps d'estudis veuen els fitxatges de tothom"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Heads of Studies see everybody's attendance (EMS)"
+msgstr "Els caps d'estudis veuen els fitxatges de tothom (EMS)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Off: a Head or Deputy Head of Studies only sees the attendance of the employees of their own branch (their chain of command and the area they manage). On: they can also consult everybody's, to know at any time who is in the centre. Either way, they only correct the attendance of their own branch and decide its correction requests."
+msgstr "Desactivat: un Cap d'estudis o Cap d'estudis adjunt només veu els fitxatges dels empleats de la seva branca (la seva cadena jeràrquica i l'àrea que gestiona). Activat: també pot consultar els de tothom, per saber en tot moment qui és al centre. En tots dos casos, només corregeix els fitxatges de la seva branca i en decideix les sol·licituds de correcció."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_head_of_studies
+msgid "Access rights for Head of Studies / Deputy Head of Studies. Grants read/write access to the attendance records of the employees in their own branch of the hierarchy or area, the right to create and edit teachers, and full read/write access to every student's data centre-wide."
+msgstr "Drets d'accés de Cap d'estudis i Cap d'estudis adjunt. Concedeix accés de lectura i escriptura als fitxatges dels empleats de la seva branca de la jerarquia o àrea, el dret a crear i editar professorat, i accés complet de lectura i escriptura a les dades de tot l'alumnat del centre."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_director
+msgid "Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide."
+msgstr "Drets d'accés de Direcció: els de Cap d'estudis, més els fitxatges de tots els empleats del centre."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s (%(count)s covered this course)"
+msgstr "%(name)s (%(count)s cobertures aquest curs)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__is_self_assigned
+msgid "Self-assigned"
+msgstr "Autoassignada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Only a teacher on guard duty can cover a class."
+msgstr "Només un docent de guàrdia pot cobrir una classe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This class already has a guard teacher assigned. Reload the board."
+msgstr "Aquesta classe ja té un docent de guàrdia assignat. Torna a carregar el quadrant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Only the guard teacher who took this class themselves can leave it."
+msgstr "Només el docent de guàrdia que s'ha assignat aquesta classe pot deixar-la."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Classes covered this course"
+msgstr "Classes cobertes aquest curs"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to cover this class yourself"
+msgstr "Fes clic per cobrir tu aquesta classe"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Stop covering this class"
+msgstr "Deixa de cobrir aquesta classe"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Cover this class"
+msgstr "Cobreix aquesta classe"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "You will cover %(group)s (%(time)s) instead of %(teacher)s."
+msgstr "Cobriràs %(group)s (%(time)s) en lloc de %(teacher)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Cover it"
+msgstr "Cobrir-la"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%(group)s will be left without a guard teacher again."
+msgstr "%(group)s tornarà a quedar sense docent de guàrdia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Stop covering"
+msgstr "Deixar de cobrir"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Create Google accounts"
+msgstr "Crear comptes de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Untick it when the imported students already have a Google account created outside EMS: they are marked to have their corporate email assigned manually, so EMS never creates a second account for them."
+msgstr "Desmarqueu-ho quan l'alumnat importat ja tingui un compte de Google creat fora d'EMS: queda marcat per assignar-li el correu corporatiu manualment, i EMS no li crea mai un segon compte."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_manual_email
+msgid "Tick it when the student's Google account was created outside EMS: EMS then never creates one, and the existing address is filled in by hand (or with the student data update wizard) as the corporate email."
+msgstr "Marqueu-ho quan el compte de Google de l'alumne s'hagi creat fora d'EMS: aleshores EMS no en crea cap, i l'adreça existent s'informa a mà (o amb l'assistent d'actualització de dades de l'alumnat) com a correu corporatiu."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Importing the students…"
+msgstr "S'estan important els alumnes…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Every row of the file creates or updates the student and their family contacts."
+msgstr "Cada fila del fitxer crea o actualitza l'alumne i els seus contactes familiars."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_regular_guard
+msgid "Regular guard"
+msgstr "Guàrdia ordinària"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_non_teaching_type__is_regular_guard
+msgid "A teacher on this guard duty can be sent to cover a class, or a guard duty that is not regular (WC, break...), left without its teacher. A guard duty that is not regular has to be covered itself when its teacher is away."
+msgstr "Un docent d'aquesta guàrdia pot ser enviat a cobrir una classe, o una guàrdia que no és ordinària (WC, pati...), que s'ha quedat sense el seu docent. Una guàrdia que no és ordinària s'ha de cobrir ella mateixa quan el seu docent falta."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_absence_cover_class_or_duty
+msgid "A cover is either for a class or for a guard duty."
+msgstr "Una cobertura és d'una classe o d'una guàrdia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This guard duty no longer needs covering: the absence or the timetable has changed. Reload the board."
+msgstr "Aquesta guàrdia ja no cal cobrir-la: l'absència o l'horari han canviat. Torna a carregar el quadrant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You no longer need to cover this guard duty:"
+msgstr "Ja no cal que cobreixis aquesta guàrdia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You have been assigned to cover this guard duty:"
+msgstr "Se t'ha assignat per cobrir aquesta guàrdia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Guard duty: %s"
+msgstr "Guàrdia: %s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__cover_type__arrangement
+msgid "Internal arrangement"
+msgstr "Reorganització interna"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__vacated_hour_from
+msgid "Lesson left free from"
+msgstr "Classe alliberada des de"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__vacated_hour_to
+msgid "Lesson left free until"
+msgstr "Classe alliberada fins a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__is_effective
+msgid "Effective"
+msgstr "Efectiva"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Describe the arrangement: who moves which lesson."
+msgstr "Descriu la reorganització: qui mou quina classe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The lesson left free cannot be the one being covered."
+msgstr "La classe que queda lliure no pot ser la que es cobreix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "With %(group)s: %(arrangement)s"
+msgstr "Amb %(group)s: %(arrangement)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s at %(time)s (%(teacher)s): the arrangement with %(guard)s only counts once its notice to the families is sent."
+msgstr "%(group)s a les %(time)s (%(teacher)s): la reorganització amb %(guard)s només compta quan s'enviï el comunicat a les famílies."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "The arrangement with %(guard)s for %(group)s at %(time)s (%(teacher)s) no longer applies."
+msgstr "La reorganització amb %(guard)s per a %(group)s a les %(time)s (%(teacher)s) ja no és vàlida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%s is away in this period."
+msgstr "%s és absent en aquesta franja."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Send a guard teacher"
+msgstr "Enviar un docent de guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__arrangement_type
+msgid "Arrangement"
+msgstr "Reorganització"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "This arrangement is waiting for its notice to the families to be sent."
+msgstr "Aquesta reorganització està pendent que s'enviï el comunicat a les famílies."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Open notice"
+msgstr "Obrir el comunicat"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Save arrangement"
+msgstr "Desar la reorganització"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Remove arrangement"
+msgstr "Treure la reorganització"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to this guard duty"
+msgstr "Fes clic per enviar un docent de guàrdia a aquesta guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Change or remove the arrangement"
+msgstr "Canviar o treure la reorganització"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__swap
+msgid "Lesson swap"
+msgstr "Intercanvi de classes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__move
+msgid "Lesson moved"
+msgstr "Classe avançada o endarrerida"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__manual
+msgid "Other arrangement"
+msgstr "Una altra reorganització"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose the teacher who will be with the group."
+msgstr "Tria el docent que estarà amb el grup."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose the kind of arrangement."
+msgstr "Tria el tipus de reorganització."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Swap: %(teacher)s teaches at %(time)s and %(absent)s at %(other_time)s."
+msgstr "Intercanvi: %(teacher)s fa classe a les %(time)s i %(absent)s a les %(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s moves their %(other_time)s lesson to %(time)s."
+msgstr "%(teacher)s passa la seva classe de les %(other_time)s a les %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(teacher)s: %(note)s"
+msgstr "%(teacher)s: %(note)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Arrangement cancelled: %(group)s, %(date)s"
+msgstr "Reorganització anul·lada: %(group)s, %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This arrangement no longer applies, the usual timetable is back:"
+msgstr "Aquesta reorganització ja no és vàlida, es torna a l'horari habitual:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Timetable arrangement: %(group)s, %(date)s"
+msgstr "Reorganització d'horari: %(group)s, %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "A change in your timetable has been agreed to cover an absence:"
+msgstr "S'ha acordat un canvi en el teu horari per cobrir una absència:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."
+msgstr "Aquesta reorganització ja no és possible: les absències o l'horari han canviat. Torna a carregar el quadrant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s at %(time)s (%(teacher)s): %(option)s"
+msgstr "%(group)s a les %(time)s (%(teacher)s): %(option)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(label)s The families will be told: %(change)s."
+msgstr "%(label)s Es comunicarà a les famílies: %(change)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Possible arrangements"
+msgstr "Reorganitzacions possibles"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Current arrangement"
+msgstr "Reorganització actual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Other arrangement (described by hand)"
+msgstr "Una altra reorganització (descrita a mà)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Teacher involved (optional)"
+msgstr "Docent implicat (opcional)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Nobody in particular"
+msgstr "Ningú en concret"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "E.g. groups A and B are joined for this lesson and leave at 13:25."
+msgstr "Ex.: els grups A i B s'ajunten en aquesta classe i surten a les 13:25."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Apply and notify"
+msgstr "Aplicar i avisar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "The families will be told: %s"
+msgstr "Es comunicarà a les famílies: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to cover this guard duty yourself"
+msgstr "Fes clic per cobrir tu aquesta guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Teachers of the group who could rearrange their lessons so that no guard is needed, first those where the students lose no lesson. The teachers involved are notified."
+msgstr "Docents del grup que podrien reorganitzar les seves classes perquè no calgui guàrdia, primer les que no fan perdre cap classe a l'alumnat. S'avisa els docents implicats."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teacher sent to this guard duty."
+msgstr "Coberta per %s, el docent de guàrdia enviat a aquesta guàrdia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s It only counts once its notice to the families is sent."
+msgstr "%s Només compta quan s'enviï el comunicat a les famílies."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to see the possible arrangements, or to send a guard teacher"
+msgstr "Fes clic per veure les reorganitzacions possibles o per enviar un docent de guàrdia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No guard needed: %s"
+msgstr "No cal guàrdia: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s possible arrangements"
+msgstr "%s reorganitzacions possibles"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "1 possible arrangement"
+msgstr "1 reorganització possible"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s comes in at %(new)s instead of %(old)s."
+msgstr "%(teacher)s entra a les %(new)s en lloc de les %(old)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s leaves at %(new)s instead of %(old)s."
+msgstr "%(teacher)s surt a les %(new)s en lloc de les %(old)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: the IDALU could not be saved on the account %s because it no longer exists or is outside the managed organizational units."
+msgstr "Google Workspace: no s'ha pogut desar l'IDALU al compte %s perquè ja no existeix o és fora de les unitats organitzatives gestionades."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__is_pending_for_me
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending for me"
+msgstr "Pendents de mi"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_readonly_field.js:0
+msgid "%s classes in parallel"
+msgstr "%s classes en paral·lel"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Only a reinforcement group can belong to main groups."
+msgstr "Només un grup de reforç pot pertànyer a grups principals."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A reinforcement group can only belong to main groups."
+msgstr "Un grup de reforç només pot pertànyer a grups principals."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+msgid "Classes in parallel"
+msgstr "Classes en paral·lel"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+msgid "classes in parallel"
+msgstr "classes en paral·lel"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__parent_group_ids
+msgid "Main groups"
+msgstr "Grups principals"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__subgroup_ids
+msgid "Subgroups"
+msgstr "Subgrups"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subgroup_label
+msgid "Subgroup"
+msgstr "Subgrup"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__parent_group_ids
+msgid ""
+"The main groups whose students attend this group's classes. Its classes are "
+"also shown in the schedule of each of them."
+msgstr "Els grups principals l'alumnat dels quals assisteix a les classes d'aquest grup. Les seves classes també es mostren a l'horari de cadascun."

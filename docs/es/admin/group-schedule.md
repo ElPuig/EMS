@@ -47,6 +47,22 @@ pueden editar directamente desde aquí — ver más abajo.
 
 ---
 
+## Desdobles y optativas
+
+Cuando el grupo se reparte en subgrupos (un desdoble, un grupo flexible, las optativas de un
+curso), cada clase de esos subgrupos aparece también en el horario del grupo, con el nombre del
+subgrupo bajo la asignatura:
+
+- Hasta **3 clases a la misma hora** se muestran una al lado de otra.
+- Con **4 o más** (por ejemplo, todas las optativas de un curso) se muestra un único bloque
+  **"N clases en paralelo"**. Debajo de la rejilla, la tabla **Clases en paralelo** detalla, para
+  cada uno de esos bloques, el subgrupo, la asignatura, el docente y el aula de cada clase.
+
+Para que las clases de un subgrupo aparezcan aquí, el subgrupo debe tener este grupo entre sus
+**Grupos principales** (ver [Crear un grupo de refuerzo](groups.md#crear-un-grupo-de-refuerzo)).
+
+---
+
 ## Editar el tema o el aula de un bloque
 
 **Rol necesario:** Jefatura de Departamento o superior (Jefatura de Estudios, Vicejefatura de

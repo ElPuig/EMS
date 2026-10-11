@@ -39,6 +39,9 @@ class TestEmployeeRoleGroupSync(TransactionCase):
         cls.group_secretary = cls.env.ref('ems.group_secretary')
         cls.group_secretary_admin = cls.env.ref('ems.group_secretary_admin')
         cls.group_quality_admin = cls.env.ref('ems.group_quality_admin')
+        # What the Head of Studies' group implies outside EMS: hr_attendance's Officer group since
+        # issue #543 (it used to be its Administrator one, now the Director's).
+        cls.group_hr_attendance_officer = cls.env.ref('hr_attendance.group_hr_attendance_officer')
         cls.group_hr_attendance_manager = cls.env.ref('hr_attendance.group_hr_attendance_manager')
         # These roles are unipersonal and may already be assigned to a real employee
         # in the working database; clear them so the tests are self-contained.
@@ -66,25 +69,33 @@ class TestEmployeeRoleGroupSync(TransactionCase):
 
     def test_assign_role_hos_adds_implied_external_group(self):
         self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_hos.id)]})
-        self.assertIn(self.group_hr_attendance_manager, self.user.groups_id)
+        self.assertIn(self.group_hr_attendance_officer, self.user.groups_id)
 
     def test_unassign_role_hos_removes_implied_external_group(self):
         self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_hos.id)]})
         self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(3, self.role_hos.id)]})
         self.assertNotIn(self.group_head_of_studies, self.user.groups_id)
-        self.assertNotIn(self.group_hr_attendance_manager, self.user.groups_id)
+        self.assertNotIn(self.group_hr_attendance_officer, self.user.groups_id)
 
     def test_direct_groups_id_write_demote_removes_implied_external_group(self):
         # Simulates the Users form's Academic reified selector / raw debug-mode
         # m2m edit: Teacher -> Head of Studies -> Teacher, entirely via
         # res.users.groups_id, bypassing hr.employee/role_ids altogether.
         self.user.write({'groups_id': [(4, self.group_head_of_studies.id)]})
-        self.assertIn(self.group_hr_attendance_manager, self.user.groups_id)
+        self.assertIn(self.group_hr_attendance_officer, self.user.groups_id)
         self.user.write({
             'groups_id': [(3, self.group_head_of_studies.id), (4, self.group_teacher.id)],
         })
         self.assertNotIn(self.group_head_of_studies, self.user.groups_id)
+        self.assertNotIn(self.group_hr_attendance_officer, self.user.groups_id)
+
+    def test_only_the_director_gets_the_attendance_administrator_group(self):
+        # Issue #543: a Head of Studies sees their own branch's attendance, the Director the
+        # whole centre's.
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_hos.id)]})
         self.assertNotIn(self.group_hr_attendance_manager, self.user.groups_id)
+        self.employee.with_context(ems_syncing_roles=True).write({'role_ids': [(4, self.role_director.id)]})
+        self.assertIn(self.group_hr_attendance_manager, self.user.groups_id)
 
     def test_manual_external_group_kept_when_unrelated_to_ems(self):
         # Documents the accepted limitation: a group manually granted for an

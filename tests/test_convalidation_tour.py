@@ -2,7 +2,7 @@ import base64
 
 from odoo.tests import HttpCase, tagged
 
-from .common import mock_outgoing_email
+from .common import mock_outgoing_email, next_student_id
 from .test_portal_convalidation import create_portal_convalidation_fixtures
 
 
@@ -95,6 +95,20 @@ class TestConvalidationTour(HttpCase):
         self._resolve()
         self.start_tour("/odoo", "ems_convalidation_complete", login=self.secretary.login)
         self.assertEqual(self.request.state, 'completed')
+
+    def test_the_list_opens_on_what_waits_for_the_secretariat(self):
+        """Issue #610: each role finds the requests waiting for them. The secretariat's is the
+        resolved one; the one still under review only shows after removing the filter."""
+        self._resolve()
+        other = self.env['res.partner'].create({
+            'name': 'Still Under Review Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': self.group.id, 'birth_date': '2000-01-01',
+        })
+        self.env['ems.convalidation'].create({
+            'student_id': other.id, 'study_id': self.study.id, 'course_id': self.course.id,
+            'line_ids': [(0, 0, {'subject_id': self.subject.id})],
+        })
+        self.start_tour("/odoo", "ems_convalidation_default_filter", login=self.secretary.login)
 
     def test_teacher_reads_the_current_course_history(self):
         self._resolve()

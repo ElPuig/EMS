@@ -230,6 +230,25 @@ class TestYearRecord(TransactionCase):
         # Last round (2): RA1=6 (carried), RA2=5 -> internal = (6*60 + 5*40) / 100 = 5.6 -> 6
         self.assertEqual(subject_rec.internal_grade, 6)
         self.assertEqual(subject_rec.subject_name, self.subject1.display_name)
+        self.assertEqual(subject_rec.group_name, self.group.name)
+
+    def test_generate_copies_the_optative_group_name(self):
+        """A subject graded in an optative group (a generic 'Optativa 1r ESO' subject shared by
+        every optative offered) keeps which optative it was, through the group's name."""
+        student = self._student('Optative Student')
+        optative_group = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'YR Optative Theatre',
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': optative_group.id, 'subject_id': self.subject2.id})
+        session = self.env['ems.grade_session'].create({
+            'group_id': optative_group.id, 'subject_id': self.subject2.id, 'round': '1'})
+        session.fill_students()
+        self._score(session, student, {self.outcome3: 7})
+        record = self._generate(student)
+        self.assertEqual(record.subject_record_ids.group_name, 'YR Optative Theatre')
+        optative_group.name = 'YR Optative Renamed'
+        self.assertEqual(record.subject_record_ids.group_name, 'YR Optative Theatre')
 
     def test_generate_state_passed_and_final_pending(self):
         student = self._graded_student()

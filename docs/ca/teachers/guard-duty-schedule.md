@@ -6,7 +6,7 @@
 
 Consulta on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana — no només el teu propi horari.
 
-**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)).
+**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)), que també poden introduir una absència prevista per a un docent del seu departament (consulta [Introduir una absència prevista](#introduir-una-absencia-prevista)); un docent de guàrdia també pot agafar-se ell mateix una classe sense docent (consulta [Cobrir tu mateix una classe](#cobrir-tu-mateix-una-classe)).
 
 ---
 
@@ -42,6 +42,8 @@ Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de
 Les columnes de la taula són els grups que tenen classe en aquell torn; cada fila és una franja horària. Una cel·la mostra l'assignatura (amb el seu codi curt, p. ex. "MP 0440"), el o els docents — més d'un si la classe és compartida — i l'aula de la classe d'aquell grup a aquella hora. Una cel·la buida simplement vol dir que no hi ha res programat per a aquell grup en aquell moment.
 
 La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia en aquella franja horària, cadascun en un requadre de vora fina. Un docent de guàrdia no té cap grup propi en aquell moment (és precisament el sentit de la guàrdia), per això només apareix aquí, mai a la columna d'un grup. Un docent en guàrdia de **WC** en concret mostra l'etiqueta **"(WC)"** just després del seu nom — es destaca perquè, a diferència d'una guàrdia de pati (vegeu més avall), una guàrdia de WC pot caure en qualsevol moment del dia, així que no hi ha cap altra manera de distingir-la d'una guàrdia normal a simple vista.
+
+El número petit encerclat després de cada nom indica quantes classes ha cobert aquell docent aquest curs (incloses les cobertures ja previstes per a un dia vinent). Serveix per repartir les cobertures de manera equitativa.
 
 Una fila la franja horària de la qual coincideix amb el pati d'algun nivell — sense cap classe programada en ella per a ningú — mostra una petita etiqueta **"Pati"** al costat de l'hora, a més d'una vora marró al costat esquerre d'aquella mateixa cel·la, perquè una franja que sembla buida no es llegeixi com un forat a l'horari.
 
@@ -86,36 +88,95 @@ Un docent que falta apareix en vermell allà on surti el seu nom — a la seva p
 
 Les sol·licituds denegades i cancel·lades no es mostren.
 
-Una absència que Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat també es mostra com a pendent d'aprovar.
+Una absència que el seu cap o Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat (una *absència prevista*, vegeu més avall) també es mostra com a pendent d'aprovar.
 
-Un docent de guàrdia que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir.
+Un docent de guàrdia ordinària que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir. Una guàrdia que és un lloc fix, com la de WC o la de pati, és diferent: algú hi ha de ser, així que quan en falta el docent té la seva pròpia línia a la columna d'absències, amb el nom de la guàrdia (per exemple **Guàrdia (WC)**) on una classe mostra el grup, i es cobreix com una classe (consulta [Cobrir una guàrdia de WC o de pati](#cobrir-una-guardia-de-wc-o-de-pati)).
 
 Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el justificant, no.
 
 ---
 
+## Cobrir tu mateix una classe
+
+Si estàs de guàrdia en una franja, no cal que esperis que algú t'hi enviï: pots agafar tu mateix una classe que encara és sense docent.
+
+1. A la **Taula d'absències**, fes clic a la línia de la classe (les línies que pots agafar mostren una mà en passar-hi per sobre i l'indicació **Fes clic per cobrir tu aquesta classe**).
+2. Fes clic a **Cobrir-la** per confirmar-ho.
+
+La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Només es pot agafar una classe que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia ordinària (no en una guàrdia de WC o de pati, ni mentre tu mateix estàs absent). El mateix val per a la línia d'una guàrdia de WC o de pati el docent de la qual falta: també la pots agafar tu mateix.
+
+Si canvies d'idea, torna a fer clic a la línia i després a **Deixa de cobrir aquesta classe**: la classe torna a quedar sense guàrdia. Només ho pots fer amb una classe que t'has agafat tu; si algú t'hi ha enviat, demana-li que ho canviï. Qui organitza l'absència sempre pot canviar o treure un docent de guàrdia que s'hagi agafat una classe pel seu compte.
+
+## Introduir una absència prevista
+
+Qui ho pot fer: els **Caps de seminari** i els **Caps de departament**, per als docents del seu propi departament, a més del Cap d'estudis o Cap d'estudis adjunt, Direcció i l'administrador.
+
+La via normal sempre és que el docent sol·liciti l'absència ell mateix. Fes servir això només en el cas excepcional d'un docent que truca o escriu per avisar que faltarà i no pot entrar a l'EMS: en introduir-la, les seves classes surten al quadre de seguida i en pots organitzar la cobertura.
+
+1. Ves a **Assistència del personal > Absències > Administració > Absències previstes** i fes clic a **Nou**.
+2. Tria el **Professor/a**. Només surten els docents del teu departament.
+3. Indica **De** i **A**, amb data i hora. Per defecte, avui de 08:00 a 15:00. Una absència pot abastar diversos dies.
+4. Si vols, afegeix-hi **Notes** per a tu. El docent no veu mai aquesta entrada.
+5. Desa.
+
+L'absència surt llavors al quadre com a pendent d'aprovar (vermell clar en cursiva), i la pots organitzar tal com s'explica a continuació. Quan el docent sol·licita l'absència ell mateix, l'absència prevista s'hi vincula sola i el que hagis organitzat es manté tal com estava. Si finalment el docent no falta, esborra l'entrada.
+
+---
+
 ## Organitzar una absència
 
-Qui ho pot fer: el **Cap de seminari** o el **Cap de departament** del docent absent, i els qui són per sobre seu a la jerarquia (Cap d'estudis o Cap d'estudis adjunt, i Direcció), a més de l'administrador. La resta de docents en veuen el resultat però no el poden canviar, i el docent absent no pot organitzar la seva pròpia absència. És igual si l'absència l'ha sol·licitada el docent o l'ha introduïda Cap d'estudis com a absència prevista: totes dues es gestionen igual. Quan més endavant el docent sol·licita una absència que estava prevista, el que ja s'havia organitzat es manté tal com estava, i només els dies o les hores de més de la sol·licitud apareixen com a línies noves per decidir.
+Qui ho pot fer: el **Cap de seminari** o el **Cap de departament** del docent absent, i els qui són per sobre seu a la jerarquia (Cap d'estudis o Cap d'estudis adjunt, i Direcció), a més de l'administrador. El que compta és el departament on fa classe el docent: els seus caps i el responsable de l'àrea a què pertany organitzen les absències de tothom qui en forma part, inclosos els membres de l'equip directiu (com el Secretari). La resta de docents en veuen el resultat però no el poden canviar, i el docent absent no pot organitzar la seva pròpia absència. És igual si l'absència l'ha sol·licitada el docent o l'ha introduïda el seu cap o Cap d'estudis com a absència prevista: totes dues es gestionen igual. Quan més endavant el docent sol·licita una absència que estava prevista, el que ja s'havia organitzat es manté tal com estava, i només els dies o les hores de més de la sol·licitud apareixen com a línies noves per decidir.
 
 Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera que en premis el botó. Un dia que ja ha passat no es pot canviar.
 
-![Taula d'absències com a Cap de departament: una proposta d'entrada tard i dues classes cobertes per dos docents de guàrdia, cadascun amb el seu color](../../assets/teachers/guard-duty-03-organitzar.png)
+![Taula d'absències com a Cap de departament: una proposta d'entrada tard, les reorganitzacions possibles i dues classes cobertes per dos docents de guàrdia, cadascun amb el seu color](../../assets/teachers/guard-duty-03-organitzar.png)
 
 ### Enviar un docent de guàrdia a una classe
 
 1. Fes clic a la línia de la classe que cal cobrir (les línies que pots organitzar mostren el cursor de mà).
-2. Tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia en aquella franja, excepte els de guàrdia de WC i els que també estan absents.
+2. Si el diàleg ofereix reorganitzacions possibles (vegeu [Reorganitzar les classes en lloc d'enviar una guàrdia](#reorganitzar-les-classes-en-lloc-denviar-una-guàrdia)), tria **Enviar un docent de guàrdia**. Després tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia ordinària en aquella franja (mai els de guàrdia de WC o de pati, que són necessaris al seu lloc), excepte els que també estan absents. Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
 3. Opcionalment, escriu un **missatge**: què ha de treballar l'alumnat, on són els materials...
 4. Fes clic a **Assignar i avisar**.
 
 ![Enviar un docent de guàrdia a una classe: els docents de guàrdia i un missatge per a ells](../../assets/teachers/guard-duty-04-enviar-guardia.png)
 
-El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu, segons la seva preferència de notificacions) amb la data, l'hora, el grup, l'assignatura, l'aula, el docent absent i el teu missatge.
+El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu, segons la seva preferència de notificacions) amb la data, l'hora, el grup, l'assignatura, l'aula, el docent absent i el teu missatge. Si respon a aquest correu, la resposta t'arriba a tu.
 
 Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. Quan diversos docents de guàrdia cobreixen classes a la mateixa franja, cadascun té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el seu color.
 
 Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o treure el docent de guàrdia** (només ho veu qui organitza l'absència), i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. **Treure l'assignació** treu el docent de la classe i l'avisa.
+
+### Cobrir una guàrdia de WC o de pati
+
+Quan falta el docent d'una guàrdia de WC o de pati, la seva guàrdia apareix com una línia de la taula d'absències, amb el nom de la guàrdia en lloc d'un grup. Es cobreix exactament com una classe: fes-hi clic, tria un dels docents de guàrdia ordinària d'aquella franja i fes clic a **Assignar i avisar**. El missatge que rep indica que és una guàrdia el que ha de cobrir. Si després l'absència s'anul·la, se t'ofereix alliberar el docent de guàrdia com qualsevol altre.
+
+### Reorganitzar les classes en lloc d'enviar una guàrdia
+
+Sovint no cal cap guàrdia, perquè els mateixos docents del grup poden reorganitzar les seves classes d'aquell dia. El quadrant ho calcula per a cada classe que encara no té ningú i ho proposa al quadre **Reorganitzacions possibles**, damunt la taula (només el veu qui pot organitzar l'absència); aquestes línies també mostren una etiqueta com ara **2 reorganitzacions possibles**.
+
+![Quadre de reorganitzacions possibles: un intercanvi i dues classes mogudes, cadascuna amb el seu botó Aplica i, en taronja, les hores d'entrada i sortida que canvia](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+
+Se'n proposen de dos tipus, sempre entre docents del mateix grup i dins el mateix dia:
+
+- **Intercanvi**: un altre docent del grup, que està lliure en aquella hora, fa classe aleshores, i el docent absent fa la classe d'aquest docent amb el grup més tard (o més d'hora). L'alumnat no perd cap classe, i no cal comunicar res a les famílies.
+- **Classe moguda**: un altre docent del grup porta a aquella hora la seva classe del principi o del final del dia del grup (o del costat d'un pati). El grup entra més tard, surt abans o té un pati més llarg, de manera que cal comunicar-ho a les famílies.
+
+S'ordenen perquè l'alumnat perdi el mínim de classes: primer les que no en fan perdre cap. Una classe compartida amb un altre grup no es proposa mai, perquè també canviaria el dia d'aquell altre grup.
+
+**La jornada de ningú no s'allarga.** Una reorganització només es proposa si cap docent implicat acaba amb una jornada més llarga (comptada des de la seva primera franja fins a l'última, tant classes com guàrdies i qualsevol altra tasca): qui hagi d'entrar abans ha de sortir abans, i qui hagi de sortir més tard ha d'entrar més tard. Quan canvia l'hora d'entrada o de sortida d'algú, una línia taronja sota la proposta diu exactament de qui i com (*"… entra a les 08:00 en lloc de les 10:00"*), de manera que es distingeixen fàcilment de les que no canvien l'horari de ningú.
+
+Per aplicar-ne una, fes clic a **Aplica** a la seva línia, o fes clic a la classe i tria-la al diàleg, on les reorganitzacions possibles surten primer, per sobre d'enviar una guàrdia:
+
+![Diàleg d'una classe: les reorganitzacions possibles, amb el comunicat i els canvis d'entrada i sortida que implica cadascuna, per sobre d'enviar una guàrdia i de la reorganització descrita a mà](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+
+- Un **intercanvi** té efecte immediatament: la classe queda ratllada, amb el docent que és amb el grup, i tots dos docents reben un missatge d'Odoo amb el canvi (i la seva nova hora d'entrada o de sortida, si canvia).
+- Una **classe moguda** obre directament l'esborrany del comunicat per a les famílies. **Només compta quan aquest comunicat s'ha enviat**: fins aleshores la classe no queda ratllada i el quadre de propostes la mostra pendent del comunicat (**Obrir esborrany**). Els docents reben l'avís quan s'envia el comunicat. Si esborres l'esborrany, la reorganització es descarta.
+
+Quan una reorganització té efecte, l'**Horari de guàrdies** mostra qui fa realment cada classe implicada, i un docent que estava de guàrdia en una hora en què ara fa classe surt ratllat a la columna **Guàrdia** en aquella franja: no se'l pot enviar a cobrir res més aleshores, i ningú no pot agafar aquella classe pel seu compte.
+
+**Una altra reorganització (descrita a mà)**, l'última opció del diàleg, serveix per a tot allò que el quadrant no pot deduir, perquè en quedi constància: dos grups que s'ajunten per fer la mateixa matèria, un docent d'un altre grup... Descriu-la i, si hi ha un docent implicat, tria'l (rep un missatge). Aquella classe ja no necessita guàrdia.
+
+Per canviar d'idea, fes clic a la línia i després a **Canviar o treure la reorganització**: **Treure la reorganització** la desfà (s'avisa els docents), i triar una guàrdia o una altra reorganització la substitueix.
 
 ### Entrada tard, sortida abans d'hora o sense classes
 
@@ -124,6 +185,8 @@ Quan les classes sense docent són les primeres del dia del grup (una, dues o m�
 Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10:00**, i el quadre **Propostes d'entrada, sortida i pati**, damunt la taula (només el veu qui pot organitzar l'absència), ofereix el canvi d'aquell grup. Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir.
 
 El selector de cada proposta et permet comunicar a les famílies menys del que permeten les absències: amb dues classes sense docent, pots triar **Entra a les 09:00** en lloc d'**Entra a les 10:00**. Aleshores només es ratlla la primera classe; la segona encara necessita un docent de guàrdia, que envies com sempre. Triar el canvi més curt és decisió teva: res no et demanarà que el rectifiquis.
+
+El mateix dia, el quadrant només proposa canvis que encara no han arribat: a partir de les 09:00 ja no ofereix **Entra a les 09:00** (les famílies ho sabrien massa tard), i una proposta o una rectificació l'hora de la qual ja ha passat desapareix. Si fa estona que tens el quadrant obert, recarrega'l per veure les propostes actuals.
 
 **Proposar comunicat** obre un comunicat en esborrany adreçat a l'alumnat i les famílies d'aquell grup, amb un text proposat que pots canviar. Envia'l des d'aquell formulari com qualsevol altre comunicat (els grups d'un comunicat de canvi d'horari no es poden canviar). Si el deixes en esborrany, la propera vegada el botó diu **Obrir esborrany**.
 
@@ -142,6 +205,7 @@ No es confon mai amb entrar o sortir: si les classes buides arriben a l'inici de
 Si una absència es rebutja, s'anul·la o s'escurça, o resulta que un altre docent sí que hi és, el que s'havia organitzat pot deixar de caldre. Res no es desfà automàticament: els quadres de damunt la taula t'ho indiquen, i tu decideixes.
 
 - **Un docent de guàrdia que ja no cal** (quadre **Guàrdies que ja no calen**): fes clic a **Alliberar la guàrdia**. Se li comunica que ja no cal que cobreixi la classe.
+- **Una reorganització que ja no és vàlida** (mateix quadre): la classe ja no s'ha de cobrir, o un dels docents de qui depèn ara és absent en aquella hora. Fes clic a **Treure la reorganització**; s'avisa els docents.
 - **Un comunicat que ja no coincideix** (es va comunicar més del que ara permeten les absències): un comunicat ja enviat no es pot desfer, així que el quadre de propostes ofereix **Proposar rectificació**, un nou comunicat en esborrany per al mateix grup amb la situació corregida (una altra hora, o tornar a l'horari habitual).
 
 ---

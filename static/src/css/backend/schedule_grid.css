@@ -264,6 +264,11 @@
    which keeps the plain grey above — gets its own distinctive look: a diagonal brown stripe
    instead of a flat colour, so it reads as "patio" at a glance instead of blending in with a
    meeting block. */
+/* Issue #611 - more classes at the same time than fit side by side, collapsed into one block. */
+.o_schedule_grid_entry_parallel {
+    background-color: #6c757d;
+}
+
 .o_schedule_grid_entry_break {
     background-color: #8a6240;
     background-image: repeating-linear-gradient(

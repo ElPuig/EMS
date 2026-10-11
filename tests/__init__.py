@@ -73,6 +73,8 @@ from . import test_attendance_justification_tour
 from . import test_employee_role_group_sync
 from . import test_employee_photo_visibility
 from . import test_attendance_correction
+from . import test_employee_attendance_access
+from . import test_employee_attendance_list_tour
 from . import test_attendance_correction_tour
 from . import test_attendance_reports
 from . import test_attendance_reports_tour
@@ -131,6 +133,7 @@ from . import test_group_reference_space
 from . import test_group_reference_space_tour
 from . import test_group_schedule
 from . import test_group_schedule_topic_classroom_edit_tour
+from . import test_group_schedule_subgroups_tour
 from . import test_group_public_schedule
 from . import test_group_public_schedule_tour
 from . import test_portal_schedule
@@ -244,3 +247,5 @@ from . import test_attendance_report_schedule
 from . import test_i18n_coverage
 from . import test_dev_mail_guard
 from . import test_employee_presence_tour
+from . import test_student_chatter_replies
+from . import test_mail_reply_to

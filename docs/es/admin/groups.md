@@ -48,8 +48,9 @@ Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para 
 1. Haz clic en **Nuevo**.
 2. Cambia **Tipo de grupo** a **Refuerzo**. Nivel, Estudio, Tutor, Delegado y Subdelegado desaparecen — no aplican.
 3. Rellena un **Nombre** directamente (p. ej., `REF-MATES`).
-4. Haz clic en **Guardar**.
-5. Añade alumnos igual que en cualquier otro grupo: desde la propia ficha del alumno (o el proceso de matrícula), matricúlalo en una asignatura con este grupo de refuerzo como **Grupo** — pueden venir de cualquier grupo/estudio principal. Aparecerán en la pestaña **Inscrito** de este grupo.
+4. Si el grupo es un desdoble, un grupo flexible o una optativa, indica en **Grupos principales** los grupos de los que viene su alumnado (p. ej., `ESO1A` para un desdoble de 1A, o todos los grupos de 1r para una optativa de 1r). Sus clases aparecerán también en el horario de cada uno de esos grupos.
+5. Haz clic en **Guardar**.
+6. Añade alumnos igual que en cualquier otro grupo: desde la propia ficha del alumno (o el proceso de matrícula), matricúlalo en una asignatura con este grupo de refuerzo como **Grupo** — pueden venir de cualquier grupo/estudio principal. Aparecerán en la pestaña **Inscrito** de este grupo.
 
 ---
 

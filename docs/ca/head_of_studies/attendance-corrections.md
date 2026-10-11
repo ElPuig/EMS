@@ -10,9 +10,24 @@ Els professors poden sol·licitar una correcció d'una hora d'entrada/sortida de
 
 ---
 
+## Quins fitxatges i sol·licituds són teus
+
+Veus i corregeixes els fitxatges, i decideixes les sol·licituds de correcció, només de **la teva branca** — no de tots els empleats del centre:
+
+- tothom qui és **per sota teu a la jerarquia** (els departaments que depenen de tu, amb els seus caps i docents), i
+- el personal de l'**àrea que gestiones**, del qual aproves els fitxatges i les absències.
+
+**Direcció** i l'**Administrador** ho veuen i ho decideixen tot. Un **Cap de departament o de seminari** veu els fitxatges del seu departament, només de lectura, i no decideix res.
+
+La teva llista de fitxatges (**Assistència del personal → Assistència → Vista general**) s'obre agrupada per mes i per empleat, i només mostra el curs actual: els fitxatges de cursos anteriors s'arxiven quan canvia el curs (marca **Arxivat** al menú **Filtres** de la barra de cerca per veure'ls).
+
+> **Saber qui hi ha, a tot el centre.** Si els caps d'estudis del teu centre necessiten saber en tot moment qui ha fitxat i qui no, l'Administrador pot activar **Els caps d'estudis veuen els fitxatges de tothom (EMS)** a **Assistència del personal → Configuració → Ajustos**. Aleshores pots consultar els fitxatges de tots els empleats; corregir-los i decidir sol·licituds de correcció continua limitat a la teva branca. Per defecte està desactivat.
+
+---
+
 ## Crear una sol·licitud en nom d'una altra persona
 
-A diferència d'un professor/a, que només pot sol·licitar una correcció del seu propi fitxatge, tu ho pots fer per **qualsevol** empleat/ada:
+A diferència d'un professor/a, que només pot sol·licitar una correcció del seu propi fitxatge, tu ho pots fer per qualsevol empleat/ada **de la teva branca** (Direcció i l'Administrador, per a qualsevol persona):
 
 1. Obre el fitxatge d'aquell empleat/ada (per exemple, des de **Fitxatges dels empleats → Assistència → Resum**, o des de la seva fitxa).
 2. Fes clic a **Sol·licitar correcció** a la capçalera — el mateix botó i formulari que faria servir un professor/a per al seu propi fitxatge.
@@ -41,7 +56,9 @@ Si t'han enviat una sol·licitud (la veuràs com a activitat pendent, i també a
 
 > T'has equivocat? Els botons **Acceptar** i **Rebutjar** continuen disponibles després de decidir, així que pots canviar d'opinió en qualsevol moment — clicar l'altre botó reverteix la decisió anterior.
 
-> Qualsevol Cap d'Estudis, Adjunt/a, Direcció o Administrador pot decidir sobre qualsevol sol·licitud pendent — en aquesta primera versió no està restringit només als "teus" professors.
+> Una sol·licitud la poden decidir els caps d'estudis de la branca de l'empleat/ada (vegeu [Quins fitxatges i sol·licituds són teus](#quins-fitxatges-i-sol·licituds-són-teus)), Direcció i l'Administrador. No veus les sol·licituds d'altres branques.
+>
+> *Decidir només les sol·licituds de la teva branca es va introduir a la versió 18.0.0.36.0; fins aleshores, qualsevol Cap d'Estudis podia decidir qualsevol sol·licitud.*
 
 ---
 

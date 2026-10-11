@@ -29,11 +29,13 @@ sequenceDiagram
     P->>P: _gw_enqueue_if_ready()
     alt missing IDALU / names / personal email
         Note over P: no chatter note posted (unlike staff) — GEDAC\nimport usually supplies this already
+    else google_ws_manual_email (account created outside EMS)
+        Note over P: never queued — the existing address is\nfilled in as student_email by hand or by the\nstudent data update wizard
     else ready
         P->>Q: _gw_enqueue_create(): with_delay(_gw_create_account, identity_key)
         Note over U,Q: the "Create Google account" button queues this same job (#582)
         Q->>P: SELECT ... FOR UPDATE NOWAIT (_gw_lock_for_creation)
-        Q->>G: users().insert(primaryEmail=candidate, orgUnitPath=minor/adult OU)
+        Q->>G: users().insert(primaryEmail=candidate, orgUnitPath=minor/adult OU,<br/>externalIds=IDALU, recoveryEmail, recoveryPhone)
         G-->>Q: 200 (409 → next candidate)
         Q->>P: student_email = chosen address
         Q->>P: _gw_deliver_credentials() (PDF into ems.student.document + welcome mail)
@@ -128,6 +130,22 @@ the mixin's `_gw_sync_account_name()` - the same helper the staff side uses, see
 for the error handling. Suspended accounts are renamed too. The portal user needs nothing:
 it shares the student's partner, so its name is already the student's.
 
+## IDALU as the Employee ID (`action_sync_google_account_idalu`)
+
+The IDALU is the Google account's **Employee ID**: an `externalIds` entry of type
+`organization` (`_gw_idalu_external_ids()`), the field Google Admin shows and exports as
+"Employee ID" and the one the centre's accounts created outside EMS already use. It is sent
+on `users().insert()` and kept in sync afterwards: writing `student_id` on a student with a
+`student_email` enqueues `action_sync_google_account_idalu()` (`_gw_enqueue_sync_idalu`,
+deduplicated by `identity_key`), which patches it through the mixin's `_gw_patch_account()`
+(the same helper as the rename: dry-run only logs, a 403/404 leaves a chatter note instead
+of failing the job). Suspended accounts are synced too; deleted ones are skipped.
+
+Accounts created by EMS before issue #609 carried the IDALU only in a custom attribute
+(`customSchemas.IDALU.IDALU`), which nobody reads; their Employee ID was filled in once, by
+hand, from a production dump on 2026-10-09 (there is no migration for it). The old
+custom attribute is left as it is.
+
 ## Lifecycle
 
 Archiving a student does **not** touch the Google account straight away. It opens a
@@ -220,14 +238,15 @@ only.
 
 ## `google_ws_state`
 
-Same single-source-of-truth pattern as the staff side, but only **3** states (no
-`manual_pending`/`pending_user` — those exist only because staff has a separate EMS-user
-step):
+Same single-source-of-truth pattern as the staff side, with 4 states (no `pending_user`,
+which exists only because staff has a separate EMS-user step):
 
 ```mermaid
 stateDiagram-v2
     [*] --> none: not a student, or no student_email
+    [*] --> manual_pending: google_ws_manual_email, no student_email
     none --> active: account created
+    manual_pending --> active: existing address filled in as student_email
     active --> suspended: action_suspend_google_account()
     suspended --> active: action_reactivate_google_account()
 ```
@@ -235,6 +254,7 @@ stateDiagram-v2
 | `google_ws_state` | Actions dropdown entry shown (`views/community/contact/form.xml`) | Meaning |
 |---|---|---|
 | `none` | Create Google account (also needs `can_create_google_account`; hidden while `google_ws_creation_pending`) | Not a student, or no corporate email yet |
+| `manual_pending` | none | The account was created outside EMS (`google_ws_manual_email`): EMS never creates one (`_gw_ready()` and `_gw_create_account()` both stop on the flag), its address is waiting to be filled in |
 | `active` | Suspend Google account, Reset Google password (the latter also needs `can_reset_google_password`) | Fully set up |
 | `suspended` | Reactivate Google account | `google_ws_suspended = True` |
 

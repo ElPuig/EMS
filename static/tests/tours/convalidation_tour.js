@@ -477,3 +477,34 @@ registry.category("web_tour.tours").add("ems_convalidation_history_current_cours
         },
     ],
 });
+
+// Issue #610: the list opens on what waits for whoever is looking - for the secretariat, the
+// resolved request, not the one the Head of Studies is still reviewing. Removing the default
+// filter shows them all. Asserts on what the fixtures are called, never on the filter's label.
+registry.category("web_tour.tours").add("ems_convalidation_default_filter", {
+    test: true,
+    url: "/odoo/action-ems.action_convalidation",
+    steps: () => [
+        {
+            trigger: ".o_searchview .o_searchview_facet",
+            content: "A filter is on by default",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
+            content: "The request waiting for the secretariat is listed",
+        },
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row td[name='student_id']:contains('Still Under Review Student')))",
+            content: "The one still under review is not",
+        },
+        {
+            trigger: ".o_searchview .o_searchview_facet .o_facet_remove",
+            content: "Remove the default filter",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Still Under Review Student')",
+            content: "Every request is there",
+        },
+    ],
+});

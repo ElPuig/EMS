@@ -30,7 +30,8 @@ que hi hagi configurat a la pestanya **Empleats → [professor] → Horari**. Ca
 - l'hora exacta d'inici i final (els períodes no sempre estan alineats amb l'hora en punt),
 - l'assignatura impartida — seguida del seu **tema**, quan el professor n'ha indicat un a la
   seva pròpia pestanya d'Horari,
-- quin(s) professor(s) la imparteixen — més d'un nom si és una classe co-impartida.
+- el grup o grups que són a l'aula en aquella hora (l'aula no es repeteix a cada bloc: és la
+  que estàs consultant).
 
 A diferència de l'horari d'un grup o d'un alumne, la graella d'una aula sempre mostra el **dia
 sencer** (matí i tarda junts), ja que una aula normalment s'utilitza en ambdós torns.

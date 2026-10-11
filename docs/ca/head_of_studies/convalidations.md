@@ -38,7 +38,16 @@ L'estat només canvia amb les accions de cada pas, al menú **Accions** del form
 
 Navega a: **Gestió acadèmica → Convalidacions**
 
-La llista s'obre amb totes les sol·licituds que esperen el centre: **Pendents del Cap d'Estudis**, **En procés Ministeri**, **Pendent de direcció** i **Pendent de secretaria**. Les que esperen la documentació del sol·licitant hi queden fora: fes servir el filtre **Pendent de documentació** per veure-les. Treu els filtres per veure-les totes, o fes servir **Completades**, **Rebutjades** i **Anul·lades**.
+La llista s'obre amb el filtre **Pendents de mi** activat, que mostra les sol·licituds que t'esperen a tu, segons el teu rol:
+
+| Qui obre la llista | Sol·licituds que es mostren |
+|---|---|
+| Cap d'estudis o Cap d'estudis adjunt | **Pendents del Cap d'Estudis** i **En procés Ministeri** |
+| Direcció | **Pendent de direcció** |
+| Secretaria | **Pendent de secretaria** |
+| Administrador, o qui té més d'un d'aquests rols | Les de tots els rols que té |
+
+Les que esperen la documentació del sol·licitant no hi surten mai: fes servir el filtre **Pendent de documentació** per veure-les. Treu el filtre **Pendents de mi** per veure totes les sol·licituds, o fes servir el filtre d'un estat concret (**Pendent de direcció**, **Completades**, **Rebutjades**, **Anul·lades**...) per seguir les que són en mans d'algú altre.
 
 ![Llista de sol·licituds de convalidació](../../assets/head_of_studies/convalidations-list.png)
 

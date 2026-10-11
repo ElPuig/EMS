@@ -10,7 +10,7 @@ flowchart TD
     B -->|message_notify: a direct notice| C{Caused by a person?}
     C -->|Yes: an internal user| D[Reply-To: that person]
     C -->|No: scheduled action, OdooBot| E[Reply-To: company catchall]
-    B -->|mail.template with reply_to| F[Reply-To: what the template says]
+    B -->|mail.template with reply_to| F[Reply-To: the person the template names, or whoever sent it]
     B -->|mail.template without reply_to| G[Reply-To: the template's email_from]
     B -->|message_post: a message on a record's thread| E
 ```
@@ -18,14 +18,23 @@ flowchart TD
 | Sent with | Reply-To | Where |
 |---|---|---|
 | `message_notify()` (a direct notice, e.g. "you have been sent to cover this class") | The acting user, as `"Name" <email>`; the company's catchall when nobody caused it | `models/shared/mail_thread.py` |
-| A `mail.template` that sets `reply_to` (notices, strikes, attendance issues) | The person the template names (who sent the notice, the teacher, the tutor) | `mails/` |
-| A `mail.template` without `reply_to` | Its `email_from`: the company's own email address for convalidations, authorizations, contact data requests and the task digest; the EMS address for the tutors' automatic daily attendance summary | Odoo (`ir.mail_server`: `reply_to or email_from`) |
+| A `mail.template` whose `reply_to` names a role (notices, strikes, attendance issues) | The person the template names (who sent the notice, the teacher, the tutor) | `mails/` |
+| A `mail.template` sent on someone's request (convalidation resolution and documentation request, authorizations, contact data request) | Whoever sent it: `{{ user.partner_id._ems_reply_to() }}`; the company's own email address for a reminder a scheduled action sends | `mails/`, `res.partner._ems_reply_to()` |
+| A `mail.template` without `reply_to` | Its `email_from`: the company's own email address for the task digest and the enrolment proposal; the EMS address for the tutors' automatic daily attendance summary | Odoo (`ir.mail_server`: `reply_to or email_from`) |
 | `message_post()` (a message written on a record's chatter) | The company's catchall address | Odoo (`_notify_get_reply_to()`) |
+
+## The shared rule: `res.partner._ems_reply_to()`
+
+Returns the partner's own `"Name" <email>` when they are a person working at the centre (an
+internal user other than OdooBot), and an empty string otherwise: a portal user, a contact without
+a user, or OdooBot, which is who scheduled actions run as. An empty `reply_to` leaves the email
+with the reply address it would have had anyway. Both direct notices and the templates sent on
+someone's request use it, so "a person caused this" means the same everywhere.
 
 ## Direct notices (`message_notify`)
 
 `mail.thread.message_notify()` is overridden for every model: when the caller gives no `reply_to`,
-it is set to the message's author as long as that author is an internal user other than OdooBot.
+it is set to the message's author's `_ems_reply_to()`.
 The author is resolved with Odoo's own `_message_compute_author()`, so `sudo()` does not change
 it (it keeps the acting user) and an explicit `author_id`/`email_from` is honoured.
 

@@ -53,3 +53,34 @@ class TestMailReplyTo(TransactionCase):
         message = self.record.with_user(self.sender).sudo().message_post(body='TMRT', partner_ids=self.recipient.ids)
 
         self.assertIn(self.catchall, message.reply_to)
+
+    # Emails sent with a template on someone's request
+
+    REQUESTED_TEMPLATES = (
+        'ems.email_template_convalidation_resolved',
+        'ems.email_template_convalidation_info_request',
+        'ems.email_template_authorization_send',
+        'ems.email_template_contact_data_request',
+    )
+
+    def _template_reply_to(self, user):
+        template = self.env.ref('ems.email_template_authorization_send').with_user(user).sudo()
+        return template._render_field('reply_to', self.record.ids)[self.record.id]
+
+    def test_requested_templates_share_the_reply_rule(self):
+        for xmlid in self.REQUESTED_TEMPLATES:
+            self.assertEqual(self.env.ref(xmlid).reply_to, '{{ user.partner_id._ems_reply_to() }}', xmlid)
+
+    def test_a_requested_email_is_answered_to_whoever_sent_it(self):
+        self.assertIn('sender.tmrt@example.com', self._template_reply_to(self.sender))
+
+    def test_a_reminder_nobody_sent_keeps_the_company_address(self):
+        """Empty: the email is then answered to its sender address, the company's own."""
+        self.assertFalse(self._template_reply_to(self.env.ref('base.user_root')))
+
+    def test_a_family_is_never_the_reply_address(self):
+        portal = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'TMRT Portal', 'login': 'test_portal_tmrt', 'email': 'portal.tmrt@example.com',
+            'groups_id': [(6, 0, self.env.ref('base.group_portal').ids)]})
+
+        self.assertEqual(portal.partner_id._ems_reply_to(), '')

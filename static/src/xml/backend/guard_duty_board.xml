@@ -175,11 +175,14 @@
                             <t t-foreach="arrangementActions" t-as="action" t-key="action_index">
                                 <div class="o_guard_board_action o_guard_board_action_arrangement_option">
                                     <i t-att-class="actionIcon(action)"/>
-                                    <span class="o_guard_board_action_label" t-esc="action.label"/>
-                                    <span t-if="action.schedule_changes.length" class="o_guard_board_absence_tag o_guard_board_schedule_tag"
-                                          t-att-data-tooltip="action.schedule_changes.join(' ')">
-                                        <i class="fa fa-clock-o me-1"/><t t-esc="actionLabels.scheduleChange"/>
-                                    </span>
+                                    <!-- Whose entry or exit time it changes goes on a line of its own under
+                                         the proposal, so every row ends the same way: its button. -->
+                                    <div class="o_guard_board_action_label">
+                                        <span t-esc="action.label"/>
+                                        <div t-if="action.schedule_changes.length" class="o_guard_board_action_schedule">
+                                            <i class="fa fa-clock-o me-1"/><t t-esc="action.schedule_changes.join(' ')"/>
+                                        </div>
+                                    </div>
                                     <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button"
                                             t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
                                 </div>

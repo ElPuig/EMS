@@ -839,7 +839,7 @@ flowchart TD
     other duty). The option is dropped if, with the change, that span would be longer for B or, in
     a swap, for A: coming in earlier is only possible leaving earlier too, and leaving later coming
     in later. Every entry/exit time it does change (`shifts`, `_arrangement_shifts()`) is spelt out
-    in the proposal (and tagged "Changes entry/exit") and in the teachers' notification
+    on a line of its own under the proposal and in the teachers' notification
     (`_cover_schedule_changes()`), so a change to somebody's working hours is never hidden.
   - A lesson shared with another group is never moved or swapped: that group's day would change
     too (a manual arrangement covers it).

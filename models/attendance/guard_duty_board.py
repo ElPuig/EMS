@@ -1291,8 +1291,6 @@ class EmsCourseGuardDutyBoard(models.Model):
             label = _("%(group)s at %(time)s (%(teacher)s): %(option)s", **values)
             if option['change_label']:
                 label = _("%(label)s The families will be told: %(change)s.", label=label, change=option['change_label'])
-            if option['schedule_changes']:
-                label = f"{label} {' '.join(option['schedule_changes'])}"
             data.update(option, option_type=option['type'], type='arrangement_option', label=label, absent_id=row['teacher'].id,
                         class_hour_from=line['hour_from'], class_hour_to=line['hour_to'])
             return data

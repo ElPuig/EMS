@@ -27,6 +27,10 @@ The account is created in the organizational unit for minors or adults, dependin
 
 Accounts can be created by administration, TAC coordination, the secretary's office and the student's own tutor (plus the chiefs above that tutor: Seminar Chief, Department Chief, Head of Studies and Director).
 
+### Accounts created outside EMS
+
+If the student's account was created directly in Google, tick **Assign corporate email manually** on their form (next to **Corporate email**) so that EMS doesn't create a second one, and fill in the existing address in **Corporate email**. The [import from Esfera](../secretary/student-import-esfera.md) can tick it for every imported student.
+
 ---
 
 ## Correcting the name

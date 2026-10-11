@@ -37,9 +37,15 @@ class ResPartnerGoogleWorkspace(models.Model):
         string="Google account deleted", default=False, copy=False, readonly=True,
         help="True once the corporate account has been deleted in Google. The address is "
              "kept on the record so it is never handed to a different student.")
+    google_ws_manual_email = fields.Boolean(
+        string="Assign corporate email manually", copy=False,
+        help="Tick it when the student's Google account was created outside EMS: EMS then "
+             "never creates one, and the existing address is filled in by hand (or with the "
+             "student data update wizard) as the corporate email.")
     google_ws_state = fields.Selection(
         selection=[
             ('none', 'No Google account'),
+            ('manual_pending', 'Waiting for the manual corporate email'),
             ('active', 'Google account active'),
             ('suspended', 'Google account suspended'),
         ],
@@ -69,11 +75,12 @@ class ResPartnerGoogleWorkspace(models.Model):
     # ------------------------------------------------------------------
     # Compute
     # ------------------------------------------------------------------
-    @api.depends('contact_type', 'student_email', 'google_ws_suspended')
+    @api.depends('contact_type', 'student_email', 'google_ws_suspended', 'google_ws_manual_email')
     def _compute_google_ws_state(self):
         for partner in self:
             if partner.contact_type != 'student' or not partner.student_email:
-                partner.google_ws_state = 'none'
+                manual = partner.contact_type == 'student' and partner.google_ws_manual_email
+                partner.google_ws_state = 'manual_pending' if manual else 'none'
             elif partner.google_ws_suspended:
                 partner.google_ws_state = 'suspended'
             else:
@@ -211,6 +218,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         return (
             self.contact_type == 'student'
             and not self.student_email
+            and not self.google_ws_manual_email
             and not self._gw_missing_fields()
         )
 
@@ -413,7 +421,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         if self.contact_type != 'student':
             return
         self._gw()._gw_lock_for_creation(self)
-        if self.student_email:
+        if self.student_email or self.google_ws_manual_email:
             return
 
         # Required data must be complete (Google rejects empty givenName/familyName,

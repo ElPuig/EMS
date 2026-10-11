@@ -377,6 +377,28 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         student.write({'active': True})
         self.assertFalse(student.google_ws_deactivation_date)
 
+    def test_active_write_on_an_active_student_does_not_reactivate(self):
+        # The Esfera import writes active=True on every existing student (issue #603).
+        student = self._new_student()
+        with patch.object(type(student), '_gw_enqueue_reactivate') as reactivate:
+            student.write({'active': True})
+        reactivate.assert_not_called()
+
+    def test_unarchive_reactivates_the_account(self):
+        student = self._new_student()
+        student.write({'active': False})
+        with patch.object(type(student), '_gw_enqueue_reactivate', autospec=True) as reactivate:
+            student.write({'active': True})
+        reactivate.assert_called_once()
+        self.assertEqual(reactivate.call_args.args[0], student)
+
+    def test_ex_student_coming_back_cancels_the_schedule(self):
+        # An alumni stays active: only the contact type tells that the student is back.
+        student = self._new_student()
+        student.write({'contact_type': 'alumni', 'google_ws_deactivation_date': self._today()})
+        student.write({'contact_type': 'student', 'active': True})
+        self.assertFalse(student.google_ws_deactivation_date)
+
     def test_manual_cancel_button(self):
         student = self._new_student()
         student.write({'active': False})

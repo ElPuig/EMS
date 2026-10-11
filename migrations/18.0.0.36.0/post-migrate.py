@@ -18,6 +18,7 @@ def migrate(cr, version):
     _revoke_stale_attendance_admin(env)
     _archive_past_courses_attendance(env)
     _rename_eso_subjects(env)
+    _unfollow_contact_creators(env)
 
 
 def _revoke_stale_attendance_admin(env):
@@ -52,3 +53,12 @@ def _rename_eso_subjects(env):
         if subject and subject.name == old_name:
             subject.name = new_name
             _logger.info("Migration 18.0.0.36.0: subject %s renamed to '%s'.", subject.code, new_name)
+
+
+def _unfollow_contact_creators(env):
+    """Issue #586: creating a contact used to make you follow it, so whoever registered students
+    and families (the administrator account above all) received by email every message later
+    written on their chatter. Creating one no longer does; this removes the follows already
+    there, except those of someone who has written on that contact. A clean install has none."""
+    count = env['res.partner']._ems_unfollow_contact_creators()
+    _logger.info("Issue #586: %s follow(s) of a contact by whoever created it removed.", count)

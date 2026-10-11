@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import _, models
 from odoo.addons.base.models.ir_mail_server import MailDeliveryException
 from odoo.tools import config
 
 # odoo.conf of a development machine (set by devel.sh): 'ems_server_role = dev'.
 DEV_SERVER_ROLE = 'dev'
+
+_logger = logging.getLogger(__name__)
 
 
 class IrMailServer(models.Model):
@@ -47,3 +51,17 @@ class IrMailServer(models.Model):
         account, domain = redirect.split('@', 1)
         local, recipient_domain = recipient.rsplit('@', 1)
         return recipient_domain == domain and (local == account or local.startswith(f"{account}+"))
+
+
+class FetchmailServer(models.Model):
+    """A development machine never reads a mailbox either (issue #586): a database restored from
+    production carries production's incoming mail server, and reading it here would take the
+    families' answers away from production (an email is only fetched once) and file them on a
+    copy nobody looks at."""
+    _inherit = 'fetchmail.server'
+
+    def fetch_mail(self, raise_exception=True):
+        if config.get('ems_server_role') == DEV_SERVER_ROLE:
+            _logger.info("Development machine: incoming mail server(s) %s not read.", self.mapped('name'))
+            return True
+        return super().fetch_mail(raise_exception=raise_exception)

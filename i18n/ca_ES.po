@@ -13913,8 +13913,10 @@ msgstr ""
 " la persona haurà de fer-ne una de nova. Vols rebutjar-la?"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+#: code:addons/ems/models/employees/absence.py:0
 msgid "Refuse this absence request"
 msgstr "Rebutja aquesta sol·licitud d'absència"
 
@@ -13922,6 +13924,7 @@ msgstr "Rebutja aquesta sol·licitud d'absència"
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 msgid "Refuse"
 msgstr "Rebutja"
 
@@ -21906,3 +21909,70 @@ msgstr "S'han detectat canvis a la sol·licitud original. Si ho desitja, pot env
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 msgid "Message for the requester (optional)..."
 msgstr "Missatge per al sol·licitant (opcional)..."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Your absence request of %(when)s has been refused."
+msgstr "S'ha rebutjat la teva sol·licitud d'absència del %(when)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Reason for the refusal, from %(name)s:"
+msgstr "Motiu del rebuig, de %(name)s:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_refusal_reason
+msgid "Reason for the refusal"
+msgstr "Motiu del rebuig"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_refusal_reason
+msgid "Written by the Head or Direction when refusing the request. Sent to the employee alone and shown to them on the request while it stays refused."
+msgstr "L'escriu el cap o Direcció en rebutjar la sol·licitud. S'envia només al treballador i se li mostra a la sol·licitud mentre continua rebutjada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Reason for the refusal:"
+msgstr "Motiu del rebuig:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__when
+msgid "Dates"
+msgstr "Dates"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__is_refusal
+msgid "Refusing the request"
+msgstr "S'està rebutjant la sol·licitud"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__has_changes
+msgid "The request was corrected"
+msgstr "La sol·licitud s'ha corregit"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_change_notice_wizard__message
+msgid "Sent to the employee alone: a message about the changes, or the reason for the refusal. Optional."
+msgstr "S'envia només al treballador: un missatge sobre els canvis, o el motiu del rebuig. Opcional."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_change_notice_wizard
+msgid "The Head or Direction explains a decision on an absence request to the employee."
+msgstr "El cap o Direcció explica al treballador una decisió sobre una sol·licitud d'absència."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "The employee and their department's chiefs are told that the request has been refused. If you wish, write the reason in the box below: it is sent to the employee alone and stays on the request."
+msgstr "S'avisa el treballador i els caps del seu departament que la sol·licitud s'ha rebutjat. Si ho desitja, escrigui el motiu al quadre de sota: s'envia només al treballador i queda a la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "Changes have been detected in the original request: the requester is informed of them too."
+msgstr "S'han detectat canvis a la sol·licitud original: també se n'informa el sol·licitant."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "Write here (optional)..."
+msgstr "Escrigui aquí (opcional)..."

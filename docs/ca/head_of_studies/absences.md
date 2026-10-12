@@ -57,6 +57,10 @@ Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat), que 
 
 La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formulari, tornes al llistat.
 
+**Rebutjar demana abans el motiu.** S'obre un quadre de diàleg amb un quadre per al motiu del rebuig, que és opcional: el que hi escriguis s'envia només a la persona (no als caps de departament ni a la resta de seguidors de la sol·licitud) i queda a dalt de la sol·licitud, en vermell, mentre estigui rebutjada. Confirma amb **Rebutja**, o cancel·la per deixar la sol·licitud com estava.
+
+![Quadre de diàleg per rebutjar una sol·licitud d'absència, amb el quadre per al motiu](../../assets/head_of_studies/hos-absences-refuse.png)
+
 L'absència té efecte (calendari d'absències, saldo d'hores, quadrant de guàrdies) tan bon punt la dones per rebuda, encara que falti el justificant o Direcció no l'hagi revisada.
 
 Si uns dies després de l'absència (tres, si el centre no ho ha canviat) la persona encara no ha adjuntat el justificant, reps un missatge i una activitat per fer-ne el seguiment; a la persona se li recorda cada dia.

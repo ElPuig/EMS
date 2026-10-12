@@ -250,6 +250,10 @@ class EmsAbsenceLeave(models.Model):
         string="Why the document was sent back", copy=False, readonly=True,
         help="Written by the Head or Direction when the supporting document is not sufficient. "
              "Shown to the employee until they attach a new one.")
+    ems_refusal_reason = fields.Text(
+        string="Reason for the refusal", copy=False, readonly=True,
+        help="Written by the Head or Direction when refusing the request. Sent to the employee "
+             "alone and shown to them on the request while it stays refused.")
     ems_original_request = fields.Json(
         string="Request before its corrections", copy=False, readonly=True,
         help="What the employee had filed, kept from the moment somebody else corrects the "
@@ -776,43 +780,52 @@ class EmsAbsenceLeave(models.Model):
             changes.append(_("Dates: %(old)s → %(new)s", old=before, new=now))
         return changes
 
-    def _ems_ask_change_message(self, method):
-        """The dialog a decision button opens first when the request was corrected: whoever is
-        deciding may explain the correction to the employee (issue #615). Only from a button
-        that asks for it ('ems_ask_change_message' in its context) and for a single request, so
-        calling the decision from code, or on a selection, just takes it."""
+    def _ems_ask_change_message(self, method, refusal=False):
+        """The dialog a decision button opens first: when the request was corrected, whoever is
+        deciding may explain the correction to the employee (issue #615); a refusal always
+        opens it, for its reason - and it is also what stands between a stray click and a
+        refused request. Only from a button that asks for it ('ems_ask_change_message' in its
+        context) and for a single request, so calling the decision from code, or on a
+        selection, just takes it."""
         if not self.env.context.get('ems_ask_change_message') or len(self) != 1:
             return None
-        if not self._ems_request_changes():
+        if not refusal and not self._ems_request_changes():
             return None
         return {
             'type': 'ir.actions.act_window',
-            'name': _("Changes to the request"),
+            'name': _("Refuse this absence request") if refusal else _("Changes to the request"),
             'res_model': 'ems.absence.change_notice_wizard',
             'view_mode': 'form',
             'target': 'new',
             'context': {'default_leave_id': self.id, 'default_method': method},
         }
 
-    def _ems_notify_request_changes(self):
+    def _ems_notify_request_changes(self, refusal=False):
         """Tells the employee, and nobody else, what was changed in their request, with where it
-        stands now and the message whoever decided may have written ('ems_change_message' in
-        the context, set by the dialog). Nothing is sent for a request nobody corrected."""
+        stands now and what whoever decided may have written in the dialog ('ems_change_message'
+        in the context): a message about the changes, or the reason for a refusal - which is
+        sent even when nothing was changed. Otherwise nothing is sent for a request nobody
+        corrected."""
         message = self.env.context.get('ems_change_message')
         for leave in self:
             changes = leave._ems_request_changes()
             if leave.ems_original_request:
                 leave.sudo().ems_original_request = False
-            if not changes:
+            if not changes and not (refusal and message):
                 continue
-            body = Markup("<p>%s</p><p>%s</p>%s") % (
-                _("Your absence request of %(when)s has been modified. Its status is: %(status)s.",
-                  when=leave._ems_when(), status=leave._ems_status_label()),
-                _("Changes made to the request:"),
-                self.env['ems.base'].build_html_list(changes))
+            if changes:
+                body = Markup("<p>%s</p><p>%s</p>%s") % (
+                    _("Your absence request of %(when)s has been modified. Its status is: %(status)s.",
+                      when=leave._ems_when(), status=leave._ems_status_label()),
+                    _("Changes made to the request:"),
+                    self.env['ems.base'].build_html_list(changes))
+            else:
+                body = Markup("<p>%s</p>") % _(
+                    "Your absence request of %(when)s has been refused.", when=leave._ems_when())
             if message:
-                body += Markup("<p>%s</p>%s") % (
-                    _("Message from %(name)s:", name=self.env.user.name), plaintext2html(message))
+                label = _("Reason for the refusal, from %(name)s:", name=self.env.user.name) if refusal \
+                    else _("Message from %(name)s:", name=self.env.user.name)
+                body += Markup("<p>%s</p>%s") % (label, plaintext2html(message))
             employee = leave.employee_id
             leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, body)
 
@@ -920,13 +933,16 @@ class EmsAbsenceLeave(models.Model):
         return result
 
     def action_refuse(self):
-        wizard = self._ems_ask_change_message('action_refuse')
+        wizard = self._ems_ask_change_message('action_refuse', refusal=True)
         if wizard:
             return wizard
         self._ems_inform_chiefs()
         result = super().action_refuse()
+        # The reason written in the dialog, kept on the request for the employee to read there
+        # too. sudo: whoever may refuse need not be allowed to write the field itself.
+        self.sudo().write({'ems_refusal_reason': self.env.context.get('ems_change_message') or False})
         self._ems_post_outcome()
-        self._ems_notify_request_changes()
+        self._ems_notify_request_changes(refusal=True)
         return result
 
     # --- The supporting document ------------------------------------------------------------
@@ -1111,7 +1127,7 @@ class EmsAbsenceLeave(models.Model):
     def action_ems_direction_refuse(self):
         """Refuses the whole request, as final as the Head's refusal. Direction's column is set
         first, so _compute_ems_head_state knows the refusal about to happen is not the Head's."""
-        wizard = self._ems_ask_change_message('action_ems_direction_refuse')
+        wizard = self._ems_ask_change_message('action_ems_direction_refuse', refusal=True)
         if wizard:
             return wizard
         self._ems_set_direction_state('refused')
@@ -1134,7 +1150,8 @@ class EmsAbsenceLeave(models.Model):
         refused_by_direction.sudo()._ems_set_direction_state('not_done')
         # Same for the supporting document: the Head acknowledges the reopened request afresh.
         self.sudo().write({'ems_document_state': False, 'ems_document_reminder_date': False,
-                           'ems_document_escalated': False, 'ems_document_return_reason': False})
+                           'ems_document_escalated': False, 'ems_document_return_reason': False,
+                           'ems_refusal_reason': False})
         return result
 
     @api.constrains('ems_submitted', 'ems_responsible_declaration')

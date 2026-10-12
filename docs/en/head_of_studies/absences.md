@@ -57,6 +57,10 @@ For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the l
 
 The cross refuses, at any of these steps. Once you decide from the form, you are taken back to the list.
 
+**Refusing asks for the reason first.** A dialog opens with a box for the reason of the refusal, which is optional: what you write is sent to the employee alone (not to the department's chiefs or anyone else following the request) and stays at the top of the request, in red, while it is refused. Confirm with **Refuse**, or cancel to leave the request as it was.
+
+![Dialog to refuse an absence request, with the box for the reason](../../assets/head_of_studies/hos-absences-refuse.png)
+
 The absence takes effect (absence calendar, hour balance, guard duty board) as soon as you acknowledge it, even while the document is missing or Direction has not reviewed it yet.
 
 If the employee has not attached the document a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up; the employee is reminded every day.

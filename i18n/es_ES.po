@@ -20356,14 +20356,14 @@ msgstr "Cargar enlaces"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/document_link_import.py:0
-msgid "%(count)s codes are not in the registry: %(codes)s"
-msgstr "%(count)s códigos no existen: %(codes)s"
+msgid "%(count)s codes or names are not in the registry: %(codes)s"
+msgstr "%(count)s códigos o nombres no existen: %(codes)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/document_link_import.py:0
-msgid "%s lines were skipped for having no code or no link."
-msgstr "Se han omitido %s líneas por no tener código o enlace."
+msgid "%s lines were skipped for having no code or name, or no link."
+msgstr "Se han omitido %s líneas por no tener código o nombre, o enlace."
 
 #. module: ems
 #. odoo-python
@@ -20495,12 +20495,8 @@ msgstr "%s procesos, procedimientos y documentos aún no tienen enlace."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_quality_document_link_import__file_data
-msgid ""
-"A CSV with two columns: the code of a process, procedure or document, and "
-"its link."
-msgstr ""
-"Un CSV con dos columnas: el código de un proceso, procedimiento o documento,"
-" y su enlace."
+msgid "A CSV with two columns: the code of a process, procedure or document (or the exact name of a document that has no code), and its link."
+msgstr "Un CSV con dos columnas: el código de un proceso, procedimiento o documento (o el nombre exacto de un documento sin código) y su enlace."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_quality_document_link_import

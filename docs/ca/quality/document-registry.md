@@ -71,15 +71,17 @@ Per a qualsevol altre tipus d'enllaç, feu servir **Obre el document**.
 
 ## Carregar molts enllaços alhora
 
-El mateix fitxer pot portar processos, procediments i documents: cada línia es relaciona pel seu codi.
+El mateix fitxer pot portar processos, procediments i documents: cada línia es relaciona pel seu codi. Un
+document sense codi es relaciona pel seu nom exacte.
 
-1. Prepareu un fitxer CSV amb dues columnes, el codi i l'enllaç (per exemple, exportat d'un full de
-   càlcul):
+1. Prepareu un fitxer CSV amb dues columnes, el codi (o el nom) i l'enllaç, per exemple exportat d'un full
+   de càlcul. Un nom que conté una coma va entre cometes dobles:
    ```
    code,url
    PE3.01.15,https://docs.google.com/document/d/.../edit
+   Pla de manteniment,https://docs.google.com/document/d/.../edit
    ```
 2. **Qualitat → Documentació → Documents → Carrega enllaços** (coordinació de qualitat i direcció).
 3. Trieu el fitxer i feu clic a **Carrega**.
-4. El resultat diu quants enllaços s'han carregat, quins codis no existeixen i quants processos,
+4. El resultat diu quants enllaços s'han carregat, quins codis o noms no existeixen i quants processos,
    procediments i documents encara no tenen enllaç.

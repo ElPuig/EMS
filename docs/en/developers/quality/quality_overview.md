@@ -105,7 +105,9 @@ There is no configuration menu: everyone with the *Quality* menu consults the st
 *Documentation*, and whoever may write changes it with *Edit* on the record itself. The document list is
 not editable in place, so every change goes through the form. Its *Load links* button (quality
 coordination and management) opens `ems.quality.document.link.import`, which fills `url` from a
-`code,url` file in one go, matching each code against documents, procedures and processes.
+`code,url` file in one go, matching each code against documents, procedures and processes, and a line
+that is no code against the exact name of a document without one (the strategic documents and the process
+map; a name shared by several matches none and is reported).
 
 ### Why the links are not in the data files
 

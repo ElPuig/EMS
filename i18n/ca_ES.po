@@ -20355,14 +20355,14 @@ msgstr "Carrega enllaços"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/document_link_import.py:0
-msgid "%(count)s codes are not in the registry: %(codes)s"
-msgstr "%(count)s codis no hi són: %(codes)s"
+msgid "%(count)s codes or names are not in the registry: %(codes)s"
+msgstr "%(count)s codis o noms no hi són: %(codes)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/document_link_import.py:0
-msgid "%s lines were skipped for having no code or no link."
-msgstr "S'han omès %s línies per no tenir codi o enllaç."
+msgid "%s lines were skipped for having no code or name, or no link."
+msgstr "S'han omès %s línies per no tenir codi o nom, o enllaç."
 
 #. module: ems
 #. odoo-python
@@ -20493,12 +20493,8 @@ msgstr "%s processos, procediments i documents encara no tenen enllaç."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_quality_document_link_import__file_data
-msgid ""
-"A CSV with two columns: the code of a process, procedure or document, and "
-"its link."
-msgstr ""
-"Un CSV amb dues columnes: el codi d'un procés, procediment o document, i el "
-"seu enllaç."
+msgid "A CSV with two columns: the code of a process, procedure or document (or the exact name of a document that has no code), and its link."
+msgstr "Un CSV amb dues columnes: el codi d'un procés, procediment o document (o el nom exacte d'un document sense codi) i el seu enllaç."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_quality_document_link_import

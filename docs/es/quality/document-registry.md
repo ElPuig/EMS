@@ -72,14 +72,16 @@ Drive. Para cualquier otro tipo de enlace, usad **Abrir el documento**.
 ## Cargar muchos enlaces a la vez
 
 El mismo fichero puede llevar procesos, procedimientos y documentos: cada línea se relaciona por su código.
+Un documento sin código se relaciona por su nombre exacto.
 
-1. Preparad un fichero CSV con dos columnas, el código y el enlace (por ejemplo, exportado de una hoja de
-   cálculo):
+1. Preparad un fichero CSV con dos columnas, el código (o el nombre) y el enlace, por ejemplo exportado de
+   una hoja de cálculo. Un nombre que contiene una coma va entre comillas dobles:
    ```
    code,url
    PE3.01.15,https://docs.google.com/document/d/.../edit
+   Pla de manteniment,https://docs.google.com/document/d/.../edit
    ```
 2. **Calidad → Documentación → Documentos → Cargar enlaces** (coordinación de calidad y dirección).
 3. Elegid el fichero y haced clic en **Cargar**.
-4. El resultado dice cuántos enlaces se han cargado, qué códigos no existen y cuántos procesos,
+4. El resultado dice cuántos enlaces se han cargado, qué códigos o nombres no existen y cuántos procesos,
    procedimientos y documentos siguen sin enlace.

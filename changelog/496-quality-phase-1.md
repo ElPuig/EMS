@@ -14,6 +14,10 @@ A new **Quality** menu, visible only to quality coordination, management, the he
 
 Under **Quality > Documentation**, which opens on the process map, the eight processes, their 48 procedures and 64 documents. Each one has its Drive link: a process and a procedure show their own sheet in a first *Document* tab, like the map. A document's form shows the document itself inside EMS (Google Docs, Sheets, Slides and Drive files), built from its ordinary link, and opens it for editing in a new tab: one link per document, no "Publish to the web" copy. The documents list has a *Load links* button to fill many links at once from a `code,url` file, which can carry processes, procedures and documents alike. There is no configuration menu: everything is consulted there and changed with *Edit*. Every form opens on its *Document* tab, and clicking a procedure or document listed inside a process opens it in its own form. Seeded in Catalan from `data/custom/`, then kept from the interface.
 
+## Links of documents without a code:
+
+The link loader also accepts the exact name of a document in place of a code, so the strategic documents (PEC, NOFC, maintenance plans...) and the process map, none of which has a code, are loaded from the same file as everything else instead of being pasted one by one in every environment. A document that has a code is still matched by its code only, and a name shared by several documents is reported rather than guessed.
+
 ## Read-only until "Edit":
 
 Process, procedure and document forms open read-only, even for users who may change them. An *Edit* button in the header, shown only to them, unlocks the fields; saving or discarding locks them again.

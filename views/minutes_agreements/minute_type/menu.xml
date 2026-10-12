@@ -63,6 +63,7 @@
                     <field name="code"/>
                     <field name="name"/>
                     <field name="kind"/>
+                    <field name="in_agenda"/>
                     <field name="help_text"/>
                 </list>
             </field>

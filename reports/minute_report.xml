@@ -48,11 +48,9 @@
                                 </p>
                             </t>
 
-                            <t t-if="doc.agenda_ids">
+                            <t t-if="doc.agenda_html">
                                 <h4>Agenda</h4>
-                                <ol>
-                                    <li t-foreach="doc.agenda_ids" t-as="item" t-out="item.name"/>
-                                </ol>
+                                <div t-out="doc.agenda_html"/>
                             </t>
 
                             <t t-foreach="doc.section_value_ids" t-as="section">

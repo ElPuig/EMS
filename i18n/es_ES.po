@@ -1932,6 +1932,7 @@ msgstr "Cantidad de adjuntos"
 #: model:ir.ui.menu,name:ems.menu_meeting_presence
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__attendance_id
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.model.fields,field_description:ems.field_ems_minute__attendance_mode
 msgid "Attendance"
 msgstr "Asistencia"
 
@@ -2093,6 +2094,7 @@ msgstr "Calendario de asistencia: concreta los datos de los días laborables."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_attendance_session_tree
+#: model:ir.model.fields,field_description:ems.field_ems_minute__presence_id
 msgid "Attendance session"
 msgstr "Sesión de asistencia"
 
@@ -3024,11 +3026,13 @@ msgstr "Datos descargados"
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__date model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_signed_record__date model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Date"
 msgstr "Fecha"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_strike__date model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
+#: model:ir.model.fields,field_description:ems.field_ems_minute__start_datetime
 msgid "Date and time"
 msgstr "Fecha y hora"
 
@@ -5319,6 +5323,7 @@ msgstr "Móvil"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__modality
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Modality"
 msgstr "Modalidad"
 
@@ -5392,6 +5397,7 @@ msgstr "Nativo (tras las horas máximas)"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__nature
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Nature"
 msgstr "Naturaleza"
 
@@ -17661,11 +17667,13 @@ msgstr "<strong>Presentes</strong>"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__department
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__scope_choice__department
 msgid "A department"
 msgstr "Un departamento"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__workgroup
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__scope_choice__workgroup
 msgid "A workgroup"
 msgstr "Un grupo de trabajo"
 
@@ -17737,6 +17745,7 @@ msgstr "Elegido a mano"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Close attendance"
 msgstr "Cerrar la asistencia"
 
@@ -17934,6 +17943,8 @@ msgstr "Esta persona ya está en la lista."
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__checkin_time model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour
 #: model:ir.model.fields,field_description:ems.field_ems_minute__time model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_list
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Time"
 msgstr "Hora"
 
@@ -17966,6 +17977,7 @@ msgstr "o escriba su código y pulse Intro"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__duration
+#: model:ir.model.fields,field_description:ems.field_ems_minute__duration
 msgid "Duration"
 msgstr "Duración"
 
@@ -17999,6 +18011,7 @@ msgstr "La reunión debe terminar después de empezar."
 #. odoo-python
 #: code:addons/ems/models/meetings/presence.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_minute__attendee_ids model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_list
 msgid "Attendees"
 msgstr "Asistentes"
 
@@ -19266,6 +19279,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Actions"
 msgstr "Acciones"
 
@@ -20573,10 +20587,11 @@ msgid "Acceptance"
 msgstr "Aceptación"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_minute__agenda_ids
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__agenda
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.model.fields,field_description:ems.field_ems_minute__agenda_html
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Agenda"
 msgstr "Orden del día"
 
@@ -20887,6 +20902,7 @@ msgstr "Temas pendientes"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__place_text
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Place"
 msgstr "Lugar"
 
@@ -23156,3 +23172,261 @@ msgid ""
 "The main groups whose students attend this group's classes. Its classes are "
 "also shown in the schedule of each of them."
 msgstr "Los grupos principales cuyo alumnado asiste a las clases de este grupo. Sus clases también se muestran en el horario de cada uno."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__start_datetime
+msgid "When the meeting starts. The minute's date, its time and its course follow from it."
+msgstr "Cuándo empieza la reunión. La fecha del acta, la hora y el curso se deducen de ella."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__duration
+msgid "In hours. It gives the meeting its end in the calendar and, with the NFC tag, attendance is only taken between the start and the end."
+msgstr "En horas. Da a la reunión su hora de final en el calendario y, con el tag NFC, la asistencia solo se recoge entre el inicio y el final."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__scope_choice
+msgid "Scope of the meeting"
+msgstr "Ámbito de la reunión"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__scope_choice__none
+msgid "No particular scope"
+msgstr "Sin ámbito concreto"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__scope_choice__group
+msgid "A group's teaching team"
+msgstr "El equipo docente de un grupo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__scope_choice__centre
+msgid "The whole centre"
+msgstr "Todo el centro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__code_preview
+msgid "Code of the minute"
+msgstr "Código del acta"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__code_preview
+msgid "The code the minute gets when it is saved, built up as its type, scope and date are filled in."
+msgstr "El código que recibirá el acta al guardarla; se va formando a medida que se informan el tipo, el ámbito y la fecha."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__attendance_mode__manual
+msgid "Written by hand"
+msgstr "Anotada a mano"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__attendance_mode__nfc
+msgid "With the NFC tag"
+msgstr "Con el tag NFC"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__attendance_mode
+msgid "By hand, whoever writes the minute ticks who attended. With the NFC tag, each person passes theirs at the meeting's kiosk and the lists fill in by themselves."
+msgstr "A mano, quien redacta el acta indica quién ha asistido. Con el tag NFC, cada persona pasa el suyo por el quiosco de la reunión y las listas se rellenan solas."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__presence_state
+msgid "Attendance session state"
+msgstr "Estado de la sesión de asistencia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Taking attendance with the NFC tag needs the date and time the meeting starts."
+msgstr "Para recoger la asistencia con el tag NFC hacen falta la fecha y la hora de inicio de la reunión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Taking attendance with the NFC tag needs how long the meeting lasts."
+msgstr "Para recoger la asistencia con el tag NFC hace falta la duración de la reunión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "%s (justified)"
+msgstr "%s (justificada)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "This minute does not take attendance with the NFC tag."
+msgstr "Esta acta no recoge la asistencia con el tag NFC."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Which meeting"
+msgstr "Qué reunión"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "When and where"
+msgstr "Cuándo y dónde"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Save the minute to prepare its attendance kiosk."
+msgstr "Guardad el acta para preparar el quiosco de asistencia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The lists below fill in by themselves from the tags passed at the kiosk."
+msgstr "Las listas siguientes se rellenan solas con los tags que se pasan por el quiosco."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Attendance is closed: these are the people who passed their tag."
+msgstr "La asistencia está cerrada: estas son las personas que han pasado el tag."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open the kiosk"
+msgstr "Abrir el quiosco"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Whoever has not passed the tag will be recorded as absent. Close attendance?"
+msgstr "Quien no haya pasado el tag constará como ausente. ¿Cerrar la asistencia?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open the PDF"
+msgstr "Abrir el PDF"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open the previous minute's PDF"
+msgstr "Abrir el PDF del acta anterior"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/signed_record.py:0
+msgid "There is no PDF yet: it is generated when the record is approved."
+msgstr "Todavía no hay PDF: se genera al aprobar el registro."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__agenda_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Items to discuss"
+msgstr "Puntos a tratar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__agenda_html
+msgid "The meeting's agenda as it is sent with the call, put together from the sections of the minute type and the items to discuss."
+msgstr "El orden del día de la reunión tal como se envía con la convocatoria, formado a partir de las secciones del tipo de acta y de los puntos a tratar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section__in_agenda
+msgid "In the agenda"
+msgstr "En el orden del día"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_section__in_agenda
+msgid "The section is one of the points of the meeting's agenda, the one sent with the call: approving the previous minute, following up the agreements, the items to discuss, any other business."
+msgstr "La sección es uno de los puntos del orden del día de la reunión, el que se envía con la convocatoria: aprobar el acta anterior, hacer el seguimiento de los acuerdos, los puntos a tratar, ruegos y preguntas."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__call_sent_datetime
+msgid "Call sent on"
+msgstr "Convocatoria enviada el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__call_recipient_count
+msgid "People the call was sent to"
+msgstr "Personas a las que se ha enviado la convocatoria"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "A call can only be sent for a meeting whose minute is not approved yet."
+msgstr "Solo se puede enviar la convocatoria de una reunión cuya acta aún no está aprobada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Set the date and time of the meeting before sending its call."
+msgstr "Indicad la fecha y la hora de la reunión antes de enviar su convocatoria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "There is nobody to send the call to: none of the people convened has an email address."
+msgstr "No hay nadie a quien enviar la convocatoria: ninguna de las personas convocadas tiene dirección de correo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Updated call: %s"
+msgstr "Convocatoria actualizada: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Call: %s"
+msgstr "Convocatoria: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Call sent to %s people."
+msgstr "Convocatoria enviada a %s personas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "The call has been sent to %s people."
+msgstr "La convocatoria se ha enviado a %s personas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Send the call"
+msgstr "Enviar la convocatoria"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Send the call again"
+msgstr "Volver a enviar la convocatoria"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The call will be emailed to everybody convened, with the date, time and place of the meeting and its agenda. Send it?"
+msgstr "La convocatoria se enviará por correo a todas las personas convocadas, con la fecha, la hora y el lugar de la reunión y el orden del día. ¿Enviarla?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Everybody convened will receive the call again, as an update of the one already sent. Send it?"
+msgstr "Todas las personas convocadas volverán a recibir la convocatoria, como actualización de la ya enviada. ¿Enviarla?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "This call replaces the one sent before: check the date, the time, the place and the agenda."
+msgstr "Esta convocatoria sustituye a la enviada anteriormente: revisad la fecha, la hora, el lugar y el orden del día."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "Hello! Here are the details of our next meeting."
+msgstr "¡Hola! Os hacemos llegar los detalles de la próxima reunión."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "The agenda has not been set yet."
+msgstr "El orden del día aún no se ha establecido."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "The minute of the previous meeting can be read before it is approved:"
+msgstr "El acta de la reunión anterior se puede leer antes de aprobarla:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "Called by"
+msgstr "Convoca:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.minute_call_email
+msgid "Add this meeting to my Google Calendar"
+msgstr "Añadir esta reunión a mi Google Calendar"

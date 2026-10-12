@@ -77,6 +77,7 @@
         'views/menu.xml',
         'views/quality/menu.xml',
         'reports/minute_report.xml',
+        'views/minutes_agreements/minute/call_email.xml',
         'views/minutes_agreements/menu.xml',
             'views/minutes_agreements/minute/search.xml',
             'views/minutes_agreements/minute/list.xml',

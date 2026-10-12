@@ -1,0 +1,9 @@
+/* ems.css gives every list column named 'code' a fixed 125px, sized for short catalogue codes
+   (ESO, PE3.01.15). A minute's or an agreement's code is longer (ACTA-INF-2026-27-003), so their
+   lists ask for the room it needs; the same !important is what it takes to win over that rule. */
+.o_ems_long_code_list th.o_column_sortable[data-name="code"],
+.o_field_widget[name="agreement_ids"] th.o_column_sortable[data-name="code"],
+.o_field_widget[name="followed_agreement_ids"] th.o_column_sortable[data-name="code"] {
+    width: 190px !important;
+    max-width: 190px !important;
+}

@@ -32,6 +32,11 @@ class EmsMinuteSection(models.Model):
     name = fields.Char(string="Name", required=True, translate=True)
     kind = fields.Selection(string="Kind", selection=SECTION_KINDS, required=True, default='text')
     help_text = fields.Text(string="Guidance", translate=True, help="Shown to whoever writes the minute, above the section.")
+    in_agenda = fields.Boolean(
+        string="In the agenda",
+        help="The section is one of the points of the meeting's agenda, the one sent with the call: "
+             "approving the previous minute, following up the agreements, the items to discuss, any other business.",
+    )
     active = fields.Boolean(string="Active", default=True)
 
     @api.depends('code', 'name')

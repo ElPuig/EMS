@@ -10,6 +10,18 @@ Seven types ship ready to use — generic, department, staff meeting, teaching t
 
 **Attendees arrive preloaded** from the scope of the minute: the department's members, the workgroup's, the teachers of a group, or the whole teaching staff for a staff meeting. **The still-open agreements of the previous minute of the same scope are carried over**, along with any pending topic left unticked, so following up on what was agreed no longer depends on somebody copying it across. **Codes are issued automatically**, per scope and course, so a gap in a department's numbering is visible instead of invisible.
 
+## Setting a minute up in the order a meeting is set up:
+
+The form asks first for the type, then for whose meeting it is (the department, the workgroup or the group, depending on the type; a generic minute lets you choose), then for the date and time, the room and the modality. The title is the minute's own code, which builds up at the top as those fields are filled in and is issued on saving. The date and time are one field with a picker, proposed at the next full hour, and the course follows from the date instead of being asked for.
+
+## Attendance by hand or with the NFC tag, chosen in the minute:
+
+Whoever writes the minute decides how attendance is taken. By hand, the preloaded list is edited as before. With the NFC tag, the minute prepares its own attendance session: the writer opens the kiosk from the minute, people pass their tag, and closing attendance fills the attendee and absentee lists by themselves, justified absences included.
+
+## The agenda is put together, not typed, and sent with the call:
+
+Only the meeting's own items are written, in the tab now called "Items to discuss". The agenda follows from the minute: approving the previous minute when there is one, following up the agreements when some are still open, those items, and any other business. From the draft, "Send the call" emails it to everybody convened together with the date, time and place and a link to the previous minute; it can be sent again whenever something changes, and the second call says it replaces the first. The minute's actions now live in the form's "Actions" dropdown.
+
 ## One controlled template instead of five:
 
 The per-variant minute templates are replaced by a single controlled document with optional sections. The five it replaces are archived in the document structure, and still resolve for any older minute quoting their code.

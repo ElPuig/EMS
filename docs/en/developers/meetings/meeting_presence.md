@@ -151,4 +151,17 @@ There are no record rules: the sessions are centre-wide by nature (a staff meeti
 
 ## Integration with the minutes (issue #497)
 
-Built independently of the quality work's minutes (`ems.minute`), deliberately aligned with it: the *Meetings* root menu uses the same XML ID (`menu_minutes`) and `views/` folder (`views/minutes_agreements/`) that phase 2 uses, so both merge into one menu; the convened list uses the same comodel and the same scope semantics as the minutes' attendee preloading. The steps to join them once #497 lands are in `plans/meeting_presence_minute_integration.md`.
+A session can be created on its own (Head of Studies, secretariat) or **by a minute**: whoever sets a minute up chooses, in the form, whether attendance is written by hand or taken with the NFC tag (`ems.minute.attendance_mode`). With the tag, saving the minute creates its session (`ems.minute.presence_id`, `_ems_sync_presence()`):
+
+- **With sudo.** A teacher has no access to `ems.meeting.presence`, yet writes minutes. The session of a minute is created for them, with the writer as `convener_id`, so the meetings page opens its kiosk with their own tag and the minute's *Open the kiosk* button does the same from the form.
+- **One convened list, the minute's.** The session's lines are the attendees the minute preloaded from its scope, not a second list worked out by the session's own scope rules.
+- **The session follows the minute while it is a draft** (start, duration, room, name), and is deleted if the minute goes back to a hand-written list before anybody opened it. Once opened it is left alone.
+- **The result goes back to the minute** (`ems.minute._ems_sync_attendance()`): lines `present` become `attendee_ids`, every other line `absentee_ids`, and justified absences are written to `absence_notes` with their reason. It runs when the session is closed, from the minute's *Close attendance* button or from the session's own screen, and again when the minute is sent for approval. An approved minute is never touched.
+
+Still to do, in `plans/meeting_presence_minute_integration.md`: a single implementation of the scope rules, and the quality roles as session managers.
+
+## The agenda and the call (`ems.minute`)
+
+Only the meeting's own items are stored (`ems.minute.agenda_ids`, the *Items to discuss* tab). The agenda is computed (`agenda_html`, from `_ems_agenda_entries()`): the sections the minute type marks with `ems.minute.section.in_agenda`, in the type's order, where the section of kind `previous_approval` only counts when the minute has a previous one, `agreement_followup` only when agreements are still open, and the section of kind `agenda` unfolds into the items. The minute's PDF prints the same thing.
+
+`action_send_call()` (the form's *Send the call* entry) emails it to every attendee with a `work_email`, in one message, together with the date, time, place, modality and a backend link to the previous minute; the body is the QWeb template `ems.minute_call_email`. It can be sent again at any point before approval: `call_sent_datetime` records the last time and makes the next one say it replaces the earlier call. It is an ordinary `mail.mail`, so the dev mail guard applies (see `../shared/dev_mail_guard.md`) and tests mock the transport.

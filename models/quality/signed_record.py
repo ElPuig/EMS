@@ -86,6 +86,13 @@ class EmsSignedRecord(models.AbstractModel):
         })
         return self.pdf_attachment_id
 
+    def action_open_pdf(self):
+        """Show the PDF itself, in a browser tab, rather than the attachment record that holds it."""
+        self.ensure_one()
+        if not self.pdf_attachment_id:
+            raise UserError(_("There is no PDF yet: it is generated when the record is approved."))
+        return {'type': 'ir.actions.act_url', 'url': f"/web/content/{self.pdf_attachment_id.id}?download=false", 'target': 'new'}
+
     def _ems_upload_to_drive(self):
         """Seam for filing the PDF in the centre's shared drive.
 

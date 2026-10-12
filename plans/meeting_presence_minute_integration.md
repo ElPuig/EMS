@@ -15,17 +15,13 @@ independently of `ems.minute`, on purpose aligned with it. What is left to do on
    `groups` is the union of both (#497: teacher + secretary; #521: Head of Studies, secretary,
    academic admin). Each entry keeps its own groups, so a teacher sees the minutes entries
    but not *Attendance*.
-2. **Link a minute to its attendance.** Add `presence_id` (`Many2one → ems.meeting.presence`,
-   `copy=False`) on `ems.minute`, and a form button *Attendance control* that creates the session
-   from the minute: name/room from the minute, the minute's `date` + `time` as the session's start
-   (`date`, with a `duration` - the session has a start and an end, and the kiosk only takes tags
-   between them), and the scope mapped from the minute type's
-   `scope_kind` (`department` → `department`, `workgroup` → `workgroup`, `centre` → `all_teachers`,
-   `teaching_team` and `generic` → `manual`, loading `_ems_teaching_team_ids()`).
-3. **Derive the attendee lists.** `attendee_ids` are the lines `present`, `absentee_ids` the lines
-   `absent` and `justified` (the latter with `absence_notes`, which also delivers the "justified
-   flag" the phase 2 design describes). Simplest: fill them when the minute is sent for approval, so
-   a minute without a session keeps working exactly as it does.
+2. **Link a minute to its attendance.** *Done 2026-10-12, the other way round from what was first
+   planned:* the minute is where the choice is made (`attendance_mode`: by hand or NFC tag), and
+   saving it creates the session (`presence_id`) with the minute's start, duration, room and
+   preloaded attendees, the writer as convener. See "Integration with the minutes" in
+   `docs/en/developers/meetings/meeting_presence.md`.
+3. **Derive the attendee lists.** *Done 2026-10-12:* filled when the session closes and when the
+   minute is sent for approval (`ems.minute._ems_sync_attendance()`).
 4. **One preloading implementation.** `ems.minute._ems_preload_attendees()` and
    `ems.meeting.presence._ems_scope_employees()` implement the same rules. Make the minute call the
    session's helper (or extract both into an abstract mixin) instead of keeping two copies.
@@ -33,7 +29,7 @@ independently of `ems.minute`, on purpose aligned with it. What is left to do on
    implies neither teacher nor secretary, so it cannot read the courses, rooms, departments and
    workgroups a session points at (the failure class of issue #434). Add it (and #497's quality
    coordination group) together with the read ACL lines those four models need for it.
-6. **Tests.** A minute created from a session: attendees/absentees derived, a second call reusing
-   the same session, and the menu merge (the secretary smoke tour covers it).
+6. **Tests.** *Done for steps 2-3* (`tests/test_quality_minute.py`, and the minute tour chooses the
+   NFC tag). Steps 4-5 still need theirs.
 
 No migration is needed on the session side; `presence_id` is a new column, which the upgrade adds.

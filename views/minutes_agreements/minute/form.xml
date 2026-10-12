@@ -7,62 +7,100 @@
             <field name="arch" type="xml">
                 <form>
                     <header>
-                        <button name="action_submit" string="Send for approval" type="object" class="btn-primary" invisible="state != 'draft'"/>
-                        <button name="action_approve" string="Approve" type="object" class="btn-primary" invisible="state != 'to_approve'"/>
-                        <button name="action_back_to_draft" string="Back to draft" type="object" invisible="state != 'to_approve'"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_send_call" string="Send the call" type="object"
+                                    invisible="state == 'approved' or type_kind == 'record' or call_sent_datetime"
+                                    confirm="The call will be emailed to everybody convened, with the date, time and place of the meeting and its agenda. Send it?"/>
+                            <button name="action_send_call" string="Send the call again" type="object"
+                                    invisible="state == 'approved' or type_kind == 'record' or not call_sent_datetime"
+                                    confirm="Everybody convened will receive the call again, as an update of the one already sent. Send it?"/>
+                            <button name="action_submit" string="Send for approval" type="object" invisible="state != 'draft'"/>
+                            <button name="action_approve" string="Approve" type="object" invisible="state != 'to_approve'"/>
+                            <button name="action_back_to_draft" string="Back to draft" type="object" invisible="state != 'to_approve'"/>
+                        </div>
+                        <field name="call_sent_datetime" invisible="1"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
-                            <h2><field name="code" readonly="1"/></h2>
-                            <h1><field name="name" placeholder="Title of the minute"/></h1>
+                            <!-- The code is the title: it builds up as the type, the scope and the
+                                 date are filled in, and becomes the real one on saving. -->
+                            <h1><field name="code_preview"/></h1>
+                            <field name="code" invisible="1"/>
+                            <field name="name" class="text-muted" placeholder="Title of the minute" invisible="not type_id"/>
                         </div>
+                        <!-- Laid out in the order a meeting is actually set up: what it is, whose it
+                             is, then when and where. -->
                         <group>
-                            <group string="Meeting">
-                                <field name="type_id" readonly="state != 'draft'"/>
+                            <group string="Which meeting" name="which">
+                                <field name="type_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
                                 <field name="type_kind" invisible="1"/>
                                 <field name="scope_kind" invisible="1"/>
-                                <field name="date"/>
-                                <field name="time" placeholder="12:00"/>
-                                <field name="nature" invisible="type_kind == 'record'"/>
-                                <field name="modality" invisible="type_kind == 'record'"/>
+                                <field name="scope_choice" invisible="scope_kind != 'generic'"/>
+                                <field name="department_id" options="{'no_create': True}"
+                                       invisible="scope_kind != 'department' and (scope_kind != 'generic' or scope_choice != 'department')"
+                                       required="scope_kind == 'department' or (scope_kind == 'generic' and scope_choice == 'department')"/>
+                                <field name="workgroup_id" options="{'no_create': True}"
+                                       invisible="scope_kind != 'workgroup' and (scope_kind != 'generic' or scope_choice != 'workgroup')"
+                                       required="scope_kind == 'workgroup' or (scope_kind == 'generic' and scope_choice == 'workgroup')"/>
+                                <field name="group_id" options="{'no_create': True}"
+                                       invisible="scope_kind != 'teaching_team' and (scope_kind != 'generic' or scope_choice != 'group')"
+                                       required="scope_kind == 'teaching_team' or (scope_kind == 'generic' and scope_choice == 'group')"/>
+                                <field name="is_centre" invisible="1"/>
                             </group>
-                            <group string="Where">
-                                <field name="space_id"/>
-                                <field name="place_text" placeholder="A video call, a mailing list..."/>
-                                <field name="course_id"/>
+                            <group string="When and where" name="when" invisible="not type_id">
+                                <field name="start_datetime" required="type_id"/>
+                                <field name="duration" widget="float_time" invisible="type_kind == 'record'" required="attendance_mode == 'nfc' and type_kind != 'record'"/>
+                                <field name="date" invisible="1"/>
+                                <field name="time" invisible="1"/>
+                                <field name="course_id" invisible="1"/>
+                                <field name="nature" widget="radio" options="{'horizontal': true}" invisible="type_kind == 'record'"/>
+                                <field name="modality" widget="radio" options="{'horizontal': true}" invisible="type_kind == 'record'"/>
+                                <field name="space_id" options="{'no_create': True}" invisible="modality == 'online' and type_kind != 'record'"/>
+                                <field name="place_text" placeholder="A video call, a mailing list..." invisible="modality == 'in-person' and type_kind != 'record'"/>
+                                <field name="call_sent_datetime" invisible="not call_sent_datetime"/>
+                                <field name="attendance_mode" widget="radio" options="{'horizontal': true}" invisible="type_kind == 'record'"/>
                             </group>
                         </group>
-                        <group string="Scope">
-                            <group>
-                                <field name="department_id" invisible="scope_kind not in ['department', 'generic']"/>
-                                <field name="workgroup_id" invisible="scope_kind not in ['workgroup', 'generic']"/>
-                            </group>
-                            <group>
-                                <field name="group_id" invisible="scope_kind not in ['teaching_team', 'generic']"/>
-                                <field name="is_centre" invisible="scope_kind not in ['centre', 'generic']"/>
-                            </group>
-                        </group>
-                        <notebook>
+                        <notebook invisible="not type_id">
                             <page string="Attendance" name="attendance" invisible="type_kind == 'record'">
+                                <field name="presence_id" invisible="1"/>
+                                <field name="presence_state" invisible="1"/>
+                                <div class="alert alert-info d-flex align-items-center gap-3" role="status" invisible="attendance_mode != 'nfc'">
+                                    <span invisible="presence_id">Save the minute to prepare its attendance kiosk.</span>
+                                    <span invisible="not presence_id or presence_state == 'closed'">The lists below fill in by themselves from the tags passed at the kiosk.</span>
+                                    <span invisible="presence_state != 'closed'">Attendance is closed: these are the people who passed their tag.</span>
+                                    <button name="action_open_attendance_kiosk" string="Open the kiosk" type="object" class="btn-primary"
+                                            invisible="not presence_id or presence_state == 'closed' or state == 'approved'"/>
+                                    <button name="action_close_attendance" string="Close attendance" type="object" class="btn-secondary"
+                                            invisible="presence_state != 'open' or state == 'approved'"
+                                            confirm="Whoever has not passed the tag will be recorded as absent. Close attendance?"/>
+                                </div>
                                 <group>
-                                    <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                                    <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}"/>
-                                    <field name="absence_notes" placeholder="For example, which of them were justified"/>
+                                    <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="attendee_count"/>
                                 </group>
                             </page>
-                            <page string="Agenda" name="agenda" invisible="type_kind == 'record'">
+                            <page string="Items to discuss" name="agenda" invisible="type_kind == 'record'">
+                                <!-- Only the meeting's own items are typed in. The agenda itself,
+                                     the one sent with the call, is put together below from them and
+                                     from what the minute already knows. -->
                                 <field name="agenda_ids">
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
                                     </list>
                                 </field>
+                                <separator string="Agenda"/>
+                                <field name="agenda_html" nolabel="1" readonly="1"/>
                             </page>
                             <page string="Previous minute" name="previous" invisible="type_kind == 'record'">
                                 <group>
                                     <field name="previous_minute_id" readonly="1"/>
+                                    <button name="action_open_previous_pdf" string="Open the previous minute's PDF" type="object" class="oe_link"
+                                            icon="fa-file-pdf-o" colspan="2" invisible="not previous_minute_id"/>
                                     <field name="previous_approved"/>
                                     <field name="previous_approval_notes"/>
                                 </group>
@@ -160,7 +198,9 @@
                                 <field name="approver_role_id"/>
                                 <field name="approver_employee_id" readonly="1" invisible="state != 'approved'"/>
                                 <field name="approval_date" readonly="1" invisible="state != 'approved'"/>
-                                <field name="pdf_attachment_id" readonly="1" invisible="state != 'approved'"/>
+                                <field name="pdf_attachment_id" invisible="1"/>
+                                <button name="action_open_pdf" string="Open the PDF" type="object" class="oe_link" icon="fa-file-pdf-o"
+                                        colspan="2" invisible="not pdf_attachment_id"/>
                             </group>
                         </group>
                     </sheet>

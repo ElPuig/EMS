@@ -109,9 +109,34 @@ class EmsQualityAction(models.Model):
         for action in self:
             action.is_late = bool(action.deadline_date) and action.state != QUALITY_STATE_CLOSED and action.deadline_date < today
 
+    @api.model
+    def _ems_department_chiefs(self, department):
+        """Who answers for what a department agrees when nobody in particular was named: its
+        Department Chief and its Seminar Chief, when it has one."""
+        department = self.env['hr.department'].sudo().browse(department.id if department else False)
+        return self.env['hr.employee.public'].browse((department.manager_id | department.seminar_chief_id).ids)
+
+    @api.model
+    def default_get(self, fields_list):
+        """An agreement added from a department's minute comes with its chiefs as responsible."""
+        defaults = super().default_get(fields_list)
+        if ('responsible_employee_ids' in fields_list and not defaults.get('responsible_employee_ids')
+                and defaults.get('type', 'agreement') == 'agreement' and defaults.get('department_id')):
+            chiefs = self._ems_department_chiefs(self.env['hr.department'].browse(defaults['department_id']))
+            if chiefs:
+                defaults['responsible_employee_ids'] = [(6, 0, chiefs.ids)]
+        return defaults
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # Same default for an agreement created by code (an import, the minute's own lines):
+            # only when nobody was named, neither a post nor a person.
+            if (vals.get('type', 'agreement') == 'agreement' and vals.get('department_id')
+                    and 'responsible_employee_ids' not in vals and not vals.get('responsible_role_id')):
+                chiefs = self._ems_department_chiefs(self.env['hr.department'].browse(vals['department_id']))
+                if chiefs:
+                    vals['responsible_employee_ids'] = [(6, 0, chiefs.ids)]
             if not vals.get('code'):
                 vals['code'] = self.new(vals)._next_code()
         return super().create(vals_list)
@@ -144,7 +169,8 @@ class EmsQualityAction(models.Model):
         self.ensure_one()
         if self.group_id:
             return self.group_id.name.upper().replace(' ', '')
-        record = self.department_id or self.workgroup_id
+        # In the source language whoever is asking: the name is translated, the numbering is one.
+        record = (self.department_id or self.workgroup_id).with_context(lang='en_US')
         if record:
             code = getattr(record, 'code', False)
             if code:

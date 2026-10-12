@@ -13,20 +13,29 @@ curs actual. Traient una faceta de la barra de cerca veieu més.
 ## Redactar una acta
 
 1. Botó **Nou**.
-2. Trieu el **tipus d'acta**. Això és el pas important: el tipus decideix quines seccions surten, així que
-   una acta de departament i una de claustre no us demanen el mateix.
-3. Comproveu la **data**, poseu-hi l'**hora** i indiqueu l'**aula** o, si la reunió no es fa en una aula
-   del centre, escriviu on es fa al camp **Lloc** (una videotrucada, una llista de correu...).
-4. Indiqueu l'**àmbit**: el departament, el grup de treball o el grup. Les actes de claustre porten
-   marcada la casella *De centre*.
-5. A la pestanya **Persones assistents** ja hi trobareu la llista **omplerta**, treta de l'àmbit: els
-   membres del departament, els de l'equip de treball o el professorat que fa classe al grup. Només cal
-   moure a **Persones que hi manquen** qui no hi hagi vingut.
-6. Ompliu l'**ordre del dia** i, a la pestanya **Contingut**, cada secció que el tipus d'acta demana. Les
+2. Trieu el **tipus d'acta**. És el primer que demana el formulari i el pas important: el tipus decideix
+   quines seccions surten, així que una acta de departament i una de claustre no us demanen el mateix.
+3. Tot seguit el formulari us demana **de qui és la reunió**, segons el tipus: el departament, l'equip
+   de treball o el grup. Una acta de claustre no demana res; una acta genèrica us deixa triar l'àmbit.
+4. Comproveu la **data i hora** (ve proposada la propera hora en punt), el caràcter i la modalitat, i
+   indiqueu la **sala**. Si la reunió no és presencial, escriviu on es fa al camp **Lloc** (una
+   videotrucada, una llista de correu...).
+5. Trieu com es recull l'**assistència**:
+   - **Anotada a mà:** a la pestanya **Assistència** ja hi trobareu la llista **omplerta**, treta de
+     l'àmbit (els membres del departament, els de l'equip de treball o el professorat que fa classe al
+     grup). Només cal moure a **Persones que hi manquen** qui no hi hagi vingut.
+   - **Amb el tag NFC:** indiqueu la **durada** i deseu l'acta. A la pestanya **Assistència**, **Obre el
+     quiosc** obre la pantalla on cada persona passa el seu tag; **Tanca l'assistència** acaba la recollida
+     i omple les dues llistes: qui ha passat el tag hi ha assistit, la resta consta com a absent.
+6. A la pestanya **Punts a tractar**, afegiu els temes propis de la reunió. L'**ordre del dia** no s'escriu:
+   es forma sol a sota, amb l'aprovació de l'acta anterior (si n'hi ha), el seguiment dels acords (si en
+   queden d'oberts), els vostres punts i els precs i preguntes.
+   A la pestanya **Contingut**, ompliu cada secció que el tipus d'acta demana. Les
    marcades com a obligatòries s'han d'omplir abans de poder aprovar l'acta.
 7. A **Acords**, afegiu els acords: què s'acorda, qui se'n fa responsable i per quan. El codi de cada
    acord s'assigna sol.
-8. Deseu. L'acta rep el seu **codi** automàticament.
+8. Deseu. El **codi** de l'acta, que heu vist formar-se a dalt del formulari a mesura que informàveu el
+   tipus, l'àmbit i la data, queda assignat.
 
 ## El que ja no heu de fer a mà
 
@@ -38,9 +47,19 @@ curs actual. Traient una faceta de la barra de cerca veieu més.
 - **Numerar.** Ni l'acta ni els acords: els codis els posa l'aplicació, i van seguits dins del vostre
   àmbit, de manera que si falta un número es veu.
 
+## Convocar la reunió
+
+Amb l'acta en esborrany, **Accions → Envia la convocatòria** envia un correu a totes les persones
+convocades (les de la llista d'assistents) amb la data, l'hora, el lloc, la modalitat, l'ordre del dia i un
+enllaç a l'acta de la reunió anterior, perquè la puguin llegir abans d'aprovar-la.
+
+Si després canvia qualsevol cosa (la data, l'hora, el lloc o els punts), **Accions → Torna a enviar la
+convocatòria** l'envia de nou, indicant que substitueix l'anterior. La data del darrer enviament queda a
+l'acta.
+
 ## Aprovar
 
-Quan l'acta estigui llesta, **Enviar a aprovar**. Qui hagi de donar el vistiplau la trobarà a la seva
+Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Qui hagi de donar el vistiplau la trobarà a la seva
 pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:
 
 - Queda registrat **qui l'ha aprovada i quan**.

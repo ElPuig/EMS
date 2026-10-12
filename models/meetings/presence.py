@@ -269,6 +269,8 @@ class EmsMeetingPresence(models.Model):
                 raise UserError(_("Only an open meeting attendance can be closed."))
             presence.line_ids.filtered(lambda line: line.state == 'pending').write({'state': 'absent'})
             presence.state = 'closed'
+        # A session taken for a minute hands its result over to it.
+        self.env['ems.minute'].sudo().search([('presence_id', 'in', self.ids)])._ems_sync_attendance()
         return True
 
     def action_reopen(self):

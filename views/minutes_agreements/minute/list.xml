@@ -5,15 +5,20 @@
             <field name="name">ems.minute.list</field>
             <field name="model">ems.minute</field>
             <field name="arch" type="xml">
-                <list decoration-muted="state == 'approved'">
+                <list class="o_ems_long_code_list" decoration-muted="state == 'approved'">
+                    <!-- Explicit widths on the columns whose content has a known length, so the
+                         spare width goes to the type and the scope. The code's own width comes from
+                         quality.css (class o_ems_long_code_list): a width set here loses to the
+                         125px ems.css gives every 'code' column. -->
                     <field name="code"/>
                     <field name="date"/>
+                    <field name="time" string="Time" width="70px" optional="show"/>
                     <field name="type_id"/>
                     <field name="scope_name"/>
                     <field name="name" optional="hide"/>
-                    <field name="attendee_count"/>
+                    <field name="attendee_count" string="Attendees" width="100px"/>
                     <field name="redactor_employee_id" optional="show"/>
-                    <field name="state"/>
+                    <field name="state" width="120px"/>
                     <field name="course_id" optional="hide"/>
                 </list>
             </field>

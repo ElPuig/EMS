@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from odoo import fields
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_role_employee, create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 class TestQualityMinute(TransactionCase):
@@ -17,6 +19,9 @@ class TestQualityMinute(TransactionCase):
         cls.type = cls.env.ref('__import__.minute_type_dep')
         cls.user = create_role_user(cls, 'teacher', 'minute.writer@example.com')
         cls.employee = create_role_employee(cls, cls.user, department_id=cls.department.id)
+        cls.employee.work_email = 'minute.writer@example.com'
+        # The call to a meeting is a real email: nothing leaves this box from a test.
+        cls.mail_transport = mock_outgoing_email(cls)
 
     def _minute(self, **overrides):
         vals = {
@@ -125,3 +130,216 @@ class TestQualityMinute(TransactionCase):
         """The old required column is kept in step instead of dropped: dropping the field would
         leave the NOT NULL column behind and break every insert."""
         self.assertEqual(self._minute().type, 'department')
+
+    # --- Setting a meeting up: code, date and time, attendance --------------------------------
+
+    def test_date_time_and_course_follow_from_the_start(self):
+        """The start is stored in UTC; the minute states it as the centre reads it."""
+        minute = self._minute(date=False, course_id=False, start_datetime=datetime(2027, 1, 14, 11, 30))
+        self.assertEqual(str(minute.date), '2027-01-14')
+        self.assertEqual(minute.time, '12:30', "11:30 UTC is 12:30 in Catalonia in winter")
+        self.assertEqual(minute.course_id.start, 2026, "January 2027 belongs to the course that started in September 2026")
+        minute.start_datetime = datetime(2027, 6, 30, 22, 30)
+        self.assertEqual(str(minute.date), '2027-07-01', "22:30 UTC is already the next day in summer")
+        self.assertEqual(minute.time, '00:30')
+
+    def test_a_minute_dated_by_code_keeps_its_date(self):
+        minute = self._minute(date='2026-09-15')
+        self.assertEqual(str(minute.date), '2026-09-15')
+        self.assertFalse(minute.start_datetime)
+
+    def test_the_code_builds_up_as_the_minute_is_filled_in(self):
+        Minute = self.env['ems.minute']
+        self.assertEqual(Minute.new({}).code_preview, 'ACTA')
+        self.assertEqual(Minute.new({'type_id': self.type.id}).code_preview, 'ACTA',
+                         "a department minute is numbered under its department: no department, no code yet")
+        draft = Minute.new({'type_id': self.type.id, 'department_id': self.department.id, 'course_id': self.course.id})
+        self.assertEqual(draft.code_preview, f"ACTA-MTD-{self.course.short_code}-001")
+        first = self._minute()
+        self.assertEqual(first.code, f"ACTA-MTD-{self.course.short_code}-001", "the code issued is the one that was announced")
+        self.assertEqual(first.code_preview, first.code)
+        draft.invalidate_recordset(['code_preview'])
+        self.assertEqual(draft.code_preview, f"ACTA-MTD-{self.course.short_code}-002")
+
+    def test_a_generic_minute_takes_the_scope_chosen_for_it(self):
+        generic = self.env.ref('__import__.minute_type_generic')
+        Minute = self.env['ems.minute']
+        self.assertEqual(Minute.new({'type_id': generic.id, 'course_id': self.course.id}).code_preview[:9], 'ACTA-GEN-')
+        waiting = Minute.new({'type_id': generic.id, 'scope_choice': 'department', 'course_id': self.course.id})
+        self.assertEqual(waiting.code_preview, 'ACTA')
+        waiting.department_id = self.department
+        self.assertEqual(waiting.code_preview[:9], 'ACTA-MTD-')
+
+    def _nfc_minute(self, **overrides):
+        vals = {'date': False, 'start_datetime': datetime(2027, 1, 14, 11, 30), 'duration': 1.5, 'attendance_mode': 'nfc'}
+        vals.update(overrides)
+        return self._minute(**vals).with_user(self.user)
+
+    def test_attendance_with_the_tag_prepares_a_session_for_the_writer(self):
+        """A teacher has no access to the attendance sessions, yet the one of their own minute
+        is theirs to run: they convene it, with the people the minute preloaded."""
+        minute = self.env['ems.minute'].with_user(self.user).create({
+            'type_id': self.type.id, 'department_id': self.department.id,
+            'start_datetime': datetime(2027, 1, 14, 11, 30), 'duration': 1.5, 'attendance_mode': 'nfc',
+        })
+        presence = minute.presence_id.sudo()
+        self.assertTrue(presence)
+        self.assertEqual(presence.state, 'draft')
+        self.assertEqual(presence.date, datetime(2027, 1, 14, 11, 30))
+        self.assertEqual(presence.duration, 1.5)
+        self.assertEqual(presence.scope, 'department')
+        self.assertEqual(presence.convener_id.id, self.employee.id)
+        self.assertEqual(presence.line_ids.employee_id.ids, minute.attendee_ids.ids)
+        self.assertIn(self.employee.id, presence.line_ids.employee_id.ids)
+
+    def test_the_session_follows_the_minute_until_it_is_opened(self):
+        minute = self._nfc_minute()
+        presence = minute.presence_id.sudo()
+        minute.write({'start_datetime': datetime(2027, 1, 15, 9, 0), 'duration': 2})
+        self.assertEqual(presence.date, datetime(2027, 1, 15, 9, 0))
+        self.assertEqual(presence.duration, 2)
+        minute.attendance_mode = 'manual'
+        self.assertFalse(presence.exists(), "a session nobody opened goes away with the choice that created it")
+        self.assertFalse(minute.presence_id)
+
+    def test_attendance_with_the_tag_needs_a_start(self):
+        with self.assertRaises(UserError):
+            self._minute(attendance_mode='nfc')
+
+    def test_the_lists_are_filled_from_the_tags(self):
+        colleague_user = create_role_user(self, 'teacher', 'minute.colleague@example.com', name='Minute Colleague')
+        colleague = create_role_employee(self, colleague_user, department_id=self.department.id)
+        minute = self._nfc_minute()
+        action = minute.action_open_attendance_kiosk()
+        presence = minute.presence_id.sudo()
+        self.assertEqual(presence.state, 'open')
+        self.assertEqual(action['url'], presence.kiosk_url)
+        presence.line_ids.filtered(lambda line: line.employee_id.id == self.employee.id).state = 'present'
+        presence.line_ids.filtered(lambda line: line.employee_id.id == colleague.id).write({'state': 'justified', 'notes': 'Medical visit'})
+        minute.action_close_attendance()
+        self.assertEqual(presence.state, 'closed')
+        self.assertEqual(minute.attendee_ids.ids, [self.employee.id])
+        self.assertIn(colleague.id, minute.absentee_ids.ids)
+        self.assertIn('Medical visit', minute.absence_notes)
+
+    def test_closing_the_session_from_its_own_screen_fills_the_minute_too(self):
+        minute = self._nfc_minute()
+        presence = minute.presence_id.sudo()
+        presence.action_open()
+        presence.line_ids.filtered(lambda line: line.employee_id.id == self.employee.id).state = 'present'
+        presence.action_close()
+        self.assertEqual(minute.attendee_ids.ids, [self.employee.id])
+
+    def test_the_agenda_is_put_together_from_the_minute(self):
+        """Only the items to discuss are typed in; the rest of the agenda follows from the minute."""
+        section = lambda name: self.env.ref(f'__import__.minute_section_{name}').name
+        first = self._minute(agenda_ids=[(0, 0, {'sequence': 20, 'name': 'Second item'}), (0, 0, {'sequence': 10, 'name': 'First <item>'})])
+        self.assertEqual(first._ems_agenda_entries(), [(section('agenda'), ['First <item>', 'Second item']), (section('requests'), [])],
+                         "the first minute of a department has no previous minute to approve nor agreements to follow up")
+        self.assertIn('First &lt;item&gt;', first.agenda_html)
+        second = self._minute()
+        self.assertEqual([title for title, _items in second._ems_agenda_entries()],
+                         [section('previous'), section('agenda'), section('requests')])
+        self.env['ems.quality.action'].create({
+            'name': 'Open agreement', 'type': 'agreement', 'course_id': self.course.id,
+            'department_id': self.department.id, 'minute_id': second.id,
+        })
+        third = self._minute()
+        self.assertEqual([title for title, _items in third._ems_agenda_entries()],
+                         [section('previous'), section('agreement_followup'), section('agenda'), section('requests')])
+        self.assertFalse(third.agenda_ids, "nothing is added to the items to discuss: they would show twice")
+
+    def test_an_agreement_stays_on_the_table_until_it_is_closed(self):
+        """Carried from the first minute to the second, and from there to the third: it was not
+        taken in the second, only followed up, and must not drop out for that."""
+        first = self._minute()
+        agreement = self.env['ems.quality.action'].create({
+            'name': 'Long-running agreement', 'type': 'agreement', 'course_id': self.course.id,
+            'department_id': self.department.id, 'minute_id': first.id,
+        })
+        second = self._minute()
+        self.assertIn(agreement, second.followed_agreement_ids)
+        third = self._minute()
+        self.assertIn(agreement, third.followed_agreement_ids)
+
+    def test_the_pdf_opens_as_a_file_not_as_an_attachment_record(self):
+        first = self._minute()
+        with self.assertRaises(UserError):
+            first.action_open_pdf()
+        first.pdf_attachment_id = self.env['ir.attachment'].create({
+            'name': 'minute.pdf', 'raw': b'%PDF-1.4', 'res_model': 'ems.minute', 'res_id': first.id, 'mimetype': 'application/pdf'})
+        second = self._minute()
+        action = second.with_user(self.user).action_open_previous_pdf()
+        self.assertEqual(action['type'], 'ir.actions.act_url')
+        self.assertEqual(action['url'], f"/web/content/{first.pdf_attachment_id.id}?download=false")
+
+    def test_the_numbering_does_not_depend_on_the_language_of_the_writer(self):
+        """A department's name is translated; its minutes are one series all the same."""
+        self.env['res.lang']._activate_lang('ca_ES')
+        self.department.with_context(lang='ca_ES').name = 'Departament de proves'
+        first = self._minute()
+        second = self.env['ems.minute'].with_context(lang='ca_ES').create({
+            'type_id': self.type.id, 'department_id': self.department.id, 'course_id': self.course.id,
+            'date': fields.Date.context_today(self.env['ems.minute']),
+        })
+        self.assertEqual(first.code[:9], 'ACTA-MTD-')
+        self.assertEqual(second.code, first.code[:-3] + '002')
+
+    # --- Call to the meeting ---------------------------------------------------------------------
+
+    def test_the_call_goes_to_everybody_convened_with_the_agenda(self):
+        first = self._minute()
+        minute = self._nfc_minute(attendance_mode='manual', agenda_ids=[(0, 0, {'sequence': 10, 'name': 'Budget for the workshop'})])
+        self.mail_transport.reset_mock()
+        minute.action_send_call()
+        self.mail_transport.assert_called_once()
+        mail = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)])
+        self.assertEqual(mail.email_to, 'minute.writer@example.com')
+        self.assertIn('Budget for the workshop', mail.body_html)
+        self.assertIn('12:30', mail.body_html, "the time the centre reads, not UTC")
+        self.assertIn(f"/odoo/action-ems.action_minute/{first.id}", mail.body_html, "a link to the previous minute, to read before approving it")
+        self.assertNotIn('replaces the one sent before', mail.body_html)
+        self.assertIn('calendar.google.com/calendar/render', mail.body_html)
+        self.assertIn('dates=20270114T113000Z%2F20270114T130000Z', mail.body_html, "start and end in UTC: 11:30 plus an hour and a half")
+        self.assertIn('Budget+for+the+workshop', mail.body_html)
+        self.assertTrue(minute.call_sent_datetime)
+        self.assertEqual(minute.call_recipient_count, 1)
+
+    def test_the_call_is_signed_by_the_departments_chief_not_by_the_writer(self):
+        chief = create_role_employee(self, create_role_user(self, 'teacher', 'minute.chief@example.com', name='Minute Department Chief'))
+        self.department.manager_id = chief
+        minute = self._nfc_minute(attendance_mode='manual')
+        self.assertEqual(minute._ems_convener().id, chief.id)
+        minute.action_send_call()
+        mail = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)])
+        self.assertIn('Minute Department Chief', mail.body_html)
+        self.department.manager_id = False
+        self.assertEqual(minute._ems_convener().id, self.employee.id, "no chief to name: whoever writes it")
+
+    def test_the_place_names_the_room_with_its_code(self):
+        room = self.env['ems.space'].search([], limit=1)
+        minute = self._minute(space_id=room.id, modality='hybrid', place_text='Video call')
+        self.assertEqual(minute.place_name, f"{room.name} ({room.code}) - Video call")
+        self.assertEqual(self._minute().place_name, "")
+
+    def test_the_call_can_be_sent_again_and_says_so(self):
+        minute = self._nfc_minute(attendance_mode='manual')
+        minute.action_send_call()
+        minute.write({'start_datetime': datetime(2027, 1, 15, 9, 0)})
+        minute.action_send_call()
+        mails = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)], order='id')
+        self.assertEqual(len(mails), 2)
+        self.assertIn('replaces the one sent before', mails[1].body_html)
+        self.assertIn('10:00', mails[1].body_html)
+
+    def test_no_call_for_an_approved_minute_or_without_recipients(self):
+        self.employee.work_email = False
+        minute = self._nfc_minute(attendance_mode='manual')
+        with self.assertRaises(UserError):
+            minute.action_send_call()
+        self.mail_transport.reset_mock()
+        self.employee.work_email = 'minute.writer@example.com'
+        minute.sudo().state = 'approved'
+        with self.assertRaises(UserError):
+            minute.action_send_call()
+        self.mail_transport.assert_not_called()

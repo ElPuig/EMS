@@ -5,7 +5,7 @@
             <field name="name">ems.quality.action.list</field>
             <field name="model">ems.quality.action</field>
             <field name="arch" type="xml">
-                <list decoration-danger="is_late == True" decoration-muted="state == 'closed'">
+                <list class="o_ems_long_code_list" decoration-danger="is_late == True" decoration-muted="state == 'closed'">
                     <field name="code"/>
                     <field name="name"/>
                     <field name="type"/>

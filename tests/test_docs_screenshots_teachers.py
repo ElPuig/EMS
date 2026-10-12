@@ -40,6 +40,29 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             wait_for='.o_auth_oauth_providers a',
         )
 
+    def test_capture_absence_atri_confirmation(self):
+        """The teacher's own ATRI absence once their Head has validated it: the notice asking
+        them to confirm it is requested in ATRI (issue #619)."""
+        mock_outgoing_email(self)
+        day = datetime(2027, 4, 12).date()
+        leave = self.env['hr.leave'].create({
+            'employee_id': self.teacher_employee.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_atri').id,
+            'request_date_from': day, 'request_date_to': day,
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        leave.action_approve()
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències', 'res_model': 'hr.leave', 'view_mode': 'list,form',
+            'domain': [('id', '=', leave.id)],
+        })
+        self._capture(
+            '/odoo/action-%d/%d' % (action.id, leave.id),
+            '.o_content', 'teachers-absences-atri-confirm.png',
+            login='doc_shot_teacher', wait_for=".o_form_view .alert-warning a[href*='atriportal']",
+            max_height=330,
+        )
+
     def test_capture_attendance_corrections(self):
         # A finished past day (both check-in and check-out set), so the correction form shows
         # both fields at once - the more informative shot vs. the still-clocked-in case, which

@@ -186,6 +186,9 @@
                            decoration-muted="ems_document_state == 'not_required'"
                            decoration-warning="ems_document_state in ('awaiting', 'submitted')"
                            decoration-success="ems_document_state == 'validated'"/>
+                    <field name="ems_atri_state" invisible="not ems_atri_state or ems_atri_state == 'not_required' or not (is_absence_manager or is_absence_direction)" widget="badge"
+                           decoration-warning="ems_atri_state == 'awaiting'"
+                           decoration-success="ems_atri_state == 'requested'"/>
                     <field name="ems_direction_state" invisible="not id or not (is_absence_manager or is_absence_direction)" readonly="1" widget="badge"
                            decoration-muted="ems_direction_state == 'not_done'"
                            decoration-success="ems_direction_state == 'done'"
@@ -219,6 +222,21 @@
                         <strong>The supporting document was not sufficient:</strong>
                         <field name="ems_document_return_reason" class="d-block"/>
                     </div>
+                    <!-- An ATRI absence the Head has validated: the employee's turn. It does not
+                         say the absence is missing in ATRI, only that they have to confirm it
+                         is there before the request goes on to Direction - and when Direction
+                         sent it back, why (hr.leave._ems_return_atri). Issue #619. -->
+                    <div class="alert alert-warning mb-0" role="alert" invisible="ems_status != 'pending_atri'">
+                        <!-- One block each, so every sentence is a plain term to translate. -->
+                        <div class="fw-bold">Confirm that this absence is requested in ATRI.</div>
+                        <div>Your Head has validated it. Before it goes on to Direction, confirm that you have requested it on the ATRI portal: use Actions &gt; I confirm it is requested in ATRI.</div>
+                        <div>
+                            <span>If you have not requested it there yet, do that first:</span>
+                            <a href="https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies"
+                               class="ms-1" target="_blank" rel="noreferrer">My requests - leave and absences</a><span>.</span>
+                        </div>
+                        <field name="ems_atri_return_reason" class="d-block fw-bold" invisible="not ems_atri_return_reason"/>
+                    </div>
                     <!-- Why the Head or Direction refused it, for the employee to read on the request
                          itself (hr.leave.action_refuse). -->
                     <div class="alert alert-danger mb-0" role="alert"
@@ -244,6 +262,7 @@
                 <xpath expr="//header/field[@name='state']" position="after">
                     <field name="is_absence_head" invisible="1"/>
                     <field name="ems_can_undo" invisible="1"/>
+                    <field name="ems_can_mark_atri" invisible="1"/>
                     <field name="ems_status" widget="statusbar"
                            statusbar_visible="pending,pending_direction,approved"/>
                 </xpath>
@@ -270,6 +289,13 @@
                     <button string="Documentation insufficient" name="action_ems_document_insufficient" type="object"
                             invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"/>
                     <xpath expr="//header/button[@name='action_validate']" position="move"/>
+                    <!-- The employee's own step on an ATRI absence their Head has validated, and
+                         Direction sending it back to them when it is not really in ATRI
+                         (issue #619). -->
+                    <button string="I confirm it is requested in ATRI" name="action_ems_atri_requested" type="object"
+                            invisible="not ems_can_mark_atri"/>
+                    <button string="Not in ATRI" name="action_ems_atri_missing" type="object"
+                            invisible="ems_status != 'pending_direction' or not is_absence_direction or not ems_needs_atri"/>
                     <button string="Direction: done" name="action_ems_direction_done" type="object" context="{'ems_ask_change_message': 1}"
                             invisible="not is_absence_direction or ems_status != 'pending_direction'"/>
                     <xpath expr="//header/button[@name='action_refuse']" position="move"/>
@@ -353,7 +379,7 @@
                     <field name="can_approve" column_invisible="1"/>
                     <field name="ems_status" string="Status" widget="badge" width="190px"
                            decoration-muted="ems_status == 'cancel'"
-                           decoration-warning="ems_status in ('pending', 'pending_document', 'pending_validation', 'pending_direction')"
+                           decoration-warning="ems_status in ('pending', 'pending_document', 'pending_validation', 'pending_atri', 'pending_direction')"
                            decoration-success="ems_status == 'approved'"
                            decoration-danger="ems_status == 'refused'"/>
                     <field name="ems_head_state" widget="badge" width="190px"
@@ -389,6 +415,10 @@
                     <button title="Documentation insufficient" name="action_ems_document_insufficient" type="object"
                             icon="fa-file-o" groups="ems.group_director"
                             invisible="ems_status != 'pending_direction'"/>
+                    <field name="ems_needs_atri" column_invisible="1"/>
+                    <button title="Not in ATRI" name="action_ems_atri_missing" type="object"
+                            icon="fa-reply" groups="ems.group_director"
+                            invisible="ems_status != 'pending_direction' or not ems_needs_atri"/>
                     <button title="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
                             icon="fa-times" groups="ems.group_director"
                             invisible="state in ('refuse', 'cancel') or can_approve"/>
@@ -427,6 +457,9 @@
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@name='action_ems_document_validate']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//button[@name='action_ems_atri_missing']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@icon='fa-inbox']" position="attributes">
@@ -560,6 +593,8 @@
                                           ('employee_id.leave_manager_id', '=', uid)]"/>
                     <filter name="ems_my_pending_documents" string="My pending supporting documents"
                             domain="[('employee_id.user_id', '=', uid), ('ems_status', '=', 'pending_document')]"/>
+                    <filter name="ems_my_pending_atri" string="My pending ATRI confirmations"
+                            domain="[('employee_id.user_id', '=', uid), ('ems_status', '=', 'pending_atri')]"/>
                 </xpath>
 
                 <!-- The left panel filters on where a request stands between its two

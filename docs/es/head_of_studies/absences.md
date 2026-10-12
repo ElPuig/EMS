@@ -54,7 +54,7 @@ Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que
 
 Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo. Si el nuevo tampoco es válido, el diálogo se abre con el motivo anterior para que puedas modificarlo; cuando validas un justificante, el motivo se borra.
 
-Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado), que la envía directamente a Dirección.
+Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado). Una ausencia de `Salud` pasa entonces directamente a Dirección. Una `ATRI` se detiene siempre antes en **Pendiente de confirmar ATRI**: la persona tiene que confirmar que la ha solicitado en el portal ATRI (**Acciones > Confirmo que está solicitada en ATRI**), y solo entonces llega a Dirección. Validas tú primero a propósito, porque a menudo se elige ATRI para lo que no lo es, y al revés: corrige el tipo antes de validar. A la persona se le recuerda igual que con un justificante pendiente, y a ti se te avisa una vez si sigue sin confirmar a los pocos días de la ausencia.
 
 La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
 
@@ -106,6 +106,7 @@ Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre
 |---|---|---|
 | Casilla marcada | **Dirección: hecho** | Aprobado |
 | Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Antes pide el motivo, que la persona recibe |
+| Flecha de respuesta | **No consta en ATRI** | Solo ausencias ATRI, cuando no aparece en el portal. Vuelve a la persona, Pendiente de confirmar ATRI. Antes pide el motivo, que la persona recibe |
 | Flecha atrás | **Deshacer la última decisión** | Vuelve al estado anterior, ver [Deshacer una decisión](#deshacer-una-decisión) |
 | Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, y pide confirmación antes |
 
@@ -118,6 +119,7 @@ Cuando un jefe da por recibida una ausencia, recibes su resumen como seguidor.
 | Pendiente | El jefe todavía no la ha dado por recibida |
 | En espera de documentación | Recibida por el jefe, espera el justificante de la persona |
 | Pendiente de validación | El justificante está adjunto, el jefe tiene que validarlo |
+| Pendiente de confirmar ATRI | Solo ausencias ATRI: validada por el jefe, a la espera de que la persona confirme que está solicitada en ATRI |
 | Pendiente Dirección | Validada por el jefe, espera a Dirección |
 | Aprobado | Ambos |
 | Rechazado | El jefe o Dirección la han rechazado |
@@ -136,6 +138,7 @@ Una decisión tomada por error se deshace con **Deshacer la última decisión**:
 | Aprobado | Pendiente de Dirección |
 | Pendiente de Dirección | Pendiente de validación, o Pendiente si el tipo no exige justificante |
 | Pendiente de validación, En espera de documentación | Pendiente |
+| Pendiente de confirmar ATRI | Pendiente, o Pendiente de Dirección si Dirección la había devuelto por no constar en ATRI |
 | Rechazado, Cancelado | El estado que tenía justo antes |
 | En espera de documentación tras un *Documentación insuficiente* | El estado que tenía justo antes, mientras la persona no haya adjuntado un justificante nuevo |
 

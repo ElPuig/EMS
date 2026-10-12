@@ -123,12 +123,22 @@ When you send it, your department chief and, if your department has one, your se
 | Pending | Your Head has not seen it yet |
 | Awaiting documentation | Your Head has received it and it is waiting for your supporting document: attach it to the same request |
 | Pending validation | You have attached the document and your Head has to validate it |
+| Pending ATRI confirmation | Only ATRI absences. Your Head has validated it and you have to confirm it is requested in ATRI (see below) |
 | Pending Direction | Your Head has validated it, Direction has not reviewed it yet |
 | Approved | Granted by both |
 | Refused | Denied. If it was a mistake, your Head or Direction can undo it; otherwise, to insist, file a new request |
 | Cancelled | Withdrawn |
 
 The **My pending supporting documents** filter lists the requests waiting for a document from you.
+
+**ATRI absences: confirming the request.** An ATRI absence is granted on the Generalitat's portal, not in EMS. So once your Head has validated it, the request always stops at **Pending ATRI confirmation** before it is passed on to Direction. It does not mean anybody has found it missing in ATRI: it only asks you to confirm that you have requested it there.
+
+- If you have already requested it in ATRI, open the request and use **Actions > I confirm it is requested in ATRI** straight away. It then goes on to Direction.
+- If you have not, request it on the portal first (the notice at the top of the request has the link) and then confirm.
+
+While it is not confirmed, once the absence is over you receive a reminder every day, and your Head is told after a few days. The **My pending ATRI confirmations** filter lists the requests waiting for it. If Direction then finds the absence is not in ATRI, it sends the request back to this status and you receive the reason, which is also shown on the request.
+
+![An ATRI absence waiting for the employee's confirmation, with the notice at the top of the request](../../assets/teachers/teachers-absences-atri-confirm.png)
 
 Once your Head receives it, the absence already counts in the absence calendar and the guard duty board, even while the document is still missing.
 

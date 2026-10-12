@@ -2,7 +2,7 @@
 
 from odoo import api, fields, models
 
-from .common import QUALITY_STATE_CLOSED, QUALITY_STATES
+from .common import QUALITY_STATE_CLOSED, QUALITY_STATES, scope_code
 
 
 class EmsQualityAction(models.Model):
@@ -161,22 +161,12 @@ class EmsQualityAction(models.Model):
         return "Centre" if self.is_centre else ""
 
     def _scope_code(self):
-        """The scope's short code, for the sequence prefix.
-
-        hr.department and ems.workgroup have no code field of their own yet (issue #496 adds one),
-        so this falls back to an uppercase initialism of the name: readable, stable enough for a
-        prefix, and replaced by the real code as soon as the field exists."""
+        """The scope's short code, for the sequence prefix (see common.scope_code)."""
         self.ensure_one()
         if self.group_id:
             return self.group_id.name.upper().replace(' ', '')
-        # In the source language whoever is asking: the name is translated, the numbering is one.
-        record = (self.department_id or self.workgroup_id).with_context(lang='en_US')
-        if record:
-            code = getattr(record, 'code', False)
-            if code:
-                return code.upper()
-            return ''.join(word[0] for word in record.name.split() if word)[:4].upper()
-        return "CEN"
+        record = self.department_id or self.workgroup_id
+        return (scope_code(record) if record else "") or "CEN"
 
     def _next_code(self):
         """One sequence per (scope, action type family, course), created on demand.

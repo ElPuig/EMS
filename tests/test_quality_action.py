@@ -17,7 +17,7 @@ class TestQualityAction(TransactionCase):
         if not cls.course:
             cls.course = cls.env['ems.course'].create({'start': 2026, 'end': 2027, 'is_current': True})
         cls.department = cls.env['hr.department'].create({'name': 'Quality Test Department'})
-        cls.other_department = cls.env['hr.department'].create({'name': 'Quality Other Department'})
+        cls.other_department = cls.env['hr.department'].create({'name': 'Another Section'})
 
     def _action(self, **overrides):
         vals = {'name': 'Test agreement', 'type': 'agreement', 'course_id': self.course.id}

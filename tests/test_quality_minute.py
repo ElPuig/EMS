@@ -154,12 +154,12 @@ class TestQualityMinute(TransactionCase):
         self.assertEqual(Minute.new({'type_id': self.type.id}).code_preview, 'ACTA',
                          "a department minute is numbered under its department: no department, no code yet")
         draft = Minute.new({'type_id': self.type.id, 'department_id': self.department.id, 'course_id': self.course.id})
-        self.assertEqual(draft.code_preview, f"ACTA-MTD-{self.course.short_code}-001")
+        self.assertEqual(draft.code_preview, f"ACTA-MINDEP-{self.course.short_code}-001")
         first = self._minute()
-        self.assertEqual(first.code, f"ACTA-MTD-{self.course.short_code}-001", "the code issued is the one that was announced")
+        self.assertEqual(first.code, f"ACTA-MINDEP-{self.course.short_code}-001", "the code issued is the one that was announced")
         self.assertEqual(first.code_preview, first.code)
         draft.invalidate_recordset(['code_preview'])
-        self.assertEqual(draft.code_preview, f"ACTA-MTD-{self.course.short_code}-002")
+        self.assertEqual(draft.code_preview, f"ACTA-MINDEP-{self.course.short_code}-002")
 
     def test_a_generic_minute_takes_the_scope_chosen_for_it(self):
         generic = self.env.ref('__import__.minute_type_generic')
@@ -168,7 +168,7 @@ class TestQualityMinute(TransactionCase):
         waiting = Minute.new({'type_id': generic.id, 'scope_choice': 'department', 'course_id': self.course.id})
         self.assertEqual(waiting.code_preview, 'ACTA')
         waiting.department_id = self.department
-        self.assertEqual(waiting.code_preview[:9], 'ACTA-MTD-')
+        self.assertEqual(waiting.code_preview[:12], 'ACTA-MINDEP-')
 
     def _nfc_minute(self, **overrides):
         vals = {'date': False, 'start_datetime': datetime(2027, 1, 14, 11, 30), 'duration': 1.5, 'attendance_mode': 'nfc'}
@@ -274,18 +274,27 @@ class TestQualityMinute(TransactionCase):
         self.assertEqual(action['url'], f"/web/content/{first.pdf_attachment_id.id}?download=false")
 
     def test_the_numbering_does_not_depend_on_the_language_of_the_writer(self):
-        """A department's name is translated; its minutes are one series all the same."""
+        """A department's name is translated; its minutes are one series all the same, coded from
+        its Catalan name whoever saves them."""
         self.env['res.lang']._activate_lang('ca_ES')
-        self.department.with_context(lang='ca_ES').name = 'Departament de proves'
+        self.department.with_context(lang='ca_ES').name = 'Llengua Catalana'
         first = self._minute()
         second = self.env['ems.minute'].with_context(lang='ca_ES').create({
             'type_id': self.type.id, 'department_id': self.department.id, 'course_id': self.course.id,
             'date': fields.Date.context_today(self.env['ems.minute']),
         })
-        self.assertEqual(first.code[:9], 'ACTA-MTD-')
+        self.assertEqual(first.code[:12], 'ACTA-LLECAT-')
         self.assertEqual(second.code, first.code[:-3] + '002')
 
-    # --- Call to the meeting ---------------------------------------------------------------------
+    def test_scope_codes_are_short_unaccented_and_tell_departments_apart(self):
+        from odoo.addons.ems.models.quality.common import scope_code
+        Department = self.env['hr.department']
+        codes = {name: scope_code(Department.new({'name': name})) for name in (
+            'Informàtica', 'Llengua Castellana', 'Llengua Catalana', 'Física i Química', 'FOL', "Departament d'Orientació")}
+        self.assertEqual(codes, {
+            'Informàtica': 'INFOR', 'Llengua Castellana': 'LLECAS', 'Llengua Catalana': 'LLECAT',
+            'Física i Química': 'FISQUI', 'FOL': 'FOL', "Departament d'Orientació": 'DEPORI',
+        })
 
     def test_the_call_goes_to_everybody_convened_with_the_agenda(self):
         first = self._minute()

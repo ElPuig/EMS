@@ -46,7 +46,7 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='code_preview']:contains('ACTA-0MTD-'):contains('-001')",
+            trigger: ".o_field_widget[name='code_preview']:contains('ACTA-000DEP-'):contains('-001')",
             content: "The code has built up from the type, the department and the date",
         },
         {
@@ -79,7 +79,7 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             run: "click",
         },
         {
-            trigger: ".o_form_saved .o_field_widget[name='code_preview']:contains('ACTA-0MTD-'):contains('-001')",
+            trigger: ".o_form_saved .o_field_widget[name='code_preview']:contains('ACTA-000DEP-'):contains('-001')",
             content: "The code has been issued",
         },
         {

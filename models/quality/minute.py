@@ -9,6 +9,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_date
 
+from .common import scope_code
+
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
 # stays meaningful for anything reading the database directly. It is no longer used by the
 # application and can be dropped by a version that ships a migration for it.
@@ -361,11 +363,9 @@ class EmsMinute(models.Model):
         self.ensure_one()
         if self.group_id:
             return self.group_id.name.upper().replace(' ', '')
-        # Read in the source language whoever is asking: a department's name is translated, and
-        # its minutes must share one numbering whatever language each writer works in.
-        record = (self.department_id or self.workgroup_id).with_context(lang='en_US')
-        if record:
-            return ''.join(word[0] for word in record.name.split() if word)[:4].upper()
+        record = self.department_id or self.workgroup_id
+        if record and scope_code(record):
+            return scope_code(record)
         # Centre-wide minutes hang off no department, so the type itself is the numbering scope:
         # that keeps a staff meeting from sharing a counter with the management review.
         return (self.type_id.code or "CEN").upper()

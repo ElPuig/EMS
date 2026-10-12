@@ -81,6 +81,10 @@ Un camp del formulari, que pots canviar en qualsevol moment:
 
 També pots canviar el **tipus d'absència** després d'haver-la aprovat. Fes-ho quan la persona n'hagi triat un que no correspon.
 
+**La persona s'assabenta del que canvies.** Quan tu (o Direcció) canvies el tipus d'absència, les dates o les hores d'una sol·licitud que ha presentat una altra persona, la següent vegada que decideixes sobre ella (rebre-la, validar-la, retornar el justificant, rebutjar-la) un quadre de diàleg mostra els canvis i et permet escriure un missatge per a qui l'ha sol·licitat. Si el deixes en blanc, només se l'informa dels canvis realitzats. En tots dos casos l'avís arriba únicament a qui l'ha sol·licitat, no als caps de departament ni a la resta de seguidors de la sol·licitud. En una sol·licitud ja rebutjada o cancel·lada, se l'avisa tan bon punt deses el canvi.
+
+![Quadre de diàleg amb els canvis realitzats a la sol·licitud i el quadre per al missatge al sol·licitant](../../assets/head_of_studies/hos-absences-change-message.png)
+
 Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella **Dia sencer?**, que també pots corregir: marcada compta 7,5 hores per dia laborable, sense marcar compta les hores indicades.
 
 ---

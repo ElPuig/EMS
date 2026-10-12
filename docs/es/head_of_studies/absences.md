@@ -81,6 +81,10 @@ Un campo del formulario, que puedes cambiar en cualquier momento:
 
 También puedes cambiar el **tipo de ausencia** después de haberla aprobado. Hazlo cuando la persona haya elegido uno que no corresponde.
 
+**La persona se entera de lo que cambias.** Cuando tú (o Dirección) cambias el tipo de ausencia, las fechas o las horas de una solicitud que ha presentado otra persona, la siguiente vez que decides sobre ella (recibirla, validarla, devolver el justificante, rechazarla) un cuadro de diálogo muestra los cambios y te permite escribir un mensaje para quien la solicitó. Si lo dejas en blanco, solo se le informa de los cambios realizados. En ambos casos el aviso llega únicamente a quien la solicitó, no a los jefes de departamento ni al resto de seguidores de la solicitud. En una solicitud ya rechazada o cancelada, se le avisa en cuanto guardas el cambio.
+
+![Cuadro de diálogo con los cambios realizados en la solicitud y el cuadro para el mensaje al solicitante](../../assets/head_of_studies/hos-absences-change-message.png)
+
 Si la ausencia es de día entero o de unas horas concretas lo controla la casilla **¿Día entero?**, que también puedes corregir: marcada cuenta 7,5 horas por día laborable, sin marcar cuenta las horas indicadas.
 
 ---

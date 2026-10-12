@@ -259,6 +259,7 @@
 
             'views/attendance/absence/leave.xml',
             'views/attendance/absence/document_return_wizard.xml',
+            'views/attendance/absence/change_notice_wizard.xml',
             'views/attendance/absence/public_holiday.xml',
             'views/attendance/absence/menu.xml',
             'views/attendance/absence/monthly_report.xml',

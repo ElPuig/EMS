@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Opened by the decision buttons of an absence when somebody other than the employee
+             changed what they had filed (hr.leave._ems_ask_change_message, issue #615): the
+             employee is told what changed along with the decision, and whoever decides may add
+             an explanation that reaches the employee alone. -->
+        <record id="view_absence_change_notice_wizard_form" model="ir.ui.view">
+            <field name="name">ems.absence.change_notice_wizard.form</field>
+            <field name="model">ems.absence.change_notice_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Changes to the request">
+                    <field name="leave_id" invisible="1"/>
+                    <field name="method" invisible="1"/>
+                    <div class="alert alert-info" role="alert">
+                        Changes have been detected in the original request. If you wish, you can send a message to the requester by writing in the box below; if you leave it blank, the requester will only be informed of the changes made.
+                    </div>
+                    <group>
+                        <field name="employee_id" readonly="1"/>
+                        <field name="changes" readonly="1"/>
+                    </group>
+                    <field name="message" placeholder="Message for the requester (optional)..."/>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Continue" class="btn-primary"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

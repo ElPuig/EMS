@@ -530,3 +530,40 @@ registry.category("web_tour.tours").add("ems_absence_head_approval", {
         },
     ],
 });
+
+// The Head decides on a request they corrected: the dialog asking for a message to the
+// requester comes first, and confirming it takes the decision and goes back to the list.
+registry.category("web_tour.tours").add("ems_absence_change_message", {
+    test: true,
+    url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_type_short_name']",
+            content: "Open the request whose type was corrected",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_statusbar button[name='action_approve']:not(.o_invisible_modifier)",
+            content: "Validate it from the header",
+            run: "click",
+        },
+        {
+            trigger: ".modal div[name='changes'] li",
+            content: "The dialog lists what was changed",
+        },
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Write the message for the requester",
+            run: "edit Tour file it on the portal",
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Confirm the decision",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_status']:contains('Pending Direction')",
+            content: "Back on the list, with the decision taken",
+        },
+    ],
+});

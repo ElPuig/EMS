@@ -143,6 +143,19 @@ class TestAbsenceTour(HttpCase):
     def test_absence_head_approval_tour(self):
         self.start_tour("/odoo", "ems_absence_head_approval", login="absence_tour_hos")
 
+    def test_absence_change_message_tour(self):
+        """The Head corrected the type the employee picked: deciding on the request asks first
+        for a message to the employee, and still ends back on the list (issue #615)."""
+        leave = self._create_request('Tour Corrected Teacher', 'ems.leave_type_health',
+                                     self.day + timedelta(days=35))
+        leave.holiday_status_id = self.env.ref('ems.leave_type_atri')
+        leave.ems_full_day = True
+        self.start_tour("/odoo", "ems_absence_change_message", login="absence_tour_hos")
+        leave.invalidate_recordset()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertTrue(leave.message_ids.filtered(
+            lambda message: "Tour file it on the portal" in str(message.body)))
+
     def test_absence_employee_view_tour(self):
         self.start_tour("/odoo", "ems_absence_employee_view", login="absence_tour_employee")
 

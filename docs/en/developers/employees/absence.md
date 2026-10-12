@@ -781,6 +781,66 @@ Mail leaves through the company's configured server, which is the other half of 
 replaces: the Apps Script sent from the personal Google account of whoever last ran its
 "Identificar-me com a remitent d'emails" menu entry, and stopped working when that person left.
 
+## Corrections to the request are reported to the employee
+
+The Head or Direction can correct what the employee filed - above all the absence type, which
+employees get wrong often. The employee is told what was changed together with the next decision
+on the request, and whoever decides can add an explanation that reaches the employee alone (not
+the chatter, which every follower reads: the department's chiefs, Direction).
+
+```mermaid
+sequenceDiagram
+    participant H as Head or Direction
+    participant L as hr.leave
+    participant W as change_notice_wizard
+    participant E as Employee
+    H->>L: write() on type, dates, times or "Whole day?"
+    L->>L: keep the original in ems_original_request
+    H->>L: decision button (context ems_ask_change_message)
+    L-->>H: dialog: the changes, optional message
+    H->>W: Continue
+    W->>L: same decision, with ems_change_message
+    L->>E: note to the employee alone: status, changes, message
+    L->>L: clear ems_original_request
+```
+
+- **What counts as the request** is `REQUEST_FIELDS` (`models/employees/absence.py`): the type,
+  both dates, both times and "Whole day?". `hr.leave.write()` calls
+  `_ems_keep_original_request()` before changing any of them: when the writer is not the
+  employee themselves, the values about to be replaced are kept in `ems_original_request` (a
+  Json field, written with sudo, never set by hand), unless an earlier correction the employee
+  has not been told about is already there.
+- **What changed** is read back by `_ems_request_changes()`, comparing that original with the
+  request as it is now: one line for the type (short names) and one for the dates and times (the
+  same wording as every other message, `_ems_format_when()`). A correction that was undone
+  therefore reports nothing.
+- **The dialog.** Every decision button in the form, list and kanban carries
+  `context="{'ems_ask_change_message': 1}"`. With that key, a single request and something to
+  report, the decision (`action_approve`, `action_refuse`, `action_ems_document_validate`,
+  `action_ems_direction_done`, `action_ems_direction_refuse`) returns the
+  `ems.absence.change_notice_wizard` action instead of deciding (`_ems_ask_change_message()`).
+  Its "Continue" calls the same method again as the same user, without the key and with the
+  message in `ems_change_message`; only the methods in `DECISION_METHODS` can be called through
+  it. A decision called from code, or on several requests at once, never asks: it is taken and
+  the changes are reported without a message.
+- **The notice.** `_ems_notify_request_changes()`, at the end of every decision and of
+  `_ems_return_document()`, posts a note addressed to the employee alone (`_ems_notify()`): the
+  request's dates, its new status, the list of changes and the message with its author's name.
+  It then clears `ems_original_request`.
+- **A request with no decision left** (`CLOSED_STATUSES`: approved, refused, cancelled) is
+  reported as soon as the correction is saved, from `write()` itself, with no dialog and so no
+  message.
+- **Back to the list after the dialog.** `absence_form.js` no longer looks at the record when
+  the button returns (with the dialog still open, nothing has changed yet) but after each reload
+  of the form's model, which happens both right after a direct decision and when the dialog
+  closes.
+
+Covered by `TestAbsenceRequest` (the dialog and the notice with and without a message, a
+decision from code, an untouched request, the employee's own edits, a correction undone, a
+closed request, Direction refusing, and the dialog refusing any other method) and by the
+`ems_absence_change_message` tour (the Head validating a corrected request from the form: the
+dialog, the message, and back on the list).
+
 ## Public holidays
 
 Public holidays are native `resource.calendar.leaves` rows with no `resource_id`, managed from

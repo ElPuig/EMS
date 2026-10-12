@@ -130,6 +130,8 @@ The **My pending supporting documents** filter lists the requests waiting for a 
 
 Once your Head receives it, the absence already counts in the absence calendar and the guard duty board, even while the document is still missing.
 
+If your Head or Direction corrects something in your request (the absence type, the dates or the times), you receive a message on the request with what was changed, its new status and, when they have written one, their explanation.
+
 ---
 
 ## Reminders of a missing document

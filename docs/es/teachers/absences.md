@@ -130,6 +130,8 @@ El filtro **Mis justificantes pendientes** muestra las solicitudes que esperan u
 
 Una vez la recibe tu jefe, la ausencia ya cuenta en el calendario de ausencias y en el cuadrante de guardias, aunque falte el justificante.
 
+Si tu jefe o Dirección corrigen algo de tu solicitud (el tipo de ausencia, las fechas o las horas), recibes un mensaje en la solicitud con lo que se ha cambiado, su nuevo estado y, si la han escrito, su explicación.
+
 
 ---
 

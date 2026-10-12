@@ -557,10 +557,9 @@ and confirms it with a reason from the form's, and by
 
 `action_ems_undo()` ("Undo the last decision": an entry of the form's Actions dropdown and an
 arrow-back icon at the end of the row in the managers' list, both confirming first) takes back
-the last decision on a request, one step at a time. It replaces two things: Direction's former
-"Direction: pending" button, which only undid a *Done*, and Odoo's own Reset
-(`action_reset_confirm`), which only reopened a refused or cancelled request and which
-`_check_approval_update` reserves to the Time Off Manager group - in practice the one
+the last decision on a request, one step at a time. It is the only way back: Odoo's own Reset
+button (`action_reset_confirm`) is hidden, since it only reopens a refused or cancelled request
+and `_check_approval_update` reserves it to the Time Off Manager group - in practice the one
 administrator account `res.users._ems_sync_time_off_groups()` leaves holding it.
 
 ```mermaid

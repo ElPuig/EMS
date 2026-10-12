@@ -13,3 +13,12 @@
   day.
 - The teachers' and Heads of Studies' manuals now state the rule explicitly, and why `Health`
   and `Invasive medical test` requests open as a whole day.
+
+# Internal changes:
+
+## Tests no longer fail when the suite runs on a public holiday:
+- `TestEmployeeAutocheckout` and the automatic check-in tests of `TestAttendanceSessionHeader`
+  give their teacher lessons on the real "today"; on a public holiday nothing is expected of
+  anybody, so 13 of them failed (found on 2026-10-12, a holiday in the database). A new
+  `make_working_day()` helper in `tests/common.py` removes the holidays around the fixture day
+  inside the test's own transaction.

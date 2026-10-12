@@ -114,8 +114,6 @@ class EmsMinute(models.Model):
     approval_date = fields.Date(string="Approved on", readonly=True, copy=False)
 
     # Sections that carry a table of their own.
-    harmonisation_line_ids = fields.One2many(string="Harmonisation", comodel_name="ems.minute.harmonisation.line", inverse_name="minute_id")
-    clil_line_ids = fields.One2many(string="CLIL", comodel_name="ems.minute.clil.line", inverse_name="minute_id")
     member_line_ids = fields.One2many(string="Team members", comodel_name="ems.minute.member.line", inverse_name="minute_id")
     objective_line_ids = fields.One2many(string="Objectives", comodel_name="ems.minute.objective.line", inverse_name="minute_id")
     team_date_from = fields.Date(string="Team starts")

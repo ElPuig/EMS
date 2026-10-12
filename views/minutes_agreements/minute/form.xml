@@ -115,28 +115,6 @@
                                     </list>
                                 </field>
                             </page>
-                            <page string="Harmonisation" name="harmonisation" invisible="not context.get('show_harmonisation') and not harmonisation_line_ids">
-                                <field name="harmonisation_line_ids">
-                                    <list editable="bottom">
-                                        <field name="group_ids" widget="many2many_tags"/>
-                                        <field name="subject_id"/>
-                                        <field name="is_harmonised"/>
-                                        <field name="teacher_ids" widget="many2many_tags"/>
-                                        <field name="notes"/>
-                                    </list>
-                                </field>
-                            </page>
-                            <page string="CLIL" name="clil" invisible="not context.get('show_clil') and not clil_line_ids">
-                                <field name="clil_line_ids">
-                                    <list editable="bottom">
-                                        <field name="subject_id"/>
-                                        <field name="group_id"/>
-                                        <field name="worked_in_english"/>
-                                        <field name="teacher_ids" widget="many2many_tags"/>
-                                        <field name="notes"/>
-                                    </list>
-                                </field>
-                            </page>
                             <page string="Team" name="team" invisible="not member_line_ids and not objective_line_ids">
                                 <group>
                                     <field name="team_date_from"/>

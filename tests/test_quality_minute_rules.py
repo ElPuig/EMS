@@ -14,7 +14,7 @@ class TestQualityMinuteRules(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.type = cls.env.ref('__import__.minute_type_dep_ccff')
+        cls.type = cls.env.ref('__import__.minute_type_dep')
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)
         cls.dep_a = cls.env['hr.department'].create({'name': 'Rules Department A'})
         cls.dep_b = cls.env['hr.department'].create({'name': 'Rules Department B'})

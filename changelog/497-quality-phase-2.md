@@ -4,7 +4,7 @@
 
 Meeting minutes move into EMS, under the **Meetings** menu (shared with the meeting attendance sessions), the first screen of this work the whole staff sees. One model covers both meeting minutes and evidence records, with the sections each type carries declared as configuration: adding a type of minute no longer needs development.
 
-Eight types ship ready to use — generic, department for vocational studies and for secondary, staff meeting, teaching team, and improvement team in its three variants — laid out from a catalogue of seventeen sections.
+Seven types ship ready to use — generic, department, staff meeting, teaching team, and improvement team in its three variants — laid out from a catalogue of fifteen sections.
 
 ## The work the staff stops doing by hand:
 

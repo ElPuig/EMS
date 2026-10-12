@@ -237,8 +237,10 @@ earlier minutes, **preloaded**), `pending_topic_ids`, `annex_document_ids`, `red
 
 **Optional sections through a catalogue, not booleans.** `ems.minute.section` holds the catalogue, each
 with a `kind` that drives rendering: `text`, `agenda`, `previous_approval`, `agreement_followup`,
-`agreements`, `pending_topics`, `annexes`, `signature`, plus four that carry a table of their own:
-`harmonisation`, `gep` (CLIL), `team_constitution`, `objectives`, `meeting_calendar`.
+`agreements`, `pending_topics`, `annexes`, `signature`, plus those that carry a table of their own:
+`team_constitution`, `objectives`, `meeting_calendar`. Harmonisation between groups and CLIL, two fixed
+tables of the old vocational-department template, are deliberately not sections: when a meeting deals
+with them they are items of its agenda.
 `ems.minute.type` declares `name`, `code`, `kind` (`meeting` / `record`), `scope_kind`, `document_id`,
 `approver_role_id`, `print_identification`, and `section_ids` (order, section, intro text, required).
 
@@ -247,10 +249,9 @@ Adding a minute type must be configuration, not development: there are well over
 three variants, generic, tutors, coordinations, guidance, evaluation boards, assembly, delegate
 election, key handover, cash count, disciplinary hearing).
 
-The four table sections exist because they are **not free text**: they are data EMS already knows and
-should preload — groups and subjects of the department for harmonisation, subjects and teachers for
-CLIL, workgroup members with post and speciality for team constitution, objectives for the objectives
-section.
+The table sections exist because they are **not free text**: they are data EMS already knows and
+should preload — workgroup members with post and speciality for team constitution, objectives for the
+objectives section.
 
 **`ems.minute.preset`** — a user-owned (or shared) prefill: type, usual place, usual attendees, recurring
 agenda, default approver. It only prefills content; it never alters the structure or the controlled

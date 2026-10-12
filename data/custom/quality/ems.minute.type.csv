@@ -1,7 +1,6 @@
 id,code,name,kind,scope_kind,approver_role_id/id,template_document_id/id,print_identification,sequence
 __import__.minute_type_generic,GEN,Acta de reunió genèrica,meeting,generic,,__import__.quality_doc_pe3_01_17,0,10
-__import__.minute_type_dep_ccff,DEP-CCFF,Acta de reunió de departament (CCFF),meeting,department,ems.role_dchieff,__import__.quality_doc_pe3_01_17,0,20
-__import__.minute_type_dep_eso,DEP-ESO,Acta de reunió de departament (ESO/BTX),meeting,department,ems.role_dchieff,__import__.quality_doc_pe3_01_17,0,30
+__import__.minute_type_dep,DEP,Acta de reunió de departament,meeting,department,ems.role_dchieff,__import__.quality_doc_pe3_01_17,0,20
 __import__.minute_type_claustre,CLA,Acta de claustre,meeting,centre,ems.role_director,__import__.quality_doc_pe3_01_17,0,40
 __import__.minute_type_teaching_team,ED,Acta d'equip docent,meeting,teaching_team,ems.role_tutor,__import__.quality_doc_pe3_01_17,0,50
 __import__.minute_type_team_const,EM-CONST,Acta de constitució d'equip de millora,meeting,workgroup,ems.role_quality,__import__.quality_doc_pe3_01_17,1,60

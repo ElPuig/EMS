@@ -8,8 +8,6 @@ __import__.minute_section_agreements,ACORDS,Acords,agreements,
 __import__.minute_section_pending,PEND,Temes pendents,pending_topics,Tot el que quedi sense marcar es trasllada a l'acta següent del mateix àmbit.
 __import__.minute_section_annexes,ANNEX,Documents annexos,annexes,
 __import__.minute_section_signature,SIGN,Redacció i vistiplau,signature,
-__import__.minute_section_harmonisation,HARM,Harmonització dels diferents grups,harmonisation,
-__import__.minute_section_clil,GEP,GEP (metodologia AICLE),clil,
 __import__.minute_section_constitution,CONST,Constitució de l'equip,team_constitution,
 __import__.minute_section_objectives,OBJ,Objectius i indicadors,objectives,Un indicador ha de mesurar una sola dada objectiva; l'acceptació és el valor mínim que es considera assolit i la meta és el valor al qual s'aspira.
 __import__.minute_section_calendar,CAL,Calendari de reunions previst,meeting_calendar,

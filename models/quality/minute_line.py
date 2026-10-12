@@ -46,32 +46,6 @@ class EmsMinutePendingTopic(models.Model):
     carried_from_minute_id = fields.Many2one(string="Carried from", comodel_name="ems.minute", ondelete='set null', readonly=True)
 
 
-class EmsMinuteHarmonisationLine(models.Model):
-    _name = "ems.minute.harmonisation.line"
-    _description = "Harmonisation line: which groups of a subject were harmonised, and by whom."
-    _order = "minute_id, id"
-
-    minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
-    group_ids = fields.Many2many(string="Groups", comodel_name="ems.group", relation="ems_minute_harmonisation_group_rel", column1="line_id", column2="group_id")
-    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
-    is_harmonised = fields.Boolean(string="Harmonised")
-    teacher_ids = fields.Many2many(string="Teachers", comodel_name="hr.employee.public", relation="ems_minute_harmonisation_teacher_rel", column1="line_id", column2="employee_id")
-    notes = fields.Char(string="Comments")
-
-
-class EmsMinuteClilLine(models.Model):
-    _name = "ems.minute.clil.line"
-    _description = "CLIL line: which subjects worked content in English, and in which group."
-    _order = "minute_id, id"
-
-    minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
-    subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
-    group_id = fields.Many2one(string="Group", comodel_name="ems.group")
-    worked_in_english = fields.Boolean(string="Content worked in English")
-    teacher_ids = fields.Many2many(string="Teachers", comodel_name="hr.employee.public", relation="ems_minute_clil_teacher_rel", column1="line_id", column2="employee_id")
-    notes = fields.Char(string="Comments")
-
-
 class EmsMinuteMemberLine(models.Model):
     _name = "ems.minute.member.line"
     _description = "Member of a team being constituted, with the post held inside it."

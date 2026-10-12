@@ -14,7 +14,7 @@ class TestQualityMinute(TransactionCase):
         super().setUpClass()
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)
         cls.department = cls.env['hr.department'].create({'name': 'Minute Test Department'})
-        cls.type = cls.env.ref('__import__.minute_type_dep_ccff')
+        cls.type = cls.env.ref('__import__.minute_type_dep')
         cls.user = create_role_user(cls, 'teacher', 'minute.writer@example.com')
         cls.employee = create_role_employee(cls, cls.user, department_id=cls.department.id)
 

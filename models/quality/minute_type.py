@@ -14,8 +14,6 @@ SECTION_KINDS = [
     ('pending_topics', "Pending topics"),
     ('annexes', "Annexes"),
     ('signature', "Signatures"),
-    ('harmonisation', "Harmonisation"),
-    ('clil', "CLIL (GEP)"),
     ('team_constitution', "Team constitution"),
     ('objectives', "Objectives and indicators"),
     ('meeting_calendar', "Meeting calendar"),

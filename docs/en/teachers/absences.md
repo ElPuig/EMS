@@ -134,6 +134,8 @@ Once your Head receives it, the absence already counts in the absence calendar a
 
 If your Head or Direction corrects something in your request (the absence type, the dates or the times), you receive a message on the request with what was changed, its new status and, when they have written one, their explanation.
 
+If your request is refused and whoever refused it wrote the reason, you receive it in a message and it is shown in red at the top of the request.
+
 ---
 
 ## Reminders of a missing document

@@ -192,15 +192,13 @@
                            decoration-danger="ems_direction_state == 'refused'"/>
                 </xpath>
 
-                <!-- Refusing asks first: the button sits next to the approval, here and in the
-                     list and kanban below, and the employee and their chiefs are told straight
-                     away. Odoo's own 'confirm' attribute, not a wizard. A refusal by mistake is
-                     taken back with "Undo" (hr.leave.action_ems_undo). -->
+                <!-- Refusing opens a dialog first, here and from the list and kanban buttons
+                     below (hr.leave._ems_ask_change_message): it asks for the reason of the
+                     refusal, which reaches the employee alone, and it is what stands between a
+                     stray click - the button sits next to the approval - and a refused request.
+                     A refusal by mistake is taken back with "Undo" (hr.leave.action_ems_undo). -->
                 <xpath expr="//header/button[@name='action_refuse']" position="attributes">
                     <attribute name="context">{'ems_ask_change_message': 1}</attribute>
-                    <attribute name="confirm">The employee and their department's chiefs are told the absence request has been refused. Refuse it?</attribute>
-                    <attribute name="confirm-title">Refuse this absence request</attribute>
-                    <attribute name="confirm-label">Refuse</attribute>
                 </xpath>
 
                 <!-- The Head's first step is an acknowledgement, not a validation, whenever the
@@ -220,6 +218,13 @@
                          invisible="ems_status != 'pending_document' or not ems_document_return_reason">
                         <strong>The supporting document was not sufficient:</strong>
                         <field name="ems_document_return_reason" class="d-block"/>
+                    </div>
+                    <!-- Why the Head or Direction refused it, for the employee to read on the request
+                         itself (hr.leave.action_refuse). -->
+                    <div class="alert alert-danger mb-0" role="alert"
+                         invisible="state != 'refuse' or not ems_refusal_reason">
+                        <strong>Reason for the refusal:</strong>
+                        <field name="ems_refusal_reason" class="d-block"/>
                     </div>
                 </xpath>
 
@@ -269,9 +274,7 @@
                             invisible="not is_absence_direction or ems_status != 'pending_direction'"/>
                     <xpath expr="//header/button[@name='action_refuse']" position="move"/>
                     <button string="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
-                            invisible="not id or not is_absence_direction or can_approve or state in ('refuse', 'cancel')"
-                            confirm="The employee and their department's chiefs are told the absence request has been refused. Refuse it?"
-                            confirm-title="Refuse this absence request" confirm-label="Refuse"/>
+                            invisible="not id or not is_absence_direction or can_approve or state in ('refuse', 'cancel')"/>
                     <xpath expr="//header/button[@name='action_cancel']" position="move"/>
                     <button string="Undo the last decision" name="action_ems_undo" type="object"
                             invisible="not ems_can_undo"
@@ -306,23 +309,15 @@
                     <field name="ems_type_short_name" class="fw-bold"/>
                 </xpath>
 
-                <!-- Same confirmation as the form's own Refuse button, and this is the one
-                     that is really clicked by accident: in the list it is a bare "x" icon at
-                     the end of a row, one column away from Approve.
-
-                     Only 'confirm' here, without the dialog's title and button label: unlike
-                     form and kanban views, a list is validated against a RelaxNG schema
-                     (base/rng/list_view.rng, there is no form_view.rng at all), and its
-                     'button' definition allows 'confirm' but neither 'confirm-title' nor
-                     'confirm-label'. Adding them turns the whole view invalid and the module
-                     upgrade fails. -->
+                <!-- Same dialog as the form's own Refuse button, and this is the one that is
+                     really clicked by accident: in the list it is a bare "x" icon at the end of
+                     a row, one column away from Approve. -->
                 <!-- can_approve keeps Direction from deciding on the Head's behalf (see
                      hr.leave._compute_can_approve). Icons only, their label as the tooltip:
                      sitting between columns instead of at the end of the row, a labelled button
                      gets squeezed into the badge beside it. -->
                 <xpath expr="//button[@name='action_refuse']" position="attributes">
                     <attribute name="context">{'ems_ask_change_message': 1}</attribute>
-                    <attribute name="confirm">The employee and their department's chiefs are told the absence request has been refused. Refuse it?</attribute>
                     <attribute name="invisible">state not in ('confirm', 'validate1') or not can_approve</attribute>
                     <attribute name="string"/>
                     <attribute name="title">Refuse</attribute>
@@ -396,8 +391,7 @@
                             invisible="ems_status != 'pending_direction'"/>
                     <button title="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
                             icon="fa-times" groups="ems.group_director"
-                            invisible="state in ('refuse', 'cancel') or can_approve"
-                            confirm="The employee and their department's chiefs are told the absence request has been refused. Refuse it?"/>
+                            invisible="state in ('refuse', 'cancel') or can_approve"/>
                     <!-- Last in the row, for whoever may take the last decision back
                          (hr.leave._ems_can_undo, issue #614). -->
                     <field name="ems_can_undo" column_invisible="1"/>
@@ -448,7 +442,7 @@
         </record>
 
         <!-- The kanban is the third screen the same Refuse button appears on (Management > Time
-             Off switches to it), so it gets the same confirmation. Inheriting the base kanban
+             Off switches to it), so it opens the same dialog. Inheriting the base kanban
              covers 'hr_leave_view_kanban_my' too, which is a primary view derived from it. -->
         <record id="hr_leave_view_kanban_ems" model="ir.ui.view">
             <field name="name">hr.leave.view.kanban.ems</field>
@@ -457,9 +451,6 @@
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_refuse']" position="attributes">
                     <attribute name="context">{'ems_ask_change_message': 1}</attribute>
-                    <attribute name="confirm">The employee and their department's chiefs are told the absence request has been refused. Refuse it?</attribute>
-                    <attribute name="confirm-title">Refuse this absence request</attribute>
-                    <attribute name="confirm-label">Refuse</attribute>
                     <attribute name="t-if">['confirm', 'validate1'].includes(record.state.raw_value) and record.can_approve.raw_value</attribute>
                 </xpath>
                 <!-- Same as the list: Direction does not approve on the Head's behalf, and the

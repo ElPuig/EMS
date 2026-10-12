@@ -292,6 +292,20 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
                         ".modal div[name='changes'] li"],
         )
 
+    def test_capture_absence_refuse(self):
+        """The dialog every Refuse button opens, with the box for the reason."""
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències', 'res_model': 'hr.leave', 'view_mode': 'list,form',
+            'domain': [('id', '=', self.leave_pending.id)],
+        })
+        self._capture(
+            '/odoo/action-%d' % action.id,
+            '.modal-content', 'hos-absences-refuse.png',
+            login='doc_shot_hos', wait_for=".o_data_row button[name='action_refuse']",
+            click=".o_data_row button[name='action_refuse']",
+            wait_after=".modal div[name='message'] textarea",
+        )
+
     def test_capture_head_of_studies_screenshots(self):
         self._capture(
             '/odoo/action-%d' % self.absence_action.id,

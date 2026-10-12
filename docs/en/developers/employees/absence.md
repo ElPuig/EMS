@@ -538,26 +538,16 @@ neither condition hides the field any more.
 ## Refusing asks first
 
 The Refuse button sits next to the approval on three different screens, and on two of them it is
-a bare icon in a row; the employee and their department's chiefs are told as soon as it is
-clicked. All three confirm first, through Odoo's own `confirm` attribute rather than any code:
-
-| View | Attributes |
-|---|---|
-| `hr_leave_view_form` (Actions dropdown) | `confirm`, `confirm-title`, `confirm-label` |
-| `hr_leave_view_kanban` | `confirm`, `confirm-title`, `confirm-label` |
-| `hr_leave_view_tree` | `confirm` only |
-
-**The list gets only `confirm` on purpose.** A list view is validated against a RelaxNG schema
-(`base/rng/list_view.rng`; there is no `form_view.rng` at all, which is why form and kanban are
-unconstrained here), and its `button` definition allows `confirm` but neither `confirm-title`
-nor `confirm-label`. Adding them makes the whole view invalid and the module upgrade fails.
-
-Direction's own Refuse (`action_ems_direction_refuse`, see *The approval, step by step*) carries
-the same confirmation, in the list and in the form. A refusal by mistake is taken back with Undo
-(next section).
+a bare icon in a row; the employee and their department's chiefs are told as soon as the request
+is refused. So every Refuse button - the Head's in the form's Actions dropdown, the list row and
+the kanban, Direction's (`action_ems_direction_refuse`) in the form and the list - opens a dialog
+first: the one that asks for the reason of the refusal (see *Corrections to the request are
+reported to the employee*), which refuses nothing until it is confirmed. A refusal by mistake is
+taken back with Undo (next section), which also forgets its reason.
 
 Covered by the `ems_absence_refuse_confirm` tour, which cancels the dialog from the list button
-and confirms it from the form's, and by `test_refusing_a_request_asks_for_a_confirmation`.
+and confirms it with a reason from the form's, and by
+`test_refusing_a_request_asks_first_on_every_screen`.
 
 ## Undoing the last decision
 
@@ -902,6 +892,17 @@ sequenceDiagram
   `_ems_return_document()`, posts a note addressed to the employee alone (`_ems_notify()`): the
   request's dates, its new status, the list of changes and the message with its author's name.
   It then clears `ems_original_request`.
+- **Refusing always opens the dialog**, corrected or not (`refusal=True`), for the reason of the
+  refusal: it is the same wizard in its refusal mode (`is_refusal`, from `REFUSAL_METHODS`),
+  with a warning instead of the changes notice, the changes listed only when there are any
+  (`has_changes`) and a "Refuse" button. The reason is optional. `action_refuse()` stores it in
+  `ems_refusal_reason` (sudo, cleared when there is none) and the notice is sent whenever a
+  reason was written, saying the request was refused, even with nothing changed. The form shows
+  it in a red banner while the request is refused; resetting the request
+  (`action_reset_confirm()`) clears it. The summary every follower receives never carries it.
+  The dialog replaced the `confirm` attribute the five Refuse buttons used to have (the Head's
+  in form, list and kanban, Direction's in form and list): it is now what stands between a
+  stray click and a refused request.
 - **A request with no decision left** (`CLOSED_STATUSES`: approved, refused, cancelled) is
   reported as soon as the correction is saved, from `write()` itself, with no dialog and so no
   message.
@@ -912,9 +913,13 @@ sequenceDiagram
 
 Covered by `TestAbsenceRequest` (the dialog and the notice with and without a message, a
 decision from code, an untouched request, the employee's own edits, a correction undone, a
-closed request, Direction refusing, and the dialog refusing any other method) and by the
-`ems_absence_change_message` tour (the Head validating a corrected request from the form: the
-dialog, the message, and back on the list).
+closed request, Direction refusing, the dialog refusing any other method, and the reason for a
+refusal: asked from the button, optional, together with the changes of a corrected request, kept
+out of the followers' summary, not asked from code, cleared on reset) and by the tours
+`ems_absence_change_message` (the Head validating a corrected request from the form: the
+dialog, the message, and back on the list), `ems_absence_refuse_confirm` (the refusal dialog
+cancelled from the list and confirmed with a reason from the form) and
+`ems_absence_refusal_reason` (the employee reading the reason on their request).
 
 ## Public holidays
 

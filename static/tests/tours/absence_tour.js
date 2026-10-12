@@ -232,8 +232,8 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             run: "click",
         },
         {
-            trigger: ".modal:contains('are told')",
-            content: "It asks first, and says why it matters",
+            trigger: ".modal div[name='message'] textarea",
+            content: "It asks first, with a box for the reason of the refusal",
         },
         {
             trigger: ".modal-footer button:contains('Cancel')",
@@ -249,11 +249,15 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             content: "Open the same request",
             run: "click",
         },
-        ...clickAction("action_refuse", "The form has the same action, and the same confirmation"),
+        ...clickAction("action_refuse", "The form has the same action, and the same dialog"),
         {
             trigger: ".modal:contains('Refuse this absence request')",
-            content: "This one names the decision in its title too, which a list view's schema "
-                + "does not allow",
+            content: "The same dialog, named after the decision",
+        },
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Say why, for the employee alone",
+            run: "edit Tour the exams are that day",
         },
         {
             trigger: ".modal-footer button:contains('Refuse')",
@@ -645,6 +649,23 @@ registry.category("web_tour.tours").add("ems_absence_whole_timetable", {
             // Opened on its own, so discarding leaves the form for the home screen.
             trigger: "body:not(:has(.o_field_widget[name='ems_full_day']))",
             content: "Discarded",
+        },
+    ],
+});
+
+// The employee reads why their request was refused on the request itself. No "url": the test
+// opens an action listing the refused fixture request.
+registry.category("web_tour.tours").add("ems_absence_refusal_reason", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='ems_status']:contains('Refused')",
+            content: "Open the refused request",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-danger:contains('Tour the timetable does not allow it')",
+            content: "The reason is shown at the top of the request",
         },
     ],
 });

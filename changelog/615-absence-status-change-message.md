@@ -17,3 +17,13 @@
 - New `ems.absence.change_notice_wizard`, `hr.leave.ems_original_request` (no migration: it
   starts empty). Backend tests in `TestAbsenceRequest` and a new tour,
   `ems_absence_change_message`. Manuals updated for Heads of Studies/Direction and teachers.
+
+## Absences: a reason can be given when refusing a request:
+- Every Refuse button (the Head's in form, list and kanban, Direction's in form and list) now
+  opens a dialog with a box for the reason of the refusal, which is optional. It replaces the
+  plain confirmation the buttons had, and when the request had been corrected the same dialog
+  also lists the changes: never two dialogs in a row.
+- The reason is sent to the requester alone, in the same private note as the changes, and stays
+  on the request, shown in red at the top of the form while it is refused. The department's
+  chiefs keep receiving only the summary, without the reason.
+- New `hr.leave.ems_refusal_reason` (no migration). Reopening a refused request clears it.

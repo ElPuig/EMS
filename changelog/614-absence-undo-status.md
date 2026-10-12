@@ -21,7 +21,8 @@
 - Direction's "Direction: pending" button and Odoo's own "Reset" (which only the administrator
   could use, on refused or cancelled requests) are removed. An employee can no longer reopen a
   request they cancelled themselves: their Head or Direction undoes it.
-- Refusing is no longer final, and its confirmation dialog no longer says so.
+- Refusing is no longer final: undoing a refusal returns the request to where it stood and
+  forgets the reason given for it.
 
 ## Absences: every action of the request form is in its "Actions" dropdown:
 - Validate, Received, Validate documentation, Documentation insufficient, Direction: done,

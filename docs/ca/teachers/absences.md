@@ -134,6 +134,8 @@ Un cop la rep el teu cap, l'absència ja compta al calendari d'absències i al q
 
 Si el teu cap o Direcció corregeixen alguna cosa de la teva sol·licitud (el tipus d'absència, les dates o les hores), reps un missatge a la sol·licitud amb el que s'ha canviat, el seu nou estat i, si l'han escrita, la seva explicació.
 
+Si rebutgen la teva sol·licitud i qui la rebutja n'ha escrit el motiu, el reps en un missatge i es mostra en vermell a dalt de la sol·licitud.
+
 
 ---
 

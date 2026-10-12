@@ -1312,21 +1312,20 @@ class TestAbsenceRequest(TransactionCase):
         self.assertFalse(self.env['mail.activity.type']._ems_fix_approval_activity_names(),
                          'and it is idempotent')
 
-    # --- Refusing is final --------------------------------------------------------------------
+    # --- Refusing asks first ------------------------------------------------------------------
 
-    def test_refusing_a_request_asks_for_a_confirmation(self):
-        """The button sits next to the approval and the employee and their chiefs are told
-        straight away, so the one stray click is confirmed first - on all three screens the
-        button appears on."""
+    def test_refusing_a_request_asks_first_on_every_screen(self):
+        """Every Refuse button opens the dialog that asks for the reason - which is also what
+        stands between a stray click and a refused request - on all three screens."""
         for xmlid, view_type in (('hr_holidays.hr_leave_view_form', 'form'),
                                  ('hr_holidays.hr_leave_view_tree', 'list'),
                                  ('hr_holidays.hr_leave_view_kanban', 'kanban')):
             arch = self._arch(xmlid, view_type)
 
-            buttons = arch.xpath("//button[@name='action_refuse']")
+            buttons = arch.xpath("//button[@name='action_refuse' or @name='action_ems_direction_refuse']")
             self.assertTrue(buttons, xmlid)
             for button in buttons:
-                self.assertTrue(button.get('confirm'), f'{xmlid} ({view_type})')
+                self.assertIn('ems_ask_change_message', button.get('context') or '', f'{xmlid} ({view_type})')
 
     # --- Undoing the last decision (issue #614) ---------------------------------------------
 
@@ -1386,6 +1385,16 @@ class TestAbsenceRequest(TransactionCase):
         self.assertEqual(awaiting.state, 'validate', 'in effect again')
         self.assertEqual(approved.ems_status, 'approved')
         self.assertEqual(approved.ems_head_state, 'approved')
+
+    def test_undoing_a_refusal_forgets_its_reason(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave.with_context(ems_change_message="Test refused by mistake").action_refuse()
+        self.assertTrue(leave.ems_refusal_reason)
+
+        leave.action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending')
+        self.assertFalse(leave.ems_refusal_reason)
 
     def test_undoing_a_request_refused_before_this_existed_reopens_it(self):
         leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
@@ -1960,3 +1969,75 @@ class TestAbsenceRequest(TransactionCase):
 
         with self.assertRaises(UserError):
             wizard.action_confirm()
+
+    # --- The reason for a refusal -------------------------------------------------------------
+
+    def test_refusing_from_a_button_asks_for_the_reason(self):
+        """Always, corrected or not: the dialog is the confirmation too. The reason reaches the
+        employee alone and stays on the request."""
+        owner = self._employee_user('Test Absence Refused', 'absence_refused@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        wizard = self._change_dialog(leave, 'action_refuse', "Test the exams are that day")
+        self.assertTrue(wizard.is_refusal)
+        self.assertFalse(wizard.has_changes)
+        self.assertEqual(leave.state, 'confirm', 'nothing is refused until the dialog is confirmed')
+        wizard.action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertEqual(leave.ems_refusal_reason, "Test the exams are that day")
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id, 'the requester, not every follower')
+        self.assertIn("the exams are that day", str(note.body))
+        self.assertNotIn("Changes made", str(note.body))
+
+    def test_the_reason_is_optional(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        messages = len(leave.message_ids)
+
+        self._change_dialog(leave, 'action_refuse').action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertFalse(leave.ems_refusal_reason)
+        self.assertEqual(len(leave.message_ids), messages + 1, 'only the outcome summary')
+
+    def test_refusing_a_corrected_request_is_one_dialog_for_both(self):
+        owner = self._employee_user('Test Absence Refused Both', 'absence_refused_both@absence.test')
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        wizard = self._change_dialog(leave, 'action_refuse', "Test wrong type and not allowed")
+        self.assertTrue(wizard.is_refusal and wizard.has_changes)
+        wizard.action_confirm()
+
+        body = str(self._last_note(leave).body)
+        self.assertEqual(self._last_note(leave).partner_ids, owner.partner_id)
+        self.assertIn(self.type_atri.ems_short_name, body)
+        self.assertIn("wrong type and not allowed", body)
+        self.assertEqual(leave.ems_refusal_reason, "Test wrong type and not allowed")
+
+    def test_the_summary_for_the_chiefs_leaves_the_reason_out(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self._change_dialog(leave, 'action_refuse', "Test private reason").action_confirm()
+
+        summary = leave.message_ids.filtered(
+            lambda message: message.subtype_id == self.env.ref('mail.mt_comment'))
+        self.assertTrue(summary)
+        self.assertNotIn("private reason", "".join(str(body) for body in summary.mapped('body')))
+
+    def test_refusing_from_code_asks_nothing(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        leave.action_refuse()
+
+        self.assertEqual(leave.state, 'refuse')
+        self.assertFalse(leave.ems_refusal_reason)
+
+    def test_reopening_a_refused_request_forgets_the_reason(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        self._change_dialog(leave, 'action_refuse', "Test not this week").action_confirm()
+
+        leave.action_reset_confirm()
+
+        self.assertFalse(leave.ems_refusal_reason)

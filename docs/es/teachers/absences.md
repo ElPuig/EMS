@@ -134,6 +134,8 @@ Una vez la recibe tu jefe, la ausencia ya cuenta en el calendario de ausencias y
 
 Si tu jefe o Dirección corrigen algo de tu solicitud (el tipo de ausencia, las fechas o las horas), recibes un mensaje en la solicitud con lo que se ha cambiado, su nuevo estado y, si la han escrito, su explicación.
 
+Si rechazan tu solicitud y quien la rechaza ha escrito el motivo, lo recibes en un mensaje y se muestra en rojo en lo alto de la solicitud.
+
 
 ---
 

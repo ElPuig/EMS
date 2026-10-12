@@ -68,9 +68,11 @@ The **Whole day?** checkbox decides what you fill in:
 
 Tick it if you are not coming in at all: it counts 7.5 hours even if you only had one lesson that day. Leave it unticked if you come in and have to leave, or arrive late.
 
+**Not coming in at all is always a whole day**, whatever the type of absence and however you write it. If you leave the box unticked and give times that cover your whole timetable for that day (from the start of your first lesson to the end of the last one), the form ticks it for you and tells you so: those 7.5 hours are what is counted, not the hours of your lessons. Untick it again only if you really do come in that day (for example, because your lesson has been moved to another time).
+
 To request more than one day, tick it and change the end date. For a single day the end date fills itself in.
 
-`Health` and `Invasive medical test` open with the box ticked. If you were only away for part of the day, untick it.
+`Health` and `Invasive medical test` open with the box ticked, because being away for one of those reasons normally means the whole day. If you did come in and were only away for part of the day, untick it and give the times.
 
 ---
 

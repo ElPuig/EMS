@@ -90,7 +90,7 @@ També pots corregir el **tipus d'absència** quan la persona n'hagi triat un qu
 
 ![Quadre de diàleg amb els canvis realitzats a la sol·licitud i el quadre per al missatge al sol·licitant](../../assets/head_of_studies/hos-absences-change-message.png)
 
-Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella **Dia sencer?**, que també pots corregir mentre la sol·licitud està pendent: marcada compta 7,5 hores per dia laborable, sense marcar compta les hores indicades.
+Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella **Dia sencer?**, que també pots corregir mentre la sol·licitud està pendent: marcada compta 7,5 hores per dia laborable, sense marcar compta les hores indicades. Quan les hores d'una sol·licitud cobreixen tot l'horari de la persona aquell dia, el formulari proposa tot sol el dia sencer (no venir en tot el dia compta les 7,5 hores); la persona el pot desmarcar, i tu el pots corregir en un sentit o l'altre mentre la sol·licitud està pendent.
 
 ---
 

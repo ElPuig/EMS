@@ -528,6 +528,46 @@ class EmsAbsenceLeave(models.Model):
             if leave.ems_full_day and leave.request_date_from:
                 leave.request_date_to = leave.request_date_from
 
+    @api.model
+    def _ems_covers_working_day(self, employee, day, hour_from, hour_to):
+        """Whether being away between these times leaves nothing of what the employee was
+        expected to work that day: such an absence is a whole day, whatever times were given
+        unless the requester says otherwise (issue #613). Never for an employee with no
+        timetable that day - there is nothing to compare with.
+
+        sudo: the employee filing a request reads their own timetable here, which the plain
+        employee record does not let every role do."""
+        if not employee or not day or (hour_to or 0.0) <= (hour_from or 0.0):
+            return False
+        expected = employee.sudo()._ems_expected_intervals(fields.Date.to_date(day))
+        if not expected:
+            return False
+        utils = self.env['ems.datetime_utils']
+        first = min(utils.time_to_float(start.time()) for start, _end in expected)
+        last = max(utils.time_to_float(end.time()) for _start, end in expected)
+        return hour_from <= first and hour_to >= last
+
+    @api.onchange('employee_id', 'request_date_from', 'request_hour_from', 'request_hour_to')
+    def _onchange_ems_whole_timetable(self):
+        """Times that cover the employee's whole timetable for the day are a whole-day absence:
+        the box is ticked for them, saying why, rather than left to be found out from the hours
+        counted. A proposal, like the one the absence type makes: not triggered by the box
+        itself, so unticking it stands - the day may not really be lost (a lesson moved to
+        another time is exactly what the guard duty board arranges, issue #605)."""
+        if self.ems_full_day or self.request_date_from != self.request_date_to:
+            return None
+        if not self._ems_covers_working_day(
+                self.employee_id, self.request_date_from, self.request_hour_from, self.request_hour_to):
+            return None
+        self.ems_full_day = True
+        return {'warning': {
+            'title': _("Whole-day absence"),
+            'message': _(
+                "These times cover the whole timetable of that day, so the absence is marked as "
+                "a whole day: not coming in at all counts %(hours).2f hours, however many "
+                "lessons there were.", hours=self.env.company._ems_full_day_hours()),
+        }}
+
     @api.depends(
         'date_from', 'date_to', 'resource_calendar_id', 'holiday_status_id.request_unit',
         'ems_full_day', 'request_date_from', 'request_date_to')
@@ -620,9 +660,26 @@ class EmsAbsenceLeave(models.Model):
         if not self.env.su:
             for vals in vals_list:
                 vals.pop('ems_document_state', None)
+        self._ems_mark_whole_days(vals_list)
         leaves = super().create(vals_list)
         leaves._ems_announce_request()
         return leaves
+
+    def _ems_mark_whole_days(self, vals_list):
+        """What _onchange_ems_whole_timetable does on the form, for a request filed any other
+        way: one whose times cover the employee's whole timetable for its day is filed as a
+        whole day. Only when "Whole day?" was left out: a value given explicitly, the form's
+        own included, is the requester's answer."""
+        default_employee = self.env.context.get('default_employee_id') or self.env.user.employee_id.id
+        to_date = fields.Date.to_date
+        for vals in vals_list:
+            day = to_date(vals.get('request_date_from'))
+            if 'ems_full_day' in vals or not day or to_date(vals.get('request_date_to') or day) != day:
+                continue
+            employee = self.env['hr.employee'].browse(vals.get('employee_id') or default_employee)
+            if self._ems_covers_working_day(
+                    employee, day, vals.get('request_hour_from'), vals.get('request_hour_to')):
+                vals['ems_full_day'] = True
 
     def write(self, vals):
         if 'ems_direction_state' in vals and not self._ems_can_set_direction_state():

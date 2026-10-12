@@ -68,9 +68,11 @@ La casilla **¿Día entero?** decide qué tienes que rellenar:
 
 Márcala si no vienes en todo el día: contarán 7,5 horas aunque ese día solo tuvieras una clase. Déjala sin marcar si vienes y te tienes que ir, o si llegas tarde.
 
+**No venir en todo el día es siempre un día entero**, sea cual sea el tipo de ausencia y lo escribas como lo escribas. Si dejas la casilla sin marcar e indicas unas horas que cubren todo tu horario de ese día (desde el inicio de tu primera clase hasta el final de la última), el formulario la marca por ti y te lo dice: lo que cuenta son esas 7,5 horas, no las horas de tus clases. Vuelve a desmarcarla solo si de verdad vienes ese día (por ejemplo, porque te han cambiado la clase a otra hora).
+
 Para pedir más de un día, márcala y cambia la fecha de fin. Si es un solo día, la fecha de fin ya se pone sola.
 
-`Salud` y `Prueba médica invasiva` se crean con la casilla marcada. Si solo faltaste un rato, desmárcala.
+`Salud` y `Prueba médica invasiva` se crean con la casilla marcada, porque faltar por uno de esos motivos suele ser el día entero. Si viniste y solo faltaste un rato, desmárcala e indica las horas.
 
 ---
 

@@ -68,9 +68,11 @@ La casella **Dia sencer?** decideix què has d'omplir:
 
 Marca-la si no véns en tot el dia: comptaran 7,5 hores encara que aquell dia només hi tinguessis una classe. Deixa-la sense marcar si véns i te n'has d'anar, o si arribes tard.
 
+**No venir en tot el dia és sempre un dia sencer**, sigui quin sigui el tipus d'absència i l'escriguis com l'escriguis. Si deixes la casella sense marcar i indiques unes hores que cobreixen tot el teu horari d'aquell dia (des de l'inici de la primera classe fins al final de l'última), el formulari la marca per tu i t'ho diu: el que compta són aquestes 7,5 hores, no les hores de les teves classes. Torna-la a desmarcar només si de debò véns aquell dia (per exemple, perquè t'han canviat la classe a una altra hora).
+
 Per demanar més d'un dia, marca-la i canvia la data de fi. Si és un sol dia, la data de fi ja es posa sola.
 
-`Salut` i `Prova mèdica invasiva` es creen amb la casella marcada. Si només vas faltar una estona, desmarca-la.
+`Salut` i `Prova mèdica invasiva` es creen amb la casella marcada, perquè faltar per un d'aquests motius acostuma a ser el dia sencer. Si vas venir i només vas faltar una estona, desmarca-la i indica les hores.
 
 ---
 

@@ -400,6 +400,27 @@ The type still seeds the flag: `Salut` and `Prova mèdica invasiva` start ticked
 (`ems_full_day_default`), reproducing the Apps Script's flat 7.5 h, and the employee unticks it
 when they were only away for part of the day.
 
+**Times that cover the whole timetable of the day are a whole day too** (issue #613): not coming
+in at all counts the full working day, and an employee who wrote it as "from my first lesson to
+my last" would otherwise be counted only those hours. `_ems_covers_working_day()` compares the
+requested times of a single-day, unticked request with what the employee was expected to work
+that day - `hr.employee._ems_expected_intervals()`, the same reading the automatic check-out
+uses, so public holidays and already approved absences are left out - and holds when they start
+no later than the first stretch and end no earlier than the last. A day with nothing expected
+(no timetable, a weekday off, a holiday) never qualifies. It is applied in two places:
+`_onchange_ems_whole_timetable()` ticks the box on the form and says why in a warning, and
+`_ems_mark_whole_days()` does the same to the values of a request created any other way that
+leave "Whole day?" out. **It is a proposal, like the one the absence type makes, not a rule
+enforced on the record:** the onchange does not fire on the box itself, so unticking it stands,
+and an explicit `ems_full_day` in `create()` is kept. The day may not really be lost: a teacher
+away at the time of their one lesson is exactly whose lesson the guard duty board offers to move
+(issue #605), which needs the absence to stay those hours. The Head corrects it either way. The
+timetable is read with `sudo()`: a teacher filing their own request has no read access to the
+plain employee record. Covered by `TestAbsenceRequest` (exact and wider times, partial ones, a
+day without lessons, an explicit answer being kept, the onchange and its warning, a teacher's
+own request) and the
+`ems_absence_whole_timetable` tour (the form ticking the box and showing the warning).
+
 ## Menu
 
 Absences hang from **Employee Attendances**, not a root app menu of their own: staff attendance

@@ -172,6 +172,27 @@ class TestAbsenceTour(HttpCase):
         leaves.invalidate_recordset()
         self.assertEqual(leaves.mapped('ems_status'), ['pending', 'pending'])
 
+    def test_absence_whole_timetable_tour(self):
+        """A new request whose times cover the teacher's whole timetable for its day is ticked
+        as a whole day by the form itself (issue #613)."""
+        calendar = self.absent_employee.resource_calendar_id
+        calendar.flexible_hours = False
+        for weekday in range(5):
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': calendar.id, 'name': 'Tour Lesson', 'dayofweek': str(weekday),
+                'hour_from': 9.0, 'hour_to': 11.0, 'day_period': 'morning',
+            })
+        # The first day from there the teacher is really expected in: a public holiday is not.
+        day = self.day + timedelta(days=56)
+        while not self.absent_employee._ems_expected_intervals(day):
+            day += timedelta(days=1)
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Tour new absence', 'res_model': 'hr.leave', 'view_mode': 'form',
+            'context': {'default_request_date_from': str(day), 'default_request_date_to': str(day)},
+        })
+        self.start_tour(f"/odoo/action-{action.id}", "ems_absence_whole_timetable",
+                        login="absence_tour_employee")
+
     def test_absence_employee_view_tour(self):
         self.start_tour("/odoo", "ems_absence_employee_view", login="absence_tour_employee")
 

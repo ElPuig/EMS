@@ -12,6 +12,13 @@
                     </setting>
                 </xpath>
 
+                <!-- Issue #543: who a Head of Studies sees in the attendance list. -->
+                <xpath expr="//field[@name='absence_management']/ancestor::setting" position="after">
+                    <setting string="Heads of Studies see everybody's attendance (EMS)" company_dependent="1" help="Off: a Head or Deputy Head of Studies only sees the attendance of the employees of their own branch (their chain of command and the area they manage). On: they can also consult everybody's, to know at any time who is in the centre. Either way, they only correct the attendance of their own branch and decide its correction requests.">
+                        <field name="ems_hos_all_attendances"/>
+                    </setting>
+                </xpath>
+
                 <!-- Replace the tolerance div with our mode selector + conditional fields -->
                 <xpath expr="//field[@name='auto_check_out']/following-sibling::div" position="replace">
                     <div invisible="not auto_check_out">

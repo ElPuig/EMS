@@ -8,10 +8,12 @@ class ems_settings(models.TransientModel):
    # NOTE: check within company why this filed has been created as a related one, and also where is the string property defined.
    attendance_issue_status_delay = fields.Integer(related="company_id.attendance_issue_status_delay", readonly=False)
    attendance_issue_tutor_default = fields.Float(related="company_id.attendance_issue_tutor_default", readonly=False)
+   attendance_manual_justified = fields.Boolean(related="company_id.attendance_manual_justified", readonly=False)
    strike_escalation_threshold = fields.Integer(related="company_id.strike_escalation_threshold", readonly=False)
    strike_duplicate_window = fields.Integer(related="company_id.strike_duplicate_window", readonly=False)
    strike_family_notification_mode = fields.Selection(related="company_id.strike_family_notification_mode", readonly=False)
    auto_checkin_mode = fields.Selection(related="company_id.auto_checkin_mode", readonly=False)
+   ems_hos_all_attendances = fields.Boolean(related="company_id.ems_hos_all_attendances", readonly=False)
    auto_checkout_mode = fields.Selection(related="company_id.auto_checkout_mode", readonly=False)
    auto_checkout_time = fields.Float(related="company_id.auto_checkout_time", readonly=False)
    auto_checkout_retry_until = fields.Float(related="company_id.auto_checkout_retry_until", readonly=False)

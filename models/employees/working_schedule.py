@@ -392,6 +392,10 @@ class ems_working_schedule_assignation(models.Model):
 	# different teachers' calendars (see ems.group.get_subject_teachers_summary) — computing it on the
 	# fly for every row would mean one 'hr.employee' search per row instead of a plain read.
 	employee_id = fields.Many2one(string="Teacher", comodel_name="hr.employee", compute="_compute_employee_id", store=True, compute_sudo=True)
+	# Issue #611: the reinforcement group(s) a class is given to ('ESO1A G1', 'Francès (1r ESO)').
+	# What tells two classes of a main group's schedule apart when its students are split, and the
+	# only place a generic optative subject says which optative it is.
+	subgroup_label = fields.Char(string="Subgroup", compute="_compute_subgroup_label")
 	# NOTE: a plain 'related' so the Schedule tab's grid widget (client-side, from prefetched record
 	# data) can single out a break from every OTHER non-teaching activity (guard duty, a coordination
 	# meeting...) without fetching 'ems.non_teaching_type' separately — only a break is short enough
@@ -465,14 +469,22 @@ class ems_working_schedule_assignation(models.Model):
 
 	def _get_public_schedule_groups(self):
 		"""Every ems.group whose public schedule PDF prints one of these blocks: the block's own
-		'group_ids', plus - for a block on a schedule framework, i.e. a break - every group of that
-		framework's level (see 'ems.schedule_report_mixin._get_level_break_entries')."""
+		'group_ids' and the main groups those belong to (issue #611), plus - for a block on a
+		schedule framework, i.e. a break - every group of that framework's level (see
+		'ems.schedule_report_mixin._get_level_break_entries')."""
 		blocks = self.sudo()
 		frameworks = blocks.calendar_id.filtered(lambda calendar: calendar.is_framework and calendar.level_id)
-		groups = blocks.group_ids
+		groups = blocks.group_ids | blocks.group_ids.parent_group_ids
 		if frameworks:
 			groups |= self.env['ems.group'].sudo().search([('level_id', 'in', frameworks.level_id.ids)])
 		return groups
+
+	@api.depends("group_ids.name", "group_ids.group_type")
+	def _compute_subgroup_label(self):
+		for attendance in self:
+			# sudo: a label, readable by whoever can already read the block.
+			subgroups = attendance.sudo().group_ids.filtered(lambda group: group.group_type == "reinforcement")
+			attendance.subgroup_label = ", ".join(sorted(subgroups.mapped("name")))
 
 	@api.depends("calendar_id")
 	def _compute_employee_id(self):
@@ -1530,7 +1542,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		identifier = item['identifier']
 		if self._is_email_like(identifier):
 			return self.env['hr.employee'].search([('work_email', '=', identifier)], limit=1)
-		return self.env['hr.employee'].search([('schedule_import_code', '=', identifier)], limit=1)
+		return self.env['hr.employee']._search_by_schedule_import_code(identifier)[:1]
 
 	def _external_conflict_label(self, candidate):
 		weekday = candidate._weekday_label(candidate.weekday)
@@ -1743,11 +1755,11 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 		for this case: *"esa dirección de correo no se puede dar por buena... pero me gustaría
 		intentarlo"* - worth trying, but never silently treated as confirmed/auto-generated the way
 		a normal corporate email would be."""
-		teacher = self.env["hr.employee"].search([("schedule_import_code", "=", identifier)])
+		teacher = self.env["hr.employee"]._search_by_schedule_import_code(identifier)[:1]
 		if teacher.id:
 			return teacher
+		# No name: hr.employee.create() names a vacancy after its code (issue #584).
 		vals = {
-			"name": _("Pending teacher (%s)") % identifier,
 			"employee_type": "teacher",
 			"schedule_import_code": identifier,
 		}

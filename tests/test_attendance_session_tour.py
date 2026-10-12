@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, create_role_employee, create_role_user, next_student_id
+from .common import create_level_study, create_role_employee, create_role_user, shift_ems_clock, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -15,9 +15,12 @@ class TestAttendanceSessionTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.today = shift_ems_clock(cls).date()
+        # The tour checks the "Justified" status can't be picked by hand (issue #587).
+        cls.env.company.attendance_manual_justified = False
         cls.level, cls.study = create_level_study(
             cls, 'TASG', level={'name': 'Test Level (Attendance Session Guard Tour)'},
-            study={'code': 'TASG001', 'name': 'Test Study (Attendance Session Guard Tour)', 'date': date.today()},
+            study={'code': 'TASG001', 'name': 'Test Study (Attendance Session Guard Tour)', 'date': cls.today},
         )
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TASG001', 'acronym': 'TASG', 'name': 'Attendance Session Guard Tour Subject',
@@ -67,7 +70,7 @@ class TestAttendanceSessionTour(HttpCase):
             'group_ids': [(6, 0, [cls.group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
-        weekday = str(date.today().weekday())
+        weekday = str(cls.today.weekday())
         # Two back-to-back periods on the same template/day, deliberately NOT started here
         # (must stay "planned" so the tour drives onStartSession() for both, exercising the
         # continuation check - which compares this period's start against the *previous*
@@ -91,9 +94,8 @@ class TestAttendanceSessionTour(HttpCase):
         })
         # Unlike normal/Manual mode, Guard mode has no date/time override of its own - it always
         # filters both get_guard_sessions()/get_guard_planned()'s results down to whatever
-        # matches the real wall-clock time (_isCurrentSlot() in attendance_session_view.js).
-        # Spanning the whole day (same trick as test_strike_tour.py/test_attendance_passlist_tour.py)
-        # keeps this "current" no matter what time this test happens to run at.
+        # matches the server's clock (_isCurrentSlot() in attendance_session_view.js). That clock is
+        # set to 10:00 (shift_ems_clock), inside this slot, whatever time the test runs at.
         cls.guard_schedule = cls.env['ems.attendance_schedule'].create({
             'attendance_template_id': cls.guard_template.id, 'weekday': weekday,
             'start_time': 0.0, 'end_time': 23.0, 'space_id': cls.space.id,
@@ -142,7 +144,7 @@ class TestAttendanceSessionTour(HttpCase):
 
     def test_attendance_session_removed_line_form_tour(self):
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': self.schedule1.id, 'date': date.today(),
+            'attendance_schedule_id': self.schedule1.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher_employee.id,
         })
         session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student2).active = False

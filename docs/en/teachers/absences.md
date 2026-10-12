@@ -88,7 +88,7 @@ For a medical appointment, the document must expressly state the patient's first
 
 **A certificate that arrives later is filed on the same request.** You do not need to have it when you request the absence: your Head marks the request as received and it waits for the document (**Awaiting documentation**). Once you have it, open the absence, attach the file in **Supporting document** and save. That is all: the request goes back to your Head on its own to validate it, you do not have to request the absence again or press anything else.
 
-If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message: attach a valid one the same way.
+If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message with the reason. The reason is also shown at the top of the request until you attach a new document: attach a valid one the same way.
 
 To remove one, click the cross on the file and confirm.
 
@@ -105,6 +105,8 @@ The button stays disabled while something is missing. Hover over it and it will 
 - Accept the responsible declaration.
 
 If you leave the form without sending it, EMS tells you and lets you discard it.
+
+When you send it, your department chief and, if your department has one, your seminar chief receive an email with the absence type, the dates and the hours, but not the reason. They follow the request from then on, so they also receive anything written in its message history.
 
 ---
 

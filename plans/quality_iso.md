@@ -563,14 +563,15 @@ Per the repository's `data/` conventions:
 
 | Content | Where |
 |---|---|
-| Catalogues (origins, sections, minute types, action types) | `data/custom/` CSV, `__import__.` prefix, `noupdate=False` |
+| Catalogues (origins, sections, minute types, action types) | `data/custom/` CSV, `__import__.` prefix, seeded once then frozen |
 | Processes, procedures and documents (codes, names, where each sits) | `data/custom/` CSV, then frozen (see below) |
 | `url` of each document | **not in any CSV**: points into the centre's Drive, loaded separately (see 8.2) |
 | Records, minutes, agreements, indicator values | live data, imported once by the wizard, never data files |
 
 The **documentary structure is living data** — the quality coordination keeps it from `Quality >
-Configuration` — so processes, procedures and documents are seeded once and then frozen with the `res.company._ems_freeze_living_custom_data()` mechanism already used
-for `ems.group`; left as a plain synced CSV, the first upgrade would revert every edit made from the interface.
+Configuration` — so processes, procedures and documents are seeded once and then frozen, like every `data/custom/` record since issue #573
+(`res.company._ems_freeze_living_custom_data()`): no upgrade reverts an edit made from the interface, and changing an
+already-seeded row (a catalogue's included) takes an edit in the app or a migration, not just a CSV change.
 
 Its `drive_file_id` and `url` are deliberately **left out of the CSV entirely**, following the same
 field-level carve-out the conventions already apply to `ems.course.is_current` and

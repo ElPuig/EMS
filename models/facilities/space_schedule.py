@@ -49,3 +49,14 @@ class ems_space_schedule(models.Model):
         'ems.schedule_report_mixin.get_schedule_report_lines()' skip that filtering step)."""
         self.ensure_one()
         return False
+
+    def _schedule_report_block_detail(self, entries):
+        """Which group(s) are in the room in that block (issue #608) rather than the room's own
+        name, which every block of its schedule would repeat. Empty for a block with no group (a
+        meeting, a non-teaching duty booked in the room)."""
+        return ", ".join(sorted(entries.group_ids.mapped('display_name'))) or False
+
+    def _schedule_report_block_subgroup(self, entries):
+        """Nothing: the detail line above already names every group in the room (issue #608),
+        reinforcement groups (issue #611) included."""
+        return False

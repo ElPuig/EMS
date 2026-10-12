@@ -1,5 +1,9 @@
+import time
+from unittest.mock import patch
+
 from odoo.tests.common import HttpCase, tagged
 
+from ..models.contacts.student_import_wizard import EmsStudentImportWizard
 from .common import create_level_study_group, force_user_language_to_english
 
 
@@ -19,12 +23,20 @@ class TestStudentImportWizardTour(HttpCase):
             study={'code': 'TSIWT01', 'name': 'Test Study (Student Import Wizard Tour)'},
             group={'external_id': 'ESFERA-TOUR-A'},
         )
-        self.start_tour("/odoo", "ems_student_import_wizard_success", login="admin")
+        original_import = EmsStudentImportWizard.action_import
+
+        def slow_import(wizard):
+            time.sleep(1.5)  # long enough for the tour to see the "importing" overlay
+            return original_import(wizard)
+
+        with patch.object(EmsStudentImportWizard, 'action_import', slow_import):
+            self.start_tour("/odoo", "ems_student_import_wizard_success", login="admin")
 
         student = self.env['res.partner'].search([('student_id', '=', '9200001')])
         self.assertTrue(student)
         self.assertEqual(student.name, 'Esfera Success Tour Student Test')
         self.assertTrue(student.main_group_id)
+        self.assertTrue(student.google_ws_manual_email)
 
         family = self.env['res.partner'].search([('document_id', '=', '55667788Y')])
         self.assertTrue(family)

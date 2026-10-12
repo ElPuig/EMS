@@ -66,6 +66,8 @@ Mientras se envía un strike, su botón **Enviar** queda desactivado, así que s
 ## Consultar los strikes
 
 - **Convivencia → Strikes** muestra todos los strikes que has puesto.
+
+  Cada fila muestra el grupo del alumno y la asignatura y el aula de la sesión en la que se puso el strike. Un strike puesto fuera de clase (con **Nuevo strike**) muestra el grupo principal del alumno, sin asignatura ni aula.
 - En la ficha del propio alumno, aparece un botón de **Strikes** en la cabecera que muestra el recuento acumulado (0 si aún no tiene ninguno) — haz clic en él para ver el historial completo de ese alumno y, desde allí, ponerle uno nuevo con **Nuevo strike**.
 - Desde **Asistencia → Historial**, al abrir una de tus sesiones anteriores ahora también se muestra, por cada fila de alumno, cuántos strikes se pusieron durante esa sesión concreta, con un botón para ver su detalle completo.
 

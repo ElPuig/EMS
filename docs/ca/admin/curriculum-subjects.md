@@ -71,6 +71,8 @@ Els continguts viuen a la pestanya **Contingut**, separada de Resultat d'aprenen
 
 > En desar es crea automàticament un producte de facturació en segon pla perquè l'assignatura es pugui incloure en matrícules. No cal que creïs ni gestionis aquest producte manualment — es manté sincronitzat cada vegada que reanomenes l'assignatura o en canvies el codi.
 
+> **Assignatures i actualitzacions.** Les assignatures del currículum oficial venen amb l'aplicació, i cada actualització en restableix les dades i els estudis als quals pertanyen. Les assignatures pròpies del centre (per exemple, les optatives) es creen i s'editen aquí: les actualitzacions no les modifiquen, ni tampoc els estudis als quals les assigneu.
+
 ---
 
 ## Editar una assignatura

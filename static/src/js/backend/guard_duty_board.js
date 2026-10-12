@@ -3,9 +3,31 @@
 import { Component, onWillStart, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { useSetupAction } from "@web/search/action_hook";
 import { _t } from "@web/core/l10n/translation";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
+import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { GuardCoverDialog } from "./guard_cover_dialog";
+
+// The reason a struck-out line needs no guard, opened by clicking its info icon - the same text
+// its tooltip shows on hover, for whoever doesn't hover (or uses a touchscreen).
+class GuardBoardReasonPopover extends Component {
+    static template = "ems.GuardBoardReasonPopover";
+    static props = {
+        reason: String,
+        // A line struck out because a guard was sent stays editable by whoever organises the
+        // absence: the popover then also offers to change or remove that guard.
+        actionLabel: { type: String, optional: true },
+        onAction: { type: Function, optional: true },
+        close: Function,
+    };
+
+    onAction() {
+        this.props.close();
+        this.props.onAction();
+    }
+}
 
 const SHIFTS = [
     { key: "morning", label: _t("Morning") },
@@ -15,9 +37,11 @@ const SHIFTS = [
 // The two ways of reading the same day: the timetable everyone already knows, with whoever is
 // away struck through it, and the plain "who is missing / who is on guard" list built from the
 // very same payload (see ems.course.get_guard_duty_board_data) - one fetch, two renderings.
+// The absences table comes first and opens by default: it is the one the centre works from day to
+// day (developer feedback, 2026-10-07).
 const VIEWS = [
-    { key: "schedule", label: _t("Guard duty schedule") },
     { key: "table", label: _t("Absences table") },
+    { key: "schedule", label: _t("Guard duty schedule") },
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -86,6 +110,8 @@ export class GuardDutyBoard extends Component {
     setup() {
         this.orm = useService("orm");
         this.actionService = useService("action");
+        this.dialog = useService("dialog");
+        this.popover = useService("popover");
         this.state = useState({
             // Both set in onWillStart, once the server clock is known.
             activeDay: 0,
@@ -98,7 +124,7 @@ export class GuardDutyBoard extends Component {
             // timetable is keyed to weekdays, so the board needs a concrete week before it can
             // say who is away - see ems.course.get_guard_duty_board_lines()'s 'day' argument.
             weekStart: "",
-            activeView: "schedule",
+            activeView: "table",
             board: null,
             loading: true,
             courseId: null,
@@ -118,8 +144,49 @@ export class GuardDutyBoard extends Component {
             this.state.courseId = course.id;
             this.state.courseName = course.name;
             this.state.levels = levels;
+            this.restoreNavigation(this.props.state || this.props.action?.context?.params || {});
             await this.loadBoard();
         });
+        // Coming back through the breadcrumbs hands this back as props.state (see restoreNavigation).
+        useSetupAction({ getLocalState: () => this.navigationState });
+    }
+
+    // What the planner is looking at - week and day, shift, view and levels - kept in the URL
+    // (?date=...&shift=...&view=...&levels=...) so the browser's back button, the breadcrumbs, a
+    // reload and a shared link all return to it, instead of the default "now" (developer request,
+    // 2026-10-07: back from a notice landed on this morning while organising this afternoon). Opening
+    // the board from the menu carries no such parameters, so it still starts at "now".
+    get navigationState() {
+        return {
+            date: this.activeDate,
+            shift: this.state.activeShift,
+            view: this.state.activeView,
+            levels: this.state.activeLevelIds.join(","),
+        };
+    }
+
+    syncNavigation() {
+        this.props.updateActionState?.(this.navigationState);
+    }
+
+    // Applies a saved navigation state over the defaults, ignoring anything that isn't valid -
+    // a URL can be edited or outlive the levels it named.
+    restoreNavigation(saved) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(saved.date || "")) {
+            const picked = fromIsoDate(saved.date);
+            const jsDay = picked.getDay();
+            this.state.weekStart = toIsoDate(mondayOf(picked));
+            this.state.activeDay = jsDay >= 1 && jsDay <= 5 ? jsDay - 1 : 0;
+        }
+        if (SHIFTS.some((shift) => shift.key === saved.shift)) {
+            this.state.activeShift = saved.shift;
+        }
+        if (VIEWS.some((view) => view.key === saved.view)) {
+            this.state.activeView = saved.view;
+        }
+        const levelIds = this.state.levels.map((level) => level.id);
+        this.state.activeLevelIds = String(saved.levels || "").split(",").map(Number)
+            .filter((id) => levelIds.includes(id));
     }
 
     // Each weekday tab carries its own real date, so the tab strip doubles as the week's
@@ -190,6 +257,10 @@ export class GuardDutyBoard extends Component {
         return _t("(WC)");
     }
 
+    get coverCountTitle() {
+        return _t("Classes covered this course");
+    }
+
     get coveredTitle() {
         return _t("Co-taught: another teacher is in the class, no guard needed");
     }
@@ -216,6 +287,7 @@ export class GuardDutyBoard extends Component {
         // Both tabs render the same already-fetched payload, so switching between them never
         // costs a round trip.
         this.state.activeView = key;
+        this.syncNavigation();
     }
 
     async onShiftChange(ev) {
@@ -268,6 +340,7 @@ export class GuardDutyBoard extends Component {
             [String(this.state.activeDay), this.state.activeShift, this.state.activeLevelIds, this.activeDate]
         );
         this.state.loading = false;
+        this.syncNavigation();
     }
 
     // Bold red for an absence that is going to happen, a lighter italic for one still waiting
@@ -277,6 +350,296 @@ export class GuardDutyBoard extends Component {
             return "o_guard_board_absent";
         }
         return absence === "pending" ? "o_guard_board_absent_pending" : "";
+    }
+
+    // Managing absences from the absences table (issues #539, #571, #581). Every action below
+    // is checked again on the server (ems.absence_cover.board_assign/board_release,
+    // ems.notice.board_propose_absence_change): the flags the board sends only decide what is
+    // offered, never what is allowed.
+
+    get actionLabels() {
+        return {
+            proposalsTitle: _t("Late entry, early leave and break proposals"),
+            proposalsHelp: _t("Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."),
+            releasesTitle: _t("Guards no longer needed"),
+            propose: _t("Propose notice"),
+            rectify: _t("Propose correction"),
+            openDraft: _t("Open draft"),
+            release: _t("Release guard"),
+            removeArrangement: _t("Remove arrangement"),
+            arrangementsTitle: _t("Possible arrangements"),
+            arrangementsHelp: _t("Teachers of the group who could rearrange their lessons so that no guard is needed, first those where the students lose no lesson. The teachers involved are notified."),
+            applyArrangement: _t("Apply"),
+        };
+    }
+
+    // A row nobody needs to be sent to anymore is struck out: a co-teacher is in the class, a
+    // guard has been assigned (the row then takes that guard's colour), the families were told
+    // the students can stay at home for it, or the teachers rearranged themselves (issue #605).
+    absenceRowClass(absence) {
+        const classes = {
+            o_guard_board_absence_covered: absence.covered,
+            o_guard_board_absence_struck: !absence.covered && Boolean(absence.cover || absence.authorized || this.isArranged(absence)),
+            o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || absence.can_self_release,
+        };
+        if (absence.cover) {
+            classes[`o_guard_board_cover_${absence.cover.color}`] = true;
+        }
+        return classes;
+    }
+
+    // The line's tooltip: why it is struck out (the same as its info icon), or, on a line still
+    // to be covered, how to send a guard to it.
+    absenceRowTooltip(absence) {
+        if (this.struckReason(absence)) {
+            return this.struckReason(absence);
+        }
+        if (absence.arrangement) {
+            return _t("%s It only counts once its notice to the families is sent.", absence.arrangement.label);
+        }
+        if (absence.arrangement_options.length && absence.can_manage) {
+            return _t("Click to see the possible arrangements, or to send a guard teacher");
+        }
+        // A row can also be a guard duty that is not regular (WC, break...) left without its
+        // teacher (issue #606): 'duty_id' set, 'group' holding the duty's name.
+        if (this.isAssignable(absence)) {
+            return absence.duty_id
+                ? _t("Click to send a guard teacher to this guard duty")
+                : _t("Click to send a guard teacher to this class");
+        }
+        if (!absence.can_self_assign) {
+            return false;
+        }
+        return absence.duty_id ? _t("Click to cover this guard duty yourself") : _t("Click to cover this class yourself");
+    }
+
+    // Why a line is struck out, for everyone (not only whoever can organise the absence): shown by
+    // the info icon to its left, on hover and on click.
+    struckReason(absence) {
+        if (absence.covered) {
+            return this.coveredTitle;
+        }
+        if (absence.authorized) {
+            return _t("No guard needed: the families were told \"%s\".", absence.authorized);
+        }
+        if (absence.cover) {
+            return absence.duty_id
+                ? _t("Covered by %s, the guard teacher sent to this guard duty.", absence.cover.guard)
+                : _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
+        }
+        if (this.isArranged(absence)) {
+            return _t("No guard needed: %s", absence.arrangement.label);
+        }
+        return false;
+    }
+
+    // An internal arrangement in effect (issue #605): one still waiting for its notice resolves nothing yet.
+    isArranged(absence) {
+        return Boolean(absence.arrangement && !absence.arrangement.pending);
+    }
+
+    // Clicking a struck-out line (anywhere on it, not only its icon) explains it, anchored to the
+    // icon; clicking a line still to be covered sends a guard to it.
+    onAbsenceClick(ev, line, absence) {
+        const reason = this.struckReason(absence);
+        if (!reason) {
+            if (absence.arrangement && absence.can_manage) {
+                // Waiting for its notice: the planner either sends it or changes their mind.
+                this.openCoverDialog(line, absence);
+            } else if (this.isAssignable(absence)) {
+                this.openCoverDialog(line, absence);
+            } else if (absence.can_self_assign) {
+                this.confirmSelfAssign(line, absence);
+            }
+            return;
+        }
+        const props = { reason };
+        if (absence.cover && this.isAssignable(absence)) {
+            props.actionLabel = _t("Change or remove the guard");
+            props.onAction = () => this.openCoverDialog(line, absence);
+        } else if (absence.arrangement && this.isAssignable(absence)) {
+            props.actionLabel = _t("Change or remove the arrangement");
+            props.onAction = () => this.openCoverDialog(line, absence);
+        } else if (absence.can_self_release) {
+            props.actionLabel = _t("Stop covering this class");
+            props.onAction = () => this.confirmSelfRelease(absence);
+        }
+        const icon = ev.currentTarget.querySelector(".o_guard_board_absence_info") || ev.currentTarget;
+        this.popover.add(icon, GuardBoardReasonPopover, props);
+    }
+
+    // A co-taught class or one the families were told about needs nobody, so it offers nothing.
+    isAssignable(absence) {
+        return absence.can_manage && !absence.covered && !absence.authorized;
+    }
+
+    guardBadgeClass(guard) {
+        let base = this.absenceClass(guard.absence);
+        if (guard.busy) {
+            base += " o_guard_board_guard_busy";
+        }
+        return guard.color === false ? base : `${base} o_guard_board_cover_${guard.color}`;
+    }
+
+    get proposalActions() {
+        return this.state.board.actions.filter((action) => !["obsolete_cover", "arrangement_option"].includes(action.type));
+    }
+
+    // Issue #605: the internal arrangements the board detected, swaps first.
+    get arrangementActions() {
+        return this.state.board.actions.filter((action) => action.type === "arrangement_option");
+    }
+
+    arrangementCountLabel(absence) {
+        const count = absence.arrangement_options.length;
+        return count === 1 ? _t("1 possible arrangement") : _t("%s possible arrangements", count);
+    }
+
+    // Applies a detected arrangement (or a manual one). A moved lesson opens its notice for the
+    // families straight away: the arrangement only counts once it is sent.
+    async applyArrangement(classHours, absentId, groupId, type, teacherId, note, option) {
+        const result = await this.orm.call("ems.absence_cover", "board_arrange", [
+            this.activeDate, classHours.hour_from, classHours.hour_to, absentId, groupId, type,
+            teacherId || false, note || false, option ? option.hour_from : 0, option ? option.hour_to : 0,
+        ]);
+        if (result.notice_action) {
+            await this.actionService.doAction(result.notice_action);
+            return;
+        }
+        await this.loadBoard();
+    }
+
+    get releaseActions() {
+        return this.state.board.actions.filter((action) => action.type === "obsolete_cover");
+    }
+
+    // Which of the allowed changes the planner picked in the proposal's selector (the largest one
+    // until they choose otherwise) - kept on the action itself, which lives until the next reload.
+    onActionOptionChange(action, ev) {
+        action.default = Number(ev.target.value);
+    }
+
+    actionIcon(action) {
+        if (action.type === "obsolete_cover") {
+            return "fa fa-user-times";
+        }
+        if (action.type === "arrangement_option") {
+            return action.option_type === "swap" ? "fa fa-exchange" : "fa fa-arrows-v";
+        }
+        if (action.type === "pending_arrangement") {
+            return "fa fa-exchange";
+        }
+        return action.type === "rectification" ? "fa fa-exclamation-triangle" : "fa fa-envelope-o";
+    }
+
+    actionButtonLabel(action) {
+        if (action.type === "obsolete_cover") {
+            return action.cover_type === "arrangement" ? this.actionLabels.removeArrangement : this.actionLabels.release;
+        }
+        if (action.type === "arrangement_option") {
+            return this.actionLabels.applyArrangement;
+        }
+        if (action.draft_id) {
+            return this.actionLabels.openDraft;
+        }
+        return action.type === "rectification" ? this.actionLabels.rectify : this.actionLabels.propose;
+    }
+
+    openCoverDialog(line, absence) {
+        if (!this.isAssignable(absence)) {
+            return;
+        }
+        const classArgs = [this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id];
+        this.dialog.add(GuardCoverDialog, {
+            row: absence,
+            line,
+            onAssign: async (guardId, message) => {
+                await this.orm.call("ems.absence_cover", "board_assign", [...classArgs, guardId, message],
+                    { duty_id: absence.duty_id });
+                await this.loadBoard();
+            },
+            // Issue #605: an internal arrangement, detected or described by hand.
+            loadArrangementCandidates: () => this.orm.call("ems.course", "get_arrangement_candidates", classArgs),
+            onArrange: (type, teacherId, note, option) =>
+                this.applyArrangement(line, absence.teacher_id, absence.group_id, type, teacherId, note, option),
+            onOpenNotice: absence.arrangement && absence.arrangement.pending ? () => this.actionService.doAction({
+                type: "ir.actions.act_window",
+                res_model: "ems.notice",
+                res_id: absence.arrangement.notice_id,
+                views: [[false, "form"]],
+                target: "current",
+            }) : undefined,
+            onRelease: async () => {
+                const resolved = absence.cover || absence.arrangement;
+                await this.orm.call("ems.absence_cover", "board_release", [resolved.id]);
+                await this.loadBoard();
+            },
+        });
+    }
+
+    // Issue #601: a teacher on guard duty takes a class nobody covers yet, or leaves one they
+    // took themselves. Nobody is notified - the board itself shows it to whoever organises it.
+    confirmSelfAssign(line, absence) {
+        this.dialog.add(ConfirmationDialog, {
+            title: _t("Cover this class"),
+            body: _t("You will cover %(group)s (%(time)s) instead of %(teacher)s.", {
+                group: absence.group, time: line.time_label, teacher: absence.teacher,
+            }),
+            confirmLabel: _t("Cover it"),
+            confirm: async () => {
+                await this.orm.call("ems.absence_cover", "board_self_assign", [
+                    this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
+                ], { duty_id: absence.duty_id });
+                await this.loadBoard();
+            },
+            cancel: () => {},
+        });
+    }
+
+    confirmSelfRelease(absence) {
+        this.dialog.add(ConfirmationDialog, {
+            title: _t("Stop covering this class"),
+            body: _t("%(group)s will be left without a guard teacher again.", { group: absence.group }),
+            confirmLabel: _t("Stop covering"),
+            confirm: async () => {
+                await this.orm.call("ems.absence_cover", "board_self_release", [absence.cover.id]);
+                await this.loadBoard();
+            },
+            cancel: () => {},
+        });
+    }
+
+    // Proposing (or rectifying) a timetable change opens its draft notice - created on the spot
+    // the first time - for the planner to review and send from the notice's own form; releasing a
+    // guard that is no longer needed notifies them straight away.
+    async onAction(action) {
+        if (action.type === "arrangement_option") {
+            await this.applyArrangement(
+                { hour_from: action.class_hour_from, hour_to: action.class_hour_to }, action.absent_id,
+                action.group_id, action.option_type, action.teacher_id, false, action
+            );
+            return;
+        }
+        if (action.type === "obsolete_cover") {
+            await this.orm.call("ems.absence_cover", "board_release", [action.cover_id]);
+            await this.loadBoard();
+            return;
+        }
+        if (action.draft_id) {
+            await this.actionService.doAction({
+                type: "ir.actions.act_window",
+                res_model: "ems.notice",
+                res_id: action.draft_id,
+                views: [[false, "form"]],
+                target: "current",
+            });
+            return;
+        }
+        const option = action.options[action.default];
+        const notice = await this.orm.call("ems.notice", "board_propose_absence_change", [
+            this.activeDate, action.group_id, option.change_type, option.hour, option.hour_to,
+        ]);
+        await this.actionService.doAction(notice);
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,

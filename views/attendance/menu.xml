@@ -42,8 +42,12 @@
             <field name="sequence">8</field>
         </record>
 
+        <!-- The context replaces hr_attendance's own default group-bys with the managers-only
+             ones (issue #543, see view_hr_attendance_filter_inherit_ems): grouped by month and
+             employee from Department Chief up, a flat list for everybody else. -->
         <record model="ir.actions.act_window" id="hr_attendance.hr_attendance_action">
             <field name="name">Employee Attendances</field>
+            <field name="context">{'search_default_ems_manager_date': 1, 'search_default_ems_manager_employee': 2}</field>
         </record>
 
         <!-- Root menu items only -->

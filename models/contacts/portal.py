@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import _, models
 
 
 class ems_contact_portal(models.Model):
@@ -42,18 +42,11 @@ class ems_contact_portal(models.Model):
         {'revoked': [...], 'skipped': [...], 'issues': [...]} for the caller log.
         """
         self.ensure_one()
-        wizard = self.env['ems.portal.access.wizard'].sudo().new({'mode': 'revoke'})
         summary = {'revoked': [], 'skipped': [], 'issues': []}
 
         def _revoke(partner):
-            if not partner._has_active_portal_user():
-                return
-            try:
-                if wizard._apply_one(partner) == 'revoked':
-                    summary['revoked'].append(partner.display_name)
-            except Exception as e:
-                msg = e.args[0] if getattr(e, 'args', None) else str(e)
-                summary['issues'].append('%s: %s' % (partner.display_name, msg))
+            partner.filtered(lambda p: p._has_active_portal_user())._ems_apply_portal_access(
+                'revoke', summary)
 
         # 1. The student/ex-student's own portal user (typically adult students).
         _revoke(self)
@@ -76,6 +69,35 @@ class ems_contact_portal(models.Model):
                 continue
             _revoke(member)
         return summary
+
+    def _ems_grant_student_portal(self):
+        """Grant the portal to whoever gets it when this student is enrolled: the student, plus
+        the family while a minor (_ems_portal_access_recipients, the portal access wizard's own
+        rule). Used when a withdrawal registered by mistake is undone (issue #592). Returns a
+        summary dict {'granted': [...], 'issues': [...]} for the caller's notification."""
+        self.ensure_one()
+        summary = {'granted': [], 'issues': []}
+        recipients = self._ems_portal_access_recipients()
+        for recipient in recipients.filtered(lambda r: not r.email):
+            summary['issues'].append(_("%(student)s: recipient %(name)s has no email") % {
+                'student': self.name, 'name': recipient.name})
+        recipients.filtered('email')._ems_apply_portal_access('grant', summary)
+        return summary
+
+    def _ems_apply_portal_access(self, mode, summary):
+        """Grant or revoke ('grant'/'revoke') the portal of every partner in self through the
+        sudo path of ems.portal.access.wizard. Each partner it acts on is listed under
+        summary['granted'] or summary['revoked']; a failure goes to summary['issues'] instead of
+        raising, so one contact's problem does not abort the caller's whole batch."""
+        wizard = self.env['ems.portal.access.wizard'].sudo().new({'mode': mode})
+        done = 'granted' if mode == 'grant' else 'revoked'
+        for partner in self:
+            try:
+                if wizard._apply_one(partner) == done:
+                    summary[done].append(partner.display_name)
+            except Exception as e:
+                msg = e.args[0] if getattr(e, 'args', None) else str(e)
+                summary['issues'].append('%s: %s' % (partner.display_name, msg))
 
     def _ems_family_contacts(self):
         """Family contacts related to this student, empty if none is on file.

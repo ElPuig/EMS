@@ -14,6 +14,7 @@ Esta guía explica las dos formas en que un alumno deja el centro — la **gradu
 2. [Marcar una graduación](#marcar-una-graduación)
 3. [Tramitar una baja](#tramitar-una-baja)
 4. [Qué hace una baja, paso a paso](#qué-hace-una-baja-paso-a-paso)
+5. [Deshacer una baja tramitada por error](#deshacer-una-baja-tramitada-por-error)
 
 ---
 
@@ -35,8 +36,8 @@ Solo se puede marcar al alumnado que está en el **último curso de su estudio**
 ## Tramitar una baja (o una expulsión)
 
 Pueden tramitarlo secretaría, jefatura de estudios, jefatura de estudios adjunta, dirección y admin. Se te pedirá elegir entre **Baja** y **Expulsión**,
-la **fecha de salida** y, opcionalmente, un **motivo** — después confirmas. Una vez aplicado, no
-se puede deshacer desde el propio asistente.
+la **fecha de salida** y, opcionalmente, un **motivo** — después confirmas. Una baja
+tramitada por error se puede deshacer: consulta [Deshacer una baja tramitada por error](#deshacer-una-baja-tramitada-por-error).
 
 ![Asistente de baja con el tipo (Baja/Expulsión), la fecha y el motivo de salida y la matrícula pendiente que cancelará](../../assets/secretary/baixa-01-assistent.png)
 
@@ -61,6 +62,37 @@ Archivar a un alumno desde la acción genérica de Archivar (lista o ficha) abre
 5. Se le revoca el acceso al portal — y también al de su familia, **salvo que** algún miembro de la familia tenga todavía otro hijo/a matriculado/a activamente en el centro (un hermano/a mantiene el acceso de la familia funcionando).
 6. La ficha del alumno se archiva.
 7. Se programa la suspensión de su cuenta corporativa de Google: EMS le envía un correo (a la dirección personal y a la corporativa) avisándole de que la cuenta se suspenderá dentro de 30 días y se eliminará 30 días después, y muestra ambas fechas en la ficha a medida que se fijan.
+
+---
+
+## Deshacer una baja tramitada por error
+
+Si se ha dado de baja a un alumno por error (por ejemplo, confundido con un hermano de nombre casi igual), secretaría, jefatura de estudios, jefatura de estudios adjunta, dirección y admin pueden deshacerla:
+
+1. Abre la ficha del alumno (en **Comunidad educativa → Alumnos**, con el filtro **Antiguo alumnado**).
+2. Haz clic en **Acciones → Deshacer la baja** y confirma.
+
+La opción solo aparece si se cumplen las tres condiciones:
+
+- es una **baja**, no una expulsión;
+- la baja es del **curso actual**;
+- el alumno tiene la **matrícula del curso actual confirmada** y con grupo.
+
+Al deshacerla:
+
+- El alumno vuelve a ser alumno activo, en el grupo y las asignaturas de su matrícula: vuelve a salir en los pases de lista y en las sesiones de evaluación.
+- Se borra el resultado **Baja** de su [historial académico](academic-history.md) para el curso actual. Las convalidaciones del curso se conservan.
+- Se vuelve a dar acceso al portal, igual que en una matrícula nueva: al alumno y, si es menor de edad, a su familia.
+- Se mantiene la cuenta corporativa de Google: se anula la suspensión programada o se reactiva la cuenta si ya estaba suspendida.
+- Queda una nota en el historial de la ficha. Si el alumno ya tenía notas puestas antes de la baja, la nota las lista asignatura por asignatura para que el profesorado las vuelva a introducir.
+
+No se recupera:
+
+- la asistencia anterior a la baja;
+- los pases de lista hechos mientras el alumno estaba de baja;
+- las matrículas pendientes que la baja canceló.
+
+Una baja de un curso anterior no se deshace: el alumno se vuelve a matricular por el circuito habitual de matrícula.
 
 ---
 

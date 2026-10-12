@@ -18,5 +18,39 @@
                 </xpath>
             </field>
         </record>
+
+        <!-- Issue #543. The list used to open grouped by month and by employee for everybody. A
+             plain employee only ever sees their own attendance, so that grouping just hid the
+             rows they came for (picking one to request a correction): they get a flat list. From
+             Department Chief up, who see several employees, the grouping stays. A search_default
+             for a filter the user's groups do not include is simply ignored, so each default
+             group-by exists twice, once per audience, with only the managers' one switched on by
+             the action (views/attendance/menu.xml). -->
+        <record id="view_hr_attendance_filter_inherit_ems" model="ir.ui.view">
+            <field name="name">hr.attendance.filter.inherit.ems</field>
+            <field name="model">hr.attendance</field>
+            <field name="inherit_id" ref="hr_attendance.hr_attendance_view_filter"/>
+            <field name="arch" type="xml">
+                <filter name="employee" position="attributes">
+                    <attribute name="groups">!ems.group_department_chief</attribute>
+                </filter>
+                <filter name="groupby_name" position="attributes">
+                    <attribute name="groups">!ems.group_department_chief</attribute>
+                </filter>
+                <filter name="employee" position="after">
+                    <filter string="Employee" name="ems_manager_employee" context="{'group_by': 'employee_id'}"
+                            groups="ems.group_department_chief"/>
+                </filter>
+                <filter name="groupby_name" position="after">
+                    <filter string="Date" name="ems_manager_date" context="{'group_by': 'check_in:month'}"
+                            groups="ems.group_department_chief"/>
+                </filter>
+                <!-- Past courses' attendance, archived by the course transition. -->
+                <filter name="check_in_filter" position="after">
+                    <separator/>
+                    <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                </filter>
+            </field>
+        </record>
     </data>
 </odoo>

@@ -10,9 +10,24 @@ Teachers can request a correction to a check-in/check-out time on their own atte
 
 ---
 
+## Whose Attendance and Requests Are Yours
+
+You see and correct the attendance, and decide the correction requests, of **your own branch** only — not of every employee in the centre:
+
+- everybody **below you in the hierarchy** (the departments that report to you, with their chiefs and teachers), and
+- the staff of the **area you manage**, whose attendance and absences you approve.
+
+The **Director** and the **Administrator** see and decide everything. A **Department or Seminar Chief** sees the attendance of their own department, read-only, and decides nothing.
+
+Your attendance list (**Employee Attendances → Attendance → Overview**) opens grouped by month and by employee, and only shows the current course: the records of past courses are archived when the course changes (tick **Archived** in the search bar's **Filters** menu to see them).
+
+> **Seeing who is in, centre-wide.** If the Heads of Studies of your centre need to know at any time who has checked in and who has not, the Administrator can switch on **Heads of Studies see everybody's attendance (EMS)** in **Employee Attendances → Configuration → Settings**. You can then consult every employee's attendance; correcting it and deciding correction requests stay limited to your own branch. It is off by default.
+
+---
+
 ## Creating a Request on Someone Else's Behalf
 
-Unlike a Teacher, who can only request a correction for their own attendance, you can do it for **any** employee:
+Unlike a Teacher, who can only request a correction for their own attendance, you can do it for any employee **of your own branch** (the Director and the Administrator, for anybody):
 
 1. Open that employee's attendance record (e.g. from **Employee Attendances → Attendance → Overview**, or from their profile).
 2. Click **Request Correction** in the header — the same button and form a teacher would use for their own record.
@@ -41,7 +56,9 @@ If a request has been routed to you (you'll see it as an **Activity** to-do, and
 
 > Made a mistake? **Accept** and **Reject** stay available after a decision, so you can change your mind at any time — clicking the other button reverses the previous decision.
 
-> Any Head of Studies, Deputy Head of Studies, Director or Administrator can decide on any pending request — this is not restricted to "your own" teachers in the current version.
+> A request can be decided by the Heads of Studies of the employee's own branch (see [Whose Attendance and Requests Are Yours](#whose-attendance-and-requests-are-yours)), by the Director and by the Administrator. You do not see the requests of other branches.
+>
+> *Deciding only on your own branch's requests was introduced in version 18.0.0.36.0; until then, any Head of Studies could decide on any request.*
 
 ---
 

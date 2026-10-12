@@ -51,6 +51,8 @@ def post_init_hook(env):
     # Installing hr_holidays hands its Administrator group to every existing user via
     # 'base.default_user'; take it back from everyone EMS does not actually grant it to.
     env['res.users']._ems_sync_time_off_groups()
+    # hr_attendance does the same with its own Administrator group (issue #543).
+    env['res.users']._ems_revoke_unearned_attendance_groups()
     # Odoo's own absence types are none of the centre's nine, and carry noupdate=True
     # so no data file can archive them.
     env['hr.leave.type']._ems_deactivate_native_types()

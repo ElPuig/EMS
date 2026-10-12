@@ -88,7 +88,7 @@ En el caso de consulta médica, el justificante debe hacer constar expresamente 
 
 **Un justificante que llega más tarde se adjunta a la misma solicitud.** No hace falta tenerlo cuando pides la ausencia: tu jefe marca la solicitud como recibida y queda esperando el justificante (**En espera de documentación**). Cuando lo tengas, abre la ausencia, adjunta el archivo en **Justificante** y guarda. Ya está: la solicitud vuelve sola a tu jefe para que lo valide, no hay que volver a solicitar la ausencia ni pulsar nada más.
 
-Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje: adjunta uno válido de la misma manera.
+Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje con el motivo. El motivo también aparece arriba de la solicitud hasta que adjuntas un justificante nuevo: adjunta uno válido de la misma manera.
 
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 
@@ -105,6 +105,8 @@ El botón está desactivado mientras falte algo. Pasa el ratón por encima y te 
 - Aceptar la declaración responsable.
 
 Si sales del formulario sin enviarlo, EMS te avisa y te deja descartarlo.
+
+Al enviarla, tu jefe de departamento y, si tu departamento lo tiene, tu jefe de seminario reciben un correo con el tipo de ausencia, las fechas y las horas, pero no el motivo. A partir de entonces son seguidores de la solicitud, así que también reciben todo lo que se escriba en su historial de mensajes.
 
 ---
 

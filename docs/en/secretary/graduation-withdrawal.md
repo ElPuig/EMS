@@ -14,6 +14,7 @@ This guide explains the two ways a student leaves the school — **graduation** 
 2. [Marking a graduation](#marking-a-graduation)
 3. [Registering a withdrawal](#registering-a-withdrawal)
 4. [What a withdrawal does, step by step](#what-a-withdrawal-does-step-by-step)
+5. [Undoing a withdrawal registered by mistake](#undoing-a-withdrawal-registered-by-mistake)
 
 ---
 
@@ -35,8 +36,8 @@ Marked a student by mistake? **Unmark** reverses it — except the internal "has
 ## Registering a withdrawal (or an expulsion)
 
 Secretary, Head of Studies, Deputy Head of Studies, Director and admin can register one. You'll be asked to choose between **Withdrawal** and
-**Expulsion**, the **exit date** and, optionally, a **reason** — then confirm. This cannot be
-undone from the wizard itself once applied.
+**Expulsion**, the **exit date** and, optionally, a **reason** — then confirm. A withdrawal
+registered by mistake can be undone: see [Undoing a withdrawal registered by mistake](#undoing-a-withdrawal-registered-by-mistake).
 
 ![Withdrawal wizard with the kind (Withdrawal/Expulsion), exit date, reason and the pending enrolment it will cancel](../../assets/secretary/baixa-01-assistent.png)
 
@@ -61,6 +62,37 @@ Archiving a student from the generic Archive action (list or form) opens this sa
 5. Their portal access is revoked — and their family's too, **unless** a family member still has another child actively enrolled at the school (a sibling keeps the family's access working).
 6. The student's record is archived.
 7. Their corporate Google account is scheduled for suspension: EMS emails the student (personal and corporate address) telling them the account will be suspended in 30 days and deleted 30 days after that, and shows both dates on their record as they are set.
+
+---
+
+## Undoing a withdrawal registered by mistake
+
+If a student was withdrawn by mistake (for example, mixed up with a sibling with almost the same name), Secretary, Head of Studies, Deputy Head of Studies, Director and admin can undo it:
+
+1. Open the student's form (in **Educational Community → Students**, with the **Former students** filter).
+2. Click **Actions → Undo withdrawal** and confirm.
+
+The option only shows when all three conditions hold:
+
+- it is a **withdrawal**, not an expulsion;
+- the withdrawal is from the **current course**;
+- the student has their **enrollment for the current course confirmed**, with a group.
+
+Undoing it:
+
+- The student is an active student again, in the group and subjects of their enrollment: they show up again in roll-calls and grade sessions.
+- The **Withdrawal** result is removed from their [academic history](academic-history.md) for the current course. The course's convalidations are kept.
+- Portal access is granted again, as for a new enrollment: to the student and, if they are a minor, to their family.
+- The corporate Google account is kept: the scheduled suspension is cancelled, or the account is reactivated if it was already suspended.
+- A note is left in the form's history. If the student already had grades before the withdrawal, the note lists them subject by subject so the teachers can enter them again.
+
+Not recovered:
+
+- attendance from before the withdrawal;
+- roll-calls taken while the student was withdrawn;
+- pending enrollments the withdrawal cancelled.
+
+A withdrawal from an earlier course is not undone: the student enrolls again through the usual enrollment process.
 
 ---
 

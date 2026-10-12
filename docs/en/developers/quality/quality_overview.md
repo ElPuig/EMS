@@ -113,10 +113,9 @@ The links point into the centre's Drive, and several of those documents are shar
 them in this public repository would expose them. So `url` is not a `data/custom/` CSV column; it is
 filled in from the interface, or loaded with the wizard from a file kept outside the repository.
 
-The three models are **seeded once and then frozen** via
-`res.company._ems_freeze_living_custom_data()`, the mechanism already used for `ems.group`: the quality
-coordination keeps the structure from the interface, and a synced CSV would revert those edits on the
-next upgrade.
+The three models are **seeded once and then frozen**, like every `data/custom/` record
+(`res.company._ems_freeze_living_custom_data()`, see `../shared/data_loading.md`): the quality
+coordination keeps the structure from the interface, and no upgrade reverts those edits.
 
 ### Why the seeded names are in Catalan
 

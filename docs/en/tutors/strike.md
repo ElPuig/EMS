@@ -14,6 +14,8 @@ As a group tutor, you're notified by email whenever any of your students receive
 
 - **Convivencia → Strikes** lists every strike you have issued yourself, plus every strike issued to any student in your group(s) — regardless of which teacher put it.
 
+  Each row shows the student's group, and the subject and classroom of the session where the strike was issued. A strike issued outside class (with **New strike**) shows the student's main group, with no subject or classroom.
+
   ![Strikes list with the strikes of the tutor's students, whoever issued them](../../assets/tutors/amonestacions-01-llista.png)
 - From a student's own form, a **Strikes** button appears in the header showing their accumulated count (0 if they have none yet) — click it to see the full history for that student and, from there, issue a new one for them with **New strike**.
 

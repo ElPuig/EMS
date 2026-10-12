@@ -22,6 +22,15 @@ class ems_attendance_status(models.Model):
         help="If marked, a student marked with this status triggers the attendance-issue notification workflow to the family/tutor.",
     )
     color = fields.Char(string="Color", default="#3A8DDE")
+    # Whether a teacher can pick this status by hand when taking the roll-call (issue #587).
+    roll_call_selectable = fields.Boolean(string="Selectable in the roll-call", compute="_compute_roll_call_selectable")
+
+    @api.depends_context("company")
+    def _compute_roll_call_selectable(self):
+        manual_justified = self.env.company.attendance_manual_justified
+        justified = self.env.ref("ems.attendance_status_justified")
+        for status in self:
+            status.roll_call_selectable = manual_justified or status != justified
 
     @api.constrains("color")
     def _check_color_format(self):

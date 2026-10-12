@@ -195,6 +195,11 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         cls.new_teacher = cls.env['hr.employee'].create({
             'name': '0000 Teacher Exemple', 'employee_type': 'teacher',
         })
+        # A vacancy pending identification (#584): the form's staffing type reads it from the code.
+        cls.vacancy = cls.env['hr.employee'].create({
+            'name': 'Plaça mitja jornada AAI', 'employee_type': 'teacher',
+            'schedule_import_code': 'X1',
+        })
 
         # --- Strike ---
         cls.strike_student = cls._student('Pol Exemple')
@@ -244,6 +249,23 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             '/odoo/action-%d' % action.id,
             '.o_list_table', 'hos-expected-absences-list.png',
             login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row + .o_data_row',
+        )
+
+    def test_capture_staff_vacancy(self):
+        # The top of the form: title, ribbon and the staffing type with the vacancy code (#584).
+        url = '/odoo/action-ems.action_employee_kanban/%d' % self.vacancy.id
+        self._capture(
+            url, '.o_form_sheet', 'hos-staff-management-vacancy.png',
+            login='doc_shot_hos', wait_for=".o_field_widget[name='schedule_import_code'] input",
+            max_height=330,
+        )
+        # Identifying it: switched to a named teacher, the personal email shows up.
+        self._capture(
+            url, '.o_form_sheet', 'hos-staff-management-vacancy-identify.png',
+            login='doc_shot_hos', wait_for=".o_field_widget[name='staffing_type']",
+            click=".o_field_widget[name='staffing_type'] input[data-value='named']",
+            wait_after=".o_field_widget[name='private_email'] input",
+            max_height=520,
         )
 
     def test_capture_head_of_studies_screenshots(self):

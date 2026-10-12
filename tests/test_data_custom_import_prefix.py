@@ -2,21 +2,15 @@ import csv
 import os
 
 from odoo.tests.common import TransactionCase, tagged
+from odoo.tools import convert_file
 
 MODULE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-# Exceptions documented in CLAUDE.md's "Data folder conventions": ids in
-# data/custom/ that intentionally keep a non-__import__ prefix.
+# Exception documented in CLAUDE.md's "Data folder conventions": an id in data/custom/ that
+# intentionally keeps a non-__import__ prefix.
 ALLOWED_NON_IMPORT_IDS = {
     'hr.dep_administration',  # overrides a native Odoo hr module record
-} | {
-    'ems.study_%s' % code for code in (
-        'cfgm_ic10_smx_2024', 'cfgs_icb0_dam_2024', 'cfgs_icc0_daw_2024',
-        'cfgs_ica0_asix_2024', 'efps_ic02_dev_2024', 'cfgm_ag10_ga_2024',
-        'cfgs_agb0_aif_2024', 'cfgs_aga0_ad_2024', 'cfpb_ag10_sa_2024',
-        'pfi_ag10_ao_2024', 'btx_171_2022', 'eso_175_2022',
-    )
-}  # extend the shared data/cat/ems.study.csv record with centre subjects
+}
 
 # The one file allowed to stay XML under data/custom/ - see CLAUDE.md's "Confirmed real,
 # remaining CSV-incompatible case" note. Its product_id is resolved via a <field search="...">
@@ -76,16 +70,67 @@ class TestDataCustomImportPrefix(TransactionCase):
             "silently deletes centre data:\n" + "\n".join(violations),
         )
 
-    def test_living_custom_data_is_frozen_against_future_upgrades(self):
-        # data/custom/ seeds these models' records only once: what an admin then changes through
-        # the app (renaming a group or a classroom, rebalancing a planning's weights) is 'living'
-        # data the CSV must not re-push on every upgrade (see CLAUDE.md's "Data folder
+    def _custom_csv_import_ids(self):
+        """{xmlid name: 'data/custom/...csv'} of every '__import__.' row under data/custom/."""
+        names = {}
+        custom_dir = os.path.join(MODULE_ROOT, 'data', 'custom')
+        for dirpath, _dirnames, filenames in os.walk(custom_dir):
+            for filename in filenames:
+                if not filename.endswith('.csv'):
+                    continue
+                path = os.path.join(dirpath, filename)
+                with open(path, encoding='utf-8', newline='') as csv_file:
+                    for row in list(csv.reader(csv_file))[1:]:
+                        if row and row[0].startswith('__import__.'):
+                            names[row[0].split('.', 1)[1]] = os.path.relpath(path, MODULE_ROOT)
+        return names
+
+    def test_custom_data_is_frozen_against_future_upgrades(self):
+        # data/custom/ seeds its records only once: what the centre then changes through the app
+        # (renaming a group or a classroom, rebalancing a planning's weights, editing a subject)
+        # must not be pushed back by the CSV on every upgrade (see CLAUDE.md's "Data folder
         # conventions"). '_ems_freeze_living_custom_data' (models/settings/company.py) already ran
         # during this test run's own module (re)load, via '_register_hook()'.
-        for model in self.env['res.company']._EMS_LIVING_CUSTOM_DATA_MODELS:
-            with self.subTest(model=model):
-                custom_data = self.env['ir.model.data'].sudo().search([
-                    ('module', '=', '__import__'), ('model', '=', model),
-                ])
-                self.assertTrue(custom_data, f"no __import__-owned {model} found - fixture assumption broken")
-                self.assertTrue(all(custom_data.mapped('noupdate')), f"{model} rows not frozen")
+        csv_ids = self._custom_csv_import_ids()
+        self.assertTrue(csv_ids, "no __import__ row found under data/custom/ - fixture assumption broken")
+        custom_data = self.env['ir.model.data'].sudo().search([
+            ('module', '=', '__import__'), ('name', 'in', list(csv_ids)),
+        ])
+        self.assertTrue(custom_data, "no data/custom/ record loaded - fixture assumption broken")
+        not_frozen = custom_data.filtered(lambda data: not data.noupdate)
+        self.assertFalse(
+            not_frozen,
+            "data/custom/ records not frozen:\n" + "\n".join(
+                f"{csv_ids[data.name]}: {data.name}" for data in not_frozen),
+        )
+
+    def _reload_data_file(self, path):
+        """Loads a data file the way a module upgrade does."""
+        convert_file(self.env, 'ems', path, {}, mode='update', noupdate=False, kind='data')
+
+    def test_upgrade_keeps_centre_subjects_and_restores_official_links(self):
+        # What 'odoo -u ems' does to the curriculum: reload the catalog and the centre's files.
+        eso = self.env.ref('ems.study_eso_175_2022')
+        dam = self.env.ref('ems.study_cfgs_icb0_dam_2024')
+        handmade = self.env['ems.subject'].create({
+            'code': 'T573_HAND', 'acronym': 'T573H', 'name': 'Handmade optative',
+            'study_ids': [(6, 0, (eso | dam).ids)],
+        })
+        custom = self.env.ref('__import__.subject_175_2022_CAT1')
+        custom.name = 'Renamed through the app'
+        official = self.env.ref('ems.subject_0373')
+        official_studies = official.study_ids
+        self.assertGreater(len(official_studies), 1, "fixture assumption broken")
+        official.study_ids = [(3, dam.id)]
+
+        for path in ('data/cat/ems.study.csv', 'data/cat/ems.subject.csv',
+                     'data/custom/eso/ems.subject.csv', 'data/custom/btx/ems.subject.csv',
+                     'data/custom/ccff/ems.subject.csv'):
+            self._reload_data_file(path)
+        self.env.invalidate_all()
+
+        self.assertEqual(handmade.study_ids, eso | dam, "a subject created by hand lost its studies")
+        self.assertIn(handmade, eso.subject_ids)
+        self.assertEqual(custom.name, 'Renamed through the app', "a centre subject was reverted to its CSV")
+        self.assertIn(eso, custom.study_ids)
+        self.assertEqual(official.study_ids, official_studies, "the catalog did not restore an official subject's studies")

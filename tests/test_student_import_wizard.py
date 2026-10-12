@@ -13,10 +13,10 @@ class TestStudentImportWizard(TransactionCase):
     logic touched by the archive-on-withdrawal change, not a full xlsx
     column-mapping suite (see action_import / _process_row for that)."""
 
-    def _wizard(self, overwrite=False):
+    def _wizard(self, overwrite=False, create_google_accounts=True):
         return self.env['ems.student_import_wizard'].create({
             'file': base64.b64encode(b'placeholder'), 'file_name': 'esfera.xlsx',
-            'overwrite': overwrite,
+            'overwrite': overwrite, 'create_google_accounts': create_google_accounts,
         })
 
     def _stats(self):
@@ -873,3 +873,110 @@ class TestStudentImportWizard(TransactionCase):
             'Kept Family', '77777779Z', None, None, None, {'city': '', 'street': False})
         self.assertEqual(family.email, 'kept@example.com')
         self.assertEqual(family.city, 'Girona')
+
+    # --- Esfera export quirks (issue #603) ---------------------------------------
+
+    def test_find_headers_keeps_the_first_of_a_repeated_header(self):
+        # Esfera exports two "Número" columns: the address one, then the insurance one.
+        wizard = self._wizard()
+        ws = self._sheet([
+            ["Identificador de l'alumne/a", 'Número', 'Mútua/Companyia', 'Número'],
+            ['9000200', '12', '', ''],
+        ])
+        _idx, col_map = wizard._find_headers(ws)
+        self.assertEqual(col_map['Número'], 1)
+
+    def test_process_row_keeps_a_compound_first_name_whole(self):
+        row, col_map = self._row_and_col_map({
+            'Nom': 'Maria José',
+            'Primer Cognom': 'Garcia',
+            'Segon Cognom': 'Lopez',
+            'Identificador de l\'alumne/a': '9000201',
+        })
+        self._wizard()._process_row(row, col_map, self._stats())
+        student = self.env['res.partner'].search([('student_id', '=', '9000201')])
+        self.assertEqual(student.firstname, 'Maria José')
+        self.assertEqual(student.lastname, 'Garcia Lopez')
+        self.assertEqual(student.name, 'Maria José Garcia Lopez')
+
+    def test_parse_contact_value_tells_email_and_phone_apart_in_any_order(self):
+        wizard = self._wizard()
+        self.assertEqual(
+            wizard._parse_contact_value('test@example.com - 612345678'),
+            ('612345678', 'test@example.com'))
+        self.assertEqual(
+            wizard._parse_contact_value(' - test@example.com'), (None, 'test@example.com'))
+
+    def test_process_tutor_compound_first_name_and_email_first_contact(self):
+        student = self.env['res.partner'].create({'name': 'Order Student', 'contact_type': 'student', 'student_id': next_student_id()})
+        row, col_map = self._row_and_col_map({
+            'Tutor 1 - nom': 'Juan Carlos',
+            'Tutor 1 - 1r cognom ': 'Serra',
+            'Tutor 1 - doc. identitat': '87654322C',
+            'Contacte 1er tutor alumne - Tipus': 'Adreça electrònica - Telèfon',
+            'Contacte 1er tutor alumne - Valor': 'father@example.com - 699887755',
+            'Contacte 1er tutor alumne - Observacions': 'email pare - telf pare',
+        })
+        self._wizard()._process_tutor(row, col_map, 'Tutor 1', student, self._stats())
+        family = self.env['res.partner'].search([('document_id', '=', '87654322C')])
+        self.assertEqual(family.firstname, 'Juan Carlos')
+        self.assertEqual(family.lastname, 'Serra')
+        self.assertEqual(family.email, 'father@example.com')
+        self.assertEqual(family.mobile, '699887755')
+
+    def test_process_tutor_empty_observation_adds_no_note(self):
+        student = self.env['res.partner'].create({'name': 'Quiet Student', 'contact_type': 'student', 'student_id': next_student_id()})
+        row, col_map = self._row_and_col_map({
+            'Tutor 1 - nom': 'Laia',
+            'Tutor 1 - doc. identitat': '55555556D',
+            'Contacte 1er tutor alumne - Observacions': ' -  - ',
+        })
+        self._wizard()._process_tutor(row, col_map, 'Tutor 1', student, self._stats())
+        relation = self.env['res.partner.relation'].search([('right_partner_id', '=', student.id)])
+        self.assertEqual(relation.type_id, self.env.ref('ems.relation_type_tutor'))
+        self.assertFalse(student.comment)
+
+    def test_yes_no_columns_are_noted_only_when_yes(self):
+        wizard = self._wizard()
+        self.assertFalse(wizard._is_worth_noting('Alumne emancipat legalment', 'CR'))
+        self.assertFalse(wizard._is_worth_noting('Tutor 1 - contactes: rebre notificacions', 'No - No'))
+        self.assertTrue(wizard._is_worth_noting('Alumne tutelat legalment', 'Sí'))
+        self.assertTrue(wizard._is_worth_noting('Tutor 1 - contactes: rebre notificacions', 'No - Sí'))
+        self.assertTrue(wizard._is_worth_noting('Observacions', 'Al·lèrgia'))
+
+    def test_process_tutor_without_country_takes_the_students(self):
+        spain = self.env.ref('base.es')
+        student = self.env['res.partner'].create({
+            'name': 'Country Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'country_id': spain.id})
+        row, col_map = self._row_and_col_map({
+            'Tutor 1 - nom': 'Pere',
+            'Tutor 1 - doc. identitat': '55555557E',
+            'Tutor 1 - provincia': 'Barcelona',
+        })
+        self._wizard()._process_tutor(row, col_map, 'Tutor 1', student, self._stats())
+        family = self.env['res.partner'].search([('document_id', '=', '55555557E')])
+        self.assertEqual(family.country_id, spain)
+        self.assertEqual(family.state_id, self.env.ref('base.state_es_b'))
+
+    def test_import_without_google_accounts_marks_new_students_manual(self):
+        row, col_map = self._row_and_col_map({
+            'Nom': 'Manual',
+            'Primer Cognom': 'Account',
+            'Identificador de l\'alumne/a': '9000202',
+            'Correu electrònic': 'manual.account@example.com',
+        })
+        self._wizard(create_google_accounts=False)._process_row(row, col_map, self._stats())
+        student = self.env['res.partner'].search([('student_id', '=', '9000202')])
+        self.assertTrue(student.google_ws_manual_email)
+        self.assertEqual(student.google_ws_state, 'manual_pending')
+        self.assertFalse(student._gw_ready())
+
+    def test_import_without_google_accounts_leaves_linked_students_alone(self):
+        student = self.env['res.partner'].create({
+            'name': 'Linked Account', 'contact_type': 'student', 'student_id': next_student_id(),
+            'student_email': f'linked.account@{CORPORATE_TEST_DOMAIN}'})
+        self._wizard(create_google_accounts=False)._get_or_create_student(
+            student.student_id, {'google_ws_manual_email': True, 'active': True}, self._stats())
+        self.assertFalse(student.google_ws_manual_email)
+        self.assertEqual(student.google_ws_state, 'active')

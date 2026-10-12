@@ -379,7 +379,10 @@ export class GradeMatrixField extends Component {
     finalScore(row) {
         if (row.subject && row.subject.data.is_convalidated) {
             // The convalidation's own grade, marked as such: it is a resolution, not an evaluation.
-            return `${this.formatScore(row.subject.data.final_score)} ${_t("CV")}`;
+            // Convalidated without a grade, it is the mark alone.
+            return row.subject.data.final_score
+                ? `${this.formatScore(row.subject.data.final_score)} ${_t("CV")}`
+                : _t("CV");
         }
         return this.hasFinal(row) ? this.formatScore(row.subject.data.final_score) + this.provisionalMark(row) : "";
     }
@@ -387,7 +390,8 @@ export class GradeMatrixField extends Component {
     finalCellClass(row) {
         let cls = "o_grade_matrix_final";
         if (this.hasFinal(row)) {
-            cls += row.subject.data.final_score >= 5 ? " o_grade_cell_pass" : " o_grade_cell_fail";
+            const passed = row.subject.data.is_convalidated || row.subject.data.final_score >= 5;
+            cls += passed ? " o_grade_cell_pass" : " o_grade_cell_fail";
         }
         if (this.isProvisional(row)) {
             cls += " o_grade_matrix_provisional";

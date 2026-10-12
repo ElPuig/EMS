@@ -26,6 +26,7 @@ erDiagram
 | `category` | `Selection` (`assistance`/`absence`) | Replaces the old `a_`/`m_` code-prefix convention (`attendance_status_selection`'s comment: *"status starting with 'a_' will be computed as an 'attendance' and starting with 'm_' as a 'm_miss' when reporting summary data"*) — now an explicit field instead of a naming convention, read by `_report_data` in `attendance_reports.py` for the Assistance/Absence breakdown |
 | `notifiable` | `Boolean` | Replaces the hardcoded `ems_attendance_session_line.status_is_notificable()` check (`self.status in ['m_miss', 'a_issue']`) — now `bool(self.status_id.notifiable)` |
 | `color` | `Char` (hex, `ems.hex_color_mixin`) | Text color used for this status in the per-session printed report (`reports/attendance/session.xml`); same free-pick color widget as `ems.role`/`ems.attendance_template` |
+| `roll_call_selectable` | `Boolean`, computed, not stored (`@api.depends_context('company')`) | Whether a teacher can pick this status by hand in the roll-call. `False` only for `attendance_status_justified` while the company's `attendance_manual_justified` setting is off (issue #587); the roll-call widget shows such a status disabled, with a tooltip, and `ems.attendance_session_line._check_manual_justified` enforces it server-side (see [`attendance_session.md`](attendance_session.md)) |
 
 Seed data (`data/main/ems.attendance_status.csv`), fixed xmlids so the migration backfill and the business-logic `env.ref()` lookups below have a stable target:
 

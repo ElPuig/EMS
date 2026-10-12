@@ -1,5 +1,6 @@
 from datetime import date
 
+from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study, create_role_user
@@ -414,3 +415,127 @@ class TestGroupSchedule(TransactionCase):
 
         self.assertTrue(all(block.space_id == new_space for block in blocks))
         self.assertTrue(all(block.topic == 'Shared Topic' for block in blocks))
+
+    # ── Issue #611: classes of a group's subgroups (split halves, optatives) ─────────────────
+
+    def _new_subgroup(self, name, parents=None):
+        # A room of its own: two classes at the same time can't share one.
+        space = self.env['ems.space'].create({
+            'code': f'TGSL-{name[-12:]}', 'name': f'Test Space ({name})',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        return self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': name, 'space_id': space.id,
+            'parent_group_ids': [(6, 0, (parents or self.group).ids)],
+        })
+
+    def _add_class(self, teacher_name, group, subject=None, dayofweek='0', hour_from=9):
+        teacher = self.env['hr.employee'].create({'name': teacher_name, 'employee_type': 'teacher'})
+        self._new_calendar(teacher, f'Test Calendar ({teacher_name})').apply_schedule_changes([{
+            'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_from + 1, 'day_period': 'morning',
+            'subject_id': (subject or self.subject).id, 'group_ids': [group.id], 'name': 'TGSL: TGSL',
+        }])
+        return teacher
+
+    def _monday_blocks(self, group, time_label='09:00-10:00'):
+        line = next(line for line in group.get_schedule_report_lines() if line['time_label'] == time_label)
+        return line['cells'][0]['blocks']
+
+    def test_subgroup_classes_are_part_of_the_main_group_schedule(self):
+        half = self._new_subgroup('TGSL Half 1')
+        teacher = self._add_class('Test Teacher (Half 1)', half)
+        other_group = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'TGSLX', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id, 'shift': 'morning',
+        })
+
+        self.assertEqual(self.group.schedule_attendance_ids.filtered('subject_id').employee_id, teacher)
+        self.assertFalse(other_group.schedule_attendance_ids.filtered('subject_id'))
+        self.assertEqual(half.schedule_attendance_ids.filtered('subject_id').employee_id, teacher)
+
+    def test_subgroup_of_several_main_groups_shows_in_each(self):
+        other_group = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'TGSLY', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id, 'shift': 'morning',
+        })
+        optative = self._new_subgroup('TGSL Optative', parents=self.group | other_group)
+        self._add_class('Test Teacher (Optative)', optative)
+
+        for group in self.group | other_group:
+            self.assertEqual(self._monday_blocks(group)[0]['entries'].subgroup_label, 'TGSL Optative')
+
+    def test_two_halves_with_the_same_subject_are_separate_blocks(self):
+        for number in (1, 2):
+            self._add_class(f'Test Teacher (Half {number})', self._new_subgroup(f'TGSL Half {number}'))
+
+        blocks = self._monday_blocks(self.group)
+
+        self.assertEqual(sorted(block['entries'].subgroup_label for block in blocks), ['TGSL Half 1', 'TGSL Half 2'])
+        self.assertFalse(any(block.get('parallel_blocks') for block in blocks))
+        self.assertEqual(self.group.get_parallel_classes_detail(), [])
+
+    def test_three_parallel_classes_stay_side_by_side(self):
+        for number in (1, 2, 3):
+            self._add_class(f'Test Teacher (Parallel {number})', self._new_subgroup(f'TGSL Parallel {number}'))
+
+        self.assertEqual(len(self._monday_blocks(self.group)), 3)
+
+    def test_more_than_three_parallel_classes_collapse_into_one_block(self):
+        for number in (1, 2, 3, 4):
+            self._add_class(f'Test Teacher (Optative {number})', self._new_subgroup(f'TGSL Optative {number}'))
+
+        blocks = self._monday_blocks(self.group)
+
+        self.assertEqual(len(blocks), 1)
+        self.assertEqual(len(blocks[0]['parallel_blocks']), 4)
+        detail = self.group.get_parallel_classes_detail()
+        self.assertEqual(len(detail), 1)
+        self.assertIn('09:00-10:00', detail[0]['slot'])
+        self.assertEqual([row['subgroup'] for row in detail[0]['classes']], [f'TGSL Optative {number}' for number in (1, 2, 3, 4)])
+        self.assertEqual(detail[0]['classes'][0]['teachers'], 'Test Teacher (Optative 1)')
+
+    def test_report_group_schedule_details_collapsed_classes(self):
+        for number in (1, 2, 3, 4):
+            self._add_class(f'Test Teacher (Optative {number})', self._new_subgroup(f'TGSL Optative {number}'))
+
+        content, _content_type = self.env['ir.actions.report'].with_context(lang='en_US')._render_qweb_pdf(
+            'ems.report_group_schedule', [self.group.id])
+
+        self.assertIn(b'4 classes in parallel', content)
+        self.assertIn(b'TGSL Optative 3', content)
+        self.assertIn(b'Test Teacher (Optative 3)', content)
+
+    def test_only_a_reinforcement_group_can_have_main_groups(self):
+        other_group = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'TGSLZ', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id,
+        })
+        with self.assertRaises(ValidationError):
+            other_group.parent_group_ids = [(6, 0, self.group.ids)]
+
+    def test_main_groups_must_be_main(self):
+        half = self._new_subgroup('TGSL Half 1')
+        with self.assertRaises(ValidationError):
+            self._new_subgroup('TGSL Half of a half', parents=half)
+
+    def test_changing_main_groups_refreshes_their_public_schedule(self):
+        half = self._new_subgroup('TGSL Half 1')
+        other_group = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'TGSLW', 'level_id': self.level.id, 'study_id': self.study.id,
+            'space_id': self.space.id,
+        })
+        (self.group | other_group).write({'public_schedule_dirty': False})
+
+        half.parent_group_ids = [(6, 0, other_group.ids)]
+
+        self.assertTrue(self.group.public_schedule_dirty, "the main group it left still prints its classes")
+        self.assertTrue(other_group.public_schedule_dirty)
+
+    def test_subgroup_class_change_refreshes_the_main_group_public_schedule(self):
+        half = self._new_subgroup('TGSL Half 1')
+        self.group.write({'public_schedule_dirty': False})
+
+        self._add_class('Test Teacher (Half 1)', half)
+
+        self.assertTrue(self.group.public_schedule_dirty)

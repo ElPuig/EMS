@@ -104,5 +104,39 @@ registry.category("web_tour.tours").add("ems_employee_staff_permissions", {
             trigger: ".o_list_view .o_data_row .o_data_cell:contains('0000 Staff Perms Created')",
             content: "The new teacher shows up in the list",
         },
+        // --- creating a vacancy pending identification (#584) ---------------
+        {
+            trigger: ".o_list_button_add",
+            content: "Create a vacancy",
+            run: "click",
+        },
+        {
+            // No name typed: a vacancy takes its code as name on save.
+            trigger: ".o_field_widget[name='staffing_type'] input[data-value='vacancy']",
+            content: "Mark it as a vacancy pending identification",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='schedule_import_code'] input",
+            content: "Give it its vacancy code",
+            run: "edit XPERMS",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='private_email']))",
+            content: "A vacancy asks for no personal email",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save the vacancy",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "Saved without a personal email",
+        },
+        {
+            trigger: ".o_form_view .ribbon:contains('Pending identification')",
+            content: "Flagged as pending identification",
+        },
     ],
 });

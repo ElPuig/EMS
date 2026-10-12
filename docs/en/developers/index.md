@@ -58,6 +58,7 @@ Technical reference for developers working on the EMS module.
 | [ems.workgroup](employees/workgroup.md) | Simple free-form employee grouping (project teams, committees) — no business logic |
 | [ems.teaching](employees/teaching.md) | Ternary teacher/group/subject relation, derived from and kept in sync with the schedule via `_sync_from_schedule()` |
 | [ems.non_teaching_type](employees/non_teaching_type.md) | Catalogue of non-subject schedule period types (breaks, guard duties); note the admin group is `group_department_chief`, not the usual `group_academic_admin` |
+| [Employee attendance: access, list and archiving](employees/employee_attendance.md) | Who sees and corrects whose `hr.attendance` (own, chain of command, branch, centre-wide), the optional "Heads of Studies see everybody's" setting, the flat/grouped list per role and the archiving of a past course's records |
 | [hr.attendance auto-checkout (EMS extension)](employees/attendance_autocheckout.md) | Closing stale open attendances on check-in, and the EMS nightly cron mode using the employee's real schedule instead of fixed hours |
 | [res.users (EMS extension)](employees/user.md) | `_sync_ems_implied_groups()` — compensates for Odoo's own implied-group grants being permanent/never auto-revoked |
 | [ems.tracking](employees/tracking.md) | Free-form student follow-up notes; flags a possible access-scope mismatch (teachers described as able to "add" notes but only granted read access) |
@@ -119,6 +120,8 @@ Technical reference for developers working on the EMS module.
 | [Form "Actions" dropdown](shared/actions_dropdown.md) | One header button listing a form's actions on its record, each entry keeping its own `invisible=`/`groups=`/`confirm=` - used instead of loose header buttons or the cog menu on the contact form |
 | [Task assignment](shared/task_assignment.md) | `mail.activity.type`'s `ems_task_assignment`/`ems_assignee_ids` — an explicit, config-driven recipient list decoupled from security groups |
 | [Daily pending-tasks digest](shared/task_digest.md) | `res.users`' morning email listing each person's open activities, sent at the start of their working day (own schedule, else the default framework) |
+| [Chatter conversations and their answers by email](shared/chatter_email_answers.md) | Who follows a contact (nobody for creating it), how an emailed answer is filed on the chatter (answers address, incoming mail server), and why a development machine reads no mailbox |
+| [Who receives the answer to an EMS email](shared/mail_reply_to.md) | The `Reply-To` of each kind of email: direct notices (`message_notify`) answered to whoever caused them, templates, and chatter messages |
 | [`ems.base`](shared/base.md) | Chatter/notification helpers (`notify`, `chatter`, `chatter_exception`), permission checks (`get_user_is_admin`/`_tutor`), `persistent_hash` — the foundational mixin inherited by most business models |
 | [`ems.datetime_utils`](shared/datetime_utils.md) | Timezone-aware ↔ naive-UTC ↔ float-hour conversions shared by every attendance/schedule model |
 | [Dates, times and timezones](shared/timezones.md) | The one-timezone policy (always the company's): server-side helpers, the web client's company-timezone service and `serverNow()`, and the record-level `tz` alignment |

@@ -15,6 +15,10 @@ class ems_attendance(models.Model):
     _description = 'HR Attendance: auto check-in/check-out extension.'
 
     in_mode = fields.Selection(selection_add=[('auto_check_in', 'Automatic Check-In')])
+    # Issue #543: a past course's attendance is archived when the centre moves on to the next one
+    # (see _ems_archive_before_course), so every list and report is about the current course.
+    # Nothing is deleted: the "Archived" filter brings it back.
+    active = fields.Boolean(string="Active", default=True)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -35,6 +39,21 @@ class ems_attendance(models.Model):
                 open_attendance._close_stale_attendance_safely()
 
         return super().create(vals_list)
+
+    @api.model
+    def _ems_archive_before_course(self, course):
+        """Archives every employee's attendance from before `course` starts (its 1 September,
+        in the company's timezone) and returns how many. Plain SQL: it is a flag on old rows, and
+        going through write() would recompute overtime and re-run the check-in/out validations
+        for thousands of attendances that are not changing at all."""
+        utils = self.env['ems.datetime_utils']
+        cutoff = utils.datetime_to_odoo(utils.time_float_to_utc_datetime(course.date_range()[0], 0.0))
+        self.flush_model()
+        self.env.cr.execute(
+            "UPDATE hr_attendance SET active = FALSE WHERE active IS NOT FALSE AND check_in < %s", [cutoff])
+        archived = self.env.cr.rowcount
+        self.invalidate_model(['active'])
+        return archived
 
     @api.model
     def _get_stale_attendance_domain(self):

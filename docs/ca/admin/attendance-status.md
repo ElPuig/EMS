@@ -30,6 +30,8 @@ Cada estat té:
 
 **Retard lleu vs. Retard greu:** el centre distingeix dos nivells de retard. "Retard lleu" té categoria `Assistència` i no notifica la família — mai compta com a absència. "Retard greu" té categoria `Absència` i notifica la família, exactament igual que una Falta — un alumne marcat així compta com a absent a les taxes i informes d'assistència. Un professor tria directament quin aplica en passar llista; no hi ha cap escalat automàtic de diversos retards lleus cap a un de greu. Tots dos es reinicien a "Assistit" a la línia del període següent — un retard, sigui del tipus que sigui, només s'aplica al període en què es va marcar.
 
+**Falta justificada en passar llista:** per defecte, un professor no pot marcar un alumne com a **Falta justificada** en passar llista. El botó es continua mostrant, però deshabilitat, i en passar-hi el ratolí per sobre s'explica que només el tutor de l'alumne pot justificar una falta, registrant-ne una justificació (vegeu el manual de tutors). Perquè el professorat la pugui triar directament, marca **Justificar faltes en passar llista** a **Configuració → Gestió de l'EMS → "Configuració d'assistència de l'alumne/a"**. Si la tornes a desmarcar, les faltes que ja s'havien marcat així es queden com estaven.
+
 ---
 
 [← Tornar als manuals d'Administrador](index.md)

@@ -3,7 +3,7 @@ import base64
 import logging
 
 from odoo import SUPERUSER_ID, _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 
 from ..shared.google_workspace_mixin import (
     GW_DEACTIVATION_DELAY_DAYS,
@@ -70,11 +70,24 @@ class HrEmployeeGoogleWorkspace(models.Model):
         groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="Single source of truth for the header buttons: which Google Workspace "
              "/ EMS user action, if any, applies to this employee right now.")
+    google_ws_creation_pending = fields.Boolean(
+        string="Google account being created", compute='_compute_google_ws_creation_pending',
+        groups="base.group_system,hr.group_hr_user,ems.group_teacher",
+        help="True while the account-creation job waits in the queue or runs: the "
+             "\"Create Google account\" button stays hidden meanwhile.")
     google_signin_missing = fields.Boolean(
         string="Google sign-in not linked", compute='_compute_google_signin_missing',
         groups="base.group_system,hr.group_hr_user,ems.group_teacher",
         help="True when the employee has an active account and an EMS user, but that "
              "user has lost its OAuth data and can no longer sign in with Google.")
+    # Issue #595: holds the temporary password, so only the roles that manage the account read
+    # it - the field's groups also guard its ir.attachment (res_field) on /web/content.
+    google_credentials_pdf = fields.Binary(
+        string="Google credentials", attachment=True, copy=False, readonly=True,
+        groups="base.group_system,ems.group_academic_admin,hr.group_hr_user",
+        help="Latest Google credentials PDF (account creation or password reset).")
+    google_credentials_filename = fields.Char(
+        copy=False, groups="base.group_system,ems.group_academic_admin,hr.group_hr_user")
 
     # ------------------------------------------------------------------
     # Compute
@@ -92,6 +105,12 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 employee.google_ws_state = 'pending_user'
             else:
                 employee.google_ws_state = 'active'
+
+    def _compute_google_ws_creation_pending(self):
+        gw = self._gw()
+        for employee in self:
+            employee.google_ws_creation_pending = bool(employee.id) and gw._gw_creation_job_running(
+                employee._gw_create_job_key())
 
     @api.depends('google_ws_state', 'user_id', 'user_id.oauth_uid')
     def _compute_google_signin_missing(self):
@@ -203,13 +222,15 @@ class HrEmployeeGoogleWorkspace(models.Model):
         return [label for fname, label in required if not emp[fname]]
 
     def _gw_ready(self):
-        """True if the employee has all the data required to create the account."""
+        """True if the employee has all the data required to create the account. Never for a
+        vacancy pending identification (issue #584): nobody fills it yet, whatever data it has."""
         self.ensure_one()
         emp = self.sudo()
         return (
             emp.employee_type in ('teacher', 'asp')
             and not emp.work_email
             and not emp.google_ws_manual_email
+            and not emp.schedule_import_code
             and not self._gw_missing_fields()
         )
 
@@ -223,12 +244,23 @@ class HrEmployeeGoogleWorkspace(models.Model):
             return
         for employee in self:
             if employee._gw_ready():
-                employee.with_delay(
-                    identity_key='gw_emp_create_%s' % employee.id,
-                    description="Create Google Workspace account: %s" % employee.name,
-                ).action_create_google_account()
+                employee._gw_enqueue_create()
             else:
                 employee._gw_notify_missing_fields()
+
+    def _gw_create_job_key(self):
+        """identity_key of the account-creation job, shared by every path that queues it."""
+        self.ensure_one()
+        return 'gw_emp_create_%s' % self.id
+
+    def _gw_enqueue_create(self):
+        """Queue the account creation. The automatic path and the header button both go
+        through it, so the same job is never queued twice for one employee (#582)."""
+        self.ensure_one()
+        self.with_delay(
+            identity_key=self._gw_create_job_key(),
+            description="Create Google Workspace account: %s" % self.name,
+        )._gw_create_account()
 
     def _gw_notify_missing_fields(self):
         """Post a one-off chatter note when the account cannot be created yet
@@ -239,7 +271,8 @@ class HrEmployeeGoogleWorkspace(models.Model):
         """
         self.ensure_one()
         emp = self.sudo()
-        if emp.employee_type not in ('teacher', 'asp') or emp.work_email or emp.google_ws_manual_email:
+        if (emp.employee_type not in ('teacher', 'asp') or emp.work_email
+                or emp.google_ws_manual_email or emp.schedule_import_code):
             return
         if emp.google_ws_missing_notice_sent:
             return
@@ -347,9 +380,23 @@ class HrEmployeeGoogleWorkspace(models.Model):
             ).action_sync_google_account_name()
 
     # ------------------------------------------------------------------
-    # Main action (queue_job target / manual button)
+    # Main action (manual button) and the creation itself (queue_job target)
     # ------------------------------------------------------------------
     def action_create_google_account(self):
+        """"Create Google account" header button.
+
+        An employee ready for it gets the same queued job as the automatic creation instead
+        of a direct call: both used to run side by side and create two accounts (#582).
+        Anything else (missing data, an existing corporate or non-corporate email) keeps
+        the direct call, which explains itself or adopts the address without calling Google.
+        """
+        self.ensure_one()
+        if self.env.company.google_ws_enabled and self._gw_ready():
+            self._gw_enqueue_create()
+            return self._gw()._gw_creation_queued_notification()
+        self._gw_create_account()
+
+    def _gw_create_account(self):
         """Create the employee's Google Workspace account and deliver credentials.
 
         Idempotent: does nothing if the employee already has a corporate email.
@@ -361,6 +408,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
         if self.employee_type not in ('teacher', 'asp'):
             return
 
+        self._gw()._gw_lock_for_creation(self)
         emp = self.sudo()
         domain = self._gw()._gw_domain()
 
@@ -376,6 +424,11 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 "(%s); the corporate account was NOT created to avoid overwriting it.")
                 % emp.work_email)
             return
+
+        if emp.schedule_import_code:
+            raise UserError(_(
+                "%s is a vacancy pending identification. Switch it to a named teacher, with their "
+                "personal email, and the Google account will be created.") % self.name)
 
         missing = self._gw_missing_fields()
         if missing:
@@ -461,31 +514,59 @@ class HrEmployeeGoogleWorkspace(models.Model):
             'email': email,
             'ou': ou,
             'dry': _(" [dry-run]") if dry_run else '',
-            'pdf': _("Credentials PDF saved as attachment")
+            **self._gw_delivery_note(pdf_saved, emailed),
+        })
+
+    def _gw_delivery_note(self, pdf_saved, emailed):
+        """The 'pdf'/'mail' parts of the chatter note that follows a credentials delivery."""
+        return {
+            'pdf': _("Credentials PDF saved on the employee form")
                    if pdf_saved else _("Credentials PDF could NOT be generated (see logs)"),
-            'mail': _("; sent by email to %s") % recovery_email if emailed else _("; no personal email on file"),
+            'mail': _("; sent by email to %s") % self.sudo().private_email
+                    if emailed else _("; no personal email on file"),
+        }
+
+    def action_reset_google_password(self):
+        """Give the employee's Google account a new random password and deliver it like a new
+        account's (issue #595). Same groups as every other Google action on the form: the
+        button's groups only hide it, so they are re-checked here."""
+        self.ensure_one()
+        user = self.env.user
+        if not (user.has_group('ems.group_academic_admin') or user.has_group('hr.group_hr_user')):
+            raise AccessError(_("You are not allowed to reset Google passwords of the staff."))
+        if self.sudo().google_ws_state not in ('active', 'pending_user'):
+            raise UserError(_("%s has no active Google account.") % self.name)
+        company = self.env.company
+        if not company.google_ws_enabled:
+            raise UserError(_("The Google Workspace integration is not enabled."))
+
+        email = self.sudo().work_email
+        password = self._gw()._gw_reset_password(email)
+        pdf_saved, emailed = self._gw_deliver_credentials(email, password)
+        self.sudo().message_post(body=_(
+            "Google Workspace password reset: %(email)s%(dry)s. %(pdf)s%(mail)s.") % {
+                'email': email,
+                'dry': _(" [dry-run]") if company.google_ws_dry_run else '',
+                **self._gw_delivery_note(pdf_saved, emailed),
         })
 
     def _gw_deliver_credentials(self, email, password):
-        """Generate the credentials PDF (attachment) and send the welcome email (if any).
+        """Generate the credentials PDF (always) and send the welcome email (if any).
 
-        Returns (pdf_saved, emailed).
+        The PDF replaces the previous one in google_credentials_pdf: an older one holds a
+        password that no longer works. Returns (pdf_saved, emailed).
         """
         self.ensure_one()
         pdf_saved = False
-        # 1) PDF -> ir.attachment on the employee record
+        # 1) PDF -> google_credentials_pdf on the employee record
         try:
             pdf, _ct = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
                 'ems.report_google_credentials_employee', [self.id],
                 data={'gw_email': email, 'gw_password': password},
             )
-            self.env['ir.attachment'].sudo().create({
-                'name': 'Credencials_Google_%s.pdf' % self.id,
-                'type': 'binary',
-                'datas': base64.b64encode(pdf),
-                'res_model': 'hr.employee',
-                'res_id': self.id,
-                'mimetype': 'application/pdf',
+            self.sudo().write({
+                'google_credentials_pdf': base64.b64encode(pdf),
+                'google_credentials_filename': f'Credencials_Google_{self.id}.pdf',
             })
             pdf_saved = True
         except Exception:
@@ -502,6 +583,27 @@ class HrEmployeeGoogleWorkspace(models.Model):
                 ).send_mail(self.id, force_send=True)
                 emailed = True
         return pdf_saved, emailed
+
+    @api.model
+    def _ems_adopt_loose_credentials_pdfs(self):
+        """Issue #595 migration: before google_credentials_pdf existed, each credentials PDF was a
+        loose ir.attachment on the employee, shown nowhere and readable by anyone reading the
+        employee. Moves each employee's latest one into the field and deletes them all."""
+        Attachment = self.env['ir.attachment'].sudo()
+        loose = Attachment.search([
+            ('res_model', '=', 'hr.employee'), ('res_field', '=', False),
+            ('name', '=like', 'Credencials_Google_%.pdf'),
+        ], order='create_date desc, id desc')
+        employees = self.sudo().with_context(active_test=False).browse(set(loose.mapped('res_id'))).exists()
+        adopted = 0
+        for employee in employees:
+            latest = loose.filtered(lambda attachment: attachment.res_id == employee.id)[:1]
+            # A file missing from the filestore (a database restored without it) has nothing to move.
+            if latest.datas:
+                employee.write({'google_credentials_pdf': latest.datas, 'google_credentials_filename': latest.name})
+                adopted += 1
+        loose.unlink()
+        _logger.info("Issue #595: moved the credentials PDF of %d employees into the protected field.", adopted)
 
     # ------------------------------------------------------------------
     # EMS user (res.users)
@@ -687,28 +789,8 @@ class HrEmployeeGoogleWorkspace(models.Model):
         signin_msg = (_("Sign in with Google is pre-linked.") if signin_linked
                       else _("Sign in with Google is not pre-linked (Google user id unavailable)."))
         self.message_post(body=f"{action_msg} {signin_msg}")
-        self._gw_clear_pending_identification()
+        self._ems_confirm_identity()
         return user
-
-    def _gw_clear_pending_identification(self):
-        """Clear the schedule-import placeholder once a real EMS user is linked.
-
-        Shared by both paths that confirm a pending teacher's identity: creating a
-        brand-new Google Workspace account and adopting an existing corporate
-        account that had no EMS user yet (action_create_ems_user) - the latter
-        used to skip this entirely since it returned before reaching the clearing
-        logic, leaving schedule_import_code/pending_identification stuck even
-        though the employee already had a working EMS account.
-        """
-        self.ensure_one()
-        emp = self.sudo()
-        if not emp.schedule_import_code:
-            return
-        self.message_post(body=_(
-            "Identity confirmed: this employee was created as a pending-identification "
-            "placeholder from schedule-import code '%s'."
-        ) % emp.schedule_import_code)
-        emp.write({'schedule_import_code': False})
 
     def _ems_sync_user_active(self, active):
         """Mirror the employee's active flag on the linked EMS user.
@@ -811,7 +893,7 @@ class HrEmployeeGoogleWorkspace(models.Model):
                     "Google Workspace: account %s no longer exists; recreating it.")
                     % emp.work_email)
                 emp.write({'work_email': False, 'google_ws_suspended': False})
-                self.action_create_google_account()
+                self._gw_create_account()
                 return
             _logger.exception("Could not reactivate Google account for %s", self.name)
             raise

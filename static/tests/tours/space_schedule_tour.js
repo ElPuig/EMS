@@ -42,6 +42,11 @@ registry.category("web_tour.tours").add("ems_space_schedule_tab", {
             content: "The space's own booked entry renders as a real block in the grid",
         },
         {
+            // Issue #608: the block says which group is in the room, not the room itself.
+            trigger: ".o_form_view .o_field_widget[name='schedule_attendance_ids'] .o_schedule_grid_entry_group:contains('TSPT'):not(:contains('Tour Schedule Space'))",
+            content: "The block shows its group instead of repeating the room",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='schedule_attendance_ids'] .o_schedule_grid_toolbar button:contains('PDF')",
             content: "The PDF export button is available",
         },

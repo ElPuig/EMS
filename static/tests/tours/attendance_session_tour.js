@@ -2,6 +2,13 @@
 
 import { registry } from "@web/core/registry";
 
+// The session dropdown once it offers the seeded slot: right after a mode or date change the
+// dropdown is already there with the previous list, so a step waits for the option itself.
+function slotOption(timeRange = "") {
+    const range = timeRange ? `:contains('${timeRange}')` : "";
+    return `.ems-av-session-wrap select:has(option:contains('Attendance Session Guard Tour')${range})`;
+}
+
 // Picks the seeded "Attendance Session Guard Tour" slot in the session dropdown, optionally the
 // one for a given time range when the fixtures seed more than one.
 function selectSlot(timeRange = "") {
@@ -39,7 +46,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
             run: "select manual",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            trigger: slotOption("08:00 - 09:00"),
             content: "Select the first period's planned slot (08:00 - 09:00)",
             run: () => selectSlot("08:00 - 09:00"),
         },
@@ -66,6 +73,10 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
             content: "Minor Delay is now the active status for Zoe Aguilar",
         },
         {
+            trigger: ".ems-av-line:has(.ems-av-name:contains('Zoe Aguilar')) .ems-av-status-btn--locked:disabled",
+            content: "Justified can't be picked by hand: only the tutor justifies (issue #587)",
+        },
+        {
             trigger: ".ems-av-sort-wrap select",
             content: "Sort by first name ascending",
             run: "select name:asc",
@@ -84,7 +95,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
             content: "Zoe Aguilar (last name Aguilar comes before Bosch) now sorts first - proves the sort actually re-ran",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            trigger: slotOption("09:00 - 10:00"),
             content: "Select the second, back-to-back period's planned slot (09:00 - 10:00)",
             run: () => selectSlot("09:00 - 10:00"),
         },
@@ -121,7 +132,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_continuation", {
             content: "Back on the roll-call view - auto-selection falls back to the first period's still-existing session",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            trigger: slotOption("09:00 - 10:00"),
             content: "Re-select the second period to confirm it's back to being an un-started planned slot",
             run: () => selectSlot("09:00 - 10:00"),
         },
@@ -148,7 +159,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_guard", {
             run: "select guard",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            trigger: slotOption(),
             content: "Select the other teacher's not-yet-started slot",
             run: () => selectSlot(),
         },
@@ -196,7 +207,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_remove_line", {
             run: "select manual",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            trigger: slotOption("08:00 - 09:00"),
             content: "Select the first period's planned slot (08:00 - 09:00)",
             run: () => selectSlot("08:00 - 09:00"),
         },
@@ -256,7 +267,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_admin_start", {
             run: "select manual",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            trigger: slotOption("08:00 - 09:00"),
             content: "Select the colleague's first period (08:00 - 09:00)",
             run: () => selectSlot("08:00 - 09:00"),
         },
@@ -285,7 +296,7 @@ registry.category("web_tour.tours").add("ems_attendance_session_avatar_zoom", {
             run: "select manual",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            trigger: slotOption("08:00 - 09:00"),
             content: "Select the first period's planned slot (08:00 - 09:00)",
             run: () => selectSlot("08:00 - 09:00"),
         },

@@ -10,9 +10,24 @@ Los profesores pueden solicitar una corrección de una hora de entrada/salida de
 
 ---
 
+## Qué fichajes y solicitudes son tuyos
+
+Ves y corriges los fichajes, y decides las solicitudes de corrección, solo de **tu rama** — no de todos los empleados del centro:
+
+- todos los que están **por debajo de ti en la jerarquía** (los departamentos que dependen de ti, con sus jefes y docentes), y
+- el personal del **área que gestionas**, cuyos fichajes y ausencias apruebas.
+
+**Dirección** y el **Administrador** lo ven y lo deciden todo. Un **Jefe de departamento o de seminario** ve los fichajes de su departamento, solo de lectura, y no decide nada.
+
+Tu lista de fichajes (**Asistencia del personal → Asistencia → Vista general**) se abre agrupada por mes y por empleado, y solo muestra el curso actual: los fichajes de cursos anteriores se archivan cuando cambia el curso (marca **Archivado** en el menú **Filtros** de la barra de búsqueda para verlos).
+
+> **Saber quién está, en todo el centro.** Si los jefes de estudios de tu centro necesitan saber en todo momento quién ha fichado y quién no, el Administrador puede activar **Los jefes de estudios ven los fichajes de todos (EMS)** en **Asistencia del personal → Configuración → Ajustes**. Entonces puedes consultar los fichajes de todos los empleados; corregirlos y decidir solicitudes de corrección sigue limitado a tu rama. Por defecto está desactivado.
+
+---
+
 ## Crear una solicitud en nombre de otra persona
 
-A diferencia de un profesor o profesora, que solo puede solicitar una corrección de su propio fichaje, tú puedes hacerlo para **cualquier** empleado o empleada:
+A diferencia de un profesor o profesora, que solo puede solicitar una corrección de su propio fichaje, tú puedes hacerlo para cualquier empleado o empleada **de tu rama** (Dirección y el Administrador, para cualquier persona):
 
 1. Abre el fichaje de esa persona (por ejemplo, desde **Fichajes de empleados → Asistencia → Resumen**, o desde su ficha).
 2. Haz clic en **Solicitar corrección** en la cabecera — el mismo botón y formulario que usaría un profesor o profesora para su propio fichaje.
@@ -41,7 +56,9 @@ Si te han enviado una solicitud (la verás como una actividad pendiente, y tambi
 
 > ¿Te has equivocado? Los botones **Aceptar** y **Rechazar** siguen disponibles después de decidir, así que puedes cambiar de opinión en cualquier momento — pulsar el otro botón revierte la decisión anterior.
 
-> Cualquier Jefatura de Estudios, Adjunto/a, Dirección o Administrador puede decidir sobre cualquier solicitud pendiente — en esta primera versión no está restringido solo a "tus" profesores.
+> Una solicitud la pueden decidir los jefes de estudios de la rama del empleado o empleada (véase [Qué fichajes y solicitudes son tuyos](#qué-fichajes-y-solicitudes-son-tuyos)), Dirección y el Administrador. No ves las solicitudes de otras ramas.
+>
+> *Decidir solo las solicitudes de tu rama se introdujo en la versión 18.0.0.36.0; hasta entonces, cualquier Jefatura de Estudios podía decidir cualquier solicitud.*
 
 ---
 

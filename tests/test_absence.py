@@ -1734,6 +1734,106 @@ class TestAbsenceRequest(TransactionCase):
         self.assertTrue(leaves[-1].ems_health_allowance_exceeded, 'the excess is flagged')
         self.assertTrue(all(leave.id for leave in leaves), 'and never blocked')
 
+    # --- Times covering the whole timetable are a whole day (issue #613) ---------------------
+
+    def _add_slots(self, day, *slots):
+        """Gives self.employee these (start, end) lessons on day's weekday."""
+        calendar = self.employee.resource_calendar_id
+        calendar.flexible_hours = False
+        for hour_from, hour_to in slots:
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': calendar.id, 'name': 'Test Lesson', 'dayofweek': str(day.weekday()),
+                'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+            })
+
+    def _timed_leave(self, day, hour_from, hour_to, user=None, **overrides):
+        """A request giving times and saying nothing about "Whole day?", as one filed from
+        outside the form does."""
+        return self.env['hr.leave'].with_user(user or self.env.user).create({
+            'employee_id': self.employee.id, 'holiday_status_id': self.type_justified.id,
+            'request_date_from': day, 'request_date_to': day,
+            'request_hour_from': hour_from, 'request_hour_to': hour_to,
+            'ems_submitted': True, 'ems_responsible_declaration': True, **overrides,
+        })
+
+    def test_times_covering_the_whole_timetable_are_filed_as_a_whole_day(self):
+        """Not coming in at all is a whole day, even when the employee wrote it as the hours of
+        their only lessons: it counts the full working day, not those hours."""
+        monday = self._monday()
+        # The next day, not the next week: a week later can be a public holiday, when nothing
+        # is expected of anybody and no times cover anything.
+        for day in (monday, monday + timedelta(days=1)):
+            self._add_slots(day, (9.0, 11.0), (12.0, 13.0))
+
+        exact = self._timed_leave(monday, 9, 13)
+        wider = self._timed_leave(monday + timedelta(days=1), 8, 14.5)
+
+        for leave in (exact, wider):
+            self.assertTrue(leave.ems_full_day)
+            self.assertEqual(leave.number_of_hours, self.full_day_hours)
+
+    def test_times_leaving_part_of_the_timetable_stay_partial(self):
+        monday = self._monday()
+        for day in (monday, monday + timedelta(days=1)):
+            self._add_slots(day, (9.0, 11.0), (12.0, 13.0))
+
+        left_early = self._timed_leave(monday, 11, 13)
+        came_late = self._timed_leave(monday + timedelta(days=1), 9, 12)
+
+        self.assertFalse(left_early.ems_full_day)
+        self.assertEqual(left_early.number_of_hours, 2.0)
+        self.assertFalse(came_late.ems_full_day)
+        self.assertEqual(came_late.number_of_hours, 3.0)
+
+    def test_a_day_without_lessons_is_never_made_a_whole_day(self):
+        monday = self._monday()
+        self._add_slots(monday + timedelta(days=1), (9.0, 11.0))
+
+        leave = self._timed_leave(monday, 9, 11)
+
+        self.assertFalse(leave.ems_full_day, 'nothing to compare the times with on a Monday')
+
+    def test_whole_day_is_proposed_not_imposed(self):
+        """The requester's own answer stands: the lesson may only have been moved, which is
+        what the guard duty board arranges for a teacher away at the time of their one lesson."""
+        monday = self._monday()
+        self._add_slots(monday, (9.0, 11.0))
+
+        leave = self._timed_leave(monday, 9, 11, ems_full_day=False)
+
+        self.assertFalse(leave.ems_full_day)
+        self.assertEqual(leave.number_of_hours, 2.0)
+
+    def test_the_form_ticks_whole_day_and_says_why(self):
+        monday = self._monday()
+        self._add_slots(monday, (9.0, 11.0))
+        leave = self.env['hr.leave'].new({
+            'employee_id': self.employee.id, 'holiday_status_id': self.type_justified.id,
+            'request_date_from': monday, 'request_date_to': monday,
+            'ems_full_day': False, 'request_hour_from': 10.0, 'request_hour_to': 11.0,
+        })
+        self.assertIsNone(leave._onchange_ems_whole_timetable(), 'still in for the first hour')
+
+        leave.request_hour_from = 9.0
+        result = leave._onchange_ems_whole_timetable()
+
+        self.assertTrue(leave.ems_full_day)
+        self.assertIn('warning', result)
+        self.assertNotIn(
+            '_onchange_ems_whole_timetable',
+            [method.__name__ for method in leave._onchange_methods['ems_full_day']],
+            'unticking the box afterwards is not answered by ticking it again')
+
+    def test_a_teacher_filing_their_own_request_gets_the_same_rule(self):
+        """Read with the teacher's own rights: the timetable is looked up for them."""
+        owner = self._employee_user('Test Absence Whole Day', 'absence_whole_day@absence.test')
+        monday = self._monday()
+        self._add_slots(monday, (9.0, 11.0))
+
+        leave = self._timed_leave(monday, 9, 11, user=owner)
+
+        self.assertTrue(leave.ems_full_day)
+
     # --- Corrections to what the employee filed (issue #615) --------------------------------
 
     def _change_dialog(self, leave, method='action_approve', message=False):

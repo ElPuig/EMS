@@ -600,3 +600,51 @@ registry.category("web_tour.tours").add("ems_absence_undo", {
         },
     ],
 });
+
+// Times that cover the whole timetable of the day are a whole-day absence (issue #613): the
+// form ticks the box itself and says why. No "url": the test opens a new request already dated
+// on a day the fixture teacher has lessons from 09:00 to 11:00.
+registry.category("web_tour.tours").add("ems_absence_whole_timetable", {
+    test: true,
+    steps: () => [
+        {
+            // ATRI, the last option: it does not start as a whole day, so the times are asked.
+            trigger: ".o_form_view .o_field_widget[name='holiday_status_id'] input[type='radio']:last",
+            content: "Pick an absence type that asks for times",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='request_hour_from'] input",
+            content: "Away from the first lesson...",
+            run: "edit 09:00 && press Tab",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='request_hour_to'] input",
+            content: "...to the end of the last one",
+            run: "edit 11:00 && press Tab",
+        },
+        {
+            trigger: ".modal:contains('whole timetable') .modal-footer button",
+            content: "It says the absence is a whole day, and why",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_full_day'] input:checked",
+            content: "And the box is ticked",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='request_hour_to'] input))",
+            content: "The times are no longer asked for",
+        },
+        {
+            trigger: ".o_form_button_cancel",
+            content: "Nothing is filed: discard it",
+            run: "click",
+        },
+        {
+            // Opened on its own, so discarding leaves the form for the home screen.
+            trigger: "body:not(:has(.o_field_widget[name='ems_full_day']))",
+            content: "Discarded",
+        },
+    ],
+});

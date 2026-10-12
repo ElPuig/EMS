@@ -86,7 +86,7 @@ También puedes corregir el **tipo de ausencia** cuando la persona haya elegido 
 
 ![Cuadro de diálogo con los cambios realizados en la solicitud y el cuadro para el mensaje al solicitante](../../assets/head_of_studies/hos-absences-change-message.png)
 
-Si la ausencia es de día entero o de unas horas concretas lo controla la casilla **¿Día entero?**, que también puedes corregir mientras la solicitud está pendiente: marcada cuenta 7,5 horas por día laborable, sin marcar cuenta las horas indicadas.
+Si la ausencia es de día entero o de unas horas concretas lo controla la casilla **¿Día entero?**, que también puedes corregir mientras la solicitud está pendiente: marcada cuenta 7,5 horas por día laborable, sin marcar cuenta las horas indicadas. Cuando las horas de una solicitud cubren todo el horario de la persona ese día, el formulario propone por sí solo el día entero (no venir en todo el día cuenta las 7,5 horas); la persona puede desmarcarlo, y tú puedes corregirlo en un sentido u otro mientras la solicitud está pendiente.
 
 ---
 

@@ -86,7 +86,7 @@ You can also correct the **absence type** when the employee picked one that does
 
 ![Dialog listing the changes made to the request, with the box for the message to the requester](../../assets/head_of_studies/hos-absences-change-message.png)
 
-Whether an absence is a whole day or a few hours is controlled by the **Whole day?** checkbox, which you can also correct while the request is pending: ticked counts 7.5 hours per working day, unticked counts the hours given.
+Whether an absence is a whole day or a few hours is controlled by the **Whole day?** checkbox, which you can also correct while the request is pending: ticked counts 7.5 hours per working day, unticked counts the hours given. When the times of a request cover the employee's whole timetable for that day, the form proposes a whole day on its own (not coming in at all counts the full 7.5 hours); the employee can untick it, and you can correct it either way while the request is pending.
 
 ---
 

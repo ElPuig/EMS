@@ -13586,7 +13586,9 @@ msgid "Staff Absence Settings"
 msgstr "Configuració d'absències del personal"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: code:addons/ems/models/employees/absence.py:0
 msgid "Whole-day absence"
 msgstr "Absència de dia sencer"
 
@@ -21969,3 +21971,9 @@ msgstr "L'usuari actual pot desfer l'última decisió"
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_can_undo
 msgid "Whether the user reading this request may take back the last decision on it: whoever took it, anyone above them, and the administrator."
 msgstr "Si l'usuari que llegeix aquesta sol·licitud pot desfer l'última decisió: qui la va prendre, qualsevol per sobre seu i l'administrador."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "These times cover the whole timetable of that day, so the absence is marked as a whole day: not coming in at all counts %(hours).2f hours, however many lessons there were."
+msgstr "Aquestes hores cobreixen tot l'horari d'aquell dia, de manera que l'absència es marca com a dia sencer: no venir en tot el dia compta %(hours).2f hores, tantes classes com hi hagués."

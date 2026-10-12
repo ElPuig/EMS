@@ -28,7 +28,7 @@ When the absence type requires a supporting document (every type except `Health`
 
 You have access to the written reason and the supporting document of your own people, and you can adjust **Adds the hours to the monthly report** and **Whole day?**, as well as correcting the absence type.
 
-**Refusing asks for confirmation first.** A decision taken by mistake, a refusal included, is taken back with **Undo the last decision**, from the row in the list or from the form's **Actions** menu (see [Undoing a decision](../head_of_studies/absences.md#undoing-a-decision)); an approved request also has to be undone before it can be corrected. The supporting document can be attached at any point, on a request that is already received included.
+**Refusing asks for the reason first** (optional, and sent to the employee alone). A decision taken by mistake, a refusal included, is taken back with **Undo the last decision**, from the row in the list or from the form's **Actions** menu (see [Undoing a decision](../head_of_studies/absences.md#undoing-a-decision)); an approved request also has to be undone before it can be corrected. The supporting document can be attached at any point, on a request that is already received included.
 
 Once you validate it, Direction reviews each absence last, in the **Direction status** column, which you can see but not change. The **Status** column shows where the request stands.
 

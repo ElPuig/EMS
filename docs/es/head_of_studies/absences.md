@@ -58,6 +58,10 @@ Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado), q
 
 La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
 
+**Rechazar pide antes el motivo.** Se abre un cuadro de diálogo con un cuadro para el motivo del rechazo, que es opcional: lo que escribas se envía solo a la persona (no a los jefes de departamento ni al resto de seguidores de la solicitud) y queda en lo alto de la solicitud, en rojo, mientras esté rechazada. Confirma con **Rechazar**, o cancela para dejar la solicitud como estaba.
+
+![Cuadro de diálogo para rechazar una solicitud de ausencia, con el cuadro para el motivo](../../assets/head_of_studies/hos-absences-refuse.png)
+
 La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de guardias) en cuanto la das por recibida, aunque falte el justificante o Dirección no la haya revisado.
 
 Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) la persona todavía no ha adjuntado el justificante, recibes un mensaje y una actividad para hacer el seguimiento; a la persona se le recuerda cada día.
@@ -66,7 +70,7 @@ Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) la 
 
 Tú ves el **motivo escrito** y el **justificante**; el resto del personal, no.
 
-**Rechazar pide confirmación antes**, porque se avisa enseguida a la persona y a los jefes de su departamento, y en el listado la cruz está justo al lado de la aprobación. Si rechazas por error, [deshazlo](#deshacer-una-decisión).
+Si rechazas por error, [deshazlo](#deshacer-una-decisión): la solicitud vuelve a donde estaba y el motivo se olvida.
 
 Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y en cualquier momento: un certificado entregado después de la ausencia se adjunta a esa misma solicitud.
 

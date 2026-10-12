@@ -28,7 +28,7 @@ Cuando el tipo de ausencia exige justificante (todos menos `Salud` y `ATRI`), tu
 
 Tienes acceso al motivo escrito y al justificante de tu gente, y puedes ajustar los campos **Suma las horas al informe mensual** y **¿Día entero?**, además de corregir el tipo de ausencia.
 
-**Rechazar pide confirmación antes.** Una decisión tomada por error, también un rechazo, se deshace con **Deshacer la última decisión**, desde la fila del listado o desde el menú **Acciones** del formulario (ver [Deshacer una decisión](../head_of_studies/absences.md#deshacer-una-decisión)); una solicitud aprobada también hay que deshacerla antes de poder corregirla. El justificante se puede adjuntar en cualquier momento, también en una solicitud ya recibida.
+**Rechazar pide antes el motivo** (opcional, y se envía solo a la persona). Una decisión tomada por error, también un rechazo, se deshace con **Deshacer la última decisión**, desde la fila del listado o desde el menú **Acciones** del formulario (ver [Deshacer una decisión](../head_of_studies/absences.md#deshacer-una-decisión)); una solicitud aprobada también hay que deshacerla antes de poder corregirla. El justificante se puede adjuntar en cualquier momento, también en una solicitud ya recibida.
 
 Una vez la validas, Dirección revisa cada ausencia en último lugar, en la columna **Estado Dirección**, que ves pero no puedes modificar. La columna **Estado** muestra en qué punto está la solicitud.
 

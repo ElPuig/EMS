@@ -123,12 +123,22 @@ A **Absències** tens la teva llista. La teva absència passa primer pel teu cap
 | Pendent | El teu cap encara no l'ha vista |
 | En espera de documentació | El teu cap l'ha rebuda i espera el justificant: adjunta'l a la mateixa sol·licitud |
 | Pendent de validació | Has adjuntat el justificant i el teu cap l'ha de validar |
+| Pendent de confirmar ATRI | Només absències ATRI. El teu cap l'ha validada i has de confirmar que està sol·licitada a ATRI (vegeu més avall) |
 | Pendent Direcció | El teu cap l'ha validada, Direcció encara no l'ha revisada |
 | Aprovat | Concedida per tots dos |
 | Rebutjat | Denegada. Si va ser un error, el teu cap o Direcció ho poden desfer; si no, per insistir cal fer una sol·licitud nova |
 | Cancel·lat | Anul·lada |
 
 El filtre **Els meus justificants pendents** mostra les sol·licituds que esperen un justificant teu.
+
+**Absències ATRI: confirmar la sol·licitud.** Una absència ATRI es concedeix al portal de la Generalitat, no a EMS. Per això, quan el teu cap l'ha validada, la sol·licitud s'atura sempre a **Pendent de confirmar ATRI** abans de passar a Direcció. No vol dir que ningú hagi vist que falti a ATRI: només se't demana que confirmis que l'has sol·licitada allà.
+
+- Si ja l'has sol·licitada a ATRI, obre la sol·licitud i fes servir **Accions > Confirmo que està sol·licitada a ATRI** en aquell mateix moment. Llavors passa a Direcció.
+- Si no, sol·licita-la primer al portal (l'avís de dalt de la sol·licitud té l'enllaç) i després confirma.
+
+Mentre no estigui confirmada, un cop passada l'absència reps un recordatori cada dia, i al cap d'uns dies s'avisa el teu cap. El filtre **Les meves confirmacions d'ATRI pendents** mostra les sol·licituds que ho esperen. Si després Direcció comprova que l'absència no consta a ATRI, retorna la sol·licitud a aquest estat i en reps el motiu, que també es mostra a la sol·licitud.
+
+![Una absència ATRI a l'espera de la confirmació del docent, amb l'avís a dalt de la sol·licitud](../../assets/teachers/teachers-absences-atri-confirm.png)
 
 Un cop la rep el teu cap, l'absència ja compta al calendari d'absències i al quadrant de guàrdies, encara que falti el justificant.
 

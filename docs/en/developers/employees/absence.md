@@ -157,9 +157,12 @@ stateDiagram-v2
     [*] --> Pending
     Pending --> AwaitingDocumentation: Head - received (type requires a document)
     Pending --> PendingValidation: Head - received (document already attached)
-    Pending --> PendingDirection: Head - validate (type requires no document)
+    Pending --> PendingDirection: Head - validate (type requires no document, not ATRI)
     AwaitingDocumentation --> PendingValidation: employee attaches the document
     PendingValidation --> PendingDirection: Head - validate documentation
+    Pending --> PendingAtriConfirmation: Head - validate (ATRI absence)
+    PendingAtriConfirmation --> PendingDirection: employee confirms it is requested in ATRI
+    PendingDirection --> PendingAtriConfirmation: Direction - not in ATRI
     PendingValidation --> AwaitingDocumentation: Head - documentation insufficient
     PendingDirection --> AwaitingDocumentation: Direction - documentation insufficient
     PendingDirection --> Approved: Direction done
@@ -186,8 +189,9 @@ the reader `is_absence_manager` or `is_absence_direction` - the status bar says 
 |---|---|---|
 | `ems_document_state` "Supporting document status" | Not required / Awaiting documentation / Pending validation / Validated | Set by `action_approve()` from the type and the attachments; moved by attaching the document and by the buttons |
 | `ems_head_state` "Head status" | Pending / Awaiting documentation / Pending validation / Approved / Refused | Stored compute over Odoo's `state` and `ems_document_state` |
+| `ems_atri_state` "ATRI confirmation" | Not required / Pending ATRI confirmation / Confirmed by the employee | Set by `action_approve()` from the type; moved by the employee's confirmation and by Direction's "Not in ATRI" (see *ATRI absences wait for the employee's confirmation*) |
 | `ems_direction_state` "Direction status" | Pending / Done / Refused | Direction's buttons |
-| `ems_status` "Overall status" | Pending / Awaiting documentation / Pending validation / Pending Direction / Approved / Refused / Cancelled | Stored compute over the other two and `state` |
+| `ems_status` "Overall status" | Pending / Awaiting documentation / Pending validation / Pending ATRI confirmation / Pending Direction / Approved / Refused / Cancelled | Stored compute over the other three and `state` |
 
 `ems_status` is the Head's column until the Head is done (Pending, Awaiting documentation,
 Pending validation), then Pending Direction until Direction marks it done, then Approved. Plus
@@ -845,6 +849,80 @@ request's chatter, the same as everyone else following it.
 Mail leaves through the company's configured server, which is the other half of what this
 replaces: the Apps Script sent from the personal Google account of whoever last ran its
 "Identificar-me com a remitent d'emails" menu entry, and stopped working when that person left.
+
+## ATRI absences wait for the employee's confirmation
+
+An ATRI absence is recorded in EMS but granted on the Generalitat's ATRI portal, and Direction,
+which checks that last, kept finding requests the employee had never filed there. So once the
+Head has validated one it **always** stops at "Pending ATRI confirmation" (`ems_status =
+'pending_atri'`) until the employee confirms they have requested it on the portal (issue #619).
+There is nothing to tick when filing it: the step cannot be skipped. The status is worded as a
+confirmation on purpose - it does not say the absence is missing in ATRI, only that the employee
+has to say it is there before the request is passed on to Direction.
+
+**The Head goes first, deliberately:** employees pick ATRI for what is not, and the other way
+round, so the type is settled (and corrected, see the next section) before anybody is asked to
+confirm anything. The absence takes effect at the Head's validation, as always.
+
+```mermaid
+sequenceDiagram
+    participant E as Employee
+    participant H as Head
+    participant L as hr.leave
+    participant D as Direction
+    E->>L: files an ATRI absence (Pending)
+    H->>L: action_approve()
+    L->>L: ems_atri_state = awaiting → Pending ATRI confirmation
+    L->>E: activity + notice on the request, reminders once the absence is over
+    E->>L: action_ems_atri_requested()
+    L->>D: ems_atri_state = requested → Pending Direction, review activity
+    D-->>L: action_ems_atri_missing() + reason (not really in ATRI)
+    L->>E: back to Pending ATRI confirmation, note with the reason
+```
+
+- **`ems_atri_state`** is set by `action_approve()`: `not_required` for any other type,
+  `awaiting` for an ATRI one (`ems_needs_atri`) - unless it is already `requested`, which only
+  happens when the Head undid their own validation and repeats it: a confirmation already given
+  is not asked for twice. Nobody writes it by hand: `write()` refuses it outside `sudo` and
+  `create()` drops it.
+- **`_compute_ems_status()`**: with the Head done (`ems_head_state == 'approved'`) and Direction
+  not, the request is `pending_atri` while `ems_atri_state == 'awaiting'`, `pending_direction`
+  otherwise. Direction's `action_ems_direction_done()` only accepts `pending_direction`, so it
+  cannot validate around the step either.
+- **The employee's step** is `action_ems_atri_requested()` ("I confirm it is requested in ATRI",
+  an entry of the form's Actions dropdown), offered when `ems_can_mark_atri`: the employee
+  themselves, or whoever manages the absence on their behalf (their Head, Direction, the
+  administrator). It writes with `sudo`, because an employee cannot write their own approved
+  request. A warning at the top of the form explains what is asked and links to the portal.
+- **Direction's send-back** is `action_ems_atri_missing()` ("Not in ATRI": the form's Actions and
+  a row icon in the list), on an ATRI absence it is reviewing. It reuses the supporting
+  document's dialog (`ems.absence.document_return_wizard` with `kind = 'atri'`): the reason is
+  required, `_ems_return_atri()` stores it in `ems_atri_return_reason`, puts the request back to
+  `awaiting`, resets the reminders and tells the employee alone. The reason is shown in the
+  form's warning and is the note of the employee's new activity; confirming again clears it.
+- **Activities and reminders** are the supporting document's own machinery, shared through
+  `EMPLOYEE_STEPS` (the two statuses that wait for the employee):
+  `_ems_update_activities()` gives the employee "Confirm the absence is requested in ATRI", due
+  the day after the absence, and `_cron_ems_document_reminder()` reminds them every
+  `ems_absence_document_reminder_days` once the absence is over and tells their Head once after
+  `ems_absence_document_escalation_days` ("Absence not confirmed in ATRI"), with their own
+  markers (`ems_atri_reminder_date`, `ems_atri_escalated`) and wording
+  (`_ems_reminder_messages()`).
+- **Undo** needs no rule of its own. From Pending ATRI confirmation the last decision is the
+  Head's validation, which goes back to Pending, unless Direction had sent the request back: that
+  is kept in `ems_decision_before` like a document sent back, is Direction's to undo and returns
+  it to Pending Direction. `ems_atri_state` is one of the `DECISION_FIELDS` kept there but is not
+  in `NOT_DECIDED`: undoing the Head's validation leaves what the employee confirmed as it was.
+- **No migration:** ATRI requests the Head had validated before this have no `ems_atri_state` and
+  stay where they are (Pending Direction or Approved). Direction can still send one of those back
+  as not in ATRI, since that only looks at `ems_needs_atri`.
+
+Covered by `TestAbsenceRequest` (always waiting after the validation, other types untouched, a
+type corrected into ATRI, the employee confirming, who may confirm and the status never written
+by hand, Direction sending it back and who may, the reminders and the report to the Head, and
+undoing around the step) and by the tours `ems_absence_atri_requested` (the employee reading the
+notice and confirming from the form's Actions) and `ems_absence_atri_missing` (Direction sending
+it back from the list row with its reason).
 
 ## Corrections to the request are reported to the employee
 

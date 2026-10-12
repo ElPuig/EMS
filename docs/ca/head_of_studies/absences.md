@@ -54,7 +54,7 @@ Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les 
 
 Si el justificant no és vàlid, **Documentació insuficient** et demana el motiu (obligatori) i torna la sol·licitud a la persona (En espera de documentació) amb un missatge que l'inclou. La persona també el veu a dalt de la sol·licitud fins que adjunta un justificant nou. Si el nou tampoc no és vàlid, el diàleg s'obre amb el motiu anterior perquè el puguis modificar; quan valides un justificant, el motiu s'esborra.
 
-Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat), que l'envia directament a Direcció.
+Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat). Una absència de `Salut` passa llavors directament a Direcció. Una `ATRI` s'atura sempre abans a **Pendent de confirmar ATRI**: la persona ha de confirmar que l'ha sol·licitada al portal ATRI (**Accions > Confirmo que està sol·licitada a ATRI**), i només llavors arriba a Direcció. Valides tu primer expressament, perquè sovint es tria ATRI per al que no ho és, i a l'inrevés: corregeix el tipus abans de validar. A la persona se li recorda igual que amb un justificant pendent, i a tu se t'avisa un cop si continua sense confirmar al cap d'uns dies de l'absència.
 
 La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formulari, tornes al llistat.
 
@@ -106,6 +106,7 @@ Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o ob
 |---|---|---|
 | Casella marcada | **Direcció: fet** | Aprovat |
 | Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep |
+| Fletxa de resposta | **No consta a ATRI** | Només absències ATRI, quan no apareix al portal. Torna a la persona, Pendent de confirmar ATRI. Abans demana el motiu, que la persona rep |
 | Fletxa enrere | **Desfés l'última decisió** | Torna a l'estat anterior, vegeu [Desfer una decisió](#desfer-una-decisió) |
 | Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, i demana confirmació abans |
 
@@ -118,6 +119,7 @@ Quan un cap dona per rebuda una absència, en reps el resum com a seguidor.
 | Pendent | El cap encara no l'ha donada per rebuda |
 | En espera de documentació | Rebuda pel cap, espera el justificant de la persona |
 | Pendent de validació | El justificant és adjuntat, el cap l'ha de validar |
+| Pendent de confirmar ATRI | Només absències ATRI: validada pel cap, a l'espera que la persona confirmi que està sol·licitada a ATRI |
 | Pendent Direcció | Validada pel cap, espera Direcció |
 | Aprovat | Tots dos |
 | Rebutjat | El cap o Direcció l'han rebutjada |
@@ -136,6 +138,7 @@ Una decisió presa per error es desfà amb **Desfés l'última decisió**: la ic
 | Aprovat | Pendent de Direcció |
 | Pendent de Direcció | Pendent de validació, o Pendent si el tipus no exigeix justificant |
 | Pendent de validació, En espera de documentació | Pendent |
+| Pendent de confirmar ATRI | Pendent, o Pendent de Direcció si Direcció l'havia retornat per no constar a ATRI |
 | Rebutjat, Cancel·lat | L'estat que tenia just abans |
 | En espera de documentació després d'un *Documentació insuficient* | L'estat que tenia just abans, mentre la persona no hagi adjuntat un justificant nou |
 

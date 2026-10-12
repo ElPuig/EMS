@@ -54,7 +54,7 @@ That lists your area's requests, opening on **Waiting For Me**: the ones pending
 
 If the document is not valid, **Documentation insufficient** asks you why (required) and sends the request back to the employee (Awaiting documentation) with a message that includes your reason. The employee also sees it at the top of the request until they attach a new document. If the new document is not valid either, the dialog opens with your previous reason so you can edit it; once you validate a document, the reason is cleared.
 
-For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list), which sends it straight to Direction.
+For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list). A `Health` absence then goes straight to Direction. An `ATRI` one always stops first at **Pending ATRI confirmation**: the employee has to confirm they have requested it on the ATRI portal (**Actions > I confirm it is requested in ATRI**), and only then does it reach Direction. You validate first on purpose, because ATRI is often picked for what is not, and the other way round: correct the type before validating. The employee is reminded like for a missing supporting document, and you are told once if it stays unconfirmed a few days after the absence.
 
 The cross refuses, at any of these steps. Once you decide from the form, you are taken back to the list.
 
@@ -108,6 +108,7 @@ Review them from the list with the icons beside **Direction status**, or open on
 |---|---|---|
 | Ticked box | **Direction: done** | Approved |
 | Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives |
+| Reply arrow | **Not in ATRI** | Only ATRI absences, when it does not appear on the portal. Back to the employee, Pending ATRI confirmation. It asks for the reason first, which the employee receives |
 | Arrow back | **Undo the last decision** | Back to the previous status, see [Undoing a decision](#undoing-a-decision) |
 | Cross | **Refuse** | Refused. It refuses the whole request, and it asks for confirmation first |
 
@@ -120,6 +121,7 @@ When a Head receives an absence, you receive its summary as a follower.
 | Pending | The Head has not acknowledged it yet |
 | Awaiting documentation | Received by the Head, waiting for the employee's supporting document |
 | Pending validation | The document is attached, the Head has to validate it |
+| Pending ATRI confirmation | ATRI absences only: validated by the Head, waiting for the employee to confirm it is requested in ATRI |
 | Pending Direction | Validated by the Head, waiting for Direction |
 | Approved | Both have |
 | Refused | The Head or Direction refused it |
@@ -138,6 +140,7 @@ A decision taken by mistake is taken back with **Undo the last decision**: the a
 | Approved | Pending Direction |
 | Pending Direction | Pending validation, or Pending when the type requires no supporting document |
 | Pending validation, Awaiting documentation | Pending |
+| Pending ATRI confirmation | Pending, or Pending Direction when Direction had sent it back as not in ATRI |
 | Refused, Cancelled | The status it had just before |
 | Awaiting documentation after a *Documentation insufficient* | The status it had just before, while the employee has not attached a new document |
 

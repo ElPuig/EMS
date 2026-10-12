@@ -47,10 +47,19 @@ HEAD_STATE_BY_DOCUMENT = {'awaiting': 'pending_document', 'submitted': 'pending_
 # The one activity each stage waits on, and whose it is - see _ems_update_activities().
 ACTIVITY_BY_STATUS = {
     'pending_document': 'ems.mail_activity_absence_document_upload',
+    'pending_atri': 'ems.mail_activity_absence_atri_request',
     'pending_validation': 'ems.mail_activity_absence_document_validate',
     'pending_direction': 'ems.mail_activity_absence_direction_review',
 }
 OVERDUE_ACTIVITY_XMLID = 'ems.mail_activity_absence_document_overdue'
+ATRI_OVERDUE_ACTIVITY_XMLID = 'ems.mail_activity_absence_atri_overdue'
+# The two statuses in which the request waits for the employee, who is reminded once the absence
+# is over: (last reminder field, reported-to-the-Head field, the Head's follow-up activity).
+# See _cron_ems_document_reminder().
+EMPLOYEE_STEPS = {
+    'pending_document': ('ems_document_reminder_date', 'ems_document_escalated', OVERDUE_ACTIVITY_XMLID),
+    'pending_atri': ('ems_atri_reminder_date', 'ems_atri_escalated', ATRI_OVERDUE_ACTIVITY_XMLID),
+}
 
 # What the employee filed: a change to any of these by somebody else is reported back to them
 # with the next decision on the request - see _ems_notify_request_changes().
@@ -61,7 +70,9 @@ REQUEST_FIELDS = (
 # Statuses with no decision left to carry that report, so a change is reported when it is saved.
 CLOSED_STATUSES = ('approved', 'refused', 'cancel')
 # The three fields a decision moves, and so what undoing one puts back - see _ems_undo().
-DECISION_FIELDS = ('state', 'ems_document_state', 'ems_direction_state')
+DECISION_FIELDS = ('state', 'ems_document_state', 'ems_atri_state', 'ems_direction_state')
+# Not 'ems_atri_state': confirming it is requested in ATRI is the employee's own step, not a
+# decision, and undoing the Head's validation leaves what they confirmed as it was.
 NOT_DECIDED = {'state': 'confirm', 'ems_document_state': False, 'ems_direction_state': 'not_done'}
 
 TIME_OFF_GROUP_XMLIDS = (
@@ -253,6 +264,30 @@ class EmsAbsenceLeave(models.Model):
         string="Why the document was sent back", copy=False, readonly=True,
         help="Written by the Head or Direction when the supporting document is not sufficient. "
              "Shown to the employee until they attach a new one.")
+    ems_atri_state = fields.Selection(
+        string="ATRI confirmation",
+        selection=[
+            ('not_required', 'Not required'),
+            ('awaiting', 'Pending ATRI confirmation'),
+            ('requested', 'Confirmed by the employee'),
+        ],
+        copy=False, tracking=True, readonly=True,
+        help="Once the Head has validated an ATRI absence, it always waits for the employee to "
+             "confirm they have requested it on the Generalitat's ATRI portal before it goes on "
+             "to Direction, which can send it back there when it is not really in ATRI.")
+    ems_atri_reminder_date = fields.Date(
+        string="Last ATRI reminder", copy=False, readonly=True,
+        help="The last day the employee was reminded to confirm the absence is requested in ATRI.")
+    ems_atri_escalated = fields.Boolean(
+        string="Missing ATRI confirmation reported to the Head", copy=False, readonly=True)
+    ems_atri_return_reason = fields.Text(
+        string="Why it was sent back as not in ATRI", copy=False, readonly=True,
+        help="Written by Direction when the absence does not appear in ATRI. Shown to the "
+             "employee until they confirm they have requested it.")
+    ems_can_mark_atri = fields.Boolean(
+        string="Current user can confirm it is requested in ATRI", compute="_compute_ems_can_mark_atri",
+        help="Whether the user reading this request may confirm it has been requested in ATRI: "
+             "the employee themselves, or whoever manages the absence on their behalf.")
     ems_refusal_reason = fields.Text(
         string="Reason for the refusal", copy=False, readonly=True,
         help="Written by the Head or Direction when refusing the request. Sent to the employee "
@@ -288,6 +323,7 @@ class EmsAbsenceLeave(models.Model):
             ('pending', 'Pending'),
             ('pending_document', 'Awaiting documentation'),
             ('pending_validation', 'Pending validation'),
+            ('pending_atri', 'Pending ATRI confirmation'),
             ('pending_direction', 'Pending Direction'),
             ('approved', 'Approved'),
             ('refused', 'Refused'),
@@ -295,7 +331,8 @@ class EmsAbsenceLeave(models.Model):
         ],
         compute="_compute_ems_status", store=True, copy=False,
         help="Where the request stands: the Head acknowledges it, the employee attaches the "
-             "supporting document when its type requires one, the Head validates it and "
+             "supporting document when its type requires one, the Head validates it, the "
+             "employee confirms it is requested in ATRI when it is an ATRI absence and "
              "Direction validates it last. The absence takes effect (calendar, hour balance, "
              "guard duty board) as soon as the Head acknowledges it.")
     ems_health_hours_used = fields.Float(
@@ -351,13 +388,17 @@ class EmsAbsenceLeave(models.Model):
             elif leave.state == 'confirm' or not leave.ems_head_state:
                 leave.ems_head_state = 'pending'
 
-    @api.depends('state', 'ems_head_state', 'ems_direction_state')
+    @api.depends('state', 'ems_head_state', 'ems_direction_state', 'ems_atri_state')
     def _compute_ems_status(self):
         for leave in self:
             if leave.state in ('refuse', 'cancel'):
                 leave.ems_status = 'refused' if leave.state == 'refuse' else 'cancel'
+            elif leave.ems_head_state == 'approved' and leave.ems_direction_state == 'done':
+                leave.ems_status = 'approved'
             elif leave.ems_head_state == 'approved':
-                leave.ems_status = 'approved' if leave.ems_direction_state == 'done' else 'pending_direction'
+                # The Head is done with it: an ATRI absence then always waits for the employee
+                # to confirm it is requested in ATRI before it is Direction's (issue #619).
+                leave.ems_status = 'pending_atri' if leave.ems_atri_state == 'awaiting' else 'pending_direction'
             elif leave.ems_head_state in ('pending_document', 'pending_validation'):
                 leave.ems_status = leave.ems_head_state
             else:
@@ -445,6 +486,14 @@ class EmsAbsenceLeave(models.Model):
     def _compute_ems_can_undo(self):
         for leave in self:
             leave.ems_can_undo = leave._ems_can_undo()
+
+    @api.depends_context('uid')
+    @api.depends('ems_status', 'employee_id')
+    def _compute_ems_can_mark_atri(self):
+        for leave in self:
+            leave.ems_can_mark_atri = leave.ems_status == 'pending_atri' and (
+                leave.employee_id.user_id == self.env.user or leave.is_absence_manager
+                or leave.is_absence_direction or leave._ems_is_absence_admin())
 
     def _compute_can_approve(self):
         """Direction does not approve on the Head's behalf.
@@ -660,6 +709,7 @@ class EmsAbsenceLeave(models.Model):
         if not self.env.su:
             for vals in vals_list:
                 vals.pop('ems_document_state', None)
+                vals.pop('ems_atri_state', None)
         self._ems_mark_whole_days(vals_list)
         leaves = super().create(vals_list)
         leaves._ems_announce_request()
@@ -688,6 +738,10 @@ class EmsAbsenceLeave(models.Model):
                 leave.is_absence_head or leave.is_absence_direction for leave in self):
             raise AccessError(_("Only the Head or Direction can change the supporting document "
                                 "status of an absence."))
+        if 'ems_atri_state' in vals and not self.env.su:
+            # Only ever moved by the Head's validation, the employee's own statement and
+            # Direction sending it back, each with its own check.
+            raise AccessError(_("The ATRI confirmation of an absence cannot be changed by hand."))
         self._ems_check_own_approved_write(vals)
         self._ems_keep_decision_before(vals)
         corrected = self._ems_keep_original_request(vals)
@@ -697,7 +751,7 @@ class EmsAbsenceLeave(models.Model):
             lambda leave: leave.ems_status in CLOSED_STATUSES)._ems_notify_request_changes()
         if vals.keys() & ATTACHMENT_FIELDS:
             self._ems_submit_document()
-        if vals.keys() & {'state', 'ems_document_state', 'ems_direction_state'}:
+        if vals.keys() & set(DECISION_FIELDS):
             self._ems_update_activities()
         return result
 
@@ -1000,8 +1054,16 @@ class EmsAbsenceLeave(models.Model):
                 document_state = 'submitted'
             else:
                 document_state = 'awaiting'
+            # An ATRI absence always waits for the employee's confirmation once the Head is
+            # done - the Head validates first because employees do pick ATRI for what is not,
+            # and the other way round. Only a confirmation already given (the Head undid their
+            # own validation and repeats it) is not asked for twice.
+            if not leave.ems_needs_atri:
+                atri_state = 'not_required'
+            else:
+                atri_state = 'requested' if leave.ems_atri_state == 'requested' else 'awaiting'
             # sudo: the Head's right to acknowledge it is Odoo's own approval check, below.
-            leave.sudo().ems_document_state = document_state
+            leave.sudo().write({'ems_document_state': document_state, 'ems_atri_state': atri_state})
         self._ems_inform_chiefs(with_direction=True)
         result = super().action_approve(check_state=check_state)
         self._ems_post_outcome()
@@ -1104,6 +1166,64 @@ class EmsAbsenceLeave(models.Model):
         self._ems_notify_request_changes()
         return True
 
+    # --- The request in ATRI (issue #619) ---------------------------------------------------
+
+    def action_ems_atri_requested(self):
+        """The employee's step on an ATRI absence their Head has validated: they confirm they
+        have requested it on the portal, which hands it to Direction. sudo: the employee cannot
+        write this status, nor their own approved request (see write() and
+        _ems_check_own_approved_write), only cause this."""
+        for leave in self:
+            if not leave.ems_can_mark_atri:
+                raise AccessError(_("Only the employee, or whoever manages their absence, can "
+                                    "confirm that it has been requested in ATRI."))
+        self._ems_forget_decision_before()
+        self.sudo().write({'ems_atri_state': 'requested', 'ems_atri_return_reason': False})
+        return True
+
+    def action_ems_atri_missing(self):
+        """Asks Direction why the absence is not in ATRI before sending it back to the employee,
+        the way "Documentation insufficient" does."""
+        self.ensure_one()
+        self._ems_check_can_return_atri()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Not in ATRI"),
+            'res_model': 'ems.absence.document_return_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_leave_id': self.id, 'default_kind': 'atri'},
+        }
+
+    def _ems_check_can_return_atri(self):
+        for leave in self:
+            if not (leave.is_absence_direction or leave._ems_is_absence_admin()):
+                raise AccessError(_("Only Direction can send an absence back as not in ATRI."))
+            if leave.ems_status != 'pending_direction' or not leave.ems_needs_atri:
+                raise UserError(_("Only an ATRI absence Direction is reviewing can be sent back "
+                                  "as not in ATRI."))
+
+    def _ems_return_atri(self, reason):
+        """Sends the request back to the employee because it is not in ATRI, telling them why.
+        The reminders start over. The reason is written first
+        so the employee's new activity, scheduled by write(), carries it."""
+        self._ems_check_can_return_atri()
+        before = {leave.id: leave._ems_decision_values() for leave in self}
+        # The status is written last: it is what schedules the employee's activity.
+        self.sudo().write({'ems_atri_return_reason': reason, 'ems_atri_reminder_date': False,
+                           'ems_atri_escalated': False})
+        self.sudo().write({'ems_atri_state': 'awaiting'})
+        for leave in self.sudo():
+            leave.ems_decision_before = before[leave.id]
+        for leave in self:
+            employee = leave.employee_id
+            leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, _(
+                "Your absence of %(when)s does not appear in ATRI. Reason: %(reason)s. Please "
+                "request it on the ATRI portal and then confirm it on the absence request.",
+                when=leave._ems_when(), reason=reason))
+        self._ems_notify_request_changes()
+        return True
+
     def _ems_notify(self, partners, message):
         """A note addressed to these partners only: unlike a comment, it is not sent to every
         follower of the request - the department chief and Direction do not need each
@@ -1125,12 +1245,13 @@ class EmsAbsenceLeave(models.Model):
 
     def _ems_update_activities(self):
         """Keeps exactly one activity open on each request: the next step and whose it is -
-        the employee attaching the document, the Head validating it, Direction reviewing it.
+        the employee attaching the document, the Head validating it, the employee requesting
+        it in ATRI, Direction reviewing it.
         The previous step's is marked done; a refused or cancelled request keeps none. The
         activity is what reaches each person's own to-do list, and the employee's turns red
         on its own once the absence is over and the document is still missing."""
         today = self.env['ems.datetime_utils'].get_local_today()
-        stale_xmlids = [*ACTIVITY_BY_STATUS.values(), OVERDUE_ACTIVITY_XMLID]
+        stale_xmlids = [*ACTIVITY_BY_STATUS.values(), OVERDUE_ACTIVITY_XMLID, ATRI_OVERDUE_ACTIVITY_XMLID]
         for leave in self.sudo():
             target = ACTIVITY_BY_STATUS.get(leave.ems_status)
             stale = [xmlid for xmlid in stale_xmlids if xmlid != target]
@@ -1142,10 +1263,11 @@ class EmsAbsenceLeave(models.Model):
                     lambda activity: activity.activity_type_id == self.env.ref(target)):
                 continue
             note = ''
-            if leave.ems_status == 'pending_document':
+            if leave.ems_status in EMPLOYEE_STEPS:
                 users = leave.employee_id.user_id
                 deadline = max(today, (leave.request_date_to or today) + timedelta(days=1))
-                reason = leave.ems_document_return_reason
+                reason = leave.ems_document_return_reason if leave.ems_status == 'pending_document' \
+                    else leave.ems_atri_return_reason
                 note = plaintext2html(reason) if reason else ''
             elif leave.ems_status == 'pending_validation':
                 users, deadline = leave._ems_head_users(), today
@@ -1156,31 +1278,45 @@ class EmsAbsenceLeave(models.Model):
 
     @api.model
     def _cron_ems_document_reminder(self):
-        """Reminds every employee whose absence is over and whose supporting document is still
-        missing, every day by default, and reports it to their Head once, a few days after the
-        absence (both configurable in the settings). Calendar days, in the centre's own
-        timezone."""
+        """Reminds every employee whose absence is over and who still owes their step on it -
+        the supporting document, or requesting it in ATRI (EMPLOYEE_STEPS) - every day by
+        default, and reports it to their Head once, a few days after the absence (both
+        configurable in the settings). Calendar days, in the centre's own timezone."""
         company = self.env.company
         today = self.env['ems.datetime_utils'].get_local_today()
         interval = company._ems_absence_document_reminder_days()
         escalation = company._ems_absence_document_escalation_days()
-        leaves = self.search([('ems_status', '=', 'pending_document'), ('request_date_to', '<', today)])
+        leaves = self.search([('ems_status', 'in', list(EMPLOYEE_STEPS)), ('request_date_to', '<', today)])
         for leave in leaves:
-            last = leave.ems_document_reminder_date
+            reminder_field, escalated_field, overdue_xmlid = EMPLOYEE_STEPS[leave.ems_status]
+            reminder, report = leave._ems_reminder_messages()
+            last = leave[reminder_field]
             if not last or (today - last).days >= interval:
-                leave._ems_notify(leave.employee_id.user_id.partner_id, _(
-                    "Reminder: the supporting document for your absence of %(when)s is still "
-                    "missing. Please attach it to the request so it can be validated.",
-                    when=leave._ems_when()))
-                leave.ems_document_reminder_date = today
-            if not leave.ems_document_escalated and (today - leave.request_date_to).days >= escalation:
+                leave._ems_notify(leave.employee_id.user_id.partner_id, reminder)
+                leave[reminder_field] = today
+            if not leave[escalated_field] and (today - leave.request_date_to).days >= escalation:
                 heads = leave._ems_head_users()
-                leave._ems_notify(heads.partner_id, _(
-                    "%(name)s has still not attached the supporting document for the absence of "
-                    "%(when)s.", name=leave.employee_id.display_name, when=leave._ems_when()))
+                leave._ems_notify(heads.partner_id, report)
                 for head in heads:
-                    leave.activity_schedule(OVERDUE_ACTIVITY_XMLID, date_deadline=today, user_id=head.id)
-                leave.ems_document_escalated = True
+                    leave.activity_schedule(overdue_xmlid, date_deadline=today, user_id=head.id)
+                leave[escalated_field] = True
+
+    def _ems_reminder_messages(self):
+        """(reminder for the employee, report for their Head) of the step the request waits on."""
+        self.ensure_one()
+        when, name = self._ems_when(), self.employee_id.display_name
+        if self.ems_status == 'pending_atri':
+            return (
+                _("Reminder: please confirm on the absence request that your absence of "
+                  "%(when)s is requested in ATRI, so it can go on to Direction. If you have not "
+                  "requested it on the ATRI portal yet, do that first.", when=when),
+                _("%(name)s has still not confirmed that the absence of %(when)s is requested "
+                  "in ATRI.", name=name, when=when))
+        return (
+            _("Reminder: the supporting document for your absence of %(when)s is still "
+              "missing. Please attach it to the request so it can be validated.", when=when),
+            _("%(name)s has still not attached the supporting document for the absence of "
+              "%(when)s.", name=name, when=when))
 
     # --- Direction's own approval -----------------------------------------------------------
     # Plain writes: hr.leave.write() is what keeps them Direction's alone, for these buttons and
@@ -1232,7 +1368,9 @@ class EmsAbsenceLeave(models.Model):
         # Same for the supporting document: the Head acknowledges the reopened request afresh.
         self.sudo().write({'ems_document_state': False, 'ems_document_reminder_date': False,
                            'ems_document_escalated': False, 'ems_document_return_reason': False,
-                           'ems_decision_before': False, 'ems_refusal_reason': False})
+                           'ems_decision_before': False, 'ems_refusal_reason': False,
+                           'ems_atri_reminder_date': False, 'ems_atri_escalated': False,
+                           'ems_atri_return_reason': False})
         return result
 
     # --- Undoing the last decision (issue #614) ---------------------------------------------
@@ -1267,12 +1405,16 @@ class EmsAbsenceLeave(models.Model):
 
     def _ems_last_decision_is_directions(self):
         """Whose decision an undo would take back: Direction's own (its validation, its refusal,
-        a document it sent back after the Head had validated it) or the Head's."""
+        a document it sent back after the Head had validated it, an absence it sent back as
+        not in ATRI) or the Head's."""
         self.ensure_one()
         if self.ems_status == 'approved':
             return True
         if self.ems_status == 'refused':
             return self.ems_direction_state == 'refused'
+        if self.ems_status == 'pending_atri':
+            # Waiting on the employee since the Head validated it, unless Direction sent it back.
+            return bool(self.ems_decision_before)
         return self.ems_status == 'pending_document' \
             and (self.ems_decision_before or {}).get('ems_document_state') == 'validated'
 
@@ -1322,7 +1464,7 @@ class EmsAbsenceLeave(models.Model):
         before = self.ems_decision_before
         if self.ems_status in ('refused', 'cancel'):
             self._ems_restore_decisions(before or NOT_DECIDED)
-        elif self.ems_status == 'pending_document' and before:
+        elif self.ems_status in EMPLOYEE_STEPS and before:
             self._ems_restore_decisions(before)
         elif self.ems_status == 'approved':
             self.ems_direction_state = 'not_done'
@@ -1346,11 +1488,17 @@ class EmsAbsenceLeave(models.Model):
             self.activity_update()
         if values['state'] != 'confirm' and self.state == 'confirm':
             self.action_validate(check_state=False)
-        self.write({
+        restored = {
             'ems_document_state': values['ems_document_state'] or False,
             'ems_direction_state': values['ems_direction_state'] or 'not_done',
             'ems_document_return_reason': False,
-        })
+            'ems_atri_return_reason': False,
+        }
+        # Only what was kept: undoing the Head's validation (NOT_DECIDED) leaves the ATRI
+        # confirmation alone, and so does a request refused before that status existed.
+        if values.get('ems_atri_state'):
+            restored['ems_atri_state'] = values['ems_atri_state']
+        self.write(restored)
 
     @api.constrains('ems_submitted', 'ems_responsible_declaration')
     def _check_ems_submitted(self):

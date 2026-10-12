@@ -547,8 +547,9 @@ registry.category("web_tour.tours").add("ems_absence_change_message", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_status']:contains('Pending Direction')",
-            content: "Back on the list, with the decision taken",
+            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "Back on the list, with the decision taken: corrected into ATRI, it now "
+                + "waits for the employee's confirmation",
         },
     ],
 });
@@ -666,6 +667,64 @@ registry.category("web_tour.tours").add("ems_absence_refusal_reason", {
         {
             trigger: ".o_form_view .alert-danger:contains('Tour the timetable does not allow it')",
             content: "The reason is shown at the top of the request",
+        },
+    ],
+});
+
+// An ATRI absence the Head has validated waits for the employee to confirm it is requested in
+// ATRI (issue #619): they read it on the request and confirm from its Actions, which hands it
+// to Direction. No "url":
+// the test opens an action listing the fixture request.
+registry.category("web_tour.tours").add("ems_absence_atri_requested", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "Open the request waiting for the confirmation",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-warning a[href*='atriportal.gencat.cat']",
+            content: "The request asks for the confirmation, with the way to the portal",
+        },
+        ...clickAction("action_ems_atri_requested", "Confirm it is requested in ATRI"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_status'] button.o_arrow_button_current[data-value='pending_direction']",
+            content: "It is Direction's now",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.alert-warning a[href*='atriportal.gencat.cat']))",
+            content: "And the notice is gone",
+        },
+    ],
+});
+
+// Direction finds the absence is not in ATRI and sends it back from the row, with the reason.
+registry.category("web_tour.tours").add("ems_absence_atri_missing", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Teacher') button[name='action_ems_atri_missing']",
+            content: "Not in ATRI: send it back from the row",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Say why",
+            run: "edit Tour it is not on the portal",
+        },
+        {
+            trigger: ".modal-footer button[name='action_return']",
+            content: "Send it back to the employee",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Teacher') td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "It waits for the employee again",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Teacher'):not(:has(button[name='action_ems_atri_missing'])):not(:has(button[name='action_ems_direction_done']))",
+            content: "And there is nothing left for Direction to do on it meanwhile",
         },
     ],
 });

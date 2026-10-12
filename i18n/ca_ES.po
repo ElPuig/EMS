@@ -13611,6 +13611,7 @@ msgstr "Document justificatiu de l'absència. En el cas de consulta mèdica, en 
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_document_return_wizard__kind__document
 msgid "Supporting document"
 msgstr "Justificant"
 
@@ -18704,6 +18705,7 @@ msgstr "Avís de justificant pendent"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_document_state__not_required
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_atri_state__not_required
 msgid "Not required"
 msgstr "No requerit"
 
@@ -22047,3 +22049,189 @@ msgstr "S'han detectat canvis a la sol·licitud original: també se n'informa el
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 msgid "Write here (optional)..."
 msgstr "Escrigui aquí (opcional)..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Confirm that this absence is requested in ATRI."
+msgstr "Confirma que aquesta absència està sol·licitada a ATRI."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Your Head has validated it. Before it goes on to Direction, confirm that you have requested it on the ATRI portal: use Actions &gt; I confirm it is requested in ATRI."
+msgstr "El teu cap l'ha validada. Abans que passi a Direcció, confirma que l'has sol·licitada al portal ATRI: fes servir Accions &gt; Confirmo que està sol·licitada a ATRI."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "<span>If you have not requested it there yet, do that first:</span>"
+msgstr "<span>Si encara no l'has sol·licitada allà, fes-ho primer:</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "<strong>Reason for the refusal:</strong>"
+msgstr "<strong>Motiu del rebuig:</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "I confirm it is requested in ATRI"
+msgstr "Confirmo que està sol·licitada a ATRI"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Not in ATRI"
+msgstr "No consta a ATRI"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_holidays_filter_ems
+msgid "My pending ATRI confirmations"
+msgstr "Les meves confirmacions d'ATRI pendents"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "What is wrong and what the employee has to do instead..."
+msgstr "Què falla i què ha de fer el treballador en el seu lloc..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "<i class=\"fa fa-info-circle me-1\"/>The request goes back to the employee, who is told the reason and asked to request the absence in ATRI. It returns to Direction once they confirm it."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>La sol·licitud torna al treballador, a qui es comunica el motiu i es demana que sol·liciti l'absència a ATRI. Torna a Direcció quan ho confirma."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "The ATRI confirmation of an absence cannot be changed by hand."
+msgstr "La confirmació d'ATRI d'una absència no es pot canviar a mà."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only the employee, or whoever manages their absence, can confirm that it has been requested in ATRI."
+msgstr "Només el treballador, o qui gestiona la seva absència, pot confirmar que s'ha sol·licitat a ATRI."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only Direction can send an absence back as not in ATRI."
+msgstr "Només Direcció pot retornar una absència perquè no consta a ATRI."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only an ATRI absence Direction is reviewing can be sent back as not in ATRI."
+msgstr "Només es pot retornar per no constar a ATRI una absència ATRI que Direcció està revisant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Your absence of %(when)s does not appear in ATRI. Reason: %(reason)s. Please request it on the ATRI portal and then confirm it on the absence request."
+msgstr "La teva absència del %(when)s no consta a ATRI. Motiu: %(reason)s. Sol·licita-la al portal ATRI i després confirma-ho a la sol·licitud d'absència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Reminder: please confirm on the absence request that your absence of %(when)s is requested in ATRI, so it can go on to Direction. If you have not requested it on the ATRI portal yet, do that first."
+msgstr "Recordatori: confirma a la sol·licitud d'absència que la teva absència del %(when)s està sol·licitada a ATRI, perquè pugui passar a Direcció. Si encara no l'has sol·licitada al portal ATRI, fes-ho primer."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "%(name)s has still not confirmed that the absence of %(when)s is requested in ATRI."
+msgstr "%(name)s encara no ha confirmat que l'absència del %(when)s està sol·licitada a ATRI."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_atri_escalated
+msgid "Missing ATRI confirmation reported to the Head"
+msgstr "Falta de confirmació d'ATRI comunicada al cap"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_atri_reminder_date
+msgid "Last ATRI reminder"
+msgstr "Últim recordatori d'ATRI"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_atri_reminder_date
+msgid "The last day the employee was reminded to confirm the absence is requested in ATRI."
+msgstr "L'últim dia que es va recordar al treballador que confirmi que l'absència està sol·licitada a ATRI."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_atri_return_reason
+msgid "Why it was sent back as not in ATRI"
+msgstr "Per què es va retornar per no constar a ATRI"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_atri_return_reason
+msgid "Written by Direction when the absence does not appear in ATRI. Shown to the employee until they confirm they have requested it."
+msgstr "L'escriu Direcció quan l'absència no consta a ATRI. Es mostra al treballador fins que confirma que l'ha sol·licitada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_atri_state
+msgid "ATRI confirmation"
+msgstr "Confirmació d'ATRI"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_atri_state
+msgid "Once the Head has validated an ATRI absence, it always waits for the employee to confirm they have requested it on the Generalitat's ATRI portal before it goes on to Direction, which can send it back there when it is not really in ATRI."
+msgstr "Un cop el cap ha validat una absència ATRI, espera sempre que el treballador confirmi que l'ha sol·licitada al portal ATRI de la Generalitat abans de passar a Direcció, que la pot retornar si realment no consta a ATRI."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_atri_state__awaiting
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__pending_atri
+msgid "Pending ATRI confirmation"
+msgstr "Pendent de confirmar ATRI"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_atri_state__requested
+msgid "Confirmed by the employee"
+msgstr "Confirmada pel treballador"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_can_mark_atri
+msgid "Current user can confirm it is requested in ATRI"
+msgstr "L'usuari actual pot confirmar que està sol·licitada a ATRI"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_can_mark_atri
+msgid "Whether the user reading this request may confirm it has been requested in ATRI: the employee themselves, or whoever manages the absence on their behalf."
+msgstr "Si l'usuari que llegeix aquesta sol·licitud pot confirmar que s'ha sol·licitat a ATRI: el mateix treballador, o qui gestiona l'absència en nom seu."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_status
+msgid "Where the request stands: the Head acknowledges it, the employee attaches the supporting document when its type requires one, the Head validates it, the employee confirms it is requested in ATRI when it is an ATRI absence and Direction validates it last. The absence takes effect (calendar, hour balance, guard duty board) as soon as the Head acknowledges it."
+msgstr "En quin punt és la sol·licitud: el cap la dona per rebuda, el treballador adjunta el justificant quan el tipus n'exigeix, el cap el valida, el treballador confirma que està sol·licitada a ATRI quan és una absència ATRI i Direcció valida en últim lloc. L'absència té efecte (calendari, saldo d'hores, quadrant de guàrdies) tan bon punt el cap la dona per rebuda."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__kind
+msgid "What is sent back"
+msgstr "Què es retorna"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_document_return_wizard__kind
+msgid "The supporting document that is not sufficient, or an absence that does not appear in ATRI (Direction only)."
+msgstr "El justificant que no és suficient, o una absència que no consta a ATRI (només Direcció)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_document_return_wizard__kind__atri
+msgid "ATRI request"
+msgstr "Sol·licitud a ATRI"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_document_return_wizard__reason
+msgid "What is wrong and what the employee has to do instead. The employee is told, and it stays on the request until they do it."
+msgstr "Què falla i què ha de fer el treballador en el seu lloc. Se li comunica, i queda a la sol·licitud fins que ho fa."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_document_return_wizard
+msgid "The Head or Direction sends an absence back to the employee: its supporting document, or its ATRI request."
+msgstr "El cap o Direcció retorna una absència al treballador: el justificant, o la sol·licitud a ATRI."
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_absence_atri_request
+msgid "Confirm the absence is requested in ATRI"
+msgstr "Confirmar que l'absència està sol·licitada a ATRI"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_absence_atri_overdue
+msgid "Absence not confirmed in ATRI"
+msgstr "Absència no confirmada a ATRI"

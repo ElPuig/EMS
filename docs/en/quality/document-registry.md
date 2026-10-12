@@ -70,14 +70,17 @@ of link, use **Open document**.
 
 ## Loading many links at once
 
-The same file can carry processes, procedures and documents: each line is matched by its code.
+The same file can carry processes, procedures and documents: each line is matched by its code. A document
+that has no code is matched by its exact name.
 
-1. Prepare a CSV file with two columns, the code and the link (for example exported from a spreadsheet):
+1. Prepare a CSV file with two columns, the code (or the name) and the link, for example exported from a
+   spreadsheet. A name that contains a comma goes between double quotes:
    ```
    code,url
    PE3.01.15,https://docs.google.com/document/d/.../edit
+   Pla de manteniment,https://docs.google.com/document/d/.../edit
    ```
 2. **Quality → Documentation → Documents → Load links** (quality coordination and management).
 3. Choose the file and click **Load**.
-4. The result says how many links were loaded, which codes do not exist and how many processes,
+4. The result says how many links were loaded, which codes or names do not exist and how many processes,
    procedures and documents are still without a link.

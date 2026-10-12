@@ -54,6 +54,36 @@ class TestQualityDocumentLinkImport(TransactionCase):
         self._run("code,url\nZL1.01.01,https://elpuig.xeill.net/quality\n")
         self.assertEqual(self.document.url, "https://elpuig.xeill.net/quality")
 
+    def test_a_document_without_code_is_matched_by_its_exact_name(self):
+        """The strategic documents and the process map have no code: their name is all a file
+        can identify them by. A name with a comma travels quoted."""
+        plan, emergency = self.env['ems.quality.document'].create([
+            {'name': 'Link test plan'},
+            {'name': 'Link test plan, with a comma'},
+        ])
+        wizard = self._run(
+            "code,url\n"
+            "Link test plan,https://docs.google.com/document/d/1PlanByName0000000/edit\n"
+            '"Link test plan, with a comma",https://drive.google.com/file/d/1CommaByName00000/view\n'
+        )
+        self.assertEqual(plan.url, "https://docs.google.com/document/d/1PlanByName0000000/edit")
+        self.assertEqual(emergency.url, "https://drive.google.com/file/d/1CommaByName00000/view")
+        self.assertIn("2 links loaded", wizard.result)
+
+    def test_a_name_never_matches_a_document_that_has_a_code(self):
+        """A coded document is identified by its code alone, so two revisions sharing a name
+        cannot be mixed up by a line that gives the name."""
+        wizard = self._run("code,url\nLink test document,https://docs.google.com/document/d/1NotByName0000000/edit\n")
+        self.assertFalse(self.document.url)
+        self.assertIn("Link test document", wizard.result)
+
+    def test_a_name_shared_by_several_documents_is_reported(self):
+        twins = self.env['ems.quality.document'].create([{'name': 'Link test twin'}, {'name': 'Link test twin'}])
+        wizard = self._run("code,url\nLink test twin,https://docs.google.com/document/d/1Ambiguous0000000/edit\n")
+        self.assertFalse(any(twins.mapped('url')))
+        self.assertIn("Link test twin", wizard.result)
+        self.assertIn("0 links loaded", wizard.result)
+
     def test_processes_and_procedures_are_loaded_from_the_same_file(self):
         procedure = self.env['ems.quality.procedure'].create({'code': 'ZL1.01', 'name': 'Link test procedure', 'process_id': self.process.id})
         wizard = self._run(

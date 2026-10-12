@@ -17,13 +17,14 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
     _name = "ems.quality.document.link.import"
     _description = "Load the Drive links of the quality structure from a code,url file."
 
-    file_data = fields.Binary(string="File", required=True, help="A CSV with two columns: the code of a process, procedure or document, and its link.")
+    file_data = fields.Binary(string="File", required=True, help="A CSV with two columns: the code of a process, procedure or document (or the exact name of a document that has no code), and its link.")
     file_name = fields.Char(string="File name")
     has_header = fields.Boolean(string="First line is a header", default=True)
     result = fields.Text(string="Result", readonly=True)
 
     def action_import(self):
-        """Fill the link of the processes, procedures and documents whose code appears in the file.
+        """Fill the link of the processes, procedures and documents whose code appears in the file,
+        and of the documents without a code whose exact name does.
 
         The links are not a data-file column on purpose (they are live application state, see
         docs/en/developers/quality/quality_overview.md), so this is how they get in: one file,
@@ -32,16 +33,16 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
         self.ensure_one()
         rows = self._parse()
         updated, unknown, empty = [], [], 0
-        for code, url in rows:
-            if not code or not url:
+        for key, url in rows:
+            if not key or not url:
                 empty += 1
                 continue
-            record = self._find(code)
+            record = self._find(key)
             if not record:
-                unknown.append(code)
+                unknown.append(key)
                 continue
             record.url = url
-            updated.append(code)
+            updated.append(key)
         self.result = self._summary(updated, unknown, empty)
         return {
             'type': 'ir.actions.act_window',
@@ -51,12 +52,18 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
             'target': 'new',
         }
 
-    def _find(self, code):
+    def _find(self, key):
+        """The record a line's first column stands for: a code, or failing that the exact name
+        of a document that has no code (the strategic documents and the process map), which is
+        the only thing such a document can be told apart by. A name shared by several of them
+        matches none, so the line is reported instead of landing on the wrong one."""
         for model in _LINKED_MODELS:
-            record = self.env[model].with_context(active_test=False).search([('code', '=', code)], limit=1)
+            record = self.env[model].with_context(active_test=False).search([('code', '=', key)], limit=1)
             if record:
                 return record
-        return False
+        documents = self.env['ems.quality.document'].with_context(active_test=False).search(
+            [('code', '=', False), ('name', '=', key)], limit=2)
+        return documents if len(documents) == 1 else False
 
     def _parse(self):
         self.ensure_one()
@@ -84,10 +91,10 @@ class EmsQualityDocumentLinkImport(models.TransientModel):
     def _summary(self, updated, unknown, empty):
         lines = [_("%s links loaded.", len(updated))]
         if unknown:
-            lines.append(_("%(count)s codes are not in the registry: %(codes)s",
+            lines.append(_("%(count)s codes or names are not in the registry: %(codes)s",
                            count=len(unknown), codes=", ".join(sorted(unknown))))
         if empty:
-            lines.append(_("%s lines were skipped for having no code or no link.", empty))
+            lines.append(_("%s lines were skipped for having no code or name, or no link.", empty))
         missing = sum(self.env[model].with_context(active_test=False).search_count([('url', '=', False)])
                       for model in _LINKED_MODELS)
         lines.append(_("%s processes, procedures and documents still have no link.", missing))

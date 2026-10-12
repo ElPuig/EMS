@@ -7,7 +7,7 @@ from unittest.mock import patch
 from lxml import etree
 
 from odoo import Command
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools.safe_eval import safe_eval
 
@@ -892,15 +892,15 @@ class TestAbsenceRequest(TransactionCase):
 
         leave.action_ems_direction_done()
         self.assertEqual(leave.ems_direction_state, 'done')
-        leave.action_ems_direction_reset()
+        leave.action_ems_undo()
         self.assertEqual(leave.ems_direction_state, 'not_done')
 
     def test_only_direction_uses_the_direction_buttons(self):
         head = create_role_user(self, 'head_of_studies', 'absence_hos_buttons@absence.test')
         leave = self._validated_by_head(self._create_leave(self.type_justified, self._monday(), ems_full_day=True))
 
-        for action in ('action_ems_direction_done', 'action_ems_direction_reset',
-                       'action_ems_direction_refuse', 'action_ems_document_insufficient'):
+        for action in ('action_ems_direction_done', 'action_ems_direction_refuse',
+                       'action_ems_document_insufficient'):
             with self.subTest(action=action), self.assertRaises(AccessError):
                 getattr(leave.with_user(head), action)()
         self.assertEqual(leave.ems_status, 'pending_direction')
@@ -1315,11 +1315,9 @@ class TestAbsenceRequest(TransactionCase):
     # --- Refusing is final --------------------------------------------------------------------
 
     def test_refusing_a_request_asks_for_a_confirmation(self):
-        """Nobody at the centre can undo it: Odoo reserves resetting a refused request to the
-        Time Off Administrator group (hr.leave._check_approval_update), which
-        res.users._ems_sync_time_off_groups deliberately leaves nobody holding. The employee has
-        to file the whole request again, so the one stray click that causes that is confirmed
-        first - on all three screens the button appears on."""
+        """The button sits next to the approval and the employee and their chiefs are told
+        straight away, so the one stray click is confirmed first - on all three screens the
+        button appears on."""
         for xmlid, view_type in (('hr_holidays.hr_leave_view_form', 'form'),
                                  ('hr_holidays.hr_leave_view_tree', 'list'),
                                  ('hr_holidays.hr_leave_view_kanban', 'kanban')):
@@ -1330,22 +1328,203 @@ class TestAbsenceRequest(TransactionCase):
             for button in buttons:
                 self.assertTrue(button.get('confirm'), f'{xmlid} ({view_type})')
 
-    def test_refusing_is_not_reversible_at_the_centre(self):
-        """What the confirmation is warning about, asserted rather than assumed: this is the
-        rule the wording of the dialog rests on."""
-        leave = self._create_leave(self.type_justified, self._monday())
-        leave.action_refuse()
-        approver = self.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Absence Approver', 'login': 'absence_approver@absence.test',
-            'groups_id': [Command.link(self.env.ref('base.group_user').id),
-                          Command.link(self.env.ref('hr_holidays.group_hr_holidays_user').id)],
-        })
+    # --- Undoing the last decision (issue #614) ---------------------------------------------
 
-        self.assertEqual(leave.state, 'refuse')
-        self.assertFalse(leave.with_user(approver).can_reset,
-                         'not even an officer gets the Reset button on a refused request')
-        with self.assertRaises(Exception):
-            leave.with_user(approver).action_reset_confirm()
+    def _undo_statuses(self, leave, steps):
+        seen = []
+        for _step in range(steps):
+            leave.action_ems_undo()
+            seen.append(leave.ems_status)
+        return seen
+
+    def test_undo_walks_back_one_decision_at_a_time(self):
+        self._direction()
+        leave = self._validated_by_head(self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True))
+        leave.action_ems_direction_done()
+        self.assertEqual(leave.ems_status, 'approved')
+
+        self.assertEqual(self._undo_statuses(leave, 3), ['pending_direction', 'pending_validation', 'pending'])
+        self.assertEqual(leave.state, 'confirm')
+        with self.assertRaises(UserError):
+            leave.action_ems_undo()
+
+    def test_undoing_the_only_step_of_a_type_without_document_goes_back_to_pending(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+
+        self.assertEqual(self._undo_statuses(leave, 1), ['pending'])
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_direction', 'and it can be decided again')
+
+    def test_undoing_the_acknowledgement_takes_the_absence_out_of_the_calendar(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        calendar_leaves = self.env['resource.calendar.leaves'].search
+        leave.action_approve()
+        self.assertTrue(calendar_leaves([('holiday_id', '=', leave.id)]))
+
+        leave.action_ems_undo()
+
+        self.assertFalse(calendar_leaves([('holiday_id', '=', leave.id)]))
+        self.assertFalse(leave.first_approver_id)
+
+    def test_undoing_a_refusal_returns_the_request_to_where_it_stood(self):
+        direction = self._direction()
+        pending = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        awaiting = self._create_leave(self.type_sick_leave, self._monday() + timedelta(days=7), ems_full_day=True)
+        awaiting.action_approve()
+        approved = self._create_leave(self.type_atri, self._monday() + timedelta(days=14), ems_full_day=True)
+        approved.action_approve()
+        approved.action_ems_direction_done()
+        (pending | awaiting).action_refuse()
+        approved.with_user(direction).action_ems_direction_refuse()
+        self.assertEqual((pending | awaiting | approved).mapped('ems_status'), ['refused'] * 3)
+
+        (pending | awaiting | approved).action_ems_undo()
+
+        self.assertEqual(pending.ems_status, 'pending')
+        self.assertEqual(awaiting.ems_status, 'pending_document')
+        self.assertEqual(awaiting.state, 'validate', 'in effect again')
+        self.assertEqual(approved.ems_status, 'approved')
+        self.assertEqual(approved.ems_head_state, 'approved')
+
+    def test_undoing_a_request_refused_before_this_existed_reopens_it(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        leave.action_refuse()
+        leave.sudo().ems_decision_before = False
+
+        leave.action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending')
+        self.assertFalse(leave.ems_document_state)
+
+    def test_undoing_a_cancellation_returns_the_request_to_where_it_stood(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+        leave._force_cancel("Test cancelled by mistake")
+        self.assertEqual(leave.ems_status, 'cancel')
+
+        leave.action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
+    def test_undoing_a_document_sent_back_returns_it_to_validation(self):
+        direction = self._direction()
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        self._attach(leave)
+        self._return_document(leave)
+        self.assertEqual(leave.ems_status, 'pending_document')
+
+        leave.action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending_validation')
+        self.assertFalse(leave.ems_document_return_reason)
+
+        leave.action_ems_document_validate()
+        self._return_document(leave.with_user(direction), "Test wrong dates")
+        head = create_role_user(self, 'head_of_studies', 'absence_undo_return@absence.test',
+                                email='absence_undo_return@example.com')
+        with self.assertRaises(AccessError):
+            leave.with_user(head).action_ems_undo()
+        leave.with_user(direction).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending_direction', "Direction's send-back is Direction's to undo")
+
+    def test_a_new_document_makes_the_send_back_final(self):
+        """Once the employee has answered it, undoing follows the sequence: the Head's
+        acknowledgement is the last decision left."""
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        self._attach(leave)
+        self._return_document(leave)
+        self._attach(leave, name='justificant2.pdf')
+
+        self.assertEqual(self._undo_statuses(leave, 1), ['pending'])
+
+    def test_who_can_undo_follows_who_decided(self):
+        """The Head their own decisions, Direction the Head's and its own, the administrator
+        all of them - and nobody else."""
+        direction = self._direction()
+        head = create_role_user(self, 'head_of_studies', 'absence_undo_hos@absence.test',
+                                email='absence_undo_hos@example.com')
+        admin = create_role_user(self, 'academic_admin', 'absence_undo_admin@absence.test',
+                                email='absence_undo_admin@example.com')
+        teacher = create_role_user(self, 'teacher', 'absence_undo_teacher@absence.test')
+        leave = self._create_leave(self.type_health, self._monday())
+        self.assertFalse(leave.with_user(head).ems_can_undo, 'nothing decided yet')
+        leave.with_user(head).action_approve()
+
+        self.assertTrue(leave.with_user(head).ems_can_undo)
+        self.assertTrue(leave.with_user(direction).ems_can_undo)
+        self.assertTrue(leave.with_user(admin).ems_can_undo)
+        with self.assertRaises(AccessError):
+            leave.with_user(teacher).action_ems_undo()
+
+        leave.with_user(direction).action_ems_direction_done()
+        self.assertFalse(leave.with_user(head).ems_can_undo, "Direction's decision is not the Head's to undo")
+        with self.assertRaises(AccessError):
+            leave.with_user(head).action_ems_undo()
+        self.assertTrue(leave.with_user(admin).ems_can_undo, 'the administrator is above Direction')
+        leave.with_user(admin).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        leave.with_user(head).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending')
+
+    def test_a_head_does_not_undo_a_decision_on_their_own_absence(self):
+        head = create_role_user(self, 'head_of_studies', 'absence_undo_own@absence.test')
+        self.employee.user_id = head.id
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+
+        self.assertFalse(leave.with_user(head).ems_can_undo)
+
+    def test_undoing_tells_the_employee(self):
+        """Everyone following the request when the absence goes in or out of effect, the
+        employee alone otherwise."""
+        self._direction()
+        owner = self._employee_user('Test Absence Undone', 'absence_undone@absence.test')
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+        leave.action_ems_direction_done()
+
+        leave.action_ems_undo()
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("Pending Direction", str(note.body))
+
+        leave.action_ems_undo()
+        summary = self._last_note(leave)
+        self.assertEqual(summary.subtype_id, self.env.ref('mail.mt_comment'))
+        self.assertIn("Pending", str(summary.body))
+
+    def test_every_action_of_the_form_is_in_its_actions_dropdown(self):
+        """Odoo's own buttons included; its Reset is the one left out, hidden for good, since
+        Undo replaces it."""
+        arch = self._arch('hr_holidays.hr_leave_view_form', 'form')
+
+        loose = arch.xpath("//header/button")
+        self.assertEqual([button.get('name') for button in loose], ['action_reset_confirm'])
+        self.assertIn(loose[0].get('invisible'), ('1', 'True'))
+        names = arch.xpath("//header/div[@name='ems_actions']/button/@name")
+        for name in ('action_approve', 'action_refuse', 'action_cancel', 'action_ems_undo',
+                     'action_ems_document_validate', 'action_ems_direction_done'):
+            self.assertIn(name, names)
+        self.assertFalse(arch.xpath("//button[@name='action_ems_direction_reset']"))
+
+    def test_an_approved_request_is_corrected_by_undoing_it_first(self):
+        """Odoo refuses any change that touches the dates of a request in effect, and the type
+        recomputes them: the way to correct one is to take the approval back."""
+        leave = self._create_leave(self.type_justified, self._monday(), hour_from=9, hour_to=11)
+        leave.action_approve()
+        with self.assertRaises(ValidationError):
+            leave.holiday_status_id = self.type_training
+            leave.flush_recordset()
+
+        leave.action_ems_undo()
+        leave.holiday_status_id = self.type_training
+        leave.action_approve()
+
+        self.assertEqual(leave.holiday_status_id, self.type_training)
+        self.assertEqual(leave.ems_status, 'pending_document')
 
     # --- Who gets told ---------------------------------------------------------------------
 

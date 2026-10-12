@@ -14,9 +14,10 @@
 2. [Aprovar o rebutjar](#aprovar-o-rebutjar)
 3. [Ajustar el còmput d'una absència](#ajustar-el-còmput-duna-absència)
 4. [Aprovació de Direcció](#aprovació-de-direcció)
-5. [Informe per empleat](#informe-per-empleat)
-6. [Informe mensual](#informe-mensual)
-7. [Absències previstes](#absències-previstes)
+5. [Desfer una decisió](#desfer-una-decisió)
+6. [Informe per empleat](#informe-per-empleat)
+7. [Informe mensual](#informe-mensual)
+8. [Absències previstes](#absències-previstes)
 
 ---
 
@@ -48,7 +49,7 @@ Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les 
 
 **La teva part té dos passos quan el tipus d'absència exigeix justificant** (tots menys `Salut` i `ATRI`), perquè sovint el justificant només existeix després de l'absència:
 
-1. **Rebuda: pendent de documentació** (icona de safata al llistat, o el botó de dalt del formulari). Dones per rebuda la sol·licitud sense haver vist encara el justificant. Passa a **En espera de documentació** i es demana el justificant a la persona. Si ja l'havia adjuntat amb la sol·licitud, passa directament a **Pendent de validació**.
+1. **Rebuda: pendent de documentació** (icona de safata al llistat, o el menú **Accions** de dalt del formulari). Dones per rebuda la sol·licitud sense haver vist encara el justificant. Passa a **En espera de documentació** i es demana el justificant a la persona. Si ja l'havia adjuntat amb la sol·licitud, passa directament a **Pendent de validació**.
 2. Quan la persona adjunta el justificant, la sol·licitud et torna sola com a **Pendent de validació**. Obre-la, revisa el justificant i fes servir **Validar documentació** (també una icona de validació al llistat). Llavors passa a Direcció.
 
 Si el justificant no és vàlid, **Documentació insuficient** et demana el motiu (obligatori) i torna la sol·licitud a la persona (En espera de documentació) amb un missatge que l'inclou. La persona també el veu a dalt de la sol·licitud fins que adjunta un justificant nou. Si el nou tampoc no és vàlid, el diàleg s'obre amb el motiu anterior perquè el puguis modificar; quan valides un justificant, el motiu s'esborra.
@@ -65,7 +66,7 @@ Si uns dies després de l'absència (tres, si el centre no ho ha canviat) la per
 
 Tu hi veus el **motiu escrit** i el **justificant**; la resta del personal, no.
 
-**Rebutjar és definitiu.** Un cop rebutges una sol·licitud, ni tu ni la persona la podeu tornar a *Pendent*: per concedir-la finalment, la persona ha de fer-ne una de nova. Com que el botó Rebutja és al costat dels altres, i al llistat és només una creu, sempre demana confirmació abans - llegeix el missatge abans d'acceptar-lo.
+**Rebutjar demana confirmació abans**, perquè s'avisa de seguida la persona i els caps del seu departament, i al llistat la creu és just al costat de l'aprovació. Si rebutges per error, [desfés-ho](#desfer-una-decisió).
 
 Pots adjuntar un **justificant** a qualsevol sol·licitud, de qualsevol tipus i en qualsevol moment: un certificat lliurat després de l'absència s'adjunta a la mateixa sol·licitud.
 
@@ -79,13 +80,13 @@ Un camp del formulari, que pots canviar en qualsevol moment:
 |---|---|---|
 | **Suma les hores a l'informe mensual** | Fa que les hores entrin al recompte mensual | Tots els tipus excepte `Baixa laboral` |
 
-També pots canviar el **tipus d'absència** després d'haver-la aprovat. Fes-ho quan la persona n'hagi triat un que no correspon.
+També pots corregir el **tipus d'absència** quan la persona n'hagi triat un que no correspon, mentre la sol·licitud està pendent (o rebutjada o cancel·lada). Una sol·licitud aprovada ja no es pot canviar: primer [desfés l'aprovació](#desfer-una-decisió), corregeix-la i torna-la a validar.
 
 **La persona s'assabenta del que canvies.** Quan tu (o Direcció) canvies el tipus d'absència, les dates o les hores d'una sol·licitud que ha presentat una altra persona, la següent vegada que decideixes sobre ella (rebre-la, validar-la, retornar el justificant, rebutjar-la) un quadre de diàleg mostra els canvis i et permet escriure un missatge per a qui l'ha sol·licitat. Si el deixes en blanc, només se l'informa dels canvis realitzats. En tots dos casos l'avís arriba únicament a qui l'ha sol·licitat, no als caps de departament ni a la resta de seguidors de la sol·licitud. En una sol·licitud ja rebutjada o cancel·lada, se l'avisa tan bon punt deses el canvi.
 
 ![Quadre de diàleg amb els canvis realitzats a la sol·licitud i el quadre per al missatge al sol·licitant](../../assets/head_of_studies/hos-absences-change-message.png)
 
-Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella **Dia sencer?**, que també pots corregir: marcada compta 7,5 hores per dia laborable, sense marcar compta les hores indicades.
+Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella **Dia sencer?**, que també pots corregir mentre la sol·licitud està pendent: marcada compta 7,5 hores per dia laborable, sense marcar compta les hores indicades.
 
 ---
 
@@ -95,14 +96,14 @@ Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella
 
 **Assistència del personal > Absències > Administració > Absències sol·licitades** s'obre amb **Pendent de mi**: totes les absències **Pendent Direcció**, i les absències dels mateixos caps d'àrea, que gestiones tu com a cap seu (amb els botons del cap descrits més amunt). Cadascuna et deixa també una activitat ("Revisió de direcció de l'absència").
 
-Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o obre'n una i fes servir els botons de dalt, que et tornen al llistat en acabar:
+Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o obre'n una i fes servir el menú **Accions** de dalt, que et torna al llistat en acabar:
 
 | Icona | Botó | Resultat |
 |---|---|---|
 | Casella marcada | **Direcció: fet** | Aprovat |
 | Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep |
-| Fletxa enrere | **Direcció: pendent** | Desfà un *Fet* |
-| Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, demana confirmació abans i és definitiu |
+| Fletxa enrere | **Desfés l'última decisió** | Torna a l'estat anterior, vegeu [Desfer una decisió](#desfer-una-decisió) |
+| Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, i demana confirmació abans |
 
 Quan un cap dona per rebuda una absència, en reps el resum com a seguidor.
 
@@ -119,6 +120,34 @@ Quan un cap dona per rebuda una absència, en reps el resum com a seguidor.
 | Cancel·lat | La persona l'ha retirada |
 
 El panell de cerca de l'esquerra filtra per **Estat**.
+
+---
+
+## Desfer una decisió
+
+Una decisió presa per error es desfà amb **Desfés l'última decisió**: la icona de fletxa enrere al final de la fila al llistat, o el menú **Accions** de dalt del formulari. Demana confirmació i retrocedeix un pas cada vegada:
+
+| Estat | En desfer queda en |
+|---|---|
+| Aprovat | Pendent de Direcció |
+| Pendent de Direcció | Pendent de validació, o Pendent si el tipus no exigeix justificant |
+| Pendent de validació, En espera de documentació | Pendent |
+| Rebutjat, Cancel·lat | L'estat que tenia just abans |
+| En espera de documentació després d'un *Documentació insuficient* | L'estat que tenia just abans, mentre la persona no hagi adjuntat un justificant nou |
+
+Qui pot desfer què:
+
+| Qui | Desfà |
+|---|---|
+| El cap (Cap d'Estudis, Cap d'Estudis adjunt, Secretaria) | Les decisions de la part del cap, a les sol·licituds de la seva àrea |
+| Direcció | Les del cap i les seves |
+| Administrador | Qualsevol |
+
+Ningú desfà una decisió sobre la seva pròpia absència, tret de Direcció i l'administrador.
+
+Desfer el primer pas del cap (rebuda, o validada quan no hi ha justificant) torna la sol·licitud a **Pendent**, de manera que **l'absència deixa de comptar** al calendari d'absències, al saldo d'hores i al quadrant de guàrdies fins que es torni a donar per rebuda. A la persona se l'avisa sempre, i als caps del seu departament també quan l'absència entra o surt de vigor.
+
+Després de desfer des del formulari et quedes a la sol·licitud, per corregir-la o tornar a decidir.
 
 ---
 

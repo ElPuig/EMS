@@ -284,9 +284,12 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         self._capture(
             '/odoo/action-%d/%d' % (action.id, leave.id),
             '.modal-content', 'hos-absences-change-message.png',
-            login='doc_shot_hos', wait_for=".o_form_statusbar button[name='action_approve']",
-            click=".o_form_statusbar button[name='action_approve']",
-            wait_after=".modal div[name='changes'] li",
+            login='doc_shot_hos', wait_for=".o_form_statusbar .o_ems_actions_toggle",
+            # Validate is an entry of the form's Actions dropdown, which has to be opened first.
+            click=[".o_form_statusbar .o_ems_actions_toggle",
+                   ".o_ems_actions_menu button[name='action_approve']"],
+            wait_after=[".o_ems_actions_menu button[name='action_approve']",
+                        ".modal div[name='changes'] li"],
         )
 
     def test_capture_head_of_studies_screenshots(self):

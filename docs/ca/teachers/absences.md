@@ -123,7 +123,7 @@ A **Absències** tens la teva llista. La teva absència passa primer pel teu cap
 | Pendent de validació | Has adjuntat el justificant i el teu cap l'ha de validar |
 | Pendent Direcció | El teu cap l'ha validada, Direcció encara no l'ha revisada |
 | Aprovat | Concedida per tots dos |
-| Rebutjat | Denegada. És definitiu: si vols insistir, cal fer una sol·licitud nova |
+| Rebutjat | Denegada. Si va ser un error, el teu cap o Direcció ho poden desfer; si no, per insistir cal fer una sol·licitud nova |
 | Cancel·lat | Anul·lada |
 
 El filtre **Els meus justificants pendents** mostra les sol·licituds que esperen un justificant teu.

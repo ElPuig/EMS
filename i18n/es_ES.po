@@ -19125,6 +19125,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 msgid "Actions"
 msgstr "Acciones"
 
@@ -21907,3 +21908,65 @@ msgstr "Se han detectado cambios en la solicitud original. Si lo desea, puede en
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 msgid "Message for the requester (optional)..."
 msgstr "Mensaje para el solicitante (opcional)..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+msgid "The employee and their department's chiefs are told the absence request has been refused. Refuse it?"
+msgstr "Se avisa al trabajador y a los jefes de su departamento de que la solicitud de ausencia ha sido rechazada. ¿Rechazarla?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "Undo the last decision"
+msgstr "Deshacer la última decisión"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+msgid "The last decision on this absence request is taken back and the request returns to its previous status. The employee is told. Undo it?"
+msgstr "Se deshace la última decisión sobre esta solicitud de ausencia y la solicitud vuelve a su estado anterior. Se avisa al trabajador. ¿Deshacerla?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Undo"
+msgstr "Deshacer"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Nothing has been decided on this absence request yet."
+msgstr "Todavía no se ha decidido nada sobre esta solicitud de ausencia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only whoever took the last decision on this absence, or someone above them, can undo it."
+msgstr "Solo quien tomó la última decisión sobre esta ausencia, o alguien por encima, puede deshacerla."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "The last decision on your absence request of %(when)s has been undone. Its status is: %(status)s."
+msgstr "Se ha deshecho la última decisión sobre tu solicitud de ausencia del %(when)s. Su estado es: %(status)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_decision_before
+msgid "Decisions before the last one"
+msgstr "Decisiones anteriores a la última"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_decision_before
+msgid "Where the request stood before it was refused, cancelled or sent back for its supporting document: what undoing that puts back."
+msgstr "Dónde estaba la solicitud antes de ser rechazada, cancelada o devuelta por el justificante: lo que se recupera al deshacerlo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_can_undo
+msgid "Current user can undo the last decision"
+msgstr "El usuario actual puede deshacer la última decisión"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_can_undo
+msgid "Whether the user reading this request may take back the last decision on it: whoever took it, anyone above them, and the administrator."
+msgstr "Si el usuario que lee esta solicitud puede deshacer la última decisión: quien la tomó, cualquiera por encima y el administrador."

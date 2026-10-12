@@ -60,6 +60,9 @@ REQUEST_FIELDS = (
 )
 # Statuses with no decision left to carry that report, so a change is reported when it is saved.
 CLOSED_STATUSES = ('approved', 'refused', 'cancel')
+# The three fields a decision moves, and so what undoing one puts back - see _ems_undo().
+DECISION_FIELDS = ('state', 'ems_document_state', 'ems_direction_state')
+NOT_DECIDED = {'state': 'confirm', 'ems_document_state': False, 'ems_direction_state': 'not_done'}
 
 TIME_OFF_GROUP_XMLIDS = (
     'hr.group_hr_manager',
@@ -254,6 +257,14 @@ class EmsAbsenceLeave(models.Model):
         string="Request before its corrections", copy=False, readonly=True,
         help="What the employee had filed, kept from the moment somebody else corrects the "
              "request until the employee has been told what was changed.")
+    ems_decision_before = fields.Json(
+        string="Decisions before the last one", copy=False, readonly=True,
+        help="Where the request stood before it was refused, cancelled or sent back for its "
+             "supporting document: what undoing that puts back.")
+    ems_can_undo = fields.Boolean(
+        string="Current user can undo the last decision", compute="_compute_ems_can_undo",
+        help="Whether the user reading this request may take back the last decision on it: "
+             "whoever took it, anyone above them, and the administrator.")
     ems_head_state = fields.Selection(
         string="Head status",
         selection=[
@@ -424,6 +435,12 @@ class EmsAbsenceLeave(models.Model):
             # Managers' own absences.
             leave.is_absence_head = is_approver or (is_officer and not is_director)
             leave.is_absence_direction = is_direction
+
+    @api.depends_context('uid')
+    @api.depends('ems_status', 'ems_direction_state', 'ems_decision_before', 'employee_id')
+    def _compute_ems_can_undo(self):
+        for leave in self:
+            leave.ems_can_undo = leave._ems_can_undo()
 
     def _compute_can_approve(self):
         """Direction does not approve on the Head's behalf.
@@ -611,6 +628,7 @@ class EmsAbsenceLeave(models.Model):
             raise AccessError(_("Only the Head or Direction can change the supporting document "
                                 "status of an absence."))
         self._ems_check_own_approved_write(vals)
+        self._ems_keep_decision_before(vals)
         corrected = self._ems_keep_original_request(vals)
         result = super().write(vals)
         # No decision is left to report the correction with: the employee is told now.
@@ -904,6 +922,7 @@ class EmsAbsenceLeave(models.Model):
         wizard = self._ems_ask_change_message('action_approve')
         if wizard:
             return wizard
+        self._ems_forget_decision_before()
         for leave in self.filtered(lambda leave: leave.state == 'confirm'):
             if not leave.leave_type_support_document:
                 document_state = 'not_required'
@@ -938,6 +957,7 @@ class EmsAbsenceLeave(models.Model):
         submitted = self.filtered(
             lambda leave: leave.ems_document_state == 'awaiting' and leave.attachment_ids)
         if submitted:
+            submitted._ems_forget_decision_before()
             submitted.sudo().write({'ems_document_state': 'submitted'})
 
     def _ems_check_is_head(self):
@@ -959,6 +979,7 @@ class EmsAbsenceLeave(models.Model):
         wizard = self._ems_ask_change_message('action_ems_document_validate')
         if wizard:
             return wizard
+        self._ems_forget_decision_before()
         self.write({'ems_document_state': 'validated'})
         self.sudo().write({'ems_document_return_reason': False})
         self._ems_notify_request_changes()
@@ -996,9 +1017,12 @@ class EmsAbsenceLeave(models.Model):
         why. The reminders start over. The reason is written first so the employee's new
         activity, scheduled by write(), carries it."""
         self._ems_check_can_return_document()
+        before = {leave.id: leave._ems_decision_values() for leave in self}
         self.sudo().write({'ems_document_return_reason': reason, 'ems_document_reminder_date': False,
                            'ems_document_escalated': False})
         self.write({'ems_document_state': 'awaiting'})
+        for leave in self.sudo():
+            leave.ems_decision_before = before[leave.id]
         for leave in self:
             leave._ems_notify(leave.employee_id.user_id.partner_id, _(
                 "The supporting document for your absence of %(when)s is not sufficient. "
@@ -1101,12 +1125,10 @@ class EmsAbsenceLeave(models.Model):
         wizard = self._ems_ask_change_message('action_ems_direction_done')
         if wizard:
             return wizard
+        self._ems_forget_decision_before()
         self._ems_set_direction_state('done')
         self._ems_notify_request_changes()
         return True
-
-    def action_ems_direction_reset(self):
-        return self._ems_set_direction_state('not_done')
 
     def action_ems_direction_refuse(self):
         """Refuses the whole request, as final as the Head's refusal. Direction's column is set
@@ -1114,8 +1136,10 @@ class EmsAbsenceLeave(models.Model):
         wizard = self._ems_ask_change_message('action_ems_direction_refuse')
         if wizard:
             return wizard
+        # Read before it is overwritten, for write() to keep: what undoing the refusal restores.
+        before = {leave.id: leave.ems_direction_state for leave in self}
         self._ems_set_direction_state('refused')
-        return self.action_refuse()
+        return self.with_context(ems_direction_before=before).action_refuse()
 
     def action_reset_confirm(self):
         """Odoo's own reset only ever touches 'state' - left alone, a Direction refusal would
@@ -1134,8 +1158,126 @@ class EmsAbsenceLeave(models.Model):
         refused_by_direction.sudo()._ems_set_direction_state('not_done')
         # Same for the supporting document: the Head acknowledges the reopened request afresh.
         self.sudo().write({'ems_document_state': False, 'ems_document_reminder_date': False,
-                           'ems_document_escalated': False, 'ems_document_return_reason': False})
+                           'ems_document_escalated': False, 'ems_document_return_reason': False,
+                           'ems_decision_before': False})
         return result
+
+    # --- Undoing the last decision (issue #614) ---------------------------------------------
+
+    def _ems_decision_values(self):
+        self.ensure_one()
+        return {name: self[name] for name in DECISION_FIELDS}
+
+    def _ems_keep_decision_before(self, vals):
+        """Called by write() before a request is refused or cancelled, whichever way that
+        happens (the Head, Direction, the employee's own cancellation): keeps where it stood,
+        which nothing else could tell afterwards. Direction's own column is already 'refused'
+        by then (see action_ems_direction_refuse), which passes what it was."""
+        if vals.get('state') not in ('refuse', 'cancel'):
+            return
+        direction_before = self.env.context.get('ems_direction_before') or {}
+        for leave in self.filtered(lambda leave: leave.state not in ('refuse', 'cancel')):
+            before = leave._ems_decision_values()
+            before['ems_direction_state'] = direction_before.get(leave.id, before['ems_direction_state'])
+            leave.sudo().ems_decision_before = before
+
+    def _ems_forget_decision_before(self):
+        """A decision that moves the request forward leaves nothing kept to go back to: undoing
+        it follows the sequence itself."""
+        self.sudo().filtered('ems_decision_before').ems_decision_before = False
+
+    def _ems_is_absence_admin(self):
+        """The administrator is above Direction for every permission, though outside the
+        employees' hierarchy."""
+        return self.env.su or self.env.user.has_group('base.group_system') \
+            or self.env.user.has_group('ems.group_academic_admin')
+
+    def _ems_last_decision_is_directions(self):
+        """Whose decision an undo would take back: Direction's own (its validation, its refusal,
+        a document it sent back after the Head had validated it) or the Head's."""
+        self.ensure_one()
+        if self.ems_status == 'approved':
+            return True
+        if self.ems_status == 'refused':
+            return self.ems_direction_state == 'refused'
+        return self.ems_status == 'pending_document' \
+            and (self.ems_decision_before or {}).get('ems_document_state') == 'validated'
+
+    def _ems_can_undo(self):
+        """Whoever took the last decision can take it back, and so can anyone above them: the
+        Head their own, Direction the Head's and its own, the administrator all of them. Nobody
+        undoes a decision on their own absence unless they are Direction or the administrator."""
+        self.ensure_one()
+        if not self.id or self.ems_status == 'pending':
+            return False
+        if self._ems_is_absence_admin() or self.is_absence_direction:
+            return True
+        return self.is_absence_head and not self._ems_last_decision_is_directions() \
+            and self.employee_id.user_id != self.env.user
+
+    def action_ems_undo(self):
+        """Takes back the last decision on the request, one step at a time: Approved goes back
+        to Pending Direction, that to Pending validation (or straight to Pending when its type
+        requires no document), and the Head's acknowledgement back to Pending; a refused,
+        cancelled or sent-back request returns to where it stood just before. Taking back the
+        acknowledgement takes the absence out of the calendar, the hour balance and the guard
+        duty board until it is acknowledged again."""
+        for leave in self:
+            if leave.ems_status == 'pending':
+                raise UserError(_("Nothing has been decided on this absence request yet."))
+            if not leave._ems_can_undo():
+                raise AccessError(_("Only whoever took the last decision on this absence, or "
+                                    "someone above them, can undo it."))
+        for leave in self.sudo():
+            state = leave.state
+            leave._ems_undo()
+            if leave.state != state:
+                # In or out of effect: everyone following the request has to know.
+                leave._ems_post_outcome()
+            else:
+                employee = leave.employee_id
+                leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, _(
+                    "The last decision on your absence request of %(when)s has been undone. "
+                    "Its status is: %(status)s.",
+                    when=leave._ems_when(), status=leave._ems_status_label()))
+        return True
+
+    def _ems_undo(self):
+        """sudo: the right to undo is action_ems_undo()'s own check, which Odoo's (only a Time
+        Off Manager resets a request) knows nothing about."""
+        self.ensure_one()
+        before = self.ems_decision_before
+        if self.ems_status in ('refused', 'cancel'):
+            self._ems_restore_decisions(before or NOT_DECIDED)
+        elif self.ems_status == 'pending_document' and before:
+            self._ems_restore_decisions(before)
+        elif self.ems_status == 'approved':
+            self.ems_direction_state = 'not_done'
+        elif self.ems_status == 'pending_direction' and self.ems_document_state == 'validated':
+            self.ems_document_state = 'submitted'
+        else:
+            self._ems_restore_decisions(NOT_DECIDED)
+        self.ems_decision_before = False
+
+    def _ems_restore_decisions(self, values):
+        """Puts the request back to these DECISION_FIELDS values, through Odoo's own steps so
+        the calendar entries, the approval activity and everything else hanging off 'state'
+        follow."""
+        self.ensure_one()
+        if self.state in ('refuse', 'cancel'):
+            self.action_reset_confirm()
+        elif values['state'] == 'confirm':
+            # Odoo has no way back from an approval; this is its reset, from 'validate'.
+            self.meeting_id.active = False
+            self.write({'state': 'confirm', 'first_approver_id': False, 'second_approver_id': False})
+            self.activity_update()
+        if values['state'] != 'confirm' and self.state == 'confirm':
+            self.action_validate(check_state=False)
+        self.write({
+            'ems_document_state': values['ems_document_state'] or False,
+            'ems_direction_state': values['ems_direction_state'] or 'not_done',
+            'ems_document_return_reason': False,
+        })
 
     @api.constrains('ems_submitted', 'ems_responsible_declaration')
     def _check_ems_submitted(self):

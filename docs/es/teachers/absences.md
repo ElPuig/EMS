@@ -123,7 +123,7 @@ En **Ausencias** tienes tu lista. Tu ausencia pasa primero por tu jefe (jefe de 
 | Pendiente de validación | Has adjuntado el justificante y tu jefe tiene que validarlo |
 | Pendiente Dirección | Tu jefe la ha validado, Dirección todavía no la ha revisado |
 | Aprobado | Concedida por ambos |
-| Rechazado | Denegada. Es definitivo: si quieres insistir, hay que hacer una solicitud nueva |
+| Rechazado | Denegada. Si fue un error, tu jefe o Dirección pueden deshacerlo; si no, para insistir hay que hacer una solicitud nueva |
 | Cancelado | Anulada |
 
 El filtro **Mis justificantes pendientes** muestra las solicitudes que esperan un justificante tuyo.

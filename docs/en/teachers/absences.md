@@ -123,7 +123,7 @@ When you send it, your department chief and, if your department has one, your se
 | Pending validation | You have attached the document and your Head has to validate it |
 | Pending Direction | Your Head has validated it, Direction has not reviewed it yet |
 | Approved | Granted by both |
-| Refused | Denied. This is final: to insist, file a new request |
+| Refused | Denied. If it was a mistake, your Head or Direction can undo it; otherwise, to insist, file a new request |
 | Cancelled | Withdrawn |
 
 The **My pending supporting documents** filter lists the requests waiting for a document from you.

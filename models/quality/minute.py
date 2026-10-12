@@ -9,7 +9,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import format_date
 
-from .common import scope_code
+from .common import SCOPE_CODE_LANG, scope_code
 
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
 # stays meaningful for anything reading the database directly. It is no longer used by the
@@ -32,6 +32,9 @@ class EmsMinute(models.Model):
         ('unique_code', 'unique (code)', "Another minute already uses this code."),
     ]
 
+    # A meeting goes through one more stage than any other signed record: once it has been
+    # prepared and called, it is held - and that is when its minute gets written.
+    state = fields.Selection(selection_add=[('meeting', "Meeting"), ('to_approve',)], ondelete={'meeting': 'set default'})
     name = fields.Char(string="Title", compute="_compute_name", store=True, readonly=False, tracking=True)
     type_id = fields.Many2one(string="Type", comodel_name="ems.minute.type", required=True, ondelete='restrict', tracking=True)
     type_kind = fields.Selection(string="Kind", related="type_id.kind", store=True)
@@ -148,6 +151,7 @@ class EmsMinute(models.Model):
         column2="action_id",
         help="Agreements of earlier minutes of the same scope that were still open and got reviewed here.",
     )
+    agreement_review_ids = fields.One2many(string="Agreements reviewed", comodel_name="ems.minute.agreement.review", inverse_name="minute_id")
     pending_topic_ids = fields.One2many(string="Pending topics", comodel_name="ems.minute.pending.topic", inverse_name="minute_id")
     annex_document_ids = fields.Many2many(
         string="Annexes",
@@ -164,7 +168,15 @@ class EmsMinute(models.Model):
         tracking=True,
     )
     approver_role_id = fields.Many2one(string="Approved by (post)", comodel_name="ems.role", tracking=True)
-    approver_employee_id = fields.Many2one(string="Approved by", comodel_name="hr.employee.public", readonly=True, copy=False, tracking=True)
+    # The person, not the post: proposed from whoever answers for the scope that meets, and free to
+    # be anybody else. Once approved it says who actually did.
+    approver_employee_id = fields.Many2one(string="Approved by", comodel_name="hr.employee.public", copy=False, tracking=True)
+    approver_candidate_ids = fields.Many2many(
+        string="Who usually approves it",
+        comodel_name="hr.employee.public",
+        compute="_compute_approver_candidate_ids",
+        help="The people who answer for the scope that meets: they come first when choosing who approves the minute.",
+    )
     approval_date = fields.Date(string="Approved on", readonly=True, copy=False)
 
     # Sections that carry a table of their own.
@@ -294,6 +306,7 @@ class EmsMinute(models.Model):
         if self.type_id:
             self._ems_preload_attendees()
             self._ems_preload_previous()
+            self.approver_employee_id = self._ems_approver_candidates()[:1]
 
     @api.model
     def _ems_vals_from_start(self, start):
@@ -329,6 +342,8 @@ class EmsMinute(models.Model):
                 minute.approver_role_id = minute.type_id.approver_role_id
             if minute.type_id.scope_kind == 'centre' and not minute.is_centre:
                 minute.is_centre = True
+            if not minute.approver_employee_id:
+                minute.approver_employee_id = minute._ems_approver_candidates()[:1]
             if not minute.section_value_ids:
                 minute._ems_build_sections()
             if not minute.attendee_ids:
@@ -473,6 +488,9 @@ class EmsMinute(models.Model):
         # table, meeting after meeting, until somebody closes it.
         open_agreements = (previous.agreement_ids | previous.followed_agreement_ids).filtered(lambda action: action.state != 'closed')
         self.followed_agreement_ids = [(6, 0, open_agreements.ids)]
+        # One line per agreement to review, keeping what was already written about the ones still there.
+        self.agreement_review_ids -= self.agreement_review_ids.filtered(lambda review: review.action_id not in open_agreements)
+        self.agreement_review_ids = [(0, 0, {'action_id': action.id}) for action in open_agreements - self.agreement_review_ids.action_id]
         pending = previous.pending_topic_ids.filtered(lambda topic: not topic.is_done)
         # Whatever an earlier choice of scope had carried over goes first: changing the department
         # in the form must not leave the other department's topics behind.
@@ -483,6 +501,12 @@ class EmsMinute(models.Model):
         }) for topic in pending]
 
     # --- Call to the meeting ---------------------------------------------------------------------
+
+    @api.model
+    def _ems_centre_lang(self):
+        """The language the centre's own documents are written in - a minute, its call - whatever
+        language whoever produces them works in (see common.SCOPE_CODE_LANG)."""
+        return SCOPE_CODE_LANG if self.env['res.lang']._lang_get(SCOPE_CODE_LANG) else self.env.lang
 
     def _ems_call_values(self):
         """What the call says: when and where, the agenda, and where to read the previous minute."""
@@ -500,26 +524,36 @@ class EmsMinute(models.Model):
         }
 
     def _ems_convener(self):
-        """Who calls the meeting: the person holding, in this minute's own scope, the post that
-        approves it - the department's chief for a department minute, not whoever happens to be
-        writing it. Falls back to the writer when the post has no single holder to name."""
+        """Who calls the meeting: whoever is to approve its minute, which by default is the person
+        answering for the scope that meets (the department's chief for a department minute), not
+        whoever happens to be writing it. The writer when nobody is named."""
         self.ensure_one()
-        role = self.approver_role_id
+        return (self.approver_employee_id or self.redactor_employee_id
+                or self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1))
+
+    def _ems_approver_candidates(self):
+        """The people who answer for the scope that meets, most likely first: a department's chief
+        and its seminar chief, a group's tutor, the director for the whole centre; and, for a scope
+        with nobody of its own (a workgroup), the few holders of the post the type names."""
+        self.ensure_one()
+        people = self.env['hr.employee']
         department = self.department_id.sudo()
-        holder = self.env['hr.employee']
-        if role == self.env.ref('ems.role_dchieff', raise_if_not_found=False):
-            holder = department.manager_id
-        elif role == self.env.ref('ems.role_seminar', raise_if_not_found=False):
-            holder = department.seminar_chief_id
-        elif role == self.env.ref('ems.role_tutor', raise_if_not_found=False):
-            holder = self.group_id.sudo().tutor_id
-        elif role == self.env.ref('ems.role_director', raise_if_not_found=False):
-            holder = self.env.company.sudo().director_id
-        elif role:
-            holders = self.env['hr.employee.public'].search([('role_ids', 'in', role.ids)], limit=2)
-            holder = holders if len(holders) == 1 else holder
-        return self.env['hr.employee.public'].browse(holder.id) if holder else (
-            self.redactor_employee_id or self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1))
+        if department:
+            people = department.manager_id | department.seminar_chief_id
+        elif self.group_id:
+            people = self.group_id.sudo().tutor_id
+        elif self.is_centre:
+            people = self.env.company.sudo().director_id
+        candidates = self.env['hr.employee.public'].browse(people.ids)
+        if not candidates and self.approver_role_id:
+            holders = self.env['hr.employee.public'].search([('role_ids', 'in', self.approver_role_id.ids)], limit=6)
+            candidates = holders if len(holders) <= 5 else candidates
+        return candidates
+
+    @api.depends('type_id', 'department_id', 'workgroup_id', 'group_id', 'is_centre', 'approver_role_id')
+    def _compute_approver_candidate_ids(self):
+        for minute in self:
+            minute.approver_candidate_ids = minute._ems_approver_candidates()
 
     def _ems_google_calendar_url(self):
         """A link that opens Google Calendar with this meeting filled in, for each person to add
@@ -548,6 +582,7 @@ class EmsMinute(models.Model):
         again whenever something changes; a second call says it replaces the first."""
         self.ensure_one()
         self.check_access('write')
+        self = self.with_context(lang=self._ems_centre_lang())
         if self.state == 'approved' or self.type_kind == 'record':
             raise UserError(_("A call can only be sent for a meeting whose minute is not approved yet."))
         if not self.start_datetime:
@@ -665,9 +700,38 @@ class EmsMinute(models.Model):
         self._ems_sync_attendance()
         return True
 
+    def action_start_meeting(self):
+        """From preparing the meeting to holding it: the minute opens for writing."""
+        for minute in self:
+            if minute.state != 'draft' or minute.type_kind == 'record':
+                raise UserError(_("Only a meeting that is still being prepared can be started."))
+            minute.state = 'meeting'
+
+    def action_back_to_meeting(self):
+        for minute in self:
+            if minute.state != 'to_approve':
+                raise UserError(_("Only a minute waiting for approval can go back to the meeting."))
+            minute.state = 'meeting'
+
     def action_submit(self):
         self._ems_sync_attendance()
-        return super().action_submit()
+        held = self.filtered(lambda minute: minute.state == 'meeting')
+        for minute in held:
+            minute._ems_compose_development()
+            minute.state = 'to_approve'
+        return super(EmsMinute, self - held).action_submit()
+
+    def _ems_compose_development(self):
+        """Put the development of the session together from what was written on each item to
+        discuss. Nothing to do for a minute whose development is a text of its own."""
+        self.ensure_one()
+        development = self.section_value_ids.filtered(lambda value: value.kind == 'development' and not value.is_written)
+        items = self.agenda_ids.sorted('sequence')
+        if not development or not any(items.mapped('notes')):
+            return
+        development.content = Markup().join(
+            Markup("<h4>%s. %s</h4>%s") % (position, item.name, item.notes or Markup())
+            for position, item in enumerate(items, start=1))
 
     def _ems_check_can_approve(self):
         self.ensure_one()
@@ -683,9 +747,25 @@ class EmsMinute(models.Model):
         """Record who approved it, on top of what the shared machinery does."""
         employee = self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1)
         for minute in self:
-            minute.approver_employee_id = employee
+            # Who actually approves it, when that is somebody other than the person it was meant for.
+            if employee:
+                minute.approver_employee_id = employee
             minute.approval_date = fields.Date.context_today(minute)
         return super().action_approve()
+
+    @api.model
+    def _ems_people_label(self, people):
+        """Who is responsible, as the minute prints it: their names while they are few, how many
+        they are beyond that (a whole department answering for an agreement is said as a number)."""
+        return ", ".join(people.mapped('name')) if len(people) <= 3 else _("%s people", len(people))
+
+    def action_open_draft_pdf(self):
+        """Show the minute as it stands, before it is approved: the same document the approval
+        will file, rendered on the spot and marked as a draft. Nothing is stored."""
+        self.ensure_one()
+        if self.state == 'approved':
+            return self.action_open_pdf()
+        return {'type': 'ir.actions.act_url', 'url': f"/report/pdf/ems.report_minute/{self.id}", 'target': 'new'}
 
     def action_open_previous_pdf(self):
         self.ensure_one()
@@ -703,3 +783,19 @@ class EmsMinute(models.Model):
     def _compute_display_name(self):
         for minute in self:
             minute.display_name = f"{minute.code} {minute.name}" if minute.code else (minute.name or "")
+
+
+class IrActionsReport(models.Model):
+    _inherit = "ir.actions.report"
+
+    def _ems_in_centre_lang(self, report_ref):
+        """A minute is the centre's document: printed in the centre's language whoever prints it."""
+        if self._get_report(report_ref).report_name == 'ems.report_minute':
+            return self.with_context(lang=self.env['ems.minute']._ems_centre_lang())
+        return self
+
+    def _render_qweb_pdf(self, report_ref, res_ids=None, data=None):
+        return super(IrActionsReport, self._ems_in_centre_lang(report_ref))._render_qweb_pdf(report_ref, res_ids=res_ids, data=data)
+
+    def _render_qweb_html(self, report_ref, docids, data=None):
+        return super(IrActionsReport, self._ems_in_centre_lang(report_ref))._render_qweb_html(report_ref, docids, data=data)

@@ -49,7 +49,7 @@ bueno, del curso actual. Quitando una faceta de la barra de búsqueda veis más.
 
 ## Convocar la reunión
 
-Con el acta en borrador, **Acciones → Enviar la convocatoria** envía un correo a todas las personas
+Mientras el acta no esté aprobada, **Acciones → Enviar la convocatoria** envía un correo a todas las personas
 convocadas (las de la lista de asistentes) con la fecha, la hora, el lugar, la modalidad, el orden del día y
 un enlace al acta de la reunión anterior, para que puedan leerla antes de aprobarla.
 
@@ -57,7 +57,35 @@ Si después cambia cualquier cosa (la fecha, la hora, el lugar o los puntos), **
 la convocatoria** la envía de nuevo, indicando que sustituye a la anterior. La fecha del último envío queda
 en el acta.
 
+## Hacer la reunión y redactar el acta
+
+Cuando empieza la reunión, **Acciones → Empezar la reunión**. El acta pasa al estado **Reunión** y la
+pantalla cambia: ya no hay pestañas, sino los bloques del orden del día, uno debajo de otro, para ir
+rellenándolos a medida que avanza la reunión.
+
+- **Asistencia:** quién ha asistido y quién falta (o el quiosco, si se recoge con el tag NFC).
+- **Aprobación del acta anterior:** abrid su PDF, marcad si se aprueba y anotad las enmiendas.
+- **Seguimiento de los acuerdos:** cada acuerdo que seguía abierto tiene su ficha. Escribid qué se ha dicho,
+  poned una **nueva fecha límite** si hace falta y marcad **Hecho** si se da por cerrado. Lo que escribís
+  queda en el seguimiento del propio acuerdo, y un acuerdo cerrado ya no vuelve a salir en la reunión siguiente.
+- **Puntos a tratar:** cada punto tiene su cuadro de texto, con la barra de formato encima (negrita,
+  subrayado, listas). Escribid `/` para insertar una tabla. Un punto largo se desplaza dentro de su cuadro. **Añadir un punto** añade uno que
+  no estaba previsto.
+- **Ruegos y preguntas:** otro cuadro de texto.
+- **Acuerdos:** cada acuerdo nuevo es una ficha, con el contenido a todo el ancho y, en la cabecera, la
+  fecha límite y los responsables (por defecto, el jefe de departamento y el de seminario).
+- **Temas pendientes:** al final, como lista.
+
+El acta se guarda sola mientras escribís, en las pausas. **Abrir el borrador del acta**, arriba y abajo de
+la pantalla, muestra el PDF tal como quedaría, marcado como borrador, mientras el acta está en reunión o
+pendiente de aprobar. Si hay que volver a cambiar la fecha o los convocados,
+**Acciones → Volver a la preparación**.
+
 ## Aprobar
+
+En **Firmas**, el campo **Visto bueno** indica quién aprobará el acta. Viene propuesto el responsable del
+ámbito que se reúne (el jefe de departamento, el tutor del grupo, la dirección) y el desplegable muestra
+primero a esas personas; se puede elegir a cualquier otra escribiendo su nombre o con **Buscar más**.
 
 Cuando el acta esté lista, **Acciones → Enviar a aprobar**. Quien tenga que dar el visto bueno la encontrará en su
 pantalla con la faceta *Pendientes de que yo apruebe*, y al aprobarla:

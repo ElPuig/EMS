@@ -51,14 +51,41 @@ year. Removing a facet in the search bar shows more.
 
 ## Calling the meeting
 
-While the minute is a draft, **Actions → Send the call** emails everybody convened (the people in the
+While the minute is not approved, **Actions → Send the call** emails everybody convened (the people in the
 attendee list) the date, time, place and modality of the meeting, its agenda and a link to the minute of
 the previous meeting, so they can read it before approving it.
 
 If anything changes afterwards (the date, the time, the place or the items), **Actions → Send the call
 again** sends it once more, saying it replaces the earlier one. The minute keeps the date it was last sent.
 
+## Holding the meeting and writing the minute
+
+When the meeting starts, **Actions → Start the meeting**. The minute moves to the **Meeting** state and
+the screen changes: no more tabs, but the blocks of the agenda one under another, to fill in as the
+meeting goes on.
+
+- **Attendance:** who attended and who is missing (or the kiosk, when it is taken with the NFC tag).
+- **Approval of the previous minute:** open its PDF, mark whether it is approved and note any amendment.
+- **Follow-up of the agreements:** each agreement still open has its card. Write what was said about it, set
+  a **new deadline** if needed and tick **Done** when it is closed. What you write goes to the agreement's
+  own follow-up, and a closed agreement is not brought to the next meeting.
+- **Items to discuss:** each item has its own text box, with the formatting toolbar above it (bold,
+  underline, lists). Type `/` to insert a table. A long item scrolls inside its own box. **Add an item** adds one that was not planned.
+- **Any other business:** another text box.
+- **Agreements:** each new agreement is a card, with its content at full width and, in the header, the
+  deadline and who is responsible (by default, the department's chief and its seminar chief).
+- **Pending topics:** at the end, as a list.
+
+The minute saves itself while you write, in your pauses. **Open the draft of the minute**, at the top and
+at the bottom of the screen, shows the PDF as it would come out, marked as a draft, while the minute is in
+the meeting or waiting for approval. To change the date or the people convened again, **Actions → Back to preparing
+the meeting**.
+
 ## Approving
+
+Under **Signatures**, the **Approved by** field says who will approve the minute. Whoever answers for the
+scope that meets comes proposed (the department's chief, the group's tutor, the director) and the dropdown
+shows those people first; anybody else can be chosen by typing their name or with **Search more**.
 
 When the minute is ready, **Actions → Send for approval**. Whoever gives the approval finds it on their own screen
 under the *Awaiting my approval* facet, and approving it:

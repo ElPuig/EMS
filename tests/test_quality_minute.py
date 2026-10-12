@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from unittest.mock import patch
 
 from odoo import fields
 from odoo.exceptions import UserError
@@ -22,6 +23,11 @@ class TestQualityMinute(TransactionCase):
         cls.employee.work_email = 'minute.writer@example.com'
         # The call to a meeting is a real email: nothing leaves this box from a test.
         cls.mail_transport = mock_outgoing_email(cls)
+        # The call and the PDF are written in the centre's language, which depends on what each
+        # database has installed; the tests read them in the source language.
+        centre_lang = patch.object(type(cls.env['ems.minute']), '_ems_centre_lang', lambda self: 'en_US')
+        centre_lang.start()
+        cls.addClassCleanup(centre_lang.stop)
 
     def _minute(self, **overrides):
         vals = {
@@ -249,6 +255,18 @@ class TestQualityMinute(TransactionCase):
                          [section('previous'), section('agreement_followup'), section('agenda'), section('requests')])
         self.assertFalse(third.agenda_ids, "nothing is added to the items to discuss: they would show twice")
 
+    def test_an_agreement_takes_the_scope_of_its_minute(self):
+        """As the form saves it: only what its card shows, with the minute it belongs to."""
+        chief = create_role_employee(self, create_role_user(self, 'teacher', 'minute.scope.chief@example.com', name='Minute Scope Chief'))
+        self.department.manager_id = chief
+        minute = self._minute()
+        minute.write({'agreement_ids': [(0, 0, {'name': 'Buy the materials'})]})
+        agreement = minute.agreement_ids
+        self.assertEqual(agreement.department_id, self.department)
+        self.assertEqual(agreement.course_id, minute.course_id)
+        self.assertTrue(agreement.code.startswith('ACORD-MINDEP-'), agreement.code)
+        self.assertEqual(agreement.responsible_employee_ids.ids, [chief.id], "and with it, its department's chief as responsible")
+
     def test_an_agreement_stays_on_the_table_until_it_is_closed(self):
         """Carried from the first minute to the second, and from there to the third: it was not
         taken in the second, only followed up, and must not drop out for that."""
@@ -322,8 +340,24 @@ class TestQualityMinute(TransactionCase):
         minute.action_send_call()
         mail = self.env['mail.mail'].sudo().search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)])
         self.assertIn('Minute Department Chief', mail.body_html)
-        self.department.manager_id = False
-        self.assertEqual(minute._ems_convener().id, self.employee.id, "no chief to name: whoever writes it")
+        minute.approver_employee_id = False
+        self.assertEqual(minute._ems_convener().id, self.employee.id, "nobody named to approve it: whoever writes it")
+
+    def test_who_approves_is_proposed_from_the_scope_and_can_be_anybody(self):
+        chief = create_role_employee(self, create_role_user(self, 'teacher', 'minute.approver.chief@example.com', name='Minute Approver Chief'))
+        seminar = create_role_employee(self, create_role_user(self, 'teacher', 'minute.approver.seminar@example.com', name='Minute Approver Seminar'))
+        self.department.write({'manager_id': chief.id, 'seminar_chief_id': seminar.id})
+        minute = self._minute()
+        self.assertEqual(minute.approver_candidate_ids.ids, [chief.id, seminar.id])
+        self.assertEqual(minute.approver_employee_id.id, chief.id, "the department's chief by default")
+        Employee = self.env['hr.employee.public'].with_context(ems_first_ids=minute.approver_candidate_ids.ids)
+        offered = [result[0] for result in Employee.name_search('', limit=8)]
+        self.assertEqual(offered[:2], [chief.id, seminar.id], "the scope's own people come first in the dropdown")
+        self.assertGreater(len(offered), 2, "and everybody else follows, so anybody can still be chosen")
+        self.assertEqual([result[0] for result in Employee.name_search('Minute Approver Seminar')], [seminar.id])
+        minute.approver_employee_id = self.employee.id
+        minute.with_user(self.user).action_start_meeting()
+        self.assertEqual(minute.approver_employee_id.id, self.employee.id, "a choice made by hand is kept")
 
     def test_the_place_names_the_room_with_its_code(self):
         room = self.env['ems.space'].search([], limit=1)
@@ -352,3 +386,73 @@ class TestQualityMinute(TransactionCase):
         with self.assertRaises(UserError):
             minute.action_send_call()
         self.mail_transport.assert_not_called()
+
+    # --- Holding the meeting ---------------------------------------------------------------------
+
+    def test_a_meeting_is_prepared_then_held_then_sent_for_approval(self):
+        minute = self._minute().with_user(self.user)
+        self.assertEqual(minute.state, 'draft')
+        minute.action_start_meeting()
+        self.assertEqual(minute.state, 'meeting')
+        with self.assertRaises(UserError):
+            minute.action_start_meeting()
+        minute.action_back_to_draft()
+        self.assertEqual(minute.state, 'draft')
+        minute.action_start_meeting()
+        minute.action_submit()
+        self.assertEqual(minute.state, 'to_approve')
+        minute.action_back_to_meeting()
+        self.assertEqual(minute.state, 'meeting')
+
+    def test_the_draft_can_be_read_as_a_pdf_before_it_is_approved(self):
+        minute = self._minute(agenda_ids=[(0, 0, {'sequence': 10, 'name': 'Only item', 'notes': '<p>Said about it.</p>'})]).with_user(self.user)
+        minute.action_start_meeting()
+        action = minute.action_open_draft_pdf()
+        self.assertEqual(action['url'], f"/report/pdf/ems.report_minute/{minute.id}")
+        html = self.env['ir.actions.report']._render_qweb_html('ems.action_report_minute', minute.ids)[0].decode()
+        self.assertIn('Draft, not approved yet', html)
+        self.assertIn('Said about it.', html, "what was written on each item is printed, without waiting for the approval to put it together")
+        self.assertEqual(self.env['ems.minute']._ems_people_label(self.env['hr.employee.public'].browse(self.employee.id)), self.employee.name)
+
+    def test_the_development_is_put_together_from_the_items(self):
+        minute = self._minute(agenda_ids=[
+            (0, 0, {'sequence': 20, 'name': 'Second item', 'notes': '<p>Said second.</p>'}),
+            (0, 0, {'sequence': 10, 'name': 'First item', 'notes': '<p>Said <b>first</b>.</p>'}),
+        ])
+        development = minute.section_value_ids.filtered(lambda value: value.kind == 'development')
+        self.assertFalse(development.is_written, "a minute with items does not ask for the development as a text of its own")
+        self.assertTrue(minute.section_value_ids.filtered(lambda value: value.section_id.code == 'PRECS').is_written)
+        minute.action_start_meeting()
+        minute.action_submit()
+        self.assertIn('1. First item', development.content)
+        self.assertIn('<b>first</b>', development.content)
+        self.assertLess(development.content.index('First item'), development.content.index('Second item'))
+        minute.sudo().action_approve()
+        self.assertEqual(minute.state, 'approved', "the development it requires is there")
+
+    def test_reviewing_an_agreement_in_the_minute_follows_it_up(self):
+        """What the meeting says about an open agreement lands in the agreement's own follow-up:
+        the note, a new deadline, and whether it is closed."""
+        first = self._minute()
+        agreement = self.env['ems.quality.action'].create({
+            'name': 'Hand in the plans', 'type': 'agreement', 'course_id': self.course.id,
+            'department_id': self.department.id, 'minute_id': first.id, 'deadline_date': '2026-10-01',
+        })
+        second = self._minute().with_user(self.user)
+        review = second.agreement_review_ids
+        self.assertEqual(review.action_id, agreement)
+        self.assertFalse(agreement.followup_ids, "nothing said yet: the agreement is left as it was")
+        review.write({'note': 'Three are still missing', 'new_deadline_date': '2026-11-15'})
+        self.assertEqual(agreement.followup_ids.description, 'Three are still missing')
+        self.assertEqual(agreement.followup_ids.date, second.date)
+        self.assertEqual(agreement.state, 'in_progress')
+        self.assertEqual(str(agreement.deadline_date), '2026-11-15')
+        review.note = 'All handed in'
+        review.is_closed = True
+        self.assertEqual(len(agreement.followup_ids), 1, "one entry per minute, kept in step with it")
+        self.assertEqual(agreement.followup_ids.description, 'All handed in')
+        self.assertEqual(agreement.state, 'closed')
+        third = self._minute()
+        self.assertFalse(third.agreement_review_ids, "a closed agreement is not brought to the next meeting")
+        review.write({'note': False, 'is_closed': False})
+        self.assertFalse(agreement.followup_ids, "taking back what was written takes the entry back too")

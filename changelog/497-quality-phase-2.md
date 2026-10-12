@@ -22,6 +22,18 @@ Whoever writes the minute decides how attendance is taken. By hand, the preloade
 
 Only the meeting's own items are written, in the tab now called "Items to discuss". The agenda follows from the minute: approving the previous minute when there is one, following up the agreements when some are still open, those items, and any other business. From the draft, "Send the call" emails it to everybody convened together with the date, time and place and a link to the previous minute; it can be sent again whenever something changes, and the second call says it replaces the first. The minute's actions now live in the form's "Actions" dropdown.
 
+## The meeting has a stage of its own, and its minute is written from top to bottom:
+
+Between preparing a meeting and sending its minute for approval there is now the meeting itself. Starting it turns the form into the blocks of the agenda, one under another: attendance, the approval of the previous minute, the open agreements, each item to discuss with a rich-text box of its own, any other business, the new agreements and the pending topics. Each open agreement is reviewed in place (what was said, a new deadline, whether it is done) and that goes into the agreement's own follow-up, so a closed one is not carried to the next meeting. The development of the session is no longer typed as one block: it is put together from what was written on each item.
+
+## A minute that saves itself, and a PDF to read before approving:
+
+While it is being written the minute saves by itself in the writer's pauses, so an hour of meeting no longer hangs on one click. Its PDF can be opened at any moment before approval, marked as a draft. The PDF itself follows the meeting (agenda, approval of the previous minute, follow-up of the agreements, what was said on each item, agreements, pending topics), in a smaller type and with tables kept tight and inside the page whatever was pasted into the texts.
+
+## The minute is approved by a person, and written in the centre's language:
+
+Who approves a minute is now a person rather than a post: whoever answers for the scope that meets comes proposed (a department's chief, a group's tutor, the director), those people come first in the dropdown, and anybody else can be chosen. The same person signs the call. A minute's PDF and its call are always written in the centre's language, whatever language the person producing them works in.
+
 ## One controlled template instead of five:
 
 The per-variant minute templates are replaced by a single controlled document with optional sections. The five it replaces are archived in the document structure, and still resolve for any older minute quoting their code.

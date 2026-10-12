@@ -15,7 +15,7 @@ class EmsQualityAction(models.Model):
     ]
 
     code = fields.Char(string="Code", readonly=True, copy=False, index=True)
-    name = fields.Char(string="Subject", required=True, tracking=True)
+    name = fields.Char(string="Content", required=True, tracking=True)
     description = fields.Html(string="Description")
     # One model for both because they are the same concept - owner, deadline, follow-up, closure -
     # and unifying them is what makes a single "what do I owe and by when" screen possible.
@@ -130,6 +130,15 @@ class EmsQualityAction(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
+            # An agreement taken in a minute belongs to that minute's scope and course. Taken from
+            # the minute itself, not from the form's defaults: the web client only sends back the
+            # fields the agreement's card shows, and the scope is not one of them.
+            minute = self.env['ems.minute'].browse(vals.get('minute_id'))
+            if minute and not any(vals.get(name) for name in ('department_id', 'workgroup_id', 'group_id', 'is_centre')):
+                vals.update({
+                    'department_id': minute.department_id.id, 'workgroup_id': minute.workgroup_id.id,
+                    'group_id': minute.group_id.id, 'is_centre': minute.is_centre, 'course_id': minute.course_id.id,
+                })
             # Same default for an agreement created by code (an import, the minute's own lines):
             # only when nobody was named, neither a post nor a person.
             if (vals.get('type', 'agreement') == 'agreement' and vals.get('department_id')

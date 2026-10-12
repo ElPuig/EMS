@@ -1503,7 +1503,9 @@ msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
 #. module: ems
+#. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_add_student_popup
+#: code:addons/ems/static/src/js/backend/record_cards_field.js:0
 msgid "Add"
 msgstr "Afegir"
 
@@ -2597,6 +2599,8 @@ msgstr "Tancant enquestes"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__code model:ir.model.fields,field_description:ems.field_ems_quality_document__code model:ir.model.fields,field_description:ems.field_ems_quality_procedure__code model:ir.model.fields,field_description:ems.field_ems_quality_process__code
 #: model:ir.model.fields,field_description:ems.field_ems_minute__code model:ir.model.fields,field_description:ems.field_ems_minute_section__code model:ir.model.fields,field_description:ems.field_ems_minute_type__code model:ir.model.fields,field_description:ems.field_ems_signed_record__code model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__code
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Code"
 msgstr "Codi"
 
@@ -2749,6 +2753,7 @@ msgstr "Tipus de contacte"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_subject__content_ids model_terms:ir.ui.view,arch_db:ems.view_notice_form model_terms:ir.ui.view,arch_db:ems.view_subject_form
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__content model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__name
 msgid "Content"
 msgstr "Contingut"
 
@@ -3305,6 +3310,8 @@ msgstr "Documents"
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__is_closed
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Done"
 msgstr "Fet"
 
@@ -3945,6 +3952,8 @@ msgstr "Nom"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_study__follow_ids
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__followup_ids model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__note
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Follow-up"
 msgstr "Seguiment"
 
@@ -4821,6 +4830,7 @@ msgstr "Incidències:"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__name
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Item"
 msgstr "Element"
 
@@ -5296,6 +5306,7 @@ msgstr "Beca ministeri"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.actions.report,name:ems.action_report_minute model:ir.model.fields,field_description:ems.field_ems_minute_agenda__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_member_line__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_section_value__minute_id model:ir.model.fields,field_description:ems.field_ems_quality_action__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__minute_id
 msgid "Minute"
 msgstr "Acta"
 
@@ -5399,7 +5410,7 @@ msgstr "Natiu (després de les hores màximes)"
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Nature"
-msgstr "Natura"
+msgstr "Caràcter"
 
 #. module: ems
 #: model:res.partner.relation.type,name_inverse:ems.relation_type_uncle_aunt
@@ -6523,6 +6534,7 @@ msgstr "Recordant"
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0
 #: code:addons/ems/static/src/js/backend/absence_attachment_field.js:0
+#: code:addons/ems/static/src/js/backend/record_cards_field.js:0
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -7555,7 +7567,6 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__line_id
-#: model:ir.model.fields,field_description:ems.field_ems_quality_action__name
 msgid "Subject"
 msgstr "Assignatura"
 
@@ -10718,6 +10729,7 @@ msgstr "El fitxer csv és buit."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/applicant_import_wizard.py:0
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Yes"
 msgstr "Sí"
 
@@ -17813,6 +17825,7 @@ msgstr "Carrega les persones convocades"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__name model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__presence_id
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute__state__meeting
 msgid "Meeting"
 msgstr "Reunió"
 
@@ -17880,6 +17893,7 @@ msgstr "Passeu la targeta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__line_ids model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "People"
 msgstr "Persones"
 
@@ -19959,6 +19973,7 @@ msgstr "Accions i acords"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__agreement
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__action_id
 msgid "Agreement"
 msgstr "Acord"
 
@@ -20033,6 +20048,8 @@ msgstr "Correctives i preventives"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__deadline_date
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__deadline_date
 msgid "Deadline"
 msgstr "Data limit"
 
@@ -20207,6 +20224,7 @@ msgstr "Responsabilitat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__responsible_employee_ids
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__responsible_employee_ids
 msgid "Responsible people"
 msgstr "Persones responsables"
 
@@ -20643,6 +20661,8 @@ msgstr "Ja hi ha una altra secció amb aquest codi."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__previous_approval
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Approval of the previous minute"
 msgstr "Aprovació de l'acta anterior"
 
@@ -20934,6 +20954,7 @@ msgstr "Obligatòria"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Responsible"
 msgstr "Responsable"
 
@@ -23428,3 +23449,183 @@ msgstr "Convoca:"
 #: model_terms:ir.ui.view,arch_db:ems.minute_call_email
 msgid "Add this meeting to my Google Calendar"
 msgstr "Afegeix aquesta reunió al meu Google Calendar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Start the meeting"
+msgstr "Comença la reunió"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Back to preparing the meeting"
+msgstr "Torna a la preparació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Back to the meeting"
+msgstr "Torna a la reunió"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Follow-up of the agreements"
+msgstr "Seguiment dels acords"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Amendments, or why it was not approved"
+msgstr "Esmenes, o per què no s'ha aprovat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "What was said about it"
+msgstr "Què se n'ha dit"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "What is said about this item"
+msgstr "Què es diu sobre aquest punt"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__agreement_review_ids
+msgid "Agreements reviewed"
+msgstr "Acords revisats"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__new_deadline_date
+msgid "New deadline"
+msgstr "Nova data límit"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_agreement_review__new_deadline_date
+msgid "Set it to move the agreement's deadline."
+msgstr "Informeu-la per canviar la data límit de l'acord."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_agreement_review__note
+msgid "What the meeting said about the agreement. It is added to the agreement's own follow-up."
+msgstr "Què s'ha dit de l'acord a la reunió. S'afegeix al seguiment del mateix acord."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_agreement_review__is_closed
+msgid "The meeting considers the agreement done."
+msgstr "La reunió dona l'acord per fet."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__followup_id
+msgid "Follow-up entry"
+msgstr "Entrada de seguiment"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__is_written
+msgid "Written during the meeting"
+msgstr "S'escriu durant la reunió"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_section_value__is_written
+msgid "The section is a text of its own, written in the meeting. The development of the session is, unless the minute has items to discuss: then it is put together from what was said on each."
+msgstr "La secció és un text propi, que s'escriu a la reunió. El desenvolupament de la sessió ho és, tret que l'acta tingui punts a tractar: aleshores es forma amb el que s'ha dit de cada un."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section__kind__development
+#: model:ir.model.fields.selection,name:ems.selection__ems_minute_section_value__kind__development
+msgid "Development of the session"
+msgstr "Desenvolupament de la sessió"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute_line.py:0
+msgid "Reviewed in the meeting %s."
+msgstr "Revisat a la reunió %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Only a meeting that is still being prepared can be started."
+msgstr "Només es pot començar una reunió que encara s'està preparant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Only a minute waiting for approval can go back to the meeting."
+msgstr "Només pot tornar a la reunió una acta pendent d'aprovar."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/text_blocks_field.js:0
+msgid "Add an item"
+msgstr "Afegeix un punt"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/text_blocks_field.js:0
+msgid "Remove this item"
+msgstr "Treu aquest punt"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__name
+msgid "What was agreed"
+msgstr "Què es va acordar"
+
+#. module: ems
+#. odoo-python
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/people_summary_field.js:0
+#: code:addons/ems/models/quality/minute.py:0
+msgid "%s people"
+msgstr "%s persones"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Content of the agreement"
+msgstr "Contingut de l'acord"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "or"
+msgstr "o"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "When, in words"
+msgstr "Quan, amb paraules"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Post"
+msgstr "Càrrec"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "What is agreed"
+msgstr "Què s'acorda"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Open the draft of the minute"
+msgstr "Obre l'esborrany de l'acta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Draft, not approved yet"
+msgstr "Esborrany, pendent d'aprovació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Items discussed"
+msgstr "Punts tractats"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "No"
+msgstr "No"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_candidate_ids
+msgid "Who usually approves it"
+msgstr "Qui sol donar el vistiplau"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__approver_candidate_ids
+msgid "The people who answer for the scope that meets: they come first when choosing who approves the minute."
+msgstr "Les persones responsables de l'àmbit que es reuneix: surten primeres en triar qui dona el vistiplau a l'acta."

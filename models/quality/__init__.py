@@ -13,3 +13,4 @@ from . import followup
 from . import minute_type
 from . import minute
 from . import minute_line
+from . import employee_public

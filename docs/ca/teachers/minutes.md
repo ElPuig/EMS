@@ -49,7 +49,7 @@ curs actual. Traient una faceta de la barra de cerca veieu més.
 
 ## Convocar la reunió
 
-Amb l'acta en esborrany, **Accions → Envia la convocatòria** envia un correu a totes les persones
+Mentre l'acta no estigui aprovada, **Accions → Envia la convocatòria** envia un correu a totes les persones
 convocades (les de la llista d'assistents) amb la data, l'hora, el lloc, la modalitat, l'ordre del dia i un
 enllaç a l'acta de la reunió anterior, perquè la puguin llegir abans d'aprovar-la.
 
@@ -57,7 +57,35 @@ Si després canvia qualsevol cosa (la data, l'hora, el lloc o els punts), **Acci
 convocatòria** l'envia de nou, indicant que substitueix l'anterior. La data del darrer enviament queda a
 l'acta.
 
+## Fer la reunió i redactar l'acta
+
+Quan comença la reunió, **Accions → Comença la reunió**. L'acta passa a l'estat **Reunió** i la pantalla
+canvia: ja no hi ha pestanyes, sinó els blocs de l'ordre del dia, un sota l'altre, per anar-los omplint a
+mesura que avança la reunió.
+
+- **Assistència:** qui hi ha assistit i qui hi manca (o el quiosc, si es recull amb el tag NFC).
+- **Aprovació de l'acta anterior:** obriu-ne el PDF, marqueu si s'aprova i anoteu-hi les esmenes.
+- **Seguiment dels acords:** cada acord que seguia obert té la seva fitxa. Escriviu-hi què se n'ha dit, poseu
+  una **nova data límit** si cal i marqueu **Fet** si es dona per tancat. El que hi escriviu queda al
+  seguiment del mateix acord, i un acord tancat ja no torna a sortir a la reunió següent.
+- **Punts a tractar:** cada punt té el seu quadre de text, amb la barra de format a sobre (negreta,
+  subratllat, llistes). Escriviu `/` per inserir una taula. Un punt llarg es desplaça dins del seu quadre. **Afegeix un punt** n'afegeix un que no
+  estava previst.
+- **Precs i preguntes:** un altre quadre de text.
+- **Acords:** cada acord nou és una fitxa, amb el contingut a tota l'amplada i, a la capçalera, la data
+  límit i els responsables (per defecte, el cap de departament i el de seminari).
+- **Temes pendents:** al final, com a llista.
+
+L'acta es desa sola mentre escriviu, a les pauses. **Obre l'esborrany de l'acta**, a dalt i a baix de la
+pantalla, mostra el PDF tal com quedaria, marcat com a esborrany, mentre l'acta és en reunió o pendent
+d'aprovar. Si cal tornar a canviar la data o els convocats, **Accions → Torna
+a la preparació**.
+
 ## Aprovar
+
+A **Signatures**, el camp **Vistiplau** indica qui aprovarà l'acta. Ve proposat el responsable de l'àmbit que es
+reuneix (el cap de departament, el tutor del grup, la direcció) i el desplegable mostra primer aquestes
+persones; es pot triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
 
 Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Qui hagi de donar el vistiplau la trobarà a la seva
 pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:

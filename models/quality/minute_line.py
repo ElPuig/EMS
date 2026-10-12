@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 
 class EmsMinuteAgenda(models.Model):
@@ -26,6 +26,18 @@ class EmsMinuteSectionValue(models.Model):
     name = fields.Char(string="Name", related="section_id.name")
     content = fields.Html(string="Content")
     required = fields.Boolean(string="Required", compute="_compute_required", store=True)
+    is_written = fields.Boolean(
+        string="Written during the meeting",
+        compute="_compute_is_written",
+        help="The section is a text of its own, written in the meeting. The development of the session is, "
+             "unless the minute has items to discuss: then it is put together from what was said on each.",
+    )
+
+    @api.depends('kind', 'minute_id.type_id')
+    def _compute_is_written(self):
+        for value in self:
+            has_items = 'agenda' in value.minute_id.type_id.section_ids.mapped('section_id.kind')
+            value.is_written = value.kind == 'text' or (value.kind == 'development' and not has_items)
 
     @api.depends('minute_id.type_id', 'section_id')
     def _compute_required(self):
@@ -44,6 +56,64 @@ class EmsMinutePendingTopic(models.Model):
     name = fields.Char(string="Topic", required=True)
     is_done = fields.Boolean(string="Dealt with", help="Unticked topics are carried into the next minute of the same scope.")
     carried_from_minute_id = fields.Many2one(string="Carried from", comodel_name="ems.minute", ondelete='set null', readonly=True)
+
+
+class EmsMinuteAgreementReview(models.Model):
+    """One agreement still open, as this meeting reviews it. What is written here becomes an
+    entry in the agreement's own follow-up, so its history stays in one place and the next
+    meeting finds it up to date."""
+
+    _name = "ems.minute.agreement.review"
+    _description = "Review of an open agreement in a minute: what was said, a new deadline, whether it is closed."
+    _order = "minute_id, action_id"
+    _sql_constraints = [
+        ('unique_action', 'unique (minute_id, action_id)', "This agreement is already reviewed in this minute."),
+    ]
+
+    minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade')
+    action_id = fields.Many2one(string="Agreement", comodel_name="ems.quality.action", required=True, ondelete='cascade')
+    code = fields.Char(string="Code", related="action_id.code")
+    name = fields.Char(string="What was agreed", related="action_id.name")
+    responsible_employee_ids = fields.Many2many(string="Responsible people", related="action_id.responsible_employee_ids")
+    deadline_date = fields.Date(string="Deadline", related="action_id.deadline_date")
+    new_deadline_date = fields.Date(string="New deadline", help="Set it to move the agreement's deadline.")
+    note = fields.Text(string="Follow-up", help="What the meeting said about the agreement. It is added to the agreement's own follow-up.")
+    is_closed = fields.Boolean(string="Done", help="The meeting considers the agreement done.")
+    followup_id = fields.Many2one(string="Follow-up entry", comodel_name="ems.quality.followup", ondelete='set null', readonly=True, copy=False)
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        reviews = super().create(vals_list)
+        reviews._ems_push_to_agreement()
+        return reviews
+
+    def write(self, vals):
+        result = super().write(vals)
+        if {'note', 'is_closed', 'new_deadline_date'} & set(vals):
+            self._ems_push_to_agreement()
+        return result
+
+    def _ems_push_to_agreement(self):
+        """Carry the review over to the agreement: one follow-up entry per minute, kept in step
+        with what the minute says, and the new deadline when one was set. With sudo: whoever
+        writes the minute reviews the agreements it follows, whoever they belong to."""
+        for review in self.sudo():
+            if review.new_deadline_date and review.new_deadline_date != review.action_id.deadline_date:
+                review.action_id.deadline_date = review.new_deadline_date
+            if not (review.note or review.is_closed):
+                review.followup_id.unlink()
+                continue
+            vals = {
+                'action_id': review.action_id.id,
+                'date': review.minute_id.date,
+                'state': 'closed' if review.is_closed else 'in_progress',
+                'description': review.note or _("Reviewed in the meeting %s.", review.minute_id.code or review.minute_id.name),
+                'author_employee_id': review.minute_id.redactor_employee_id.id,
+            }
+            if review.followup_id:
+                review.followup_id.write(vals)
+            else:
+                review.followup_id = self.env['ems.quality.followup'].sudo().create(vals)
 
 
 class EmsMinuteMemberLine(models.Model):

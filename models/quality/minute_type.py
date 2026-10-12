@@ -7,6 +7,7 @@ from odoo import api, fields, models
 # table whose columns EMS can preload from data it already holds.
 SECTION_KINDS = [
     ('text', "Free text"),
+    ('development', "Development of the session"),
     ('agenda', "Agenda"),
     ('previous_approval', "Approval of the previous minute"),
     ('agreement_followup', "Follow-up of earlier agreements"),

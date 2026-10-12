@@ -3,7 +3,143 @@
    lists ask for the room it needs; the same !important is what it takes to win over that rule. */
 .o_ems_long_code_list th.o_column_sortable[data-name="code"],
 .o_field_widget[name="agreement_ids"] th.o_column_sortable[data-name="code"],
-.o_field_widget[name="followed_agreement_ids"] th.o_column_sortable[data-name="code"] {
+.o_field_widget[name="followed_agreement_ids"] th.o_column_sortable[data-name="code"],
+.o_field_widget[name="agreement_review_ids"] th.o_column_sortable[data-name="code"] {
     width: 190px !important;
     max-width: 190px !important;
+}
+
+/* A minute written from top to bottom. Every part of the agenda is a framed block with a marked
+   header, and inside it every item is a card of its own (header + what belongs to it), so the
+   screen reads as separate pieces rather than as one long page. */
+.o_ems_minute_block {
+    margin-top: 1.5rem;
+    border: 1px solid #c9ced6;
+    border-radius: 0.35rem;
+    background: var(--o-view-background-color, #fff);
+    padding: 0 0.9rem 0.25rem 0.9rem;
+}
+.o_ems_minute_block > h3 {
+    /* Out to the block's edges, over its side padding. */
+    margin: 0 -0.9rem 0.9rem -0.9rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    background: #e4e7ec;
+    border-bottom: 1px solid #c9ced6;
+    border-radius: 0.35rem 0.35rem 0 0;
+}
+/* The block of free texts has no header of its own: its cards are its content. */
+.o_ems_minute_block[name="block_texts"] {
+    border: none;
+    padding: 0;
+}
+.o_ems_text_block {
+    margin-bottom: 0.9rem;
+    border: 1px solid var(--o-border-color, #dee2e6);
+    border-radius: 0.25rem;
+}
+.o_ems_minute_block[name="block_texts"] .o_ems_text_block {
+    border-color: #c9ced6;
+}
+.o_ems_text_block_title {
+    font-weight: 600;
+    margin: 0;
+    padding: 0.4rem 0.75rem;
+    background: var(--o-view-background-color-alt, #f8f9fa);
+    border-bottom: 1px solid var(--o-border-color, #dee2e6);
+    border-radius: 0.25rem 0.25rem 0 0;
+}
+.o_ems_minute_block[name="block_texts"] .o_ems_text_block_title {
+    background: #e4e7ec;
+    font-size: 1.1rem;
+    padding: 0.55rem 0.9rem;
+}
+.o_ems_text_block_title .o_field_widget {
+    font-weight: 600;
+}
+/* Full width: a field is as wide as its content unless it sits in a form group. */
+.o_form_view .o_field_widget.o_field_ems_text_blocks,
+.o_form_view .o_ems_text_blocks .o_field_widget.o_ems_text_block_body {
+    display: block;
+    width: 100%;
+}
+.o_ems_text_block_body {
+    padding: 0.5rem 0.75rem;
+    min-height: 6rem;
+}
+/* The editor's toolbar, fixed above each text instead of floating over a selection. */
+.o_ems_text_block_body .o-we-toolbar {
+    position: static;
+    box-shadow: none !important;
+    border-bottom: 1px solid var(--o-border-color, #dee2e6);
+    margin: -0.5rem -0.75rem 0.5rem -0.75rem;
+    border-radius: 0.25rem 0.25rem 0 0;
+    width: auto;
+}
+.o_ems_text_block_title input {
+    font-weight: 600;
+}
+.o_field_widget[name="agreement_review_ids"] th.o_column_sortable[data-name="code"] {
+    width: 215px !important;
+    max-width: 215px !important;
+}
+
+/* A long item scrolls inside its own box, so its toolbar and the rest of the minute stay in sight. */
+.o_ems_text_block_body .odoo-editor-editable {
+    max-height: 55vh;
+    overflow-y: auto;
+}
+/* Compact tables in a minute's texts: a row is as tall as its text, no more. */
+/* !important and height: a table pasted from a text processor brings its own paddings, row
+   heights and paragraph spacing inline. */
+.o_ems_text_block_body table tr,
+.o_ems_text_block_body table td,
+.o_ems_text_block_body table th {
+    height: auto !important;
+}
+.o_ems_text_block_body table td,
+.o_ems_text_block_body table th {
+    padding: 0.15rem 0.5rem !important;
+}
+.o_ems_text_block_body table td p,
+.o_ems_text_block_body table th p {
+    margin: 0 !important;
+    line-height: 1.35 !important;
+}
+
+/* Agreements as cards: the brief facts in a header line, the text underneath at full width. */
+.o_ems_record_card {
+    border: 1px solid var(--o-border-color, #dee2e6);
+    border-radius: 0.25rem;
+    margin-bottom: 0.9rem;
+}
+.o_ems_record_card_header {
+    background: var(--o-view-background-color-alt, #f8f9fa);
+    border-bottom: 1px solid var(--o-border-color, #dee2e6);
+    padding: 0.4rem 0.75rem;
+    column-gap: 1.5rem;
+    row-gap: 0.25rem;
+}
+.o_ems_record_card_label {
+    color: var(--o-text-muted, #6c757d);
+    font-size: 0.85em;
+    white-space: nowrap;
+}
+.o_ems_record_card_cell[data-name="code"] .o_field_widget {
+    font-weight: 600;
+}
+.o_ems_record_card_cell[data-name="code"] .o_ems_record_card_label {
+    display: none;
+}
+.o_ems_record_card_body {
+    padding: 0.5rem 0.75rem;
+}
+.o_form_view .o_ems_record_card_body .o_field_widget {
+    display: block;
+    width: 100%;
+}
+.o_form_view .o_field_widget.o_field_ems_record_cards {
+    display: block;
+    width: 100%;
 }

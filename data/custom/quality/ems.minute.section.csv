@@ -2,7 +2,7 @@ id,code,name,kind,help_text,in_agenda
 __import__.minute_section_previous,PREV,Aprovació de l'acta anterior,previous_approval,,1
 __import__.minute_section_agreement_followup,SEGAC,Seguiment dels acords,agreement_followup,Reviseu aquí els acords que havien quedat oberts; la llista es precarrega de l'acta anterior.,1
 __import__.minute_section_agenda,ODJ,Punts a tractar,agenda,,1
-__import__.minute_section_development,DESEN,Desenvolupament de la sessió,text,Què es va tractar a cada punt de l'ordre del dia.,0
+__import__.minute_section_development,DESEN,Desenvolupament de la sessió,development,Què es va tractar a cada punt de l'ordre del dia.,0
 __import__.minute_section_requests,PRECS,Precs i preguntes,text,,1
 __import__.minute_section_agreements,ACORDS,Acords,agreements,,0
 __import__.minute_section_pending,PEND,Temes pendents,pending_topics,Tot el que quedi sense marcar es trasllada a l'acta següent del mateix àmbit.,0

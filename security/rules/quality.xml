@@ -12,7 +12,8 @@
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">['|', '|', '|', '|', '|',
+            <field name="domain_force">['|', '|', '|', '|', '|', '|',
+                ('approver_employee_id.user_id', '=', user.id),
                 ('is_centre', '=', True),
                 ('redactor_employee_id.user_id', '=', user.id),
                 ('attendee_ids.user_id', '=', user.id),
@@ -31,7 +32,8 @@
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">[('state', '!=', 'approved'), '|', '|',
+            <field name="domain_force">[('state', '!=', 'approved'), '|', '|', '|',
+                ('approver_employee_id.user_id', '=', user.id),
                 ('redactor_employee_id.user_id', '=', user.id),
                 ('approver_role_id.employee_ids.user_id', '=', user.id),
                 ('redactor_employee_id', '=', False)]</field>

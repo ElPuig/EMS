@@ -63,17 +63,6 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             run: "click",
         },
         {
-            trigger: ".o_notebook .nav-link:contains('Content'), .o_notebook .nav-item:nth-child(5) .nav-link",
-            content: "The sections tab is there",
-            run: "click",
-        },
-        {
-            // If the type declared sections, the minute must already have rows here: an empty
-            // table means the layout never got built, which is the point of this step.
-            trigger: ".o_field_x2many .o_data_row",
-            content: "The sections of this type are already laid out",
-        },
-        {
             trigger: ".o_form_button_save",
             content: "Save",
             run: "click",
@@ -91,8 +80,89 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: "button[name='action_open_attendance_kiosk']",
             content: "The kiosk of the meeting is ready to be opened",
         },
-        ...checkActions({ offered: ["action_send_call", "action_submit"], notOffered: ["action_approve"] },
-            "A draft offers to send the call and to send the minute for approval"),
+        ...checkActions({ offered: ["action_send_call", "action_start_meeting"], notOffered: ["action_submit", "action_approve"] },
+            "While it is prepared, a meeting offers to send its call and to start"),
+        ...clickAction("action_start_meeting", "Start the meeting"),
+        {
+            // The type lays the minute out: its text sections are there, each with its own box
+            // (the section names are the centre's own data, the same in every language).
+            trigger: ".o_ems_text_block_title:contains('Precs i preguntes')",
+            content: "The sections of this type are laid out",
+        },
+        {
+            // The minute is now written from top to bottom: no tabs, one block after another.
+            trigger: ".o_form_view:not(:has(.o_notebook)) .o_ems_text_block_add",
+            content: "Add an item to discuss",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_text_block .o_ems_text_block_title .o_field_widget[name='name'] input",
+            content: "Name the item",
+            run: "edit Budget for the workshop",
+        },
+        {
+            trigger: ".o_ems_text_block:has(.o_field_widget[name='name']) .o_ems_text_block_body .odoo-editor-editable",
+            content: "Write what is said about it, in its own box",
+            run: "editor The department agrees on the list of materials.",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_saved .o_ems_text_block .o_ems_text_block_body:contains('The department agrees on the list of materials.')",
+            content: "What was written on the item is kept",
+        },
+        {
+            trigger: ".o_ems_text_block_body .o-we-toolbar",
+            content: "Each box has its formatting toolbar in sight",
+        },
+        {
+            // A saved item is as editable as a new one: every box stays open for writing.
+            trigger: ".o_ems_text_block:has(.o_field_widget[name='name']) .o_ems_text_block_body .odoo-editor-editable",
+            content: "Go on writing on the item already saved",
+            run: "editor Two quotes will be asked for.",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save again",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_saved .o_ems_text_block .o_ems_text_block_body:contains('Two quotes will be asked for.')",
+            content: "The change to the saved item is kept too",
+        },
+        {
+            trigger: ".o_ems_text_block:has(.o_ems_text_block_title:contains('Precs i preguntes')) .odoo-editor-editable",
+            content: "Write something and leave it there, without saving",
+            run: "editor Nobody asks anything.",
+        },
+        {
+            // Nobody clicked Save: the form did, in the writer's pause.
+            trigger: ".o_form_saved .o_ems_text_block:contains('Nobody asks anything.')",
+            content: "The minute saved itself",
+            timeout: 40000,
+        },
+        {
+            trigger: ".o_field_widget[name='agreement_ids'] .o_ems_record_card_add",
+            content: "Add an agreement, which is a card of its own",
+            run: "click",
+        },
+        {
+            trigger: ".o_field_widget[name='agreement_ids'] .o_ems_record_card_body[data-name='name'] textarea",
+            content: "Write what is agreed, at full width",
+            run: "edit Buy the materials for the workshop",
+        },
+        {
+            trigger: ".o_form_button_save",
+            content: "Save the agreement",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_saved .o_field_widget[name='agreement_ids'] .o_ems_record_card_cell[data-name='code']:contains('ACORD-000DEP-')",
+            content: "The agreement got its code",
+        },
         ...clickAction("action_submit", "Send it for approval"),
         {
             trigger: ".o_statusbar_status .o_arrow_button_current",

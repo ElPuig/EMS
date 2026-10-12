@@ -17,16 +17,39 @@
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="doc">
                     <t t-call="web.external_layout">
-                        <div class="page">
-                            <h2 t-out="doc.name"/>
-                            <p class="text-muted" t-out="doc.code"/>
+                        <div class="page o_ems_minute">
+                            <!-- A minute is read on paper and filed: small type, tight tables, and
+                                 nothing wider than the sheet whatever was pasted into its texts. -->
+                            <style>
+                                .o_ems_minute { font-size: 9.5pt; line-height: 1.3; }
+                                .o_ems_minute h2 { font-size: 14pt; margin: 0 0 2pt 0; }
+                                .o_ems_minute h4 { font-size: 10.5pt; font-weight: bold; margin: 11pt 0 4pt 0; padding-bottom: 2pt; border-bottom: 1px solid #999; }
+                                .o_ems_minute h5 { font-size: 9.5pt; font-weight: bold; margin: 7pt 0 2pt 0; }
+                                .o_ems_minute p { margin: 0 0 4pt 0; }
+                                .o_ems_minute ol, .o_ems_minute ul { margin: 0 0 4pt 0; padding-left: 16pt; }
+                                .o_ems_minute table { width: 100% !important; max-width: 100% !important; border-collapse: collapse; margin: 3pt 0 6pt 0; font-size: 8.5pt; }
+                                .o_ems_minute table tr { height: auto !important; page-break-inside: avoid; }
+                                .o_ems_minute table td, .o_ems_minute table th { width: auto !important; height: auto !important; padding: 1.5pt 4pt !important; border: 1px solid #bbb; vertical-align: top; word-wrap: break-word; }
+                                .o_ems_minute table td p, .o_ems_minute table th p { margin: 0 !important; line-height: 1.25 !important; }
+                                .o_ems_minute table.o_ems_minute_facts td, .o_ems_minute table.o_ems_minute_facts th { border: none; padding: 1pt 8pt 1pt 0 !important; }
+                                .o_ems_minute table.o_ems_minute_facts th { white-space: nowrap; color: #555; font-weight: normal; width: 1% !important; }
+                                .o_ems_minute table.o_ems_minute_signatures td { border: none; width: 50% !important; padding-top: 14pt !important; }
+                                .o_ems_minute a { word-wrap: break-word; word-break: break-all; }
+                                .o_ems_minute img { max-width: 100% !important; height: auto !important; }
+                                .o_ems_minute .o_ems_minute_draft { border: 1px solid #b00; color: #b00; font-weight: bold; padding: 2pt 6pt; margin-bottom: 6pt; display: inline-block; }
+                                .o_ems_minute .o_ems_minute_muted { color: #555; }
+                            </style>
 
-                            <table class="table table-sm o_main_table">
+                            <div t-if="doc.state != 'approved'" class="o_ems_minute_draft">Draft, not approved yet</div>
+                            <h2 t-out="doc.name"/>
+                            <p class="o_ems_minute_muted" t-out="doc.code"/>
+
+                            <table class="o_ems_minute_facts">
                                 <tr>
-                                    <th>Date</th><td t-out="doc.date"/>
+                                    <th>Date</th><td t-out="doc.date" t-options="{'widget': 'date'}"/>
                                     <th>Time</th><td t-out="doc.time or ''"/>
                                 </tr>
-                                <tr>
+                                <tr t-if="doc.type_kind != 'record'">
                                     <th>Nature</th><td t-out="dict(doc._fields['nature']._description_selection(doc.env)).get(doc.nature)"/>
                                     <th>Modality</th><td t-out="dict(doc._fields['modality']._description_selection(doc.env)).get(doc.modality)"/>
                                 </tr>
@@ -36,16 +59,16 @@
                                 </tr>
                             </table>
 
-                            <t t-if="doc.attendee_ids">
+                            <t t-if="doc.type_kind != 'record'">
                                 <h4>Attendees</h4>
                                 <p t-out="', '.join(doc.attendee_ids.mapped('name'))"/>
-                            </t>
-                            <t t-if="doc.absentee_ids">
-                                <h4>Absentees</h4>
-                                <p>
-                                    <span t-out="', '.join(doc.absentee_ids.mapped('name'))"/>
-                                    <span t-if="doc.absence_notes"> (<span t-out="doc.absence_notes"/>)</span>
-                                </p>
+                                <t t-if="doc.absentee_ids">
+                                    <h4>Absentees</h4>
+                                    <p>
+                                        <span t-out="', '.join(doc.absentee_ids.mapped('name'))"/>
+                                        <span t-if="doc.absence_notes"> (<span t-out="doc.absence_notes"/>)</span>
+                                    </p>
+                                </t>
                             </t>
 
                             <t t-if="doc.agenda_html">
@@ -53,8 +76,44 @@
                                 <div t-out="doc.agenda_html"/>
                             </t>
 
-                            <t t-foreach="doc.section_value_ids" t-as="section">
-                                <t t-if="section.content">
+                            <t t-if="doc.previous_minute_id">
+                                <h4>Approval of the previous minute</h4>
+                                <p>
+                                    <span t-out="doc.previous_minute_id.display_name"/>:
+                                    <strong t-out="dict(doc._fields['previous_approved']._description_selection(doc.env)).get(doc.previous_approved)"/>
+                                </p>
+                                <p t-if="doc.previous_approval_notes" t-out="doc.previous_approval_notes"/>
+                            </t>
+
+                            <t t-if="doc.agreement_review_ids">
+                                <h4>Follow-up of the agreements</h4>
+                                <table>
+                                    <thead><tr><th>Code</th><th>Agreement</th><th>Follow-up</th><th>Deadline</th><th>Done</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.agreement_review_ids" t-as="review">
+                                            <td style="white-space: nowrap;" t-out="review.code"/>
+                                            <td t-out="review.name"/>
+                                            <td t-out="review.note or ''"/>
+                                            <td style="white-space: nowrap;"><span t-if="review.deadline_date" t-out="review.deadline_date" t-options="{'widget': 'date'}"/></td>
+                                            <td><t t-if="review.is_closed">Yes</t><t t-else="">No</t></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <!-- What was said: item by item when the minute has items to discuss, and
+                                 otherwise the development written as a text of its own (below). -->
+                            <t t-set="items" t-value="doc.agenda_ids.sorted('sequence')"/>
+                            <t t-if="items">
+                                <h4>Items discussed</h4>
+                                <t t-foreach="items" t-as="item">
+                                    <h5><t t-out="item_index + 1"/>. <t t-out="item.name"/></h5>
+                                    <div t-if="item.notes" t-out="item.notes"/>
+                                </t>
+                            </t>
+
+                            <t t-foreach="doc.section_value_ids.sorted('sequence')" t-as="section">
+                                <t t-if="section.is_written and section.content">
                                     <h4 t-out="section.name"/>
                                     <div t-out="section.content"/>
                                 </t>
@@ -62,7 +121,7 @@
 
                             <t t-if="doc.member_line_ids">
                                 <h4>Team members</h4>
-                                <table class="table table-sm">
+                                <table>
                                     <thead>
                                         <tr>
                                             <th>Name</th>
@@ -84,7 +143,7 @@
 
                             <t t-if="doc.objective_line_ids">
                                 <h4>Objectives and indicators</h4>
-                                <table class="table table-sm">
+                                <table>
                                     <thead><tr><th>Objective</th><th>Indicator</th><th>Acceptance</th><th>Target</th></tr></thead>
                                     <tbody>
                                         <tr t-foreach="doc.objective_line_ids" t-as="objective">
@@ -97,42 +156,34 @@
                                 </table>
                             </t>
 
-                            <t t-if="doc.followed_agreement_ids">
-                                <h4>Follow-up of earlier agreements</h4>
-                                <table class="table table-sm">
-                                    <thead><tr><th>Code</th><th>Agreement</th><th>State</th></tr></thead>
-                                    <tbody>
-                                        <tr t-foreach="doc.followed_agreement_ids" t-as="followed">
-                                            <td t-out="followed.code"/>
-                                            <td t-out="followed.name"/>
-                                            <td t-out="dict(followed._fields['state']._description_selection(followed.env)).get(followed.state)"/>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </t>
-
                             <t t-if="doc.agreement_ids">
                                 <h4>Agreements</h4>
-                                <table class="table table-sm">
+                                <table>
                                     <thead><tr><th>Code</th><th>Agreement</th><th>Responsible</th><th>Deadline</th></tr></thead>
                                     <tbody>
                                         <tr t-foreach="doc.agreement_ids" t-as="agreement">
-                                            <td t-out="agreement.code"/>
+                                            <t t-set="people" t-value="agreement.responsible_employee_ids"/>
+                                            <td style="white-space: nowrap;" t-out="agreement.code"/>
                                             <td t-out="agreement.name"/>
                                             <td>
-                                                <span t-out="agreement.responsible_role_id.name or ''"/>
-                                                <span t-if="agreement.responsible_employee_ids"> (<span t-out="', '.join(agreement.responsible_employee_ids.mapped('name'))"/>)</span>
+                                                <span t-out="agreement.responsible_role_id.name or ''"/><span t-if="agreement.responsible_role_id and people">, </span>
+                                                <!-- A whole department is said as a number, as on screen. -->
+                                                <span t-out="doc._ems_people_label(people)"/>
                                             </td>
-                                            <td t-out="agreement.deadline_date or agreement.deadline_text or ''"/>
+                                            <td style="white-space: nowrap;">
+                                                <span t-if="agreement.deadline_date" t-out="agreement.deadline_date" t-options="{'widget': 'date'}"/>
+                                                <span t-else="" t-out="agreement.deadline_text or ''"/>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </t>
 
-                            <t t-if="doc.pending_topic_ids.filtered(lambda topic: not topic.is_done)">
+                            <t t-set="pending" t-value="doc.pending_topic_ids.filtered(lambda topic: not topic.is_done)"/>
+                            <t t-if="pending">
                                 <h4>Pending topics</h4>
                                 <ul>
-                                    <li t-foreach="doc.pending_topic_ids.filtered(lambda topic: not topic.is_done)" t-as="topic" t-out="topic.name"/>
+                                    <li t-foreach="pending" t-as="topic" t-out="topic.name"/>
                                 </ul>
                             </t>
 
@@ -145,7 +196,7 @@
                                 </ul>
                             </t>
 
-                            <table class="table table-sm mt-4">
+                            <table class="o_ems_minute_signatures">
                                 <tr>
                                     <td>
                                         <strong>Written by</strong><br/>
@@ -156,14 +207,14 @@
                                         <span t-out="doc.approver_employee_id.name or doc.approver_role_id.name or ''"/><br/>
                                         <!-- The real evidence: who approved it in EMS and when. A pasted
                                              signature image is decoration on top of this. -->
-                                        <span t-if="doc.approval_date" class="text-muted">
-                                            Approved in EMS on <span t-out="doc.approval_date"/>
+                                        <span t-if="doc.approval_date" class="o_ems_minute_muted">
+                                            Approved in EMS on <span t-out="doc.approval_date" t-options="{'widget': 'date'}"/>
                                         </span>
                                     </td>
                                 </tr>
                             </table>
 
-                            <p class="text-muted small mt-4" t-if="doc.template_document_id">
+                            <p class="o_ems_minute_muted" style="margin-top: 10pt; font-size: 8pt;" t-if="doc.template_document_id">
                                 <span t-out="doc.template_document_id.code or ''"/>
                                 <span t-out="doc.template_document_id.name"/>
                             </p>

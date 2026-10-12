@@ -8,6 +8,8 @@ from odoo.tools import config
 
 # odoo.conf of a development machine (set by devel.sh): 'ems_server_role = dev'.
 DEV_SERVER_ROLE = 'dev'
+# What every email leaving a development machine carries at the start of its subject.
+DEV_SUBJECT_MARK = '[DEV]'
 
 _logger = logging.getLogger(__name__)
 
@@ -24,7 +26,18 @@ class IrMailServer(models.Model):
         smtp_from, smtp_to_list, message = super()._prepare_email_message(message, smtp_session)
         if config.get('ems_server_role') == DEV_SERVER_ROLE:
             self._ems_check_dev_recipients(smtp_to_list)
+            self._ems_mark_dev_subject(message)
         return smtp_from, smtp_to_list, message
+
+    def _ems_mark_dev_subject(self, message):
+        """Whoever receives it - the developer's redirect inbox, or a shared allowlisted one
+        such as the staff account, which gets production's emails too - has to tell at a glance
+        that it comes from a development machine and not from production."""
+        subject = message['Subject'] or ''
+        if subject.startswith(DEV_SUBJECT_MARK):
+            return
+        del message['Subject']
+        message['Subject'] = f"{DEV_SUBJECT_MARK} {subject}".strip()
 
     def _ems_check_dev_recipients(self, recipients):
         params = self.env['ir.config_parameter'].sudo()

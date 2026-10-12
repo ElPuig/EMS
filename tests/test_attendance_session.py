@@ -7,7 +7,7 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, mock_outgoing_email, next_student_id
+from .common import create_level_study, make_working_day, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceSessionHeader(TransactionCase):
@@ -30,6 +30,8 @@ class TestAttendanceSessionHeader(TransactionCase):
         # The company's day, which the code works with: date.today() is UTC in Odoo, a day behind
         # right after local midnight (weekday and session date would then disagree with it).
         cls.today = cls.env['ems.datetime_utils'].get_local_today()
+        # The automatic check-in tests take a roll call "today": it has to be a day the centre works.
+        make_working_day(cls, cls.today)
         cls.level, cls.study = create_level_study(cls, 'TAS', level={'name': 'Test Level (Attendance Session)'}, study={
             'code': 'TAS001', 'name': 'Test Study (Attendance Session)', 'date': cls.today,
         })

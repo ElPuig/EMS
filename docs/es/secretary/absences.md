@@ -22,13 +22,13 @@ Pertenecer a secretaría no da ese permiso: el resto del equipo pide sus ausenci
 
 Ahí salen solo las solicitudes de tu área, en estado **Pendiente** mientras esperan que las des por recibidas.
 
-Cuando el tipo de ausencia exige justificante (todos menos `Salud` y `ATRI`), tu parte tiene dos pasos: primero **Recibida: pendiente de documentación**, y **Validar documentación** cuando la persona ha adjuntado el justificante (la solicitud vuelve sola a ti). Si el justificante no es válido, **Documentación insuficiente** lo devuelve a la persona, con el motivo que escribas. Para `Salud` y `ATRI`, un solo **Validar**.
+Cuando el tipo de ausencia exige justificante (todos menos `Salud` y `ATRI`), tu parte tiene dos pasos: primero **Recibida: pendiente de documentación**, y **Validar documentación** cuando la persona ha adjuntado el justificante (la solicitud vuelve sola a ti). Si el justificante no es válido, **Documentación insuficiente** lo devuelve a la persona, con el motivo que escribas. Para `Salud` y `ATRI`, un solo **Validar**. Una ausencia `ATRI` espera después a que la persona confirme que está solicitada en ATRI antes de llegar a Dirección.
 
 ![Lista de ausencias, con las acciones Aprobar/Rechazar en una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
 
 Tienes acceso al motivo escrito y al justificante de tu gente, y puedes ajustar los campos **Suma las horas al informe mensual** y **¿Día entero?**, además de corregir el tipo de ausencia.
 
-**Rechazar es definitivo**, y pide confirmación antes: una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*, así que tendría que hacer una nueva. El justificante, en cambio, se puede adjuntar en cualquier momento, también en una solicitud ya recibida.
+**Rechazar pide antes el motivo** (opcional, y se envía solo a la persona). Una decisión tomada por error, también un rechazo, se deshace con **Deshacer la última decisión**, desde la fila del listado o desde el menú **Acciones** del formulario (ver [Deshacer una decisión](../head_of_studies/absences.md#deshacer-una-decisión)); una solicitud aprobada también hay que deshacerla antes de poder corregirla. El justificante se puede adjuntar en cualquier momento, también en una solicitud ya recibida.
 
 Una vez la validas, Dirección revisa cada ausencia en último lugar, en la columna **Estado Dirección**, que ves pero no puedes modificar. La columna **Estado** muestra en qué punto está la solicitud.
 

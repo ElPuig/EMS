@@ -68,9 +68,11 @@ La casella **Dia sencer?** decideix què has d'omplir:
 
 Marca-la si no véns en tot el dia: comptaran 7,5 hores encara que aquell dia només hi tinguessis una classe. Deixa-la sense marcar si véns i te n'has d'anar, o si arribes tard.
 
+**No venir en tot el dia és sempre un dia sencer**, sigui quin sigui el tipus d'absència i l'escriguis com l'escriguis. Si deixes la casella sense marcar i indiques unes hores que cobreixen tot el teu horari d'aquell dia (des de l'inici de la primera classe fins al final de l'última), el formulari la marca per tu i t'ho diu: el que compta són aquestes 7,5 hores, no les hores de les teves classes. Torna-la a desmarcar només si de debò véns aquell dia (per exemple, perquè t'han canviat la classe a una altra hora).
+
 Per demanar més d'un dia, marca-la i canvia la data de fi. Si és un sol dia, la data de fi ja es posa sola.
 
-`Salut` i `Prova mèdica invasiva` es creen amb la casella marcada. Si només vas faltar una estona, desmarca-la.
+`Salut` i `Prova mèdica invasiva` es creen amb la casella marcada, perquè faltar per un d'aquests motius acostuma a ser el dia sencer. Si vas venir i només vas faltar una estona, desmarca-la i indica les hores.
 
 ---
 
@@ -121,14 +123,28 @@ A **Absències** tens la teva llista. La teva absència passa primer pel teu cap
 | Pendent | El teu cap encara no l'ha vista |
 | En espera de documentació | El teu cap l'ha rebuda i espera el justificant: adjunta'l a la mateixa sol·licitud |
 | Pendent de validació | Has adjuntat el justificant i el teu cap l'ha de validar |
+| Pendent de confirmar ATRI | Només absències ATRI. El teu cap l'ha validada i has de confirmar que està sol·licitada a ATRI (vegeu més avall) |
 | Pendent Direcció | El teu cap l'ha validada, Direcció encara no l'ha revisada |
 | Aprovat | Concedida per tots dos |
-| Rebutjat | Denegada. És definitiu: si vols insistir, cal fer una sol·licitud nova |
+| Rebutjat | Denegada. Si va ser un error, el teu cap o Direcció ho poden desfer; si no, per insistir cal fer una sol·licitud nova |
 | Cancel·lat | Anul·lada |
 
 El filtre **Els meus justificants pendents** mostra les sol·licituds que esperen un justificant teu.
 
+**Absències ATRI: confirmar la sol·licitud.** Una absència ATRI es concedeix al portal de la Generalitat, no a EMS. Per això, quan el teu cap l'ha validada, la sol·licitud s'atura sempre a **Pendent de confirmar ATRI** abans de passar a Direcció. No vol dir que ningú hagi vist que falti a ATRI: només se't demana que confirmis que l'has sol·licitada allà.
+
+- Si ja l'has sol·licitada a ATRI, obre la sol·licitud i fes servir **Accions > Confirmo que està sol·licitada a ATRI** en aquell mateix moment. Llavors passa a Direcció.
+- Si no, sol·licita-la primer al portal (l'avís de dalt de la sol·licitud té l'enllaç) i després confirma.
+
+Mentre no estigui confirmada, un cop passada l'absència reps un recordatori cada dia, i al cap d'uns dies s'avisa el teu cap. El filtre **Les meves confirmacions d'ATRI pendents** mostra les sol·licituds que ho esperen. Si després Direcció comprova que l'absència no consta a ATRI, retorna la sol·licitud a aquest estat i en reps el motiu, que també es mostra a la sol·licitud.
+
+![Una absència ATRI a l'espera de la confirmació del docent, amb l'avís a dalt de la sol·licitud](../../assets/teachers/teachers-absences-atri-confirm.png)
+
 Un cop la rep el teu cap, l'absència ja compta al calendari d'absències i al quadrant de guàrdies, encara que falti el justificant.
+
+Si el teu cap o Direcció corregeixen alguna cosa de la teva sol·licitud (el tipus d'absència, les dates o les hores), reps un missatge a la sol·licitud amb el que s'ha canviat, el seu nou estat i, si l'han escrita, la seva explicació.
+
+Si rebutgen la teva sol·licitud i qui la rebutja n'ha escrit el motiu, el reps en un missatge i es mostra en vermell a dalt de la sol·licitud.
 
 
 ---

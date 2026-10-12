@@ -14,9 +14,10 @@
 2. [Aprobar o rechazar](#aprobar-o-rechazar)
 3. [Ajustar el cómputo de una ausencia](#ajustar-el-cómputo-de-una-ausencia)
 4. [Aprobación de Dirección](#aprobación-de-dirección)
-5. [Informe por empleado](#informe-por-empleado)
-6. [Informe mensual](#informe-mensual)
-7. [Ausencias previstas](#ausencias-previstas)
+5. [Deshacer una decisión](#deshacer-una-decisión)
+6. [Informe por empleado](#informe-por-empleado)
+7. [Informe mensual](#informe-mensual)
+8. [Ausencias previstas](#ausencias-previstas)
 
 ---
 
@@ -48,14 +49,18 @@ Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que
 
 **Tu parte tiene dos pasos cuando el tipo de ausencia exige justificante** (todos menos `Salud` y `ATRI`), porque a menudo el justificante solo existe después de la ausencia:
 
-1. **Recibida: pendiente de documentación** (icono de bandeja en el listado, o el botón de arriba del formulario). Das por recibida la solicitud sin haber visto todavía el justificante. Pasa a **En espera de documentación** y se pide el justificante a la persona. Si ya lo había adjuntado con la solicitud, pasa directamente a **Pendiente de validación**.
+1. **Recibida: pendiente de documentación** (icono de bandeja en el listado, o el menú **Acciones** de arriba del formulario). Das por recibida la solicitud sin haber visto todavía el justificante. Pasa a **En espera de documentación** y se pide el justificante a la persona. Si ya lo había adjuntado con la solicitud, pasa directamente a **Pendiente de validación**.
 2. Cuando la persona adjunta el justificante, la solicitud vuelve sola a ti como **Pendiente de validación**. Ábrela, revisa el justificante y usa **Validar documentación** (también un icono de validación en el listado). Entonces pasa a Dirección.
 
 Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo. Si el nuevo tampoco es válido, el diálogo se abre con el motivo anterior para que puedas modificarlo; cuando validas un justificante, el motivo se borra.
 
-Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado), que la envía directamente a Dirección.
+Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado). Una ausencia de `Salud` pasa entonces directamente a Dirección. Una `ATRI` se detiene siempre antes en **Pendiente de confirmar ATRI**: la persona tiene que confirmar que la ha solicitado en el portal ATRI (**Acciones > Confirmo que está solicitada en ATRI**), y solo entonces llega a Dirección. Validas tú primero a propósito, porque a menudo se elige ATRI para lo que no lo es, y al revés: corrige el tipo antes de validar. A la persona se le recuerda igual que con un justificante pendiente, y a ti se te avisa una vez si sigue sin confirmar a los pocos días de la ausencia.
 
 La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
+
+**Rechazar pide antes el motivo.** Se abre un cuadro de diálogo con un cuadro para el motivo del rechazo, que es opcional: lo que escribas se envía solo a la persona (no a los jefes de departamento ni al resto de seguidores de la solicitud) y queda en lo alto de la solicitud, en rojo, mientras esté rechazada. Confirma con **Rechazar**, o cancela para dejar la solicitud como estaba.
+
+![Cuadro de diálogo para rechazar una solicitud de ausencia, con el cuadro para el motivo](../../assets/head_of_studies/hos-absences-refuse.png)
 
 La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de guardias) en cuanto la das por recibida, aunque falte el justificante o Dirección no la haya revisado.
 
@@ -65,7 +70,7 @@ Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) la 
 
 Tú ves el **motivo escrito** y el **justificante**; el resto del personal, no.
 
-**Rechazar es definitivo.** Una vez rechazas una solicitud, ni tú ni la persona podéis devolverla a *Pendiente*: para concederla finalmente, la persona tiene que hacer una nueva. Como el botón Rechazar está al lado de los demás, y en el listado es solo una cruz, siempre pide confirmación antes - lee el mensaje antes de aceptarlo.
+Si rechazas por error, [deshazlo](#deshacer-una-decisión): la solicitud vuelve a donde estaba y el motivo se olvida.
 
 Puedes adjuntar un **justificante** a cualquier solicitud, de cualquier tipo y en cualquier momento: un certificado entregado después de la ausencia se adjunta a esa misma solicitud.
 
@@ -79,9 +84,13 @@ Un campo del formulario, que puedes cambiar en cualquier momento:
 |---|---|---|
 | **Suma las horas al informe mensual** | Hace que las horas entren en el recuento mensual | Todos los tipos excepto `Baja laboral` |
 
-También puedes cambiar el **tipo de ausencia** después de haberla aprobado. Hazlo cuando la persona haya elegido uno que no corresponde.
+También puedes corregir el **tipo de ausencia** cuando la persona haya elegido uno que no corresponde, mientras la solicitud está pendiente (o rechazada o cancelada). Una solicitud aprobada ya no se puede cambiar: primero [deshaz la aprobación](#deshacer-una-decisión), corrígela y vuelve a validarla.
 
-Si la ausencia es de día entero o de unas horas concretas lo controla la casilla **¿Día entero?**, que también puedes corregir: marcada cuenta 7,5 horas por día laborable, sin marcar cuenta las horas indicadas.
+**La persona se entera de lo que cambias.** Cuando tú (o Dirección) cambias el tipo de ausencia, las fechas o las horas de una solicitud que ha presentado otra persona, la siguiente vez que decides sobre ella (recibirla, validarla, devolver el justificante, rechazarla) un cuadro de diálogo muestra los cambios y te permite escribir un mensaje para quien la solicitó. Si lo dejas en blanco, solo se le informa de los cambios realizados. En ambos casos el aviso llega únicamente a quien la solicitó, no a los jefes de departamento ni al resto de seguidores de la solicitud. En una solicitud ya rechazada o cancelada, se le avisa en cuanto guardas el cambio.
+
+![Cuadro de diálogo con los cambios realizados en la solicitud y el cuadro para el mensaje al solicitante](../../assets/head_of_studies/hos-absences-change-message.png)
+
+Si la ausencia es de día entero o de unas horas concretas lo controla la casilla **¿Día entero?**, que también puedes corregir mientras la solicitud está pendiente: marcada cuenta 7,5 horas por día laborable, sin marcar cuenta las horas indicadas. Cuando las horas de una solicitud cubren todo el horario de la persona ese día, el formulario propone por sí solo el día entero (no venir en todo el día cuenta las 7,5 horas); la persona puede desmarcarlo, y tú puedes corregirlo en un sentido u otro mientras la solicitud está pendiente.
 
 ---
 
@@ -91,14 +100,15 @@ Si la ausencia es de día entero o de unas horas concretas lo controla la casill
 
 **Asistencia del personal > Ausencias > Administración > Ausencias solicitadas** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**, y las ausencias de los propios jefes de área, que gestionas tú como su jefe (con los botones del jefe descritos más arriba). Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
 
-Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa los botones de arriba, que te devuelven al listado al acabar:
+Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa el menú **Acciones** de arriba, que te devuelve al listado al acabar:
 
 | Icono | Botón | Resultado |
 |---|---|---|
 | Casilla marcada | **Dirección: hecho** | Aprobado |
 | Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Antes pide el motivo, que la persona recibe |
-| Flecha atrás | **Dirección: pendiente** | Deshace un *Hecho* |
-| Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, pide confirmación antes y es definitivo |
+| Flecha de respuesta | **No consta en ATRI** | Solo ausencias ATRI, cuando no aparece en el portal. Vuelve a la persona, Pendiente de confirmar ATRI. Antes pide el motivo, que la persona recibe |
+| Flecha atrás | **Deshacer la última decisión** | Vuelve al estado anterior, ver [Deshacer una decisión](#deshacer-una-decisión) |
+| Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, y pide confirmación antes |
 
 Cuando un jefe da por recibida una ausencia, recibes su resumen como seguidor.
 
@@ -109,12 +119,42 @@ Cuando un jefe da por recibida una ausencia, recibes su resumen como seguidor.
 | Pendiente | El jefe todavía no la ha dado por recibida |
 | En espera de documentación | Recibida por el jefe, espera el justificante de la persona |
 | Pendiente de validación | El justificante está adjunto, el jefe tiene que validarlo |
+| Pendiente de confirmar ATRI | Solo ausencias ATRI: validada por el jefe, a la espera de que la persona confirme que está solicitada en ATRI |
 | Pendiente Dirección | Validada por el jefe, espera a Dirección |
 | Aprobado | Ambos |
 | Rechazado | El jefe o Dirección la han rechazado |
 | Cancelado | La persona la ha retirado |
 
 El panel de búsqueda de la izquierda filtra por **Estado**.
+
+---
+
+## Deshacer una decisión
+
+Una decisión tomada por error se deshace con **Deshacer la última decisión**: el icono de flecha atrás al final de la fila en el listado, o el menú **Acciones** de arriba del formulario. Pide confirmación y retrocede un paso cada vez:
+
+| Estado | Al deshacer queda en |
+|---|---|
+| Aprobado | Pendiente de Dirección |
+| Pendiente de Dirección | Pendiente de validación, o Pendiente si el tipo no exige justificante |
+| Pendiente de validación, En espera de documentación | Pendiente |
+| Pendiente de confirmar ATRI | Pendiente, o Pendiente de Dirección si Dirección la había devuelto por no constar en ATRI |
+| Rechazado, Cancelado | El estado que tenía justo antes |
+| En espera de documentación tras un *Documentación insuficiente* | El estado que tenía justo antes, mientras la persona no haya adjuntado un justificante nuevo |
+
+Quién puede deshacer qué:
+
+| Quién | Deshace |
+|---|---|
+| El jefe (Jefatura de Estudios, Jefatura adjunta, Secretaría) | Las decisiones de la parte del jefe, en las solicitudes de su área |
+| Dirección | Las del jefe y las suyas |
+| Administrador | Cualquiera |
+
+Nadie deshace una decisión sobre su propia ausencia, salvo Dirección y el administrador.
+
+Deshacer el primer paso del jefe (recibida, o validada cuando no hay justificante) devuelve la solicitud a **Pendiente**, así que **la ausencia deja de contar** en el calendario de ausencias, en el saldo de horas y en el cuadrante de guardias hasta que se vuelva a dar por recibida. A la persona se le avisa siempre, y a los jefes de su departamento también cuando la ausencia entra o sale de vigor.
+
+Tras deshacer desde el formulario te quedas en la solicitud, para corregirla o volver a decidir.
 
 ---
 

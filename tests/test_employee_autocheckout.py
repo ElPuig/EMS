@@ -5,7 +5,7 @@ import pytz
 
 from odoo.tests.common import TransactionCase
 
-from .common import mock_outgoing_email
+from .common import make_working_day, mock_outgoing_email
 
 
 class TestEmployeeAutocheckout(TransactionCase):
@@ -26,6 +26,8 @@ class TestEmployeeAutocheckout(TransactionCase):
         cls.calendar = cls.teacher.resource_calendar_id
         cls.today = datetime.now(timezone.utc).date()
         cls.weekday = str(cls.today.weekday())
+        # Every fixture here gives the teacher lessons "today": it has to be a day they count.
+        make_working_day(cls, cls.today)
 
     def _add_slot(self, hour_from, hour_to, dayofweek=None):
         return self.env['resource.calendar.attendance'].create({

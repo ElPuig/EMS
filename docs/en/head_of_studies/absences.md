@@ -14,9 +14,10 @@
 2. [Approving or refusing](#approving-or-refusing)
 3. [Adjusting what an absence counts towards](#adjusting-what-an-absence-counts-towards)
 4. [Direction's approval](#directions-approval)
-5. [Per-employee report](#per-employee-report)
-6. [Monthly report](#monthly-report)
-7. [Expected absences](#expected-absences)
+5. [Undoing a decision](#undoing-a-decision)
+6. [Per-employee report](#per-employee-report)
+7. [Monthly report](#monthly-report)
+8. [Expected absences](#expected-absences)
 
 ---
 
@@ -48,14 +49,18 @@ That lists your area's requests, opening on **Waiting For Me**: the ones pending
 
 **Your side has two steps when the absence type requires a supporting document** (every type except `Health` and `ATRI`), because the document often only exists after the absence:
 
-1. **Received: pending documentation** (inbox icon in the list, or the button at the top of the form). You acknowledge the request without having seen the document yet. It becomes **Awaiting documentation** and the employee is asked for the document. If they had already attached it with the request, it goes straight to **Pending validation**.
+1. **Received: pending documentation** (inbox icon in the list, or the **Actions** menu at the top of the form). You acknowledge the request without having seen the document yet. It becomes **Awaiting documentation** and the employee is asked for the document. If they had already attached it with the request, it goes straight to **Pending validation**.
 2. When the employee attaches the document, the request comes back to you on its own as **Pending validation**. Open it, check the document and use **Validate documentation** (also a tick icon in the list). It then goes to Direction.
 
 If the document is not valid, **Documentation insufficient** asks you why (required) and sends the request back to the employee (Awaiting documentation) with a message that includes your reason. The employee also sees it at the top of the request until they attach a new document. If the new document is not valid either, the dialog opens with your previous reason so you can edit it; once you validate a document, the reason is cleared.
 
-For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list), which sends it straight to Direction.
+For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list). A `Health` absence then goes straight to Direction. An `ATRI` one always stops first at **Pending ATRI confirmation**: the employee has to confirm they have requested it on the ATRI portal (**Actions > I confirm it is requested in ATRI**), and only then does it reach Direction. You validate first on purpose, because ATRI is often picked for what is not, and the other way round: correct the type before validating. The employee is reminded like for a missing supporting document, and you are told once if it stays unconfirmed a few days after the absence.
 
 The cross refuses, at any of these steps. Once you decide from the form, you are taken back to the list.
+
+**Refusing asks for the reason first.** A dialog opens with a box for the reason of the refusal, which is optional: what you write is sent to the employee alone (not to the department's chiefs or anyone else following the request) and stays at the top of the request, in red, while it is refused. Confirm with **Refuse**, or cancel to leave the request as it was.
+
+![Dialog to refuse an absence request, with the box for the reason](../../assets/head_of_studies/hos-absences-refuse.png)
 
 The absence takes effect (absence calendar, hour balance, guard duty board) as soon as you acknowledge it, even while the document is missing or Direction has not reviewed it yet.
 
@@ -65,7 +70,7 @@ If the employee has not attached the document a few days after the absence (thre
 
 You see the **written reason** and the **supporting document**; the rest of the staff do not.
 
-**Refusing is final.** Once you refuse a request, neither you nor the employee can put it back to *Pending*: to grant it after all, the employee has to file a new one. Because the Refuse button sits next to Approve, and in the list is a bare cross beside it, it always asks for confirmation first - read the dialog before accepting it.
+If you refuse by mistake, [undo it](#undoing-a-decision): the request returns to where it stood and the reason is forgotten.
 
 You can attach a **supporting document** to any request, of any type, and at any point in its life: a certificate handed in after the absence goes on that same request.
 
@@ -79,9 +84,13 @@ One field on the form, changeable at any time:
 |---|---|---|
 | **Adds the hours to the monthly report** | Makes these hours part of the monthly count | Every type except `Sick leave` |
 
-You can also change the **absence type** after approving. Do that when the employee picked one that does not apply.
+You can also correct the **absence type** when the employee picked one that does not apply, while the request is pending (or refused or cancelled). An approved request can no longer be changed: [undo the approval](#undoing-a-decision) first, correct it and validate it again.
 
-Whether an absence is a whole day or a few hours is controlled by the **Whole day?** checkbox, which you can also correct: ticked counts 7.5 hours per working day, unticked counts the hours given.
+**The employee is told what you change.** When you (or Direction) change the absence type, the dates or the times of a request somebody else filed, the next time you decide on it (acknowledging, validating, sending the document back, refusing) a dialog shows the changes and lets you write a message for the requester. Leave it blank and they are only told what was changed. Either way it reaches the requester alone, not the department's chiefs or anyone else following the request. On a request that is already refused or cancelled, the requester is told as soon as you save the change.
+
+![Dialog listing the changes made to the request, with the box for the message to the requester](../../assets/head_of_studies/hos-absences-change-message.png)
+
+Whether an absence is a whole day or a few hours is controlled by the **Whole day?** checkbox, which you can also correct while the request is pending: ticked counts 7.5 hours per working day, unticked counts the hours given. When the times of a request cover the employee's whole timetable for that day, the form proposes a whole day on its own (not coming in at all counts the full 7.5 hours); the employee can untick it, and you can correct it either way while the request is pending.
 
 ---
 
@@ -93,14 +102,15 @@ Direction goes last: a request reaches you once its Head has validated it, toget
 
 **Employee Attendances > Absences > Management > Requested absences** opens on **Waiting For Me**: every absence **Pending Direction**, plus the Area Managers' own absences, which you handle as their Head (with the Head's buttons described above). Each one also leaves you an activity ("Direction review of the absence").
 
-Review them from the list with the icons beside **Direction status**, or open one and use the buttons at the top, which take you back to the list once done:
+Review them from the list with the icons beside **Direction status**, or open one and use the **Actions** menu at the top, which takes you back to the list once done:
 
 | Icon | Button | Result |
 |---|---|---|
 | Ticked box | **Direction: done** | Approved |
 | Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives |
-| Arrow back | **Direction: pending** | Undoes a *Done* |
-| Cross | **Refuse** | Refused. It refuses the whole request, it asks for confirmation first and it is final |
+| Reply arrow | **Not in ATRI** | Only ATRI absences, when it does not appear on the portal. Back to the employee, Pending ATRI confirmation. It asks for the reason first, which the employee receives |
+| Arrow back | **Undo the last decision** | Back to the previous status, see [Undoing a decision](#undoing-a-decision) |
+| Cross | **Refuse** | Refused. It refuses the whole request, and it asks for confirmation first |
 
 When a Head receives an absence, you receive its summary as a follower.
 
@@ -111,12 +121,42 @@ When a Head receives an absence, you receive its summary as a follower.
 | Pending | The Head has not acknowledged it yet |
 | Awaiting documentation | Received by the Head, waiting for the employee's supporting document |
 | Pending validation | The document is attached, the Head has to validate it |
+| Pending ATRI confirmation | ATRI absences only: validated by the Head, waiting for the employee to confirm it is requested in ATRI |
 | Pending Direction | Validated by the Head, waiting for Direction |
 | Approved | Both have |
 | Refused | The Head or Direction refused it |
 | Cancelled | The employee withdrew it |
 
 The search panel on the left filters by **Status**.
+
+---
+
+## Undoing a decision
+
+A decision taken by mistake is taken back with **Undo the last decision**: the arrow-back icon at the end of the row in the list, or the **Actions** menu at the top of the form. It asks for confirmation and goes back one step at a time:
+
+| Status | Undoing it leaves it |
+|---|---|
+| Approved | Pending Direction |
+| Pending Direction | Pending validation, or Pending when the type requires no supporting document |
+| Pending validation, Awaiting documentation | Pending |
+| Pending ATRI confirmation | Pending, or Pending Direction when Direction had sent it back as not in ATRI |
+| Refused, Cancelled | The status it had just before |
+| Awaiting documentation after a *Documentation insufficient* | The status it had just before, while the employee has not attached a new document |
+
+Who can undo what:
+
+| Who | Undoes |
+|---|---|
+| The Head (Head of Studies, Deputy, Secretary) | The decisions of the Head's side, on their own area's requests |
+| Direction | The Head's decisions and its own |
+| Administrator | Any |
+
+Nobody undoes a decision on their own absence, except Direction and the administrator.
+
+Undoing the Head's first step (received, or validated when there is no document) returns the request to **Pending**, so **the absence stops counting** in the absence calendar, the hour balance and the guard duty board until it is acknowledged again. The employee is always told, and their department's chiefs too whenever the absence goes in or out of effect.
+
+After undoing from the form you stay on the request, to correct it or decide on it again.
 
 ---
 

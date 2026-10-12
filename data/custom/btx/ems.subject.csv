@@ -71,3 +71,5 @@ __import__.subject_171_2022_FOR,"171_2022_FOR","FOR","Formació i Orientació",6
 __import__.subject_171_2022_MCL,"171_2022_MCL","MCL","Món Clàssic",66,0,0,false,"ems.study_btx_171_2022"
 __import__.subject_171_2022_BIOM,"171_2022_BIOM","BIOM","Biomedicina",66,0,0,false,"ems.study_btx_171_2022"
 __import__.subject_171_2022_FIQ1,"171_2022_FIQ1","FIQ1","Física i Química (1r)",132,0,0,false,"ems.study_btx_171_2022"
+__import__.subject_171_2022_AFIS1,"171_2022_AFIS1","AFIS1","Ampliació de Física (1r)",66,0,0,false,"ems.study_btx_171_2022"
+__import__.subject_171_2022_AQUI1,"171_2022_AQUI1","AQUI1","Ampliació de Química (1r)",66,0,0,false,"ems.study_btx_171_2022"

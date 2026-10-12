@@ -257,6 +257,20 @@ def shift_ems_clock(case, hour=10.0):
     return target
 
 
+def make_working_day(case, day):
+    """Removes the public holidays around `day` (in the test's own rolled-back transaction), for
+    a fixture built on the real "today" that needs it to be a day the centre works: on a public
+    holiday nothing is expected of anybody, whatever timetable the fixture gives them, so such a
+    suite failed whenever it ran on one (found on 2026-10-12). A day either side goes too: the
+    holiday is stored in UTC and `day` is read in more than one timezone across the suite."""
+    from datetime import datetime, time, timedelta
+    case.env['resource.calendar.leaves'].sudo().search([
+        ('resource_id', '=', False),
+        ('date_from', '<=', datetime.combine(day + timedelta(days=1), time.max)),
+        ('date_to', '>=', datetime.combine(day - timedelta(days=1), time.min)),
+    ]).unlink()
+
+
 def cancel_google_account_creation(record):
     """Cancel the automatic Google account creation queued when `record` (an employee or a
     student) was seeded with every field it needs. A queued or running creation hides the

@@ -52,3 +52,14 @@ th[data-name="deprecated"]{
     background-color: #D9B44A !important;
 }
 
+
+/* A short value with Odoo's copy button (CopyClipboardChar), e.g. the IDALU on a convalidation
+   request: the widget otherwise stretches to the whole column with its text centred. Sized to a
+   date-time's width and left-aligned, like the values around it. */
+.o_field_CopyClipboardChar.o_ems_copy_compact {
+    max-width: 11rem;
+}
+
+.o_field_CopyClipboardChar.o_ems_copy_compact > div > span:first-child {
+    text-align: left;
+}

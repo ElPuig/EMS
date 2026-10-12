@@ -1209,8 +1209,8 @@ msgstr "Hay más de una sesión programada para la franja horaria actual. Por fa
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
 #, python-format
-msgid "Justified absence — status and notes are locked."
-msgstr "Falta justificada — el estado y las notas están bloqueados."
+msgid "Justified: status and notes are locked."
+msgstr "Justificado: el estado y las notas están bloqueados."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -1229,6 +1229,7 @@ msgstr "Nombre del PAS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__absence
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__leave_id
 msgid "Absence"
 msgstr "Ausencia"
 
@@ -1376,6 +1377,7 @@ msgstr "Acción"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_needaction model:ir.model.fields,field_description:ems.field_ems_group__message_needaction model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction model:ir.model.fields,field_description:ems.field_ems_space__message_needaction model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_needaction
 msgid "Action Needed"
@@ -1387,6 +1389,9 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__active
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__active
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__active
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__active
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__active
+#: model:ir.model.fields,field_description:ems.field_hr_attendance__active
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__active model:ir.model.fields,field_description:ems.field_ems_quality_document__active model:ir.model.fields,field_description:ems.field_ems_quality_procedure__active model:ir.model.fields,field_description:ems.field_ems_quality_process__active
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section__active model:ir.model.fields,field_description:ems.field_ems_minute_type__active
 msgid "Active"
@@ -1768,7 +1773,9 @@ msgid "Applies to Studies"
 msgstr "Aplica a los estudios"
 
 #. module: ems
+#. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__to_apply model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__to_apply
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -1808,6 +1815,9 @@ msgstr "Aprobado"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form model_terms:ir.ui.view,arch_db:ems.view_quality_document_search model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
 msgid "Archived"
 msgstr "Archivado"
@@ -1910,6 +1920,7 @@ msgstr "Archivo adjunto"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_group__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_quality_action__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_space__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_strike__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_attachment_count
 msgid "Attachment Count"
@@ -2393,7 +2404,12 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_reject_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2522,6 +2538,8 @@ msgstr "Ciudad"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__space_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__space_id model:ems.space_type,name:ems.space_type_classroom
+#: model:ir.model.fields,field_description:ems.field_ems_strike__space_id
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 msgid "Classroom"
 msgstr "Aula"
 
@@ -2802,6 +2820,8 @@ msgstr "País"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__course_id model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__course_id model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__course_id model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Course"
@@ -2872,7 +2892,10 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_correction__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_uid model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__create_uid model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__create_uid model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__create_uid model:ir.model.fields,field_description:ems.field_ems_quality_action__create_uid model:ir.model.fields,field_description:ems.field_ems_quality_document__create_uid model:ir.model.fields,field_description:ems.field_ems_quality_followup__create_uid model:ir.model.fields,field_description:ems.field_ems_quality_procedure__create_uid model:ir.model.fields,field_description:ems.field_ems_quality_process__create_uid model:ir.model.fields,field_description:ems.field_ems_strike__create_uid model:ir.model.fields,field_description:ems.field_ems_strike_reason__create_uid model:ir.model.fields,field_description:ems.field_ems_student_year_record__create_uid model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__create_uid model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__create_uid model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__create_uid model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__create_uid model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_uid model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_section__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_section_value__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_type__create_uid model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_uid
 msgid "Created by"
@@ -2888,7 +2911,10 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_correction__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_date model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__create_date model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__create_date model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__create_date model:ir.model.fields,field_description:ems.field_ems_quality_action__create_date model:ir.model.fields,field_description:ems.field_ems_quality_document__create_date model:ir.model.fields,field_description:ems.field_ems_quality_followup__create_date model:ir.model.fields,field_description:ems.field_ems_quality_procedure__create_date model:ir.model.fields,field_description:ems.field_ems_quality_process__create_date model:ir.model.fields,field_description:ems.field_ems_strike__create_date model:ir.model.fields,field_description:ems.field_ems_strike_reason__create_date model:ir.model.fields,field_description:ems.field_ems_student_year_record__create_date model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__create_date model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__create_date model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__create_date model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__create_date model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_date model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__create_date model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__create_date model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__create_date model:ir.model.fields,field_description:ems.field_ems_minute_member_line__create_date model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__create_date model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__create_date model:ir.model.fields,field_description:ems.field_ems_minute_section__create_date model:ir.model.fields,field_description:ems.field_ems_minute_section_value__create_date model:ir.model.fields,field_description:ems.field_ems_minute_type__create_date model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_date
 msgid "Created on"
@@ -2995,6 +3021,8 @@ msgstr "Datos descargados"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__date
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_followup__date model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_signed_record__date model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Date"
@@ -3053,7 +3081,7 @@ msgstr "Retraso grave"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__delegate_id
 msgid "Delegate"
-msgstr "Delegar"
+msgstr "Delegado/a"
 
 #. module: ems
 #. odoo-python
@@ -3136,6 +3164,8 @@ msgstr "Descripción y notas"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_strike__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__details
 msgid "Details"
 msgstr "Detalles"
 
@@ -3174,7 +3204,10 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_correction__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_attendance_status__display_name model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__display_name model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__display_name model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__display_name model:ir.model.fields,field_description:ems.field_ems_quality_action__display_name model:ir.model.fields,field_description:ems.field_ems_quality_document__display_name model:ir.model.fields,field_description:ems.field_ems_quality_followup__display_name model:ir.model.fields,field_description:ems.field_ems_quality_procedure__display_name model:ir.model.fields,field_description:ems.field_ems_quality_process__display_name model:ir.model.fields,field_description:ems.field_ems_strike__display_name model:ir.model.fields,field_description:ems.field_ems_strike_reason__display_name model:ir.model.fields,field_description:ems.field_ems_student_year_record__display_name model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__display_name model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__display_name model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__display_name model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__display_name model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__display_name model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__display_name model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__display_name model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__display_name model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__display_name model:ir.model.fields,field_description:ems.field_ems_minute_member_line__display_name model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__display_name model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__display_name model:ir.model.fields,field_description:ems.field_ems_minute_section__display_name model:ir.model.fields,field_description:ems.field_ems_minute_section_value__display_name model:ir.model.fields,field_description:ems.field_ems_minute_type__display_name model:ir.model.fields,field_description:ems.field_ems_minute_type_section__display_name
 msgid "Display Name"
@@ -3465,6 +3498,8 @@ msgstr "Emergencia"
 #: model:ir.model,name:ems.model_hr_employee model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__employee_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 msgid "Employee"
 msgstr "Empleado"
 
@@ -3916,6 +3951,7 @@ msgstr "Hacer un seguimiento"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_group__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_space__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_follower_ids
 msgid "Followers"
@@ -3927,6 +3963,7 @@ msgstr "Seguidores"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_group__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_space__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_partner_ids
 msgid "Followers (Partners)"
@@ -3956,6 +3993,7 @@ msgstr "Viernes"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__from_date model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_from
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_from
 msgid "From"
 msgstr "De"
 
@@ -4103,6 +4141,7 @@ msgstr "Cuenta de Google sin usuario EMS"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_employee__google_ws_state__manual_pending
+#: model:ir.model.fields.selection,name:ems.selection__res_partner__google_ws_state__manual_pending
 msgid "Waiting for the manual corporate email"
 msgstr "Pendiente del correo corporativo manual"
 
@@ -4201,6 +4240,9 @@ msgstr "Otorgar acceso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__group_id
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__group_id model_terms:ir.ui.view,arch_db:ems.view_group_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__group_id model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__group_id
 msgid "Group"
@@ -4286,6 +4328,7 @@ msgstr "Tiene tasas"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__has_message model:ir.model.fields,field_description:ems.field_ems_group__has_message model:ir.model.fields,field_description:ems.field_ems_quality_action__has_message model:ir.model.fields,field_description:ems.field_ems_space__has_message model:ir.model.fields,field_description:ems.field_ems_strike__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_minute__has_message
 msgid "Has Message"
@@ -4397,7 +4440,10 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__id model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_correction__id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__id model:ir.model.fields,field_description:ems.field_ems_attendance_status__id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__id model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__id model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__id model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__id model:ir.model.fields,field_description:ems.field_ems_quality_action__id model:ir.model.fields,field_description:ems.field_ems_quality_document__id model:ir.model.fields,field_description:ems.field_ems_quality_followup__id model:ir.model.fields,field_description:ems.field_ems_quality_procedure__id model:ir.model.fields,field_description:ems.field_ems_quality_process__id model:ir.model.fields,field_description:ems.field_ems_strike__id model:ir.model.fields,field_description:ems.field_ems_strike_reason__id model:ir.model.fields,field_description:ems.field_ems_student_year_record__id model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__id model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__id model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__id model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__id model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__id model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__id model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__id model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__id model:ir.model.fields,field_description:ems.field_ems_minute_member_line__id model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__id model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__id model:ir.model.fields,field_description:ems.field_ems_minute_section__id model:ir.model.fields,field_description:ems.field_ems_minute_section_value__id model:ir.model.fields,field_description:ems.field_ems_minute_type__id model:ir.model.fields,field_description:ems.field_ems_minute_type_section__id
 msgid "ID"
@@ -4438,6 +4484,7 @@ msgstr "Si el IBAN está mapeado y una fila tiene valor, todas las cuentas banca
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_needaction model:ir.model.fields,help:ems.field_ems_group__message_needaction model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction model:ir.model.fields,help:ems.field_ems_space__message_needaction model:ir.model.fields,help:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_minute__message_needaction
 msgid "If checked, new messages require your attention."
@@ -4450,7 +4497,9 @@ msgstr "Si está marcado, nuevos mensajes requieren de su atención. "
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_error model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_sms_error model:ir.model.fields,help:ems.field_ems_group__message_has_error model:ir.model.fields,help:ems.field_ems_group__message_has_sms_error model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error model:ir.model.fields,help:ems.field_ems_quality_action__message_has_sms_error model:ir.model.fields,help:ems.field_ems_space__message_has_error model:ir.model.fields,help:ems.field_ems_space__message_has_sms_error model:ir.model.fields,help:ems.field_ems_strike__message_has_error model:ir.model.fields,help:ems.field_ems_strike__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_minute__message_has_error model:ir.model.fields,help:ems.field_ems_minute__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
@@ -4529,6 +4578,7 @@ msgstr "Derechos de imagen"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 model_terms:ir.ui.view,arch_db:ems.report_enrollment model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__to_import
 msgid "Import"
 msgstr "Importar"
 
@@ -4719,6 +4769,7 @@ msgstr "Es tasa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_is_follower model:ir.model.fields,field_description:ems.field_ems_group__message_is_follower model:ir.model.fields,field_description:ems.field_ems_quality_action__message_is_follower model:ir.model.fields,field_description:ems.field_ems_space__message_is_follower model:ir.model.fields,field_description:ems.field_ems_strike__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_is_follower
 msgid "Is Follower"
@@ -4843,7 +4894,10 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_correction__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_uid model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__write_uid model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__write_uid model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__write_uid model:ir.model.fields,field_description:ems.field_ems_quality_action__write_uid model:ir.model.fields,field_description:ems.field_ems_quality_document__write_uid model:ir.model.fields,field_description:ems.field_ems_quality_followup__write_uid model:ir.model.fields,field_description:ems.field_ems_quality_procedure__write_uid model:ir.model.fields,field_description:ems.field_ems_quality_process__write_uid model:ir.model.fields,field_description:ems.field_ems_strike__write_uid model:ir.model.fields,field_description:ems.field_ems_strike_reason__write_uid model:ir.model.fields,field_description:ems.field_ems_student_year_record__write_uid model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__write_uid model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__write_uid model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__write_uid model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__write_uid model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_uid model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_uid model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_section__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_section_value__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_type__write_uid model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_uid
 msgid "Last Updated by"
@@ -4859,7 +4913,10 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_correction__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_date model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__write_date model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__write_date model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__write_date model:ir.model.fields,field_description:ems.field_ems_quality_action__write_date model:ir.model.fields,field_description:ems.field_ems_quality_document__write_date model:ir.model.fields,field_description:ems.field_ems_quality_followup__write_date model:ir.model.fields,field_description:ems.field_ems_quality_procedure__write_date model:ir.model.fields,field_description:ems.field_ems_quality_process__write_date model:ir.model.fields,field_description:ems.field_ems_strike__write_date model:ir.model.fields,field_description:ems.field_ems_strike_reason__write_date model:ir.model.fields,field_description:ems.field_ems_student_year_record__write_date model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__write_date model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__write_date model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__write_date model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__write_date model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_date model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_date model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__write_date model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__write_date model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__write_date model:ir.model.fields,field_description:ems.field_ems_minute_member_line__write_date model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__write_date model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__write_date model:ir.model.fields,field_description:ems.field_ems_minute_section__write_date model:ir.model.fields,field_description:ems.field_ems_minute_section_value__write_date model:ir.model.fields,field_description:ems.field_ems_minute_type__write_date model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_date
 msgid "Last Updated on"
@@ -5196,6 +5253,7 @@ msgstr "Miembros"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message
 msgid "Message"
 msgstr "Mensaje"
 
@@ -5205,6 +5263,7 @@ msgstr "Mensaje"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_error model:ir.model.fields,field_description:ems.field_ems_group__message_has_error model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error model:ir.model.fields,field_description:ems.field_ems_space__message_has_error model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_error
 msgid "Message Delivery error"
@@ -5216,6 +5275,7 @@ msgstr "Error de entrega del mensaje"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_ids model:ir.model.fields,field_description:ems.field_ems_group__message_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_ids model:ir.model.fields,field_description:ems.field_ems_space__message_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_ids
 msgid "Messages"
@@ -5266,6 +5326,7 @@ msgstr "Modalidad"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__mode model:ir.model.fields,field_description:ems.field_hr_attendance__in_mode
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__mode
 msgid "Mode"
 msgstr "Modo"
 
@@ -5317,6 +5378,9 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__name model:ir.model.fields,field_description:ems.field_ems_content__name model:ir.model.fields,field_description:ems.field_ems_course__name model:ir.model.fields,field_description:ems.field_ems_criteria__name model:ir.model.fields,field_description:ems.field_ems_csv_column__name model:ir.model.fields,field_description:ems.field_ems_group__name model:ir.model.fields,field_description:ems.field_ems_level__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__name model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__name model:ir.model.fields,field_description:ems.field_ems_outcome__name model:ir.model.fields,field_description:ems.field_ems_planning__name model:ir.model.fields,field_description:ems.field_ems_role__name model:ir.model.fields,field_description:ems.field_ems_space__name model:ir.model.fields,field_description:ems.field_ems_space_type__name model:ir.model.fields,field_description:ems.field_ems_strike_reason__name model:ir.model.fields,field_description:ems.field_ems_student_document__name model:ir.model.fields,field_description:ems.field_ems_study__name model:ir.model.fields,field_description:ems.field_ems_subject__name model:ir.model.fields,field_description:ems.field_ems_workgroup__name model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__name model:ir.model.fields,field_description:ems.field_ems_attendance_status__name model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__name
 #: model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: code:addons/ems/models/employees/google_workspace_integration.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__label
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__name
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__name model:ir.model.fields,field_description:ems.field_ems_quality_procedure__name model:ir.model.fields,field_description:ems.field_ems_quality_process__name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section__name model:ir.model.fields,field_description:ems.field_ems_minute_section_value__name model:ir.model.fields,field_description:ems.field_ems_minute_type__name model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Name"
@@ -5493,6 +5557,8 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__notes model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__note
 #: model:ir.model.fields,field_description:ems.field_res_partner__comment
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 msgid "Notes"
 msgstr "Notas"
 
@@ -5509,6 +5575,7 @@ msgstr "Notificar a familia/tutor"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice_line__notice_id model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__notice_id
 msgid "Notice"
 msgstr "Comunicado"
 
@@ -5571,6 +5638,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_group__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_space__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_needaction_counter
 msgid "Number of Actions"
@@ -5582,6 +5650,7 @@ msgstr "Cantidad de acciones"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_group__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_space__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_error_counter
 msgid "Number of errors"
@@ -5592,6 +5661,7 @@ msgstr "Cantidad de errores"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_needaction_counter model:ir.model.fields,help:ems.field_ems_group__message_needaction_counter model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction_counter model:ir.model.fields,help:ems.field_ems_space__message_needaction_counter model:ir.model.fields,help:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_minute__message_needaction_counter
 msgid "Number of messages requiring action"
@@ -5602,6 +5672,7 @@ msgstr "Cantidad de mensajes que requieren de una acción"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_error_counter model:ir.model.fields,help:ems.field_ems_group__message_has_error_counter model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error_counter model:ir.model.fields,help:ems.field_ems_space__message_has_error_counter model:ir.model.fields,help:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_minute__message_has_error_counter
 msgid "Number of messages with delivery error"
@@ -5768,11 +5839,13 @@ msgstr "Ruta de la unidad organizativa donde se crean los estudiantes menores de
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__other
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__basis__other
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_other
 msgid "Other"
 msgstr "Otro"
 
 #. module: ems
 #: model:ems.strike.reason,name:ems.strike_reason_other model:ir.model.fields.selection,name:ems.selection__ems_authorization_template__auth_type__other
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_other
 msgid "Other / General"
 msgstr "Otro / General"
 
@@ -6246,6 +6319,7 @@ msgstr "Plantilla de presupuesto"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__rating_ids model:ir.model.fields,field_description:ems.field_ems_group__rating_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__rating_ids model:ir.model.fields,field_description:ems.field_ems_space__rating_ids model:ir.model.fields,field_description:ems.field_ems_strike__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__rating_ids
 msgid "Ratings"
@@ -6370,6 +6444,7 @@ msgstr "Rectificado per"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
 msgid "Reject"
 msgstr "Rechazar"
 
@@ -6688,6 +6763,7 @@ msgstr "En ejecución"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_group__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_space__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_strike__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_sms_error
 msgid "SMS Delivery error"
@@ -6973,6 +7049,9 @@ msgstr "Enviado el"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__sequence model:ir.model.fields,field_description:ems.field_ems_csv_column__sequence model:ir.model.fields,field_description:ems.field_ems_strike_reason__sequence model:ir.model.fields,field_description:ems.field_ems_attendance_status__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__sequence model:ir.model.fields,field_description:ems.field_ems_minute_member_line__sequence model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__sequence model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__sequence model:ir.model.fields,field_description:ems.field_ems_minute_section_value__sequence model:ir.model.fields,field_description:ems.field_ems_minute_type__sequence model:ir.model.fields,field_description:ems.field_ems_minute_type_section__sequence
 msgid "Sequence"
@@ -7132,8 +7211,8 @@ msgid "Source group"
 msgstr "Grupo de origen"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__space_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__space_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__space_id
 msgid "Space"
 msgstr "Espacio"
 
@@ -7207,6 +7286,7 @@ msgstr "Iniciando proceso en segundo plano; recibirás una notificación al fina
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__state model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__state model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__state
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__state
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__state model:ir.model.fields,field_description:ems.field_ems_quality_followup__state model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__state model:ir.model.fields,field_description:ems.field_ems_signed_record__state model_terms:ir.ui.view,arch_db:ems.report_minute model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "State"
@@ -7285,6 +7365,7 @@ msgstr "Calle 2"
 #: model:ir.model.fields,field_description:ems.field_ems_student_private_note__partner_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -7299,6 +7380,7 @@ msgid "Student Documents"
 msgstr "Documentos de alumnos"
 
 #. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__student_idalu
 #: model:ir.model.fields,field_description:ems.field_res_partner__student_id model:ir.model.fields,field_description:ems.field_res_users__student_id
 msgid "Student ID"
 msgstr "ID de estudiante"
@@ -7437,6 +7519,7 @@ msgstr "Estudios para matriculación"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__study_name
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__study_id
 msgid "Study"
 msgstr "Estudio"
 
@@ -7464,6 +7547,10 @@ msgstr "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación 
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__subject_record_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__subject_id
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_strike__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__subject_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_clil_line__subject_id model:ir.model.fields,field_description:ems.field_ems_minute_harmonisation_line__subject_id
 msgid "Subject"
@@ -8088,6 +8175,7 @@ msgstr "Hoy"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_to
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_to
 msgid "To"
 msgstr "A"
 
@@ -8191,8 +8279,9 @@ msgid "Tutorships"
 msgstr "Tutorías"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization_field__field_type model:ir.model.fields,field_description:ems.field_ems_notice_line__recipient_type model:ir.model.fields,field_description:ems.field_ems_space__space_type_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__benefit_type model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__kind
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__type model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+#: model:ir.model.fields,field_description:ems.field_ems_authorization_field__field_type model:ir.model.fields,field_description:ems.field_ems_notice_line__recipient_type model:ir.model.fields,field_description:ems.field_ems_space__space_type_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__benefit_type model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__type_id model_terms:ir.ui.view,arch_db:ems.view_minute_search
 msgid "Type"
 msgstr "Tipo"
@@ -8479,6 +8568,7 @@ msgstr "Estamos trabajando en esta sección para ofrecerte la mejor experiencia.
 #: model:ir.model.fields,field_description:ems.field_ems_planning__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__website_message_ids model:ir.model.fields,field_description:ems.field_ems_group__website_message_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__website_message_ids model:ir.model.fields,field_description:ems.field_ems_space__website_message_ids model:ir.model.fields,field_description:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__website_message_ids
 msgid "Website Messages"
@@ -8489,6 +8579,7 @@ msgstr "Mensajes del sitio web"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__website_message_ids model:ir.model.fields,help:ems.field_ems_group__website_message_ids model:ir.model.fields,help:ems.field_ems_quality_action__website_message_ids model:ir.model.fields,help:ems.field_ems_space__website_message_ids model:ir.model.fields,help:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_minute__website_message_ids
 msgid "Website communication history"
@@ -8550,6 +8641,7 @@ msgstr "Indica si hay nota final (la nota calculada está disponible)."
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Asistente"
 
@@ -9448,6 +9540,9 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_reject_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__reason
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__reason
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__reason_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__reason_id
 msgid "Reason"
 msgstr "Motivo"
 
@@ -9523,12 +9618,6 @@ msgstr "Corrección de fichaje: solicitud de un profesor para enmendar una entra
 #: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "No Head of Studies could be found in %(employee)s's management chain; an Academic Administrator must fix the org chart."
 msgstr "No se ha encontrado ninguna Jefatura de Estudios en la cadena de mando de %(employee)s; un Administrador académico debe corregir el organigrama."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "Only the resolved approver or an Academic Administrator can decide on this request."
-msgstr "Solo el aprobador resuelto o un Administrador académico puede decidir sobre esta solicitud."
 
 #. module: ems
 #. odoo-python
@@ -9657,6 +9746,8 @@ msgstr "Finalizada"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_manual_email
 msgid "Assign corporate email manually"
 msgstr "Asignar correo corporativo manualmente"
 
@@ -9694,12 +9785,6 @@ msgstr "OU para PAS"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "OU for suspended staff"
 msgstr "OU para personal dado de baja"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/google_workspace_integration.py:0
-msgid "Credentials PDF saved as attachment"
-msgstr "PDF de credenciales guardado como adjunto"
 
 #. module: ems
 #. odoo-python
@@ -10173,6 +10258,7 @@ msgstr "Usa flujo de matrícula"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__warning
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__warning
 msgid "Warning"
 msgstr "Aviso"
 
@@ -11524,6 +11610,7 @@ msgstr "Nota de la última evaluación informada."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__group_name
 msgid "Group name"
 msgstr "Nombre del grupo"
 
@@ -11842,8 +11929,8 @@ msgstr "Alumnos de refuerzo"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__group_type
-msgid "Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate and a single study/level. Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate and can mix students from different main groups and studies."
-msgstr "Principal: el grupo en el que está matriculado un alumno (main_group_id), con tutor/a, delegado/a y un único estudio/nivel. Refuerzo: aparece en el horario docente como cualquier otro grupo, pero no tiene tutor/a ni delegado/a y puede mezclar alumnos de diferentes grupos principales y estudios."
+msgid "Main: the group a student is enrolled in (main_group_id), with a tutor, a delegate, a sub-delegate and a single study/level. Reinforcement: appears in the teaching schedule like any other group, but has no tutor/delegate/sub-delegate and can mix students from different main groups and studies."
+msgstr "Principal: el grupo en el que está matriculado un alumno (main_group_id), con tutor/a, delegado/a, subdelegado/a y un único estudio/nivel. Refuerzo: aparece en el horario docente como cualquier otro grupo, pero no tiene tutor/a, delegado/a ni subdelegado/a y puede mezclar alumnos de diferentes grupos principales y estudios."
 
 #. module: ems
 #. odoo-python
@@ -11854,8 +11941,8 @@ msgstr "Un grupo principal requiere un nivel, un estudio, un curso y un acrónim
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/group.py:0
-msgid "A reinforcement group cannot have a level, a study, a tutor or a delegate: it is meant to mix students from different main groups and studies."
-msgstr "Un grupo de refuerzo no puede tener nivel, estudio, tutor/a ni delegado/a: está pensado para mezclar alumnos de diferentes grupos principales y estudios."
+msgid "A reinforcement group cannot have a level, a study, a tutor, a delegate or a sub-delegate: it is meant to mix students from different main groups and studies."
+msgstr "Un grupo de refuerzo no puede tener nivel, estudio, tutor/a, delegado/a ni subdelegado/a: está pensado para mezclar alumnos de diferentes grupos principales y estudios."
 
 #. module: ems
 #. odoo-python
@@ -13178,28 +13265,6 @@ msgid ""
 msgstr "Estas sesiones existentes ocupan el mismo espacio y horario que lo que estás importando, para un grupo/asignatura diferente - soluciona el conflicto de aula e inténtalo de nuevo: %s"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/google_workspace_integration.py:0
-msgid "Identity confirmed: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
-msgstr "Identidad confirmada: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/employee.py:0
-msgid "Identity confirmed manually: this employee was created as a pending-identification placeholder from schedule-import code '%s'."
-msgstr "Identidad confirmada manualmente: este empleado se creó como marcador de posición pendiente de identificar a partir del código de importación de horario '%s'."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "Mark as identified"
-msgstr "Marcar como identificado"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
-msgid "This clears the pending-identification placeholder without creating any Google/EMS account. Use it only once you are sure this employee will not need one created from this record (e.g. already has one elsewhere). Continue?"
-msgstr "Esto elimina el marcador de posición pendiente de identificar sin crear ninguna cuenta de Google/EMS. Úsalo solo cuando estés seguro de que este empleado no necesitará ninguna creada desde este registro (p. ej. ya tiene una en otro registro). ¿Continuar?"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_missing_enrollments
 msgid "Create missing enrollments"
 msgstr "Crear las matrículas que falten"
@@ -13385,6 +13450,7 @@ msgstr "Tabla de ausencias -"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/guard_duty_board_field.xml:0
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__duty_id
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Guard duty"
 msgstr "Guardia"
@@ -14031,17 +14097,6 @@ msgstr "Derechos de acceso del equipo TAC: puede crear y editar profesorado."
 #: model:res.groups,comment:ems.group_tac_admin
 msgid "Access rights for the TAC coordinator. Currently identical to Manager."
 msgstr "Derechos de acceso de la coordinación TAC. Actualmente idénticos a los de Gestor/a."
-
-#. module: ems
-#: model:res.groups,comment:ems.group_head_of_studies
-msgid ""
-"Access rights for Head of Studies / Deputy Head of Studies. Grants full "
-"read/write access to all employees' attendance records, and the right to "
-"create and edit teachers."
-msgstr ""
-"Derechos de acceso de la jefatura de estudios y la jefatura de estudios "
-"adjunta. Concede acceso completo de lectura y escritura a los registros de "
-"asistencia de todo el personal, y el derecho a crear y editar profesorado."
 
 #. module: ems
 #. odoo-python
@@ -15097,13 +15152,9 @@ msgstr "Observaciones del alumno o de la familia..."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 msgid "Convalidate"
 msgstr "Convalidar"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
-msgid "Convalidate pending subjects"
-msgstr "Convalidar los módulos pendientes"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__granted_count
@@ -15111,6 +15162,7 @@ msgstr "Convalidar los módulos pendientes"
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_convalidated
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__state__granted
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Convalidated"
 msgstr "Convalidado"
 
@@ -15149,6 +15201,7 @@ msgstr "Solicitud de convalidación: un alumno pide convalidar algunos módulos 
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.ui.menu,name:ems.menu_ems_configuration_convalidations
 msgid "Convalidations"
 msgstr "Convalidaciones"
 
@@ -15279,6 +15332,7 @@ msgstr "Resuelta"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__resolved_by_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__signed_by_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__cover_type
 msgid "Resolved by"
 msgstr "Resuelta por"
 
@@ -15420,6 +15474,7 @@ msgstr "Ninguno de los alumnos seleccionados tiene credenciales de Google que pu
 #. module: ems
 #. odoo-python
 #: code:addons/ems/controllers/google_credentials.py:0
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_credentials_pdf
 msgid "Google credentials"
 msgstr "Credenciales de Google"
 
@@ -15437,7 +15492,7 @@ msgstr "Contraseña de Google Workspace restablecida: %(email)s%(dry)s. %(pdf)s%
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
 msgid ""
 "Google refused to reset the password of %(email)s. Check that the service "
 "account's admin role has the \"Reset password\" privilege. Error: %(err)s"
@@ -15461,6 +15516,7 @@ msgstr "Indica si el usuario que consulta a este alumno puede restablecerle la c
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Reset Google password"
 msgstr "Restablecer contraseña de Google"
 
@@ -15644,11 +15700,13 @@ msgstr "Asistente de revisión de calificaciones: la nota resuelta de un resulta
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__is_scored
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__is_scored
 msgid "Graded"
 msgstr "Calificado"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard_line__outcome_name
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__outcome
 msgid "Learning outcome"
 msgstr "Resultado de aprendizaje"
 
@@ -15912,16 +15970,6 @@ msgstr ""
 "centro"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
-msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>The applicant receives it by email and can answer,\n"
-"                        attaching the documents, from the portal. The request itself stays where it is."
-msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>El solicitante lo recibe por correo y "
-"puede responder, adjuntando los documentos, desde el portal. La solicitud se"
-" queda donde estaba."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid ""
 "<i class=\"fa fa-info-circle me-1\"/>The grade defaults to 5. Write the one the\n"
@@ -16036,6 +16084,8 @@ msgstr "EMS: Convalidación, documentación solicitada"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__grade
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__score
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__grade
 msgid "Grade"
 msgstr "Nota"
 
@@ -16047,16 +16097,6 @@ msgid ""
 msgstr ""
 "Nota con la que se registra el módulo convalidado. No llega a las "
 "calificaciones del alumno hasta que secretaría completa la solicitud."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_grade_subject_line__convalidation_grade
-#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__convalidation_grade
-msgid ""
-"Grade the convalidation was resolved with. Only meaningful while "
-"'Convalidated' is set."
-msgstr ""
-"Nota con la que se resolvió la convalidación. Solo tiene sentido mientras "
-"está marcado «Convalidado»."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__has_centre_title
@@ -16107,15 +16147,6 @@ msgid "Pending the secretariat"
 msgstr "Pendiente de secretaría"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid ""
-"Professional certificate or accreditation of competences: the certificate "
-"itself."
-msgstr ""
-"Certificado de profesionalidad o acreditación de competencias: el "
-"certificado mismo."
-
-#. module: ems
 #: model:mail.activity.type,name:ems.mail_activity_convalidation_registration
 msgid "Register convalidation in Esfera"
 msgstr "Registrar la convalidación en Esfera"
@@ -16145,15 +16176,6 @@ msgid ""
 msgstr "Envía la solicitud resuelta a secretaría, que la registra en Esfera."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
-msgid ""
-"Sent to the student (or the family of a minor) by email, and shown on the "
-"portal, where they can answer and attach the documents asked for."
-msgstr ""
-"Se envía por correo al alumno (o a la familia, si es menor) y se muestra en "
-"el portal, donde puede responder y adjuntar los documentos pedidos."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid ""
 "Studies passed at another centre: the academic certificate or transcript of "
@@ -16175,6 +16197,15 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Supporting documents <span class=\"text-muted\">(optional)</span>"
 msgstr "Documentación justificativa <span class=\"text-muted\">(opcional)</span>"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
+msgid ""
+"Sent to the student (or the family of a minor) by email, and shown on the "
+"portal, where they can answer and attach the documents asked for."
+msgstr ""
+"Se envía por correo al alumno (o a la familia, si es menor) y se muestra en "
+"el portal, donde puede responder y adjuntar los documentos pedidos."
 
 #. module: ems
 #. odoo-python
@@ -16246,15 +16277,6 @@ msgstr ""
 "\n"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid ""
-"University studies or a Ministry resolution: attach the resolution if you "
-"already have it."
-msgstr ""
-"Estudios universitarios o resolución del Ministerio: adjuntad la resolución,"
-" si ya la tenéis."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__validated_by_id
 msgid "Validated by"
 msgstr "Validada por"
@@ -16265,11 +16287,6 @@ msgid "Validation date"
 msgstr "Fecha de validación"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
-msgid "What is missing"
-msgstr "Qué falta"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_line__resolution_notes
 msgid ""
 "Where the resolution comes from, e.g. \"Granted by the Department, file no. "
@@ -16277,13 +16294,6 @@ msgid ""
 msgstr ""
 "De dónde sale la resolución, por ejemplo «Aprobada por el Departamento de "
 "Educación con expediente n.º 1234». Se muestra al alumno con la resolución."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
-msgid "Which documents to attach depends on where you passed the subjects:"
-msgstr ""
-"La documentación que hay que adjuntar depende de dónde superasteis los "
-"módulos:"
 
 #. module: ems
 #. odoo-python
@@ -17881,6 +17891,7 @@ msgstr "Registrado, pero no está en la lista de convocados"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__space_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__space_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute__space_id
 msgid "Room"
 msgstr "Sala"
@@ -17925,6 +17936,7 @@ msgstr "Esta persona ya está en la lista."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__checkin_time model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour
 #: model:ir.model.fields,field_description:ems.field_ems_minute__time model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Time"
 msgstr "Hora"
@@ -18148,18 +18160,6 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
-msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>The grade defaults to 5, which the resolution\n"
-"                                    shows as \"Convalidated\". Write the one the previous studies hold when it is known.\n"
-"                                    Every refused subject needs its reason, which the resolution states."
-msgstr ""
-"<i class=\"fa fa-info-circle me-1\"/>La nota por defecto es 5, que la "
-"resolución muestra como \"Convalidado\". Escribid la de los estudios previos"
-" cuando se sepa. Cada módulo denegado necesita su motivo, que la resolución "
-"indica."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "<strong>Returned by the Director:</strong>"
 msgstr "<strong>Devuelta por la dirección:</strong>"
 
@@ -18321,6 +18321,8 @@ msgstr "Resolución del Ministerio.pdf"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__subject_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__module
 msgid "Module"
 msgstr "Módulo"
 
@@ -18399,11 +18401,6 @@ msgstr "Propuesta devuelta al jefe de estudios por la dirección:"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__validated_by_id
 msgid "Proposed by"
 msgstr "Propuesta por"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason
-msgid "Reason for refusal"
-msgstr "Motivo de la denegación"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
@@ -18508,17 +18505,6 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Send proposal to the Director"
 msgstr "Enviar propuesta a dirección"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
-msgid ""
-"Sent to the student (and their family, when it follows their convalidations)"
-" by email, and shown on the portal, where they can answer and attach the "
-"documents asked for."
-msgstr ""
-"Se envía por correo al alumno (y a su familia, cuando sigue sus "
-"convalidaciones) y se muestra en el portal, donde pueden responder y "
-"adjuntar los documentos pedidos."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -18693,15 +18679,6 @@ msgid "Why the Director sent the last proposal back for review."
 msgstr "Por qué la dirección devolvió la última propuesta para revisarla."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_line__rejection_reason
-msgid ""
-"Why the subject is not convalidated. Required to refuse it: the resolution "
-"states it."
-msgstr ""
-"Por qué no se convalida el módulo. Es necesario para denegarlo: la "
-"resolución lo indica."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "Write the reason for refusing: %s"
@@ -18723,22 +18700,10 @@ msgid "Documentation requested on"
 msgstr "Documentación solicitada el"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation__info_request
-msgid ""
-"The last request for information sent to the applicant, shown on the portal "
-"next to the answer form while the request is under review."
-msgstr ""
-"La última petición de información enviada a la persona solicitante, que se "
-"muestra en el portal junto al formulario de respuesta mientras la solicitud "
-"está en revisión."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
-msgid ""
-"The student, course, study, grounds and applicant's comments cannot be "
-"changed once the request is submitted."
-msgstr "El alumno, el curso, el estudio, el motivo y las observaciones del solicitante no se pueden modificar una vez presentada la solicitud."
+msgid "The student, course, study, grounds, where the studies were passed and applicant's comments cannot be changed once the request is submitted."
+msgstr "El alumno, el curso, el estudio, el motivo, dónde se superaron los estudios y las observaciones del solicitante no se pueden modificar una vez presentada la solicitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
@@ -18852,8 +18817,11 @@ msgstr ""
 "rechaza toda la solicitud."
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: code:addons/ems/models/employees/absence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
 msgid "Documentation insufficient"
 msgstr "Documentación insuficiente"
 
@@ -18983,24 +18951,14 @@ msgid ""
 msgstr "El último día que se recordó al trabajador que falta el justificante."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
-#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
-msgid ""
-"The request goes back to the employee, who is asked to attach a valid "
-"supporting document. Continue?"
-msgstr ""
-"La solicitud vuelve al trabajador, a quien se pide que adjunte un "
-"justificante válido. ¿Continuar?"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/absence.py:0
 msgid ""
 "The supporting document for your absence of %(when)s is not sufficient. "
-"Please attach a valid one to the request."
+"Reason: %(reason)s. Please attach a valid one to the request."
 msgstr ""
-"El justificante de tu ausencia del %(when)s no es suficiente. Adjunta uno "
-"válido a la solicitud."
+"El justificante de tu ausencia del %(when)s no es suficiente. Motivo: "
+"%(reason)s. Adjunta uno válido a la solicitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
@@ -19129,8 +19087,8 @@ msgstr "Aparece en el horario de guardias como ausencia pendiente hasta que el d
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
-msgid "Only the teachers below you in the hierarchy."
-msgstr "Solo los docentes que tienes por debajo en la jerarquía."
+msgid "Only the teachers below you in the hierarchy or teaching in your area."
+msgstr "Solo los docentes que tienes por debajo en la jerarquía o que dan clase en tu área."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked
@@ -19311,6 +19269,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Actions"
 msgstr "Acciones"
 
@@ -21189,3 +21148,2047 @@ msgstr "Estas secciones son obligatorias para este tipo de acta y todavía está
 #: code:addons/ems/models/quality/signed_record.py:0
 msgid "An approved record cannot go back to draft: correct it with a new version instead."
 msgstr "Un registro aprobado no puede volver a borrador: corregidlo con una versión nueva."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_creation_pending
+#: model:ir.model.fields,field_description:ems.field_res_partner__google_ws_creation_pending
+#: model:ir.model.fields,field_description:ems.field_res_users__google_ws_creation_pending
+msgid "Google account being created"
+msgstr "Cuenta de Google en creación"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_ws_creation_pending
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_creation_pending
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_creation_pending
+msgid "True while the account-creation job waits in the queue or runs: the \"Create Google account\" button stays hidden meanwhile."
+msgstr "Verdadero mientras la creación de la cuenta espera en la cola o se está ejecutando: mientras tanto, el botón \"Crear cuenta de Google\" queda oculto."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/google_workspace_mixin.py:0
+msgid "The Google account is being created. The result will appear in the record's history in a few moments."
+msgstr "Se está creando la cuenta de Google. En unos momentos verá el resultado en el historial de la ficha."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__staffing_type
+msgid "Staffing type"
+msgstr "Tipo de alta"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__staffing_type
+msgid "A vacancy has its department, schedule and so on, but nobody filling it yet: it gets no Google account and no EMS user. Switching it to a named teacher, with their real name and personal email, creates them."
+msgstr "Una plaza tiene su departamento, horario, etc., pero todavía no hay nadie que la cubra: no tiene cuenta de Google ni usuario de EMS. Al pasarla a docente nominal, con el nombre real y el correo personal, se crean."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__staffing_type__named
+msgid "Named teacher"
+msgstr "Docente nominal"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_employee__staffing_type__vacancy
+msgid "Vacancy pending identification"
+msgstr "Plaza pendiente de identificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Vacancy code"
+msgstr "Código de plaza"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A named teacher can't be turned back into a vacancy."
+msgstr "Un docente nominal no se puede volver a convertir en plaza."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Only teachers can be created as a vacancy."
+msgstr "Solo el profesorado puede darse de alta como plaza."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "A vacancy needs its vacancy code (e.g. X1)."
+msgstr "Una plaza necesita su código de plaza (p. ej. X1)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Another active teacher already has the vacancy code %s."
+msgstr "Otro docente activo ya tiene el código de plaza %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Identity confirmed: this teacher was created as a vacancy pending identification, with code '%s'."
+msgstr "Identidad confirmada: este docente se creó como plaza pendiente de identificar, con el código '%s'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "%s is a vacancy pending identification. Switch it to a named teacher, with their personal email, and the Google account will be created."
+msgstr "%s es una plaza pendiente de identificar. Pásela a docente nominal, con su correo personal, y se creará la cuenta de Google."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_file
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__certificate_file
+msgid "Academic certificate"
+msgstr "Certificado académico"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Academic certificate of %s"
+msgstr "Certificado académico de %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid "Apply and add another module"
+msgstr "Aplicar y añadir otro módulo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__available_course_ids
+msgid "Available courses"
+msgstr "Cursos disponibles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__available_study_ids
+msgid "Available studies"
+msgstr "Estudios disponibles"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_filename
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__certificate_filename
+msgid "Certificate file name"
+msgstr "Nombre del archivo del certificado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Create and add modules"
+msgstr "Crear y añadir los módulos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_name
+msgid "Origin centre"
+msgstr "Centro de procedencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_code
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_code
+msgid "Origin centre code"
+msgstr "Código del centro de procedencia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(module)s has no module of this study with a teaching plan that course: pick one or untick it."
+msgstr "%(module)s no tiene ningún módulo de este estudio con programación ese curso: elegid uno o desmarcadlo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(student)s already has an academic record for %(course)s, or the course is not over yet."
+msgstr "%(student)s ya tiene un expediente académico del curso %(course)s, o el curso todavía no ha terminado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(subject)s: %(state)s, grade %(grade)s"
+msgstr "%(subject)s: %(state)s, nota %(grade)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%s learning outcomes of the teaching plan are not on the certificate."
+msgstr "%s resultados de aprendizaje de la programación no constan en el certificado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Another student's certificate"
+msgstr "Certificado de otro alumno"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_code
+msgid "Certificate code"
+msgstr "Código del certificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_text
+msgid "Certificate grade"
+msgstr "Calificación del certificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__line_ids
+msgid "Certificate grades"
+msgstr "Calificaciones del certificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_message
+msgid "Certificate reading"
+msgstr "Lectura del certificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_student_name
+msgid "Certificate student"
+msgstr "Alumno del certificado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__certificate_student_identifier
+msgid "Certificate student ID"
+msgstr "Identificador del alumno del certificado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid ""
+"Check the grades read from the certificate before creating the record:\n"
+"                            correct any grade, pick the module of a line that was not recognised,\n"
+"                            and untick the modules not to import."
+msgstr "Revisad las notas leídas del certificado antes de crear el expediente: corregid cualquier nota, elegid el módulo de las líneas que no se han reconocido y desmarcad los módulos que no se deben importar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Create record"
+msgstr "Crear el expediente"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_external_record_wizard_line
+msgid "External record wizard: one module, learning outcome or work placement of the certificate."
+msgstr "Asistente de expediente externo: un módulo, resultado de aprendizaje o estancia del certificado."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__module_key
+msgid "Module key"
+msgstr "Clave del módulo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "No teaching plan for this module that course."
+msgstr "Este módulo no tiene programación ese curso."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Not a module of this study: not imported."
+msgstr "No es un módulo de este estudio: no se importa."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__outcome_number
+msgid "Outcome number"
+msgstr "Número del resultado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The certificate belongs to %(name)s (%(identifier)s), not to this student (%(own)s)."
+msgstr "El certificado es de %(name)s (%(identifier)s), no de este alumno (%(own)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The file is not an Esfera academic record: fill in the record by hand and add its modules one by one."
+msgstr "El archivo no es un expediente académico de Esfera: rellenad el expediente a mano y añadid sus módulos uno a uno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The learning outcomes give %(grade)s: the certificate's %(certificate)s is applied."
+msgstr "Los resultados de aprendizaje dan %(grade)s: se aplica el %(certificate)s del certificado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The learning outcomes give %s on the other side of 5: the module grade cannot be applied."
+msgstr "Los resultados de aprendizaje dan %s, al otro lado del 5: no se puede aplicar la nota del módulo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__placement
+msgid "Work placement"
+msgstr "Estancia en la empresa"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_external_record_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid "Add a previous record"
+msgstr "Añadir un expediente anterior"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+msgid ""
+"Adds to the academic history a course the student took before it was\n"
+"                            kept in EMS, at this centre or at another one. Upload the Esfera\n"
+"                            academic record (PDF) to fill everything in from it; with any other\n"
+"                            certificate, fill in the record and then add its modules one by one\n"
+"                            with the grades of each learning outcome (RA)."
+msgstr "Añade al histórico académico un curso que el alumno hizo antes de que se llevara en EMS, en este centro o en otro. Subid el expediente académico de Esfera (PDF) para rellenarlo todo a partir de él; con cualquier otro certificado, rellenad el expediente y después añadid sus módulos uno a uno con la nota de cada resultado de aprendizaje (RA)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__centre_code
+msgid "Centre code"
+msgstr "Código del centro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__centre_name
+msgid "Centre name"
+msgstr "Nombre del centro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_course
+msgid "Certificate course"
+msgstr "Curso del certificado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Every course of the certificate is already in the student's academic history."
+msgstr "Todos los cursos del certificado ya están en el histórico académico del alumno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Only the secretariat, the academic administration, the Head of Studies and the Director may add a previous record."
+msgstr "Solo secretaría, la administración académica, la jefatura de estudios y la dirección pueden añadir un expediente anterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick the course of the record."
+msgstr "Elegid el curso del expediente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Previous academic record of %(course)s (%(study)s) added by %(user)s: %(centre)s"
+msgstr "Expediente anterior del curso %(course)s (%(study)s) añadido por %(user)s: %(centre)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_external
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+msgid "Previous record"
+msgstr "Expediente anterior"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_external_record_wizard
+msgid "Previous record wizard: academic history of a course typed in from an academic certificate."
+msgstr "Asistente de expediente anterior: histórico académico de un curso introducido a partir de un certificado académico."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+msgid "Previous records"
+msgstr "Expedientes anteriores"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The course %s does not exist in EMS: not imported."
+msgstr "El curso %s no existe en EMS: no se importa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The course %s is not over yet: not imported."
+msgstr "El curso %s todavía no ha terminado: no se importa."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_grade_review_wizard_form
+msgid ""
+"This record is typed in from an academic certificate. Add each module with the\n"
+"                            grade of every learning outcome (RA) shown on the academic\n"
+"                            certificate; if the internal grade the outcomes give differs from the\n"
+"                            certificate's, type the certificate's in the applied internal grade.\n"
+"                            Leave the work placement grade out when the certificate does not\n"
+"                            have it yet: the module stays with its final grade pending."
+msgstr "Este expediente se introduce a partir de un certificado académico. Añadid cada módulo con la nota de cada resultado de aprendizaje (RA) que consta en el certificado; si la nota del centro resultante no coincide con la del certificado, escribid la del certificado en la nota del centro aplicada. Dejad fuera la nota de la estancia cuando el certificado aún no la tenga: el módulo queda con la nota final pendiente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Tick at least one module to import."
+msgstr "Marcad al menos un módulo para importar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_review_wizard__is_external
+#: model:ir.model.fields,help:ems.field_ems_student_year_record__is_external
+msgid "Typed in from an academic certificate (another centre's, or this centre's from before EMS) instead of generated from the grade sessions."
+msgstr "Introducido a partir de un certificado académico (de otro centro, o de este de antes de EMS) en lugar de generado a partir de las sesiones de evaluación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "%(subject)s: recognised from %(modules)s, grade %(grade)s"
+msgstr "%(subject)s: reconocido a partir de %(modules)s, nota %(grade)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/grade_review_wizard.py:0
+msgid "%s was recognised from the optional modules of a previous record and has no learning outcomes to review: remove it and add it again."
+msgstr "%s se reconoció a partir de las optativas de un expediente anterior y no tiene resultados de aprendizaje que revisar: eliminadlo y volved a añadirlo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__hours
+msgid "Hours"
+msgstr "Horas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__is_optional
+msgid "Optional module"
+msgstr "Optativa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Optional module of the certificate: it only counts towards this centre's own optional module, when passed."
+msgstr "Optativa del certificado: solo cuenta para la optativa del centro, si está aprobada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__is_recognized
+msgid "Optional module passed through the optional modules of the academic certificate of a previous record."
+msgstr "Optativa aprobada a partir de las optativas del certificado académico de un expediente anterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick this centre's optional module the certificate's optional modules are recognised as."
+msgstr "Elegid la optativa del centro como la que se reconocen las optativas del certificado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Pick this centre's optional module."
+msgstr "Elegid la optativa del centro."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_recognized
+msgid "Recognised"
+msgstr "Reconocido"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "Recognised from: %s"
+msgstr "Reconocido a partir de: %s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__optional
+msgid "Recognised optional module"
+msgstr "Optativa reconocida"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The passed optional modules add up to %(hours)s h of the %(needed)s h of %(subject)s: not imported."
+msgstr "Las optativas aprobadas suman %(hours)s h de las %(needed)s h de %(subject)s: no se importa."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and this database has not been prepared with devel.sh, so its addresses may be real people's."
+msgstr "Correo bloqueado: esta es una máquina de desarrollo y esta base de datos no se ha preparado con devel.sh, así que sus direcciones pueden ser de personas reales."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/mail_guard.py:0
+msgid "Email blocked: this is a development machine and these recipients are neither redirected by devel.sh nor in the allowlist: %(recipients)s"
+msgstr "Correo bloqueado: esta es una máquina de desarrollo y estos destinatarios no están desviados por devel.sh ni en la lista de direcciones permitidas: %(recipients)s"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_cover
+msgid "Absence cover: a guard teacher sent to a class left without its teacher"
+msgstr "Cobertura de ausencia: un docente de guardia enviado a una clase sin su docente"
+
+#. module: ems
+#. odoo-javascript
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__absent_employee_id
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Absent teacher"
+msgstr "Docente ausente"
+
+#. module: ems
+#. odoo-javascript
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__guard_employee_id
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__cover_type__guard
+msgid "Guard teacher"
+msgstr "Docente de guardia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__assigned_by_id
+msgid "Assigned by"
+msgstr "Asignado por"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__state__assigned
+msgid "Assigned"
+msgstr "Asignada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__state__released
+msgid "Released"
+msgstr "Liberada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_date
+msgid "Absence day"
+msgstr "Día de la ausencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_group_id
+msgid "Absence group"
+msgstr "Grupo de la ausencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_type
+msgid "Timetable change"
+msgstr "Cambio de horario"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__late_entry
+msgid "Late entry"
+msgstr "Entrada tarde"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__early_leave
+msgid "Early leave"
+msgstr "Salida anticipada"
+
+#. module: ems
+#. odoo-python
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__no_classes
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "No classes"
+msgstr "Sin clases"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_entry
+msgid "Usual start time"
+msgstr "Hora de entrada habitual"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_leave
+msgid "Usual finish time"
+msgstr "Hora de salida habitual"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
+msgid ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Timetable change\"/>\n"
+"                            <span>Timetable change because of a teacher's absence:</span>"
+msgstr ""
+"<i class=\"fa fa-calendar-times-o me-2\" title=\"Cambio de horario\"/>\n"
+"                            <span>Cambio de horario por la ausencia de un docente:</span>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This class already has a guard teacher assigned."
+msgstr "Esta clase ya tiene un docente de guardia asignado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Guard duty cancelled: %(group)s, %(date)s %(time)s"
+msgstr "Guardia anulada: %(group)s, %(date)s %(time)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You no longer need to cover this class:"
+msgstr "Ya no hace falta que cubras esta clase:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Guard duty: cover %(group)s, %(date)s %(time)s"
+msgstr "Guardia: cubrir %(group)s, %(date)s %(time)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You have been assigned to cover this class:"
+msgstr "Se te ha asignado para cubrir esta clase:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Date: %s"
+msgstr "Fecha: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Time: %s"
+msgstr "Hora: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Group: %s"
+msgstr "Grupo: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Subject: %s"
+msgstr "Asignatura: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Room: %s"
+msgstr "Aula: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Absent teacher: %s"
+msgstr "Docente ausente: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The class or the guard teacher no longer exists."
+msgstr "La clase o el docente de guardia ya no existe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This class no longer needs covering: the absence or the class has changed. Reload the board."
+msgstr "Esta clase ya no necesita cubrirse: la ausencia o la clase han cambiado. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%s is not on guard duty in this period."
+msgstr "%s no está de guardia en esta franja."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This assignment no longer exists. Reload the board."
+msgstr "Esta asignación ya no existe. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "A timetable change notice can only be sent to the students and families of %s."
+msgstr "Un comunicado de cambio de horario solo se puede enviar al alumnado y las familias de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Dear students and families,"
+msgstr "Estimadas familias y alumnado,"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Correction: %s"
+msgstr "Rectificación: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "This message corrects the one we sent you earlier about this day."
+msgstr "Este mensaje rectifica el que os enviamos antes sobre este día."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "This group no longer exists."
+msgstr "Este grupo ya no existe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "The absences of this group have changed since the board was loaded. Reload the board."
+msgstr "Las ausencias de este grupo han cambiado desde que se cargó el cuadrante. Vuelve a cargarlo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Only the department chief of the absent teacher, or someone above them, can do this."
+msgstr "Solo el jefe de departamento del docente ausente, o alguien por encima, puede hacerlo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Only the department chief of %s, or someone above them, can manage their absences."
+msgstr "Solo el jefe de departamento de %s, o alguien por encima, puede gestionar sus ausencias."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "This day is already over."
+msgstr "Este día ya ha pasado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could start at %s"
+msgstr "Puede entrar a las %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could leave at %s"
+msgstr "Puede salir a las %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could have no classes"
+msgstr "Puede no tener clases"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Starts at %s"
+msgstr "Entra a las %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Leaves at %s"
+msgstr "Sale a las %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Usual timetable"
+msgstr "Horario habitual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(guard)s no longer needs to cover %(group)s at %(time)s (%(teacher)s)."
+msgstr "%(guard)s ya no tiene que cubrir %(group)s a las %(time)s (%(teacher)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s: %(change)s."
+msgstr "%(group)s: %(change)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s: the families were told \"%(told)s\", which no longer matches the absences (now: %(change)s)."
+msgstr "%(group)s: se comunicó «%(told)s» a las familias, pero ya no coincide con las ausencias (ahora: %(change)s)."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Cover %(group)s (%(time)s)"
+msgstr "Cubrir %(group)s (%(time)s)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Choose a guard teacher..."
+msgstr "Elige un docente de guardia..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Nobody is on guard duty in this period."
+msgstr "No hay nadie de guardia en esta franja."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Message for the guard teacher"
+msgstr "Mensaje para el docente de guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "What the students have to work on, where to find the materials..."
+msgstr "Qué tiene que trabajar el alumnado, dónde están los materiales..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Assign and notify"
+msgstr "Asignar y avisar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Remove assignment"
+msgstr "Quitar la asignación"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Propose notice"
+msgstr "Proponer comunicado"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Propose correction"
+msgstr "Proponer rectificación"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Open draft"
+msgstr "Abrir borrador"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Release guard"
+msgstr "Liberar la guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to this class"
+msgstr "Haz clic para enviar un docente de guardia a esta clase"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__department_chief_user_ids
+msgid "Department chiefs"
+msgstr "Jefes de departamento"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__available_group_ids
+msgid "Available groups"
+msgstr "Grupos disponibles"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "You can only send notices to the groups your department teaches: %s is not one of them."
+msgstr "Solo puedes enviar comunicados a los grupos donde da clase tu departamento: %s no es uno de ellos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "a recipient outside your groups"
+msgstr "un destinatario de fuera de tus grupos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_department_scope.py:0
+msgid "Unsupported search on department_chief_user_ids"
+msgstr "Búsqueda no admitida en department_chief_user_ids"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can come in later on %(date)s"
+msgstr "%(group)s | el %(date)s podrán entrar más tarde al instituto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | they can leave earlier on %(date)s"
+msgstr "%(group)s | el %(date)s podrán salir antes del instituto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | no classes on %(date)s"
+msgstr "%(group)s | el %(date)s no tendrán clases"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | usual timetable on %(date)s"
+msgstr "%(group)s | el %(date)s horario habitual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will start classes at %(hour)s on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s empezará las clases a las %(hour)s el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will finish classes at %(hour)s on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s terminará las clases a las %(hour)s el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will have no classes on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s no tendrá clases el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will start classes at the usual time on %(date)s."
+msgstr "El grupo %(group)s empezará las clases a la hora habitual el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will finish classes at the usual time on %(date)s."
+msgstr "El grupo %(group)s terminará las clases a la hora habitual el día %(date)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."
+msgstr "Enviar el comunicado tacha estas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas. Puedes elegir un cambio más corto y enviar un docente de guardia al resto."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Guards no longer needed"
+msgstr "Guardias que ya no hacen falta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No guard needed: the families were told \"%s\"."
+msgstr "No hace falta docente de guardia: se comunicó a las familias «%s»."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teacher sent to this class."
+msgstr "Cubierta por %s, el docente de guardia enviado a esta clase."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Change or remove the guard"
+msgstr "Cambiar o quitar el docente de guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Late entry, early leave and break proposals"
+msgstr "Propuestas de entrada, salida y patio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Could have a break from %(start)s to %(end)s"
+msgstr "Puede hacer patio de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Break from %(start)s to %(end)s"
+msgstr "Patio de %(start)s a %(end)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_break
+msgid "Usual break"
+msgstr "Patio habitual"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__long_break
+msgid "Longer break"
+msgstr "Patio alargado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | longer break on %(date)s"
+msgstr "%(group)s | el %(date)s alargarán el patio"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Due to the justified absence of the assigned teacher, group %(group)s will have a longer break, from %(start)s to %(end)s, on %(date)s."
+msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)s alargará el patio de %(start)s a %(end)s el día %(date)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Group %(group)s will have the usual break, from %(start)s to %(end)s, on %(date)s."
+msgstr "El grupo %(group)s hará el patio habitual, de %(start)s a %(end)s, el día %(date)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour_to
+msgid "Until"
+msgstr "Hasta"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_document_return_wizard
+msgid "The Head or Direction sends an absence's supporting document back to the employee."
+msgstr "El responsable o la Dirección devuelven el justificante de una ausencia al trabajador."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_document_return_reason
+msgid "Why the document was sent back"
+msgstr "Motivo por el que se devolvió el justificante"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_document_return_reason
+msgid "Written by the Head or Direction when the supporting document is not sufficient. Shown to the employee until they attach a new one."
+msgstr "Lo escribe el responsable o la Dirección cuando el justificante no es suficiente. El trabajador lo ve hasta que adjunta uno nuevo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_document_return_wizard__reason
+msgid "What is wrong with the document and what the employee has to attach instead. The employee is told, and it stays on the request until they attach a new one."
+msgstr "Qué falla del justificante y qué debe adjuntar el trabajador en su lugar. Se le comunica, y queda en la solicitud hasta que adjunta uno nuevo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "What is wrong with the document and what the employee has to attach instead..."
+msgstr "Qué falla del justificante y qué debe adjuntar el trabajador en su lugar..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "<i class=\"fa fa-info-circle me-1\"/>The request goes back to the employee, who is told the reason and asked to attach a valid supporting document."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>La solicitud vuelve al trabajador, a quien se comunica el motivo y se pide que adjunte un justificante válido."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "Send back"
+msgstr "Devolver"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "<strong>The supporting document was not sufficient:</strong>"
+msgstr "<strong>El justificante no era suficiente:</strong>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__subdelegate_id
+msgid "Sub-delegate"
+msgstr "Subdelegado/a"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "The delegate and the sub-delegate of a group must be different students."
+msgstr "El delegado/a y el subdelegado/a de un grupo deben ser alumnos diferentes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The applicant receives it by email and can answer,\n"
+"                        attaching the documents, from the portal. The request waits as Pending documentation\n"
+"                        until they answer."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>El solicitante lo recibe por correo y "
+"puede responder, adjuntando los documentos, desde el portal. La solicitud "
+"queda Pendiente de documentación hasta que responda."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Documentation received"
+msgstr "Documentación recibida"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"The documentation arrived some other way (on paper, by email): the request "
+"goes back under review."
+msgstr ""
+"La documentación ha llegado por otra vía (en papel, por correo): la "
+"solicitud vuelve a revisión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Documentation received: the request is back under review."
+msgstr "Documentación recibida: la solicitud vuelve a revisión."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
+msgid "Documentation request reason"
+msgstr "Motivo de petición de documentación"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_info_reason
+msgid ""
+"Documentation request reason: predefined reasons to ask a convalidation "
+"applicant for more documentation."
+msgstr ""
+"Motivo de petición de documentación: motivos predefinidos para pedir más "
+"documentación a quien solicita una convalidación."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_convalidation_info_reason_list
+#: model:ir.ui.menu,name:ems.menu_ems_convalidation_info_reasons
+msgid "Documentation request reasons"
+msgstr "Motivos de petición de documentación"
+
+#. module: ems
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_previous_centre
+msgid "Missing official grade certificate from the previous centre"
+msgstr "Falta el certificado de notas oficial del centro de procedencia"
+
+#. module: ems
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_title
+msgid "Missing title (or title receipt) of the previous studies"
+msgstr "Falta el título (o el resguardo del título) de los estudios previos"
+
+#. module: ems
+#: model:ems.convalidation.info_reason,name:ems.convalidation_info_reason_syllabus
+msgid "Missing syllabus of the subjects studied"
+msgstr "Falta el programa de las materias cursadas"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__documentation
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending documentation"
+msgstr "Pendiente de documentación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__info_request_reason_id
+msgid "Reason for the request"
+msgstr "Motivo de la petición"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_info_wizard__message
+msgid ""
+"Sent to the student (and their family, when it follows their convalidations)"
+" by email after the reason, and shown on the portal, where they can answer "
+"and attach the documents asked for."
+msgstr ""
+"Se envía al alumno (y a su familia, cuando sigue sus convalidaciones) por "
+"correo después del motivo, y se muestra en el portal, donde pueden responder"
+" y adjuntar los documentos pedidos."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__info_request
+msgid ""
+"The details of the last request for information sent to the applicant, shown"
+" on the portal next to the answer form while the request is under review."
+msgstr ""
+"El detalle de la última petición de información enviada al solicitante, que "
+"se muestra en el portal junto al formulario de respuesta mientras la "
+"solicitud está en revisión."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__info_request_reason_id
+msgid "Why the applicant was last asked for more documentation."
+msgstr "Por qué se pidió más documentación al solicitante la última vez."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Convalidating a subject asks for its grade: 5 by\n"
+"                                    default, or the one the previous studies hold, or none at all (\"Convalidated\", which\n"
+"                                    does not count towards the average). It can still be changed here afterwards.\n"
+"                                    Every refused subject needs its reason, which the resolution states."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>Al convalidar un módulo se pide su nota: 5 por defecto, la de los estudios previos o ninguna («Convalidado», que no cuenta para la media). Después aún se puede cambiar aquí. Cada módulo denegado necesita su motivo, que la resolución indica."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Without a grade, the resolution and the student's grades\n"
+"                        show the subject as \"Convalidated\" (CV), and it does not count towards the average."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>Sin nota, la resolución y las notas del alumno muestran el módulo como «Convalidado» (CV), y no cuenta para la media."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__without_grade
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__without_grade
+msgid "Without grade"
+msgstr "Sin nota"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__without_grade
+msgid "Convalidated with no grade: the resolution and the grades show it as \"Convalidated\" (CV), and it does not count towards the average."
+msgstr "Convalidado sin nota: la resolución y las notas lo muestran como «Convalidado» (CV), y no cuenta para la media."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_grade_subject_line__convalidation_grade
+#: model:ir.model.fields,help:ems.field_ems_student_year_record_subject__convalidation_grade
+msgid "Grade the convalidation was resolved with, 0 when it has none. Only meaningful while 'Convalidated' is set."
+msgstr "Nota con la que se resolvió la convalidación, 0 si no tiene. Solo tiene sentido mientras está marcado «Convalidado»."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_grant_wizard
+msgid "The Head of Studies convalidates a subject of a request, with its grade or without one."
+msgstr "Jefatura de estudios convalida un módulo de una solicitud, con su nota o sin ella."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidate %s"
+msgstr "Convalidar %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "%(student)s no longer takes %(subject)s: it has been convalidated without a grade (registration %(number)s). They are no longer in its attendance lists or grades."
+msgstr "%(student)s ya no cursa %(subject)s: se ha convalidado sin nota (registro %(number)s). Ya no aparece en sus listas de asistencia ni en las notas."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason_id
+msgid "Reason for refusal"
+msgstr "Motivo de la denegación"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__rejection_reason_id
+msgid "Why the subject is not convalidated. Required to refuse it: the resolution states it."
+msgstr "Por qué no se convalida el módulo. Es necesario para denegarlo: la resolución lo indica."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason
+msgid "Refusal details"
+msgstr "Detalles de la denegación"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__rejection_reason
+msgid "Optional details after the reason for refusal, stated with it on the resolution."
+msgstr "Detalles opcionales tras el motivo de la denegación, que la resolución indica con él."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__grade
+msgid "With grade"
+msgstr "Con nota"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__mode
+msgid "Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), and it does not count towards the average."
+msgstr "Sin nota, la resolución y las notas lo muestran como «Convalidado» (CV), y no cuenta para la media."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_reject_wizard__details
+msgid "Stated on the resolution after the reason."
+msgstr "La resolución lo indica tras el motivo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
+msgid "Anything to add to the reason, stated with it on the resolution..."
+msgstr "Cualquier cosa a añadir al motivo, que la resolución indicará con él..."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_rejection_reason
+msgid "Convalidation refusal reason: predefined reasons why a subject is not convalidated."
+msgstr "Motivo de denegación de una convalidación: motivos predefinidos por los que no se convalida un módulo."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_reject_wizard
+msgid "The Head of Studies refuses to convalidate a subject of a request, stating why."
+msgstr "Jefatura de estudios deniega la convalidación de un módulo de una solicitud, indicando el motivo."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
+msgid "Refusal reason"
+msgstr "Motivo de denegación"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_convalidation_rejection_reason_list
+#: model:ir.ui.menu,name:ems.menu_ems_convalidation_rejection_reasons
+msgid "Refusal reasons per subject"
+msgstr "Motivos de denegación por módulo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Reject %s"
+msgstr "Rechazar %s"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_contents
+msgid "The contents are not equivalent"
+msgstr "Los contenidos no son equivalentes"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_hours
+msgid "The duration of the previous studies is shorter"
+msgstr "La duración de los estudios previos es inferior"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_not_passed
+msgid "The previous studies are not passed or accredited"
+msgstr "Los estudios previos no están superados o acreditados"
+
+#. module: ems
+#: model:ems.convalidation.rejection_reason,name:ems.convalidation_rejection_reason_not_convalidable
+msgid "The subject cannot be convalidated (it must be taken)"
+msgstr "El módulo no es convalidable (se debe cursar)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__grade
+msgid "The grade the previous studies hold, from 5 to 10."
+msgstr "La nota que tienen los estudios previos, de 5 a 10."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__student_idalu
+msgid "The student's IDALU, to look up their academic record in Esfera."
+msgstr "El IDALU del alumno, para consultar su expediente académico en Esfera."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification.py:0
+msgid "Severe delay justified by: "
+msgstr "Retraso grave justificado por: "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-exclamation-triangle me-1\"/> Attach the supporting documents: they are only optional for studies passed at this centre."
+msgstr "<i class=\"fa fa-exclamation-triangle me-1\"/> Adjunta la documentación justificativa: solo es opcional para estudios superados en este centro."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-exclamation-triangle me-1\"/> Say where you passed the studies."
+msgstr "<i class=\"fa fa-exclamation-triangle me-1\"/> Indica dónde superaste los estudios."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<option value=\"\">Choose...</option>"
+msgstr "<option value=\"\">Elige...</option>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"Supporting documents\n"
+"                                                    <span class=\"text-danger o_ems_convalidation_documents_required\">*</span>\n"
+"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(optional)</span>"
+msgstr ""
+"Documentación justificativa\n"
+"                                                    <span class=\"text-danger o_ems_convalidation_documents_required\">*</span>\n"
+"                                                    <span class=\"text-muted o_ems_convalidation_documents_optional d-none\">(opcional)</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Where did you pass the studies? <span class=\"text-danger\">*</span>"
+msgstr "¿Dónde superasteis los estudios? <span class=\"text-danger\">*</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__prior_studies_origin
+msgid "Studies passed"
+msgstr "Estudios superados"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__prior_studies_origin
+msgid "Only for prior studies. Studies passed at this centre need no supporting documents: the centre looks the student's record up itself."
+msgstr "Solo para estudios previos. Los estudios superados en este centro no necesitan documentación justificativa: el centro consulta el expediente del alumno."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__prior_studies_origin__centre
+msgid "At this centre"
+msgstr "En este centro"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__prior_studies_origin__elsewhere
+msgid "At another centre or university"
+msgstr "En otro centro o en la universidad"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Tell us where you passed the studies and we will tell you what to attach."
+msgstr "Indicad dónde superasteis los estudios y os diremos qué hay que adjuntar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Nothing to attach: we look your record up ourselves."
+msgstr "No hay que adjuntar nada: consultamos nosotros vuestro expediente."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attach the academic certificate or transcript of the studies passed. For university studies, the academic certificate, or the Ministry resolution if you already have it."
+msgstr "Adjuntad el certificado académico o el expediente de los estudios superados. Para estudios universitarios, el certificado académico, o la resolución del Ministerio si ya la tenéis."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attach the professional certificate or the accreditation of competences."
+msgstr "Adjuntad el certificado de profesionalidad o la acreditación de competencias."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attach the documents that support your request."
+msgstr "Adjuntad los documentos que justifiquen la solicitud."
+
+#. module: ems
+#. odoo-javascript
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+#: code:addons/ems/static/src/js/backend/attendance_session_view.js:0
+msgid "Only the student's tutor can justify an absence, by registering a justification."
+msgstr "Solo el tutor del alumno puede justificar una falta, registrando una justificación."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__attendance_manual_justified model:ir.model.fields,field_description:ems.field_res_config_settings__attendance_manual_justified
+msgid "Attendance Manual Justified"
+msgstr "Justificar faltas al pasar lista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__roll_call_selectable
+msgid "Selectable in the roll-call"
+msgstr "Seleccionable al pasar lista"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Justify absences when taking the roll-call"
+msgstr "Justificar faltas al pasar lista"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "If marked, teachers can mark a student as justified directly when taking the roll-call. Otherwise, only the student's tutor can justify an absence, by registering a justification."
+msgstr "Si se marca, el profesorado puede marcar a un alumno como falta justificada directamente al pasar lista. Si no, solo el tutor del alumno puede justificar una falta, registrando una justificación."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_undo_withdrawal
+#: model:ir.model.fields,field_description:ems.field_res_users__can_undo_withdrawal
+msgid "Can undo withdrawal"
+msgstr "Puede deshacer la baja"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"Only a withdrawal of the current course can be undone, and only for a "
+"student whose enrollment of that course is confirmed and has a group."
+msgstr ""
+"Solo se puede deshacer una baja del curso actual, y solo si la matrícula de "
+"ese curso está confirmada y tiene grupo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"Only the secretary, the head of studies or an administrator can undo "
+"withdrawals."
+msgstr ""
+"Solo secretaría, jefatura de estudios o administración pueden deshacer "
+"bajas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The student goes back to the group and subjects of their confirmed "
+"enrollment, and the portal access is granted again. Attendance deleted by "
+"the withdrawal is not restored. Continue?"
+msgstr ""
+"Se reincorpora al grupo y a las asignaturas de la matrícula confirmada y se "
+"vuelve a dar acceso al portal. La asistencia borrada por la baja no se "
+"recupera. ¿Continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid ""
+"The withdrawal deleted these grades and they cannot be restored: enter them "
+"again in the evaluation."
+msgstr ""
+"La baja borró estas notas y no se pueden recuperar: hay que volver a "
+"introducirlas en la evaluación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Undo withdrawal"
+msgstr "Deshacer la baja"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Withdrawal of %(date)s undone by %(user)s: back in %(group)s."
+msgstr "Baja del %(date)s deshecha por %(user)s: vuelve a %(group)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Withdrawal undone: %(student)s is back in %(group)s."
+msgstr "Baja deshecha: %(student)s vuelve a %(group)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "Credentials PDF saved on the employee form"
+msgstr "PDF de credenciales guardado en la ficha del empleado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/google_workspace_integration.py:0
+msgid "You are not allowed to reset Google passwords of the staff."
+msgstr "No tiene permiso para restablecer la contraseña de Google del personal."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__google_credentials_filename
+msgid "Google Credentials Filename"
+msgstr "Nombre del archivo de credenciales de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__google_credentials_pdf
+msgid "Latest Google credentials PDF (account creation or password reset)."
+msgstr "Último PDF de credenciales de Google (creación de la cuenta o restablecimiento de la contraseña)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "This gives the teacher's Google account a new password: the current one stops working and new credentials are generated. Continue?"
+msgstr "Esto asigna una contraseña nueva a la cuenta de Google del profesor o profesora: la actual deja de funcionar y se generan credenciales nuevas. ¿Continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Google account"
+msgstr "Cuenta de Google"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__hr_presence_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__hr_presence_state
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__hr_presence_state
+msgid "Hr Presence State"
+msgstr "Estado de presencia de RR. HH."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__hr_icon_display
+msgid "Hr Icon Display"
+msgstr "Visualización del icono RR. HH."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__show_hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__show_hr_icon_display
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__show_hr_icon_display
+msgid "Show Hr Icon Display"
+msgstr "Mostrar icono de RR. HH."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."
+msgstr "Solo un Jefe de estudios de la rama del empleado o un Administrador académico puede decidir sobre esta solicitud."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_hos_all_attendances
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_hos_all_attendances
+msgid "Heads of Studies see everybody's attendance"
+msgstr "Los jefes de estudios ven los fichajes de todos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Heads of Studies see everybody's attendance (EMS)"
+msgstr "Los jefes de estudios ven los fichajes de todos (EMS)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form_hr_attendance_ems
+msgid "Off: a Head or Deputy Head of Studies only sees the attendance of the employees of their own branch (their chain of command and the area they manage). On: they can also consult everybody's, to know at any time who is in the centre. Either way, they only correct the attendance of their own branch and decide its correction requests."
+msgstr "Desactivado: un Jefe de estudios o Jefe de estudios adjunto solo ve los fichajes de los empleados de su rama (su cadena jerárquica y el área que gestiona). Activado: también puede consultar los de todos, para saber en todo momento quién está en el centro. En ambos casos, solo corrige los fichajes de su rama y decide sus solicitudes de corrección."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_head_of_studies
+msgid "Access rights for Head of Studies / Deputy Head of Studies. Grants read/write access to the attendance records of the employees in their own branch of the hierarchy or area, the right to create and edit teachers, and full read/write access to every student's data centre-wide."
+msgstr "Derechos de acceso de Jefe de estudios y Jefe de estudios adjunto. Concede acceso de lectura y escritura a los fichajes de los empleados de su rama de la jerarquía o área, el derecho a crear y editar profesorado, y acceso completo de lectura y escritura a los datos de todo el alumnado del centro."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_director
+msgid "Access rights for the Director: those of the Head of Studies, plus every employee's attendance records centre-wide."
+msgstr "Derechos de acceso de Dirección: los de Jefe de estudios, más los fichajes de todos los empleados del centro."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s (%(count)s covered this course)"
+msgstr "%(name)s (%(count)s coberturas este curso)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__is_self_assigned
+msgid "Self-assigned"
+msgstr "Autoasignada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Only a teacher on guard duty can cover a class."
+msgstr "Solo un docente de guardia puede cubrir una clase."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This class already has a guard teacher assigned. Reload the board."
+msgstr "Esta clase ya tiene un docente de guardia asignado. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Only the guard teacher who took this class themselves can leave it."
+msgstr "Solo el docente de guardia que se ha asignado esta clase puede dejarla."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Classes covered this course"
+msgstr "Clases cubiertas este curso"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to cover this class yourself"
+msgstr "Haz clic para cubrir tú esta clase"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Stop covering this class"
+msgstr "Deja de cubrir esta clase"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Cover this class"
+msgstr "Cubre esta clase"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "You will cover %(group)s (%(time)s) instead of %(teacher)s."
+msgstr "Cubrirás %(group)s (%(time)s) en lugar de %(teacher)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Cover it"
+msgstr "Cubrirla"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%(group)s will be left without a guard teacher again."
+msgstr "%(group)s volverá a quedarse sin docente de guardia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Stop covering"
+msgstr "Dejar de cubrir"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Create Google accounts"
+msgstr "Crear cuentas de Google"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_student_import_wizard__create_google_accounts
+msgid "Untick it when the imported students already have a Google account created outside EMS: they are marked to have their corporate email assigned manually, so EMS never creates a second account for them."
+msgstr "Desmárcalo cuando el alumnado importado ya tenga una cuenta de Google creada fuera de EMS: queda marcado para asignarle el correo corporativo manualmente, y EMS nunca le crea una segunda cuenta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__google_ws_manual_email
+#: model:ir.model.fields,help:ems.field_res_users__google_ws_manual_email
+msgid "Tick it when the student's Google account was created outside EMS: EMS then never creates one, and the existing address is filled in by hand (or with the student data update wizard) as the corporate email."
+msgstr "Márcalo cuando la cuenta de Google del alumno se haya creado fuera de EMS: entonces EMS no crea ninguna, y la dirección existente se informa a mano (o con el asistente de actualización de datos del alumnado) como correo corporativo."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Importing the students…"
+msgstr "Importando el alumnado…"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/student_import_wizard_form.js:0
+msgid "Every row of the file creates or updates the student and their family contacts."
+msgstr "Cada fila del archivo crea o actualiza al alumno y sus contactos familiares."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__is_regular_guard
+msgid "Regular guard"
+msgstr "Guardia ordinaria"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_non_teaching_type__is_regular_guard
+msgid "A teacher on this guard duty can be sent to cover a class, or a guard duty that is not regular (WC, break...), left without its teacher. A guard duty that is not regular has to be covered itself when its teacher is away."
+msgstr "Un docente de esta guardia puede ser enviado a cubrir una clase, o una guardia que no es ordinaria (WC, patio...), que se ha quedado sin su docente. Una guardia que no es ordinaria debe cubrirse ella misma cuando falta su docente."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_absence_cover_class_or_duty
+msgid "A cover is either for a class or for a guard duty."
+msgstr "Una cobertura es de una clase o de una guardia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This guard duty no longer needs covering: the absence or the timetable has changed. Reload the board."
+msgstr "Esta guardia ya no necesita cubrirse: la ausencia o el horario han cambiado. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You no longer need to cover this guard duty:"
+msgstr "Ya no hace falta que cubras esta guardia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You have been assigned to cover this guard duty:"
+msgstr "Se te ha asignado para cubrir esta guardia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Guard duty: %s"
+msgstr "Guardia: %s"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__cover_type__arrangement
+msgid "Internal arrangement"
+msgstr "Reorganización interna"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__vacated_hour_from
+msgid "Lesson left free from"
+msgstr "Clase liberada desde"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__vacated_hour_to
+msgid "Lesson left free until"
+msgstr "Clase liberada hasta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__is_effective
+msgid "Effective"
+msgstr "Efectiva"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Describe the arrangement: who moves which lesson."
+msgstr "Describe la reorganización: quién mueve qué clase."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The lesson left free cannot be the one being covered."
+msgstr "La clase que queda libre no puede ser la que se cubre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "With %(group)s: %(arrangement)s"
+msgstr "Con %(group)s: %(arrangement)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s at %(time)s (%(teacher)s): the arrangement with %(guard)s only counts once its notice to the families is sent."
+msgstr "%(group)s a las %(time)s (%(teacher)s): la reorganización con %(guard)s solo cuenta cuando se envíe el comunicado a las familias."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "The arrangement with %(guard)s for %(group)s at %(time)s (%(teacher)s) no longer applies."
+msgstr "La reorganización con %(guard)s para %(group)s a las %(time)s (%(teacher)s) ya no es válida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%s is away in this period."
+msgstr "%s está ausente en esta franja."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Send a guard teacher"
+msgstr "Enviar un docente de guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__arrangement_type
+msgid "Arrangement"
+msgstr "Reorganización"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "This arrangement is waiting for its notice to the families to be sent."
+msgstr "Esta reorganización está pendiente de que se envíe el comunicado a las familias."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Open notice"
+msgstr "Abrir el comunicado"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Save arrangement"
+msgstr "Guardar la reorganización"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Remove arrangement"
+msgstr "Quitar la reorganización"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to this guard duty"
+msgstr "Haz clic para enviar un docente de guardia a esta guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Change or remove the arrangement"
+msgstr "Cambiar o quitar la reorganización"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__swap
+msgid "Lesson swap"
+msgstr "Intercambio de clases"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__move
+msgid "Lesson moved"
+msgstr "Clase adelantada o retrasada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__arrangement_type__manual
+msgid "Other arrangement"
+msgstr "Otra reorganización"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose the teacher who will be with the group."
+msgstr "Elige el docente que estará con el grupo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose the kind of arrangement."
+msgstr "Elige el tipo de reorganización."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Swap: %(teacher)s teaches at %(time)s and %(absent)s at %(other_time)s."
+msgstr "Intercambio: %(teacher)s da clase a las %(time)s y %(absent)s a las %(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s moves their %(other_time)s lesson to %(time)s."
+msgstr "%(teacher)s pasa su clase de las %(other_time)s a las %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(teacher)s: %(note)s"
+msgstr "%(teacher)s: %(note)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Arrangement cancelled: %(group)s, %(date)s"
+msgstr "Reorganización anulada: %(group)s, %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This arrangement no longer applies, the usual timetable is back:"
+msgstr "Esta reorganización ya no es válida, se vuelve al horario habitual:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Timetable arrangement: %(group)s, %(date)s"
+msgstr "Reorganización de horario: %(group)s, %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "A change in your timetable has been agreed to cover an absence:"
+msgstr "Se ha acordado un cambio en tu horario para cubrir una ausencia:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."
+msgstr "Esta reorganización ya no es posible: las ausencias o el horario han cambiado. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s at %(time)s (%(teacher)s): %(option)s"
+msgstr "%(group)s a las %(time)s (%(teacher)s): %(option)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(label)s The families will be told: %(change)s."
+msgstr "%(label)s Se comunicará a las familias: %(change)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Possible arrangements"
+msgstr "Reorganizaciones posibles"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Current arrangement"
+msgstr "Reorganización actual"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Other arrangement (described by hand)"
+msgstr "Otra reorganización (descrita a mano)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Teacher involved (optional)"
+msgstr "Docente implicado (opcional)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Nobody in particular"
+msgstr "Nadie en concreto"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "E.g. groups A and B are joined for this lesson and leave at 13:25."
+msgstr "Ej.: los grupos A y B se juntan en esta clase y salen a las 13:25."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Apply and notify"
+msgstr "Aplicar y avisar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "The families will be told: %s"
+msgstr "Se comunicará a las familias: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to cover this guard duty yourself"
+msgstr "Haz clic para cubrir tú esta guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Teachers of the group who could rearrange their lessons so that no guard is needed, first those where the students lose no lesson. The teachers involved are notified."
+msgstr "Docentes del grupo que podrían reorganizar sus clases para que no haga falta guardia, primero las que no hacen perder ninguna clase al alumnado. Se avisa a los docentes implicados."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teacher sent to this guard duty."
+msgstr "Cubierta por %s, el docente de guardia enviado a esta guardia."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s It only counts once its notice to the families is sent."
+msgstr "%s Solo cuenta cuando se envíe el comunicado a las familias."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to see the possible arrangements, or to send a guard teacher"
+msgstr "Haz clic para ver las reorganizaciones posibles o para enviar un docente de guardia"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "No guard needed: %s"
+msgstr "No hace falta guardia: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s possible arrangements"
+msgstr "%s reorganizaciones posibles"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "1 possible arrangement"
+msgstr "1 reorganización posible"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s comes in at %(new)s instead of %(old)s."
+msgstr "%(teacher)s entra a las %(new)s en lugar de a las %(old)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s leaves at %(new)s instead of %(old)s."
+msgstr "%(teacher)s sale a las %(new)s en lugar de a las %(old)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/google_workspace_integration.py:0
+msgid "Google Workspace: the IDALU could not be saved on the account %s because it no longer exists or is outside the managed organizational units."
+msgstr "Google Workspace: no se ha podido guardar el IDALU en la cuenta %s porque ya no existe o está fuera de las unidades organizativas gestionadas."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__is_pending_for_me
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+msgid "Pending for me"
+msgstr "Pendientes de mí"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/schedule_grid_readonly_field.js:0
+msgid "%s classes in parallel"
+msgstr "%s clases en paralelo"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Only a reinforcement group can belong to main groups."
+msgstr "Solo un grupo de refuerzo puede pertenecer a grupos principales."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "A reinforcement group can only belong to main groups."
+msgstr "Un grupo de refuerzo solo puede pertenecer a grupos principales."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+msgid "Classes in parallel"
+msgstr "Clases en paralelo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+msgid "classes in parallel"
+msgstr "clases en paralelo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__parent_group_ids
+msgid "Main groups"
+msgstr "Grupos principales"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__subgroup_ids
+msgid "Subgroups"
+msgstr "Subgrupos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__subgroup_label
+msgid "Subgroup"
+msgstr "Subgrupo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__parent_group_ids
+msgid ""
+"The main groups whose students attend this group's classes. Its classes are "
+"also shown in the schedule of each of them."
+msgstr "Los grupos principales cuyo alumnado asiste a las clases de este grupo. Sus clases también se muestran en el horario de cada uno."

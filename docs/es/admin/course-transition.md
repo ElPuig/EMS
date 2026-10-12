@@ -86,7 +86,7 @@ Qué ocurre, y en qué orden:
 3. Se archivan las plantillas de asistencia del curso saliente, junto con los bloques de calendario propios de los docentes afectados. Cuando el calendario de un docente se queda sin docencia del curso que termina (un compromiso fijo que quede, como una guardia, no cuenta), pasa automáticamente a un calendario nuevo para el curso siguiente — no hay que configurar nada a mano, y el calendario anterior se conserva, archivado, no se borra.
 4. **Se borran los registros operativos**: inscripciones a módulos, notas, asistencia y sesiones de evaluación. Se borran las de los grupos del curso saliente, aunque el alumno ya haya sido colocado en su grupo nuevo por una ejecución anterior. Esta es la parte irreversible — el historial académico guardado en el paso 1 es lo que los sustituye.
 5. Los alumnos se colocan en su **grupo destino** y se les inscribe en sus asignaturas.
-6. Se marcan los estudios como transicionados y, si no queda ninguno pendiente, **cambia el curso actual**.
+6. Se marcan los estudios como transicionados y, si no queda ninguno pendiente, **cambia el curso actual**. En ese momento **se archivan** los fichajes de entrada y salida del personal anteriores al curso nuevo, de modo que las listas y los informes de fichajes son del curso que empieza.
 7. Se cierran las matrículas **del curso saliente**: las confirmadas se bloquean (son un registro legal y nunca se cancelan), las que nunca se confirmaron se cancelan. Las del curso entrante no se tocan.
 
 ---
@@ -100,6 +100,8 @@ Tres flecos que resolver en los días siguientes:
 - **Alumnos sin destino.** Revisa la lista y registra la baja de los que se han ido de verdad. Puedes hacerlo de uno en uno desde la ficha del alumno, o **de varios a la vez**: selecciónalos en la lista de *Propuesta de matrícula de grupo* y pulsa **Baja**. El botón solo lo ven administración académica y secretaría, porque registrar una baja cancela matrículas y revoca el portal. Los que se matriculen tarde no necesitan nada: al confirmarse su matrícula, se les coloca en su grupo automáticamente.
 - **Alumnos matriculados sin grupo** que aparezcan después (por ejemplo, una matrícula confirmada en septiembre sin grupo): basta con **asignarles el grupo destino en la matrícula**. Al hacerlo se colocan solos, con sus módulos incluidos.
 - **Matrículas del curso entrante sin confirmar.** No se cancelan ni se tocan. Quien confirme en septiembre se coloca solo en su grupo, sin que tengas que volver a ejecutar nada — **siempre que la matrícula tenga grupo destino asignado**. Sin grupo, confirmar no coloca a nadie.
+
+**Consultar más adelante los fichajes del personal de un curso anterior**: también se archivan, no se borran — en **Asistencia del personal → Asistencia → Vista general**, abre el menú **Filtros** de la barra de búsqueda y marca **Archivado**.
 
 **Consultar más adelante las plantillas de asistencia o los calendarios de los docentes de un curso anterior**: se archivan, no se borran, así que no se pierde nada — abre **Configuración → Docentes → Plantillas** (o **Horarios laborales**), abre el menú **Filtros** de la barra de búsqueda y marca **Archivado** para volver a verlos. En **Horarios laborales** también puedes agrupar la lista por **Curso** para ver el calendario de cada docente a lo largo de los años.
 

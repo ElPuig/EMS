@@ -92,6 +92,58 @@
             <field name="perm_unlink" eval="True"/>
         </record>
 
+        <!-- Department chiefs (and Seminar chiefs, the same res.groups) send notices to the groups
+             their department teaches (ems.group.department_chief_user_ids: a teacher of their
+             department, or of one of its sub-departments, teaches the group). They read their
+             own notices and everyone else's addressed to one of those groups, and edit, send and
+             delete only their own; _check_department_chief_groups keeps what they write within
+             those groups. The guard duty board's timetable-change notices (issues #539/#581) are
+             notices like any other here. Head of Studies implies this group, so these rules only
+             ever add to what their own rules above grant. -->
+        <record model="ir.rule" id="rule_notice_department_chief_read">
+            <field name="name">Notice: department chief reads own and their department's groups' notices</field>
+            <field name="model_id" ref="ems.model_ems_notice"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('group_ids.department_chief_user_ids', 'in', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record model="ir.rule" id="rule_notice_department_chief_own">
+            <field name="name">Notice: department chief edits own</field>
+            <field name="model_id" ref="ems.model_ems_notice"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
+            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
+        <record model="ir.rule" id="rule_notice_line_department_chief_read">
+            <field name="name">Notice line: department chief reads own and their department's groups' notices</field>
+            <field name="model_id" ref="ems.model_ems_notice_line"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
+            <field name="domain_force">['|', ('notice_id.create_uid', '=', user.id), ('notice_id.group_ids.department_chief_user_ids', 'in', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record model="ir.rule" id="rule_notice_line_department_chief_own">
+            <field name="name">Notice line: department chief edits own (via parent notice)</field>
+            <field name="model_id" ref="ems.model_ems_notice_line"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
+            <field name="domain_force">[('notice_id.create_uid', '=', user.id)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+
         <!-- ems.limesurvey_header / .block / .recipient / .enrollment
 
              Admins see everything: this also fixes a pre-existing gap where group_academic_admin

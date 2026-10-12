@@ -32,9 +32,9 @@ Normalment el compte es crea automàticament quan es matricula l'alumne. Si algu
 
 ![Crear compte de Google al menú Accions de la fitxa](../../assets/tutors/credencials-google-04-crear.png)
 
-L'alumne rep les credencials a la seva adreça de correu personal i el PDF amb les credencials es desa a la pestanya **Documentació**. La primera vegada que entri a Google, l'alumne haurà de canviar la contrasenya.
+El compte es crea en pocs moments, i l'historial de missatges de l'alumne en mostra el resultat. L'alumne rep les credencials a la seva adreça de correu personal i el PDF amb les credencials es desa a la pestanya **Documentació**. La primera vegada que entri a Google, l'alumne haurà de canviar la contrasenya.
 
-El botó només surt mentre l'alumne no té compte de Google. Si a l'alumne li falta l'IDALU, el nom, els cognoms o el correu personal, un missatge t'indica quina dada falta i el compte no es crea: demana a secretaria que la completi.
+El botó només surt mentre l'alumne no té compte de Google i no se n'està creant cap. Si a l'alumne li falta l'IDALU, el nom, els cognoms o el correu personal, un missatge t'indica quina dada falta i el compte no es crea: demana a secretaria que la completi.
 
 ---
 

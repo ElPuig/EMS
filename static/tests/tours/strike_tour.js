@@ -21,7 +21,9 @@ registry.category("web_tour.tours").add("ems_strike_issue", {
             run: "select manual",
         },
         {
-            trigger: ".ems-av-session-wrap select",
+            // Waits for the option itself: right after the mode change the dropdown still holds
+            // the previous list.
+            trigger: ".ems-av-session-wrap select:has(option:contains('Strike Tour'))",
             content: "Select the seeded session",
             run: function () {
                 const select = document.querySelector(".ems-av-session-wrap select");

@@ -1,0 +1,6 @@
+id,name,sequence
+"ems.convalidation_rejection_reason_contents","The contents are not equivalent",1
+"ems.convalidation_rejection_reason_hours","The duration of the previous studies is shorter",10
+"ems.convalidation_rejection_reason_not_passed","The previous studies are not passed or accredited",20
+"ems.convalidation_rejection_reason_not_convalidable","The subject cannot be convalidated (it must be taken)",30
+"ems.convalidation_rejection_reason_other","Other",40

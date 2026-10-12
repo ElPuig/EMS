@@ -210,8 +210,16 @@ requiring no document, and a second button on the same `action_approve` reads "R
 documentation" for the others (form header, list row as an inbox icon, kanban). `action_approve()`
 then sets `ems_document_state`: `not_required`, `submitted` when a file was already attached with
 the request, or `awaiting`. Once the document is attached, `action_ems_document_validate` (form
-header, list row) moves it to `validated`; `action_ems_document_insufficient` sends it back to
-`awaiting`, with a note to the employee. Who counts as the Head is `is_absence_head`: the
+header, list row) moves it to `validated`; `action_ems_document_insufficient` opens a dialog
+(`ems.absence.document_return_wizard`) asking for the reason, which is required; confirming it
+(`_ems_return_document()`) sends the request back to `awaiting`, stores the reason in
+`ems_document_return_reason` and sends the employee a note with it. The reason is shown to the
+employee as a warning at the top of the form while the request is Awaiting documentation, and it
+is also the note of their new "Attach the absence's supporting document" activity. If the new
+document is sent back again before it is validated, the dialog opens with the previous reason
+(`default_reason`) to edit. Validating the document (`action_ems_document_validate`) clears the
+reason, so a later send-back by Direction starts from an empty one; resetting the request clears
+it too. Who counts as the Head is `is_absence_head`: the
 employee's `leave_manager_id`, or an officer other than Direction - the same line
 `_compute_can_approve()` draws.
 
@@ -286,15 +294,16 @@ lands on its own. "My pending supporting documents" (`ems_my_pending_documents`)
 employee's. The search panel on the left filters on `ems_status` instead of `state`.
 
 Covered by `TestAbsenceRequest` (the whole sequence, each type family's first step, the document
-filed with the request, attaching it, insufficient from the Head and from Direction, Direction
+filed with the request, attaching it, insufficient from the Head and from Direction with its required reason, Direction
 blocked before its turn, the activities, the reminders and the escalation with their settings,
 refusals and resets, `can_approve`/`is_absence_head` for Director / Head of Studies /
-Director-as-approver, who gets subscribed, and the filters' domains) and by three tours:
-`ems_absence_direction_review` (Direction's default list, sending a document back from the row,
+Director-as-approver, who gets subscribed, and the filters' domains) and by these tours:
+`ems_absence_direction_review` (Direction's default list, sending a document back from the row with its reason,
 validating from the header, kanban), `ems_absence_head_approval` (Head of Studies acknowledging
 from the row, validating a document from the form, kanban), `ems_absence_request` (the form's
-columns, and no Direction button before the Head) and `ems_absence_employee_view` (the employee's
-own list and form, without the approvers' columns and badges).
+columns, and no Direction button before the Head), `ems_absence_employee_view` (the employee's
+own list and form, without the approvers' columns and badges) and `ems_absence_document_returned`
+(the employee reading why their document was sent back).
 
 ## The request form
 
@@ -394,16 +403,19 @@ it has no children the reader can see (`web.NavBar.SectionsMenu`,
 `t-if="!section.childrenTree.length"`). So an employee, who can see none of the sub-entries,
 gets a single click straight to their own list; a manager sees the sub-entries and therefore the
 usual dropdown - which is why My Time Off keeps its own entry there, restricted, rather than
-being archived.
+being archived. Department and Seminar Chiefs (`ems.group_department_chief`) see one sub-entry,
+Management > Expected absences, so for them too "Absences" is a dropdown and My Time Off is
+listed for them as well.
 
 | Entry | Who sees it | Why |
 |---|---|---|
 | (the "Absences" entry itself) | everyone | Carries the My Time Off action, so one click lands an employee on their own list |
-| My Time Off | `group_hr_holidays_responsible` | Only a manager needs it as an entry: for them the parent is a dropdown header, not a link |
+| My Time Off | `group_hr_holidays_responsible`, `ems.group_department_chief` | Only someone who sees a sub-entry needs it as an entry: for them the parent is a dropdown header, not a link |
 | Overview | `group_hr_holidays_responsible` | The centre-wide absence calendar: what an absence manager uses to see who is missing. Meaningless to an employee, whose record rules would empty it anyway |
-| Management, Reporting, Configuration | native groups | Unchanged |
-| Management > Requested absences | native groups | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the expected absences, the name has to say which of the two kinds it lists |
-| Management > Expected absences | `ems.group_head_of_studies` | Added by EMS, see *Expected absences* |
+| Management | native groups + `ems.group_department_chief` | A chief reaches it only for Expected absences: every other entry under it is restricted to absence managers |
+| Reporting, Configuration | native groups | Unchanged |
+| Management > Requested absences | `group_hr_holidays_responsible` | EMS entry on Odoo's own `hr_leave_action_action_approve_department`, replacing `hr_holidays.menu_open_department_leave_approve` ("Time Off"), which is archived: next to the expected absences, the name has to say which of the two kinds it lists. Its group is stated explicitly, since Management itself is now wider |
+| Management > Expected absences | `ems.group_department_chief`, `base.group_system` | Added by EMS, see *Expected absences* |
 
 The action behind My Time Off also drops Odoo's default `search_default_group_date_from`: the
 centre's own list is short and already sorted by date, so grouping it by month only buries a
@@ -552,8 +564,9 @@ surfaces only in a browser, never in `./upgrade.sh`, which merely checks the XML
 
 ## Expected absences
 
-The Head of Studies or their Deputy often knows a teacher will be away before the teacher files
-anything (a phone call first thing in the morning, a training day agreed in a meeting). The guard
+The teacher's Department or Seminar Chief, the Head of Studies or their Deputy often knows a
+teacher will be away before the teacher files anything (a phone call first thing in the morning
+from a teacher who cannot use EMS, a training day agreed in a meeting). The guard
 duty board has to plan around it all the same, so `ems.absence_pending`
 (`models/employees/absence_pending.py`) lets them enter it on the teacher's behalf. It is not an
 `hr.leave`: it has no type, no approval and no hours to count, and it is invisible to the teacher.
@@ -574,7 +587,7 @@ erDiagram
 |---|---|
 | `employee_id` | Required. The picker's domain (`_domain_employee_id`) offers only teachers in the user's own branch, the same domain the record rule enforces |
 | `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from` |
-| `note` | Optional, for the Head's own reference |
+| `note` | Optional, for the author's own reference; the teacher never sees it |
 | `state` | `pending` (labelled *Expected*) until linked, then `linked` (*Requested*) for good. Stored, not computed from `leave_id` |
 | `leave_id` | The teacher's own request it was linked to. `ondelete='set null'` |
 
@@ -596,12 +609,28 @@ be edited (`write()` raises). From then on only the real absence counts.
 company's timezone (`_get_local_hours()`). Linked entries are ignored. See
 [guard_duty_board.md](../attendance/guard_duty_board.md).
 
-**Access.** Only `ems.group_head_of_studies` has an ACL on the model (full CRUD). The Director
-implies that group. `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
-to `[('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.employee_type', '=',
-'teacher')]`: the teachers below the user through `parent_id`, i.e. their own branch of the real
-hierarchy, not every teacher centre-wide. The Director sits above every Area Manager, so the same
-domain gives them the whole centre. Department Chiefs, tutors and teachers have no access at all.
+**Access.** Only `ems.group_department_chief` has an ACL on the model (full CRUD): Department and
+Seminar Chiefs hold it, and the Head of Studies, their Deputy and the Director imply it (issue
+#604; until then it was the Head of Studies' group). `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
+to the teachers (`employee_type = 'teacher'`) the user reaches in either of two ways:
+
+- **Hierarchy:** `('employee_id', 'child_of', user.employee_ids.ids)`, the teachers below the user
+  through `parent_id`, i.e. their own branch of the real hierarchy, not every teacher centre-wide.
+  The Director sits above every Area Manager, so this alone gives them the whole centre.
+- **Department (issue #569):** `('employee_id.department_id', 'child_of',
+  user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids)`,
+  the teachers whose own department hangs from a department the user heads or is the seminar they
+  lead: their own department for a Department or Seminar Chief, their area (ESO/BTX, VET) for an
+  Area Manager. This is what reaches the
+  management team: the Area Managers (Head of Studies, Deputy, Secretary) report to the Director
+  through `parent_id`, so no other branch contains them, yet each one teaches in a department of
+  some area. The Secretary teaching in a VET department is reached by VET's Area Manager and by
+  that department's own Department and Seminar Chief; the Director teaching in an ESO/BTX
+  department, by ESO/BTX's.
+
+For every other teacher both ways give the same answer (their `parent_id` chain runs through
+their Seminar Chief and Department Chief up to their area's manager). So a Department or Seminar
+Chief reaches their whole department, and neither reaches another department. Tutors and teachers have no access at all.
 
 Technical administrators (`base.group_system`, e.g. `admin`) usually have no place in the org
 chart, so the hierarchy rule alone would leave them no teacher to choose. They get their own ACL
@@ -610,7 +639,8 @@ different groups are OR-ed, so it widens their reach to every teacher without to
 else's. The teacher picker's domain (`_domain_employee_id`) mirrors both rules.
 
 The menu entry, **Absences > Management > Expected absences**, carries
-`groups="ems.group_head_of_studies,base.group_system"`.
+`groups="ems.group_department_chief,base.group_system"`. Management, its parent, opens to
+`ems.group_department_chief` for it (see the menu table above).
 
 ## Hour computation
 
@@ -721,10 +751,11 @@ Most of this is Odoo's, and deliberately left alone:
 | When | Who | Mechanism |
 |---|---|---|
 | A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`) |
+| A request is sent | The **chiefs of the employee's own department**: its Department Chief and, when it has one, its Seminar Chief (`_ems_notify_partners()`) | EMS: `_ems_announce_request()`, called from `create()`, subscribes them and sends them the summary as a note addressed to them alone (the approver already has the activity, the employee filed it). From then on they follow the request and receive everything posted on it |
 | Approved or refused | The employee | Native message on the request |
-| Approved or refused | The employee's **own department chief** | EMS: `_ems_inform_department_chief()` subscribes them just before the state change |
+| Approved or refused | The employee's **own chiefs** | EMS: `_ems_inform_chiefs()` subscribes them just before the state change (they already follow requests filed through `_ems_announce_request()`; this covers older ones) |
 | Approved by the Head | **Direction** (the company's `director_id`) | EMS: `_ems_direction_partners()` subscribes it in `action_approve()` - its own review starts there. Not when the Director is the absent employee or is the one approving |
-| Approved or refused | Everyone following the request | EMS: `_ems_post_outcome()` posts a summary - who, which type, the dates, the hours, and the overall status (`ems_status`, e.g. *Pending Direction*) |
+| Approved or refused | Everyone following the request | EMS: `_ems_post_outcome()` posts the summary (`_ems_summary()`) - who, which type, the dates, the hours, and the overall status (`ems_status`, e.g. *Pending Direction*) |
 
 Odoo's own note on validation ("Your `<type>` planned on `<date>` has been accepted", with the
 type's full legal wording dropped mid-sentence and nothing else) is **suppressed** and replaced
@@ -734,14 +765,17 @@ the string is emitted from, so an entry in EMS's catalogue is never consulted fo
 calendar-meeting logic, so instead the note alone is stopped, through a context flag read by a
 `message_post` override and set only for the duration of that one call.
 
-The department chief is the one piece Odoo has no notion of. It is also the reason the Google
-form asked every employee which department they belonged to: purely to look up who to copy, the
-`Informat d'absencies` rows of its `Config` tab. EMS already knows the employee's chief, so the
-question left the form and the answer is derived.
+The department's chiefs are the one piece Odoo has no notion of. They are also the reason the
+Google form asked every employee which department they belonged to: purely to look up who to
+copy, the `Informat d'absencies` rows of its `Config` tab. EMS already knows the employee's
+chiefs, so the question left the form and the answer is derived. Neither chief is informed of
+their own absence.
 
 They are **informed, not given access**: `private_name` still masks the written reason for
-anyone who is not the employee, their approver or an officer. The chief learns that a colleague
-is away and of what kind - what covering a department needs - without the reason behind it.
+anyone who is not the employee, their approver or an officer, and the summary leaves it out. A
+chief learns that a colleague is away and of what kind - what covering a department needs -
+without the reason behind it. As followers, though, they do receive anything posted on the
+request's chatter, the same as everyone else following it.
 
 Mail leaves through the company's configured server, which is the other half of what this
 replaces: the Apps Script sent from the personal Google account of whoever last ran its

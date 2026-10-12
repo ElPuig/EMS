@@ -3,7 +3,7 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, next_student_id
+from .common import create_level_study, shift_ems_clock, next_student_id
 
 
 class TestYearRecord(TransactionCase):
@@ -230,6 +230,25 @@ class TestYearRecord(TransactionCase):
         # Last round (2): RA1=6 (carried), RA2=5 -> internal = (6*60 + 5*40) / 100 = 5.6 -> 6
         self.assertEqual(subject_rec.internal_grade, 6)
         self.assertEqual(subject_rec.subject_name, self.subject1.display_name)
+        self.assertEqual(subject_rec.group_name, self.group.name)
+
+    def test_generate_copies_the_optative_group_name(self):
+        """A subject graded in an optative group (a generic 'Optativa 1r ESO' subject shared by
+        every optative offered) keeps which optative it was, through the group's name."""
+        student = self._student('Optative Student')
+        optative_group = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'YR Optative Theatre',
+        })
+        self.env['ems.enrollment'].create({
+            'student_id': student.id, 'group_id': optative_group.id, 'subject_id': self.subject2.id})
+        session = self.env['ems.grade_session'].create({
+            'group_id': optative_group.id, 'subject_id': self.subject2.id, 'round': '1'})
+        session.fill_students()
+        self._score(session, student, {self.outcome3: 7})
+        record = self._generate(student)
+        self.assertEqual(record.subject_record_ids.group_name, 'YR Optative Theatre')
+        optative_group.name = 'YR Optative Renamed'
+        self.assertEqual(record.subject_record_ids.group_name, 'YR Optative Theatre')
 
     def test_generate_state_passed_and_final_pending(self):
         student = self._graded_student()
@@ -291,6 +310,7 @@ class TestYearRecord(TransactionCase):
     # --- generation: attendance ------------------------------------------------
 
     def test_generate_attendance(self):
+        today = shift_ems_clock(self).date()
         student = self._student('Attendance Student')
         # A graded subject, so the record gets a subject line to carry the per-subject rate.
         self._enroll(student, self.subject1)
@@ -310,11 +330,11 @@ class TestYearRecord(TransactionCase):
             'start_date': date(2020, 1, 1), 'end_date': date(2098, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({
-            'attendance_template_id': template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': template.id, 'weekday': str(today.weekday()),
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
         })
         session = self.env['ems.attendance_session_header'].create({
-            'attendance_schedule_id': schedule.id, 'date': date.today(),
+            'attendance_schedule_id': schedule.id, 'date': today,
             'mode': 'manual', 'session_teacher_id': self.tutor_employee.id,
         })
         for xmlid in ('attendance_status_attended', 'attendance_status_delayed', 'attendance_status_issue', 'attendance_status_miss'):

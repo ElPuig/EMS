@@ -34,6 +34,7 @@
                             <t t-if="lines">
                                 <t t-call="ems.schedule_report_grid">
                                     <t t-set="summary" t-value="group.get_subject_teachers_summary()"/>
+                                    <t t-set="parallel" t-value="group.get_parallel_classes_detail()"/>
                                 </t>
                             </t>
                             <p t-else="">No schedule available for this group.</p>

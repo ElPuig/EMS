@@ -149,9 +149,11 @@ registry.category("web_tour.tours").add("ems_student_google_password_reset_tutor
     ],
 });
 
-// Issue #513: a tutor creates the Google account of one of their own students who has none yet,
-// and is then offered the password reset on the same form. Opened by URL on the seeded student
-// (see test_student_google_workspace_tour.py).
+// Issue #513: a tutor creates the Google account of one of their own students who has none yet.
+// Since #582 the button queues the same job as the automatic creation, so it disappears as soon as
+// it is pressed and stays hidden until the job is over: a second press can't create a second
+// account. Opened by URL on the seeded student (see test_student_google_workspace_tour.py), which
+// then runs the queued job and checks the account.
 registry.category("web_tour.tours").add("ems_student_google_account_create_tutor", {
     test: true,
     steps: () => [
@@ -161,12 +163,15 @@ registry.category("web_tour.tours").add("ems_student_google_account_create_tutor
         ),
         ...clickAction("action_create_google_account", "Click 'Create Google account'"),
         {
-            trigger: ".o-mail-Message:contains('account created')",
-            content: "The chatter records the new account",
+            trigger: ".o_notification",
+            content: "The tutor is told the account is being created",
         },
         ...checkActions(
-            { offered: ["action_reset_google_password"], notOffered: ["action_create_google_account"] },
-            "The account is active: the tutor can now reset its password",
+            {
+                offered: ["action_authorization_send_bulk"],
+                notOffered: ["action_create_google_account", "action_reset_google_password"],
+            },
+            "The creation is queued: the button is gone until it is over",
         ),
     ],
 });

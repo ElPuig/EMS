@@ -43,7 +43,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         study = Convalidation._ems_portal_study(student) if student else request.env['ems.study']
         convalidations = Convalidation.search([('student_id', '=', viewed.id)])
         # fields_get(): selection labels in the visitor's language.
-        selections = Convalidation.fields_get(['state', 'basis'], ['selection'])
+        selections = Convalidation.fields_get(['state', 'basis', 'prior_studies_origin'], ['selection'])
         line_states = request.env['ems.convalidation.line'].sudo().fields_get(['state'], ['selection'])
         values = self._prepare_portal_layout_values()
         values.update({
@@ -63,6 +63,7 @@ class EmsPortalConvalidationController(CustomerPortal):
             if study else request.env['ems.subject'],
             'convalidations': convalidations,
             'basis_options': selections['basis']['selection'],
+            'origin_options': selections['prior_studies_origin']['selection'],
             'state_labels': dict(selections['state']['selection']),
             'line_state_labels': dict(line_states['state']['selection']),
             'error': kwargs.get('error'),
@@ -98,9 +99,16 @@ class EmsPortalConvalidationController(CustomerPortal):
         if basis not in dict(Convalidation._fields['basis'].selection):
             return request.redirect(f'{self._redirect}?error=no_basis')
 
-        # Documents are optional: whether any is needed depends on the grounds (the form says
-        # so for each of them), and the Head of Studies can always ask for more afterwards.
+        # Prior studies say where they were passed; nothing else does.
+        origin = post.get('prior_studies_origin') if basis == 'prior_studies' else False
+        if basis == 'prior_studies' and origin not in dict(Convalidation._fields['prior_studies_origin'].selection):
+            return request.redirect(f'{self._redirect}?error=no_origin')
+
+        # Supporting documents are mandatory unless the studies were passed here (issue #579): the
+        # centre looks its own records up, and can always ask for more afterwards.
         files = [upload for upload in request.httprequest.files.getlist('documents') if upload.filename]
+        if not files and Convalidation._ems_documents_required(basis, origin):
+            return request.redirect(f'{self._redirect}?error=no_documents')
 
         requester = request.env.user.partner_id
         convalidation = Convalidation.create({
@@ -108,6 +116,7 @@ class EmsPortalConvalidationController(CustomerPortal):
             'requester_id': requester.id,
             'study_id': study.id,
             'basis': basis,
+            'prior_studies_origin': origin,
             'student_notes': (post.get('student_notes') or '').strip()[:2000] or False,
             'line_ids': [(0, 0, {'subject_id': subject.id}) for subject in subjects],
         })
@@ -148,7 +157,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         student = self._ems_convalidation_student()
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if student and convalidation.exists() and convalidation.student_id == student \
-                and convalidation.state == 'pending':
+                and convalidation._ems_is_cancellable():
             convalidation.action_cancel()
         return request.redirect(self._redirect)
 

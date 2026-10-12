@@ -1,5 +1,5 @@
 import base64
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from unittest.mock import patch
 
 from odoo.exceptions import UserError
@@ -992,6 +992,28 @@ class TestCourseTransition(TransactionCase):
         self.assertTrue(self.target_course.is_current)
         self.assertFalse(self.source_course.is_current)
 
+    def _staff_attendance(self, day):
+        return self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id,
+            'check_in': datetime.combine(day, datetime.min.time()) + timedelta(hours=8),
+            'check_out': datetime.combine(day, datetime.min.time()) + timedelta(hours=14),
+        })
+
+    def test_flip_archives_the_staff_attendance_of_past_courses(self):
+        """Issue #543: once the centre moves on, the lists are about the course that starts."""
+        start = self.target_course.date_range()[0]
+        past = self._staff_attendance(start - timedelta(days=20))
+        new = self._staff_attendance(start + timedelta(days=5))
+        self._transition_everything_else()
+        self._applied()
+        self.assertFalse(past.active)
+        self.assertTrue(new.active)
+
+    def test_no_attendance_is_archived_while_the_course_has_not_flipped(self):
+        past = self._staff_attendance(self.target_course.date_range()[0] - timedelta(days=20))
+        self._applied()
+        self.assertTrue(past.active, "the outgoing course is still the current one")
+
     def test_flip_keeps_the_enrollment_default_on_the_incoming_course(self):
         """Enrollments keep being processed in September for the course that has just
         started, so the incoming one stays the enrollment default. Clearing it left no
@@ -1589,9 +1611,11 @@ class TestCourseTransition(TransactionCase):
         """A graduate has lost its main_group_id by the time the shared helper runs,
         so the delegate has to be cleared from the group side."""
         delegate = self._graduate('CTW Delegate')
-        self.group2.delegate_id = delegate
+        subdelegate = self._graduate('CTW Sub-delegate')
+        self.group2.write({'delegate_id': delegate.id, 'subdelegate_id': subdelegate.id})
         self._applied()
         self.assertFalse(self.group2.delegate_id)
+        self.assertFalse(self.group2.subdelegate_id)
 
     def test_apply_clears_the_delegate_of_a_stranded_students_group(self):
         """Same cleanup as the graduate case above, applied to '_apply_detach_unplaced()''s own
@@ -1600,9 +1624,11 @@ class TestCourseTransition(TransactionCase):
         rather than going through '_ems_clear_operational_records()'). The group itself is never
         archived (groups are reused across years) - only the now-invalid delegate reference."""
         stranded = self._student('CTW Detach Delegate', group=self.group2)
-        self.group2.delegate_id = stranded
+        stranded_sub = self._student('CTW Detach Sub-delegate', group=self.group2)
+        self.group2.write({'delegate_id': stranded.id, 'subdelegate_id': stranded_sub.id})
         self._applied()
         self.assertFalse(self.group2.delegate_id)
+        self.assertFalse(self.group2.subdelegate_id)
 
     # --- apply step 9: audit -------------------------------------------------
 

@@ -70,19 +70,23 @@ class EmsAttendanceReportEmployee(models.Model):
     _inherit = 'hr.employee'
 
     def _ems_attendance_report_eta(self, issue_date):
-        """Naive UTC moment the tutor's next report is due, for issues of issue_date: never
-        before now (a roll-call taken after that day's moment is reported straight away)."""
+        """Naive UTC moment the tutor's next report is due, for issues of issue_date: always after
+        now. A roll-call taken once that day's moment has passed waits for the next one: due now,
+        each roll-call click went out in its own email (issue #588)."""
         self.ensure_one()
         now = fields.Datetime.now()
         moment = self.user_id.ems_attendance_report_moment or 'teacher_end'
         if moment in END_OF_DAY_MOMENTS:
-            due = self._ems_attendance_report_moment_on(moment, issue_date)
-        else:
-            today = self.env['ems.datetime_utils'].utc_datetime_to_local(pytz.utc.localize(now)).date()
-            candidates = (self._ems_attendance_report_moment_on(moment, today + timedelta(days=offset))
-                          for offset in range(REPORT_LOOKAHEAD_DAYS))
-            due = next((candidate for candidate in candidates if candidate and candidate > now), None)
-        return max(due or self._ems_attendance_report_fallback(issue_date), now)
+            due = (self._ems_attendance_report_moment_on(moment, issue_date)
+                   or self._ems_attendance_report_fallback(issue_date))
+            if due > now:
+                return due
+        today = self.env['ems.datetime_utils'].utc_datetime_to_local(pytz.utc.localize(now)).date()
+        days = [today + timedelta(days=offset) for offset in range(REPORT_LOOKAHEAD_DAYS)]
+        candidates = (self._ems_attendance_report_moment_on(moment, day) for day in days)
+        due = next((candidate for candidate in candidates if candidate and candidate > now), None)
+        # The fallback always finds one: the company's default time, tomorrow at the latest.
+        return due or next(fallback for fallback in map(self._ems_attendance_report_fallback, days) if fallback > now)
 
     def _ems_attendance_report_moment_on(self, moment, day):
         """Naive UTC moment of 'moment' on 'day', or None when there is none that day (no
@@ -120,15 +124,15 @@ class EmsAttendanceReportEmployee(models.Model):
         ]
         return max(hours) if hours else None
 
-    def _ems_attendance_report_fallback(self, issue_date):
+    def _ems_attendance_report_fallback(self, day):
         """When the chosen moment can't be found: the end of the centre's day, or the company's
         attendance_issue_tutor_default time without a schedule framework for that day."""
-        intervals = self.company_id._ems_default_framework_intervals(issue_date)
+        intervals = self.company_id._ems_default_framework_intervals(day)
         if intervals:
             return max(end for _start, end in intervals).astimezone(pytz.utc).replace(tzinfo=None)
         datetime_utils = self.env['ems.datetime_utils']
         return datetime_utils.datetime_to_odoo(datetime_utils.time_float_to_utc_datetime(
-            issue_date, self.company_id.attendance_issue_tutor_default))
+            day, self.company_id.attendance_issue_tutor_default))
 
     def _ems_reschedule_attendance_report(self):
         """Moves the tutors' pending report to their (new) preferred moment."""

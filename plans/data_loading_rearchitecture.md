@@ -1,6 +1,6 @@
 # `data/` loading rearchitecture: living vs. master data, XML vs. CSV, demo data
 
-**Status: current as of 2026-09-25 — partially implemented.** Written after fixing `ems.group` on branch
+**Status: current as of 2026-10-11 — partially implemented (the `data/custom/` audit is resolved, see its section; the demo-content part is still pending).** Written after fixing `ems.group` on branch
 `404-schedule-import-if-replace-mode-no-conflicts-with-the-current-one-can-occur`. Since then
 `ems.planning`/`ems.planning_outcome` (2026-09-23, issue #503 follow-up) and `ems.space`
 (2026-09-25, branch `510-permissions-reset-on-ems-upate`) have also been frozen — see
@@ -79,60 +79,14 @@ mechanism already built for `ems.group`, in `models/settings/company.py`) — no
 elegant, but because it's the only way to keep all three properties (survives file-row removal,
 survives a full EMS reinstall, freezes after first creation) at once in this Odoo version.
 
-## Audit: which `data/custom/` models always resync, and which freeze after seeding
+## Audit of `data/custom/` models: resolved (issue #573, 2026-10-11)
 
-**Goal:** for every model loaded from `data/custom/`, decide explicitly between:
-- **Master (always resync, `noupdate=False`, the default):** the CSV file is the source of truth;
-  a change to the record is made by editing the file and upgrading. An in-app edit is expected
-  to be reverted on the next upgrade (the contract in `CLAUDE.md`).
-- **Living (freeze after seeding):** the CSV only creates the record the first time; from then on
-  the record is managed through the app and no upgrade touches it again. Implemented by adding
-  the model to `res.company._EMS_LIVING_CUSTOM_DATA_MODELS`.
-
-**Decision criterion (one question per model):** during a normal school year, does an admin/
-secretary/HR change these records *through the app* (rename, relocate, reassign, correct), or
-does a change always go through a developer editing the file? If the former: living. If some
-columns are living and others structural, note it: the freeze is per record, not per field, so
-a mixed model needs a decision (freeze anyway, split the file, or leave it master and document
-that in-app edits are lost).
-
-**Procedure per model:**
-1. Check it is actually loaded (listed and not commented out in `__manifest__.py`'s `data`).
-2. Grep the views/menus for an editable form/list of the model and which roles can write it
-   (`security/ir.model.access.csv`, `security/rules/`) — no write access for anyone but admin
-   is a hint towards master.
-3. Check for side effects of a resync: a `write()` override or compute reacting to the CSV
-   columns (e.g. `hr.department.write()` re-running the heads cascade, which on branch 510 wiped
-   hand-granted permissions on every upgrade — mitigated there by only reacting to real changes).
-4. Where a real production dump is available, compare the DB values against the CSV: rows that
-   already differ are evidence of in-app edits (they would be reverted by the next upgrade).
-5. Ask the developer to confirm the classification before changing anything.
-
-**Implementation for each model confirmed living:** add it to `_EMS_LIVING_CUSTOM_DATA_MODELS`;
-add a raw-SQL `pre-migrate` in the current unreleased version folder freezing its existing
-`__import__` xmlids (pattern: `migrations/18.0.0.29.0/pre-migrate.py`), otherwise the first
-upgrade shipping the change still reverts the data one last time (no new test needed:
-`tests/test_data_custom_import_prefix.py`'s `test_living_custom_data_is_frozen_against_future_upgrades`
-already checks every model in that list); update `data_loading.md`.
-
-**Inventory and preliminary classification (2026-09-25, to be confirmed in the audit):**
-
-| File(s) | Model | Loaded? | Preliminary | Notes |
-|---|---|---|---|---|
-| `ems.group.csv` | `ems.group` | yes | ✅ living (frozen) | 2026-09-06 |
-| `ccff/ems.planning*-*.csv` | `ems.planning`, `ems.planning_outcome` | yes | ✅ living (frozen) | 2026-09-23 |
-| `ems.space.csv` | `ems.space` | yes | ✅ living (frozen) | 2026-09-25 |
-| `hr.department.csv` | `hr.department` | yes | **needs a closer look** | `name`/`color` plausibly edited in the app; `parent_id`/`is_top_level`/`top_level_area` structural; resync has side effects (heads cascade, branch 510) |
-| `res.company.csv` | `res.company` | yes | **needs a closer look** | address/phone/email/website plausibly edited in Settings; single low-traffic record, easy to lose silently |
-| `resource.calendar.csv`, `resource.calendar.attendance.csv` | bell-schedule framework | yes | master? | structural, but check whether the timetable is ever adjusted from the app (e.g. a changed break slot) |
-| `ems.authorization.template.csv` | `ems.authorization.template` | yes | master? | legal text, centrally authored; check whether secretaries edit it from the app |
-| `crm.team.csv` | `crm.team` | yes | master? | check whether the team name is edited from Sales |
-| `ir.sequence-enrollment_number.csv` | `ir.sequence` | yes | master | `number_next_actual` deliberately not a column |
-| `res.partner.csv` | `res.partner` (company `tz`) | yes | master | one column |
-| `eso/`, `btx/`, `ccff/` `ems.subject.csv`, `ems.study.csv`, `ems.outcome.csv` | curriculum | yes | master | `data/cat` extension convention; check whether hours/ECTS are ever corrected from the app |
-| `ccff/ems_enrollment_template_opt.xml` | `ems.enrollment.template` | yes | master? | XML, `search=` exception; check in-app edits |
-| `hr.employee.csv` | `hr.employee` | **no** (commented out) | would be living | no risk today; decide before ever re-enabling it |
-| `ems.teaching.csv`, `ccff/dam1a/`, `ccff/daw1a/` | demo | **no** (commented out) | demo | see next section |
+No model-by-model audit was needed in the end: every `data/custom/` record is now seeded once
+and frozen (`res.company._ems_freeze_living_custom_data()` freezes every `__import__` record, the
+per-model list is gone), and the subject-study link moved to the subject's side so no file
+re-declares a `data/cat/` study. Documented in `docs/en/developers/shared/data_loading.md`
+("`data/custom/` is seeded once, then frozen") and `CLAUDE.md`. Still open from this plan: the
+demo content below.
 
 ### Demo/example content — move out of `data/custom/` entirely
 

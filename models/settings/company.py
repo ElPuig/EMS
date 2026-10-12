@@ -27,6 +27,9 @@ class ems_company(models.Model):
     #       Also, string and help values are only defined within the settings form. 
     attendance_issue_status_delay = fields.Integer(default=15)
     attendance_issue_tutor_default = fields.Float(default=21.0)
+    # Off: only a tutor's justification (ems.attendance_justification) marks a line as justified,
+    # the roll-call can't (issue #587). Read through ems.attendance_status.roll_call_selectable.
+    attendance_manual_justified = fields.Boolean(default=False)
     strike_escalation_threshold = fields.Integer(default=3)
     # Minutes; 0 disables the possible-duplicate warning (ems.strike.get_duplicate_warning).
     strike_duplicate_window = fields.Integer(default=1)
@@ -55,6 +58,10 @@ class ems_company(models.Model):
     )
     auto_checkout_time = fields.Float(default=1.0)
     auto_checkout_retry_until = fields.Float(default=6.0)
+    # Issue #543: off, a Head of Studies only sees the attendance of their own branch. Some
+    # centres need them all to know at any time who is in: on, they read everybody's (they still
+    # only correct their own branch's). Drives a record rule - see _sync_hos_all_attendances_rule.
+    ems_hos_all_attendances = fields.Boolean(string="Heads of Studies see everybody's attendance", default=False)
 
     limesurvey_api = fields.Char()
     limesurvey_usr = fields.Char()    
@@ -215,9 +222,21 @@ class ems_company(models.Model):
         companies._sync_enrollment_course_flag()
         return companies
 
+    def _sync_hos_all_attendances_rule(self):
+        """Switches the record rule that lets the Heads of Studies read every employee's
+        attendance on or off, as 'ems_hos_all_attendances' says. A rule cannot read a setting,
+        and it is global (there is one centre): on as soon as any company asks for it."""
+        rule = self.env.ref('ems.rule_hr_attendance_hos_read_all', raise_if_not_found=False)
+        if rule:
+            wanted = bool(self.sudo().search_count([('ems_hos_all_attendances', '=', True)]))
+            if rule.sudo().active != wanted:
+                rule.sudo().active = wanted
+
     def write(self, vals):
         old_directors = {company: company.director_id for company in self}
         res = super().write(vals)
+        if 'ems_hos_all_attendances' in vals:
+            self._sync_hos_all_attendances_rule()
         if 'current_course_id' in vals:
             self._sync_current_course_flag()
             # Issue #453 - the current course is printed in every group's public schedule PDF title.
@@ -260,38 +279,15 @@ class ems_company(models.Model):
                 "ir.config_parameter 'ems.environment_type' to 'production' directly."
             )
 
-    # Models under 'data/custom/' whose records are the centre's own *living* data - an admin
-    # renames/relocates/archives them through the running app, not through this repo's git
-    # history - and must therefore never be pushed back to their file-seeded value once created.
-    # Extend this tuple as more 'data/custom/' models are confirmed living (not master) data -
-    # see docs/en/developers/shared/data_loading.md's "'data/custom/' living data" section.
-    #
-    # ems.planning/ems.planning_outcome confirmed 2026-09-23 (issue #503 follow-up): these CSV
-    # rows are the centre's starting grading-ponderation template, not a config EMS itself keeps
-    # re-pushing - a centre rebalancing its own weights (e.g. after a new learning outcome is
-    # added to the shared curriculum catalog) is exactly the "admin edits through the app" case
-    # this mechanism exists for. Found the hard way: a real edit adding a 6th outcome's weight to
-    # 5 plannings survived exactly until the next upgrade resynced the other 5 rows back to the
-    # file's original values, leaving the total at 106% with no error ever raised again (the
-    # constraint only fires on create/write, never on a plain CSV resync under install_mode) -
-    # see plans/ems_planning_outcome_ponderation_over_100.md.
-    #
-    # ems.space confirmed 2026-09-25 (issue #510): a classroom renamed/repurposed through the app
-    # was reverted to its data/custom/ems.space.csv values on every upgrade - same shape as
-    # ems.group. migrations/18.0.0.29.0/pre-migrate.py freezes the existing rows before that
-    # version's own data reload, so the first upgrade shipping this doesn't revert them one last time.
-    #
-    # 'ems.quality.process'/'procedure'/'document': the documentary structure of the quality
-    # system. The quality coordination keeps it (and its Drive links) from Quality > Configuration,
-    # so the CSV only seeds it once; a synced file would revert those edits on the next upgrade.
-    _EMS_LIVING_CUSTOM_DATA_MODELS = (
-        'ems.group', 'ems.planning', 'ems.planning_outcome', 'ems.space',
-        'ems.quality.process', 'ems.quality.procedure', 'ems.quality.document',
-    )
-
     def _ems_freeze_living_custom_data(self):
-        """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record of a model
-        listed in '_EMS_LIVING_CUSTOM_DATA_MODELS', right after every module (re)load.
+        """Freezes (ir.model.data.noupdate=True) every '__import__'-owned record, right after
+        every module (re)load: a 'data/custom/' CSV seeds its records once and the centre then
+        maintains them through the running app (renaming a group or a classroom, rebalancing a
+        planning's weights, editing a subject of its own), so no upgrade may push the file's
+        values back. Started per model (ems.group, then ems.planning/ems.planning_outcome and
+        ems.space, each after an upgrade reverted real edits); every model since issue #573.
+        Records imported through the UI are '__import__' too and get frozen as well, harmlessly:
+        an import from the UI updates a record whatever its noupdate flag.
 
         CSV loaded via the manifest's plain 'data' key cannot itself carry noupdate=True in this
         Odoo build (odoo/modules/loading.py silently discards init_xml/update_xml - see
@@ -309,7 +305,6 @@ class ems_company(models.Model):
         """
         self.env['ir.model.data'].sudo().search([
             ('module', '=', '__import__'),
-            ('model', 'in', self._EMS_LIVING_CUSTOM_DATA_MODELS),
             ('noupdate', '=', False),
         ]).write({'noupdate': True})
 

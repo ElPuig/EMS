@@ -718,7 +718,7 @@ class ems_course_transition_wizard(models.TransientModel):
         'study_id' and 'level_id' are deliberately kept: they say what the student was
         doing, which is what the "no destination" report and a late enrollment read.
 
-        Also clears the outgoing group's own 'delegate_id' if it was one of these
+        Also clears the outgoing group's own 'delegate_id'/'subdelegate_id' if it was one of these
         students - same stale-reference cleanup '_ems_clear_operational_records()' already
         does for a student leaving the centre entirely (see
         'res.partner._ems_clear_stale_delegate()'), needed here too since a stranded student
@@ -988,10 +988,10 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         # outgoing one is still there. The cascade takes the outcome and subject lines
         # with it, and is_locked resets naturally.
         self.env['ems.grade_session'].sudo().search([('group_id', 'in', groups.ids)]).unlink()
-        # The delegate of a group that has just been emptied. The helper above only
-        # clears it through the student's own main_group_id, which a graduate no longer
-        # has at this point — step 1 detached it.
-        groups.sudo().write({'delegate_id': False})
+        # The delegate and sub-delegate of a group that has just been emptied. The helper
+        # above only clears them through the student's own main_group_id, which a graduate
+        # no longer has at this point — step 1 detached it.
+        groups.sudo().write({'delegate_id': False, 'subdelegate_id': False})
         # Runs LAST, after _ems_clear_operational_records() (2026-08-10, found the hard way): this
         # archives any attendance_issue_student/_tutor with zero active children, which would
         # otherwise silently swallow the very records _ems_clear_operational_records() still
@@ -1017,6 +1017,10 @@ Called from `_apply_cleanup()` **last**, after `students._ems_clear_operational_
         if self._pending_studies():
             return False
         self.env.company.current_course_id = self.target_course_id
+        # The staff's own attendance of the courses left behind (issue #543): archived, so the
+        # lists and reports are about the course that starts. Only on the flip - while some study
+        # is still pending, the outgoing course is still the centre's current one.
+        self.env['hr.attendance']._ems_archive_before_course(self.target_course_id)
         # 'is_enrollment_default' is deliberately left alone (D16): enrollments keep
         # being processed in September for the course that has just started, and the
         # flag is what every "which course do new enrollments belong to" lookup reads.

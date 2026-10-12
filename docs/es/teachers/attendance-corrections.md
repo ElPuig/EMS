@@ -13,13 +13,17 @@ Cada entrada y salida que haces queda registrada automáticamente. Esta página 
 ## Revisar tus fichajes
 
 1. Ve a **Fichajes de empleados → Asistencia → Vista general**.
-2. La lista muestra todos tus fichajes de entrada/salida, los más recientes primero.
+2. La lista muestra tus fichajes de entrada/salida del curso actual, los más recientes primero, como una lista simple: cada registro está a un clic.
 
    ![Lista de tus propios fichajes](../../assets/teachers/assistencia-01-llistat.png)
 
 3. Haz clic en cualquier registro para ver sus detalles: hora de entrada, hora de salida y cómo se registró (quiosco, manual, etc.).
 
-> Aquí solo ves tus propios fichajes — son privados para ti y para la Jefatura de Estudios / Jefatura de Estudios Adjunta / Dirección / Administrador, que pueden ver los de todos.
+> Aquí solo ves tus propios fichajes. Además de ti, pueden verlos quienes están por encima de ti en la jerarquía — tu Jefe de departamento o de seminario (solo lectura) y tu JE o JEA —, Dirección y el Administrador. Un centro también puede permitir que todos los jefes de estudios consulten los fichajes de todos.
+
+**Cursos anteriores.** Cuando el centro pasa a un curso nuevo, los fichajes del anterior se archivan: no se borran, pero ya no aparecen en la lista. Para verlos, abre el menú **Filtros** de la barra de búsqueda y marca **Archivado**.
+
+**Si eres Jefe de departamento o de seminario**, la misma lista muestra también los fichajes de las personas de tu departamento (todos los que están por debajo de ti en la jerarquía), solo para consultarlos: no puedes cambiarlos. Como incluye a varias personas, tu lista se abre agrupada por mes y por empleado; despliega un grupo para ver sus registros.
 
 ---
 

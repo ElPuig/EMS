@@ -17,8 +17,25 @@ sudo systemctl daemon-reload
 echo "<< Debugger enabled."
 
 echo ">> Cancelling all pending emails and jobs:"
-sudo -u odoo bash -c "psql -d ems -c \"UPDATE queue_job SET state='cancelled' WHERE state IN ('started', 'enqueued', 'pending');\""
-echo "<< Jobs canelled."
+# Run as the postgres superuser, before anything else touches the database: a freshly restored
+# production copy may be locked against the odoo role (REVOKE CONNECT, see CLAUDE.md "Lock a
+# restored production copy") and still carries production's pending work. Everything that has not
+# finished is cancelled, whatever its state: queue jobs (notices, notifications...), including those
+# waiting on another one, Odoo's own outgoing mail queue (its recipients are stored as plain text,
+# so the address rewrite below never reaches them) and outgoing SMS.
+sudo -u postgres psql -d ems -v ON_ERROR_STOP=1 \
+    -c "UPDATE queue_job SET state='cancelled' WHERE state NOT IN ('done', 'cancelled', 'failed');" \
+    -c "UPDATE mail_mail SET state='cancel' WHERE state IN ('outgoing', 'exception');" \
+    -c "DO \$\$ BEGIN IF to_regclass('sms_sms') IS NOT NULL THEN UPDATE sms_sms SET state='canceled' WHERE state='outgoing'; END IF; END \$\$;" \
+    || { echo "!! Could not cancel the pending jobs and emails: stopping here, the Odoo service stays stopped."; exit 1; }
+pending=$(sudo -u postgres psql -d ems -At -c "SELECT count(*) FROM queue_job WHERE state NOT IN ('done', 'cancelled', 'failed');")
+if [ "$pending" != "0" ]; then
+    echo "!! ${pending} jobs are still pending: stopping here, the Odoo service stays stopped."
+    exit 1
+fi
+# Only now may the odoo role (and the service, at the end of this script) reach the database.
+sudo -u postgres psql -c "GRANT CONNECT ON DATABASE ems TO PUBLIC, odoo;"
+echo "<< Jobs and emails cancelled."
 
 echo "Replacing all real email addresses is mandatory in this development environment, to avoid accidentally sending emails to real people."
 google_account="$1"
@@ -83,9 +100,33 @@ echo ">> Forcing the Google Workspace integration into dry-run mode:"
 sudo -u odoo bash -c "psql -d ems -c \"UPDATE res_company SET google_ws_dry_run = TRUE;\""
 echo "<< Google Workspace in dry-run mode."
 
+echo ">> Switching off the incoming mail servers:"
+# A database restored from production carries production's incoming mail server (the mailbox the
+# families' answers arrive at, issue #586). An email is only fetched once: reading that mailbox
+# here would take those answers away from production. EMS refuses to fetch on a development
+# machine anyway (models/settings/mail_guard.py); this keeps the Settings screen honest about it.
+sudo -u odoo bash -c "psql -d ems -c \"UPDATE fetchmail_server SET active = FALSE, state = 'draft';\""
+echo "<< Incoming mail servers switched off."
+
 echo ">> Declaring this environment as 'dev' (see CLAUDE.md's 'Development vs. production environment declaration'):"
 sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.environment_type', 'dev') ON CONFLICT (key) DO UPDATE SET value = 'dev';\""
 echo "<< Declared."
+
+echo ">> Guarding outgoing email on this machine (issue #590):"
+# A development machine only ever sends to the developer's own inbox (every address redirected
+# above) and to an explicit allowlist; EMS refuses anything else, and everything from a database
+# that didn't go through this script (see models/settings/mail_guard.py). The allowlist is only
+# seeded once: edit it in Settings > Technical > System Parameters.
+sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.dev_mail_redirect', '${google_account}@${domain}') ON CONFLICT (key) DO UPDATE SET value = '${google_account}@${domain}';\""
+sudo -u odoo bash -c "psql -d ems -c \"INSERT INTO ir_config_parameter (key, value) VALUES ('ems.dev_mail_allowlist', 'ems@elpuig.xeill.net') ON CONFLICT (key) DO NOTHING;\""
+# The machine itself, not just this database: a production dump restored into any other database
+# on this box carries production's live mail servers and pending jobs. db_name/dbfilter keep the
+# Odoo service (queue_job runner, crons, web) on 'ems' only, so such a copy stays inert, and
+# ems_server_role makes EMS block its email if it is ever opened anyway. On 2026-10-06 a copy
+# restored here sent 412 real notifications to students and families.
+sudo sed -i '/^[[:space:]]*\(db_name\|dbfilter\|ems_server_role\)[[:space:]]*=/d' /etc/odoo/odoo.conf
+sudo sed -i '/^\[options\]/a db_name = ems\ndbfilter = ^ems$\nems_server_role = dev' /etc/odoo/odoo.conf
+echo "<< Email guarded: only ${google_account}+...@${domain} and the allowlist; the Odoo service only serves 'ems'."
 
 echo ">> Starting the Odoo service..."
 sudo service odoo start

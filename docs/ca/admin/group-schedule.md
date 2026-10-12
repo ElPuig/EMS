@@ -45,6 +45,22 @@ directament des d'aquí — vegeu més avall.
 
 ---
 
+## Desdoblaments i optatives
+
+Quan el grup es reparteix en subgrups (un desdoblament, un grup flexible, les optatives d'un
+curs), cada classe d'aquests subgrups apareix també a l'horari del grup, amb el nom del subgrup
+sota l'assignatura:
+
+- Fins a **3 classes a la mateixa hora** es mostren l'una al costat de l'altra.
+- Amb **4 o més** (per exemple, totes les optatives d'un curs) es mostra un únic bloc
+  **"N classes en paral·lel"**. Sota la graella, la taula **Classes en paral·lel** detalla, per a
+  cadascun d'aquests blocs, el subgrup, l'assignatura, el docent i l'aula de cada classe.
+
+Perquè les classes d'un subgrup apareguin aquí, el subgrup ha de tenir aquest grup entre els seus
+**Grups principals** (vegeu [Crear un grup de reforç](groups.md#crear-un-grup-de-reforç)).
+
+---
+
 ## Editar el tema o l'aula d'un bloc
 
 **Rol necessari:** Cap de Departament o superior (Cap d'Estudis, Sotscap d'Estudis, Director/a,
@@ -87,10 +103,10 @@ Cada grup actiu té un enllaç públic al PDF del seu horari, que qualsevol pers
 iniciar sessió a EMS — per exemple, per enllaçar l'horari de cada grup des del web del centre.
 
 1. Obre **Grups → [un grup]**.
-2. Al camp **Enllaç públic de l'horari** (p. ex. `.../ems/schedule/eso1a.pdf`), fes clic a
+2. A la pestanya **Horari**, sota el botó **PDF**, al camp **Enllaç públic de l'horari** (p. ex. `.../ems/schedule/eso1a.pdf`), fes clic a
    l'enllaç per obrir el PDF en una pestanya nova, o fes clic al botó de la dreta per copiar-lo.
 
-![Enllaç públic de l'horari a la fitxa del grup](../../assets/admin/group-schedule-public-link.png)
+![Enllaç públic de l'horari a la pestanya Horari del grup](../../assets/admin/group-schedule-public-link.png)
 
 El PDF de l'enllaç s'actualitza automàticament uns segons després de qualsevol canvi en l'horari
 del grup, de manera que no cal substituir mai l'enllaç. L'enllaç es construeix a partir del nom

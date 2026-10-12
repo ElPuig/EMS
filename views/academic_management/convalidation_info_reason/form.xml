@@ -1,0 +1,20 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_convalidation_info_reason_form">
+            <field name="name">ems.convalidation.info_reason.form</field>
+            <field name="model">ems.convalidation.info_reason</field>
+            <field name="arch" type="xml">
+                <form string="Documentation request reason">
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <field name="active" invisible="1"/>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -29,9 +29,11 @@ For a smaller, ad-hoc update from any other CSV file (not the official Esfera fo
 
 ## Running the import
 
-From the **Students** list, open the actions menu (the gear icon ⚙️ next to the list) and choose **Import from Esfera**. Select the `.xlsx` file exported from Esfera/SAGA and click **Import students**.
+From the **Students** list, open the actions menu (the gear icon ⚙️ next to the list) and choose **Import from Esfera**. Select the `.xlsx` file exported from Esfera/SAGA and click **Import students**. While the import runs, a message stays on screen until it finishes; a large file can take a few minutes.
 
 ![Import from Esfera window, with the file upload and the overwrite option](../../assets/secretary/esfera-01-assistent.png)
+
+If the students in the file already have a Google account created outside EMS, untick **Create Google accounts** before importing. EMS then doesn't create any account for them: they are marked with **Assign corporate email manually** on their form. Fill in each one's existing address in **Corporate email**, on the form itself or for all of them at once with [Updating student data from a CSV file](student-update-csv.md) (column **Student email**). See [Managing a student's Google account](../admin/student-google-account.md).
 
 ## What gets created or updated
 

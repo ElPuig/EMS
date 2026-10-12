@@ -302,6 +302,8 @@ class TestAttendanceSessionHeader(TransactionCase):
             'attendance_schedule_id': self.schedule.id, 'date': self.today,
             'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
         })
+        # Marked by hand in the roll-call, which the company has to allow (issue #587).
+        self.env.company.attendance_manual_justified = True
         justified = self.env.ref('ems.attendance_status_justified')
         first_line = first.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
         first_line.status_id = justified
@@ -585,3 +587,32 @@ class TestAttendanceSessionLine(TransactionCase):
         })
         with self.assertRaises(UserError):
             line.active = False
+
+    # --- marking a justified absence by hand (issue #587) ----------------
+
+    def test_justified_not_selectable_by_hand_by_default(self):
+        justified = self.env.ref('ems.attendance_status_justified')
+        self.assertFalse(self.env.company.attendance_manual_justified)
+        self.assertFalse(justified.roll_call_selectable)
+        self.assertTrue(self.env.ref('ems.attendance_status_miss').roll_call_selectable)
+        with self.assertRaises(ValidationError):
+            self._line().status_id = justified
+
+    def test_justified_selectable_by_hand_when_allowed(self):
+        self.env.company.attendance_manual_justified = True
+        justified = self.env.ref('ems.attendance_status_justified')
+        self.assertTrue(justified.roll_call_selectable)
+        line = self._line()
+        line.status_id = justified
+        self.assertEqual(line.status_id, justified)
+
+    def test_justified_line_from_before_keeps_its_status(self):
+        """A line justified by hand while it was allowed is left alone once it no longer is:
+        changing anything else on it still works, and so does moving it to another status."""
+        self.env.company.attendance_manual_justified = True
+        line = self._line()
+        line.status_id = self.env.ref('ems.attendance_status_justified')
+        self.env.company.attendance_manual_justified = False
+        line.notes = 'Still editable'
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        self.assertEqual(line.status_id, self.env.ref('ems.attendance_status_miss'))

@@ -14,6 +14,8 @@ This page covers both the full strike history (Head of Studies / Deputy Head of 
 
 **Convivencia → Strikes** shows every strike issued centre-wide, regardless of which teacher issued it, which branch the student belongs to, or your own Head of Studies / Deputy Head of Studies / Director role — this centre-wide view is not scoped by department. If you hold the Coexistence role as well, you see the exact same complete list.
 
+Each row shows the student's group, and the subject and classroom of the session where the strike was issued. A strike issued outside class (with **New strike**) shows the student's main group, with no subject or classroom.
+
 From a student's own form, a **Strikes** button appears in the header showing their accumulated count. Opening any individual strike record shows a **Kicked out of class** checkbox, so you can tell at a glance whether that incident ended with the student being sent out of the classroom.
 
 ![Strike record with the Kicked out of class checkbox ticked](../../assets/head_of_studies/hos-strike-kicked-out.png)

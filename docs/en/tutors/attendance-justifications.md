@@ -4,7 +4,9 @@
 
 # Justifying Your Students' Absences
 
-A justification covers a period (start and end date and time) for one student of your group. Every absence within that period becomes a **Justified Miss**, whichever teacher recorded it.
+A justification covers a period (start and end date and time) for one student of your group. Every absence within that period becomes a **Justified Miss**, whichever teacher recorded it, and every **Severe Delay** (which counts as an absence) becomes a **Minor Delay**.
+
+Unless the centre allows it in its settings, a justification is the only way to justify an absence: teachers can't mark a student as Justified Miss when taking the roll-call.
 
 **Required role:** Tutor
 
@@ -15,8 +17,10 @@ A justification covers a period (start and end date and time) for one student of
 1. Go to **Student's Attendances → Justifications** and click **New**.
 2. In **Student**, pick the student. Only the students of your group are listed.
 3. In **Period**, set the start and end date and time.
-4. The **Affected sessions** tab lists the sessions within the period where the student has an absence, from every teacher.
-5. Click **Save**. The absences in the list become **Justified Miss**.
+4. The **Affected sessions** tab lists the sessions within the period where the student has an absence or a severe delay, from every teacher.
+5. Click **Save**. The absences in the list become **Justified Miss**, and the severe delays become **Minor Delay**.
+
+In the roll-call, the justified lines show a shield and can no longer be changed by the teacher. Their note says who justified them ("Absence justified by: ..." or "Severe delay justified by: ...").
 
 ![New justification with its affected sessions](../../assets/tutors/justificants-02-nou.png)
 
@@ -48,8 +52,8 @@ The attached files can be opened by everyone who can see the justification: the 
 
 ![Justifications list](../../assets/tutors/justificants-01-llista.png)
 
-- **Changing the period:** open the justification, change the **Period** and save. Absences left outside it go back to **Miss**, and the new ones become **Justified Miss**.
-- **Deleting it:** the absences it covered go back to **Miss**.
+- **Changing the period:** open the justification, change the **Period** and save. Absences left outside it go back to **Miss** (or **Severe Delay**, if they were one), and the new ones are justified.
+- **Deleting it:** the absences it covered go back to **Miss**, and the delays to **Severe Delay**.
 - The **Student** cannot be changed once saved: delete the justification and create a new one.
 
 ---

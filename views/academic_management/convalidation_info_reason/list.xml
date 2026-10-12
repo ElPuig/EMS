@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_convalidation_info_reason_list">
+            <field name="name">ems.convalidation.info_reason.list</field>
+            <field name="model">ems.convalidation.info_reason</field>
+            <field name="arch" type="xml">
+                <list default_order="sequence, name">
+                    <field name="sequence" widget="handle"/>
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

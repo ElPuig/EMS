@@ -98,6 +98,25 @@ registry.category("web_tour.tours").add("ems_absence_employee_view", {
     ],
 });
 
+// The employee whose supporting document was sent back reads why on the request itself, while
+// they look for a valid one.
+registry.category("web_tour.tours").add("ems_absence_document_returned", {
+    test: true,
+    url: "/odoo/action-hr_holidays.hr_leave_action_my",
+    steps: () => [
+        {
+            // Newest first: the sent-back request is four weeks after the employee's other one.
+            trigger: ".o_list_view .o_data_row:first-child td[name='ems_type_short_name']",
+            content: "Open the request whose document was sent back",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-warning .o_field_widget[name='ems_document_return_reason']:contains('Tour the stamp is missing')",
+            content: "The reason the Head gave is on the request",
+        },
+    ],
+});
+
 // "Vista general" is the centre-wide absence calendar, the only calendar screen left in the
 // menu once the employee dashboard was hidden. It is a different view under a different action
 // from the request tour above, and an OWL template inheritance error only ever surfaces in a
@@ -418,8 +437,13 @@ registry.category("web_tour.tours").add("ems_absence_direction_review", {
             run: "click",
         },
         {
-            trigger: ".modal-footer .btn-primary",
-            content: "Confirm sending it back to the employee",
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Say why, so the employee knows what to attach instead",
+            run: "edit Tour the stamp is missing",
+        },
+        {
+            trigger: ".modal-footer button[name='action_return']",
+            content: "Send it back to the employee",
             run: "click",
         },
         {

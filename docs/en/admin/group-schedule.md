@@ -46,6 +46,22 @@ own Schedule tab. Topic and classroom, however, can also be edited directly here
 
 ---
 
+## Split Groups and Optatives
+
+When the group is divided into subgroups (a split, a flexible group, a course's optatives), every
+class of those subgroups also appears in the group's schedule, with the subgroup's name under the
+subject:
+
+- Up to **3 classes at the same time** are shown side by side.
+- With **4 or more** (for example, all the optatives of a course) a single **"N classes in
+  parallel"** block is shown. Below the grid, the **Classes in parallel** table lists, for each of
+  those blocks, the subgroup, subject, teacher and classroom of every class.
+
+For a subgroup's classes to appear here, the subgroup must have this group among its **Main
+groups** (see [Create a Reinforcement Group](groups.md#create-a-reinforcement-group)).
+
+---
+
 ## Editing a Block's Topic or Classroom
 
 **Required role:** Department Chief and above (Head of Studies, Deputy Head of Studies,
@@ -88,10 +104,10 @@ Every active group has a public link to its schedule PDF, which anyone can open 
 in to EMS — use it, for example, to link each group's timetable from the centre's website.
 
 1. Open **Groups → [a group]**.
-2. In the **Public schedule link** field (e.g. `.../ems/schedule/eso1a.pdf`), click the link to
+2. On the **Schedule** tab, below the **PDF** button, in the **Public schedule link** field (e.g. `.../ems/schedule/eso1a.pdf`), click the link to
    open the PDF in a new tab, or click the button on its right to copy the link.
 
-![Public schedule link on the group form](../../assets/admin/group-schedule-public-link.png)
+![Public schedule link on the group's Schedule tab](../../assets/admin/group-schedule-public-link.png)
 
 The PDF behind the link is updated automatically a few seconds after any change to the group's
 schedule, so the link never needs to be replaced. The link is built from the group's name: if

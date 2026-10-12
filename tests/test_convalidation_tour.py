@@ -2,7 +2,7 @@ import base64
 
 from odoo.tests import HttpCase, tagged
 
-from .common import mock_outgoing_email
+from .common import mock_outgoing_email, next_student_id
 from .test_portal_convalidation import create_portal_convalidation_fixtures
 
 
@@ -28,7 +28,7 @@ class TestConvalidationTour(HttpCase):
             })],
         })
 
-    def _convalidated_session(self):
+    def _convalidated_session(self, without_grade=False):
         """The fixture teacher tutors the group and teaches the subject; the student's subject
         grade, in a closed round, is convalidated."""
         teacher_employee = self.teacher.employee_ids[:1]
@@ -44,17 +44,17 @@ class TestConvalidationTour(HttpCase):
         # from the subject, which deletes their line in any OPEN session only. The board round
         # keeps it - and it is the one the tutor's view still lists (it skips final rounds).
         session.state = 'board'
-        self._resolve()
+        self._resolve(without_grade)
         self.request.sudo().action_complete()
         self.assertTrue(session.grade_subject_line_ids.is_convalidated)
         return session
 
-    def _propose(self):
-        self.request.line_ids.sudo().action_grant()
+    def _propose(self, without_grade=False):
+        self.request.line_ids.sudo().write({'state': 'granted', 'without_grade': without_grade})
         self.request.sudo().action_propose()
 
-    def _resolve(self):
-        self._propose()
+    def _resolve(self, without_grade=False):
+        self._propose(without_grade)
         self.request.sudo().action_resolve()
 
     def test_head_of_studies_proposes(self):
@@ -62,12 +62,22 @@ class TestConvalidationTour(HttpCase):
         self.assertEqual(self.request.state, 'direction')
         self.assertEqual(self.request.line_ids.state, 'granted')
         self.assertEqual(self.request.line_ids.grade, 8)
+        self.assertFalse(self.request.line_ids.without_grade)
 
     def test_head_of_studies_records_the_ministry_resolution(self):
         self.start_tour("/odoo", "ems_convalidation_ministry", login=self.head_of_studies.login)
         self.assertEqual(self.request.state, 'in_progress')
         self.assertTrue(self.request.resolved_by_ministry)
         self.assertEqual(self.request.line_ids.rejection_reason, 'Refused by the Ministry')
+        self.assertEqual(self.request.line_ids.rejection_reason_id,
+                         self.env.ref('ems.convalidation_rejection_reason_contents'))
+
+    def test_head_of_studies_requests_documentation(self):
+        self.start_tour("/odoo", "ems_convalidation_request_info", login=self.head_of_studies.login)
+        self.assertEqual(self.request.state, 'pending')
+        self.assertEqual(self.request.info_request_reason_id,
+                         self.env.ref('ems.convalidation_info_reason_previous_centre'))
+        self.assertEqual(self.request.info_request, 'Name and code of the previous centre')
 
     def test_director_resolves(self):
         self._propose()
@@ -85,6 +95,20 @@ class TestConvalidationTour(HttpCase):
         self._resolve()
         self.start_tour("/odoo", "ems_convalidation_complete", login=self.secretary.login)
         self.assertEqual(self.request.state, 'completed')
+
+    def test_the_list_opens_on_what_waits_for_the_secretariat(self):
+        """Issue #610: each role finds the requests waiting for them. The secretariat's is the
+        resolved one; the one still under review only shows after removing the filter."""
+        self._resolve()
+        other = self.env['res.partner'].create({
+            'name': 'Still Under Review Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': self.group.id, 'birth_date': '2000-01-01',
+        })
+        self.env['ems.convalidation'].create({
+            'student_id': other.id, 'study_id': self.study.id, 'course_id': self.course.id,
+            'line_ids': [(0, 0, {'subject_id': self.subject.id})],
+        })
+        self.start_tour("/odoo", "ems_convalidation_default_filter", login=self.secretary.login)
 
     def test_teacher_reads_the_current_course_history(self):
         self._resolve()
@@ -107,6 +131,15 @@ class TestConvalidationTour(HttpCase):
     def test_grade_tutor_matrix_shows_cv(self):
         self._convalidated_session()
         self.start_tour("/odoo", "ems_convalidation_grade_tutor_matrix", login=self.teacher.login)
+
+    def test_grade_matrix_shows_cv_alone_without_grade(self):
+        session = self._convalidated_session(without_grade=True)
+        self.start_tour(f"/odoo/action-ems.action_grade_session_tree/{session.id}",
+                        "ems_convalidation_grade_matrix_without_grade", login=self.teacher.login)
+
+    def test_grade_tutor_matrix_shows_cv_alone_without_grade(self):
+        self._convalidated_session(without_grade=True)
+        self.start_tour("/odoo", "ems_convalidation_grade_tutor_matrix_without_grade", login=self.teacher.login)
 
     def test_portal_student_submits(self):
         self.request.action_cancel()

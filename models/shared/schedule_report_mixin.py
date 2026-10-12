@@ -51,6 +51,18 @@ class EmsScheduleReportMixin(models.AbstractModel):
             return ('non_teaching', attendance.non_teaching.id)
         return ('subject', attendance.subject_id.id, attendance.topic or False)
 
+    # Issue #611: up to this many classes at the very same time are shown side by side; more than
+    # that (e.g. the 7 optatives of a course) collapse into a single "N classes in parallel" block,
+    # detailed in 'get_parallel_classes_detail'. Kept in sync by hand with the JS copy
+    # (PARALLEL_BLOCKS_LIMIT in static/src/js/backend/schedule_grid_readonly_field.js).
+    PARALLEL_BLOCKS_LIMIT = 3
+
+    def _report_block_key(self, attendance):
+        """What makes two entries of the same slot one visual block: the same subject/topic (or
+        non-teaching reason) given to the same subgroup(s). Co-teachers of one class share a block;
+        the two halves of a split group, or two optatives sharing a generic subject, do not."""
+        return self._report_color_key(attendance) + (attendance.subgroup_label or False,)
+
     def _format_report_time(self, value):
         hour, minutes = divmod(round(value * 60), 60)
         return f"{hour:02d}:{minutes:02d}"
@@ -120,16 +132,58 @@ class EmsScheduleReportMixin(models.AbstractModel):
                 )
                 blocks_by_key = {}
                 for attendance in day_entries:
-                    key = self._report_color_key(attendance)
+                    key = self._report_block_key(attendance)
                     blocks_by_key[key] = blocks_by_key.get(key, self.env['resource.calendar.attendance']) | attendance
-                cells.append({
-                    'blocks': [{'entries': entries, 'color': color_by_key.get(key)} for key, entries in blocks_by_key.items()],
-                })
+                blocks = [
+                    {'entries': entries, 'color': color_by_key.get(self._report_color_key(entries[:1])),
+                     'detail': self._schedule_report_block_detail(entries),
+                     'subgroup': self._schedule_report_block_subgroup(entries)}
+                    for entries in blocks_by_key.values()
+                ]
+                if len(blocks) > self.PARALLEL_BLOCKS_LIMIT:
+                    blocks = [{'entries': day_entries, 'color': False, 'detail': False, 'subgroup': False,
+                               'parallel_blocks': blocks}]
+                cells.append({'blocks': blocks})
             lines.append({
                 'time_label': f"{self._format_report_time(hour_from)}-{self._format_report_time(hour_to)}",
                 'cells': cells,
             })
         return lines
+
+    def _schedule_report_block_detail(self, entries):
+        """The small second line of a block, under its subject: the room it takes place in. A
+        room's own schedule overrides it (see ems.space), since there it would only repeat the
+        room itself on every block."""
+        return entries[:1].space_id.display_name or False
+
+    def _schedule_report_block_subgroup(self, entries):
+        """The reinforcement group(s) a block's class is given to (issue #611), shown above its
+        detail line. A room's own schedule overrides it (see ems.space): its detail line already
+        names every group in the room."""
+        return entries[:1].subgroup_label or False
+
+    def get_parallel_classes_detail(self):
+        """What each "N classes in parallel" block of 'get_schedule_report_lines' stands for: one
+        row per collapsed slot, with every class given at that time."""
+        self.ensure_one()
+        day_labels = dict(self.env['resource.calendar.attendance']._fields['dayofweek']._description_selection(self.env))
+        rows = []
+        for line in self.get_schedule_report_lines():
+            for dayofweek, cell in zip(self.WEEKDAYS, line['cells']):
+                for block in cell['blocks']:
+                    if not block.get('parallel_blocks'):
+                        continue
+                    rows.append({
+                        'dayofweek': dayofweek,
+                        'slot': f"{day_labels[dayofweek]} {line['time_label']}",
+                        'classes': sorted(({
+                            'subject': parallel['entries'][:1].get_subject_display_label(),
+                            'subgroup': parallel['entries'][:1].subgroup_label or "",
+                            'teachers': ", ".join(sorted(set(parallel['entries'].mapped('employee_id.display_name')))),
+                            'room': parallel['entries'][:1].space_id.display_name or "",
+                        } for parallel in block['parallel_blocks']), key=lambda row: (row['subgroup'], row['subject'])),
+                    })
+        return sorted(rows, key=lambda row: (row['dayofweek'], row['slot']))
 
     def get_subject_teachers_summary(self):
         """One row per distinct (subject, topic) pair in this schedule, with the sorted,

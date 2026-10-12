@@ -2,7 +2,7 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study, create_role_employee, create_role_user, next_student_id
+from .common import create_level_study, create_role_employee, create_role_user, shift_ems_clock, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -11,9 +11,10 @@ class TestAttendancePasslistTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        cls.today = shift_ems_clock(cls).date()
         cls.level, cls.study = create_level_study(
             cls, 'TATT', level={'name': 'Test Level (Attendance Take Tour)'},
-            study={'code': 'TATT001', 'name': 'Test Study (Attendance Take Tour)', 'date': date.today()},
+            study={'code': 'TATT001', 'name': 'Test Study (Attendance Take Tour)', 'date': cls.today},
         )
         cls.subject = cls.env['ems.subject'].create({
             'code': 'TATT001', 'acronym': 'TATT', 'name': 'Test Subject (Attendance Take Tour)',
@@ -52,12 +53,12 @@ class TestAttendancePasslistTour(HttpCase):
             'group_ids': [(6, 0, [cls.group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
-        # start/end span the whole day so the schedule is "current" no matter what time this
-        # test happens to run at (same trick as test_strike_tour.py). Deliberately NOT
+        # The clock is set to 10:00 (shift_ems_clock), inside this slot, so the schedule is the
+        # current one whatever time the test runs at. Deliberately NOT
         # creating a session here - it must still be "planned" so the tour can exercise
         # onStartSession(), not just an already-started one.
         cls.schedule = cls.env['ems.attendance_schedule'].create({
-            'attendance_template_id': cls.template.id, 'weekday': str(date.today().weekday()),
+            'attendance_template_id': cls.template.id, 'weekday': str(cls.today.weekday()),
             'start_time': 0.0, 'end_time': 23.0, 'space_id': cls.space.id,
             'student_ids': [(6, 0, [cls.student1.id, cls.student2.id])],
         })
@@ -70,7 +71,7 @@ class TestAttendancePasslistTour(HttpCase):
         self.start_tour("/odoo", "ems_attendance_take", login="test_teacher_attendance_take_tour")
 
         session = self.env['ems.attendance_session_header'].search([
-            ('attendance_schedule_id', '=', self.schedule.id), ('date', '=', date.today()),
+            ('attendance_schedule_id', '=', self.schedule.id), ('date', '=', self.today),
         ])
         self.assertEqual(len(session), 1)
 

@@ -178,11 +178,15 @@
                                                t-att-title="strings.justifiedTitle"/>
                                         </td>
                                         <t t-foreach="statuses" t-as="s" t-key="s.key">
-                                            <td class="ems-av-td-status">
+                                            <!-- The title also goes on the cell: some browsers don't show a disabled button's own. -->
+                                            <td class="ems-av-td-status" t-att-title="s.selectable ? false : s.lockedTitle">
                                                 <button class="ems-av-status-btn"
-                                                        t-att-class="line.status_id === s.key ? 'ems-av-status-btn--active' : ''"
-                                                        t-att-title="s.title"
-                                                        t-att-disabled="state.saving[line.id] || isJustified || isRemoved"
+                                                        t-att-class="{
+                                                            'ems-av-status-btn--active': line.status_id === s.key,
+                                                            'ems-av-status-btn--locked': !s.selectable,
+                                                        }"
+                                                        t-att-title="s.selectable ? s.title : s.lockedTitle"
+                                                        t-att-disabled="state.saving[line.id] || isJustified || isRemoved || !s.selectable"
                                                         t-on-click="() => this.onStatusClick(line.id, s.key)">
                                                     <t t-esc="s.label"/>
                                                 </button>

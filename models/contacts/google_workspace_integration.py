@@ -37,9 +37,15 @@ class ResPartnerGoogleWorkspace(models.Model):
         string="Google account deleted", default=False, copy=False, readonly=True,
         help="True once the corporate account has been deleted in Google. The address is "
              "kept on the record so it is never handed to a different student.")
+    google_ws_manual_email = fields.Boolean(
+        string="Assign corporate email manually", copy=False,
+        help="Tick it when the student's Google account was created outside EMS: EMS then "
+             "never creates one, and the existing address is filled in by hand (or with the "
+             "student data update wizard) as the corporate email.")
     google_ws_state = fields.Selection(
         selection=[
             ('none', 'No Google account'),
+            ('manual_pending', 'Waiting for the manual corporate email'),
             ('active', 'Google account active'),
             ('suspended', 'Google account suspended'),
         ],
@@ -56,6 +62,10 @@ class ResPartnerGoogleWorkspace(models.Model):
         compute_sudo=True, store=False,
         help="Whether the user looking at this student may create their Google account: the "
              "secretary, plus everyone who may reset the password.")
+    google_ws_creation_pending = fields.Boolean(
+        string="Google account being created", compute='_compute_google_ws_creation_pending',
+        help="True while the account-creation job waits in the queue or runs: the "
+             "\"Create Google account\" button stays hidden meanwhile.")
     can_download_google_credentials = fields.Boolean(
         string="Can download the Google credentials",
         compute='_compute_can_download_google_credentials', store=False,
@@ -65,15 +75,22 @@ class ResPartnerGoogleWorkspace(models.Model):
     # ------------------------------------------------------------------
     # Compute
     # ------------------------------------------------------------------
-    @api.depends('contact_type', 'student_email', 'google_ws_suspended')
+    @api.depends('contact_type', 'student_email', 'google_ws_suspended', 'google_ws_manual_email')
     def _compute_google_ws_state(self):
         for partner in self:
             if partner.contact_type != 'student' or not partner.student_email:
-                partner.google_ws_state = 'none'
+                manual = partner.contact_type == 'student' and partner.google_ws_manual_email
+                partner.google_ws_state = 'manual_pending' if manual else 'none'
             elif partner.google_ws_suspended:
                 partner.google_ws_state = 'suspended'
             else:
                 partner.google_ws_state = 'active'
+
+    def _compute_google_ws_creation_pending(self):
+        gw = self._gw()
+        for partner in self:
+            partner.google_ws_creation_pending = bool(partner.id) and gw._gw_creation_job_running(
+                partner._gw_create_job_key())
 
     # NOTE (issue #490, #513): drives the "Reset Google password" and "Create Google account"
     # buttons' own invisible, since a teacher reads every student (rule_contact_teacher) and the
@@ -201,6 +218,7 @@ class ResPartnerGoogleWorkspace(models.Model):
         return (
             self.contact_type == 'student'
             and not self.student_email
+            and not self.google_ws_manual_email
             and not self._gw_missing_fields()
         )
 
@@ -214,10 +232,21 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         for partner in self:
             if partner._gw_ready():
-                partner.with_delay(
-                    identity_key='gw_create_account_%s' % partner.id,
-                    description="Create Google Workspace account: %s" % partner.name,
-                )._gw_create_account()
+                partner._gw_enqueue_create()
+
+    def _gw_create_job_key(self):
+        """identity_key of the account-creation job, shared by every path that queues it."""
+        self.ensure_one()
+        return 'gw_create_account_%s' % self.id
+
+    def _gw_enqueue_create(self):
+        """Queue the account creation. The automatic path and the header button both go
+        through it, so the same job is never queued twice for one student (#582)."""
+        self.ensure_one()
+        self.with_delay(
+            identity_key=self._gw_create_job_key(),
+            description="Create Google Workspace account: %s" % self.name,
+        )._gw_create_account()
 
     def _gw_enqueue_relocate(self):
         """Enqueue an OU relocation for students that already have an account, used
@@ -246,6 +275,20 @@ class ResPartnerGoogleWorkspace(models.Model):
                 identity_key='gw_rename_%s' % partner.id,
                 description="Rename Google Workspace account: %s" % partner.name,
             ).action_sync_google_account_name()
+
+    def _gw_enqueue_sync_idalu(self):
+        """Enqueue the IDALU sync for students that already have an account (deduplicated),
+        so an IDALU filled in or fixed in EMS reaches Google's Employee ID too (#609)."""
+        if not self.env.company.google_ws_enabled:
+            return
+        for partner in self.filtered(
+            lambda r: r.contact_type == 'student' and r.student_email and r.student_id
+            and not r.google_ws_deleted
+        ):
+            partner.with_delay(
+                identity_key='gw_idalu_%s' % partner.id,
+                description="Sync IDALU to Google Workspace account: %s" % partner.name,
+            ).action_sync_google_account_idalu()
 
     def _gw_schedule_deactivation(self):
         """Open the grace period instead of suspending the account right away.
@@ -356,19 +399,26 @@ class ResPartnerGoogleWorkspace(models.Model):
             ).action_reactivate_google_account()
 
     # ------------------------------------------------------------------
-    # Main action (queue_job target / manual button)
+    # Main action (manual button) and the creation itself (queue_job target)
     # ------------------------------------------------------------------
     def action_create_google_account(self):
         """"Create Google account" header button: the secretary, academic admin, TAC and - since
         issue #513 - the student's own tutor scope (the same rule as the password reset). The
         button's invisible only hides it, so the same check is repeated here. The automatic paths
         call _gw_create_account() directly: their queue jobs run as whoever triggered them, portal
-        families included."""
+        families included.
+
+        A student ready for it gets the same queued job as the automatic creation instead of a
+        direct call: both used to run side by side and create two accounts (#582). Anything else
+        (missing data, an existing address) keeps the direct call, which explains itself."""
         self.ensure_one()
         if not self.can_create_google_account:
             raise AccessError(_(
                 "Only the secretary's office, administrators, the TAC team and the student's own "
                 "tutor can create a Google account."))
+        if self.env.company.google_ws_enabled and self._gw_ready():
+            self._gw_enqueue_create()
+            return self._gw()._gw_creation_queued_notification()
         self._gw_create_account()
 
     def _gw_create_account(self):
@@ -384,7 +434,8 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         if self.contact_type != 'student':
             return
-        if self.student_email:
+        self._gw()._gw_lock_for_creation(self)
+        if self.student_email or self.google_ws_manual_email:
             return
 
         # Required data must be complete (Google rejects empty givenName/familyName,
@@ -415,8 +466,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             'orgUnitPath': ou,
         }
         if self.student_id:
-            # IDALU stored in the GWS custom schema "IDALU", field "IDALU".
-            base_body['customSchemas'] = {'IDALU': {'IDALU': self.student_id}}
+            base_body['externalIds'] = self._gw_idalu_external_ids()
         recovery_email = self.email or False
         if recovery_email:
             base_body['recoveryEmail'] = recovery_email
@@ -493,22 +543,7 @@ class ResPartnerGoogleWorkspace(models.Model):
             raise UserError(_("The Google Workspace integration is not enabled."))
 
         email = self.student_email
-        password = self._gw()._gw_random_password()
-        if company.google_ws_dry_run:
-            _logger.info("[GW dry-run] reset password of %s", email)
-        else:
-            service = self._gw()._gw_get_service()
-            try:
-                service.users().patch(
-                    userKey=email,
-                    body={'password': password, 'changePasswordAtNextLogin': True},
-                ).execute()
-            except HttpError as e:
-                _logger.exception("Could not reset the Google password of %s", self.name)
-                raise UserError(_(
-                    "Google refused to reset the password of %(email)s. Check that the service "
-                    "account's admin role has the \"Reset password\" privilege. Error: %(err)s") % {
-                        'email': email, 'err': str(e)[:200]}) from e
+        password = self._gw()._gw_reset_password(email)
 
         # The previous PDFs hold a password that no longer works.
         self.env['ems.student.document'].sudo().search([
@@ -738,6 +773,28 @@ class ResPartnerGoogleWorkspace(models.Model):
             return
         self._gw()._gw_sync_account_name(
             self, self.student_email, self.firstname, self.lastname)
+
+    def _gw_idalu_external_ids(self):
+        """The IDALU as Google's Employee ID (an "organization" external ID)."""
+        self.ensure_one()
+        return [{'type': 'organization', 'value': self.student_id}]
+
+    def action_sync_google_account_idalu(self):
+        """Copy the student's IDALU onto their Google account's Employee ID (#609).
+
+        Suspended accounts get it too. Idempotent: the same value again is a no-op on
+        Google's side, so no chatter note for a successful sync.
+        """
+        self.ensure_one()
+        if not self.env.company.google_ws_enabled:
+            return
+        if self.contact_type != 'student' or not self.student_email or not self.student_id:
+            return
+        self._gw()._gw_patch_account(
+            self, self.student_email, {'externalIds': self._gw_idalu_external_ids()}, _(
+                "Google Workspace: the IDALU could not be saved on the account %s because it "
+                "no longer exists or is outside the managed organizational units.")
+            % self.student_email)
 
     def action_reactivate_google_account(self):
         """Reactivate a suspended account; if it was deleted in Admin, recreate it.

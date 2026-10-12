@@ -2,7 +2,7 @@
 
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError, ValidationError
-from odoo.tools import email_normalize
+from odoo.tools import email_normalize, format_date
 from ..shared import base
 import re
 from dateutil.relativedelta import relativedelta
@@ -250,6 +250,10 @@ class ResPartner(models.Model):
         string='Can manage portal access', compute='_compute_student_action_rights')
     can_send_student_requests = fields.Boolean(
         string='Can send authorizations and data requests', compute='_compute_student_action_rights')
+    # "Undo withdrawal" entry of the same dropdown (issue #592); action_undo_withdrawal()
+    # re-checks the same rule server-side.
+    can_undo_withdrawal = fields.Boolean(
+        string='Can undo withdrawal', compute='_compute_can_undo_withdrawal')
 
     selected_student_id = fields.Many2one(
         'res.partner',
@@ -569,6 +573,91 @@ class ResPartner(models.Model):
             'context': {'active_ids': students.ids},
         }
 
+    @api.model
+    def _ems_user_can_register_exits(self):
+        """Withdrawals and expulsions, and undoing a withdrawal: the secretary, the academic admin
+        and the Head of Studies (the one group shared by Head of Studies, Deputy Head of Studies
+        and Director)."""
+        return any(self.env.user.has_group(xmlid) for xmlid in (
+            'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_head_of_studies'))
+
+    def _ems_withdrawal_undo_order(self):
+        """The confirmed enrollment a withdrawal of this student can be undone from, or an empty
+        recordset (issue #592). Only a withdrawal (never an expulsion) of the running course: one
+        of an earlier course is a new enrollment, not a mistake to undo. The enrollment, confirmed
+        and with a group, is what says where the student was: the withdrawal only cancels the
+        draft/sent ones, so it survives. A graduate withdrawn afterwards is alumni, hence the check
+        on exit_type rather than on contact_type alone. sudo: whoever may register exits may undo
+        them, whatever their own rights over sale.order."""
+        self.ensure_one()
+        course = self.env.company.current_course_id
+        if not (course and self._origin and self.contact_type in ('withdrawal', 'alumni')
+                and self.exit_type == 'withdrawal' and self.exit_course_id == course):
+            return self.env['sale.order']
+        return self.env['sale.order'].sudo().search([
+            ('partner_id', '=', self._origin.id),
+            ('state', '=', 'sale'),
+            ('ems_course_id', '=', course.id),
+            ('ems_group_id', '!=', False),
+        ], order='date_order desc, id desc', limit=1)
+
+    def action_undo_withdrawal(self):
+        """Undo a withdrawal registered by mistake (issue #592): the student goes back to the
+        group and subjects of their confirmed enrollment of the current course, as before the
+        withdrawal. See docs/en/developers/contacts/exit_wizards.md."""
+        self.ensure_one()
+        if not self._ems_user_can_register_exits():
+            raise UserError(_("Only the secretary, the head of studies or an administrator can undo withdrawals."))
+        order = self._ems_withdrawal_undo_order()
+        if not order:
+            raise UserError(_(
+                "Only a withdrawal of the current course can be undone, and only for a student whose "
+                "enrollment of that course is confirmed and has a group."))
+        withdrawal_date = self.exit_date
+        # The year record first: it is found by the exit course, which the conversion clears.
+        frozen_grades = self.env['ems.student.year_record'].sudo().search([
+            ('student_id', '=', self.id), ('course_id', '=', self.exit_course_id.id),
+        ])._ems_reopen_after_undone_withdrawal()
+        self._ems_convert_to_student()
+        order._ems_apply_destination_placement()
+        portal = self._ems_grant_student_portal()
+
+        body = Markup("<p>{}</p>").format(_(
+            "Withdrawal of %(date)s undone by %(user)s: back in %(group)s.",
+            date=format_date(self.env, withdrawal_date), user=self.env.user.name,
+            group=order.ems_group_id.name))
+        if frozen_grades:
+            body += Markup("<p>{}</p>").format(_(
+                "The withdrawal deleted these grades and they cannot be restored: enter them again "
+                "in the evaluation."))
+            body += self.env['ems.base'].build_html_list(frozen_grades)
+        self.message_post(body=body)
+
+        message = _("Withdrawal undone: %(student)s is back in %(group)s.",
+                    student=self.name, group=order.ems_group_id.name)
+        if portal['granted']:
+            message += " " + _("%s access(es) granted") % len(portal['granted'])
+        if portal['issues']:
+            message += "\n" + _("Issues:") + "\n- " + "\n- ".join(portal['issues'])
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'title': _("Undo withdrawal"),
+                'message': message,
+                'type': 'warning' if portal['issues'] else 'success',
+                'sticky': bool(portal['issues']),
+                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            },
+        }
+
+    def action_external_record_wizard(self):
+        """Add to the student's academic history a course taken at another centre (issue #585)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_external_record_wizard')
+        action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
+        return action
+
     def action_suggest_destination_group(self):
         """Fill the destination group on the selected students' next-course
         enrollments that still have none. Students without an enrollment are
@@ -863,7 +952,11 @@ class ResPartner(models.Model):
                 self._ems_raise_student_id_required(name or _("This contact"))
             self._ems_check_student_id_available(entry.get('student_id'))
 
-        contact = super(ResPartner, self).create(values)
+        # Nobody follows a contact for having created it (issue #586): whoever registers students
+        # and families would get an email for every message a teacher later exchanges with them
+        # on the contact's chatter. Writing a message there is what makes someone a follower.
+        # with_env(): the flag must not outlive the creation, or it would also stop that.
+        contact = super(ResPartner, self.with_context(mail_create_nosubscribe=True)).create(values).with_env(self.env)
         contact._sync_category()
         for record, notes in zip(contact, private_notes):
             if notes:
@@ -919,6 +1012,16 @@ class ResPartner(models.Model):
         # in ems.enrollment.default_get().
         if 'main_group_id' in values and not self.env.su:
             self._ems_check_main_group_change(values['main_group_id'])
+        # Only a student actually coming back (out of the archive, or from ex-student to
+        # student) gets their Google account reactivated: writing active=True on an active
+        # student - the Esfera import does it for every existing one, to bring back former
+        # students - must not reach Google at all.
+        returning = self.filtered(lambda partner: (
+            values.get('active') and not partner.active
+        ) or (
+            values.get('contact_type') == 'student'
+            and partner.contact_type in ('alumni', 'withdrawal', 'expelled')
+        ))
         old_main_groups = {}
         if 'main_group_id' in values and not self.env.su:
             old_main_groups = {partner.id: partner.main_group_id for partner in self}
@@ -992,15 +1095,18 @@ class ResPartner(models.Model):
         if {'name', 'firstname', 'lastname'} & set(values):
             self._gw_enqueue_rename()
 
+        # Google Workspace: the IDALU is the account's Employee ID (#609).
+        if 'student_id' in values:
+            self._gw_enqueue_sync_idalu()
+
         # Google Workspace: archive -> schedule the suspension after a grace period
-        # (issue #388); unarchive -> call it off, or reactivate if the cron got there
+        # (issue #388); coming back -> call it off, or reactivate if the cron got there
         # first and the account is already suspended.
-        if 'active' in values:
-            if values['active']:
-                self._gw_cancel_scheduled_deactivation()
-                self._gw_enqueue_reactivate()
-            else:
-                self._gw_schedule_deactivation()
+        if returning:
+            returning._gw_cancel_scheduled_deactivation()
+            returning._gw_enqueue_reactivate()
+        if 'active' in values and not values['active']:
+            self._gw_schedule_deactivation()
 
         return contact
 
@@ -1156,7 +1262,7 @@ class ResPartner(models.Model):
         attendance rate, so the live records have nothing left to say. Leaving them behind is
         what makes an ex-student keep showing up where they no longer belong: enrolled in the
         group's subjects, in the evaluation matrix, in the attendance sessions still to be
-        taken, or as the group's delegate.
+        taken, or as the group's delegate or sub-delegate.
 
         sudo: the secretary running the withdrawal has no write rights over grades or
         attendance, but detaching a student who has left is a legitimate system cleanup.
@@ -1199,7 +1305,8 @@ class ResPartner(models.Model):
             partner._ems_clear_stale_delegate(group)
 
     def _ems_clear_stale_delegate(self, group):
-        """Clears 'group.delegate_id' if it still points at one of these partners, who is no
+        """Clears 'group.delegate_id' (and 'subdelegate_id', issue #574) if it still points at one
+        of these partners, who is no
         longer actually a member of it. Shared by '_ems_clear_operational_records()' above (a
         student leaving the centre entirely) and course_transition_wizard._apply_detach_unplaced()
         (a student stranded with no placement target, e.g. the last cohort of a finishing cycle) -
@@ -1208,8 +1315,38 @@ class ResPartner(models.Model):
         clearing, never the group. Must be called with 'group' captured BEFORE 'main_group_id'
         is written away - once cleared, there is nothing left to read it from."""
         for partner in self:
-            if group.delegate_id == partner:
-                group.sudo().delegate_id = False
+            for field in ('delegate_id', 'subdelegate_id'):
+                if group[field] == partner:
+                    group.sudo()[field] = False
+
+    @api.model
+    def _ems_unfollow_contact_creators(self):
+        """Takes off the followers of every contact whoever follows it only for having created
+        it (issue #586), back when creating a contact made you follow it: they received by email
+        every message a teacher exchanged with that student or family. Someone who has written
+        on the contact's chatter stays, that is a conversation of theirs. The administrator
+        account stops following every contact, whatever it wrote: its mailbox is the EMS one,
+        which nobody reads as a person. Returns how many follows were removed."""
+        self.env['mail.followers'].flush_model()
+        self.env['mail.message'].flush_model()
+        self.env.cr.execute("""
+            SELECT follower.id
+              FROM mail_followers follower
+              JOIN res_partner contact ON contact.id = follower.res_id
+              JOIN res_users creator ON creator.partner_id = follower.partner_id AND creator.share IS NOT TRUE
+             WHERE follower.res_model = 'res.partner'
+               AND (follower.partner_id = %(admin)s
+                    OR (creator.id = contact.create_uid
+                        AND NOT EXISTS (
+                            SELECT 1 FROM mail_message message
+                             WHERE message.model = 'res.partner' AND message.res_id = contact.id
+                               AND message.author_id = follower.partner_id
+                               AND message.message_type = 'comment')))
+        """, {'admin': self.env.ref('base.user_admin').partner_id.id})
+        followers = self.env['mail.followers'].sudo().browse(row[0] for row in self.env.cr.fetchall())
+        count = len(followers)
+        followers.unlink()
+        return count
 
     def _sync_category(self):
         # The "student" category doubles as the shared student-lifecycle marker: the
@@ -1400,6 +1537,13 @@ class ResPartner(models.Model):
             is_student = partner.contact_type in ('student', 'applicant')
             partner.can_manage_portal_access = is_student and portal._user_can_manage(partner)
             partner.can_send_student_requests = is_student and scope._scope_acts_on_student(partner)
+
+    @api.depends('contact_type', 'exit_type', 'exit_course_id')
+    @api.depends_context('uid')
+    def _compute_can_undo_withdrawal(self):
+        can_register = self._ems_user_can_register_exits()
+        for partner in self:
+            partner.can_undo_withdrawal = can_register and bool(partner._ems_withdrawal_undo_order())
 
     @api.depends('tutor_id')
     @api.depends_context('uid')

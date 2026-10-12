@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import create_role_employee, create_role_user, mock_outgoing_email, next_student_id
+from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -18,9 +18,12 @@ class TestStrikeIssueStandaloneTour(HttpCase):
             'name': 'Strike From Student Student', 'contact_type': 'student', 'student_id': next_student_id(),
             'student_email': 'strike_from_student_student@example.com',
         })
+        # Issue #570: a strike issued outside class is listed under the student's main group
+        # (study acronym + course + group acronym = 'TSSG1A').
+        _level, _study, cls.group = create_level_study_group(cls, 'TSSG')
         cls.env['res.partner'].create({
             'name': 'Strike Standalone Student', 'contact_type': 'student', 'student_id': next_student_id(),
-            'student_email': 'strike_standalone_student@example.com',
+            'student_email': 'strike_standalone_student@example.com', 'main_group_id': cls.group.id,
         })
 
     def test_strike_issue_standalone_tour(self):
@@ -29,6 +32,9 @@ class TestStrikeIssueStandaloneTour(HttpCase):
         self.assertEqual(strike.teacher_id.user_id, self.teacher_user)
         self.assertTrue(strike.kicked_out)
         self.assertFalse(strike.attendance_session_line_id)
+        self.assertEqual(strike.group_id, self.group)
+        self.assertFalse(strike.subject_id)
+        self.assertFalse(strike.space_id)
         # Issue #554: the second strike, confirmed despite the duplicate warning.
         self.assertTrue(self.env['ems.strike'].search([('notes', '=', 'Threw a chair, a different incident')]))
 

@@ -1314,21 +1314,18 @@ class TestAbsenceRequest(TransactionCase):
 
     # --- Refusing is final --------------------------------------------------------------------
 
-    def test_refusing_a_request_asks_for_a_confirmation(self):
-        """Nobody at the centre can undo it: Odoo reserves resetting a refused request to the
-        Time Off Administrator group (hr.leave._check_approval_update), which
-        res.users._ems_sync_time_off_groups deliberately leaves nobody holding. The employee has
-        to file the whole request again, so the one stray click that causes that is confirmed
-        first - on all three screens the button appears on."""
+    def test_refusing_a_request_asks_first_on_every_screen(self):
+        """Every Refuse button opens the dialog that asks for the reason - which is also what
+        stands between a stray click and a refused request - on all three screens."""
         for xmlid, view_type in (('hr_holidays.hr_leave_view_form', 'form'),
                                  ('hr_holidays.hr_leave_view_tree', 'list'),
                                  ('hr_holidays.hr_leave_view_kanban', 'kanban')):
             arch = self._arch(xmlid, view_type)
 
-            buttons = arch.xpath("//button[@name='action_refuse']")
+            buttons = arch.xpath("//button[@name='action_refuse' or @name='action_ems_direction_refuse']")
             self.assertTrue(buttons, xmlid)
             for button in buttons:
-                self.assertTrue(button.get('confirm'), f'{xmlid} ({view_type})')
+                self.assertIn('ems_ask_change_message', button.get('context') or '', f'{xmlid} ({view_type})')
 
     def test_refusing_is_not_reversible_at_the_centre(self):
         """What the confirmation is warning about, asserted rather than assumed: this is the
@@ -1554,3 +1551,202 @@ class TestAbsenceRequest(TransactionCase):
         self.assertGreater(leaves[-1].ems_health_hours_used, allowance)
         self.assertTrue(leaves[-1].ems_health_allowance_exceeded, 'the excess is flagged')
         self.assertTrue(all(leave.id for leave in leaves), 'and never blocked')
+
+    # --- Corrections to what the employee filed (issue #615) --------------------------------
+
+    def _change_dialog(self, leave, method='action_approve', message=False):
+        """The dialog a decision button opens on a corrected request, filled in."""
+        action = getattr(leave.with_context(ems_ask_change_message=1), method)()
+        self.assertEqual(action['res_model'], 'ems.absence.change_notice_wizard')
+        return self.env[action['res_model']].with_context(action['context']).create({'message': message})
+
+    def _partial_health_leave(self):
+        """Two hours of a morning: a request whose dates stay as they are when its type is
+        corrected, whatever the new type's own "whole day" default."""
+        return self._create_leave(self.type_health, self._monday(), hour_from=9, hour_to=11)
+
+    def _last_note(self, leave):
+        return leave.message_ids.sorted('id')[-1]
+
+    def test_a_decision_on_a_corrected_request_asks_for_a_message_first(self):
+        """The Head changes the type the employee picked and explains why with the decision:
+        the employee alone is told what changed, where the request stands and the message."""
+        owner = self._employee_user('Test Absence Corrected', 'absence_corrected@absence.test')
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        wizard = self._change_dialog(leave, message="Test file it on the portal too")
+        self.assertEqual(leave.state, 'confirm', 'nothing is decided until the dialog is confirmed')
+        self.assertIn(self.type_health.ems_short_name, str(wizard.changes))
+        wizard.action_confirm()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id, 'the requester, not every follower')
+        self.assertEqual(note.subtype_id, self.env.ref('mail.mt_note'))
+        body = str(note.body)
+        self.assertIn(self.type_health.ems_short_name, body)
+        self.assertIn(self.type_atri.ems_short_name, body)
+        self.assertIn("file it on the portal too", body)
+        self.assertIn("Pending Direction", body)
+        self.assertFalse(leave.ems_original_request, 'told once')
+
+    def test_a_blank_message_sends_the_changes_alone(self):
+        owner = self._employee_user('Test Absence Unexplained', 'absence_unexplained@absence.test')
+        leave = self._create_leave(self.type_health, self._monday())
+        tuesday = self._monday() + timedelta(days=1)
+        leave.write({'request_date_from': tuesday, 'request_date_to': tuesday})
+
+        self._change_dialog(leave).action_confirm()
+
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("Dates:", str(note.body))
+        self.assertNotIn("Message from", str(note.body))
+
+    def test_a_decision_taken_from_code_reports_the_changes_without_asking(self):
+        owner = self._employee_user('Test Absence Batch', 'absence_batch@absence.test')
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        leave.action_approve()
+
+        self.assertEqual(leave.state, 'validate')
+        self.assertEqual(self._last_note(leave).partner_ids, owner.partner_id)
+
+    def test_an_untouched_request_is_decided_without_a_dialog(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        messages = len(leave.message_ids)
+
+        leave.with_context(ems_ask_change_message=1).action_approve()
+
+        self.assertEqual(leave.state, 'validate')
+        self.assertEqual(len(leave.message_ids), messages + 1, 'only the outcome summary')
+
+    def test_the_employees_own_edits_are_not_corrections(self):
+        owner = self._employee_user('Test Absence Self Editor', 'absence_self_editor@absence.test')
+        leave = self._partial_health_leave()
+
+        leave.with_user(owner).write({'holiday_status_id': self.type_atri.id})
+
+        self.assertFalse(leave.ems_original_request)
+
+    def test_a_correction_that_is_undone_is_not_reported(self):
+        leave = self._create_leave(self.type_justified, self._monday(), hour_from=9, hour_to=11)
+        leave.holiday_status_id = self.type_training
+        leave.holiday_status_id = self.type_justified
+
+        leave.with_context(ems_ask_change_message=1).action_approve()
+
+        self.assertEqual(leave.state, 'validate', 'no dialog: nothing differs any more')
+        self.assertFalse(leave.ems_original_request)
+
+    def test_a_correction_on_a_closed_request_is_reported_when_saved(self):
+        """No decision is left to carry it, so the employee is told straight away."""
+        owner = self._employee_user('Test Absence Late Fix', 'absence_late_fix@absence.test')
+        leave = self._partial_health_leave()
+        leave.action_refuse()
+
+        leave.holiday_status_id = self.type_atri
+
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn(self.type_atri.ems_short_name, str(note.body))
+        self.assertIn("Refused", str(note.body))
+        self.assertFalse(leave.ems_original_request)
+
+    def test_direction_explains_a_correction_when_refusing(self):
+        direction = self._direction()
+        owner = self._employee_user('Test Absence Refused Fix', 'absence_refused_fix@absence.test')
+        leave = self._partial_health_leave()
+        leave.with_user(direction).write({'holiday_status_id': self.type_atri.id})
+
+        self._change_dialog(leave.with_user(direction), 'action_ems_direction_refuse',
+                            "Test not on the portal").with_user(direction).action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertEqual(leave.ems_direction_state, 'refused')
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("not on the portal", str(note.body))
+
+    def test_the_dialog_only_takes_decisions(self):
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+        wizard = self._change_dialog(leave)
+        wizard.method = 'unlink'
+
+        with self.assertRaises(UserError):
+            wizard.action_confirm()
+
+    # --- The reason for a refusal -------------------------------------------------------------
+
+    def test_refusing_from_a_button_asks_for_the_reason(self):
+        """Always, corrected or not: the dialog is the confirmation too. The reason reaches the
+        employee alone and stays on the request."""
+        owner = self._employee_user('Test Absence Refused', 'absence_refused@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        wizard = self._change_dialog(leave, 'action_refuse', "Test the exams are that day")
+        self.assertTrue(wizard.is_refusal)
+        self.assertFalse(wizard.has_changes)
+        self.assertEqual(leave.state, 'confirm', 'nothing is refused until the dialog is confirmed')
+        wizard.action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertEqual(leave.ems_refusal_reason, "Test the exams are that day")
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id, 'the requester, not every follower')
+        self.assertIn("the exams are that day", str(note.body))
+        self.assertNotIn("Changes made", str(note.body))
+
+    def test_the_reason_is_optional(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        messages = len(leave.message_ids)
+
+        self._change_dialog(leave, 'action_refuse').action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertFalse(leave.ems_refusal_reason)
+        self.assertEqual(len(leave.message_ids), messages + 1, 'only the outcome summary')
+
+    def test_refusing_a_corrected_request_is_one_dialog_for_both(self):
+        owner = self._employee_user('Test Absence Refused Both', 'absence_refused_both@absence.test')
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        wizard = self._change_dialog(leave, 'action_refuse', "Test wrong type and not allowed")
+        self.assertTrue(wizard.is_refusal and wizard.has_changes)
+        wizard.action_confirm()
+
+        body = str(self._last_note(leave).body)
+        self.assertEqual(self._last_note(leave).partner_ids, owner.partner_id)
+        self.assertIn(self.type_atri.ems_short_name, body)
+        self.assertIn("wrong type and not allowed", body)
+        self.assertEqual(leave.ems_refusal_reason, "Test wrong type and not allowed")
+
+    def test_the_summary_for_the_chiefs_leaves_the_reason_out(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self._change_dialog(leave, 'action_refuse', "Test private reason").action_confirm()
+
+        summary = leave.message_ids.filtered(
+            lambda message: message.subtype_id == self.env.ref('mail.mt_comment'))
+        self.assertTrue(summary)
+        self.assertNotIn("private reason", "".join(str(body) for body in summary.mapped('body')))
+
+    def test_refusing_from_code_asks_nothing(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        leave.action_refuse()
+
+        self.assertEqual(leave.state, 'refuse')
+        self.assertFalse(leave.ems_refusal_reason)
+
+    def test_reopening_a_refused_request_forgets_the_reason(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        self._change_dialog(leave, 'action_refuse', "Test not this week").action_confirm()
+
+        leave.action_reset_confirm()
+
+        self.assertFalse(leave.ems_refusal_reason)

@@ -57,6 +57,10 @@ For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the l
 
 The cross refuses, at any of these steps. Once you decide from the form, you are taken back to the list.
 
+**Refusing asks for the reason first.** A dialog opens with a box for the reason of the refusal, which is optional: what you write is sent to the employee alone (not to the department's chiefs or anyone else following the request) and stays at the top of the request, in red, while it is refused. Confirm with **Refuse**, or cancel to leave the request as it was.
+
+![Dialog to refuse an absence request, with the box for the reason](../../assets/head_of_studies/hos-absences-refuse.png)
+
 The absence takes effect (absence calendar, hour balance, guard duty board) as soon as you acknowledge it, even while the document is missing or Direction has not reviewed it yet.
 
 If the employee has not attached the document a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up; the employee is reminded every day.
@@ -80,6 +84,10 @@ One field on the form, changeable at any time:
 | **Adds the hours to the monthly report** | Makes these hours part of the monthly count | Every type except `Sick leave` |
 
 You can also change the **absence type** after approving. Do that when the employee picked one that does not apply.
+
+**The employee is told what you change.** When you (or Direction) change the absence type, the dates or the times of a request somebody else filed, the next time you decide on it (acknowledging, validating, sending the document back, refusing) a dialog shows the changes and lets you write a message for the requester. Leave it blank and they are only told what was changed. Either way it reaches the requester alone, not the department's chiefs or anyone else following the request. On a request that is already refused or cancelled, the requester is told as soon as you save the change.
+
+![Dialog listing the changes made to the request, with the box for the message to the requester](../../assets/head_of_studies/hos-absences-change-message.png)
 
 Whether an absence is a whole day or a few hours is controlled by the **Whole day?** checkbox, which you can also correct: ticked counts 7.5 hours per working day, unticked counts the hours given.
 

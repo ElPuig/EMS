@@ -143,6 +143,19 @@ class TestAbsenceTour(HttpCase):
     def test_absence_head_approval_tour(self):
         self.start_tour("/odoo", "ems_absence_head_approval", login="absence_tour_hos")
 
+    def test_absence_change_message_tour(self):
+        """The Head corrected the type the employee picked: deciding on the request asks first
+        for a message to the employee, and still ends back on the list (issue #615)."""
+        leave = self._create_request('Tour Corrected Teacher', 'ems.leave_type_health',
+                                     self.day + timedelta(days=35))
+        leave.holiday_status_id = self.env.ref('ems.leave_type_atri')
+        leave.ems_full_day = True
+        self.start_tour("/odoo", "ems_absence_change_message", login="absence_tour_hos")
+        leave.invalidate_recordset()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertTrue(leave.message_ids.filtered(
+            lambda message: "Tour file it on the portal" in str(message.body)))
+
     def test_absence_employee_view_tour(self):
         self.start_tour("/odoo", "ems_absence_employee_view", login="absence_tour_employee")
 
@@ -166,3 +179,23 @@ class TestAbsenceTour(HttpCase):
 
     def test_absence_refuse_confirm_tour(self):
         self.start_tour("/odoo", "ems_absence_refuse_confirm", login="absence_tour_hos")
+        self.env.invalidate_all()
+        leave = self.env['hr.leave'].search([('employee_id', '=', self.absent_employee.id)])
+        self.assertEqual(leave.ems_refusal_reason, "Tour the exams are that day")
+
+    def test_absence_refusal_reason_tour(self):
+        """The employee sees why their request was refused on the request itself."""
+        leave = self.env['hr.leave'].create({
+            'employee_id': self.absent_employee.id,
+            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': self.day + timedelta(days=63),
+            'request_date_to': self.day + timedelta(days=63),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        leave.with_context(ems_change_message="Tour the timetable does not allow it").action_refuse()
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Tour refused absence', 'res_model': 'hr.leave', 'view_mode': 'list,form',
+            'domain': [('id', '=', leave.id)],
+        })
+        self.start_tour(f"/odoo/action-{action.id}", "ems_absence_refusal_reason",
+                        login="absence_tour_employee")

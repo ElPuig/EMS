@@ -57,6 +57,10 @@ Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat), que 
 
 La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formulari, tornes al llistat.
 
+**Rebutjar demana abans el motiu.** S'obre un quadre de diàleg amb un quadre per al motiu del rebuig, que és opcional: el que hi escriguis s'envia només a la persona (no als caps de departament ni a la resta de seguidors de la sol·licitud) i queda a dalt de la sol·licitud, en vermell, mentre estigui rebutjada. Confirma amb **Rebutja**, o cancel·la per deixar la sol·licitud com estava.
+
+![Quadre de diàleg per rebutjar una sol·licitud d'absència, amb el quadre per al motiu](../../assets/head_of_studies/hos-absences-refuse.png)
+
 L'absència té efecte (calendari d'absències, saldo d'hores, quadrant de guàrdies) tan bon punt la dones per rebuda, encara que falti el justificant o Direcció no l'hagi revisada.
 
 Si uns dies després de l'absència (tres, si el centre no ho ha canviat) la persona encara no ha adjuntat el justificant, reps un missatge i una activitat per fer-ne el seguiment; a la persona se li recorda cada dia.
@@ -80,6 +84,10 @@ Un camp del formulari, que pots canviar en qualsevol moment:
 | **Suma les hores a l'informe mensual** | Fa que les hores entrin al recompte mensual | Tots els tipus excepte `Baixa laboral` |
 
 També pots canviar el **tipus d'absència** després d'haver-la aprovat. Fes-ho quan la persona n'hagi triat un que no correspon.
+
+**La persona s'assabenta del que canvies.** Quan tu (o Direcció) canvies el tipus d'absència, les dates o les hores d'una sol·licitud que ha presentat una altra persona, la següent vegada que decideixes sobre ella (rebre-la, validar-la, retornar el justificant, rebutjar-la) un quadre de diàleg mostra els canvis i et permet escriure un missatge per a qui l'ha sol·licitat. Si el deixes en blanc, només se l'informa dels canvis realitzats. En tots dos casos l'avís arriba únicament a qui l'ha sol·licitat, no als caps de departament ni a la resta de seguidors de la sol·licitud. En una sol·licitud ja rebutjada o cancel·lada, se l'avisa tan bon punt deses el canvi.
+
+![Quadre de diàleg amb els canvis realitzats a la sol·licitud i el quadre per al missatge al sol·licitant](../../assets/head_of_studies/hos-absences-change-message.png)
 
 Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella **Dia sencer?**, que també pots corregir: marcada compta 7,5 hores per dia laborable, sense marcar compta les hores indicades.
 

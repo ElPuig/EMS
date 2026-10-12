@@ -20,20 +20,33 @@ const DECISION_BUTTONS = new Set([
 ]);
 
 export class AbsenceFormController extends FormController {
-    async beforeExecuteActionButton(clickParams) {
-        this.decisionBefore = DECISION_BUTTONS.has(clickParams.name) ? this.decisionState() : null;
-        return super.beforeExecuteActionButton(clickParams);
+    setup() {
+        super.setup();
+        // Every decision ends with the form reloading its record: straight away, or once the
+        // dialog it opened first is closed (the message for the requester when the request
+        // was corrected, see hr.leave._ems_ask_change_message). So that reload, rather than
+        // the button's own return, is where a decision that went through is recognised.
+        const load = this.model.load.bind(this.model);
+        this.model.load = async (...args) => {
+            const result = await load(...args);
+            this.goBackAfterDecision();
+            return result;
+        };
     }
 
-    async afterExecuteActionButton(clickParams) {
-        await super.afterExecuteActionButton(clickParams);
-        // Odoo calls this hook whether or not the button raised, so success is read from the
-        // record itself: the form reloads after a decision that went through, and only then do
-        // the states differ. A refused confirmation or an error leaves them as they were, and
-        // the reader stays on the form.
+    async beforeExecuteActionButton(clickParams) {
+        const proceed = await super.beforeExecuteActionButton(clickParams);
+        this.decisionBefore = DECISION_BUTTONS.has(clickParams.name) ? this.decisionState() : null;
+        return proceed;
+    }
+
+    goBackAfterDecision() {
+        // Success is read from the record itself: only a decision that went through changes
+        // these states. A refused confirmation, a cancelled dialog or an error leaves them as
+        // they were, and the reader stays on the form.
         const before = this.decisionBefore;
         this.decisionBefore = null;
-        if (before === null || before === this.decisionState()) {
+        if (before === null || before === undefined || before === this.decisionState()) {
             return;
         }
         // Opened on its own (a link, a notification) there is no list to go back to, and

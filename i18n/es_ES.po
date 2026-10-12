@@ -1230,6 +1230,7 @@ msgstr "Nombre del PAS"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__absence
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__leave_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__leave_id
 msgid "Absence"
 msgstr "Ausencia"
 
@@ -2387,6 +2388,7 @@ msgstr "Puede editar"
 #: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2695,6 +2697,7 @@ msgstr "Confirmar matrícula"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_working_schedules_import_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 msgid "Continue"
 msgstr "Continuar"
 
@@ -3451,6 +3454,7 @@ msgstr "Emergencia"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__employee_id
 msgid "Employee"
 msgstr "Empleado"
 
@@ -5171,6 +5175,7 @@ msgstr "Miembros"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__message
 msgid "Message"
 msgstr "Mensaje"
 
@@ -9363,6 +9368,7 @@ msgstr "Nota de la decisión"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__method
 msgid "Decision"
 msgstr "Decisión"
 
@@ -13907,8 +13913,10 @@ msgstr ""
 "normalmente la persona tendrá que hacer una nueva. ¿Quieres rechazarla?"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
+#: code:addons/ems/models/employees/absence.py:0
 msgid "Refuse this absence request"
 msgstr "Rechazar esta solicitud de ausencia"
 
@@ -13916,6 +13924,7 @@ msgstr "Rechazar esta solicitud de ausencia"
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_kanban_ems
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_tree_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 msgid "Refuse"
 msgstr "Rechazar"
 
@@ -16775,6 +16784,7 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__line_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_form
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__changes
 msgid "Changes"
 msgstr "Cambios"
 
@@ -21827,3 +21837,143 @@ msgid ""
 "The main groups whose students attend this group's classes. Its classes are "
 "also shown in the schedule of each of them."
 msgstr "Los grupos principales cuyo alumnado asiste a las clases de este grupo. Sus clases también se muestran en el horario de cada uno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence type: %(old)s → %(new)s"
+msgstr "Tipo de ausencia: %(old)s → %(new)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Dates: %(old)s → %(new)s"
+msgstr "Fechas: %(old)s → %(new)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "Changes to the request"
+msgstr "Cambios en la solicitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Your absence request of %(when)s has been modified. Its status is: %(status)s."
+msgstr "Se ha modificado tu solicitud de ausencia del %(when)s. Su estado es: %(status)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Changes made to the request:"
+msgstr "Cambios realizados en la solicitud:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Message from %(name)s:"
+msgstr "Mensaje de %(name)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_change_notice_wizard.py:0
+msgid "This decision cannot be taken from here."
+msgstr "Esta decisión no se puede tomar desde aquí."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_original_request
+msgid "Request before its corrections"
+msgstr "Solicitud antes de las correcciones"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_original_request
+msgid "What the employee had filed, kept from the moment somebody else corrects the request until the employee has been told what was changed."
+msgstr "Lo que el trabajador había presentado, conservado desde que otra persona corrige la solicitud hasta que se le ha comunicado qué se ha cambiado."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_change_notice_wizard
+msgid "The Head or Direction explains to the employee what they changed in an absence request."
+msgstr "El jefe o Dirección explica al trabajador qué ha cambiado en una solicitud de ausencia."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_change_notice_wizard__message
+msgid "Sent to the employee alone, with the list of changes. Optional."
+msgstr "Se envía solo al trabajador, con la lista de cambios. Opcional."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "Changes have been detected in the original request. If you wish, you can send a message to the requester by writing in the box below; if you leave it blank, the requester will only be informed of the changes made."
+msgstr "Se han detectado cambios en la solicitud original. Si lo desea, puede enviar un mensaje al solicitante escribiendo en el cuadro de debajo; si lo deja en blanco, solamente se informará al solicitante de los cambios realizados."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "Message for the requester (optional)..."
+msgstr "Mensaje para el solicitante (opcional)..."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Your absence request of %(when)s has been refused."
+msgstr "Se ha rechazado tu solicitud de ausencia del %(when)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Reason for the refusal, from %(name)s:"
+msgstr "Motivo del rechazo, de %(name)s:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_refusal_reason
+msgid "Reason for the refusal"
+msgstr "Motivo del rechazo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_refusal_reason
+msgid "Written by the Head or Direction when refusing the request. Sent to the employee alone and shown to them on the request while it stays refused."
+msgstr "Lo escribe el jefe o Dirección al rechazar la solicitud. Se envía solo al trabajador y se le muestra en la solicitud mientras sigue rechazada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Reason for the refusal:"
+msgstr "Motivo del rechazo:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__when
+msgid "Dates"
+msgstr "Fechas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__is_refusal
+msgid "Refusing the request"
+msgstr "Se está rechazando la solicitud"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__has_changes
+msgid "The request was corrected"
+msgstr "La solicitud se ha corregido"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_change_notice_wizard__message
+msgid "Sent to the employee alone: a message about the changes, or the reason for the refusal. Optional."
+msgstr "Se envía solo al trabajador: un mensaje sobre los cambios, o el motivo del rechazo. Opcional."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_change_notice_wizard
+msgid "The Head or Direction explains a decision on an absence request to the employee."
+msgstr "El jefe o Dirección explica al trabajador una decisión sobre una solicitud de ausencia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "The employee and their department's chiefs are told that the request has been refused. If you wish, write the reason in the box below: it is sent to the employee alone and stays on the request."
+msgstr "Se avisa al trabajador y a los jefes de su departamento de que la solicitud ha sido rechazada. Si lo desea, escriba el motivo en el cuadro de debajo: se envía solo al trabajador y queda en la solicitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "Changes have been detected in the original request: the requester is informed of them too."
+msgstr "Se han detectado cambios en la solicitud original: también se informa de ellos al solicitante."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
+msgid "Write here (optional)..."
+msgstr "Escriba aquí (opcional)..."

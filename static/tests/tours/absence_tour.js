@@ -233,8 +233,8 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             run: "click",
         },
         {
-            trigger: ".modal:contains('cannot be reopened')",
-            content: "It asks first, and says why it matters",
+            trigger: ".modal div[name='message'] textarea",
+            content: "It asks first, with a box for the reason of the refusal",
         },
         {
             trigger: ".modal-footer button:contains('Cancel')",
@@ -259,8 +259,12 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
         },
         {
             trigger: ".modal:contains('Refuse this absence request')",
-            content: "This one names the decision in its title too, which a list view's schema "
-                + "does not allow",
+            content: "The same dialog, named after the decision",
+        },
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Say why, for the employee alone",
+            run: "edit Tour the exams are that day",
         },
         {
             trigger: ".modal-footer button:contains('Refuse')",
@@ -527,6 +531,60 @@ registry.category("web_tour.tours").add("ems_absence_head_approval", {
         {
             trigger: ".o_kanban_view",
             content: "Kanban loaded",
+        },
+    ],
+});
+
+// The Head decides on a request they corrected: the dialog asking for a message to the
+// requester comes first, and confirming it takes the decision and goes back to the list.
+registry.category("web_tour.tours").add("ems_absence_change_message", {
+    test: true,
+    url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_type_short_name']",
+            content: "Open the request whose type was corrected",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_statusbar button[name='action_approve']:not(.o_invisible_modifier)",
+            content: "Validate it from the header",
+            run: "click",
+        },
+        {
+            trigger: ".modal div[name='changes'] li",
+            content: "The dialog lists what was changed",
+        },
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Write the message for the requester",
+            run: "edit Tour file it on the portal",
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Confirm the decision",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_status']:contains('Pending Direction')",
+            content: "Back on the list, with the decision taken",
+        },
+    ],
+});
+
+// The employee reads why their request was refused on the request itself. No "url": the test
+// opens an action listing the refused fixture request.
+registry.category("web_tour.tours").add("ems_absence_refusal_reason", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='ems_status']:contains('Refused')",
+            content: "Open the refused request",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-danger:contains('Tour the timetable does not allow it')",
+            content: "The reason is shown at the top of the request",
         },
     ],
 });

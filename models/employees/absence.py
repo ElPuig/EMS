@@ -52,6 +52,15 @@ ACTIVITY_BY_STATUS = {
 }
 OVERDUE_ACTIVITY_XMLID = 'ems.mail_activity_absence_document_overdue'
 
+# What the employee filed: a change to any of these by somebody else is reported back to them
+# with the next decision on the request - see _ems_notify_request_changes().
+REQUEST_FIELDS = (
+    'holiday_status_id', 'request_date_from', 'request_date_to', 'ems_full_day',
+    'request_hour_from', 'request_hour_to',
+)
+# Statuses with no decision left to carry that report, so a change is reported when it is saved.
+CLOSED_STATUSES = ('approved', 'refused', 'cancel')
+
 TIME_OFF_GROUP_XMLIDS = (
     'hr.group_hr_manager',
     'hr_holidays.group_hr_holidays_manager',
@@ -241,6 +250,14 @@ class EmsAbsenceLeave(models.Model):
         string="Why the document was sent back", copy=False, readonly=True,
         help="Written by the Head or Direction when the supporting document is not sufficient. "
              "Shown to the employee until they attach a new one.")
+    ems_refusal_reason = fields.Text(
+        string="Reason for the refusal", copy=False, readonly=True,
+        help="Written by the Head or Direction when refusing the request. Sent to the employee "
+             "alone and shown to them on the request while it stays refused.")
+    ems_original_request = fields.Json(
+        string="Request before its corrections", copy=False, readonly=True,
+        help="What the employee had filed, kept from the moment somebody else corrects the "
+             "request until the employee has been told what was changed.")
     ems_head_state = fields.Selection(
         string="Head status",
         selection=[
@@ -598,7 +615,11 @@ class EmsAbsenceLeave(models.Model):
             raise AccessError(_("Only the Head or Direction can change the supporting document "
                                 "status of an absence."))
         self._ems_check_own_approved_write(vals)
+        corrected = self._ems_keep_original_request(vals)
         result = super().write(vals)
+        # No decision is left to report the correction with: the employee is told now.
+        corrected.filtered(
+            lambda leave: leave.ems_status in CLOSED_STATUSES)._ems_notify_request_changes()
         if vals.keys() & ATTACHMENT_FIELDS:
             self._ems_submit_document()
         if vals.keys() & {'state', 'ems_document_state', 'ems_direction_state'}:
@@ -694,14 +715,123 @@ class EmsAbsenceLeave(models.Model):
     def _ems_when(self):
         """The absence's dates as a sentence fragment, for the messages about it."""
         self.ensure_one()
-        when = format_date(self.env, self.request_date_from)
-        if self.request_date_to and self.request_date_to != self.request_date_from:
-            return _("%(start)s to %(end)s", start=when, end=format_date(self.env, self.request_date_to))
-        if not self.ems_full_day:
+        return self._ems_format_when(self._ems_request_values())
+
+    def _ems_format_when(self, values):
+        """Same, for the REQUEST_FIELDS values of a request as _ems_request_values() keeps them."""
+        date_from = fields.Date.to_date(values['request_date_from'])
+        date_to = fields.Date.to_date(values['request_date_to'])
+        when = format_date(self.env, date_from)
+        if date_to and date_to != date_from:
+            return _("%(start)s to %(end)s", start=when, end=format_date(self.env, date_to))
+        if not values['ems_full_day']:
             return _("%(date)s, from %(start)s to %(end)s", date=when,
-                     start=format_time_float(self.request_hour_from),
-                     end=format_time_float(self.request_hour_to))
+                     start=format_time_float(values['request_hour_from']),
+                     end=format_time_float(values['request_hour_to']))
         return when
+
+    # --- Corrections to what the employee filed ---------------------------------------------
+
+    def _ems_request_values(self):
+        """What the employee filed, in a form a Json field can keep."""
+        self.ensure_one()
+        return {
+            'holiday_status_id': self.holiday_status_id.id,
+            'request_date_from': fields.Date.to_string(self.request_date_from),
+            'request_date_to': fields.Date.to_string(self.request_date_to),
+            'ems_full_day': self.ems_full_day,
+            'request_hour_from': self.request_hour_from,
+            'request_hour_to': self.request_hour_to,
+        }
+
+    def _ems_keep_original_request(self, vals):
+        """Called by write() before it changes anything: keeps what the employee had filed on
+        the requests somebody else is about to correct, unless it is already kept from an
+        earlier correction they have not been told about yet. Returns those requests.
+
+        sudo: whoever corrects a request need not be allowed to write this field, which nobody
+        sets by hand."""
+        corrected = self.browse()
+        if not vals.keys() & set(REQUEST_FIELDS):
+            return corrected
+        for leave in self:
+            if leave.employee_id.user_id == self.env.user:
+                continue
+            corrected |= leave
+            if not leave.ems_original_request:
+                leave.sudo().ems_original_request = leave._ems_request_values()
+        return corrected
+
+    def _ems_request_changes(self):
+        """What somebody else changed in the request since the employee was last told, one
+        line per change. Read against the request as it is now, so a correction that was undone
+        is not reported."""
+        self.ensure_one()
+        original = self.ems_original_request
+        if not original:
+            return []
+        changes = []
+        leave_type = self.env['hr.leave.type'].browse(original['holiday_status_id'])
+        if leave_type != self.holiday_status_id:
+            changes.append(_("Absence type: %(old)s → %(new)s", old=leave_type.ems_short_name,
+                             new=self.holiday_status_id.ems_short_name))
+        before, now = self._ems_format_when(original), self._ems_when()
+        if before != now:
+            changes.append(_("Dates: %(old)s → %(new)s", old=before, new=now))
+        return changes
+
+    def _ems_ask_change_message(self, method, refusal=False):
+        """The dialog a decision button opens first: when the request was corrected, whoever is
+        deciding may explain the correction to the employee (issue #615); a refusal always
+        opens it, for its reason - and it is also what stands between a stray click and a
+        refused request. Only from a button that asks for it ('ems_ask_change_message' in its
+        context) and for a single request, so calling the decision from code, or on a
+        selection, just takes it."""
+        if not self.env.context.get('ems_ask_change_message') or len(self) != 1:
+            return None
+        if not refusal and not self._ems_request_changes():
+            return None
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Refuse this absence request") if refusal else _("Changes to the request"),
+            'res_model': 'ems.absence.change_notice_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_leave_id': self.id, 'default_method': method},
+        }
+
+    def _ems_notify_request_changes(self, refusal=False):
+        """Tells the employee, and nobody else, what was changed in their request, with where it
+        stands now and what whoever decided may have written in the dialog ('ems_change_message'
+        in the context): a message about the changes, or the reason for a refusal - which is
+        sent even when nothing was changed. Otherwise nothing is sent for a request nobody
+        corrected."""
+        message = self.env.context.get('ems_change_message')
+        for leave in self:
+            changes = leave._ems_request_changes()
+            if leave.ems_original_request:
+                leave.sudo().ems_original_request = False
+            if not changes and not (refusal and message):
+                continue
+            if changes:
+                body = Markup("<p>%s</p><p>%s</p>%s") % (
+                    _("Your absence request of %(when)s has been modified. Its status is: %(status)s.",
+                      when=leave._ems_when(), status=leave._ems_status_label()),
+                    _("Changes made to the request:"),
+                    self.env['ems.base'].build_html_list(changes))
+            else:
+                body = Markup("<p>%s</p>") % _(
+                    "Your absence request of %(when)s has been refused.", when=leave._ems_when())
+            if message:
+                label = _("Reason for the refusal, from %(name)s:", name=self.env.user.name) if refusal \
+                    else _("Message from %(name)s:", name=self.env.user.name)
+                body += Markup("<p>%s</p>%s") % (label, plaintext2html(message))
+            employee = leave.employee_id
+            leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, body)
+
+    def _ems_status_label(self):
+        self.ensure_one()
+        return dict(self._fields['ems_status']._description_selection(self.env))[self.ems_status]
 
     def _ems_summary(self):
         """Who, what and when, for the messages the chiefs receive about a request.
@@ -721,8 +851,7 @@ class EmsAbsenceLeave(models.Model):
             _("Absence type: %(type)s", type=self.holiday_status_id.display_name),
             _("Dates: %(when)s", when=self._ems_when()),
             _("Duration: %(hours).2f h", hours=self.number_of_hours),
-            _("Status: %(state)s", state=dict(
-                self._fields['ems_status']._description_selection(self.env))[self.ems_status]),
+            _("Status: %(state)s", state=self._ems_status_label()),
         ])
         return Markup("<p>%s</p>%s") % (
             _("Absence request of %(name)s", name=self.employee_id.display_name), details)
@@ -785,6 +914,9 @@ class EmsAbsenceLeave(models.Model):
         always has (calendar, hour balance, guard duty board), but it is not yet the Head's
         validation when the absence type requires a supporting document: the request then waits
         for it, or goes straight to validation if it was attached with the request."""
+        wizard = self._ems_ask_change_message('action_approve')
+        if wizard:
+            return wizard
         for leave in self.filtered(lambda leave: leave.state == 'confirm'):
             if not leave.leave_type_support_document:
                 document_state = 'not_required'
@@ -797,12 +929,20 @@ class EmsAbsenceLeave(models.Model):
         self._ems_inform_chiefs(with_direction=True)
         result = super().action_approve(check_state=check_state)
         self._ems_post_outcome()
+        self._ems_notify_request_changes()
         return result
 
     def action_refuse(self):
+        wizard = self._ems_ask_change_message('action_refuse', refusal=True)
+        if wizard:
+            return wizard
         self._ems_inform_chiefs()
         result = super().action_refuse()
+        # The reason written in the dialog, kept on the request for the employee to read there
+        # too. sudo: whoever may refuse need not be allowed to write the field itself.
+        self.sudo().write({'ems_refusal_reason': self.env.context.get('ems_change_message') or False})
         self._ems_post_outcome()
+        self._ems_notify_request_changes(refusal=True)
         return result
 
     # --- The supporting document ------------------------------------------------------------
@@ -832,8 +972,12 @@ class EmsAbsenceLeave(models.Model):
         self._ems_check_is_head()
         self._ems_check_status('pending_validation', _(
             "Only a request whose supporting document is pending validation can be validated."))
+        wizard = self._ems_ask_change_message('action_ems_document_validate')
+        if wizard:
+            return wizard
         self.write({'ems_document_state': 'validated'})
         self.sudo().write({'ems_document_return_reason': False})
+        self._ems_notify_request_changes()
         return True
 
     def action_ems_document_insufficient(self):
@@ -876,6 +1020,7 @@ class EmsAbsenceLeave(models.Model):
                 "The supporting document for your absence of %(when)s is not sufficient. "
                 "Reason: %(reason)s. Please attach a valid one to the request.",
                 when=leave._ems_when(), reason=reason))
+        self._ems_notify_request_changes()
         return True
 
     def _ems_notify(self, partners, message):
@@ -969,7 +1114,12 @@ class EmsAbsenceLeave(models.Model):
         self._ems_check_status('pending_direction', _(
             "Direction validates a request once the Head has validated it and its supporting "
             "document."))
-        return self._ems_set_direction_state('done')
+        wizard = self._ems_ask_change_message('action_ems_direction_done')
+        if wizard:
+            return wizard
+        self._ems_set_direction_state('done')
+        self._ems_notify_request_changes()
+        return True
 
     def action_ems_direction_reset(self):
         return self._ems_set_direction_state('not_done')
@@ -977,6 +1127,9 @@ class EmsAbsenceLeave(models.Model):
     def action_ems_direction_refuse(self):
         """Refuses the whole request, as final as the Head's refusal. Direction's column is set
         first, so _compute_ems_head_state knows the refusal about to happen is not the Head's."""
+        wizard = self._ems_ask_change_message('action_ems_direction_refuse', refusal=True)
+        if wizard:
+            return wizard
         self._ems_set_direction_state('refused')
         return self.action_refuse()
 
@@ -997,7 +1150,8 @@ class EmsAbsenceLeave(models.Model):
         refused_by_direction.sudo()._ems_set_direction_state('not_done')
         # Same for the supporting document: the Head acknowledges the reopened request afresh.
         self.sudo().write({'ems_document_state': False, 'ems_document_reminder_date': False,
-                           'ems_document_escalated': False, 'ems_document_return_reason': False})
+                           'ems_document_escalated': False, 'ems_document_return_reason': False,
+                           'ems_refusal_reason': False})
         return result
 
     @api.constrains('ems_submitted', 'ems_responsible_declaration')

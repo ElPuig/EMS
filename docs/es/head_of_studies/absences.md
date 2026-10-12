@@ -57,6 +57,10 @@ Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado), q
 
 La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
 
+**Rechazar pide antes el motivo.** Se abre un cuadro de diálogo con un cuadro para el motivo del rechazo, que es opcional: lo que escribas se envía solo a la persona (no a los jefes de departamento ni al resto de seguidores de la solicitud) y queda en lo alto de la solicitud, en rojo, mientras esté rechazada. Confirma con **Rechazar**, o cancela para dejar la solicitud como estaba.
+
+![Cuadro de diálogo para rechazar una solicitud de ausencia, con el cuadro para el motivo](../../assets/head_of_studies/hos-absences-refuse.png)
+
 La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de guardias) en cuanto la das por recibida, aunque falte el justificante o Dirección no la haya revisado.
 
 Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) la persona todavía no ha adjuntado el justificante, recibes un mensaje y una actividad para hacer el seguimiento; a la persona se le recuerda cada día.
@@ -80,6 +84,10 @@ Un campo del formulario, que puedes cambiar en cualquier momento:
 | **Suma las horas al informe mensual** | Hace que las horas entren en el recuento mensual | Todos los tipos excepto `Baja laboral` |
 
 También puedes cambiar el **tipo de ausencia** después de haberla aprobado. Hazlo cuando la persona haya elegido uno que no corresponde.
+
+**La persona se entera de lo que cambias.** Cuando tú (o Dirección) cambias el tipo de ausencia, las fechas o las horas de una solicitud que ha presentado otra persona, la siguiente vez que decides sobre ella (recibirla, validarla, devolver el justificante, rechazarla) un cuadro de diálogo muestra los cambios y te permite escribir un mensaje para quien la solicitó. Si lo dejas en blanco, solo se le informa de los cambios realizados. En ambos casos el aviso llega únicamente a quien la solicitó, no a los jefes de departamento ni al resto de seguidores de la solicitud. En una solicitud ya rechazada o cancelada, se le avisa en cuanto guardas el cambio.
+
+![Cuadro de diálogo con los cambios realizados en la solicitud y el cuadro para el mensaje al solicitante](../../assets/head_of_studies/hos-absences-change-message.png)
 
 Si la ausencia es de día entero o de unas horas concretas lo controla la casilla **¿Día entero?**, que también puedes corregir: marcada cuenta 7,5 horas por día laborable, sin marcar cuenta las horas indicadas.
 

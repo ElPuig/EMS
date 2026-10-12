@@ -43,15 +43,19 @@
                 </xpath>
 
                 <!-- The employee picks the absence type, but they get it wrong often enough
-                     that the manager has to be able to correct it after the fact - which the
-                     native readonly, keyed on the approval state, would prevent.
+                     that the manager has to be able to correct it - while the request is
+                     pending, or refused or cancelled. Not once it is in effect: Odoo refuses any
+                     change that touches the dates of an approved request
+                     (hr.leave._check_date_state), and the type recomputes them, so saving it
+                     only ever raised an error. The way to correct one is to undo the approval
+                     first (hr.leave.action_ems_undo, issue #614).
 
                      Shown as a radio list rather than a dropdown, like the original Google
                      form: several of the nine options are the legal wording the employee is
                      declaring when they choose one, so they have to be readable in full at the
                      moment of choosing. colspan spans the group so the long lines have room. -->
                 <xpath expr="//field[@name='holiday_status_id']" position="attributes">
-                    <attribute name="readonly">state in ['cancel', 'refuse', 'validate', 'validate1'] and not is_absence_manager</attribute>
+                    <attribute name="readonly">state in ['validate', 'validate1'] or (state in ['cancel', 'refuse'] and not is_absence_manager)</attribute>
                     <attribute name="widget">ems_absence_type_radio</attribute>
                 </xpath>
 
@@ -191,7 +195,8 @@
                 <!-- Refusing opens a dialog first, here and from the list and kanban buttons
                      below (hr.leave._ems_ask_change_message): it asks for the reason of the
                      refusal, which reaches the employee alone, and it is what stands between a
-                     stray click - the button sits next to the approval - and a refused request. -->
+                     stray click - the button sits next to the approval - and a refused request.
+                     A refusal by mistake is taken back with "Undo" (hr.leave.action_ems_undo). -->
                 <xpath expr="//header/button[@name='action_refuse']" position="attributes">
                     <attribute name="context">{'ems_ask_change_message': 1}</attribute>
                 </xpath>
@@ -205,18 +210,6 @@
                     <attribute name="string">Validate</attribute>
                     <attribute name="invisible">not can_approve or state != 'confirm' or leave_type_support_document</attribute>
                 </xpath>
-                <xpath expr="//header/button[@name='action_approve']" position="after">
-                    <button string="Received: pending documentation" name="action_approve" type="object" context="{'ems_ask_change_message': 1}"
-                            class="oe_highlight"
-                            invisible="not can_approve or state != 'confirm' or not leave_type_support_document"/>
-                    <field name="is_absence_head" invisible="1"/>
-                    <button string="Validate documentation" name="action_ems_document_validate" type="object" context="{'ems_ask_change_message': 1}"
-                            class="oe_highlight"
-                            invisible="ems_status != 'pending_validation' or not is_absence_head"/>
-                    <button string="Documentation insufficient" name="action_ems_document_insufficient" type="object"
-                            invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"/>
-                </xpath>
-
                 <!-- Why the Head or Direction sent the supporting document back, for the
                      employee to read while they look for a valid one
                      (hr.leave._ems_return_document). -->
@@ -249,15 +242,47 @@
                     <attribute name="js_class">ems_absence_form</attribute>
                 </xpath>
                 <xpath expr="//header/field[@name='state']" position="after">
-                    <button string="Direction: done" name="action_ems_direction_done" type="object" context="{'ems_ask_change_message': 1}"
-                            class="oe_highlight"
-                            invisible="not is_absence_direction or ems_status != 'pending_direction'"/>
-                    <button string="Direction: pending" name="action_ems_direction_reset" type="object"
-                            invisible="not id or not is_absence_direction or state in ('refuse', 'cancel') or ems_direction_state == 'not_done'"/>
-                    <button string="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
-                            invisible="not id or not is_absence_direction or can_approve or state in ('refuse', 'cancel')"/>
+                    <field name="is_absence_head" invisible="1"/>
+                    <field name="ems_can_undo" invisible="1"/>
                     <field name="ems_status" widget="statusbar"
                            statusbar_visible="pending,pending_direction,approved"/>
+                </xpath>
+
+                <!-- Every action on the request in the header's one "Actions" dropdown
+                     (docs/en/developers/shared/actions_dropdown.md), Odoo's own included, in the
+                     order of the circuit: the Head's steps, Direction's, refusing, the employee's
+                     own cancellation and, last, undoing the previous decision. Two steps, because
+                     a position="move" nested in the subtree that adds the div would be copied
+                     verbatim instead of executed.
+
+                     Odoo's "Reset" is hidden for good: "Undo" does what it did (a refused or
+                     cancelled request back to where it stood) for whoever may undo it, where the
+                     reset was the administrator's alone (issue #614). -->
+                <xpath expr="//header" position="inside">
+                    <div name="ems_actions" string="Actions"/>
+                </xpath>
+                <xpath expr="//div[@name='ems_actions']" position="inside">
+                    <xpath expr="//header/button[@name='action_approve']" position="move"/>
+                    <button string="Received: pending documentation" name="action_approve" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not can_approve or state != 'confirm' or not leave_type_support_document"/>
+                    <button string="Validate documentation" name="action_ems_document_validate" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="ems_status != 'pending_validation' or not is_absence_head"/>
+                    <button string="Documentation insufficient" name="action_ems_document_insufficient" type="object"
+                            invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"/>
+                    <xpath expr="//header/button[@name='action_validate']" position="move"/>
+                    <button string="Direction: done" name="action_ems_direction_done" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not is_absence_direction or ems_status != 'pending_direction'"/>
+                    <xpath expr="//header/button[@name='action_refuse']" position="move"/>
+                    <button string="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not id or not is_absence_direction or can_approve or state in ('refuse', 'cancel')"/>
+                    <xpath expr="//header/button[@name='action_cancel']" position="move"/>
+                    <button string="Undo the last decision" name="action_ems_undo" type="object"
+                            invisible="not ems_can_undo"
+                            confirm="The last decision on this absence request is taken back and the request returns to its previous status. The employee is told. Undo it?"
+                            confirm-title="Undo the last decision" confirm-label="Undo"/>
+                </xpath>
+                <xpath expr="//header/button[@name='action_reset_confirm']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
 
                 <!-- Nothing is filed until the employee says so. Odoo would otherwise keep the
@@ -364,12 +389,15 @@
                     <button title="Documentation insufficient" name="action_ems_document_insufficient" type="object"
                             icon="fa-file-o" groups="ems.group_director"
                             invisible="ems_status != 'pending_direction'"/>
-                    <button title="Direction: pending" name="action_ems_direction_reset" type="object"
-                            icon="fa-undo" groups="ems.group_director"
-                            invisible="state in ('refuse', 'cancel') or ems_direction_state == 'not_done'"/>
                     <button title="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
                             icon="fa-times" groups="ems.group_director"
                             invisible="state in ('refuse', 'cancel') or can_approve"/>
+                    <!-- Last in the row, for whoever may take the last decision back
+                         (hr.leave._ems_can_undo, issue #614). -->
+                    <field name="ems_can_undo" column_invisible="1"/>
+                    <button title="Undo the last decision" name="action_ems_undo" type="object"
+                            icon="fa-undo" invisible="not ems_can_undo"
+                            confirm="The last decision on this absence request is taken back and the request returns to its previous status. The employee is told. Undo it?"/>
                 </xpath>
 
             </field>
@@ -404,7 +432,7 @@
                 <xpath expr="//button[@icon='fa-inbox']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//button[@name='action_ems_direction_reset']" position="attributes">
+                <xpath expr="//button[@name='action_ems_undo']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@name='action_ems_direction_refuse']" position="attributes">

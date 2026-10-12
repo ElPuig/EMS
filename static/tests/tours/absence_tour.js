@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Staff absences render on Odoo's own Time Off screens, extended by views/time_off/leave.xml.
 // Neither ./upgrade.sh nor the TransactionCase tests open a browser, so this is what actually
@@ -56,14 +57,15 @@ registry.category("web_tour.tours").add("ems_absence_request", {
             trigger: ".o_form_view .o_field_widget[name='ems_direction_state']",
             content: "And Direction's",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_ems_direction_done']))",
-            content: "Direction goes last: nothing to validate before the Head has acted",
-        },
-        {
-            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_approve']))",
-            content: "Nor the Head's buttons: this is not Direction's request to acknowledge",
-        },
+        ...checkActions(
+            {
+                offered: ["action_ems_direction_refuse"],
+                notOffered: ["action_ems_direction_done", "action_approve", "action_ems_undo"],
+            },
+            "Direction goes last: nothing to validate before the Head has acted, nor the "
+                + "Head's own actions (this is not Direction's request to acknowledge), and "
+                + "nothing to undo yet"
+        ),
     ],
 });
 
@@ -214,13 +216,10 @@ registry.category("web_tour.tours").add("ems_absence_justification", {
     ],
 });
 
-// Refusing is final for whoever refuses (Head or Direction) and, ordinarily, for the employee
-// too: Odoo reserves resetting a refused request to its Time Off Manager group, which
-// res.users._ems_sync_time_off_groups leaves nobody at the centre holding except
-// 'base.user_admin' itself (deliberately protected, see EmsAbsenceLeave.action_reset_confirm),
-// so the employee normally has to file the whole request again. Both buttons that cause a
-// refusal are one stray click away from the Approve button beside them, so both are confirmed
-// first - and only a browser can prove a dialog appears.
+// Both ways of refusing are one stray click away from the approval beside them, and the
+// employee and their chiefs are told straight away, so both are confirmed first (a refusal by
+// mistake is then taken back with Undo, see ems_absence_undo) - and only a browser can prove a
+// dialog appears.
 registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
     test: true,
     url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
@@ -250,13 +249,7 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             content: "Open the same request",
             run: "click",
         },
-        {
-            // '.o_form_statusbar', not 'header': a form's <header> is rendered as that div,
-            // so a literal header selector matches nothing.
-            trigger: ".o_form_view .o_form_statusbar button[name='action_refuse']",
-            content: "The form has the same button, and the same confirmation",
-            run: "click",
-        },
+        ...clickAction("action_refuse", "The form has the same action, and the same dialog"),
         {
             trigger: ".modal:contains('Refuse this absence request')",
             content: "The same dialog, named after the decision",
@@ -268,7 +261,7 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
         },
         {
             trigger: ".modal-footer button:contains('Refuse')",
-            content: "Confirm, and the request is refused for good",
+            content: "Confirm, and the request is refused",
             run: "click",
         },
         {
@@ -459,11 +452,7 @@ registry.category("web_tour.tours").add("ems_absence_direction_review", {
             content: "Open the other one",
             run: "click",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_ems_direction_done']",
-            content: "Direction validates it from the header",
-            run: "click",
-        },
+        ...clickAction("action_ems_direction_done", "Direction validates it from the form's Actions"),
         {
             trigger: ".o_list_view:not(:has(.o_data_row:contains('Tour Validated Teacher')))",
             content: "Back on the list, which it has left: nothing left for Direction",
@@ -514,11 +503,7 @@ registry.category("web_tour.tours").add("ems_absence_head_approval", {
             trigger: ".o_form_view .o_attachment:contains('baixa')",
             content: "The document is on the form",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_ems_document_validate']",
-            content: "Validate it from the header",
-            run: "click",
-        },
+        ...clickAction("action_ems_document_validate", "Validate it from the form's Actions"),
         {
             trigger: ".o_list_view .o_data_row:contains('Tour Submitted Teacher') td[name='ems_status']:contains('Pending Direction')",
             content: "Back on the list, and the request now waits for Direction",
@@ -546,11 +531,7 @@ registry.category("web_tour.tours").add("ems_absence_change_message", {
             content: "Open the request whose type was corrected",
             run: "click",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_approve']:not(.o_invisible_modifier)",
-            content: "Validate it from the header",
-            run: "click",
-        },
+        ...clickAction("action_approve", "Validate it from the form's Actions"),
         {
             trigger: ".modal div[name='changes'] li",
             content: "The dialog lists what was changed",
@@ -568,6 +549,58 @@ registry.category("web_tour.tours").add("ems_absence_change_message", {
         {
             trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_status']:contains('Pending Direction')",
             content: "Back on the list, with the decision taken",
+        },
+    ],
+});
+
+// A decision taken by mistake is taken back one step at a time (issue #614): from the form's
+// Actions, where the request stays open to be corrected or decided again, and from its row in
+// the list. No "url": the test opens its own action, which lists the two fixture requests
+// whatever their status.
+registry.category("web_tour.tours").add("ems_absence_undo", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Undone Form Teacher') td[name='ems_status']:contains('Pending Direction')",
+            content: "Open the request the Head validated by mistake",
+            run: "click",
+        },
+        ...checkActions(
+            { offered: ["action_ems_undo"], notOffered: ["action_reset_confirm", "action_approve"] },
+            "Undo is offered, Odoo's own Reset is not"
+        ),
+        ...clickAction("action_ems_undo", "Undo the validation"),
+        {
+            trigger: ".modal:contains('previous status') .modal-footer button.btn-primary",
+            content: "It asks first",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_status'] button.o_arrow_button_current[data-value='pending']",
+            content: "Still on the form, and the request is pending again",
+        },
+        ...checkActions(
+            { offered: ["action_approve"], notOffered: ["action_ems_undo"] },
+            "It can be decided again, and there is nothing left to undo"
+        ),
+        {
+            trigger: ".o_control_panel .o_breadcrumb .o_back_button",
+            content: "Back to the list",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Undone List Teacher') button[name='action_ems_undo']",
+            content: "The other one is undone straight from its row",
+            run: "click",
+        },
+        {
+            trigger: ".modal:contains('previous status') .modal-footer button.btn-primary",
+            content: "Which asks first too",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Undone List Teacher'):has(button[name='action_approve']):not(:has(button[name='action_ems_undo']))",
+            content: "Pending again: the Head's own button is back and Undo is gone",
         },
     ],
 });

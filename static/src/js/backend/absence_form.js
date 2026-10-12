@@ -15,7 +15,6 @@ const DECISION_BUTTONS = new Set([
     "action_refuse",
     "action_ems_document_validate",
     "action_ems_direction_done",
-    "action_ems_direction_reset",
     "action_ems_direction_refuse",
 ]);
 

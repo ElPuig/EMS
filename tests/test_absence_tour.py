@@ -156,6 +156,22 @@ class TestAbsenceTour(HttpCase):
         self.assertTrue(leave.message_ids.filtered(
             lambda message: "Tour file it on the portal" in str(message.body)))
 
+    def test_absence_undo_tour(self):
+        """The Head takes back a validation from the form's Actions and from the list row
+        (issue #614)."""
+        leaves = self.env['hr.leave']
+        for offset, name in ((42, 'Tour Undone Form Teacher'), (49, 'Tour Undone List Teacher')):
+            leave = self._create_request(name, 'ems.leave_type_atri', self.day + timedelta(days=offset))
+            leave.action_approve()
+            leaves |= leave
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Tour absences', 'res_model': 'hr.leave', 'view_mode': 'list,form',
+            'domain': [('id', 'in', leaves.ids)],
+        })
+        self.start_tour(f"/odoo/action-{action.id}", "ems_absence_undo", login="absence_tour_hos")
+        leaves.invalidate_recordset()
+        self.assertEqual(leaves.mapped('ems_status'), ['pending', 'pending'])
+
     def test_absence_employee_view_tour(self):
         self.start_tour("/odoo", "ems_absence_employee_view", login="absence_tour_employee")
 

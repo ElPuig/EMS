@@ -136,8 +136,11 @@ The status fields are the steps of the approval and where the request stands bet
 absence type. The monthly-report flag is shown to the approver, who can override it per request.
 The ATRI flag is shown to nobody: its only use is the ATRI portal notice on the form, and when the
 employee chose the wrong type the approver changes the type itself, which recomputes both. That
-is also why `holiday_status_id` stays editable for the approver after approval, overriding
-Odoo's own readonly (`is_absence_manager` drives that).
+is also why `holiday_status_id` stays editable for the approver (`is_absence_manager`) on a
+refused or cancelled request, where Odoo makes it readonly. Not on an approved one: Odoo's
+`_check_date_state` refuses any write that touches the dates of a request in effect, and the type
+recomputes them, so the field is readonly there and the approver undoes the approval first (see
+*Undoing the last decision*).
 
 ## The approval, step by step
 
@@ -166,6 +169,8 @@ stateDiagram-v2
     PendingDirection --> Refused
     Pending --> Cancelled: employee cancels
 ```
+
+Every decision can be taken back, one step at a time: see *Undoing the last decision*.
 
 Which types require a document is `support_document` in `data/cat/hr.leave.type.csv`: every one
 except "Health" (self-declared) and ATRI (justified on the Generalitat's portal). Being `data/cat/`
@@ -231,12 +236,18 @@ chatter's own attachment box is not a write on the request and does not count - 
 "Supporting document" field is the place.
 
 **Direction's buttons** are `action_ems_direction_done` (only while Pending Direction:
-`UserError` otherwise), `_reset` (back to Pending), `_refuse`, and the same
+`UserError` otherwise), `_refuse`, and the same
 `action_ems_document_insufficient` as the Head, which sends a request Direction is reviewing back
 to the employee. All through plain `write()`s: the existing guard in `hr.leave.write()` is what
-keeps them Direction's, for these buttons and any other way in. They sit in the form header and,
-as icons with their label as tooltip, beside the Direction column in the list; they are hidden in
-the employee's own list.
+keeps them Direction's, for these buttons and any other way in. They are entries of the form's
+Actions dropdown and, as icons with their label as tooltip, sit beside the Direction column in
+the list; they are hidden in the employee's own list.
+
+**Every action of the form is in its "Actions" dropdown** (`<div name="ems_actions">`, see
+`docs/en/developers/shared/actions_dropdown.md`), in the order of the circuit: the Head's steps,
+Direction's, refusing, the employee's own Cancel and Undo. Odoo's own Approve, Validate, Refuse
+and Cancel are moved in (`position="move"`); its Reset stays where it was, hidden for good,
+because Undo replaces it.
 
 **One activity per step.** `_ems_update_activities()`, called from `write()` whenever `state`,
 `ems_document_state` or `ems_direction_state` changes, keeps exactly one EMS activity open on the
@@ -264,14 +275,15 @@ approved as `validated` (that is what the approval meant until then), turns Dire
 stored status columns, and gives the employee the upload activity on those requests.
 
 **A decision taken from the form goes back to the list.** The form is `js_class="ems_absence_form"`
-(`static/src/js/backend/absence_form.js`): after any of the Head's or Direction's decision
-buttons, its `afterExecuteActionButton()` calls the web client's own `historyBack()` - the same
-call Odoo makes after deleting a record. That hook runs whether or not the button raised, so
-success is read from the record instead: `state`, `ems_document_state` and `ems_direction_state` are captured before
-the click and compared after the reload, and only a change goes back. A refused confirmation or an
+(`static/src/js/backend/absence_form.js`): after any of the Head's or Direction's decisions
+(`DECISION_BUTTONS`), it calls the web client's own `historyBack()` - the same call Odoo makes
+after deleting a record. Success is read from the record: `state`, `ems_document_state` and
+`ems_direction_state` are captured when the button is clicked and compared after the next reload
+of the form's model, which comes right after a direct decision or when the dialog a decision
+opened first is closed; only a change goes back. A refused confirmation, a cancelled dialog or an
 error leaves the reader on the form, as does a form opened on its own (no breadcrumb to return
-to, where `historyBack()` would load the home screen). Refusing is final - the whole request,
-exactly like the Head's refusal - and confirms first.
+to, where `historyBack()` would load the home screen). Undo is not one of them: after taking a
+decision back, the reader stays on the request to correct it or decide again.
 
 **Direction does not approve on the Head's behalf.** Direction holds the officer group through
 Head of Studies, so Odoo would offer it Approve/Refuse on every request - right beside the Head's
@@ -299,9 +311,9 @@ blocked before its turn, the activities, the reminders and the escalation with t
 refusals and resets, `can_approve`/`is_absence_head` for Director / Head of Studies /
 Director-as-approver, who gets subscribed, and the filters' domains) and by these tours:
 `ems_absence_direction_review` (Direction's default list, sending a document back from the row with its reason,
-validating from the header, kanban), `ems_absence_head_approval` (Head of Studies acknowledging
+validating from the form's Actions, kanban), `ems_absence_head_approval` (Head of Studies acknowledging
 from the row, validating a document from the form, kanban), `ems_absence_request` (the form's
-columns, and no Direction button before the Head), `ems_absence_employee_view` (the employee's
+columns, and no Direction action before the Head), `ems_absence_employee_view` (the employee's
 own list and form, without the approvers' columns and badges) and `ems_absence_document_returned`
 (the employee reading why their document was sent back).
 
@@ -502,51 +514,83 @@ appears at all, and that cancelling it really leaves the file alone. It runs on 
 is approved *and* of a type requiring no document, so it doubles as the browser-side proof that
 neither condition hides the field any more.
 
-## Refusing asks first too, because almost nobody can undo it
+## Refusing asks first
 
-`action_reset_confirm` puts a refused request back to `Pending`, but Odoo reserves that to its
-Time Off Manager group: `_check_approval_update` raises *"Only a Time Off Manager can reset a
-refused leave"* for anybody else, an officer included. `res.users._ems_sync_time_off_groups()`
-takes that group back from everyone, deliberately, since it also grants read access to every
-colleague's absence reason and attachment - with one explicit exception, `base.user_admin`
-itself, kept out of the revocation (`protected` in that method) because the account needs to
-stay a genuine Time Off Administrator. **In practice a refused request is final for the Head,
-for Direction and for the employee: only that one administrator account can reopen it, and the
-employee should normally expect to file a new request instead.** The confirmation dialogs say
-exactly that, rather than claiming the button doesn't exist at all - it does, for that one
-account, right there on the same screen (found 2026-09-22, issue #501).
-
-`EmsAbsenceLeave.action_reset_confirm()` overrides the native method so that reset actually
-leaves the request clean: on its own, Odoo's version only ever touches `state`, so a request
-Direction had refused (`ems_direction_state = 'refused'`) would come back as `Pending` overall
-while Direction's own column kept showing `Refused`, with `ems_status` stuck unable to reflect
-either. The override clears `ems_direction_state` back to `not_done` for exactly those leaves,
-via `sudo()` - reaching this method at all already required the wider Time Off Manager group, so
-clearing a now-stale refusal is not a fresh Direction decision needing its own check.
-
-The button that causes it sits next to Approve on three different screens, and on two of them it
-is a bare icon in a row. All three confirm first, through Odoo's own `confirm` attribute rather
-than any code:
-
-| View | Attributes |
-|---|---|
-| `hr_leave_view_form` (header) | `confirm`, `confirm-title`, `confirm-label` |
-| `hr_leave_view_kanban` | `confirm`, `confirm-title`, `confirm-label` |
-| `hr_leave_view_tree` | `confirm` only |
-
-**The list gets only `confirm` on purpose.** A list view is validated against a RelaxNG schema
-(`base/rng/list_view.rng`; there is no `form_view.rng` at all, which is why form and kanban are
-unconstrained here), and its `button` definition allows `confirm` but neither `confirm-title`
-nor `confirm-label`. Adding them makes the whole view invalid and the module upgrade fails.
-
-Direction's own Refuse (`action_ems_direction_refuse`, see *The approval, step by step*) carries the same
-confirmation, in the list and in the form header.
+The Refuse button sits next to the approval on three different screens, and on two of them it is
+a bare icon in a row; the employee and their department's chiefs are told as soon as the request
+is refused. So every Refuse button - the Head's in the form's Actions dropdown, the list row and
+the kanban, Direction's (`action_ems_direction_refuse`) in the form and the list - opens a dialog
+first: the one that asks for the reason of the refusal (see *Corrections to the request are
+reported to the employee*), which refuses nothing until it is confirmed. A refusal by mistake is
+taken back with Undo (next section), which also forgets its reason.
 
 Covered by the `ems_absence_refuse_confirm` tour, which cancels the dialog from the list button
-and confirms it from the form one, and by `test_refusing_is_not_reversible_at_the_centre`, which
-asserts the rule the wording rests on for a regular officer. `test_resetting_a_head_refusal_
-clears_it` and `test_resetting_a_direction_refusal_also_clears_the_direction_check` cover what
-the one account that *can* reach `action_reset_confirm` actually gets back.
+and confirms it with a reason from the form's, and by
+`test_refusing_a_request_asks_first_on_every_screen`.
+
+## Undoing the last decision
+
+`action_ems_undo()` ("Undo the last decision": an entry of the form's Actions dropdown and an
+arrow-back icon at the end of the row in the managers' list, both confirming first) takes back
+the last decision on a request, one step at a time. It replaces two things: Direction's former
+"Direction: pending" button, which only undid a *Done*, and Odoo's own Reset
+(`action_reset_confirm`), which only reopened a refused or cancelled request and which
+`_check_approval_update` reserves to the Time Off Manager group - in practice the one
+administrator account `res.users._ems_sync_time_off_groups()` leaves holding it.
+
+```mermaid
+stateDiagram-v2
+    Approved --> PendingDirection: undo (Direction)
+    PendingDirection --> PendingValidation: undo (document had been validated)
+    PendingDirection --> Pending: undo (type requires no document)
+    PendingValidation --> Pending: undo
+    AwaitingDocumentation --> Pending: undo
+    Refused --> Before: undo
+    Cancelled --> Before: undo
+    AwaitingDocumentation --> Before: undo (after "documentation insufficient")
+    Before: Where it stood just before
+```
+
+- **Forward decisions are undone by the sequence itself** (`_ems_undo()`): Approved clears
+  Direction's check; Pending Direction puts the document back to `submitted` when it had been
+  validated; anything else left is the Head's acknowledgement, which goes back to Pending.
+- **A refusal, a cancellation and a document sent back are undone from what was kept.** Nothing
+  in the request says where it stood before one of those, so `ems_decision_before` (Json) keeps
+  the three `DECISION_FIELDS` (`state`, `ems_document_state`, `ems_direction_state`):
+  `hr.leave.write()` fills it whenever `state` goes to `refuse` or `cancel`, whoever does it
+  (`_ems_keep_decision_before()`, which also covers the employee's own cancellation), and
+  `_ems_return_document()` when a document is sent back. Direction's refusal passes what its
+  column was in the context (`ems_direction_before`), since it has already overwritten it by
+  then. Every forward decision clears it (`_ems_forget_decision_before()`), the employee
+  attaching a new document included: from then on the send-back is no longer the last decision.
+  A request refused before this existed has nothing kept and goes back to Pending.
+- **Through Odoo's own steps** (`_ems_restore_decisions()`): `action_reset_confirm()` out of a
+  refusal or cancellation, `action_validate()` when the request was in effect before it, and a
+  plain `state = 'confirm'` write (plus archiving its calendar meeting and clearing the
+  approvers) to take back an acknowledgement - that write is what removes the
+  `resource.calendar.leaves`, so the absence leaves the calendar, the hour balance and the guard
+  duty board until it is acknowledged again. Under `sudo()`: Odoo only lets its Time Off Manager
+  reset a request, and the right to undo is EMS's own check.
+- **Who can undo** (`_ems_can_undo()`, exposed as the non-stored `ems_can_undo` for the views
+  and re-checked by the action): whoever took the decision and anyone above them. The Head
+  (`is_absence_head`) the Head's decisions; Direction those and its own (its validation, its
+  refusal, a document it sent back after the Head had validated it:
+  `_ems_last_decision_is_directions()`); the administrator (`base.group_system`,
+  `ems.group_academic_admin`) all of them. Nobody undoes a decision on their own absence unless
+  they are Direction or the administrator.
+- **Who is told.** When Odoo's `state` changed (the absence went in or out of effect) the usual
+  summary is posted to everyone following the request (`_ems_post_outcome()`); otherwise a note
+  goes to the employee alone with the new status.
+- **`action_reset_confirm()` is still overridden**, since undo goes through it: on its own
+  Odoo's version only touches `state`, so the override also clears a Direction refusal, the
+  document's state and reminders, the return reason and `ems_decision_before`.
+
+Covered by `TestAbsenceRequest` (walking back the whole sequence, a type with no document, the
+calendar entry, refusals from each stage, a legacy refusal, a cancellation, a send-back by the
+Head and by Direction, a send-back the employee already answered, who may undo what, one's own
+absence, who is told, the Actions dropdown holding every button, and an approved request being
+corrected by undoing it first) and by the `ems_absence_undo` tour (the Head undoing from the
+form's Actions, staying on the form, and from the list row).
 
 ## Allocations and accrual plans are hidden
 
@@ -917,9 +961,9 @@ through the same `write()`, which also clears the technical attendances they had
 | Group | `hr.leave` records visible | Reason and attachment | Can |
 |---|---|---|---|
 | Any employee | Own requests; colleagues' via the native calendar/dashboard | Own only — `private_name` renders as `*****` for everyone else | Create, edit and cancel their own while unapproved; file the supporting document at any time, approved included |
-| Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse |
-| Head of Studies, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, manage the catalogue |
-| Director (`ems.group_director`, implies the row above) | All, centre-wide | Yes | Direction's own approval (done / documentation insufficient / pending / refuse) on any request the Head has validated; acknowledge/validate/refuse as the Head only where it is the employee's `leave_manager_id` (screens only, see *The approval, step by step*) |
+| Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse, undo their own decisions |
+| Head of Studies, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, undo the Head's decisions (the academic admin, as administrator, also Direction's), manage the catalogue |
+| Director (`ems.group_director`, implies the row above) | All, centre-wide | Yes | Direction's own approval (done / documentation insufficient / refuse) on any request the Head has validated; undo any decision, the Head's included; acknowledge/validate/refuse as the Head only where it is the employee's `leave_manager_id` (screens only, see *The approval, step by step*) |
 
 Two native mechanisms carry most of this:
 

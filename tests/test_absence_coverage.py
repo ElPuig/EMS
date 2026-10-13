@@ -253,24 +253,28 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._assign()
         start = self.env.company.current_course_id.date_range()[0]
 
-        def cover(guard, day, state='assigned', group=None, absent=None, hour_from=8, hour_to=9):
+        def cover(guard, day, state='assigned', group=None, absent=None, space=None, hour_from=8, hour_to=9):
             self.Cover.create({
                 'date': day, 'hour_from': hour_from, 'hour_to': hour_to,
                 'absent_employee_id': (absent or self.teacher_b).id,
-                'group_id': (group or self.group_a).id, 'guard_employee_id': guard.id, 'state': state})
+                'group_id': (group or self.group_a).id, 'space_id': (space or self.space).id,
+                'guard_employee_id': guard.id, 'state': state})
 
         cover(self.teacher_guard, start)
         cover(self.teacher_guard, start - timedelta(days=1))
         cover(self.teacher_guard_2, start, state='released')
-        # Issue #629: two groups looked after together at the same time are one guard, not two,
-        # also when one of the classes is longer than the other.
+        # Issue #629: two groups looked after together in one room at the same time are one guard,
+        # not two, also when one of the classes is longer than the other...
         cover(self.teacher_guard, start, group=self.group_b)
         cover(self.teacher_guard, start, group=self.group_b, absent=self.teacher_a, hour_from=8.5, hour_to=10)
+        # ...while two groups in two rooms at the same time are two.
+        cover(self.teacher_guard_2, start, hour_from=10, hour_to=11)
+        cover(self.teacher_guard_2, start, group=self.group_b, space=self.space_b, hour_from=10, hour_to=11)
 
         # Any teacher reads the board, so any teacher reads the counts too.
         line = self.env['ems.course'].with_user(self.guard_user).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))['lines'][0]
-        expected = {self.teacher_guard.id: 2, self.teacher_guard_2.id: 0}
+        expected = {self.teacher_guard.id: 2, self.teacher_guard_2.id: 2}
         for key in ('guards', 'guard_candidates'):
             counts = {guard['id']: guard['cover_count'] for guard in line[key] if guard['id'] in expected}
             self.assertEqual(counts, expected, key)

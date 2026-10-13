@@ -43,7 +43,7 @@ Las columnas de la tabla son los grupos que tienen clase en ese turno; cada fila
 
 La columna **Guardia**, a la derecha, lista todos los docentes de guardia en esa franja horaria, cada uno en un recuadro de borde fino. Un docente de guardia no tiene ningún grupo propio en ese momento (es precisamente el sentido de la guardia), por eso solo aparece aquí, nunca en la columna de un grupo. Un docente en guardia de **WC** en concreto muestra la etiqueta **"(WC)"** justo después de su nombre — se destaca porque, a diferencia de una guardia de patio (ver más abajo), una guardia de WC puede caer en cualquier momento del día, así que no hay otra forma de distinguirla de una guardia normal a simple vista.
 
-El número pequeño en un círculo tras cada nombre indica cuántas clases ha cubierto ese docente este curso (incluidas las coberturas ya previstas para un día próximo). Varios grupos atendidos a la vez, por ejemplo juntos en una misma aula, cuentan como una sola cobertura. Sirve para repartir las coberturas de forma equitativa.
+El número pequeño en un círculo tras cada nombre indica cuántas clases ha cubierto ese docente este curso (incluidas las coberturas ya previstas para un día próximo). Varios grupos atendidos juntos en la misma aula y a la misma hora cuentan como una sola cobertura; los grupos en aulas distintas cuentan por separado. Sirve para repartir las coberturas de forma equitativa.
 
 Una fila cuya franja horaria coincide con el patio de algún nivel — sin ninguna clase programada en ella para nadie — muestra una pequeña etiqueta **"Patio"** junto a la hora, además de un borde marrón en el lado izquierdo de esa misma celda, para que una franja que parece vacía no se lea como un hueco en el horario.
 

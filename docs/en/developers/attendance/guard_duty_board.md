@@ -922,6 +922,12 @@ flowchart TD
   other lesson; in a swap that block has the absent teacher, so it is not empty. The timetable
   tab and the PDF show it per cell (`_board_cell_arrangements()`: `moved` struck out,
   `substitutes` added).
+- **A move in effect says both things on its row**: the lesson B left behind is not an absence, so
+  it has no row of its own in the absences table to carry the "Leaves at..." tag. The row of the
+  class B moved into therefore shows the arrangement tag and, next to it, the change the families
+  were told (`arrangement_change` in `_board_absence_row_management()`: the communicated change
+  whose window contains the vacated lesson), on screen and in the PDF. Nothing while the notice is
+  still a draft, and never for a swap or a manual arrangement.
 - **Nobody believes a busy teacher is free**: `_arrangement_busy()` lists B in the period and, in a
   swap, A at B's lesson: struck out of the guard column there (`guard_busy`), never a guard
   candidate, and the row cannot be self-assigned.

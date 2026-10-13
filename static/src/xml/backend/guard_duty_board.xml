@@ -248,6 +248,11 @@
                                                           t-att-class="{ o_guard_board_arrangement_pending: absence.arrangement.pending }">
                                                         <i class="fa fa-exchange me-1"/><t t-esc="absence.arrangement.teacher"/>
                                                     </span>
+                                                    <!-- Issue #623: the lesson moved here is one the group no longer
+                                                         has, so it comes in later or leaves earlier: say both. -->
+                                                    <span t-if="absence.arrangement and absence.arrangement.change"
+                                                          class="o_guard_board_absence_tag o_guard_board_authorized_tag o_guard_board_arrangement_change_tag"
+                                                          t-esc="absence.arrangement.change"/>
                                                     <span t-if="absence.authorized" class="o_guard_board_absence_tag o_guard_board_authorized_tag" t-esc="absence.authorized"/>
                                                     <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
                                                     <span t-if="absence.arrangement_options.length" class="o_guard_board_absence_tag o_guard_board_options_tag">

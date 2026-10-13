@@ -172,7 +172,7 @@ To apply one, click **Apply** on its line, or click the class and choose it in t
 ![Dialog of a class: the possible arrangements, with the notice and the entry and exit changes each one implies, above sending a guard and the arrangement described by hand](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 
 - A **swap** takes effect at once: the class is struck through, with the teacher who is with the group, and both teachers receive an Odoo message with the change (and their new entry or exit time, if it changes).
-- A **moved lesson** opens the draft notice for the families straight away. **It only counts once that notice is sent**: until then the class is not struck out and the proposals box shows it as waiting for its notice (**Open draft**). The teachers are told when the notice is sent. If you delete the draft, the arrangement is discarded.
+- A **moved lesson** opens the draft notice for the families straight away. **It only counts once that notice is sent**: until then the class is not struck out and the proposals box shows it as waiting for its notice (**Open draft**). The teachers are told when the notice is sent. If you delete the draft, the arrangement is discarded. Once it is sent, the class shows both tags: the teacher who is with the group and, in green, what the families were told (*"Leaves at 12:25"*, *"Starts at 09:00"*).
 
 Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own.
 

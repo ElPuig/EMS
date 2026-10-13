@@ -87,3 +87,38 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
         },
     ],
 });
+
+// Issue #623, as the absent teacher's Department Chief: a lesson moved into the empty 9:00 class,
+// whose notice the families already got, shows both who teaches it and that the group leaves
+// earlier because of it. Seed data comes from
+// TestAbsenceCoverageTour.test_absence_arrangement_change_tour.
+registry.category("web_tour.tours").add("ems_absence_arrangement_change", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_arrangement_tag:contains('Tour Move Teacher')) .o_guard_board_arrangement_change_tag:contains('Leaves at 11:00')",
+            content: "The 9:00 class says who teaches it and that the group leaves at 11:00",
+        },
+    ],
+});

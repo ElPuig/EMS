@@ -267,7 +267,9 @@ past (`ems.datetime_utils.get_local_today()`, the centre's timezone). It posts a
 employee every `ems_absence_document_reminder_days` days (default 1: every day;
 `ems_document_reminder_date` keeps it to once per interval) and, once
 `ems_absence_document_escalation_days` calendar days have passed since the absence (default 3),
-a note and an overdue activity to the Head, once (`ems_document_escalated`). Both are company
+a note and an overdue activity to the Head, once (`ems_document_escalated`). The note is the
+Head's email: the activity is scheduled with `mail_activity_quick_update`, which keeps Odoo from
+sending its own "assigned to you" email for the same thing. Both are company
 settings under Settings > Staff Absence Settings, with the same fallback-to-default helpers as the
 health allowance. The notes are `mail.mt_note` addressed to their recipients only, so the
 department chief and Direction following the request are not sent every reminder. Sending the
@@ -825,8 +827,8 @@ Most of this is Odoo's, and deliberately left alone:
 
 | When | Who | Mechanism |
 |---|---|---|
-| A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`) |
-| A request is sent | The **chiefs of the employee's own department**: its Department Chief and, when it has one, its Seminar Chief (`_ems_notify_partners()`) | EMS: `_ems_announce_request()`, called from `create()`, subscribes them and sends them the summary as a note addressed to them alone (the approver already has the activity, the employee filed it). From then on they follow the request and receive everything posted on it |
+| A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`). Its email is EMS's: the `activity_update()` override sends whoever the activity was just assigned to the summary (`_ems_summary()`) with "It is waiting for your approval.", as a note addressed to them alone, and stops Odoo's own (`mail_activity_quick_update`), which names the request and nothing else - no dates, no hours, not even the activity's note |
+| A request is sent | The **chiefs of the employee's own department**: its Department Chief and, when it has one, its Seminar Chief (`_ems_notify_partners()`) | EMS: `_ems_announce_request()`, called from `create()`, subscribes them and sends them the summary as a note addressed to them alone (the approver has their own email, the employee filed it; a chief who is also the approver gets the approver's only). From then on they follow the request and receive everything posted on it |
 | Approved or refused | The employee | Native message on the request |
 | Approved or refused | The employee's **own chiefs** | EMS: `_ems_inform_chiefs()` subscribes them just before the state change (they already follow requests filed through `_ems_announce_request()`; this covers older ones) |
 | Approved by the Head | **Direction** (the company's `director_id`) | EMS: `_ems_direction_partners()` subscribes it in `action_approve()` - its own review starts there. Not when the Director is the absent employee or is the one approving |
@@ -839,6 +841,13 @@ the string is emitted from, so an entry in EMS's catalogue is never consulted fo
 `hr_holidays` prints. Overriding `_validate_leave_request()` outright would mean copying its
 calendar-meeting logic, so instead the note alone is stopped, through a context flag read by a
 `message_post` override and set only for the duration of that one call.
+
+**One email per person and event.** Nothing the system sends by itself reaches the same person
+twice for the same thing (issue #625); a comment somebody writes on the request is a separate
+email, and meant to be. Besides the two cases above (the approver's email and the escalation
+to the Head), `_track_subtype()` keeps the approval's tracking entry ("Status: Pending →
+Approved") a plain note: hr_holidays gives it the `mt_leave` subtype, which emailed every
+follower on top of the summary.
 
 The department's chiefs are the one piece Odoo has no notion of. They are also the reason the
 Google form asked every employee which department they belonged to: purely to look up who to

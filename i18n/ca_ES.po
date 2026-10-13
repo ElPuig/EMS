@@ -22275,3 +22275,9 @@ msgstr "També gestionat pels departaments"
 #: model:ir.model.fields,help:ems.field_hr_employee_public__managing_department_ids
 msgid "The chiefs of these departments, and whoever is above them, can also organise this employee's guards and absences (covering their classes and guard duties, entering an expected absence), besides the Manager above and their own chain of command. For someone who in practice works for another department or area than the one they belong to. It does not change who approves their absences."
 msgstr "Els caps d'aquests departaments, i qui tenen per sobre, també poden organitzar les guàrdies i les absències d'aquesta persona (cobrir les seves classes i les seves guàrdies, introduir una absència prevista), a més del gestor de sobre i de la seva cadena de comandament. Per a qui a la pràctica treballa per a un altre departament o àrea que no és el seu. No canvia qui aprova les seves absències."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "It is waiting for your approval."
+msgstr "Està pendent de la teva aprovació."

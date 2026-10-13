@@ -1088,14 +1088,18 @@ class TestAbsenceRequest(TransactionCase):
         self.employee.leave_manager_id = head.id
         leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
         leave.action_approve()
-        told = lambda: leave.message_ids.filtered(lambda m: head.partner_id in m.partner_ids)
+        told = lambda: leave.message_ids.filtered(
+            lambda m: head.partner_id in m.partner_ids and 'still not' in m.body)
 
         self._run_reminders_on(leave.request_date_to + timedelta(days=2))
         self.assertFalse(told())
+        emailed_before = self._emails_to(leave, head)
         self._run_reminders_on(leave.request_date_to + timedelta(days=3))
         self._run_reminders_on(leave.request_date_to + timedelta(days=4))
         self.assertEqual(len(told()), 1)
         self.assertEqual(self._activity_users(leave, 'ems.mail_activity_absence_document_overdue'), head)
+        self.assertEqual(self._emails_to(leave, head) - emailed_before, told(),
+                         "the note is the Head's only email: the activity sends none")
         self.assertNotIn(owner.partner_id, told().partner_ids)
 
     def test_the_reminder_days_come_from_the_settings(self):
@@ -1634,23 +1638,95 @@ class TestAbsenceRequest(TransactionCase):
 
         self.assertEqual(leave.state, 'confirm')
         self.assertLessEqual(chiefs, leave.message_partner_ids, 'they follow the request from now on')
-        summary = leave.message_ids.filtered(lambda message: chiefs <= message.partner_ids)
-        self.assertEqual(len(summary), 1)
-        self.assertIn(self.employee.display_name, summary.body)
-        self.assertIn(self.type_justified.name, summary.body)
-        self.assertNotIn('private matter', summary.body)
+        # One each: with no area above this department its chief is also the approver, whose
+        # summary is the one asking for the approval.
+        for chief in chiefs:
+            summary = leave.message_ids.filtered(lambda message: chief in message.partner_ids)
+            self.assertEqual(len(summary), 1)
+            self.assertIn(self.employee.display_name, summary.body)
+            self.assertIn(self.type_justified.name, summary.body)
+            self.assertNotIn('private matter', summary.body)
 
-    def test_the_request_summary_goes_to_the_chiefs_alone(self):
-        """The approver already has the approval activity and the employee filed it themselves."""
+    def _emails_to(self, leave, user):
+        """The messages about the request this user was emailed."""
+        # Searched, not 'message_ids': that leaves out the emails of assigned activities.
+        return self.env['mail.message'].search([
+            ('model', '=', 'hr.leave'), ('res_id', '=', leave.id),
+            ('notification_ids', 'any', [('res_partner_id', '=', user.partner_id.id),
+                                         ('notification_type', '=', 'email')]),
+        ])
+
+    def test_a_request_emails_the_chiefs_and_the_approver_once_each(self):
+        """Each gets the summary in a note of their own (the approver's asks for the approval),
+        and the employee, who filed it, none."""
         department = self._chiefed_department('Alone')
-        self.employee.leave_manager_id = create_role_user(
-            self, 'head_of_studies', 'absence_alone_head@absence.test').id
+        chief = department.manager_id.user_id
+        owner = self._employee_user('Test Absence Alone', 'absence_alone@absence.test')
+        head = create_role_user(self, 'head_of_studies', 'absence_alone_head@absence.test')
+        self.employee.leave_manager_id = head.id
 
         leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
 
-        summary = leave.message_ids.filtered(lambda message: message.partner_ids)
-        self.assertEqual(summary.partner_ids, department.manager_id.user_id.partner_id)
-        self.assertEqual(summary.subtype_id, self.env.ref('mail.mt_note'))
+        for_chief, for_head = self._emails_to(leave, chief), self._emails_to(leave, head)
+        self.assertEqual(len(for_chief), 1)
+        self.assertEqual(len(for_head), 1)
+        self.assertEqual(for_chief.partner_ids, chief.partner_id)
+        self.assertEqual(for_head.partner_ids, head.partner_id)
+        self.assertEqual((for_chief | for_head).subtype_id, self.env.ref('mail.mt_note'))
+        self.assertNotIn('waiting for your approval', for_chief.body)
+        self.assertFalse(self._emails_to(leave, owner))
+
+    def test_the_approver_is_emailed_what_has_to_be_covered(self):
+        """Odoo's own email for the approval activity only says a document was assigned: the
+        approver gets the dates and the hours instead, to arrange the cover (issue #625)."""
+        head = create_role_user(self, 'head_of_studies', 'absence_covered_head@absence.test')
+        self.employee.leave_manager_id = head.id
+
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True,
+                                   name='A private matter nobody else should read')
+
+        self.assertEqual(self._activity_users(leave, 'hr_holidays.mail_act_leave_approval'), head)
+        email = self._emails_to(leave, head)
+        self.assertEqual(len(email), 1, "not Odoo's own on top")
+        self.assertIn(self.employee.display_name, email.body)
+        self.assertIn(self.type_justified.name, email.body)
+        self.assertIn(leave._ems_when(), email.body)
+        self.assertIn('7.50', email.body)
+        self.assertIn('waiting for your approval', email.body)
+        self.assertNotIn('private matter', email.body)
+
+    def test_an_approver_who_is_also_the_chief_gets_one_email(self):
+        department = self._chiefed_department('Both')
+        chief = department.manager_id.user_id
+        self.employee.leave_manager_id = chief.id
+
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self.assertIn(chief.partner_id, leave.message_partner_ids)
+        email = self._emails_to(leave, chief)
+        self.assertEqual(len(email), 1)
+        self.assertIn('waiting for your approval', email.body)
+
+    def test_an_approval_emails_each_follower_once(self):
+        """The summary, and not Odoo's "Status: Pending → Approved" as a second email."""
+        department = self._chiefed_department('Once')
+        chief = department.manager_id.user_id
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        # Field tracking is written at commit time, which a test never reaches, and not at
+        # all for a record created in the same transaction.
+        self.env.cr.precommit.run()
+        before = self._emails_to(leave, chief)
+
+        leave.action_approve()
+        self.env.cr.precommit.run()
+
+        outcome = self._emails_to(leave, chief) - before
+        self.assertEqual(len(outcome), 1)
+        self.assertIn(self.employee.display_name, outcome.body)
+        tracking = leave.message_ids.filtered(
+            lambda message: 'state' in message.tracking_value_ids.field_id.mapped('name'))
+        self.assertEqual(tracking.subtype_id, self.env.ref('mail.mt_note'),
+                         'still on the request, as a note')
 
     def test_the_seminar_chief_is_informed_of_the_outcome_too(self):
         department = self._chiefed_department('Outcome', seminar=True)
@@ -2186,7 +2262,8 @@ class TestAbsenceRequest(TransactionCase):
         last_day = leave.request_date_to
         reminders = lambda: leave.message_ids.filtered(
             lambda m: owner.partner_id in m.partner_ids and 'Reminder' in m.body)
-        told = lambda: leave.message_ids.filtered(lambda m: head.partner_id in m.partner_ids)
+        told = lambda: leave.message_ids.filtered(
+            lambda m: head.partner_id in m.partner_ids and 'still not' in m.body)
 
         self._run_reminders_on(last_day)
         self.assertFalse(reminders(), 'not while the absence is still going on')

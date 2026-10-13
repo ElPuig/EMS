@@ -37,6 +37,8 @@ Ningú aprova la seva pròpia absència: la d'un responsable d'àrea la resol Di
 
 ## Aprovar o rebutjar
 
+Quan algú de la teva àrea envia una sol·licitud reps un correu amb la persona, el tipus d'absència, les dates i les hores, per poder organitzar-ne la cobertura, i la sol·licitud queda a les teves activitats.
+
 **Assistència del personal > Absències > Administració > Absències sol·licitades**.
 
 Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les que esperen que les donis per rebudes i les que tenen un justificant que has de validar. Cada absència passa primer per tu i després per Direcció, i el llistat té una columna per a cadascú:

@@ -37,6 +37,8 @@ Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dire
 
 ## Aprobar o rechazar
 
+Cuando alguien de tu área envía una solicitud recibes un correo con la persona, el tipo de ausencia, las fechas y las horas, para poder organizar su cobertura, y la solicitud queda en tus actividades.
+
 **Asistencia del personal > Ausencias > Administración > Ausencias solicitadas**.
 
 Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que esperan que las des por recibidas y las que tienen un justificante que debes validar. Cada ausencia pasa primero por ti y después por Dirección, y el listado tiene una columna para cada uno:

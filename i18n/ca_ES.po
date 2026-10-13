@@ -22235,3 +22235,9 @@ msgstr "Confirmar que l'absència està sol·licitada a ATRI"
 #: model:mail.activity.type,name:ems.mail_activity_absence_atri_overdue
 msgid "Absence not confirmed in ATRI"
 msgstr "Absència no confirmada a ATRI"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "It is waiting for your approval."
+msgstr "Està pendent de la teva aprovació."

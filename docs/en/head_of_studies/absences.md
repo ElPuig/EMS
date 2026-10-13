@@ -37,6 +37,8 @@ Nobody approves their own absence: an Area Manager's request is decided by Direc
 
 ## Approving or refusing
 
+When somebody in your area sends a request you receive an email with the employee, the absence type, the dates and the hours, so you can arrange the cover, and the request is added to your activities.
+
 **Employee Attendances > Absences > Management > Requested absences**.
 
 That lists your area's requests, opening on **Waiting For Me**: the ones pending your acknowledgement and the ones whose supporting document you have to validate. Every absence goes through you first and then through Direction, and the list has one column for each:

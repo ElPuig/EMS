@@ -1150,20 +1150,38 @@ class EmsAbsenceLeave(models.Model):
         """Asks the Head (validating the document) or Direction (reviewing it) why it is not
         sufficient before sending the request back: the employee needs to know what to attach
         instead. When the new document is sent back again, the previous reason is offered for
-        editing rather than written from scratch."""
+        editing rather than written from scratch.
+
+        An ATRI absence is justified on the portal, not in EMS: Direction sends it back to
+        "Pending ATRI confirmation", never to the Head's "Awaiting documentation" (issue #627)."""
         self.ensure_one()
-        self._ems_check_can_return_document()
+        context = {'default_leave_id': self.id}
+        if self._ems_justified_in_atri():
+            self._ems_check_can_return_atri()
+            context['default_kind'] = 'atri_document'
+        else:
+            self._ems_check_can_return_document()
+            context['default_reason'] = self.ems_document_return_reason
         return {
             'type': 'ir.actions.act_window',
             'name': _("Documentation insufficient"),
             'res_model': 'ems.absence.document_return_wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_leave_id': self.id, 'default_reason': self.ems_document_return_reason},
+            'context': context,
         }
+
+    def _ems_justified_in_atri(self):
+        """Whether what Direction is reviewing is justified on the ATRI portal rather than with
+        a supporting document in EMS."""
+        self.ensure_one()
+        return self.ems_needs_atri and self.ems_status == 'pending_direction'
 
     def _ems_check_can_return_document(self):
         for leave in self:
+            if leave._ems_justified_in_atri():
+                raise UserError(_("An ATRI absence is justified on the ATRI portal: it is sent "
+                                  "back there, not for a supporting document in EMS."))
             if leave.ems_status == 'pending_validation':
                 leave._ems_check_is_head()
             elif leave.ems_status == 'pending_direction':
@@ -1229,9 +1247,10 @@ class EmsAbsenceLeave(models.Model):
                 raise UserError(_("Only an ATRI absence Direction is reviewing can be sent back "
                                   "as not in ATRI."))
 
-    def _ems_return_atri(self, reason):
-        """Sends the request back to the employee because it is not in ATRI, telling them why.
-        The reminders start over. The reason is written first
+    def _ems_return_atri(self, reason, documentation=False):
+        """Sends the request back to the employee because it is not in ATRI - or, with
+        'documentation', because what they attached to it there is not sufficient - telling
+        them why. The reminders start over. The reason is written first
         so the employee's new activity, scheduled by write(), carries it."""
         self._ems_check_can_return_atri()
         before = {leave.id: leave._ems_decision_values() for leave in self}
@@ -1243,10 +1262,17 @@ class EmsAbsenceLeave(models.Model):
             leave.ems_decision_before = before[leave.id]
         for leave in self:
             employee = leave.employee_id
-            leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, _(
-                "Your absence of %(when)s does not appear in ATRI. Reason: %(reason)s. Please "
-                "request it on the ATRI portal and then confirm it on the absence request.",
-                when=leave._ems_when(), reason=reason))
+            if documentation:
+                message = _(
+                    "The documentation of your absence of %(when)s in ATRI is not sufficient. "
+                    "Reason: %(reason)s. Please complete it on the ATRI portal and then confirm "
+                    "it on the absence request.", when=leave._ems_when(), reason=reason)
+            else:
+                message = _(
+                    "Your absence of %(when)s does not appear in ATRI. Reason: %(reason)s. Please "
+                    "request it on the ATRI portal and then confirm it on the absence request.",
+                    when=leave._ems_when(), reason=reason)
+            leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, message)
         self._ems_notify_request_changes()
         return True
 

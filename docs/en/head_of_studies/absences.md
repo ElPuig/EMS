@@ -109,7 +109,7 @@ Review them from the list with the icons beside **Direction status**, or open on
 | Icon | Button | Result |
 |---|---|---|
 | Ticked box | **Direction: done** | Approved |
-| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives |
+| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives. On an ATRI absence the documentation is on the portal, not in EMS: it goes back to Pending ATRI confirmation and, once the employee confirms, straight back to Direction without going through the Head |
 | Reply arrow | **Not in ATRI** | Only ATRI absences, when it does not appear on the portal. Back to the employee, Pending ATRI confirmation. It asks for the reason first, which the employee receives |
 | Arrow back | **Undo the last decision** | Back to the previous status, see [Undoing a decision](#undoing-a-decision) |
 | Cross | **Refuse** | Refused. It refuses the whole request, and it asks for confirmation first |

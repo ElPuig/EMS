@@ -136,7 +136,7 @@ El filtre **Els meus justificants pendents** mostra les sol·licituds que espere
 - Si ja l'has sol·licitada a ATRI, obre la sol·licitud i fes servir **Accions > Confirmo que està sol·licitada a ATRI** en aquell mateix moment. Llavors passa a Direcció.
 - Si no, sol·licita-la primer al portal (l'avís de dalt de la sol·licitud té l'enllaç) i després confirma.
 
-Mentre no estigui confirmada, un cop passada l'absència reps un recordatori cada dia, i al cap d'uns dies s'avisa el teu cap. El filtre **Les meves confirmacions d'ATRI pendents** mostra les sol·licituds que ho esperen. Si després Direcció comprova que l'absència no consta a ATRI, retorna la sol·licitud a aquest estat i en reps el motiu, que també es mostra a la sol·licitud.
+Mentre no estigui confirmada, un cop passada l'absència reps un recordatori cada dia, i al cap d'uns dies s'avisa el teu cap. El filtre **Les meves confirmacions d'ATRI pendents** mostra les sol·licituds que ho esperen. Si després Direcció comprova que l'absència no consta a ATRI, o que la documentació que hi has aportat no és suficient, retorna la sol·licitud a aquest estat i en reps el motiu, que també es mostra a la sol·licitud. El que falti es resol al portal ATRI, no adjuntant un justificant a EMS; quan ho hagis fet, torna-ho a confirmar.
 
 ![Una absència ATRI a l'espera de la confirmació del docent, amb l'avís a dalt de la sol·licitud](../../assets/teachers/teachers-absences-atri-confirm.png)
 

@@ -136,7 +136,7 @@ The **My pending supporting documents** filter lists the requests waiting for a 
 - If you have already requested it in ATRI, open the request and use **Actions > I confirm it is requested in ATRI** straight away. It then goes on to Direction.
 - If you have not, request it on the portal first (the notice at the top of the request has the link) and then confirm.
 
-While it is not confirmed, once the absence is over you receive a reminder every day, and your Head is told after a few days. The **My pending ATRI confirmations** filter lists the requests waiting for it. If Direction then finds the absence is not in ATRI, it sends the request back to this status and you receive the reason, which is also shown on the request.
+While it is not confirmed, once the absence is over you receive a reminder every day, and your Head is told after a few days. The **My pending ATRI confirmations** filter lists the requests waiting for it. If Direction then finds the absence is not in ATRI, or that the documentation you provided there is not sufficient, it sends the request back to this status and you receive the reason, which is also shown on the request. Whatever is missing is solved on the ATRI portal, not by attaching a supporting document in EMS; once done, confirm it again.
 
 ![An ATRI absence waiting for the employee's confirmation, with the notice at the top of the request](../../assets/teachers/teachers-absences-atri-confirm.png)
 

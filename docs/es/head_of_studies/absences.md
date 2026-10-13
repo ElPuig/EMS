@@ -107,7 +107,7 @@ Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre
 | Icono | Botón | Resultado |
 |---|---|---|
 | Casilla marcada | **Dirección: hecho** | Aprobado |
-| Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Antes pide el motivo, que la persona recibe |
+| Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Antes pide el motivo, que la persona recibe. En una ausencia ATRI la documentación está en el portal, no en EMS: vuelve a Pendiente de confirmar ATRI y, cuando la persona lo confirma, regresa directamente a Dirección sin pasar por el jefe |
 | Flecha de respuesta | **No consta en ATRI** | Solo ausencias ATRI, cuando no aparece en el portal. Vuelve a la persona, Pendiente de confirmar ATRI. Antes pide el motivo, que la persona recibe |
 | Flecha atrás | **Deshacer la última decisión** | Vuelve al estado anterior, ver [Deshacer una decisión](#deshacer-una-decisión) |
 | Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, y pide confirmación antes |

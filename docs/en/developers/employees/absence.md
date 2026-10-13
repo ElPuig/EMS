@@ -164,7 +164,8 @@ stateDiagram-v2
     PendingAtriConfirmation --> PendingDirection: employee confirms it is requested in ATRI
     PendingDirection --> PendingAtriConfirmation: Direction - not in ATRI
     PendingValidation --> AwaitingDocumentation: Head - documentation insufficient
-    PendingDirection --> AwaitingDocumentation: Direction - documentation insufficient
+    PendingDirection --> AwaitingDocumentation: Direction - documentation insufficient (not ATRI)
+    PendingDirection --> PendingAtriConfirmation: Direction - documentation insufficient (ATRI absence)
     PendingDirection --> Approved: Direction done
     Pending --> Refused: Head or Direction refuses
     AwaitingDocumentation --> Refused
@@ -242,7 +243,8 @@ chatter's own attachment box is not a write on the request and does not count - 
 **Direction's buttons** are `action_ems_direction_done` (only while Pending Direction:
 `UserError` otherwise), `_refuse`, and the same
 `action_ems_document_insufficient` as the Head, which sends a request Direction is reviewing back
-to the employee. All through plain `write()`s: the existing guard in `hr.leave.write()` is what
+to the employee (an ATRI absence goes back to its ATRI step instead, see *ATRI absences wait for
+the employee's confirmation*). All through plain `write()`s: the existing guard in `hr.leave.write()` is what
 keeps them Direction's, for these buttons and any other way in. They are entries of the form's
 Actions dropdown and, as icons with their label as tooltip, sit beside the Direction column in
 the list; they are hidden in the employee's own list.
@@ -915,6 +917,16 @@ sequenceDiagram
   required, `_ems_return_atri()` stores it in `ems_atri_return_reason`, puts the request back to
   `awaiting`, resets the reminders and tells the employee alone. The reason is shown in the
   form's warning and is the note of the employee's new activity; confirming again clears it.
+- **"Documentation insufficient" on an ATRI absence** (issue #627) is the same send-back with
+  another wording. An ATRI absence is justified on the portal, so what Direction finds
+  insufficient is fixed there, never with a file in EMS: `action_ems_document_insufficient()`
+  opens the dialog with `kind = 'atri_document'` whenever `_ems_justified_in_atri()` (an ATRI
+  absence Pending Direction), and `_ems_return_atri(reason, documentation=True)` puts it back to
+  Pending ATRI confirmation, telling the employee to complete the documentation on the portal.
+  `ems_document_state` is not touched, so the request never enters the Head's "Awaiting
+  documentation" and returns straight to Direction once the employee confirms.
+  `_ems_check_can_return_document()` refuses the supporting-document send-back on such a request,
+  whatever the way in.
 - **Activities and reminders** are the supporting document's own machinery, shared through
   `EMPLOYEE_STEPS` (the two statuses that wait for the employee):
   `_ems_update_activities()` gives the employee "Confirm the absence is requested in ATRI", due

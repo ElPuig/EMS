@@ -447,6 +447,36 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         self.assertIn(self.line_recent, found)
         self.assertNotIn(self.line_old, found)
 
+    # --- Students removed from the roll-call (archived lines) never count (issue #628) ---
+
+    def test_reports_action_ignores_removed_students_from_the_students_list(self):
+        # The students' list runs with active_test off and a button's result inherits the context
+        # of the screen it is clicked on, as the web client merges it: (screen, action).
+        self.line_old.active = False
+        screen_context = safe_eval(self.env.ref('ems.action_student_kanban').context)
+        self.assertIs(screen_context.get('active_test'), False)
+        for result in (self.env.ref('ems.action_attendance_reports_open').with_user(self.admin_user).run(),
+                       self.student1.with_user(self.admin_user).action_view_attendance_reports()):
+            lines = self.env['ems.attendance_session_line'].with_user(self.admin_user).with_context(
+                **{**screen_context, **result['context']})
+            self.assertEqual(lines.search(result['domain'] + [('student_id', '=', self.student1.id)]), self.line_recent)
+            groups = lines.read_group(result['domain'] + [('student_id', '=', self.student1.id)], ['absence_rate:avg'], ['subject_id'])
+            self.assertEqual(groups[0]['subject_id_count'], 1)
+
+    def test_pdf_reports_ignore_removed_students_whatever_the_context(self):
+        self.line_old.active = False
+        for report_type in ('group', 'student', 'subject'):
+            with self.subTest(report_type=report_type):
+                wizard = self._wizard(report_type=report_type, group_id=self.group1.id,
+                                      student_id=self.student1.id, subject_id=self.subject_a.id,
+                                      group_ids=[(6, 0, [self.group1.id])], from_date=self.old_date, to_date=self.today)
+                self.assertEqual(wizard.with_context(active_test=False)._get_report_lines(), self.line_recent)
+
+    def test_year_record_rate_ignores_removed_students_whatever_the_context(self):
+        self.line_old.write({'status_id': self.env.ref('ems.attendance_status_miss').id, 'active': False})
+        rate, _by_subject = self.env['ems.student.year_record'].with_context(active_test=False)._attendance_rates(self.student1)
+        self.assertEqual(rate, 100.0)
+
     # --- opt-in per-dimension 'Details'/'Strikes' (detail_status_ids/include_strikes) ---
     # The per-dimension 'Details' table used to list every session unconditionally, which is what
     # made the by-subject PDF choke on large subject/group combinations. It's now opt-in and shared

@@ -115,7 +115,9 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		via sudo()."""
 		if date_range:
 			domain = domain + [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
-		lines = self.env["ems.attendance_session_line"]
+		# active_test forced on: a student removed from the roll-call (archived line) never counts,
+		# even when the wizard is reached from a screen listing archived records (issue #628).
+		lines = self.env["ems.attendance_session_line"].with_context(active_test=True)
 		if tutor_scope:
 			return lines.sudo().search(domain)
 		return lines.search(domain + [("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search([]))])
@@ -153,7 +155,7 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		groups, domain = self.group_ids._origin, [("subject_id", "=", self.subject_id.id)]
 		if date_range:
 			domain += [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
-		headers = self.env["ems.attendance_session_header"]
+		headers = self.env["ems.attendance_session_header"].with_context(active_test=True)
 		sessions = headers.search(domain + [("group_ids", "in", groups.ids)])
 		tutor_groups = groups & self._get_tutor_group_ids()
 		if tutor_groups:
@@ -257,7 +259,7 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		# those by student would render a phantom blank-name row/group in the PDF.
 		# Same env as the sessions: sudo() when the tutor scope widened them, so the PDF can read
 		# the other teachers' session headers.
-		return self.env["ems.attendance_session_line"].with_env(sessions.env).search([
+		return self.env["ems.attendance_session_line"].with_env(sessions.env).with_context(active_test=True).search([
 			("attendance_session_id", "in", sessions.ids),
 			("student_id", "!=", False),
 		])

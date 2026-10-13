@@ -476,6 +476,16 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   above): it renders no facet chip and can't be removed from the search bar, while `ir.rule` still grants
   every teacher read on every line underneath. The `template_teacher_ids.user_id` leaf goes through the
   header's record rules, which is harmless there: it only has to match the user's own sessions.
+- **Students removed from the roll-call never count (issue #628)**: removing a student from a session's
+  roll-call archives their line (`active=False`), and no report or listing counts an archived line.
+  A plain search already leaves them out, but a button's result inherits the context of the screen it is
+  clicked on, and the students' list (`action_student_kanban`) runs with `active_test: False` to show
+  withdrawn and graduated students. So every read path forces it back on: `_get_reports_action()` sets
+  `context['active_test'] = True` (which the PDF wizard opened from that screen inherits), the wizard's own
+  searches (`_search_scoped_lines()`, `_get_sessions()`, `_get_report_lines()`) and the year record's
+  `_attendance_rates()` use `with_context(active_test=True)`. The only places that read archived lines on
+  purpose are the roll-call itself and the History form (`all_attendance_session_line_ids`), which list
+  them greyed out.
 - **Current-course-only by default (2026-08-10, developer feedback: "debe mostrar la información del curso
   actual. Una vez transicionamos de curso, debería estar en blanco")**: before this, the screen had no
   course/active scoping at all — it showed every `ems.attendance_session_line` ever recorded, across every

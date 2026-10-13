@@ -207,7 +207,10 @@ class EmsStudentYearRecord(models.Model):
             attended = len([line for line in lines if line.status_id.category == 'assistance'])
             return round(100.0 * attended / len(lines), 2) if lines else 0.0
 
-        lines = self.env['ems.attendance_session_line'].search([('student_id', '=', student.id)])
+        # active_test forced on: the exit wizards run from the students' list, which turns it off,
+        # and a session the student was removed from the roll-call of never counts (issue #628).
+        lines = self.env['ems.attendance_session_line'].with_context(active_test=True).search(
+            [('student_id', '=', student.id)])
         by_subject = {}
         for line in lines:
             by_subject.setdefault(line.attendance_session_id.subject_id, []).append(line)

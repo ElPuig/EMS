@@ -1040,6 +1040,36 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(self._messages(self.teacher_b, 'Timetable arrangement'))
         self.assertNotIn('pending_arrangement', [action['type'] for action in self._actions()])
 
+    def test_a_moved_lesson_shows_the_timetable_change_next_to_the_arrangement(self):
+        """Issue #623: the class the lesson moved into says both who teaches it and that the
+        group leaves earlier because of it, once the families have been told."""
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+        _cover, notice_action = self._arrange('move', self.teacher_b, 10, 11, lesson=(11.0, 12.0))
+
+        self.assertIsNone(self._row(10, 11)['arrangement_change'], "nothing changes before the notice is sent")
+        self.assertFalse(self._board_row(self.department_chief, 10)['arrangement']['change'])
+
+        self.Notice.browse(notice_action['res_id']).state = 'scheduled'
+
+        row = self._row(10, 11)
+        self.assertEqual(row['arrangement_change'], ('early_leave', 11))
+        self.assertIsNone(row['authorized'], "the group is in class then: it is not a lesson the families were excused from")
+        self.assertEqual(self._board_row(self.department_chief, 10)['arrangement']['change'], 'Leaves at 11:00')
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+        # Right after the arrangement's own tag, not only on the row of the lesson left free.
+        self.assertIn(b'Leaves at 11:00', html.split(b'lesson to 10:00.')[1][:300])
+
+    def test_a_swap_shows_no_timetable_change(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._arrange('swap', self.teacher_b, lesson=(11.0, 12.0))
+
+        self.assertIsNone(self._row()['arrangement_change'])
+        self.assertFalse(self._board_row(self.department_chief)['arrangement']['change'])
+
     def test_deleting_the_draft_notice_discards_the_moved_lesson(self):
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)

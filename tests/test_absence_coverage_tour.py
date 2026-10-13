@@ -138,3 +138,17 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertTrue(covers[0].is_effective)
         notice = covers[1].notice_id
         self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('early_leave', 12.0, 'draft'))
+
+    def test_absence_arrangement_change_tour(self):
+        """Issue #623: once the families were told, the class a lesson was moved into shows both
+        who teaches it and the timetable change that came with it (the group leaves earlier)."""
+        teacher, _guard, group = self._board_fixture()
+        subject = self.env['ems.subject'].search([('code', '=', 'TABT001')])
+        mover = self.env['hr.employee'].create({'name': 'Tour Move Teacher', 'employee_type': 'teacher'})
+        self._calendar(mover, ((12, 13),), subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        result = self.env['ems.absence_cover'].with_user(self.department_chief).board_arrange(
+            str(day), 9, 10, teacher.id, group.id, 'move', mover.id, False, 12.0, 13.0)
+        self.env['ems.notice'].browse(result['notice_action']['res_id']).state = 'scheduled'
+
+        self.start_tour("/odoo", "ems_absence_arrangement_change", login=self.department_chief.login)

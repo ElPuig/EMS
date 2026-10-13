@@ -1117,18 +1117,24 @@ class EmsCourseGuardDutyBoard(models.Model):
         has communicated yet ('proposed') - neither of which ever applies to a guard duty - and
         whether the current user may act on it ('can_manage'). An internal arrangement (issue
         #605), which only a class can have, comes as 'arrangement' instead of 'cover', in effect
-        or still waiting for its notice."""
+        or still waiting for its notice; 'arrangement_change' is the timetable change the families
+        were told because of it (the lesson it moved here is one the group no longer has: it
+        comes in later or leaves earlier), shown next to it so the row says both (issue #623)."""
         duty = duty or self.env['ems.non_teaching_type']
         no_cover = self.env['ems.absence_cover']
         if not management:
-            return {'cover': no_cover, 'arrangement': no_cover, 'authorized': None, 'proposed': None, 'can_manage': False}
+            return {'cover': no_cover, 'arrangement': no_cover, 'arrangement_change': None, 'authorized': None,
+                    'proposed': None, 'can_manage': False}
         resolved = management['covers'].filtered(
             lambda cover: cover.absent_employee_id == teacher and cover.group_id == group and cover.duty_id == duty
                 and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))[:1]
         cover = resolved.filtered(lambda cover: cover.cover_type == 'guard')
         arrangement = resolved - cover
-        authorized = proposed = None
+        moved = arrangement.filtered(lambda cover: cover.arrangement_type == 'move' and cover.is_effective)
+        authorized = proposed = arrangement_change = None
         for state in management['states'].get(group.id, {}).values() if group else ():
+            if moved and self._change_window_contains(state['communicated'], moved.vacated_hour_from, moved.vacated_hour_to):
+                arrangement_change = state['communicated']
             if self._change_window_contains(state['communicated'], hour_from, hour_to):
                 authorized = state['communicated']
             elif state['status'] == 'proposal' and self._change_window_contains(state['expected'], hour_from, hour_to):
@@ -1136,6 +1142,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         return {
             'cover': cover,
             'arrangement': arrangement,
+            'arrangement_change': arrangement_change,
             'authorized': authorized,
             'proposed': proposed,
             'can_manage': management['can_manage'](teacher),
@@ -1314,6 +1321,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'label': row['arrangement']._arrangement_label(),
                         'pending': not row['arrangement'].is_effective,
                         'notice_id': row['arrangement'].notice_id.id,
+                        'change': self._absence_change_label(row['arrangement_change']),
                     } if row['arrangement'] else False,
                     'arrangement_options': [self._arrangement_option_data(option, line['hour_from'], row['teacher'])
                                             for option in row['arrangement_options']],

@@ -549,17 +549,28 @@ class EmsCourseGuardDutyBoard(models.Model):
         return block
 
     def _guard_cover_counts(self, guards):
-        """How many classes each guard has been sent to cover during this course (issue #600), as
+        """How many times each guard has been sent to cover during this course (issue #600), as
         {employee id: count}, so whoever plans the guards can share them out fairly. Only assigned
         covers count, the ones already planned for a coming day included: a released one was never
-        done, and an assignment for tomorrow is work already given to that guard."""
+        done, and an assignment for tomorrow is work already given to that guard. Covers of the
+        same guard at the same time count once (issue #629): two groups put together in one room
+        are a single guard, however many classes it stands in for."""
         self.ensure_one()
         start, end = self.date_range()
-        counts = self.env['ems.absence_cover']._read_group(
+        periods = self.env['ems.absence_cover']._read_group(
             [('guard_employee_id', 'in', guards.ids), ('state', '=', 'assigned'),
              ('date', '>=', start), ('date', '<=', end)],
-            ['guard_employee_id'], ['__count'])
-        return {guard.id: count for guard, count in counts}
+            ['guard_employee_id', 'date:day', 'hour_from', 'hour_to'],
+            order='guard_employee_id, date:day, hour_from, hour_to')
+        counts = defaultdict(int)
+        previous = None
+        for guard, day, hour_from, hour_to in periods:
+            if previous and previous[:2] == (guard, day) and overlaps(previous[2], previous[3], hour_from, hour_to):
+                previous = (guard, day, previous[2], max(previous[3], hour_to))
+                continue
+            counts[guard.id] += 1
+            previous = (guard, day, hour_from, hour_to)
+        return dict(counts)
 
     def _get_needed_duty_entry(self, day, duty, absent, hour_from, hour_to):
         """`absent`'s own guard duty `duty` in the period, while it still needs covering (issue

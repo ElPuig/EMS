@@ -253,14 +253,19 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._assign()
         start = self.env.company.current_course_id.date_range()[0]
 
-        def cover(guard, day, state='assigned'):
+        def cover(guard, day, state='assigned', group=None, absent=None, hour_from=8, hour_to=9):
             self.Cover.create({
-                'date': day, 'hour_from': 8, 'hour_to': 9, 'absent_employee_id': self.teacher_b.id,
-                'group_id': self.group_a.id, 'guard_employee_id': guard.id, 'state': state})
+                'date': day, 'hour_from': hour_from, 'hour_to': hour_to,
+                'absent_employee_id': (absent or self.teacher_b).id,
+                'group_id': (group or self.group_a).id, 'guard_employee_id': guard.id, 'state': state})
 
         cover(self.teacher_guard, start)
         cover(self.teacher_guard, start - timedelta(days=1))
         cover(self.teacher_guard_2, start, state='released')
+        # Issue #629: two groups looked after together at the same time are one guard, not two,
+        # also when one of the classes is longer than the other.
+        cover(self.teacher_guard, start, group=self.group_b)
+        cover(self.teacher_guard, start, group=self.group_b, absent=self.teacher_a, hour_from=8.5, hour_to=10)
 
         # Any teacher reads the board, so any teacher reads the counts too.
         line = self.env['ems.course'].with_user(self.guard_user).get_guard_duty_board_data(

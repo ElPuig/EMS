@@ -788,9 +788,11 @@ teacher and the planner's message. `board_release()` sends the matching "no long
 
 So whoever plans the guards can share the covers out fairly, every guard in
 `get_guard_duty_board_data()` (`lines[].guards`) and every candidate (`lines[].guard_candidates`)
-carries `cover_count`: how many classes that teacher has been sent to cover during the current
+carries `cover_count`: how many times that teacher has been sent to cover during the current
 course. `_guard_cover_counts(guards)` counts it in one `_read_group` over `ems.absence_cover`, for
-every guard of the shown day and shift: `state = 'assigned'` only (a released cover was never
+every guard of the shown day and shift, grouped by guard, day and period: covers of one guard whose
+periods overlap on the same day count once (issue #629), since two groups put together in one room
+are a single guard. What counts: `state = 'assigned'` only (a released cover was never
 done), `date` within the course's `date_range()`, covers already planned for a coming day included
 (an assignment for tomorrow is work already given to that guard, and assigning one makes the number
 go up straight away). Every teacher reads the board, and `ems.absence_cover` is readable to them, so

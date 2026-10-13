@@ -43,7 +43,7 @@ The table's columns are the groups with a class in that shift; each row is a tim
 
 The **Guard duty** column on the right lists every teacher on guard duty in that time block, each in a thin-bordered box. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column. A teacher on a **Guard (WC)** duty specifically shows a **"(WC)"** tag right after their name — worth calling out because, unlike a break-time guard (see below), a WC guard duty can fall at any time of day, so there's no other way to tell it apart from a plain guard duty at a glance.
 
-The small number in a circle after each name is how many classes that teacher has been sent to cover this course (including covers already planned for a coming day). It helps share the covers out fairly.
+The small number in a circle after each name is how many classes that teacher has been sent to cover this course (including covers already planned for a coming day). Several groups looked after at the same time, for example put together in one room, count as a single cover. It helps share the covers out fairly.
 
 A row whose time block is a break period for some level — with no class scheduled in it for anyone — gets a small **"Break"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
 

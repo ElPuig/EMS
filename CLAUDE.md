@@ -320,10 +320,11 @@ standing default; it only applies for the exact stretch the developer scoped it 
   approach and verify it empirically (run the actual tests, check the actual behavior) rather than
   guessing blind or stalling on it. If it doesn't hold up, try a different approach and re-verify —
   iterate until it's actually right, not just until something compiles.
-- Git commits (never destructive operations) are allowed as checkpoints during the session, as an
-  explicit, scoped exception to "the user manages commits himself" — useful for marking a clean,
-  verified state before continuing into the next piece of work. **`git push`/`git pull` remain
-  forbidden even in this mode, with no exception** — regardless of how confident the state is.
+- Git commits (never destructive operations) are allowed as checkpoints during the session —
+  useful for marking a clean, verified state before continuing into the next piece of work. **The
+  mode grants no push of its own**: pushing follows "Pushing outside the release routine" below,
+  exactly as with the mode off (so the release branch during "Prepara la release", yes; anything
+  those rules don't cover, no).
 - Every other standing rule in this file (testing conventions, migration rules, i18n, notification
   policy, etc.) still applies unchanged — this mode only changes who resolves an
   otherwise-blocking judgment call, not what's safe to do.
@@ -993,8 +994,22 @@ circunstancia."* The loop:
 - Stop and ask instead of pushing another attempt when the fix is a judgment call rather than a
   correction (changing a feature's behavior, relaxing a validation to make a test pass), when the
   failure is outside the code (GitHub infrastructure, an external service), or after ~3 red cycles.
-- Outside this routine the agent never pushes, unless the developer explicitly grants it for that
-  specific case.
+
+**Pushing outside the release routine (developer, 2026-10-06, replacing "never pushes outside this
+routine"):** *"puedes hacer push de las ramas que hayas creado tú o si te pido que resuelvas o
+gestiones tú una issue"*. So the agent may push, without asking each time:
+- a branch it created itself, and
+- the branch of an issue the developer asked it to resolve or manage (this is what "completa la
+  issue" / "cierra la issue" relies on to push the issue branch before moving its card to "Ready
+  to merge").
+
+Anything else (a colleague's branch, a branch the developer is working on by hand) needs the
+developer's explicit go-ahead for that case. The limits are the same as in the routine: a plain
+fast-forward with the credential helper on that one command
+(`git -c credential.helper='!gh auth git-credential' push origin <branch>`), never `--force`,
+never `main`, and stop and ask if the remote has commits the local branch lacks. Local commits of
+finished, verified work need no permission (developer, 2026-10-04), never on `main` and never
+amending or rewriting one already pushed.
 
 **Hard limits, no exceptions:**
 - **`main` and the repository itself are read-only** (developer's rule, 2026-09-27: *"Nunca jamás

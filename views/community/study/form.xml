@@ -32,6 +32,9 @@
                             <group>
                                 <field name="deprecated"/>                                
                             </group>                                                                         
+                            <group colspan="2">
+                                <field name="managing_department_id" options="{'no_create': True}" />
+                            </group>
                         </group>
                         
                         <notebook>      

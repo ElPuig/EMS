@@ -20,6 +20,7 @@
 | `date` | `Date` | Yes | Yes | Release/curriculum publication date |
 | `deprecated` | `Boolean` | Yes | Yes | Marks a study as no longer offered, without deleting historical data |
 | `level_id` | `Many2one → ems.level` | No | Yes | The level this study belongs to |
+| `managing_department_id` | `Many2one → hr.department` | No | Yes | Issue #622. The department this study's students belong to: its chiefs can organise the absences of its groups' classes, besides the absent teacher's own chain of command. Blank = only that chain. See "Who can manage" in [`guard_duty_board.md`](../attendance/guard_duty_board.md) |
 | `subject_ids` | `Many2many → ems.subject` | No | Yes | Subjects that make up this study — see "Editing `subject_ids` from here" below |
 | `follow_ids` | `One2many → ems.tracking` | No | No | Follow-up/tracking records for this study |
 | `attachment_ids` | `Many2many → ir.attachment` | No | Yes | Curriculum documents (BOE/DOGC references, guidance docs) |

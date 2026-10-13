@@ -114,6 +114,17 @@ class ems_employee_base(models.AbstractModel):
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
     headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
     seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_chief_id")
+    # Issue #622: a teacher who in practice works for another department or area than the one
+    # they belong to (e.g. an ESO/BTX language teacher assigned to the vocational families).
+    # Manual relation for the same reason as 'role_ids' above.
+    managing_department_ids = fields.Many2many(
+        string="Also managed by the departments", comodel_name="hr.department",
+        relation="hr_employee_managing_department_rel", column1="hr_employee_public_id", column2="hr_department_id",
+        help="The chiefs of these departments, and whoever is above them, can also organise this employee's "
+             "guards and absences (covering their classes and guard duties, entering an expected absence), "
+             "besides the Manager above and their own chain of command. For someone who in practice works for "
+             "another department or area than the one they belong to. It does not change who approves their "
+             "absences.")
     directed_company_ids = fields.One2many(string="Companies Directed", comodel_name="res.company", inverse_name="director_id")
 
     # The presence dot (issue #575) must not depend on who is looking. Its state is a non-stored

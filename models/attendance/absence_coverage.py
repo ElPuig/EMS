@@ -341,7 +341,7 @@ class EmsAbsenceCover(models.Model):
         the message, which is how a planner adds or corrects the instructions."""
         day = fields.Date.to_date(day)
         absent, group, duty, guard = self._board_records(absent_employee_id, group_id, guard_employee_id, duty_id)
-        self.env['ems.course']._check_absence_manager(absent)
+        self.env['ems.course']._check_absence_manager(absent, group)
         needed = self._check_board_assignable(day, hour_from, hour_to, absent, group, duty, guard)
 
         current = self._board_current_covers(day, hour_from, hour_to, absent, group, duty)
@@ -374,7 +374,7 @@ class EmsAbsenceCover(models.Model):
         if not (absent and group) or (employee_id and not teacher):
             raise UserError(_("The class or the guard teacher no longer exists."))
         course = self.env['ems.course']
-        course._check_absence_manager(absent)
+        course._check_absence_manager(absent, group)
         course._check_board_day_not_past(day)
         block = course._get_needed_absence_block(day, group, absent, hour_from, hour_to)
         if not block:
@@ -418,7 +418,7 @@ class EmsAbsenceCover(models.Model):
         cover = self.sudo().browse(cover_id).exists()
         if not cover or cover.state != 'assigned':
             raise UserError(_("This assignment no longer exists. Reload the board."))
-        self.env['ems.course']._check_absence_manager(cover.absent_employee_id)
+        self.env['ems.course']._check_absence_manager(cover.absent_employee_id, cover.group_id)
         cover._board_withdraw(message=message)
         return True
 

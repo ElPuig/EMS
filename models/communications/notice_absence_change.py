@@ -112,8 +112,8 @@ class EmsNoticeAbsenceChange(models.Model):
                               for option in state['options'] if course._same_change(option, requested)), (None, None))
         if not change:
             raise UserError(_("The absences of this group have changed since the board was loaded. Reload the board."))
-        if not any(course._is_absence_manager(teacher) for teacher in state['teachers']):
-            raise AccessError(_("Only the department chief of the absent teacher, or someone above them, can do this."))
+        if not any(course._is_absence_manager(teacher, group) for teacher in state['teachers']):
+            raise AccessError(_("Only whoever organises the absences of this group's classes can do this."))
         notice = state['draft'].filtered(lambda draft: course._same_change(course._notice_tuple(draft), change))
         if not notice:
             notice = self._create_absence_change_notice(change, group, day, rectification=bool(state['communicated']))

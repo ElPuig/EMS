@@ -39,6 +39,17 @@ class EmsGroup(models.Model):
 			"if its schedule has no tutorship, the classroom where it spends the most teaching hours. "
 			"It can also be set by hand: the group's classes still in the old classroom move to the new one.")
 
+	# Issue #622: whose students these are - its study's department or, for a reinforcement group
+	# (which has no study), those of its main groups' studies. Their chiefs organise the absences
+	# of this group's classes (see ems.course._is_absence_manager). Not stored: always follows
+	# the studies.
+	managing_department_ids = fields.Many2many(
+		string="Managed by the departments", comodel_name="hr.department",
+		compute="_compute_managing_department_ids", compute_sudo=True,
+		help="The departments whose chiefs organise the absences of this group's classes: the one set on its study "
+			"or, for a reinforcement group, on the studies of its main groups. If empty, each class is organised by "
+			"the chain of command of its own absent teacher.")
+
 	# Issue #611: a split or optative class is a group of its own ('ESO1A G1', 'Francès (1r ESO)'), so
 	# without this link the main group's schedule has a hole wherever its students are split. A
 	# reinforcement group can belong to several main groups (an optative mixes a whole course).
@@ -160,6 +171,21 @@ class EmsGroup(models.Model):
 				('group_ids', '=', group.id),
 				('space_pending_group_sync', '=', True),
 			])
+
+	@api.depends("study_id.managing_department_id", "parent_group_ids.study_id.managing_department_id")
+	def _compute_managing_department_ids(self):
+		for group in self:
+			group.managing_department_ids = (group.study_id | group.parent_group_ids.study_id).managing_department_id
+
+	def _absence_manager_users(self):
+		"""The users who organise the absences of this group's classes (issue #622): the chiefs
+		of the departments that manage it, whoever heads a department or area they hang from,
+		and the Director. Empty when no department manages the group."""
+		self.ensure_one()
+		departments = self.sudo().managing_department_ids
+		if not departments:
+			return self.env['res.users']
+		return departments._chief_users() | self.env.company.sudo().director_id.user_id
 
 	def _compute_can_edit_schedule(self):
 		can_edit = self.env.user.has_group('ems.group_department_chief')

@@ -62,6 +62,9 @@ def post_init_hook(env):
     _default_strike_family_notification_kicked_out(env)
     _seed_notice_email_signature_default(env)
     _apply_icu_collation_to_sort_fields(env)
+    # Issue #622: each study starts out managed by the department that gives most of its
+    # groups' classes (the centre's schedules, data/custom); from then on it is set on its form.
+    env['ems.study']._backfill_managing_department()
 
 
 def _ems_seed_current_course(env):

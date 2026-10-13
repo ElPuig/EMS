@@ -3,7 +3,8 @@ from datetime import timedelta
 from odoo.exceptions import AccessError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_head_of_studies_branch, create_role_employee, create_role_user, mock_outgoing_email
+from .common import (
+    create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, mock_outgoing_email)
 
 
 class TestAbsencePending(TransactionCase):
@@ -137,6 +138,28 @@ class TestAbsencePending(TransactionCase):
             self._pending(user=self.other_department_chief)
         with self.assertRaises(AccessError):
             self._pending(user=self.department_chief, employee=self.other_teacher)
+
+    def test_chiefs_reach_whoever_teaches_a_group_their_department_manages(self):
+        """Issue #622: a teacher of another department who teaches a group of a study this
+        department manages is theirs to cover in that class, so they announce the absence too."""
+        department = self.env['hr.department'].create({
+            'name': 'TAP Students Department', 'manager_id': self.other_department_chief.employee_ids.id})
+        level, study = create_level_study(self, 'TAP', study={'managing_department_id': department.id})
+        group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TAPG', 'level_id': level.id, 'study_id': study.id})
+        subject = self.env['ems.subject'].create({
+            'code': 'TAP001', 'acronym': 'TAP', 'name': 'TAP Subject', 'study_ids': [(6, 0, study.ids)]})
+        self.env['ems.teaching'].create({'teacher_id': self.teacher.id, 'group_id': group.id, 'subject_id': subject.id})
+        chief = self.other_department_chief
+
+        pending = self._pending(user=chief)
+
+        self.assertEqual(self.Pending.with_user(chief).search([('id', '=', pending.id)]), pending)
+        offered = self.env['hr.employee'].with_user(chief).search(self.Pending.with_user(chief)._domain_employee_id())
+        self.assertIn(self.teacher, offered)
+        self.assertNotIn(self.other_teacher, offered)
+        with self.assertRaises(AccessError):
+            self._pending(user=chief, employee=self.other_teacher)
 
     def test_chiefs_reach_the_teachers_of_their_own_department(self):
         """Through the department itself, as the department form sets it up: both its Department

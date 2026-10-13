@@ -15,8 +15,8 @@ class EmsGroupDepartmentScope(models.Model):
     _inherit = 'ems.group'
 
     # The users who chief a department (as its Department Chief or its Seminar Chief) one of whose
-    # teachers - or a teacher of one of its sub-departments - teaches this group: the groups a
-    # department chief may send notices to. Not stored: always follows the current teaching
+    # teachers - or a teacher of one of its sub-departments - teaches this group, or that manages
+    # it (managing_department_ids, issue #622): the groups a department chief may send notices to. Not stored: always follows the current teaching
     # assignments (ems.teaching, kept in step with every teacher's schedule) and department heads.
     department_chief_user_ids = fields.Many2many(
         string="Department chiefs", comodel_name='res.users',
@@ -25,14 +25,8 @@ class EmsGroupDepartmentScope(models.Model):
     def _compute_department_chief_user_ids(self):
         teachings = self.env['ems.teaching'].sudo().search([('group_id', 'in', self.ids)])
         for group in self:
-            users = self.env['res.users']
             departments = teachings.filtered(lambda teaching, group=group: teaching.group_id == group).teacher_id.department_id
-            seen = self.env['hr.department']
-            while departments - seen:
-                seen |= departments
-                users |= departments.manager_id.user_id | departments.seminar_chief_id.user_id
-                departments = departments.parent_id
-            group.department_chief_user_ids = users
+            group.department_chief_user_ids = (departments | group.sudo().managing_department_ids)._chief_users()
 
     def _search_department_chief_user_ids(self, operator, value):
         if operator not in ('=', 'in'):
@@ -44,7 +38,8 @@ class EmsGroupDepartmentScope(models.Model):
         if not headed:
             return [('id', '=', False)]
         teachings = self.env['ems.teaching'].sudo().search([('teacher_id.department_id', 'child_of', headed.ids)])
-        return [('id', 'in', teachings.group_id.ids)]
+        return ['|', '|', ('id', 'in', teachings.group_id.ids), ('study_id.managing_department_id', 'child_of', headed.ids),
+                ('parent_group_ids.study_id.managing_department_id', 'child_of', headed.ids)]
 
 
 class EmsNoticeDepartmentScope(models.Model):

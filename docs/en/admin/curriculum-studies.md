@@ -32,6 +32,7 @@ Opening the menu shows a list of all studies sorted by code. Each row shows the 
    - **Code** *(required)*: Official code, must be unique (e.g., `CFGS_ICB0`).
    - **Release Date** *(required)*: Date the curriculum was published.
    - **Deprecated**: Leave unchecked for an active study; check it to retire a study without deleting it.
+   - **Managed by the department**: the department responsible for this study's students. Its Department Chief and Seminar Chief, and those above them, organise the absences of the classes of this study's groups (guards, arrangements, late entries and early leaves), whatever department the absent teacher belongs to; see [Guard duty schedule](../teachers/guard-duty-schedule.md#organising-an-absence). If left blank, each class is organised by the chain of command of its own absent teacher: their Department Chief and their Head of Studies or Deputy.
 3. In the **Subjects** tab, add the subjects that make up this study.
 4. In the **Attached files** tab, click the **Attached files** button and choose the curriculum reference documents (official gazette publications, guidance documents, etc.); each one is named after its file. Everyone who can see the study can open them: teachers, the secretary's office and the academic administration. The eye icon previews a file without leaving EMS (PDFs, images and text files); the download icon downloads it; the bin deletes it once you save the study.
 5. Optionally, add free-form notes in the **Notes** tab.

@@ -18949,8 +18949,8 @@ msgstr "Aparece en el horario de guardias como ausencia pendiente hasta que el d
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
-msgid "Only the teachers below you in the hierarchy or teaching in your area."
-msgstr "Solo los docentes que tienes por debajo en la jerarquía o que dan clase en tu área."
+msgid "Only the teachers below you in the hierarchy, teaching in your area or teaching a group your department manages."
+msgstr "Solo los docentes que tienes por debajo en la jerarquía, que dan clase en tu área o que dan clase a un grupo que gestiona tu departamento."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked
@@ -20463,8 +20463,8 @@ msgstr "Las ausencias de este grupo han cambiado desde que se cargó el cuadrant
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "Only the department chief of the absent teacher, or someone above them, can do this."
-msgstr "Solo el jefe de departamento del docente ausente, o alguien por encima, puede hacerlo."
+msgid "Only whoever organises the absences of this group's classes can do this."
+msgstr "Solo quien organiza las ausencias de las clases de este grupo puede hacerlo."
 
 #. module: ems
 #. odoo-python
@@ -22236,3 +22236,29 @@ msgstr "Confirmar que la ausencia está solicitada en ATRI"
 #: model:mail.activity.type,name:ems.mail_activity_absence_atri_overdue
 msgid "Absence not confirmed in ATRI"
 msgstr "Ausencia no confirmada en ATRI"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__managing_department_id
+msgid "Managed by the department"
+msgstr "Gestionado por el departamento"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_study__managing_department_id
+msgid "The department responsible for this study's students: its Department Chief and Seminar Chief, and whoever is above them, organise the absences of the classes of its groups (guards, arrangements, late entries and early leaves), whatever department the absent teacher belongs to. If left blank, each class is organised by the chain of command of its own absent teacher: their Department Chief and their Head of Studies or Deputy."
+msgstr "El departamento responsable de los alumnos de estos estudios: su jefe de departamento y su jefe de seminario, y quienes tienen por encima, organizan las ausencias de las clases de sus grupos (guardias, arreglos, entradas más tarde y salidas antes de hora), sea cual sea el departamento del docente ausente. Si se deja en blanco, cada clase la organiza la cadena de mando de su docente ausente: su jefe de departamento y su jefe de estudios o adjunto/a."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__managing_department_ids
+msgid "Managed by the departments"
+msgstr "Gestionado por los departamentos"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__managing_department_ids
+msgid "The departments whose chiefs organise the absences of this group's classes: the one set on its study or, for a reinforcement group, on the studies of its main groups. If empty, each class is organised by the chain of command of its own absent teacher."
+msgstr "Los departamentos cuyos jefes organizan las ausencias de las clases de este grupo: el indicado en sus estudios o, en un grupo de refuerzo, en los estudios de sus grupos principales. Si está vacío, cada clase la organiza la cadena de mando de su docente ausente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Only the chiefs of the department that manages %(group)s (%(department)s), or someone above them, can manage the absences of its classes."
+msgstr "Solo los jefes del departamento que gestiona %(group)s (%(department)s), o alguien por encima, pueden gestionar las ausencias de sus clases."

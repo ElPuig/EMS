@@ -33,6 +33,16 @@ class EmsStudy(models.Model):
     follow_ids = fields.One2many(string="Follow-up", comodel_name="ems.tracking", inverse_name="study_id")
     subject_ids = fields.Many2many(string="Subjects", comodel_name="ems.subject") 
     level_id = fields.Many2one(string="Level", comodel_name="ems.level")
+    # Issue #622: whose students these are. A class of one of this study's groups left without
+    # its teacher is organised by this department's chiefs, whatever department the absent
+    # teacher belongs to (see ems.group.managing_department_ids, ems.course._is_absence_manager).
+    managing_department_id = fields.Many2one(
+        string="Managed by the department", comodel_name="hr.department", ondelete="set null",
+        help="The department responsible for this study's students: its Department Chief and Seminar Chief, and "
+             "whoever is above them, organise the absences of the classes of its groups (guards, arrangements, "
+             "late entries and early leaves), whatever department the absent teacher belongs to. If left blank, "
+             "each class is organised by the chain of command of its own absent teacher: their Department Chief "
+             "and their Head of Studies or Deputy.")
 
     attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.study')]")
 
@@ -129,3 +139,18 @@ class EmsStudy(models.Model):
         # positive = has a flow; negative = has none
         positive = (operator == '=' and value) or (operator == '!=' and not value)
         return [('id', 'in' if positive else 'not in', study_ids)]
+
+    @api.model
+    def _backfill_managing_department(self):
+        """One-off (post_init_hook and migration 18.0.0.37.0): a study with no managing
+        department gets the one whose teachers give more than half of its groups' classes. That
+        is how the vocational families work; where departments are by subject none reaches half,
+        so those studies stay blank."""
+        studies = self.search([('managing_department_id', '=', False)])
+        teachings = self.env['ems.teaching'].search([('group_id.study_id', 'in', studies.ids)])
+        for study in studies:
+            departments = [teaching.teacher_id.department_id for teaching in teachings
+                           if teaching.group_id.study_id == study]
+            for department in set(departments):
+                if department and departments.count(department) * 2 > len(departments):
+                    study.managing_department_id = department

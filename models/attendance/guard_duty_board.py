@@ -245,9 +245,14 @@ class EmsCourseGuardDutyBoard(models.Model):
     # Absence management from the absences table (issues #539, #571, #581). See "Managing
     # absences from the board" in docs/en/developers/attendance/guard_duty_board.md.
 
-    def _is_absence_manager(self, employee):
-        """Whether the current user organises `employee`'s absences: whoever is above them in the
-        chain of command (their Seminar Chief or Department Chief, then up through the Head of
+    def _is_absence_manager(self, employee, group=None):
+        """Whether the current user organises `employee`'s absence in a class of `group` (none
+        for a guard duty of theirs, or their absences as a whole). What counts is whose students
+        lose the class, not whose teacher is away (issue #622): a group managed by a department
+        (ems.group.managing_department_ids, from its study) is organised by that department's chiefs and whoever
+        is above them (ems.group._absence_manager_users) and by nobody else, so a teacher shared
+        between departments is covered by each group's own. Otherwise, whoever is above the
+        teacher in the chain of command (their Seminar Chief or Department Chief, then up through the Head of
         Studies to the Director), never every holder of those roles centre-wide, and never the
         absent teacher themselves. Same chain 'tutor_scope_user_ids' already resolves for
         tutor-scoped rights, minus the employee's own user. Or the Chiefs of the department the
@@ -263,16 +268,24 @@ class EmsCourseGuardDutyBoard(models.Model):
         employee = employee.sudo()
         if user == employee.user_id:
             return False
+        if group and group.sudo().managing_department_ids:
+            return user in group._absence_manager_users()
         if user in employee.tutor_scope_user_ids:
             return True
         chiefs = user.sudo().employee_ids
         departments = chiefs.headed_department_ids | chiefs.seminar_department_ids
         return bool(departments) and employee.department_id in departments.search([('id', 'child_of', departments.ids)])
 
-    def _check_absence_manager(self, employee):
-        if not self._is_absence_manager(employee):
+    def _check_absence_manager(self, employee, group=None):
+        if self._is_absence_manager(employee, group):
+            return
+        if group and group.sudo().managing_department_ids:
             raise AccessError(_(
-                "Only the department chief of %s, or someone above them, can manage their absences.", employee.name))
+                "Only the chiefs of the department that manages %(group)s (%(department)s), or someone above them, "
+                "can manage the absences of its classes.",
+                group=group.name, department=", ".join(group.sudo().managing_department_ids.mapped('name'))))
+        raise AccessError(_(
+            "Only the department chief of %s, or someone above them, can manage their absences.", employee.name))
 
     def _check_board_day_not_past(self, day):
         if day < self.env['ems.datetime_utils'].get_local_today():
@@ -774,7 +787,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         absent = self.env['hr.employee'].browse(absent_employee_id).exists()
         if not absent or not self.env['ems.group'].browse(group_id).exists():
             raise UserError(_("The class or the guard teacher no longer exists."))
-        self._check_absence_manager(absent)
+        self._check_absence_manager(absent, self.env['ems.group'].browse(group_id))
         teachers = self._get_guard_duty_board_attendance_ids().filtered(
             lambda attendance: attendance.dayofweek == str(day.weekday())).employee_id - absent
         away = self._guard_duty_absence_state(
@@ -1025,10 +1038,11 @@ class EmsCourseGuardDutyBoard(models.Model):
         editable = day >= self.env['ems.datetime_utils'].get_local_today()
         managers = {}
 
-        def can_manage(teachers):
+        def can_manage(teachers, group):
             # A day already over is read-only for everybody (see _check_board_day_not_past).
             return editable and any(
-                managers.setdefault(teacher.id, self._is_absence_manager(teacher)) for teacher in teachers)
+                managers.setdefault((teacher.id, group.id), self._is_absence_manager(teacher, group))
+                for teacher in teachers)
 
         actions = []
         for group in groups:
@@ -1043,7 +1057,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'expected': state['expected'],
                         'communicated': state['communicated'],
                         'draft': state['draft'],
-                        'can_manage': can_manage(state['teachers']),
+                        'can_manage': can_manage(state['teachers'], group),
                     })
         for cover in shift_covers:
             if not self._is_cover_still_needed(day, cover):
@@ -1051,7 +1065,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'type': 'obsolete_cover',
                     'cover': cover,
                     'group': cover.group_id,
-                    'can_manage': can_manage(cover.absent_employee_id),
+                    'can_manage': can_manage(cover.absent_employee_id, cover.group_id),
                 })
             elif not cover.is_effective:
                 # An arrangement waiting for its notice (issue #605): nothing changes until it is sent.
@@ -1059,7 +1073,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'type': 'pending_arrangement',
                     'cover': cover,
                     'group': cover.group_id,
-                    'can_manage': can_manage(cover.absent_employee_id),
+                    'can_manage': can_manage(cover.absent_employee_id, cover.group_id),
                 })
         return {'covers': covers, 'states': states, 'actions': actions, 'can_manage': can_manage}
 
@@ -1138,7 +1152,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             'arrangement': arrangement,
             'authorized': authorized,
             'proposed': proposed,
-            'can_manage': management['can_manage'](teacher),
+            'can_manage': management['can_manage'](teacher, group),
         }
 
     @staticmethod

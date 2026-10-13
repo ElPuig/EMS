@@ -143,6 +143,8 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
             'name': 'Formació professional (proves)',
         }, study={
             'code': 'ADMB01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+            # Issue #622: shown on the study's form ("Gestionat pel departament").
+            'managing_department_id': self.env['hr.department'].create({'name': 'Informàtica (proves)'}).id,
         }, group={'acronym': 'A', 'course': 1})
         last_group = self.env['ems.group'].create({
             'course': 2, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id,

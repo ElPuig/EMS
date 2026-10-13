@@ -33,6 +33,7 @@ Navigate to: **Educational Community → Groups**
    - **Delegate**: a student representative (only selectable once the group has students).
    - **Sub-delegate**: the student who stands in for the delegate. Chosen from the same students, and it can't be the delegate.
    - **Shift**, **Reference classroom**, **External ID** (Esfera/SAGA code) as needed.
+   - **Managed by the departments** (read-only, shown when there is one): the department set on the group's study or, for a reinforcement group, on the studies of its main groups. Its chiefs organise the absences of the group's classes. It is changed on the study's form (see [Studies](curriculum-studies.md)).
 4. Click **Save**.
 
 ![A main group's form: level, study, course, acronym, tutor, delegate and sub-delegate, with its students](../../assets/admin/admin-groups-form.png)

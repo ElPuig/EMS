@@ -235,7 +235,7 @@ have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, al
 | `group_academic_admin`, `group_director` | Every notice | Every notice |
 | `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Only notices they created |
 | `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Only notices they created |
-| `group_department_chief` (Department/Seminar Chief) | Their own, and every notice addressed to a group their department teaches | Only notices they created, and only to groups their department teaches |
+| `group_department_chief` (Department/Seminar Chief) | Their own, and every notice addressed to a group their department teaches or manages | Only notices they created, and only to groups their department teaches or manages |
 
 **Timetable-change notices (issues #539/#581).** A notice with `absence_date`,
 `absence_group_id`, `absence_change_type` and `absence_change_hour` set
@@ -254,7 +254,8 @@ groups" means is resolved from who teaches, not configured: `ems.group.departmen
 (`models/communications/notice_department_scope.py`, non-stored, searchable) holds the users who are
 the Department Chief (`hr.department.manager_id`) or Seminar Chief (`seminar_chief_id`) of a
 department - or of an ancestor department - one of whose teachers has an `ems.teaching` for the
-group (kept in step with every teacher's schedule). An ESO/BTX department is by subject, so its
+group (kept in step with every teacher's schedule), or of a department that manages the group
+(`ems.group.managing_department_ids`, issue #622), or of an ancestor of it. An ESO/BTX department is by subject, so its
 chief reaches every group where one of its teachers teaches; a VET department reaches its family's
 groups plus any other group its teachers teach.
 

@@ -32,6 +32,7 @@ Amb el rol de **Coordinador/a d'orientació** o de **Coordinador/a de convivènc
 - **Historial acadèmic** — tal com s'ha descrit més amunt.
 - **Assistència diària i justificacions** — Assistència de l'alumnat.
 - **Incidències d'assistència** — Assistència de l'alumnat → Incidències.
+- **Informes d'assistència** — Assistència de l'alumnat → Informes, o el botó **Assistència** de la fitxa d'un alumne: el percentatge de faltes de tot l'alumnat en totes les assignatures.
 - **Faltes de convivència** — Convivència.
 - **Fitxa de l'alumne** — Comunitat Educativa → Alumnes, inclosa la pestanya **Secretaria** (bonificacions, exempcions i autoritzacions de matrícula).
 

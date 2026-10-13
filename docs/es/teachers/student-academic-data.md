@@ -32,6 +32,7 @@ Con el rol de **Coordinador/a de orientación** o de **Coordinador/a de conviven
 - **Historial académico** — tal como se ha descrito arriba.
 - **Asistencia diaria y justificaciones** — Asistencia del alumnado.
 - **Incidencias de asistencia** — Asistencia del alumnado → Incidencias.
+- **Informes de asistencia** — Asistencia del alumnado → Informes, o el botón **Asistencia** de la ficha de un alumno: el porcentaje de faltas de todo el alumnado en todas las asignaturas.
 - **Faltas de convivencia** — Convivencia.
 - **Ficha del alumno** — Comunidad Educativa → Alumnos, incluida la pestaña **Secretaría** (bonificaciones, exenciones y autorizaciones de matrícula).
 

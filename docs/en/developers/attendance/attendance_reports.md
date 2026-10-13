@@ -453,10 +453,10 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   `graph_measure` alone was *not* enough to control the actual default on first paint — see "Default measure
   ..." above — the arch's own field order is what actually decides it, and `graph_measure` is now belt and
   braces on top of that. "Count" is available as a pivot measure alongside the other two — sample size
-  matters when reading a percentage. Unless the user has `ems.group_head_of_studies`,
-  `ems.group_secretary` or `ems.group_secretary_admin` (`group_head_of_studies` alone covers head of
-  studies/deputy/director/academic admin too, since each implies the one below it, `security/groups.xml`),
-  the server action also:
+  matters when reading a percentage. Unless the user has `ems.group_student_data_reader`,
+  `ems.group_secretary` or `ems.group_secretary_admin` (`group_student_data_reader` is the technical group
+  of every post that reads the students' data centre-wide: head of studies/deputy/director/academic admin,
+  Guidance and Coexistence all imply it, `security/groups.xml`), the server action also:
   - adds a `domain` scoping to the user's own teaching **or** their tutor scope's students:
     `['|', ('template_teacher_ids.user_id', '=', uid), ('student_id.tutor_id.tutor_scope_user_ids', '=', uid)]`.
     A tutor (and the chiefs above them, and the Director) sees every subject of their tutees, including the
@@ -533,7 +533,7 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
   following the type, `print()` dispatching to the right report per type + skipping student-less orphan
   lines, the stored related fields, `absence_rate`, `strike_count`'s `store=True` (aggregatable via
   `read_group`), `action_attendance_reports_open`'s role-based domain (`.run()` `with_user(...)` for a
-  plain teacher vs. an academic admin), and the student form's `action_view_attendance_reports()` (same
+  plain teacher vs. an academic admin, Guidance and Coexistence), and the student form's `action_view_attendance_reports()` (same
   domain, student facet, no **My subjects**). Also: `detail_status_ids`'s default (absence-category only),
   `detail_status_warning` computing `False`/`True`, and `_get_report_values` producing correctly filtered
   `detail_entries`/`detail_strikes` for **all 3** report data models (by-subject grouped by student,

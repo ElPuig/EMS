@@ -844,8 +844,9 @@ class EmsAttendanceSessionLine(models.Model):
     @api.model
     def _get_reports_action(self):
         """The 'Reports' screen (pivot/graph), scoped to the current user: Head of Studies/Director/
-        Administrator and Secretariat see the whole centre; everyone else (teacher/tutor/department
-        chief) their own teaching plus their tutor scope's students (every subject), with the
+        Administrator, Guidance, Coexistence (every post reading the students' data centre-wide,
+        group_student_data_reader) and Secretariat see the whole centre; everyone else (teacher/
+        tutor/department chief) their own teaching plus their tutor scope's students (every subject), with the
         removable "My subjects" filter on by default. Current course only for everyone: the course
         transition archives every outgoing session. Opened from the menu
         (action_attendance_reports_open) and from a student's form (res.partner's
@@ -855,7 +856,7 @@ class EmsAttendanceSessionLine(models.Model):
         # The read domain is a string (how act_window stores it), so it's rebuilt as a list here.
         action['domain'] = [('session_active', '=', True)]
         user = self.env.user
-        if not (user.has_group('ems.group_head_of_studies') or user.has_group('ems.group_secretary')
+        if not (user.has_group('ems.group_student_data_reader') or user.has_group('ems.group_secretary')
                 or user.has_group('ems.group_secretary_admin')):
             action['domain'] += [
                 '|', ('template_teacher_ids.user_id', '=', user.id),

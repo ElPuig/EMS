@@ -418,6 +418,22 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         self.assertEqual(result.get('domain'), [('session_active', '=', True)])
         self.assertEqual(result['context'].get('search_default_student_id'), self.student1.id)
 
+    def test_reports_unscoped_for_guidance_and_coexistence(self):
+        # Issue #626: both posts read every student's attendance centre-wide
+        # (group_student_data_reader), so neither entry point narrows them to their own teaching.
+        server_action = self.env.ref('ems.action_attendance_reports_open')
+        for role in ('orientation', 'coexistence'):
+            with self.subTest(role=role):
+                user = create_role_user(self, role, f'test_{role}_arw626')
+                create_role_employee(self, user)
+                for result in (server_action.with_user(user).run(),
+                               self.student1.with_user(user).action_view_attendance_reports()):
+                    self.assertEqual(result.get('domain'), [('session_active', '=', True)])
+                    self.assertNotIn('search_default_my_subjects', result['context'])
+                    # A session of another teacher's subject is actually listed.
+                    lines = self.env['ems.attendance_session_line'].with_user(user).search(result['domain'])
+                    self.assertIn(self.line_recent, lines)
+
     def test_reports_action_domain_excludes_a_line_of_an_archived_session(self):
         """Developer feedback (2026-08-10): "debe mostrar la información del curso actual. Una
         vez transicionamos de curso, debería estar en blanco" - once the course transition wizard

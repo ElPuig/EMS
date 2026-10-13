@@ -553,27 +553,19 @@ class EmsCourseGuardDutyBoard(models.Model):
         {employee id: count}, so whoever plans the guards can share them out fairly. Only assigned
         covers count, the ones already planned for a coming day included: a released one was never
         done, and an assignment for tomorrow is work already given to that guard. Covers of the
-        same guard in the same room at the same time count once (issue #629): two groups put
-        together in one room are a single guard, while two groups in two rooms are two. A cover
-        with no room (a guard duty, a class the timetable gives none) always counts by itself."""
+        same guard in the same room in the same period count once (issue #629): two groups put
+        together in one room are a single guard, while two groups in two rooms are two, and so are
+        two periods in a row with the same group. A cover with no room (a guard duty, a class the
+        timetable gives none) always counts by itself."""
         self.ensure_one()
         start, end = self.date_range()
         periods = self.env['ems.absence_cover']._read_group(
             [('guard_employee_id', 'in', guards.ids), ('state', '=', 'assigned'),
              ('date', '>=', start), ('date', '<=', end)],
-            ['guard_employee_id', 'date:day', 'space_id', 'hour_from', 'hour_to'], ['__count'],
-            order='guard_employee_id, date:day, space_id, hour_from, hour_to')
+            ['guard_employee_id', 'date:day', 'space_id', 'hour_from', 'hour_to'], ['__count'])
         counts = defaultdict(int)
-        previous = None
-        for guard, day, space, hour_from, hour_to, count in periods:
-            if not space:
-                counts[guard.id] += count
-                continue
-            if previous and previous[:3] == (guard, day, space) and overlaps(previous[3], previous[4], hour_from, hour_to):
-                previous = (guard, day, space, previous[3], max(previous[4], hour_to))
-                continue
-            counts[guard.id] += 1
-            previous = (guard, day, space, hour_from, hour_to)
+        for guard, _day, space, _hour_from, _hour_to, count in periods:
+            counts[guard.id] += 1 if space else count
         return dict(counts)
 
     def _get_needed_duty_entry(self, day, duty, absent, hour_from, hour_to):

@@ -791,8 +791,9 @@ So whoever plans the guards can share the covers out fairly, every guard in
 carries `cover_count`: how many times that teacher has been sent to cover during the current
 course. `_guard_cover_counts(guards)` counts it in one `_read_group` over `ems.absence_cover`, for
 every guard of the shown day and shift, grouped by guard, day, room and period: covers of one guard in the
-same room whose periods overlap on the same day count once (issue #629), since two groups put
-together in one room are a single guard, while two groups in two rooms are two. A cover with no room
+same room in the same period of the same day count once (issue #629), since two groups put
+together in one room are a single guard, while two groups in two rooms are two, and so are two
+periods in a row with the same group. A cover with no room
 (a guard duty, a class with none on the timetable) always counts by itself. What counts: `state = 'assigned'` only (a released cover was never
 done), `date` within the course's `date_range()`, covers already planned for a coming day included
 (an assignment for tomorrow is work already given to that guard, and assigning one makes the number

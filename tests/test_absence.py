@@ -2164,6 +2164,41 @@ class TestAbsenceRequest(TransactionCase):
         self.assertEqual(leave.ems_status, 'pending_direction')
         self.assertFalse(leave.ems_atri_return_reason, 'answered')
 
+    def test_insufficient_documentation_of_an_atri_absence_goes_back_to_atri(self):
+        """An ATRI absence is justified on the portal, so Direction's "Documentation
+        insufficient" sends it to the employee's ATRI step and back to Direction - never to
+        "Awaiting documentation", which is the Head's and asks for a file in EMS (issue #627)."""
+        direction = self._direction()
+        owner = self._employee_user('Test Absence Atri Docs', 'absence_atri_docs@absence.test')
+        leave = self._validated_by_head(self._atri_leave())
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        document_state = leave.ems_document_state
+
+        action = leave.with_user(direction).action_ems_document_insufficient()
+        self.assertEqual(action['context']['default_kind'], 'atri_document')
+        self.env[action['res_model']].with_user(direction).with_context(action['context']).create(
+            {'reason': "Test the certificate is missing on the portal"}).action_return()
+
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        self.assertEqual(leave.ems_document_state, document_state, 'nothing is asked for in EMS')
+        self.assertEqual(leave.ems_atri_return_reason, "Test the certificate is missing on the portal")
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("documentation of your absence", str(note.body))
+        self.assertIn("certificate is missing on the portal", str(note.body))
+
+        leave.with_user(owner).action_ems_atri_requested()
+        self.assertEqual(leave.ems_status, 'pending_direction', 'straight back to Direction')
+
+    def test_an_atri_absence_is_never_sent_back_for_a_document_in_ems(self):
+        direction = self._direction()
+        leave = self._validated_by_head(self._atri_leave())
+
+        with self.assertRaises(UserError):
+            leave.with_user(direction)._ems_return_document("Test attach it here")
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
     def test_only_an_atri_absence_under_direction_is_sent_back_as_not_in_atri(self):
         self._direction()
         health = self._create_leave(self.type_health, self._monday())

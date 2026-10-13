@@ -22209,8 +22209,8 @@ msgstr "Qué se devuelve"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_document_return_wizard__kind
-msgid "The supporting document that is not sufficient, or an absence that does not appear in ATRI (Direction only)."
-msgstr "El justificante que no es suficiente, o una ausencia que no consta en ATRI (solo Dirección)."
+msgid "The supporting document that is not sufficient, an absence that does not appear in ATRI, or one whose documentation in ATRI is not sufficient (both Direction only)."
+msgstr "El justificante que no es suficiente, una ausencia que no consta en ATRI, o una con documentación insuficiente en ATRI (estas dos, solo Dirección)."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_document_return_wizard__kind__atri
@@ -22224,8 +22224,8 @@ msgstr "Qué falla y qué tiene que hacer el trabajador en su lugar. Se le comun
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_document_return_wizard
-msgid "The Head or Direction sends an absence back to the employee: its supporting document, or its ATRI request."
-msgstr "El jefe o Dirección devuelve una ausencia al trabajador: el justificante, o la solicitud en ATRI."
+msgid "The Head or Direction sends an absence back to the employee: its supporting document, its ATRI request, or its documentation in ATRI."
+msgstr "El jefe o Dirección devuelve una ausencia al trabajador: el justificante, la solicitud en ATRI, o la documentación en ATRI."
 
 #. module: ems
 #: model:mail.activity.type,name:ems.mail_activity_absence_atri_request
@@ -22236,3 +22236,25 @@ msgstr "Confirmar que la ausencia está solicitada en ATRI"
 #: model:mail.activity.type,name:ems.mail_activity_absence_atri_overdue
 msgid "Absence not confirmed in ATRI"
 msgstr "Ausencia no confirmada en ATRI"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_document_return_wizard__kind__atri_document
+msgid "Documentation in ATRI"
+msgstr "Documentación en ATRI"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "<i class=\"fa fa-info-circle me-1\"/>The request goes back to the employee, who is told the reason and asked to complete the documentation in ATRI, not in EMS. It returns to Direction once they confirm it."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>La solicitud vuelve al trabajador, a quien se comunica el motivo y se pide que complete la documentación en ATRI, no en EMS. Vuelve a Dirección cuando lo confirma."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "An ATRI absence is justified on the ATRI portal: it is sent back there, not for a supporting document in EMS."
+msgstr "Una ausencia ATRI se justifica en el portal ATRI: se devuelve allí, no por un justificante en EMS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "The documentation of your absence of %(when)s in ATRI is not sufficient. Reason: %(reason)s. Please complete it on the ATRI portal and then confirm it on the absence request."
+msgstr "La documentación de tu ausencia del %(when)s en ATRI no es suficiente. Motivo: %(reason)s. Complétala en el portal ATRI y después confírmalo en la solicitud de ausencia."

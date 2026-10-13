@@ -5,7 +5,9 @@
         <!-- Opened by the "Documentation insufficient" button on an absence
              (hr.leave.action_ems_document_insufficient) and by Direction's "Not in ATRI"
              (hr.leave.action_ems_atri_missing, kind = 'atri'): the reason is required, because
-             the employee has to know what to do instead. The dialog's title is the action's. -->
+             the employee has to know what to do instead. On an ATRI absence, Direction's
+             "Documentation insufficient" opens it with kind = 'atri_document' (issue #627).
+             The dialog's title is the action's. -->
         <record id="view_absence_document_return_wizard_form" model="ir.ui.view">
             <field name="name">ems.absence.document_return_wizard.form</field>
             <field name="model">ems.absence.document_return_wizard</field>
@@ -22,6 +24,9 @@
                     </div>
                     <div class="text-muted mt-2" invisible="kind != 'atri'">
                         <i class="fa fa-info-circle me-1"/>The request goes back to the employee, who is told the reason and asked to request the absence in ATRI. It returns to Direction once they confirm it.
+                    </div>
+                    <div class="text-muted mt-2" invisible="kind != 'atri_document'">
+                        <i class="fa fa-info-circle me-1"/>The request goes back to the employee, who is told the reason and asked to complete the documentation in ATRI, not in EMS. It returns to Direction once they confirm it.
                     </div>
                     <footer>
                         <button name="action_return" type="object" string="Send back" class="btn-primary"/>

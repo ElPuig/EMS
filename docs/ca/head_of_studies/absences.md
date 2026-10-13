@@ -105,7 +105,7 @@ Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o ob
 | Icona | Botó | Resultat |
 |---|---|---|
 | Casella marcada | **Direcció: fet** | Aprovat |
-| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep |
+| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep. En una absència ATRI la documentació és al portal, no a EMS: torna a Pendent de confirmar ATRI i, quan la persona ho confirma, torna directament a Direcció sense passar pel cap |
 | Fletxa de resposta | **No consta a ATRI** | Només absències ATRI, quan no apareix al portal. Torna a la persona, Pendent de confirmar ATRI. Abans demana el motiu, que la persona rep |
 | Fletxa enrere | **Desfés l'última decisió** | Torna a l'estat anterior, vegeu [Desfer una decisió](#desfer-una-decisió) |
 | Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, i demana confirmació abans |

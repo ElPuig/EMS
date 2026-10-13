@@ -142,7 +142,7 @@ class EmsStudy(models.Model):
 
     @api.model
     def _backfill_managing_department(self):
-        """One-off (post_init_hook and migration 18.0.0.37.0): a study with no managing
+        """One-off (post_init_hook and migration 18.0.0.36.2): a study with no managing
         department gets the one whose teachers give more than half of its groups' classes. That
         is how the vocational families work; where departments are by subject none reaches half,
         so those studies stay blank."""

@@ -1013,7 +1013,7 @@ covers what and what was communicated; rows only offer their click to whoever ma
 checks again. Restricting who may act (e.g. only the Head of Studies in ESO/BTX) is issue #602.
 
 `ems.study.managing_department_id` is edited on the study's form (the administrator only, like the
-rest of the study). Existing installations got it from migration `18.0.0.37.0`, new ones from
+rest of the study). Existing installations got it from migration `18.0.0.36.2`, new ones from
 `post_init_hook`, both through `ems.study._backfill_managing_department()`: the department whose
 teachers give more than half of the study's groups' classes (`ems.teaching`), which matches how the
 vocational families work and leaves ESO/BTX blank.

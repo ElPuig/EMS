@@ -6,7 +6,7 @@
 - New field "Also managed by the departments" on the employee form, below Manager (`hr.employee.managing_department_ids`): for a teacher who in practice works for another department or area than the one they belong to. The chiefs of those departments, and whoever is above them, can organise everything of that teacher, including their fixed guard duties (toilets, break), which have no group. It does not change the Manager or who approves their absences.
 - Expected absences: a chief can also enter one for a teacher of another department who teaches a group their department manages, or who names their department as also managing them.
 - Department and Seminar Chiefs can send notices to the groups their department manages, besides those it teaches.
-- Migration 18.0.0.37.0 (and the clean-install hook) sets each study's managing department to the one whose teachers give more than half of its groups' classes; studies where no department reaches half stay blank. Check the result on Educational Community > Configuration > Curriculum > Studies after deploying. "Also managed by the departments" starts empty for everyone.
+- Migration 18.0.0.36.2 (and the clean-install hook) sets each study's managing department to the one whose teachers give more than half of its groups' classes; studies where no department reaches half stay blank. Check the result on Educational Community > Configuration > Curriculum > Studies after deploying. "Also managed by the departments" starts empty for everyone.
 
 # Internal changes:
 ## Department chiefs resolved in one place:

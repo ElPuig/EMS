@@ -247,19 +247,24 @@ class EmsCourseGuardDutyBoard(models.Model):
 
     def _is_absence_manager(self, employee, group=None):
         """Whether the current user organises `employee`'s absence in a class of `group` (none
-        for a guard duty of theirs, or their absences as a whole). What counts is whose students
-        lose the class, not whose teacher is away (issue #622): a group managed by a department
-        (ems.group.managing_department_ids, from its study) is organised by that department's chiefs and whoever
-        is above them (ems.group._absence_manager_users) and by nobody else, so a teacher shared
-        between departments is covered by each group's own. Otherwise, whoever is above the
-        teacher in the chain of command (their Seminar Chief or Department Chief, then up through the Head of
-        Studies to the Director), never every holder of those roles centre-wide, and never the
-        absent teacher themselves. Same chain 'tutor_scope_user_ids' already resolves for
-        tutor-scoped rights, minus the employee's own user. Or the Chiefs of the department the
-        employee teaches in, and the manager of the area it hangs from: the management team
-        (e.g. the Secretary) reports to the Director, out of their department's chain (issue
-        #604, the criterion of rule_absence_pending_hierarchy, issue #569). The administrator
-        always can."""
+        for a guard duty of theirs, or their absences as a whole): whoever answers for the
+        students who lose the class, or for the teacher who is away. Never every holder of a role
+        centre-wide, and never the absent teacher themselves.
+
+        - The students (issue #622): the chiefs of the departments that manage the group
+          (ems.group.managing_department_ids, from its study) and whoever is above them
+          (ems.group._absence_manager_users), so a teacher shared between departments is covered
+          by each group's own.
+        - The teacher: whoever is above them in the chain of command (their Seminar Chief or
+          Department Chief, then up through the Head of Studies to the Director), the same chain
+          'tutor_scope_user_ids' resolves for tutor-scoped rights. Or the Chiefs of the
+          department the employee belongs to and the manager of the area it hangs from: the
+          management team (e.g. the Secretary) reports to the Director, out of their department's
+          chain (issue #604, the criterion of rule_absence_pending_hierarchy, issue #569). Or
+          those of the departments named on the employee as also managing them
+          (hr.employee.managing_department_ids, issue #622).
+
+        The administrator always can."""
         user = self.env.user
         if self.env.su or user.has_group('base.group_system') or user.has_group('ems.group_academic_admin'):
             # The administrator sits above the whole hierarchy, Direction included, although they
@@ -268,9 +273,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         employee = employee.sudo()
         if user == employee.user_id:
             return False
-        if group and group.sudo().managing_department_ids:
-            return user in group._absence_manager_users()
-        if user in employee.tutor_scope_user_ids:
+        if group and user in group._absence_manager_users():
+            return True
+        if user in employee.tutor_scope_user_ids or user in employee.managing_department_ids._chief_users():
             return True
         chiefs = user.sudo().employee_ids
         departments = chiefs.headed_department_ids | chiefs.seminar_department_ids
@@ -281,9 +286,10 @@ class EmsCourseGuardDutyBoard(models.Model):
             return
         if group and group.sudo().managing_department_ids:
             raise AccessError(_(
-                "Only the chiefs of the department that manages %(group)s (%(department)s), or someone above them, "
-                "can manage the absences of its classes.",
-                group=group.name, department=", ".join(group.sudo().managing_department_ids.mapped('name'))))
+                "Only the chiefs of the department that manages %(group)s (%(department)s), the department chief of "
+                "%(teacher)s, or someone above them, can manage this absence.",
+                group=group.name, department=", ".join(group.sudo().managing_department_ids.mapped('name')),
+                teacher=employee.name))
         raise AccessError(_(
             "Only the department chief of %s, or someone above them, can manage their absences.", employee.name))
 

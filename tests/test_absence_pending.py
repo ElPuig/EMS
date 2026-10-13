@@ -161,6 +161,21 @@ class TestAbsencePending(TransactionCase):
         with self.assertRaises(AccessError):
             self._pending(user=chief, employee=self.other_teacher)
 
+    def test_chiefs_reach_the_teachers_also_managed_by_their_department(self):
+        """Issue #622: a teacher who names another department as also managing them."""
+        department = self.env['hr.department'].create({
+            'name': 'TAP Also Managing Department', 'manager_id': self.other_department_chief.employee_ids.id})
+        chief = self.other_department_chief
+        with self.assertRaises(AccessError):
+            self._pending(user=chief)
+
+        self.teacher.managing_department_ids = department
+
+        pending = self._pending(user=chief)
+        self.assertEqual(self.Pending.with_user(chief).search([('id', '=', pending.id)]), pending)
+        self.assertIn(self.teacher, self.env['hr.employee'].with_user(chief).search(
+            self.Pending.with_user(chief)._domain_employee_id()))
+
     def test_chiefs_reach_the_teachers_of_their_own_department(self):
         """Through the department itself, as the department form sets it up: both its Department
         Chief and its Seminar Chief reach every teacher of it, a member of the management team who

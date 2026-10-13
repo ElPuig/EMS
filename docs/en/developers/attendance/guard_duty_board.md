@@ -956,8 +956,8 @@ planner must match at a glance, which plain text can't do.
 
 ### Who can manage
 
-`_is_absence_manager(employee, group=None)`. What counts is whose students lose the class, not
-whose teacher is away (issue #622):
+`_is_absence_manager(employee, group=None)`: whoever answers for the students who lose the class,
+or for the teacher who is away (issue #622). Both sides add up; nothing takes a right away.
 
 ```mermaid
 flowchart TD
@@ -965,29 +965,34 @@ flowchart TD
     ADM -->|yes| YES["can manage"]
     ADM -->|no| SELF{"the absent teacher themselves?"}
     SELF -->|yes| NO["cannot"]
-    SELF -->|no| GRP{"group.managing_department_ids?"}
-    GRP -->|set| DEP["user in group._absence_manager_users():<br/>Department + Seminar Chief of those departments,<br/>of every department/area above them, and the Director"]
-    GRP -->|"empty, or no group (a guard duty)"| CHAIN["the teacher's chain of command<br/>(tutor_scope_user_ids) or the chiefs of<br/>the department they belong to (#604)"]
+    SELF -->|no| GRP{"user in group._absence_manager_users()?<br/>(chiefs of the departments managing the group's study,<br/>of every department/area above them, and the Director)"}
+    GRP -->|yes| YES
+    GRP -->|"no, or no group (a guard duty)"| CHAIN{"the teacher's side:<br/>chain of command (tutor_scope_user_ids),<br/>chiefs of their own department (#604),<br/>chiefs of employee.managing_department_ids"}
+    CHAIN -->|yes| YES
+    CHAIN -->|no| NO
 ```
 
-- **A class of a managed group**: `ems.study.managing_department_id` says which department a
-  study's students belong to; `ems.group.managing_department_ids` (non-stored) is its study's or,
-  for a reinforcement group (no study), those of its main groups' studies (`parent_group_ids`).
-  Only `ems.group._absence_manager_users()` manage it: the Department Chief and Seminar Chief of
-  those departments and of every department or area they hang from
-  (`hr.department._chief_users()`), plus the Director. The absent teacher's own chain no longer
-  does: a Foreign Languages teacher's lesson with a Computer Science group is organised by the
-  Computer Science chiefs, her lesson with an Administration group by the Administration ones.
-- **Anything else** (a group whose study names no department - every ESO/BTX group, since their
-  departments are by subject -, a reinforcement group with no managed main group, or a guard duty,
-  which has no group): the absent teacher's chain of command - their Seminar Chief or Department
-  Chief, then up through the Head of Studies to the Director - via
-  `hr.employee.tutor_scope_user_ids` minus the employee's own user (see "Permission/approval
-  escalation" in `CLAUDE.md`). Or the responsibility for the department the teacher belongs to
-  (issue #604): whoever heads it or leads it as Seminar Chief, or heads a department or area it
-  hangs from (`headed_department_ids`/`seminar_department_ids`, `child_of`). That is what reaches
-  the management team (e.g. the Secretary), who report to the Director, out of their department's
-  chain.
+- **The students**: `ems.study.managing_department_id` says which department a study's students
+  belong to; `ems.group.managing_department_ids` (non-stored) is its study's or, for a
+  reinforcement group (no study), those of its main groups' studies (`parent_group_ids`).
+  `ems.group._absence_manager_users()` are the Department Chief and Seminar Chief of those
+  departments and of every department or area they hang from (`hr.department._chief_users()`),
+  plus the Director. A Foreign Languages teacher's lesson with a Computer Science group can be
+  organised by the Computer Science chiefs, her lesson with an Administration group by the
+  Administration ones. A group whose study names no department (every ESO/BTX group, since their
+  departments are by subject) adds nobody; a guard duty has no group at all.
+- **The teacher**, always: their chain of command - their Seminar Chief or Department Chief, then
+  up through the Head of Studies to the Director - via `hr.employee.tutor_scope_user_ids` minus the
+  employee's own user (see "Permission/approval escalation" in `CLAUDE.md`). Or the responsibility
+  for the department the teacher belongs to (issue #604): whoever heads it or leads it as Seminar
+  Chief, or heads a department or area it hangs from (`headed_department_ids`/
+  `seminar_department_ids`, `child_of`); that is what reaches the management team (e.g. the
+  Secretary), who report to the Director, out of their department's chain. Or the chiefs of the
+  departments named on the employee's form, `hr.employee.managing_department_ids` ("Also managed
+  by the departments", below Manager): for a teacher who in practice works for another department
+  or area than the one they belong to (an ESO/BTX language teacher assigned to the vocational
+  families), whose fixed guard duties would otherwise only be reachable by their nominal chain. It
+  does not touch `parent_id` or who approves their absences.
 
 Never every holder of those roles centre-wide, and never the absent teacher. The administrator
 (`base.group_system` or `ems.group_academic_admin`) always can: they sit above Direction although,
@@ -995,7 +1000,7 @@ not being a teacher, they appear nowhere in the hierarchy. A timetable change co
 teachers at once; any of their managers for that group may act on it. Every teacher still sees who
 covers what and what was communicated; rows only offer their click to whoever may use them
 (`can_manage`, resolved per teacher and group), the action boxes only reach them, and the server
-checks again.
+checks again. Restricting who may act (e.g. only the Head of Studies in ESO/BTX) is issue #602.
 
 `ems.study.managing_department_id` is edited on the study's form (the administrator only, like the
 rest of the study). Existing installations got it from migration `18.0.0.37.0`, new ones from

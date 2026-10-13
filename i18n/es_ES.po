@@ -18949,8 +18949,8 @@ msgstr "Aparece en el horario de guardias como ausencia pendiente hasta que el d
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
-msgid "Only the teachers below you in the hierarchy, teaching in your area or teaching a group your department manages."
-msgstr "Solo los docentes que tienes por debajo en la jerarquía, que dan clase en tu área o que dan clase a un grupo que gestiona tu departamento."
+msgid "Only the teachers below you in the hierarchy, teaching in your area, teaching a group your department manages or also managed by your department."
+msgstr "Solo los docentes que tienes por debajo en la jerarquía, que dan clase en tu área, que dan clase a un grupo que gestiona tu departamento o que también gestiona tu departamento."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked
@@ -22244,8 +22244,8 @@ msgstr "Gestionado por el departamento"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_study__managing_department_id
-msgid "The department responsible for this study's students: its Department Chief and Seminar Chief, and whoever is above them, organise the absences of the classes of its groups (guards, arrangements, late entries and early leaves), whatever department the absent teacher belongs to. If left blank, each class is organised by the chain of command of its own absent teacher: their Department Chief and their Head of Studies or Deputy."
-msgstr "El departamento responsable de los alumnos de estos estudios: su jefe de departamento y su jefe de seminario, y quienes tienen por encima, organizan las ausencias de las clases de sus grupos (guardias, arreglos, entradas más tarde y salidas antes de hora), sea cual sea el departamento del docente ausente. Si se deja en blanco, cada clase la organiza la cadena de mando de su docente ausente: su jefe de departamento y su jefe de estudios o adjunto/a."
+msgid "The department responsible for this study's students: its Department Chief and Seminar Chief, and whoever is above them, can organise the absences of the classes of its groups (guards, arrangements, late entries and early leaves), whatever department the absent teacher belongs to, besides the absent teacher's own chain of command. If left blank, only that chain can: the teacher's Department Chief and their Head of Studies or Deputy."
+msgstr "El departamento responsable de los alumnos de estos estudios: su jefe de departamento y su jefe de seminario, y quienes tienen por encima, pueden organizar las ausencias de las clases de sus grupos (guardias, arreglos, entradas más tarde y salidas antes de hora), sea cual sea el departamento del docente ausente, además de la cadena de mando del docente ausente. Si se deja en blanco, solo puede hacerlo esa cadena: el jefe de departamento del docente y su jefe de estudios o adjunto/a."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group__managing_department_ids
@@ -22254,11 +22254,25 @@ msgstr "Gestionado por los departamentos"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_group__managing_department_ids
-msgid "The departments whose chiefs organise the absences of this group's classes: the one set on its study or, for a reinforcement group, on the studies of its main groups. If empty, each class is organised by the chain of command of its own absent teacher."
-msgstr "Los departamentos cuyos jefes organizan las ausencias de las clases de este grupo: el indicado en sus estudios o, en un grupo de refuerzo, en los estudios de sus grupos principales. Si está vacío, cada clase la organiza la cadena de mando de su docente ausente."
+msgid "The departments whose chiefs can organise the absences of this group's classes, besides each absent teacher's own chain of command: the one set on its study or, for a reinforcement group, on the studies of its main groups."
+msgstr "Los departamentos cuyos jefes pueden organizar las ausencias de las clases de este grupo, además de la cadena de mando de cada docente ausente: el indicado en sus estudios o, en un grupo de refuerzo, en los estudios de sus grupos principales."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "Only the chiefs of the department that manages %(group)s (%(department)s), or someone above them, can manage the absences of its classes."
-msgstr "Solo los jefes del departamento que gestiona %(group)s (%(department)s), o alguien por encima, pueden gestionar las ausencias de sus clases."
+msgid "Only the chiefs of the department that manages %(group)s (%(department)s), the department chief of %(teacher)s, or someone above them, can manage this absence."
+msgstr "Solo los jefes del departamento que gestiona %(group)s (%(department)s), el jefe de departamento de %(teacher)s, o alguien por encima, pueden gestionar esta ausencia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__managing_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__managing_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__managing_department_ids
+msgid "Also managed by the departments"
+msgstr "También gestionado por los departamentos"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__managing_department_ids
+#: model:ir.model.fields,help:ems.field_hr_employee_base__managing_department_ids
+#: model:ir.model.fields,help:ems.field_hr_employee_public__managing_department_ids
+msgid "The chiefs of these departments, and whoever is above them, can also organise this employee's guards and absences (covering their classes and guard duties, entering an expected absence), besides the Manager above and their own chain of command. For someone who in practice works for another department or area than the one they belong to. It does not change who approves their absences."
+msgstr "Los jefes de estos departamentos, y quienes tienen por encima, también pueden organizar las guardias y las ausencias de esta persona (cubrir sus clases y sus guardias, introducir una ausencia prevista), además del gestor de arriba y de su cadena de mando. Para quien en la práctica trabaja para otro departamento o área que no es el suyo. No cambia quién aprueba sus ausencias."

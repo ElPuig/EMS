@@ -206,7 +206,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertTrue(self._assign(user=self.env.ref('base.user_admin')))
 
-    # Shared teachers (issue #622): whose students lose the class decides, not whose teacher is away
+    # Shared teachers (issue #622): whoever answers for the students who lose the class manages it
+    # too, besides whoever answers for the absent teacher
 
     def _students_department(self):
         """The study of group_a and group_b belongs to another department than teacher_a's: its Department
@@ -232,16 +233,19 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         director = create_role_user(self, 'director', 'test_director_tabc', name='TABC Director')
         self.env.company.director_id = create_role_employee(self, director)
 
+        # The students' department and whoever is above it, and still the teacher's own chain.
         for manager in (self.other_department_chief, self.seminar_chief, self.other_head_of_studies, director,
-                        self.env.ref('base.user_admin')):
+                        self.env.ref('base.user_admin'), self.department_chief, self.head_of_studies):
             with self.subTest(user=manager.name):
                 self.assertTrue(self._assign(user=manager))
-        # The absent teacher's own chain no longer decides for these students.
-        for outsider in (self.department_chief, self.head_of_studies, self.teacher_a_user, self.guard_user):
+        outsider_chief = create_role_user(self, 'department_chief', 'test_outsider_chief_tabc', name='TABC Outsider Chief')
+        self.env['hr.department'].create({
+            'name': 'TABC Outsider Department', 'manager_id': create_role_employee(self, outsider_chief).id})
+        for outsider in (outsider_chief, self.teacher_a_user, self.guard_user):
             with self.subTest(user=outsider.name), self.assertRaises(AccessError):
                 self._assign(user=outsider)
 
-    def test_the_same_teachers_class_with_an_unmanaged_group_stays_with_their_own_chain(self):
+    def test_the_groups_department_only_manages_the_classes_of_its_own_groups(self):
         level, study = create_level_study(self, 'TABCU')
         unmanaged = self.env['ems.group'].create({
             'course': 1, 'acronym': 'TABCU', 'level_id': level.id, 'study_id': study.id, 'shift': 'morning'})
@@ -262,7 +266,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
                     if row['teacher_id'] == self.teacher_a.id}
 
         self.assertEqual(can_manage(self.other_department_chief), {self.group_a.id: True, unmanaged.id: False})
-        self.assertEqual(can_manage(self.department_chief), {self.group_a.id: False, unmanaged.id: True})
+        self.assertEqual(can_manage(self.department_chief), {self.group_a.id: True, unmanaged.id: True})
         self.Cover.with_user(self.department_chief).board_assign(
             str(self.day), 9, 10, self.teacher_a.id, unmanaged.id, self.teacher_guard.id)
         with self.assertRaises(AccessError):
@@ -278,51 +282,47 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertEqual(reinforcement.managing_department_ids, department)
         self.assertTrue(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a, reinforcement))
-        self.assertFalse(Course.with_user(self.department_chief)._is_absence_manager(self.teacher_a, reinforcement))
         # No main group to go by: the teacher's own chain, as for any unmanaged group.
         self.assertFalse(alone.managing_department_ids)
         self.assertTrue(Course.with_user(self.department_chief)._is_absence_manager(self.teacher_a, alone))
         self.assertFalse(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a, alone))
 
-    def test_releasing_and_arranging_follow_the_groups_department(self):
+    def test_the_groups_department_releases_arranges_and_proposes(self):
         self._morning()
-        self._absence(self.teacher_a, self.day)
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
         cover_id = self._assign()
         self._students_department()
 
-        with self.assertRaises(AccessError):
-            self.Cover.with_user(self.department_chief).board_release(cover_id)
-        with self.assertRaises(AccessError):
-            self.Cover.with_user(self.department_chief).board_arrange(
-                str(self.day), 9, 10, self.teacher_a.id, self.group_a.id, 'manual', note='Joined with another group')
-        with self.assertRaises(AccessError):
-            self.env['ems.course'].with_user(self.department_chief).get_arrangement_candidates(
-                str(self.day), 9, 10, self.teacher_a.id, self.group_a.id)
         self.Cover.with_user(self.seminar_chief).board_release(cover_id)
+        self.assertIsInstance(self.env['ems.course'].with_user(self.seminar_chief).get_arrangement_candidates(
+            str(self.day), 9, 10, self.teacher_a.id, self.group_a.id), list)
         self.assertTrue(self.Cover.with_user(self.seminar_chief).board_arrange(
             str(self.day), 9, 10, self.teacher_a.id, self.group_a.id, 'manual', note='Joined with another group')['cover_id'])
-
-    def test_the_timetable_change_is_proposed_by_the_groups_department(self):
-        self._morning()
-        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
-        self._students_department()
-
-        with self.assertRaises(AccessError):
-            self.Notice.with_user(self.department_chief).board_propose_absence_change(
-                str(self.day), self.group_a.id, 'late_entry', 10.0)
         # None of the department's own teachers teaches the group: managing it is enough to
         # write to its families.
         action = self.Notice.with_user(self.other_department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 10.0)
+            str(self.day), self.group_a.id, 'late_entry', 9.0)
         self.assertEqual(self.Notice.browse(action['res_id']).group_ids, self.group_a)
 
-    def test_a_guard_duty_of_a_shared_teacher_stays_with_their_own_chain(self):
-        """A guard duty has no students of its own: nothing but the teacher's chain to go by."""
-        self._students_department()
+    def test_a_guard_duty_of_a_shared_teacher_is_managed_by_the_departments_named_on_them(self):
+        """A guard duty has no students of its own: only the teacher to go by - their chain of
+        command and the departments named on them as also managing them."""
+        department = self._students_department()
         Course = self.env['ems.course']
-
         self.assertTrue(Course.with_user(self.department_chief)._is_absence_manager(self.teacher_a))
         self.assertFalse(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a))
+
+        self.teacher_a.managing_department_ids = department.parent_id
+
+        self.assertTrue(Course.with_user(self.other_head_of_studies)._is_absence_manager(self.teacher_a))
+        self.assertFalse(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a),
+                         "the area was named, not this department of it")
+        self.teacher_a.managing_department_ids = department
+        for manager in (self.other_department_chief, self.seminar_chief, self.other_head_of_studies,
+                        self.department_chief):
+            with self.subTest(user=manager.name):
+                self.assertTrue(Course.with_user(manager)._is_absence_manager(self.teacher_a))
+        self.assertFalse(Course.with_user(self.teacher_a_user)._is_absence_manager(self.teacher_a))
 
     def test_existing_studies_start_out_managed_by_the_department_giving_most_of_their_classes(self):
         self._morning()  # one teaching each: teacher_a (cls.department) and teacher_b

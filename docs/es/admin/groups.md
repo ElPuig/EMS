@@ -33,7 +33,7 @@ Navega a: **Comunidad Educativa → Grupos**
    - **Delegado**: un alumno representante (solo seleccionable una vez el grupo tiene alumnos).
    - **Subdelegado**: el alumno que sustituye al delegado. Se elige entre los mismos alumnos y no puede ser el delegado.
    - **Turno**, **Aula de referencia**, **ID externo** (código Esfera/SAGA) según se necesite.
-   - **Gestionado por los departamentos** (solo lectura, visible cuando hay alguno): el departamento indicado en los estudios del grupo o, en un grupo de refuerzo, en los estudios de sus grupos principales. Sus jefes organizan las ausencias de las clases del grupo. Se cambia desde la ficha de los estudios (ver [Estudios](curriculum-studies.md)).
+   - **Gestionado por los departamentos** (solo lectura, visible cuando hay alguno): el departamento indicado en los estudios del grupo o, en un grupo de refuerzo, en los estudios de sus grupos principales. Sus jefes también pueden organizar las ausencias de las clases del grupo. Se cambia desde la ficha de los estudios (ver [Estudios](curriculum-studies.md)).
 4. Haz clic en **Guardar**.
 
 ![Ficha de un grupo principal: nivel, estudio, curso, acrónimo, tutor, delegado y subdelegado, con sus alumnos](../../assets/admin/admin-groups-form.png)

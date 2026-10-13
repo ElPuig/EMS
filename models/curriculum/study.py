@@ -39,10 +39,10 @@ class EmsStudy(models.Model):
     managing_department_id = fields.Many2one(
         string="Managed by the department", comodel_name="hr.department", ondelete="set null",
         help="The department responsible for this study's students: its Department Chief and Seminar Chief, and "
-             "whoever is above them, organise the absences of the classes of its groups (guards, arrangements, "
-             "late entries and early leaves), whatever department the absent teacher belongs to. If left blank, "
-             "each class is organised by the chain of command of its own absent teacher: their Department Chief "
-             "and their Head of Studies or Deputy.")
+             "whoever is above them, can organise the absences of the classes of its groups (guards, arrangements, "
+             "late entries and early leaves), whatever department the absent teacher belongs to, besides the "
+             "absent teacher's own chain of command. If left blank, only that chain can: the teacher's Department "
+             "Chief and their Head of Studies or Deputy.")
 
     attachment_ids = fields.Many2many(string="Attached files", comodel_name="ir.attachment", domain="[('res_model', '=', 'ems.study')]")
 

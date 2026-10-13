@@ -680,7 +680,7 @@ company's timezone (`_get_local_hours()`). Linked entries are ignored. See
 **Access.** Only `ems.group_department_chief` has an ACL on the model (full CRUD): Department and
 Seminar Chiefs hold it, and the Head of Studies, their Deputy and the Director imply it (issue
 #604; until then it was the Head of Studies' group). `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
-to the teachers (`employee_type = 'teacher'`) the user reaches in any of three ways:
+to the teachers (`employee_type = 'teacher'`) the user reaches in any of four ways:
 
 - **Hierarchy:** `('employee_id', 'child_of', user.employee_ids.ids)`, the teachers below the user
   through `parent_id`, i.e. their own branch of the real hierarchy, not every teacher centre-wide.
@@ -690,6 +690,8 @@ to the teachers (`employee_type = 'teacher'`) the user reaches in any of three w
   `child_of` those same departments: a teacher of any department who teaches a group one of the
   user's departments manages, since its chiefs are the ones who organise that class (see "Who can
   manage" in [guard_duty_board.md](../attendance/guard_duty_board.md)).
+- **Also managed by (issue #622):** `employee_id.managing_department_ids` `child_of` those same
+  departments: a teacher who names one of them on their form as also managing them.
 - **Department (issue #569):** `('employee_id.department_id', 'child_of',
   user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids)`,
   the teachers whose own department hangs from a department the user heads or is the seminar they

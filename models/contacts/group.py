@@ -46,9 +46,9 @@ class EmsGroup(models.Model):
 	managing_department_ids = fields.Many2many(
 		string="Managed by the departments", comodel_name="hr.department",
 		compute="_compute_managing_department_ids", compute_sudo=True,
-		help="The departments whose chiefs organise the absences of this group's classes: the one set on its study "
-			"or, for a reinforcement group, on the studies of its main groups. If empty, each class is organised by "
-			"the chain of command of its own absent teacher.")
+		help="The departments whose chiefs can organise the absences of this group's classes, besides each absent "
+			"teacher's own chain of command: the one set on its study or, for a reinforcement group, on the studies "
+			"of its main groups.")
 
 	# Issue #611: a split or optative class is a group of its own ('ESO1A G1', 'Francès (1r ESO)'), so
 	# without this link the main group's schedule has a hole wherever its students are split. A

@@ -22294,6 +22294,8 @@ msgid "It is waiting for your approval."
 msgstr "Está pendiente de tu aprobación."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
 msgid "An ATRI absence is justified on the ATRI portal: it is sent back there, not for a supporting document in EMS."
 msgstr "Una ausencia ATRI se justifica en el portal ATRI: se devuelve allí, no por un justificante en EMS."
 

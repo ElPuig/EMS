@@ -568,17 +568,24 @@ class EmsCourseGuardDutyBoard(models.Model):
         return block
 
     def _guard_cover_counts(self, guards):
-        """How many classes each guard has been sent to cover during this course (issue #600), as
+        """How many times each guard has been sent to cover during this course (issue #600), as
         {employee id: count}, so whoever plans the guards can share them out fairly. Only assigned
         covers count, the ones already planned for a coming day included: a released one was never
-        done, and an assignment for tomorrow is work already given to that guard."""
+        done, and an assignment for tomorrow is work already given to that guard. Covers of the
+        same guard in the same room in the same period count once (issue #629): two groups put
+        together in one room are a single guard, while two groups in two rooms are two, and so are
+        two periods in a row with the same group. A cover with no room (a guard duty, a class the
+        timetable gives none) always counts by itself."""
         self.ensure_one()
         start, end = self.date_range()
-        counts = self.env['ems.absence_cover']._read_group(
+        periods = self.env['ems.absence_cover']._read_group(
             [('guard_employee_id', 'in', guards.ids), ('state', '=', 'assigned'),
              ('date', '>=', start), ('date', '<=', end)],
-            ['guard_employee_id'], ['__count'])
-        return {guard.id: count for guard, count in counts}
+            ['guard_employee_id', 'date:day', 'space_id', 'hour_from', 'hour_to'], ['__count'])
+        counts = defaultdict(int)
+        for guard, _day, space, _hour_from, _hour_to, count in periods:
+            counts[guard.id] += 1 if space else count
+        return dict(counts)
 
     def _get_needed_duty_entry(self, day, duty, absent, hour_from, hour_to):
         """`absent`'s own guard duty `duty` in the period, while it still needs covering (issue

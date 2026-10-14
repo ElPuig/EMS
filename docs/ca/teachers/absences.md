@@ -108,7 +108,9 @@ El botó està desactivat mentre falti alguna cosa. Passa-hi el ratolí per sobr
 
 Si surts del formulari sense enviar-lo, l'EMS t'avisa i et deixa descartar-lo.
 
-Quan l'envies, el teu cap de departament i, si el teu departament en té, el teu cap de seminari reben un correu amb el tipus d'absència, les dates i les hores, però no el motiu. A partir d'aleshores en són seguidors, així que també reben tot el que s'escrigui al seu historial de missatges.
+Quan l'envies, el teu cap de departament i, si el teu departament en té, el teu cap de seminari reben un correu amb el tipus d'absència, les dates i les hores, però no el motiu, perquè puguin organitzar les guàrdies que et cobreixin. Després només en tornen a saber alguna cosa si l'absència no es produirà (rebutjada, cancel·lada o esborrada mentre encara estava pendent), si torna a seguir endavant o si en canvien les dates o el tipus.
+
+**Missatges a la sol·licitud.** El que escriguis a l'historial de missatges de la sol·licitud (**Envia un missatge**) arriba a qui la té a les mans i a ningú més: el teu cap (cap d'estudis adjunt, cap d'estudis o secretari/ària) fins que la valida i la passa a Direcció, i la directora o el director a partir d'aleshores. Les seves respostes t'arriben igual.
 
 ---
 

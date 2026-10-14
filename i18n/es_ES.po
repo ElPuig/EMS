@@ -22320,3 +22320,61 @@ msgstr "Versión instalada"
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "The EMS version running on this installation."
 msgstr "La versión de EMS que funciona en esta instalación."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_latest_version
+msgid "Latest version"
+msgstr "Última versión"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_latest_version_url
+msgid "Latest version URL"
+msgstr "URL de la última versión"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_version_status
+msgid "Version status"
+msgstr "Estado de la versión"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_version_message
+msgid "Version check"
+msgstr "Comprobación de la versión"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__ems_version_status__latest
+msgid "Up to date"
+msgstr "Al día"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__ems_version_status__outdated
+msgid "Newer version available"
+msgstr "Hay una versión más nueva"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__ems_version_status__unknown
+msgid "Not checked"
+msgstr "No comprobada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Check again"
+msgstr "Volver a comprobar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/settings.py:0
+msgid "The latest version could not be checked."
+msgstr "No se ha podido comprobar cuál es la última versión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/settings.py:0
+msgid "You are on the latest version."
+msgstr "Tienes la última versión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/settings.py:0
+msgid "A newer version is available: %(version)s"
+msgstr "Hay una versión más nueva: %(version)s"

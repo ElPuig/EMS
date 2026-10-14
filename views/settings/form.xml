@@ -186,6 +186,20 @@
                         <block title="About" name="ems_about">
                             <setting string="Installed version" help="The EMS version running on this installation." id="ems_version">
                                 <field name="ems_version"/>
+                                <!-- In the view so the form asks default_get() for them: that is
+                                     where GitHub is checked. -->
+                                <field name="ems_latest_version" invisible="1"/>
+                                <field name="ems_latest_version_url" invisible="1"/>
+                                <field name="ems_version_status" invisible="1"/>
+                                <div class="mt8">
+                                    <field name="ems_version_message" nolabel="1" class="w-100"/>
+                                </div>
+                                <!-- Reopening is the check: the settings form never re-reads a saved
+                                     record after a button, it starts a new one. -->
+                                <button name="%(ems.action_settings)d" type="action"
+                                        string="Check again" class="btn-link" icon="fa-refresh"
+                                        context="{'ems_check_version_again': True}"
+                                        invisible="ems_version_status != 'unknown'"/>
                             </setting>
                         </block>
                     </app>

@@ -1,7 +1,8 @@
 # What's new
 
-## Installed EMS version shown in the settings:
-- The EMS Management settings tab ends with an "About" block showing the EMS version running on the installation (the version the database was last upgraded to, not the code on disk), so admins can check it before reporting a problem or after a deploy. New admin manual in the three languages.
+## Installed and latest EMS version shown in the settings:
+- The EMS Management settings tab ends with an "About" block showing the EMS version running on the installation (the version the database was last upgraded to, not the code on disk), so admins can check it before reporting a problem or after a deploy.
+- When the page opens it asks GitHub, with a very short timeout, for the newest published release: it says the installation is up to date, or shows the newer version linked to its release notes. If GitHub doesn't answer in time it says so and offers a "Check again" button that retries with more room. New admin manual in the three languages.
 
 # Internal changes
 

@@ -79,10 +79,6 @@ registry.category("web_tour.tours").add("ems_settings_edit", {
             content: "The checkbox actually toggled (not just clicked)",
         },
         {
-            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='ems_version'] span:contains('18.0.')",
-            content: "The About block shows the installed EMS version",
-        },
-        {
             // Discard (unlike Save) stays a normal in-place SPA action - res.config.settings.
             // cancel() just re-reads the record, no client-side "reload" action tag involved -
             // so it's the safe way to leave the tour with a clean (non-dirty) form.
@@ -93,6 +89,25 @@ registry.category("web_tour.tours").add("ems_settings_edit", {
         {
             trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='google_ws_enabled'] input[type='checkbox']:not(:checked)",
             content: "Discarded - the checkbox is back to its original state",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='ems_version'] span:contains('18.0.')",
+            content: "The About block shows the installed EMS version",
+        },
+        {
+            // GitHub "times out" when the page opens (see the Python side): no message about
+            // a newer version, just the button to check again.
+            trigger: ".app_settings_block[data-key='ems'] button.btn-link:has(.fa-refresh)",
+            content: "The latest version could not be checked - check again",
+            run: "click",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='ems_version_message'] a[href$='/releases/tag/v99.0.0.0.0']",
+            content: "The newer version is shown with a link to its release",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] #ems_version:not(:has(.fa-refresh))",
+            content: "The check-again button is gone once the check succeeds",
         },
     ],
 });

@@ -164,7 +164,8 @@ stateDiagram-v2
     PendingAtriConfirmation --> PendingDirection: employee confirms it is requested in ATRI
     PendingDirection --> PendingAtriConfirmation: Direction - not in ATRI
     PendingValidation --> AwaitingDocumentation: Head - documentation insufficient
-    PendingDirection --> AwaitingDocumentation: Direction - documentation insufficient
+    PendingDirection --> AwaitingDocumentation: Direction - documentation insufficient (not ATRI)
+    PendingDirection --> PendingAtriConfirmation: Direction - documentation insufficient (ATRI absence)
     PendingDirection --> Approved: Direction done
     Pending --> Refused: Head or Direction refuses
     AwaitingDocumentation --> Refused
@@ -242,7 +243,8 @@ chatter's own attachment box is not a write on the request and does not count - 
 **Direction's buttons** are `action_ems_direction_done` (only while Pending Direction:
 `UserError` otherwise), `_refuse`, and the same
 `action_ems_document_insufficient` as the Head, which sends a request Direction is reviewing back
-to the employee. All through plain `write()`s: the existing guard in `hr.leave.write()` is what
+to the employee (an ATRI absence goes back to its ATRI step instead, see *ATRI absences wait for
+the employee's confirmation*). All through plain `write()`s: the existing guard in `hr.leave.write()` is what
 keeps them Direction's, for these buttons and any other way in. They are entries of the form's
 Actions dropdown and, as icons with their label as tooltip, sit beside the Direction column in
 the list; they are hidden in the employee's own list.
@@ -267,7 +269,9 @@ past (`ems.datetime_utils.get_local_today()`, the centre's timezone). It posts a
 employee every `ems_absence_document_reminder_days` days (default 1: every day;
 `ems_document_reminder_date` keeps it to once per interval) and, once
 `ems_absence_document_escalation_days` calendar days have passed since the absence (default 3),
-a note and an overdue activity to the Head, once (`ems_document_escalated`). Both are company
+a note and an overdue activity to the Head, once (`ems_document_escalated`). The note is the
+Head's email: the activity is scheduled with `mail_activity_quick_update`, which keeps Odoo from
+sending its own "assigned to you" email for the same thing. Both are company
 settings under Settings > Staff Absence Settings, with the same fallback-to-default helpers as the
 health allowance. The notes are `mail.mt_note` addressed to their recipients only, so the
 department chief and Direction following the request are not sent every reminder. Sending the
@@ -680,11 +684,18 @@ company's timezone (`_get_local_hours()`). Linked entries are ignored. See
 **Access.** Only `ems.group_department_chief` has an ACL on the model (full CRUD): Department and
 Seminar Chiefs hold it, and the Head of Studies, their Deputy and the Director imply it (issue
 #604; until then it was the Head of Studies' group). `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
-to the teachers (`employee_type = 'teacher'`) the user reaches in either of two ways:
+to the teachers (`employee_type = 'teacher'`) the user reaches in any of four ways:
 
 - **Hierarchy:** `('employee_id', 'child_of', user.employee_ids.ids)`, the teachers below the user
   through `parent_id`, i.e. their own branch of the real hierarchy, not every teacher centre-wide.
   The Director sits above every Area Manager, so this alone gives them the whole centre.
+- **Managed groups (issue #622):** `employee_id.teaching_ids.group_id.study_id.managing_department_id`
+  (or, for a reinforcement group, `...group_id.parent_group_ids.study_id.managing_department_id`)
+  `child_of` those same departments: a teacher of any department who teaches a group one of the
+  user's departments manages, since its chiefs are the ones who organise that class (see "Who can
+  manage" in [guard_duty_board.md](../attendance/guard_duty_board.md)).
+- **Also managed by (issue #622):** `employee_id.managing_department_ids` `child_of` those same
+  departments: a teacher who names one of them on their form as also managing them.
 - **Department (issue #569):** `('employee_id.department_id', 'child_of',
   user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids)`,
   the teachers whose own department hangs from a department the user heads or is the seminar they
@@ -818,8 +829,8 @@ Most of this is Odoo's, and deliberately left alone:
 
 | When | Who | Mechanism |
 |---|---|---|
-| A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`) |
-| A request is sent | The **chiefs of the employee's own department**: its Department Chief and, when it has one, its Seminar Chief (`_ems_notify_partners()`) | EMS: `_ems_announce_request()`, called from `create()`, subscribes them and sends them the summary as a note addressed to them alone (the approver already has the activity, the employee filed it). From then on they follow the request and receive everything posted on it |
+| A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`). Its email is EMS's: the `activity_update()` override sends whoever the activity was just assigned to the summary (`_ems_summary()`) with "It is waiting for your approval.", as a note addressed to them alone, and stops Odoo's own (`mail_activity_quick_update`), which names the request and nothing else - no dates, no hours, not even the activity's note |
+| A request is sent | The **chiefs of the employee's own department**: its Department Chief and, when it has one, its Seminar Chief (`_ems_notify_partners()`) | EMS: `_ems_announce_request()`, called from `create()`, subscribes them and sends them the summary as a note addressed to them alone (the approver has their own email, the employee filed it; a chief who is also the approver gets the approver's only). From then on they follow the request and receive everything posted on it |
 | Approved or refused | The employee | Native message on the request |
 | Approved or refused | The employee's **own chiefs** | EMS: `_ems_inform_chiefs()` subscribes them just before the state change (they already follow requests filed through `_ems_announce_request()`; this covers older ones) |
 | Approved by the Head | **Direction** (the company's `director_id`) | EMS: `_ems_direction_partners()` subscribes it in `action_approve()` - its own review starts there. Not when the Director is the absent employee or is the one approving |
@@ -832,6 +843,13 @@ the string is emitted from, so an entry in EMS's catalogue is never consulted fo
 `hr_holidays` prints. Overriding `_validate_leave_request()` outright would mean copying its
 calendar-meeting logic, so instead the note alone is stopped, through a context flag read by a
 `message_post` override and set only for the duration of that one call.
+
+**One email per person and event.** Nothing the system sends by itself reaches the same person
+twice for the same thing (issue #625); a comment somebody writes on the request is a separate
+email, and meant to be. Besides the two cases above (the approver's email and the escalation
+to the Head), `_track_subtype()` keeps the approval's tracking entry ("Status: Pending →
+Approved") a plain note: hr_holidays gives it the `mt_leave` subtype, which emailed every
+follower on top of the summary.
 
 The department's chiefs are the one piece Odoo has no notion of. They are also the reason the
 Google form asked every employee which department they belonged to: purely to look up who to
@@ -899,6 +917,16 @@ sequenceDiagram
   required, `_ems_return_atri()` stores it in `ems_atri_return_reason`, puts the request back to
   `awaiting`, resets the reminders and tells the employee alone. The reason is shown in the
   form's warning and is the note of the employee's new activity; confirming again clears it.
+- **"Documentation insufficient" on an ATRI absence** (issue #627) is the same send-back with
+  another wording. An ATRI absence is justified on the portal, so what Direction finds
+  insufficient is fixed there, never with a file in EMS: `action_ems_document_insufficient()`
+  opens the dialog with `kind = 'atri_document'` whenever `_ems_justified_in_atri()` (an ATRI
+  absence Pending Direction), and `_ems_return_atri(reason, documentation=True)` puts it back to
+  Pending ATRI confirmation, telling the employee to complete the documentation on the portal.
+  `ems_document_state` is not touched, so the request never enters the Head's "Awaiting
+  documentation" and returns straight to Direction once the employee confirms.
+  `_ems_check_can_return_document()` refuses the supporting-document send-back on such a request,
+  whatever the way in.
 - **Activities and reminders** are the supporting document's own machinery, shared through
   `EMPLOYEE_STEPS` (the two statuses that wait for the employee):
   `_ems_update_activities()` gives the employee "Confirm the absence is requested in ATRI", due

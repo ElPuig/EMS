@@ -245,16 +245,26 @@ class EmsCourseGuardDutyBoard(models.Model):
     # Absence management from the absences table (issues #539, #571, #581). See "Managing
     # absences from the board" in docs/en/developers/attendance/guard_duty_board.md.
 
-    def _is_absence_manager(self, employee):
-        """Whether the current user organises `employee`'s absences: whoever is above them in the
-        chain of command (their Seminar Chief or Department Chief, then up through the Head of
-        Studies to the Director), never every holder of those roles centre-wide, and never the
-        absent teacher themselves. Same chain 'tutor_scope_user_ids' already resolves for
-        tutor-scoped rights, minus the employee's own user. Or the Chiefs of the department the
-        employee teaches in, and the manager of the area it hangs from: the management team
-        (e.g. the Secretary) reports to the Director, out of their department's chain (issue
-        #604, the criterion of rule_absence_pending_hierarchy, issue #569). The administrator
-        always can."""
+    def _is_absence_manager(self, employee, group=None):
+        """Whether the current user organises `employee`'s absence in a class of `group` (none
+        for a guard duty of theirs, or their absences as a whole): whoever answers for the
+        students who lose the class, or for the teacher who is away. Never every holder of a role
+        centre-wide, and never the absent teacher themselves.
+
+        - The students (issue #622): the chiefs of the departments that manage the group
+          (ems.group.managing_department_ids, from its study) and whoever is above them
+          (ems.group._absence_manager_users), so a teacher shared between departments is covered
+          by each group's own.
+        - The teacher: whoever is above them in the chain of command (their Seminar Chief or
+          Department Chief, then up through the Head of Studies to the Director), the same chain
+          'tutor_scope_user_ids' resolves for tutor-scoped rights. Or the Chiefs of the
+          department the employee belongs to and the manager of the area it hangs from: the
+          management team (e.g. the Secretary) reports to the Director, out of their department's
+          chain (issue #604, the criterion of rule_absence_pending_hierarchy, issue #569). Or
+          those of the departments named on the employee as also managing them
+          (hr.employee.managing_department_ids, issue #622).
+
+        The administrator always can."""
         user = self.env.user
         if self.env.su or user.has_group('base.group_system') or user.has_group('ems.group_academic_admin'):
             # The administrator sits above the whole hierarchy, Direction included, although they
@@ -263,16 +273,25 @@ class EmsCourseGuardDutyBoard(models.Model):
         employee = employee.sudo()
         if user == employee.user_id:
             return False
-        if user in employee.tutor_scope_user_ids:
+        if group and user in group._absence_manager_users():
+            return True
+        if user in employee.tutor_scope_user_ids or user in employee.managing_department_ids._chief_users():
             return True
         chiefs = user.sudo().employee_ids
         departments = chiefs.headed_department_ids | chiefs.seminar_department_ids
         return bool(departments) and employee.department_id in departments.search([('id', 'child_of', departments.ids)])
 
-    def _check_absence_manager(self, employee):
-        if not self._is_absence_manager(employee):
+    def _check_absence_manager(self, employee, group=None):
+        if self._is_absence_manager(employee, group):
+            return
+        if group and group.sudo().managing_department_ids:
             raise AccessError(_(
-                "Only the department chief of %s, or someone above them, can manage their absences.", employee.name))
+                "Only the chiefs of the department that manages %(group)s (%(department)s), the department chief of "
+                "%(teacher)s, or someone above them, can manage this absence.",
+                group=group.name, department=", ".join(group.sudo().managing_department_ids.mapped('name')),
+                teacher=employee.name))
+        raise AccessError(_(
+            "Only the department chief of %s, or someone above them, can manage their absences.", employee.name))
 
     def _check_board_day_not_past(self, day):
         if day < self.env['ems.datetime_utils'].get_local_today():
@@ -549,17 +568,24 @@ class EmsCourseGuardDutyBoard(models.Model):
         return block
 
     def _guard_cover_counts(self, guards):
-        """How many classes each guard has been sent to cover during this course (issue #600), as
+        """How many times each guard has been sent to cover during this course (issue #600), as
         {employee id: count}, so whoever plans the guards can share them out fairly. Only assigned
         covers count, the ones already planned for a coming day included: a released one was never
-        done, and an assignment for tomorrow is work already given to that guard."""
+        done, and an assignment for tomorrow is work already given to that guard. Covers of the
+        same guard in the same room in the same period count once (issue #629): two groups put
+        together in one room are a single guard, while two groups in two rooms are two, and so are
+        two periods in a row with the same group. A cover with no room (a guard duty, a class the
+        timetable gives none) always counts by itself."""
         self.ensure_one()
         start, end = self.date_range()
-        counts = self.env['ems.absence_cover']._read_group(
+        periods = self.env['ems.absence_cover']._read_group(
             [('guard_employee_id', 'in', guards.ids), ('state', '=', 'assigned'),
              ('date', '>=', start), ('date', '<=', end)],
-            ['guard_employee_id'], ['__count'])
-        return {guard.id: count for guard, count in counts}
+            ['guard_employee_id', 'date:day', 'space_id', 'hour_from', 'hour_to'], ['__count'])
+        counts = defaultdict(int)
+        for guard, _day, space, _hour_from, _hour_to, count in periods:
+            counts[guard.id] += 1 if space else count
+        return dict(counts)
 
     def _get_needed_duty_entry(self, day, duty, absent, hour_from, hour_to):
         """`absent`'s own guard duty `duty` in the period, while it still needs covering (issue
@@ -774,7 +800,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         absent = self.env['hr.employee'].browse(absent_employee_id).exists()
         if not absent or not self.env['ems.group'].browse(group_id).exists():
             raise UserError(_("The class or the guard teacher no longer exists."))
-        self._check_absence_manager(absent)
+        self._check_absence_manager(absent, self.env['ems.group'].browse(group_id))
         teachers = self._get_guard_duty_board_attendance_ids().filtered(
             lambda attendance: attendance.dayofweek == str(day.weekday())).employee_id - absent
         away = self._guard_duty_absence_state(
@@ -1025,10 +1051,11 @@ class EmsCourseGuardDutyBoard(models.Model):
         editable = day >= self.env['ems.datetime_utils'].get_local_today()
         managers = {}
 
-        def can_manage(teachers):
+        def can_manage(teachers, group):
             # A day already over is read-only for everybody (see _check_board_day_not_past).
             return editable and any(
-                managers.setdefault(teacher.id, self._is_absence_manager(teacher)) for teacher in teachers)
+                managers.setdefault((teacher.id, group.id), self._is_absence_manager(teacher, group))
+                for teacher in teachers)
 
         actions = []
         for group in groups:
@@ -1043,7 +1070,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'expected': state['expected'],
                         'communicated': state['communicated'],
                         'draft': state['draft'],
-                        'can_manage': can_manage(state['teachers']),
+                        'can_manage': can_manage(state['teachers'], group),
                     })
         for cover in shift_covers:
             if not self._is_cover_still_needed(day, cover):
@@ -1051,7 +1078,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'type': 'obsolete_cover',
                     'cover': cover,
                     'group': cover.group_id,
-                    'can_manage': can_manage(cover.absent_employee_id),
+                    'can_manage': can_manage(cover.absent_employee_id, cover.group_id),
                 })
             elif not cover.is_effective:
                 # An arrangement waiting for its notice (issue #605): nothing changes until it is sent.
@@ -1059,7 +1086,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'type': 'pending_arrangement',
                     'cover': cover,
                     'group': cover.group_id,
-                    'can_manage': can_manage(cover.absent_employee_id),
+                    'can_manage': can_manage(cover.absent_employee_id, cover.group_id),
                 })
         return {'covers': covers, 'states': states, 'actions': actions, 'can_manage': can_manage}
 
@@ -1117,18 +1144,24 @@ class EmsCourseGuardDutyBoard(models.Model):
         has communicated yet ('proposed') - neither of which ever applies to a guard duty - and
         whether the current user may act on it ('can_manage'). An internal arrangement (issue
         #605), which only a class can have, comes as 'arrangement' instead of 'cover', in effect
-        or still waiting for its notice."""
+        or still waiting for its notice; 'arrangement_change' is the timetable change the families
+        were told because of it (the lesson it moved here is one the group no longer has: it
+        comes in later or leaves earlier), shown next to it so the row says both (issue #623)."""
         duty = duty or self.env['ems.non_teaching_type']
         no_cover = self.env['ems.absence_cover']
         if not management:
-            return {'cover': no_cover, 'arrangement': no_cover, 'authorized': None, 'proposed': None, 'can_manage': False}
+            return {'cover': no_cover, 'arrangement': no_cover, 'arrangement_change': None, 'authorized': None,
+                    'proposed': None, 'can_manage': False}
         resolved = management['covers'].filtered(
             lambda cover: cover.absent_employee_id == teacher and cover.group_id == group and cover.duty_id == duty
                 and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))[:1]
         cover = resolved.filtered(lambda cover: cover.cover_type == 'guard')
         arrangement = resolved - cover
-        authorized = proposed = None
+        moved = arrangement.filtered(lambda cover: cover.arrangement_type == 'move' and cover.is_effective)
+        authorized = proposed = arrangement_change = None
         for state in management['states'].get(group.id, {}).values() if group else ():
+            if moved and self._change_window_contains(state['communicated'], moved.vacated_hour_from, moved.vacated_hour_to):
+                arrangement_change = state['communicated']
             if self._change_window_contains(state['communicated'], hour_from, hour_to):
                 authorized = state['communicated']
             elif state['status'] == 'proposal' and self._change_window_contains(state['expected'], hour_from, hour_to):
@@ -1136,9 +1169,10 @@ class EmsCourseGuardDutyBoard(models.Model):
         return {
             'cover': cover,
             'arrangement': arrangement,
+            'arrangement_change': arrangement_change,
             'authorized': authorized,
             'proposed': proposed,
-            'can_manage': management['can_manage'](teacher),
+            'can_manage': management['can_manage'](teacher, group),
         }
 
     @staticmethod
@@ -1314,6 +1348,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'label': row['arrangement']._arrangement_label(),
                         'pending': not row['arrangement'].is_effective,
                         'notice_id': row['arrangement'].notice_id.id,
+                        'change': self._absence_change_label(row['arrangement_change']),
                     } if row['arrangement'] else False,
                     'arrangement_options': [self._arrangement_option_data(option, line['hour_from'], row['teacher'])
                                             for option in row['arrangement_options']],

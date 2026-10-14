@@ -728,3 +728,30 @@ registry.category("web_tour.tours").add("ems_absence_atri_missing", {
         },
     ],
 });
+
+// Direction finds the documentation of an ATRI absence insufficient: it goes back to the
+// employee's ATRI step, never to the supporting document in EMS (issue #627).
+registry.category("web_tour.tours").add("ems_absence_atri_document_insufficient", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Docs Teacher') button[name='action_ems_document_insufficient']",
+            content: "Documentation insufficient: send it back from the row",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Say why",
+            run: "edit Tour the certificate is missing on the portal",
+        },
+        {
+            trigger: ".modal-footer button[name='action_return']",
+            content: "Send it back to the employee",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Docs Teacher') td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "It waits for the employee in ATRI, not for a document in EMS",
+        },
+    ],
+});

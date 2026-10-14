@@ -163,6 +163,17 @@ class ems_department(models.Model):
             department = department.parent_id
         return self.env['hr.employee']
 
+    def _chief_users(self):
+        """The users who chief these departments or one they hang from: each one's Department
+        Chief and Seminar Chief, walking up the parent chain to the area's manager."""
+        users = self.env['res.users']
+        departments, seen = self, self.browse()
+        while departments - seen:
+            seen |= departments
+            users |= departments.manager_id.user_id | departments.seminar_chief_id.user_id
+            departments = departments.parent_id
+        return users
+
     def _top_level_department(self):
         """The is_top_level ancestor of this department (itself, if it already is one), or an
         empty recordset when the chain reaches the root without finding one. Deliberately

@@ -37,6 +37,8 @@ Nobody approves their own absence: an Area Manager's request is decided by Direc
 
 ## Approving or refusing
 
+When somebody in your area sends a request you receive an email with the employee, the absence type, the dates and the hours, so you can arrange the cover, and the request is added to your activities.
+
 **Employee Attendances > Absences > Management > Requested absences**.
 
 That lists your area's requests, opening on **Waiting For Me**: the ones pending your acknowledgement and the ones whose supporting document you have to validate. Every absence goes through you first and then through Direction, and the list has one column for each:
@@ -107,7 +109,7 @@ Review them from the list with the icons beside **Direction status**, or open on
 | Icon | Button | Result |
 |---|---|---|
 | Ticked box | **Direction: done** | Approved |
-| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives |
+| Sheet | **Documentation insufficient** | Back to the employee, Awaiting documentation. It asks for the reason first, which the employee receives. On an ATRI absence the documentation is on the portal, not in EMS: it goes back to Pending ATRI confirmation and, once the employee confirms, straight back to Direction without going through the Head |
 | Reply arrow | **Not in ATRI** | Only ATRI absences, when it does not appear on the portal. Back to the employee, Pending ATRI confirmation. It asks for the reason first, which the employee receives |
 | Arrow back | **Undo the last decision** | Back to the previous status, see [Undoing a decision](#undoing-a-decision) |
 | Cross | **Refuse** | Refused. It refuses the whole request, and it asks for confirmation first |
@@ -187,7 +189,7 @@ To change the period, remove the **Current Course** filter and pick the one you 
 When you already know a teacher will be away but they have not requested the absence yet (they phoned in this morning, or it was agreed in a meeting), enter it here so guard duty can be planned around it straight away.
 
 1. Click **New**.
-2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Department and Seminar Chiefs can also enter expected absences, for the teachers of their own department. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET.
+2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Department and Seminar Chiefs can also enter expected absences, for the teachers of their own department. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET. Teachers of other departments who teach a group the department manages (the **Managed by the department** field of the group's study), or who name the department in the **Also managed by the departments** field of their form, are offered too.
 3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
 4. Optionally, add **Notes** for your own reference. The teacher never sees this entry.
 5. Save.

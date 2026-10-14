@@ -37,6 +37,8 @@ Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dire
 
 ## Aprobar o rechazar
 
+Cuando alguien de tu área envía una solicitud recibes un correo con la persona, el tipo de ausencia, las fechas y las horas, para poder organizar su cobertura, y la solicitud queda en tus actividades.
+
 **Asistencia del personal > Ausencias > Administración > Ausencias solicitadas**.
 
 Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que esperan que las des por recibidas y las que tienen un justificante que debes validar. Cada ausencia pasa primero por ti y después por Dirección, y el listado tiene una columna para cada uno:
@@ -105,7 +107,7 @@ Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre
 | Icono | Botón | Resultado |
 |---|---|---|
 | Casilla marcada | **Dirección: hecho** | Aprobado |
-| Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Antes pide el motivo, que la persona recibe |
+| Hoja | **Documentación insuficiente** | Vuelve a la persona, En espera de documentación. Antes pide el motivo, que la persona recibe. En una ausencia ATRI la documentación está en el portal, no en EMS: vuelve a Pendiente de confirmar ATRI y, cuando la persona lo confirma, regresa directamente a Dirección sin pasar por el jefe |
 | Flecha de respuesta | **No consta en ATRI** | Solo ausencias ATRI, cuando no aparece en el portal. Vuelve a la persona, Pendiente de confirmar ATRI. Antes pide el motivo, que la persona recibe |
 | Flecha atrás | **Deshacer la última decisión** | Vuelve al estado anterior, ver [Deshacer una decisión](#deshacer-una-decisión) |
 | Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, y pide confirmación antes |
@@ -185,7 +187,7 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 Cuando ya sabes que un docente faltará pero todavía no ha solicitado la ausencia (ha llamado esta mañana, o se ha acordado en una reunión), regístrala aquí para que las guardias se puedan planificar enseguida.
 
 1. Haz clic en **Nuevo**.
-2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos. Los jefes de departamento y de seminario también pueden introducir ausencias previstas, para los docentes de su propio departamento. Los miembros del equipo directivo (como el Secretario) cuentan como docentes del área a la que pertenece su departamento: el Secretario, que da clase en un departamento de FP, aparece a la Jefatura de Estudios o Jefatura de Estudios Adjunta responsable de FP.
+2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos. Los jefes de departamento y de seminario también pueden introducir ausencias previstas, para los docentes de su propio departamento. Los miembros del equipo directivo (como el Secretario) cuentan como docentes del área a la que pertenece su departamento: el Secretario, que da clase en un departamento de FP, aparece a la Jefatura de Estudios o Jefatura de Estudios Adjunta responsable de FP. También aparecen los docentes de otros departamentos que dan clase a un grupo que gestiona el departamento (campo **Gestionado por el departamento** de los estudios del grupo) y los que tienen el departamento en el campo **También gestionado por los departamentos** de su ficha.
 3. Indica **De** y **A**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede abarcar varios días.
 4. Si quieres, añade **Notas** para ti. El docente nunca ve esta entrada.
 5. Guarda.

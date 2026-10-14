@@ -272,7 +272,7 @@ registry.category("web_tour.tours").add("ems_user_profile_tabs_ordinary_user", {
         // proving this is a timing artifact of ending the tour too early, not an actual
         // leftover-dirty-state bug in the save path itself.
         {
-            trigger: ".o_form_view:not(.o_form_dirty)",
+            trigger: ".o_form_view .o_form_saved",
             content: "The form has actually settled (no dirty state left) before the tour ends",
         },
     ],
@@ -392,7 +392,7 @@ registry.category("web_tour.tours").add("ems_user_profile_attendance_report_tuto
             run: "click",
         },
         {
-            trigger: ".o_form_view:not(.o_form_dirty) .o_field_widget[name='ems_attendance_report_time'] input:value('21:20')",
+            trigger: ".o_form_view .o_form_saved .o_field_widget[name='ems_attendance_report_time'] input:value('21:20')",
             content: "Saved",
         },
     ],

@@ -18948,8 +18948,8 @@ msgstr "Surt a l'horari de guàrdies com a absència pendent fins que el docent 
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
-msgid "Only the teachers below you in the hierarchy or teaching in your area."
-msgstr "Només els docents que tens per sota a la jerarquia o que fan classe a la teva àrea."
+msgid "Only the teachers below you in the hierarchy, teaching in your area, teaching a group your department manages or also managed by your department."
+msgstr "Només els docents que tens per sota a la jerarquia, que fan classe a la teva àrea, que fan classe a un grup que gestiona el teu departament o que també gestiona el teu departament."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__linked
@@ -20462,8 +20462,8 @@ msgstr "Les absències d'aquest grup han canviat des que es va carregar el quadr
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
-msgid "Only the department chief of the absent teacher, or someone above them, can do this."
-msgstr "Només el cap de departament del docent absent, o algú per sobre seu, pot fer-ho."
+msgid "Only whoever organises the absences of this group's classes can do this."
+msgstr "Només qui organitza les absències de les classes d'aquest grup pot fer-ho."
 
 #. module: ems
 #. odoo-python
@@ -22208,8 +22208,8 @@ msgstr "Què es retorna"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_document_return_wizard__kind
-msgid "The supporting document that is not sufficient, or an absence that does not appear in ATRI (Direction only)."
-msgstr "El justificant que no és suficient, o una absència que no consta a ATRI (només Direcció)."
+msgid "The supporting document that is not sufficient, an absence that does not appear in ATRI, or one whose documentation in ATRI is not sufficient (both Direction only)."
+msgstr "El justificant que no és suficient, una absència que no consta a ATRI, o una amb documentació insuficient a ATRI (aquestes dues, només Direcció)."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_absence_document_return_wizard__kind__atri
@@ -22223,8 +22223,8 @@ msgstr "Què falla i què ha de fer el treballador en el seu lloc. Se li comunic
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_document_return_wizard
-msgid "The Head or Direction sends an absence back to the employee: its supporting document, or its ATRI request."
-msgstr "El cap o Direcció retorna una absència al treballador: el justificant, o la sol·licitud a ATRI."
+msgid "The Head or Direction sends an absence back to the employee: its supporting document, its ATRI request, or its documentation in ATRI."
+msgstr "El cap o Direcció retorna una absència al treballador: el justificant, la sol·licitud a ATRI, o la documentació a ATRI."
 
 #. module: ems
 #: model:mail.activity.type,name:ems.mail_activity_absence_atri_request
@@ -22235,3 +22235,71 @@ msgstr "Confirmar que l'absència està sol·licitada a ATRI"
 #: model:mail.activity.type,name:ems.mail_activity_absence_atri_overdue
 msgid "Absence not confirmed in ATRI"
 msgstr "Absència no confirmada a ATRI"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_study__managing_department_id
+msgid "Managed by the department"
+msgstr "Gestionat pel departament"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_study__managing_department_id
+msgid "The department responsible for this study's students: its Department Chief and Seminar Chief, and whoever is above them, can organise the absences of the classes of its groups (guards, arrangements, late entries and early leaves), whatever department the absent teacher belongs to, besides the absent teacher's own chain of command. If left blank, only that chain can: the teacher's Department Chief and their Head of Studies or Deputy."
+msgstr "El departament responsable dels alumnes d'aquests estudis: el seu cap de departament i el seu cap de seminari, i qui tenen per sobre, poden organitzar les absències de les classes dels seus grups (guàrdies, arranjaments, entrades més tard i sortides abans d'hora), sigui quin sigui el departament del docent absent, a més de la cadena de comandament del docent absent. Si es deixa en blanc, només ho pot fer aquesta cadena: el cap de departament del docent i el seu cap d'estudis o adjunt/a."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__managing_department_ids
+msgid "Managed by the departments"
+msgstr "Gestionat pels departaments"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__managing_department_ids
+msgid "The departments whose chiefs can organise the absences of this group's classes, besides each absent teacher's own chain of command: the one set on its study or, for a reinforcement group, on the studies of its main groups."
+msgstr "Els departaments els caps dels quals poden organitzar les absències de les classes d'aquest grup, a més de la cadena de comandament de cada docent absent: el que s'ha indicat als seus estudis o, en un grup de reforç, als estudis dels seus grups principals."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Only the chiefs of the department that manages %(group)s (%(department)s), the department chief of %(teacher)s, or someone above them, can manage this absence."
+msgstr "Només els caps del departament que gestiona %(group)s (%(department)s), el cap de departament de %(teacher)s, o algú per sobre seu, poden gestionar aquesta absència."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_employee__managing_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_base__managing_department_ids
+#: model:ir.model.fields,field_description:ems.field_hr_employee_public__managing_department_ids
+msgid "Also managed by the departments"
+msgstr "També gestionat pels departaments"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_employee__managing_department_ids
+#: model:ir.model.fields,help:ems.field_hr_employee_base__managing_department_ids
+#: model:ir.model.fields,help:ems.field_hr_employee_public__managing_department_ids
+msgid "The chiefs of these departments, and whoever is above them, can also organise this employee's guards and absences (covering their classes and guard duties, entering an expected absence), besides the Manager above and their own chain of command. For someone who in practice works for another department or area than the one they belong to. It does not change who approves their absences."
+msgstr "Els caps d'aquests departaments, i qui tenen per sobre, també poden organitzar les guàrdies i les absències d'aquesta persona (cobrir les seves classes i les seves guàrdies, introduir una absència prevista), a més del gestor de sobre i de la seva cadena de comandament. Per a qui a la pràctica treballa per a un altre departament o àrea que no és el seu. No canvia qui aprova les seves absències."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_document_return_wizard__kind__atri_document
+msgid "Documentation in ATRI"
+msgstr "Documentació a ATRI"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_document_return_wizard_form
+msgid "<i class=\"fa fa-info-circle me-1\"/>The request goes back to the employee, who is told the reason and asked to complete the documentation in ATRI, not in EMS. It returns to Direction once they confirm it."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>La sol·licitud torna al treballador, a qui es comunica el motiu i es demana que completi la documentació a ATRI, no a EMS. Torna a Direcció quan ho confirma."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "It is waiting for your approval."
+msgstr "Està pendent de la teva aprovació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "An ATRI absence is justified on the ATRI portal: it is sent back there, not for a supporting document in EMS."
+msgstr "Una absència ATRI es justifica al portal ATRI: es retorna allà, no per un justificant a EMS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "The documentation of your absence of %(when)s in ATRI is not sufficient. Reason: %(reason)s. Please complete it on the ATRI portal and then confirm it on the absence request."
+msgstr "La documentació de la teva absència del %(when)s a ATRI no és suficient. Motiu: %(reason)s. Completa-la al portal ATRI i després confirma-ho a la sol·licitud d'absència."

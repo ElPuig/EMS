@@ -233,6 +233,18 @@ class TestAbsenceTour(HttpCase):
         leave.invalidate_recordset()
         self.assertEqual(leave.ems_atri_return_reason, "Tour it is not on the portal")
 
+    def test_absence_atri_document_insufficient_tour(self):
+        """Direction finds the documentation of an ATRI absence insufficient: it goes back to
+        the employee's ATRI step, not to the supporting document in EMS."""
+        leave = self._for_direction(
+            self._create_request('Tour Atri Docs Teacher', 'ems.leave_type_atri', self.day + timedelta(days=84)))
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.start_tour(f"/odoo/action-{self._listing_action(leave).id}", "ems_absence_atri_document_insufficient",
+                        login="absence_tour_direction")
+        leave.invalidate_recordset()
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        self.assertEqual(leave.ems_atri_return_reason, "Tour the certificate is missing on the portal")
+
     def test_absence_employee_view_tour(self):
         self.start_tour("/odoo", "ems_absence_employee_view", login="absence_tour_employee")
 

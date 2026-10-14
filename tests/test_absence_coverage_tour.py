@@ -10,8 +10,8 @@ from .common import (
 @tagged('post_install', '-at_install')
 class TestAbsenceCoverageTour(HttpCase):
     """Managing absences from the guard duty board's absences table (issues #539, #571, #581),
-    as the absent teacher's Department Chief - the least-privileged role that can manage them
-    (every teacher only reads the board)."""
+    as the Department Chief of the department that manages the group's study (issue #622) - the
+    least-privileged role that can manage them (every teacher only reads the board)."""
 
     @classmethod
     def setUpClass(cls):
@@ -48,12 +48,15 @@ class TestAbsenceCoverageTour(HttpCase):
         teacher = self.env['hr.employee'].create({'name': 'Tour Absent Teacher', 'employee_type': 'teacher'})
         guard = guard or self.env['hr.employee'].create({'name': 'Tour Cover Guard', 'employee_type': 'teacher'})
         create_head_of_studies_branch(self, 'TABT', teacher)
-        # The chief heads the teacher's real department, as in production: it is what lets them
-        # write to the groups that department teaches.
+        # Issue #622: the teacher is shared - they belong to another department, out of the
+        # chief's chain of command; the chief heads the department that manages the group's
+        # study, which is what lets them organise this class and write to its families.
         chief = teacher.parent_id
         head = chief.parent_id
-        teacher.department_id = self.env['hr.department'].create({'name': 'Tour Absence Department', 'manager_id': chief.id})
-        teacher.parent_id = chief
+        study.managing_department_id = self.env['hr.department'].create({
+            'name': 'Tour Absence Department', 'manager_id': chief.id})
+        teacher.department_id = self.env['hr.department'].create({'name': 'Tour Shared Teacher Department'})
+        teacher.parent_id = self.other_department_chief.employee_ids
         chief.parent_id = head
         self._calendar(teacher, ((8, 9), (9, 10), (10, 11)),
                        subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
@@ -102,7 +105,9 @@ class TestAbsenceCoverageTour(HttpCase):
         absences table, and the regular guard on duty is sent to it."""
         teacher, guard, _group = self._board_fixture()
         wc_guard = self.env['hr.employee'].create({
-            'name': 'Tour WC Guard', 'employee_type': 'teacher', 'parent_id': teacher.parent_id.id})
+            'name': 'Tour WC Guard', 'employee_type': 'teacher',
+            # A guard duty has no students: it stays with the guard's own chain of command.
+            'parent_id': self.department_chief.employee_ids.id})
         self._calendar(wc_guard, ((8, 9),), non_teaching=self.env.ref('ems.non_teaching_gwc').id, name='Guard (WC)')
         day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
         self.env['hr.leave'].create({
@@ -138,3 +143,17 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertTrue(covers[0].is_effective)
         notice = covers[1].notice_id
         self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('early_leave', 12.0, 'draft'))
+
+    def test_absence_arrangement_change_tour(self):
+        """Issue #623: once the families were told, the class a lesson was moved into shows both
+        who teaches it and the timetable change that came with it (the group leaves earlier)."""
+        teacher, _guard, group = self._board_fixture()
+        subject = self.env['ems.subject'].search([('code', '=', 'TABT001')])
+        mover = self.env['hr.employee'].create({'name': 'Tour Move Teacher', 'employee_type': 'teacher'})
+        self._calendar(mover, ((12, 13),), subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        result = self.env['ems.absence_cover'].with_user(self.department_chief).board_arrange(
+            str(day), 9, 10, teacher.id, group.id, 'move', mover.id, False, 12.0, 13.0)
+        self.env['ems.notice'].browse(result['notice_action']['res_id']).state = 'scheduled'
+
+        self.start_tour("/odoo", "ems_absence_arrangement_change", login=self.department_chief.login)

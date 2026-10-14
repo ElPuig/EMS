@@ -4,7 +4,8 @@ from unittest.mock import patch
 from odoo.addons.ems.models.shared.datetime_utils import EmsDatetimeUtils
 from odoo.exceptions import AccessError, UserError, ValidationError
 
-from .common import create_head_of_studies_branch, create_role_employee, create_role_user, next_student_id
+from .common import (
+    create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, next_student_id)
 from .test_guard_duty_board import GuardDutyBoardCase
 
 
@@ -205,6 +206,143 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertTrue(self._assign(user=self.env.ref('base.user_admin')))
 
+    # Shared teachers (issue #622): whoever answers for the students who lose the class manages it
+    # too, besides whoever answers for the absent teacher
+
+    def _students_department(self):
+        """The study of group_a and group_b belongs to another department than teacher_a's: its Department
+        Chief is other_department_chief, it has a Seminar Chief of its own, and it hangs from an
+        area managed by other_head_of_studies."""
+        Department = self.env['hr.department']
+        area = Department.create({
+            'name': 'TABC Students Area', 'manager_id': self.other_head_of_studies.employee_ids.id})
+        self.seminar_chief = create_role_user(
+            self, 'department_chief', 'test_seminar_chief_tabc', name='TABC Students Seminar Chief')
+        department = Department.create({
+            'name': 'TABC Students Department', 'parent_id': area.id,
+            'manager_id': self.other_department_chief.employee_ids.id,
+            'seminar_chief_id': create_role_employee(self, self.seminar_chief).id,
+        })
+        self.study.managing_department_id = department
+        return department
+
+    def test_a_shared_teachers_class_is_managed_by_the_groups_department(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._students_department()
+        director = create_role_user(self, 'director', 'test_director_tabc', name='TABC Director')
+        self.env.company.director_id = create_role_employee(self, director)
+
+        # The students' department and whoever is above it, and still the teacher's own chain.
+        for manager in (self.other_department_chief, self.seminar_chief, self.other_head_of_studies, director,
+                        self.env.ref('base.user_admin'), self.department_chief, self.head_of_studies):
+            with self.subTest(user=manager.name):
+                self.assertTrue(self._assign(user=manager))
+        outsider_chief = create_role_user(self, 'department_chief', 'test_outsider_chief_tabc', name='TABC Outsider Chief')
+        self.env['hr.department'].create({
+            'name': 'TABC Outsider Department', 'manager_id': create_role_employee(self, outsider_chief).id})
+        for outsider in (outsider_chief, self.teacher_a_user, self.guard_user):
+            with self.subTest(user=outsider.name), self.assertRaises(AccessError):
+                self._assign(user=outsider)
+
+    def test_the_groups_department_only_manages_the_classes_of_its_own_groups(self):
+        level, study = create_level_study(self, 'TABCU')
+        unmanaged = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TABCU', 'level_id': level.id, 'study_id': study.id, 'shift': 'morning'})
+        self.subject.study_ids |= study
+        calendar = self._new_calendar(self.teacher_a, 'TABC Calendar A (Two Groups)')
+        calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_from + 1, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [group.id], 'name': f'{group.acronym}: TGDB',
+        } for hour_from, group in ((8, self.group_a), (9, unmanaged))])
+        self._guards(self.teacher_guard)
+        self._absence(self.teacher_a, self.day)
+        self._students_department()
+        course = self.env.company.current_course_id
+
+        def can_manage(user):
+            data = course.with_user(user).get_guard_duty_board_data('0', 'morning', day=str(self.day))
+            return {row['group_id']: row['can_manage'] for line in data['lines'] for row in line['absences']
+                    if row['teacher_id'] == self.teacher_a.id}
+
+        self.assertEqual(can_manage(self.other_department_chief), {self.group_a.id: True, unmanaged.id: False})
+        self.assertEqual(can_manage(self.department_chief), {self.group_a.id: True, unmanaged.id: True})
+        self.Cover.with_user(self.department_chief).board_assign(
+            str(self.day), 9, 10, self.teacher_a.id, unmanaged.id, self.teacher_guard.id)
+        with self.assertRaises(AccessError):
+            self.Cover.with_user(self.other_department_chief).board_assign(
+                str(self.day), 9, 10, self.teacher_a.id, unmanaged.id, self.teacher_guard.id)
+
+    def test_a_reinforcement_group_is_managed_by_its_main_groups_departments(self):
+        department = self._students_department()
+        reinforcement = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'TABC Reinforcement', 'parent_group_ids': [(6, 0, self.group_a.ids)]})
+        alone = self.env['ems.group'].create({'group_type': 'reinforcement', 'name': 'TABC Reinforcement Alone'})
+        Course = self.env['ems.course']
+
+        self.assertEqual(reinforcement.managing_department_ids, department)
+        self.assertTrue(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a, reinforcement))
+        # No main group to go by: the teacher's own chain, as for any unmanaged group.
+        self.assertFalse(alone.managing_department_ids)
+        self.assertTrue(Course.with_user(self.department_chief)._is_absence_manager(self.teacher_a, alone))
+        self.assertFalse(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a, alone))
+
+    def test_the_groups_department_releases_arranges_and_proposes(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
+        cover_id = self._assign()
+        self._students_department()
+
+        self.Cover.with_user(self.seminar_chief).board_release(cover_id)
+        self.assertIsInstance(self.env['ems.course'].with_user(self.seminar_chief).get_arrangement_candidates(
+            str(self.day), 9, 10, self.teacher_a.id, self.group_a.id), list)
+        self.assertTrue(self.Cover.with_user(self.seminar_chief).board_arrange(
+            str(self.day), 9, 10, self.teacher_a.id, self.group_a.id, 'manual', note='Joined with another group')['cover_id'])
+        # None of the department's own teachers teaches the group: managing it is enough to
+        # write to its families.
+        action = self.Notice.with_user(self.other_department_chief).board_propose_absence_change(
+            str(self.day), self.group_a.id, 'late_entry', 9.0)
+        self.assertEqual(self.Notice.browse(action['res_id']).group_ids, self.group_a)
+
+    def test_a_guard_duty_of_a_shared_teacher_is_managed_by_the_departments_named_on_them(self):
+        """A guard duty has no students of its own: only the teacher to go by - their chain of
+        command and the departments named on them as also managing them."""
+        department = self._students_department()
+        Course = self.env['ems.course']
+        self.assertTrue(Course.with_user(self.department_chief)._is_absence_manager(self.teacher_a))
+        self.assertFalse(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a))
+
+        self.teacher_a.managing_department_ids = department.parent_id
+
+        self.assertTrue(Course.with_user(self.other_head_of_studies)._is_absence_manager(self.teacher_a))
+        self.assertFalse(Course.with_user(self.other_department_chief)._is_absence_manager(self.teacher_a),
+                         "the area was named, not this department of it")
+        self.teacher_a.managing_department_ids = department
+        for manager in (self.other_department_chief, self.seminar_chief, self.other_head_of_studies,
+                        self.department_chief):
+            with self.subTest(user=manager.name):
+                self.assertTrue(Course.with_user(manager)._is_absence_manager(self.teacher_a))
+        self.assertFalse(Course.with_user(self.teacher_a_user)._is_absence_manager(self.teacher_a))
+
+    def test_existing_studies_start_out_managed_by_the_department_giving_most_of_their_classes(self):
+        self._morning()  # one teaching each: teacher_a (cls.department) and teacher_b
+        other = self.env['hr.department'].create({'name': 'TABC Another Department'})
+        self.teacher_b.department_id = other
+        Teaching, Study = self.env['ems.teaching'], self.env['ems.study']
+        self.assertEqual(Teaching.search([('group_id', '=', self.group_a.id)]).teacher_id, self.teacher_a | self.teacher_b)
+
+        Study._backfill_managing_department()
+        self.assertFalse(self.study.managing_department_id, "half of the classes is not most of them")
+
+        self.teacher_c.department_id = self.department
+        Teaching.create({'teacher_id': self.teacher_c.id, 'group_id': self.group_b.id, 'subject_id': self.subject.id})
+        Study._backfill_managing_department()
+        self.assertEqual(self.study.managing_department_id, self.department)
+
+        self.study.managing_department_id = other
+        Study._backfill_managing_department()
+        self.assertEqual(self.study.managing_department_id, other, "one already chosen is never replaced")
+
     def test_only_managers_receive_the_pending_actions(self):
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
@@ -253,19 +391,28 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._assign()
         start = self.env.company.current_course_id.date_range()[0]
 
-        def cover(guard, day, state='assigned'):
+        def cover(guard, day, state='assigned', group=None, absent=None, space=None, hour_from=8, hour_to=9):
             self.Cover.create({
-                'date': day, 'hour_from': 8, 'hour_to': 9, 'absent_employee_id': self.teacher_b.id,
-                'group_id': self.group_a.id, 'guard_employee_id': guard.id, 'state': state})
+                'date': day, 'hour_from': hour_from, 'hour_to': hour_to,
+                'absent_employee_id': (absent or self.teacher_b).id,
+                'group_id': (group or self.group_a).id, 'space_id': (space or self.space).id,
+                'guard_employee_id': guard.id, 'state': state})
 
         cover(self.teacher_guard, start)
         cover(self.teacher_guard, start - timedelta(days=1))
         cover(self.teacher_guard_2, start, state='released')
+        # Issue #629: two groups looked after together in one room in the same period are one
+        # guard, not two; the next period with one of them is another one...
+        cover(self.teacher_guard, start, group=self.group_b)
+        cover(self.teacher_guard, start, group=self.group_b, hour_from=9, hour_to=10)
+        # ...while two groups in two rooms at the same time are two.
+        cover(self.teacher_guard_2, start, hour_from=10, hour_to=11)
+        cover(self.teacher_guard_2, start, group=self.group_b, space=self.space_b, hour_from=10, hour_to=11)
 
         # Any teacher reads the board, so any teacher reads the counts too.
         line = self.env['ems.course'].with_user(self.guard_user).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))['lines'][0]
-        expected = {self.teacher_guard.id: 2, self.teacher_guard_2.id: 0}
+        expected = {self.teacher_guard.id: 3, self.teacher_guard_2.id: 2}
         for key in ('guards', 'guard_candidates'):
             counts = {guard['id']: guard['cover_count'] for guard in line[key] if guard['id'] in expected}
             self.assertEqual(counts, expected, key)
@@ -1039,6 +1186,36 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(self._states()['leave']['communicated'], ('early_leave', 11))
         self.assertTrue(self._messages(self.teacher_b, 'Timetable arrangement'))
         self.assertNotIn('pending_arrangement', [action['type'] for action in self._actions()])
+
+    def test_a_moved_lesson_shows_the_timetable_change_next_to_the_arrangement(self):
+        """Issue #623: the class the lesson moved into says both who teaches it and that the
+        group leaves earlier because of it, once the families have been told."""
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+        _cover, notice_action = self._arrange('move', self.teacher_b, 10, 11, lesson=(11.0, 12.0))
+
+        self.assertIsNone(self._row(10, 11)['arrangement_change'], "nothing changes before the notice is sent")
+        self.assertFalse(self._board_row(self.department_chief, 10)['arrangement']['change'])
+
+        self.Notice.browse(notice_action['res_id']).state = 'scheduled'
+
+        row = self._row(10, 11)
+        self.assertEqual(row['arrangement_change'], ('early_leave', 11))
+        self.assertIsNone(row['authorized'], "the group is in class then: it is not a lesson the families were excused from")
+        self.assertEqual(self._board_row(self.department_chief, 10)['arrangement']['change'], 'Leaves at 11:00')
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+        # Right after the arrangement's own tag, not only on the row of the lesson left free.
+        self.assertIn(b'Leaves at 11:00', html.split(b'lesson to 10:00.')[1][:300])
+
+    def test_a_swap_shows_no_timetable_change(self):
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._arrange('swap', self.teacher_b, lesson=(11.0, 12.0))
+
+        self.assertIsNone(self._row()['arrangement_change'])
+        self.assertFalse(self._board_row(self.department_chief)['arrangement']['change'])
 
     def test_deleting_the_draft_notice_discards_the_moved_lesson(self):
         self._morning()

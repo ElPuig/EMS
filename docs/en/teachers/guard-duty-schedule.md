@@ -6,7 +6,7 @@
 
 See where every teacher is, and who is on guard duty, in each time block of the week — not just your own schedule.
 
-**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule). Organising an absence from the Absences table is up to the absent teacher's Department or Seminar Chief and those above them (see [Organising an absence](#organising-an-absence)), who can also enter an expected absence for a teacher of their department (see [Entering an expected absence](#entering-an-expected-absence)); a teacher on guard duty can also take a class left without a teacher themselves (see [Covering a class yourself](#covering-a-class-yourself)).
+**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule). Organising an absence from the Absences table is up to the absent teacher's Department or Seminar Chief and those above them (see [Organising an absence](#organising-an-absence)), who can also enter an expected absence for a teacher of their department (see [Entering an expected absence](#entering-an-expected-absence)); a teacher on guard duty can also take a class left without a teacher themselves (see [Covering a class yourself](#covering-a-class-yourself)). When the group's study has a department that manages it, that department's chiefs can organise it too.
 
 ---
 
@@ -43,7 +43,7 @@ The table's columns are the groups with a class in that shift; each row is a tim
 
 The **Guard duty** column on the right lists every teacher on guard duty in that time block, each in a thin-bordered box. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column. A teacher on a **Guard (WC)** duty specifically shows a **"(WC)"** tag right after their name — worth calling out because, unlike a break-time guard (see below), a WC guard duty can fall at any time of day, so there's no other way to tell it apart from a plain guard duty at a glance.
 
-The small number in a circle after each name is how many classes that teacher has been sent to cover this course (including covers already planned for a coming day). It helps share the covers out fairly.
+The small number in a circle after each name is how many classes that teacher has been sent to cover this course (including covers already planned for a coming day). Several groups looked after together in the same room at the same time count as a single cover; groups in different rooms count separately. It helps share the covers out fairly.
 
 A row whose time block is a break period for some level — with no class scheduled in it for anyone — gets a small **"Break"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
 
@@ -109,7 +109,7 @@ If you change your mind, click the line again and then **Stop covering this clas
 
 ## Entering an expected absence
 
-Who can do this: **Seminar Chiefs** and **Department Chiefs**, for the teachers of their own department, as well as the Head of Studies or Deputy, Direction and the administrator.
+Who can do this: **Seminar Chiefs** and **Department Chiefs**, for the teachers of their own department, as well as the Head of Studies or Deputy, Direction and the administrator. They can also do it for a teacher of another department who teaches a group their department manages, or who names their department in the **Also managed by the departments** field (see [Organising an absence](#organising-an-absence)).
 
 The normal way is always that the teacher requests the absence themselves. Use this only for the exceptional case of a teacher who phones or writes to warn they will be away and cannot use EMS: entering it puts their classes on the schedule straight away, so you can organise the cover.
 
@@ -125,7 +125,9 @@ The absence then appears on the schedule as awaiting approval (lighter italic re
 
 ## Organising an absence
 
-Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**, and those above them in the hierarchy (Head of Studies or Deputy, and Direction), as well as the administrator. What counts is the department the teacher teaches in: its chiefs and the manager of the area it belongs to organise the absences of everyone in it, members of the management team (such as the Secretary) included. Everybody else sees the result but cannot change it, and the absent teacher cannot organise their own absence. It makes no difference whether the absence was requested by the teacher or entered by their chief or the Head of Studies as an expected absence: both are handled the same way. When the teacher later requests an absence that was expected, whatever was already organised stays as it is, and only the extra days or hours of the request appear as new lines to decide on.
+Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**, and those above them in the hierarchy (Head of Studies or Deputy, and Direction), as well as the administrator. What counts is the department the teacher teaches in: its chiefs and the manager of the area it belongs to organise the absences of everyone in it, members of the management team (such as the Secretary) included. Everybody else sees the result but cannot change it, and the absent teacher cannot organise their own absence. It makes no difference whether the absence was requested by the teacher or entered by their chief or the Head of Studies as an expected absence: both are handled the same way. When the teacher later requests an absence that was expected, whatever was already organised stays as it is, and only the extra days or hours of the request appear as new lines to decide on. **Teachers shared between departments:** besides whoever answers for the teacher, a class can also be organised by whoever answers for the students who lose it: when the group's study names a department that manages it (the **Managed by the department** field on the study's form), that department's Department Chief and Seminar Chief, and those above them, can organise the classes of its groups, whatever department the teacher belongs to. For example, if a teacher of the Foreign Languages department misses a lesson with a Computer Science group, the Computer Science chiefs can assign the guard; if she misses a lesson with an Administration group, the Administration chiefs can; and in both cases so can her own Department Chief. A reinforcement group follows the studies of its main groups. For a teacher who in practice works for another department or area than their own, their form lets you say so in the **Also managed by the departments** field (below **Manager**): the chiefs of those departments, and those above them, can organise everything of theirs, fixed guard duties included (toilets, break), which have no students.
+
+> The **Managed by the department** and **Also managed by the departments** fields were introduced in version 18.0.0.36.2. Nobody who could already organise an absence has lost that.
 
 Everything is done from the **Absences table**, and nothing happens on its own: each step waits for you to press its button. A day that is already over can no longer be changed.
 
@@ -170,7 +172,7 @@ To apply one, click **Apply** on its line, or click the class and choose it in t
 ![Dialog of a class: the possible arrangements, with the notice and the entry and exit changes each one implies, above sending a guard and the arrangement described by hand](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 
 - A **swap** takes effect at once: the class is struck through, with the teacher who is with the group, and both teachers receive an Odoo message with the change (and their new entry or exit time, if it changes).
-- A **moved lesson** opens the draft notice for the families straight away. **It only counts once that notice is sent**: until then the class is not struck out and the proposals box shows it as waiting for its notice (**Open draft**). The teachers are told when the notice is sent. If you delete the draft, the arrangement is discarded.
+- A **moved lesson** opens the draft notice for the families straight away. **It only counts once that notice is sent**: until then the class is not struck out and the proposals box shows it as waiting for its notice (**Open draft**). The teachers are told when the notice is sent. If you delete the draft, the arrangement is discarded. Once it is sent, the class shows both tags: the teacher who is with the group and, in green, what the families were told (*"Leaves at 12:25"*, *"Starts at 09:00"*).
 
 Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own.
 

@@ -33,6 +33,7 @@ Navega a: **Comunitat Educativa → Grups**
    - **Delegat**: un alumne representant (només seleccionable un cop el grup té alumnes).
    - **Sotsdelegat**: l'alumne que substitueix el delegat. Es tria entre els mateixos alumnes i no pot ser el delegat.
    - **Torn**, **Aula de referència**, **ID extern** (codi Esfera/SAGA) segons calgui.
+   - **Gestionat pels departaments** (només lectura, visible quan n'hi ha): el departament indicat als estudis del grup o, en un grup de reforç, als estudis dels seus grups principals. Els seus caps també poden organitzar les absències de les classes del grup. Es canvia des de la fitxa dels estudis (consulta [Estudis](curriculum-studies.md)).
 4. Fes clic a **Desa**.
 
 ![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat i sotsdelegat, amb els seus alumnes](../../assets/admin/admin-groups-form.png)

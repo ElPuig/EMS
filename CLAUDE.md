@@ -320,10 +320,11 @@ standing default; it only applies for the exact stretch the developer scoped it 
   approach and verify it empirically (run the actual tests, check the actual behavior) rather than
   guessing blind or stalling on it. If it doesn't hold up, try a different approach and re-verify —
   iterate until it's actually right, not just until something compiles.
-- Git commits (never destructive operations) are allowed as checkpoints during the session, as an
-  explicit, scoped exception to "the user manages commits himself" — useful for marking a clean,
-  verified state before continuing into the next piece of work. **`git push`/`git pull` remain
-  forbidden even in this mode, with no exception** — regardless of how confident the state is.
+- Git commits (never destructive operations) are allowed as checkpoints during the session —
+  useful for marking a clean, verified state before continuing into the next piece of work. **The
+  mode grants no push of its own**: pushing follows "Pushing outside the release routine" below,
+  exactly as with the mode off (so the release branch during "Prepara la release", yes; anything
+  those rules don't cover, no).
 - Every other standing rule in this file (testing conventions, migration rules, i18n, notification
   policy, etc.) still applies unchanged — this mode only changes who resolves an
   otherwise-blocking judgment call, not what's safe to do.
@@ -363,6 +364,11 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 - Navigate to the target via `url: "/odoo/action-ems.<action_id>"` — do not chain menu-click steps.
 - Verify data in the list view after save, not via `input[value=...]` (OWL does not sync the HTML attribute).
 - Register in `__manifest__.py` under `web.assets_tests`.
+- A tour that saves a form must end by waiting for `.o_form_view .o_form_saved`, never
+  `.o_form_view:not(.o_form_dirty)`: Odoo puts `o_form_dirty`/`o_form_saved` on the inner
+  `.o_form_renderer`, so the second selector always matches and the tour can end while the save is
+  still running ("Tour finished with an open form view in edition mode", a red that only shows
+  under load; it stopped the 36.2 release on CI, 2026-10-13).
 - Python side: `@tagged('post_install', '-at_install')`, `self.start_tour("/odoo", "tour_name", login="admin")`.
 - To watch a tour run in a real browser during development: add `watch=True` to `start_tour`.
 
@@ -885,6 +891,15 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    next one — this routine is an explicit exception to the developer managing commits themselves.
    If a conflict is still ambiguous after reviewing both sides, stop and ask.
 
+   **`i18n/*.po` conflicts are expected here and keep both sides (2026-10-13).** Every branch
+   appends its new entries at the end of both `.po` files, so two branches adding translations
+   always conflict there. Keep both sides' blocks, never pick one. Check the result block by
+   block: git treats the lines the two sides share (`#. module: ems`, `#. odoo-python`, a
+   `#: code:addons/ems/...` reference to the same file) as common context, so a block can come out
+   of the merge without its own `#:` reference, which Odoo then never loads. Afterwards parse both
+   files with `polib` and confirm every entry of every merged branch is still there with its
+   references.
+
    **Move each issue's card on the board as you go** (added 2026-09-26): right after committing
    an issue's merge, move it from "📦 Ready to merge" to **"⚙️ Merge in progress"**; if its branch
    genuinely can't be integrated (a conflict still ambiguous after asking, or the developer decides
@@ -962,6 +977,9 @@ circunstancia."* The loop:
   exit; no polling by hand). Green means every check except `changelog-clean`/`verify` (the
   "Require changelog clean" workflow, red by design until `/changelog-clean`) and `deploy-check`
   (manual).
+- Read the run's real conclusion before the next step (`gh run view <run-id> --json conclusion`):
+  a background command ending in something else (an `echo`, a pipe) reports that command's exit
+  code, not the run's. On 2026-10-13 `/changelog-clean` was posted on a red run that way.
 - Only the run of the newest pushed head counts; stop watching any earlier one as soon as a new
   push lands. Every push starts a new run of this workflow, a docs-only one included (never
   skipped, so the required check can't hang on "pending"), and older runs are not cancelled (no
@@ -976,8 +994,22 @@ circunstancia."* The loop:
 - Stop and ask instead of pushing another attempt when the fix is a judgment call rather than a
   correction (changing a feature's behavior, relaxing a validation to make a test pass), when the
   failure is outside the code (GitHub infrastructure, an external service), or after ~3 red cycles.
-- Outside this routine the agent never pushes, unless the developer explicitly grants it for that
-  specific case.
+
+**Pushing outside the release routine (developer, 2026-10-06, replacing "never pushes outside this
+routine"):** *"puedes hacer push de las ramas que hayas creado tú o si te pido que resuelvas o
+gestiones tú una issue"*. So the agent may push, without asking each time:
+- a branch it created itself, and
+- the branch of an issue the developer asked it to resolve or manage (this is what "completa la
+  issue" / "cierra la issue" relies on to push the issue branch before moving its card to "Ready
+  to merge").
+
+Anything else (a colleague's branch, a branch the developer is working on by hand) needs the
+developer's explicit go-ahead for that case. The limits are the same as in the routine: a plain
+fast-forward with the credential helper on that one command
+(`git -c credential.helper='!gh auth git-credential' push origin <branch>`), never `--force`,
+never `main`, and stop and ask if the remote has commits the local branch lacks. Local commits of
+finished, verified work need no permission (developer, 2026-10-04), never on `main` and never
+amending or rewriting one already pushed.
 
 **Hard limits, no exceptions:**
 - **`main` and the repository itself are read-only** (developer's rule, 2026-09-27: *"Nunca jamás
@@ -1241,3 +1273,45 @@ session's own scratchpad directory tree (each level is `700`, owned by the sessi
 `odoo shell` fails with `PermissionError` trying to open it directly. Copy the HTML body to a
 world-readable path under `/tmp/` first (`chmod 644`), point the script at that copy, and delete
 the temporary copy again once the send confirms `state=sent` in the shell's own output.
+
+## Slide decks and videos about EMS: house style (2026-10-08)
+
+Any slide deck or video about EMS for the centre's staff follows Institut Puig Castellar's house
+style. The canonical source is the deck "EMS: funcionalitats per col·lectiu"
+(<https://claude.ai/artifact/9E6uxBwmNzdFjjhUAqo4gL>); read its slide HTML to copy the exact
+markup instead of rebuilding it from this description.
+
+- **Format and language:** a claude.ai Slides artifact (it exports to .pptx/PDF), not a .pptx
+  file. Catalan.
+- **Colors:** burgundy `#970A2C` (primary: header band, icons, accent text), dark `#5C0000`,
+  bright `#B31438`; orange `#EF902A` (stripes, borders, arrows; as text on a light background use
+  `#A8520C`), light orange `#FFCF9E` (eyebrows and accents on burgundy), `#FDEEDC` (icon circles,
+  callouts); backgrounds `#F5F5F5` and `#F1EDEE`; white cards with border `#E3DDDE` and a soft
+  shadow; headings `#2F2F2F`, body `#4A4A48`, text on burgundy `#FFFFFF`/`#F0D7DD`.
+- **Fonts:** Rubik (headings) and Public Sans (body), from Google Fonts.
+- **Layout:** cover, closing and section dividers on a
+  `linear-gradient(135deg, #5C0000 0%, #970A2C 62%, #B31438 100%)` with an orange top stripe and
+  the logo in a white rounded box; content slides with a burgundy top band (orange bottom border)
+  holding an uppercase eyebrow and the title. The closing slide links the manuals as pills
+  (`https://docs.ems.elpuig.xeill.net/ca/<path>.html`), carries a QR to the docs index and signs
+  "Equip EMS · Projecte de Qualitat i Millora Contínua".
+- **Screenshots** only with fictitious data: `docs/assets/` or the `ChromeBrowser` mechanism (see
+  "Screenshots must never expose real personal data" above).
+
+**Videos:**
+- No voice-over: they must be understood on mute, so the on-screen text is complete. One short
+  video (2-4 minutes) per self-contained block.
+- MP4, 1920x1080, H.264 video with **MP3 audio** (the developer's VSCode player plays no sound
+  with AAC or Opus and rejects WebM).
+- Elements build in progressively, with a thin orange progress bar along the bottom edge for the
+  whole video.
+- When one deck yields several videos, each starts the same way (cover, the index of all blocks,
+  the same index with this video's block highlighted in burgundy) and goes straight into the
+  content, skipping the block's own title slide. The deck keeps its title slides for live
+  presenting.
+- **Music:** soft background music by a human author who can be credited on a final slide, never
+  AI-generated (the point is to give artists visibility). Creative Commons, preferably CC BY 4.0
+  or CC0; avoid ND. Cheerful but relaxed (it is a workplace), neither epic nor melancholic. A
+  different track and a different author for each video.
+- The rendering pipeline is not in this repo: on the developer's desktop box it lives in
+  `/root/ems-slides-video/` (never keep it only under `/tmp`, which is wiped on reboot).

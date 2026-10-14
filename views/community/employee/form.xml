@@ -248,6 +248,10 @@
                     <attribute name="readonly">1</attribute>
                     <attribute name="help">Set automatically from the employee's department (Department Chief / Seminar Chief). Edit it from the Departments form instead.</attribute>
                 </field>
+                <!-- Issue #622: right below the Manager it adds to. -->
+                <field name="parent_id" position="after">
+                    <field name="managing_department_ids" widget="many2many_tags" options="{'no_create': True}" />
+                </field>
 
                 <field name="employee_type" position="after">
                     <field name="contract_type_id" />

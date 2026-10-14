@@ -37,6 +37,8 @@ Ningú aprova la seva pròpia absència: la d'un responsable d'àrea la resol Di
 
 ## Aprovar o rebutjar
 
+Quan algú de la teva àrea envia una sol·licitud reps un correu amb la persona, el tipus d'absència, les dates i les hores, per poder organitzar-ne la cobertura, i la sol·licitud queda a les teves activitats.
+
 **Assistència del personal > Absències > Administració > Absències sol·licitades**.
 
 Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les que esperen que les donis per rebudes i les que tenen un justificant que has de validar. Cada absència passa primer per tu i després per Direcció, i el llistat té una columna per a cadascú:
@@ -105,7 +107,7 @@ Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o ob
 | Icona | Botó | Resultat |
 |---|---|---|
 | Casella marcada | **Direcció: fet** | Aprovat |
-| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep |
+| Full | **Documentació insuficient** | Torna a la persona, En espera de documentació. Abans demana el motiu, que la persona rep. En una absència ATRI la documentació és al portal, no a EMS: torna a Pendent de confirmar ATRI i, quan la persona ho confirma, torna directament a Direcció sense passar pel cap |
 | Fletxa de resposta | **No consta a ATRI** | Només absències ATRI, quan no apareix al portal. Torna a la persona, Pendent de confirmar ATRI. Abans demana el motiu, que la persona rep |
 | Fletxa enrere | **Desfés l'última decisió** | Torna a l'estat anterior, vegeu [Desfer una decisió](#desfer-una-decisió) |
 | Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, i demana confirmació abans |
@@ -185,7 +187,7 @@ Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis
 Quan ja saps que un docent faltarà però encara no ha sol·licitat l'absència (ha trucat aquest matí, o s'ha acordat en una reunió), entra-la aquí perquè les guàrdies es puguin planificar tot seguit.
 
 1. Fes clic a **Nou**.
-2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el Cap d'Estudis o el Cap d'Estudis Adjunt veu els seus docents, i Direcció els veu tots. Els caps de departament i de seminari també poden introduir absències previstes, per als docents del seu propi departament. Els membres de l'equip directiu (com el Secretari) compten com a docents de l'àrea a què pertany el seu departament: el Secretari, que fa classe en un departament d'FP, surt al Cap d'Estudis o Cap d'Estudis Adjunt responsable d'FP.
+2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el Cap d'Estudis o el Cap d'Estudis Adjunt veu els seus docents, i Direcció els veu tots. Els caps de departament i de seminari també poden introduir absències previstes, per als docents del seu propi departament. Els membres de l'equip directiu (com el Secretari) compten com a docents de l'àrea a què pertany el seu departament: el Secretari, que fa classe en un departament d'FP, surt al Cap d'Estudis o Cap d'Estudis Adjunt responsable d'FP. També hi surten els docents d'altres departaments que fan classe a un grup que gestiona el departament (camp **Gestionat pel departament** dels estudis del grup) i els que tenen el departament al camp **També gestionat pels departaments** de la seva fitxa.
 3. Indica **De** i **A**, amb data i hora. Per defecte, avui de 08:00 a 15:00. Una absència pot ocupar diversos dies.
 4. Si vols, afegeix-hi **Notes** per a tu. El docent no veu mai aquesta entrada.
 5. Desa.

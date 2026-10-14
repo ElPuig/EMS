@@ -14,6 +14,7 @@
 |------|-----------------|-----|
 | Role → security group sync | `role_ids`, `_onchange_role_ids`, `update_*_role()`, `_sync_security_groups()` | [Academic role hierarchy](role_hierarchy.md) |
 | `parent_id` cascade (Department Chief / Seminar Chief / Director) | `_compute_parent_id` | [Department cascade](department.md) |
+| `managing_department_ids` ("Also managed by the departments", issue #622): departments whose chiefs also organise this employee's guards and absences, without touching `parent_id` or absence approval | `ems.course._is_absence_manager` | [Guard duty board, "Who can manage"](../attendance/guard_duty_board.md) |
 | Personal calendar lifecycle | `create()`/`write()`/`unlink()`'s `resource_calendar_id` handling, `_personal_calendar_name()` | [Working schedules](working_schedule.md) |
 | Weekly schedule derived breaks | `_get_derived_break_entries`, `get_derived_break_attendance_data` | [Working schedules](working_schedule.md) |
 | Profile picture sync | `write_photo()`, `write()`'s photo guard, `_refresh_stale_avatar_placeholder()` | [Photo visibility](photo_visibility.md) |

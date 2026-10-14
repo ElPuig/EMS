@@ -832,14 +832,17 @@ class EmsAbsenceLeave(models.Model):
         ahead instead of learning of it once decided. They follow it from then on, like anyone
         else involved, and receive whatever is posted on it.
 
-        A note addressed to them alone: the approver already has the approval activity and the
-        employee filed it themselves. 'sudo' because the employee filing it cannot subscribe
+        A note addressed to them alone: the approver has their own email asking for the
+        approval and the employee filed it themselves. 'sudo' because the employee filing it cannot subscribe
         anybody else - Odoo's own create subscribes the approver the same way."""
         for leave in self.sudo():
             partners = leave._ems_notify_partners()
             if partners:
                 leave.message_subscribe(partner_ids=partners.ids)
-                leave._ems_notify(partners, leave._ems_summary())
+                # A chief who is also the approver has the same summary in the email asking
+                # them to approve it (see activity_update): one email, not two.
+                leave._ems_notify(
+                    partners - leave.activity_ids.user_id.partner_id, leave._ems_summary())
 
     def _ems_when(self):
         """The absence's dates as a sentence fragment, for the messages about it."""
@@ -985,6 +988,15 @@ class EmsAbsenceLeave(models.Model):
         return Markup("<p>%s</p>%s") % (
             _("Absence request of %(name)s", name=self.employee_id.display_name), details)
 
+    def _track_subtype(self, init_values):
+        """Keeps the approval's own tracking entry ("Status: Pending → Approved") a plain note
+        on the request. hr_holidays gives it a subtype every follower is emailed with, and
+        '_ems_post_outcome' already sends them the summary of that same approval: two emails
+        for one decision (issue #625)."""
+        if 'state' in init_values and self.state == 'validate':
+            return self.env.ref('mail.mt_note')
+        return super()._track_subtype(init_values)
+
     def _ems_post_outcome(self):
         """The summary of what was decided, for everyone following the request."""
         for leave in self:
@@ -1010,32 +1022,46 @@ class EmsAbsenceLeave(models.Model):
         return super().message_post(**kwargs)
 
     def activity_update(self):
-        """Shortens the absence type in the approval activity hr_holidays schedules.
+        """Replaces the email of the approval activity hr_holidays schedules, and shortens the
+        absence type in its note.
 
-        Its note is "New %(leave_type)s Request created by %(user)s" with the type's *full*
+        The email Odoo sends whoever the activity is assigned to says a document has been
+        assigned to them and nothing else: not the dates, not the hours. Approving an absence
+        starts with knowing what has to be covered, so they get the same summary the chiefs do,
+        with the request for their approval, and Odoo's own email is not sent
+        ('mail_activity_quick_update', which is what stops it).
+
+        The note is "New %(leave_type)s Request created by %(user)s" with the type's *full*
         wording dropped into it, which here is a whole legal sentence - so the chatter entry the
         employee sees the moment they file a request reads as a paragraph of legalese instead of
         as a request somebody has to act on. Same treatment, for the same reason, as
         '_compute_display_name' gives every other place Odoo prints a leave.
 
-        Rewritten afterwards rather than reimplemented: 'activity_update' is forty lines of
-        state handling and deadline arithmetic that has nothing to do with this, and the note is
-        built inline inside it with no hook of its own.
+        Both done afterwards rather than by reimplementing it: 'activity_update' is forty lines
+        of state handling and deadline arithmetic that has nothing to do with this, and the note
+        is built inline inside it with no hook of its own.
         """
-        result = super().activity_update()
-        for leave in self:
+        activities_before = {leave.id: leave.sudo().activity_ids for leave in self}
+        result = super(EmsAbsenceLeave, self.with_context(
+            mail_activity_quick_update=True)).activity_update()
+        # Sudo because the activity belongs to the approver, not to the employee who just filed
+        # the request and triggered this.
+        for leave in self.sudo():
+            assigned = leave.activity_ids - activities_before[leave.id]
             long_name = leave.holiday_status_id.name
             short_name = leave.holiday_status_id.ems_short_name
-            if not long_name or not short_name or short_name == long_name:
-                continue
-            for activity in leave.activity_ids:
-                # str(), not the Markup an Html field returns: Markup.replace() escapes both of
-                # its arguments, so a type whose name carries an apostrophe would stop matching
-                # itself. Sudo because the activity belongs to the approver, not to the employee
-                # who just filed the request and triggered this.
-                note = str(activity.note or '')
-                if long_name in note:
-                    activity.sudo().note = note.replace(long_name, short_name)
+            if long_name and short_name and short_name != long_name:
+                for activity in leave.activity_ids:
+                    # str(), not the Markup an Html field returns: Markup.replace() escapes both
+                    # of its arguments, so a type whose name carries an apostrophe would stop
+                    # matching itself.
+                    note = str(activity.note or '')
+                    if long_name in note:
+                        activity.note = note.replace(long_name, short_name)
+            # Not whoever caused it: Odoo does not email them their own activity either.
+            approvers = assigned.user_id - self.env.user
+            leave._ems_notify(approvers.partner_id, Markup("%s<p>%s</p>") % (
+                leave._ems_summary(), _("It is waiting for your approval.")))
         return result
 
     def action_approve(self, check_state=True):
@@ -1124,20 +1150,38 @@ class EmsAbsenceLeave(models.Model):
         """Asks the Head (validating the document) or Direction (reviewing it) why it is not
         sufficient before sending the request back: the employee needs to know what to attach
         instead. When the new document is sent back again, the previous reason is offered for
-        editing rather than written from scratch."""
+        editing rather than written from scratch.
+
+        An ATRI absence is justified on the portal, not in EMS: Direction sends it back to
+        "Pending ATRI confirmation", never to the Head's "Awaiting documentation" (issue #627)."""
         self.ensure_one()
-        self._ems_check_can_return_document()
+        context = {'default_leave_id': self.id}
+        if self._ems_justified_in_atri():
+            self._ems_check_can_return_atri()
+            context['default_kind'] = 'atri_document'
+        else:
+            self._ems_check_can_return_document()
+            context['default_reason'] = self.ems_document_return_reason
         return {
             'type': 'ir.actions.act_window',
             'name': _("Documentation insufficient"),
             'res_model': 'ems.absence.document_return_wizard',
             'view_mode': 'form',
             'target': 'new',
-            'context': {'default_leave_id': self.id, 'default_reason': self.ems_document_return_reason},
+            'context': context,
         }
+
+    def _ems_justified_in_atri(self):
+        """Whether what Direction is reviewing is justified on the ATRI portal rather than with
+        a supporting document in EMS."""
+        self.ensure_one()
+        return self.ems_needs_atri and self.ems_status == 'pending_direction'
 
     def _ems_check_can_return_document(self):
         for leave in self:
+            if leave._ems_justified_in_atri():
+                raise UserError(_("An ATRI absence is justified on the ATRI portal: it is sent "
+                                  "back there, not for a supporting document in EMS."))
             if leave.ems_status == 'pending_validation':
                 leave._ems_check_is_head()
             elif leave.ems_status == 'pending_direction':
@@ -1203,9 +1247,10 @@ class EmsAbsenceLeave(models.Model):
                 raise UserError(_("Only an ATRI absence Direction is reviewing can be sent back "
                                   "as not in ATRI."))
 
-    def _ems_return_atri(self, reason):
-        """Sends the request back to the employee because it is not in ATRI, telling them why.
-        The reminders start over. The reason is written first
+    def _ems_return_atri(self, reason, documentation=False):
+        """Sends the request back to the employee because it is not in ATRI - or, with
+        'documentation', because what they attached to it there is not sufficient - telling
+        them why. The reminders start over. The reason is written first
         so the employee's new activity, scheduled by write(), carries it."""
         self._ems_check_can_return_atri()
         before = {leave.id: leave._ems_decision_values() for leave in self}
@@ -1217,10 +1262,17 @@ class EmsAbsenceLeave(models.Model):
             leave.ems_decision_before = before[leave.id]
         for leave in self:
             employee = leave.employee_id
-            leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, _(
-                "Your absence of %(when)s does not appear in ATRI. Reason: %(reason)s. Please "
-                "request it on the ATRI portal and then confirm it on the absence request.",
-                when=leave._ems_when(), reason=reason))
+            if documentation:
+                message = _(
+                    "The documentation of your absence of %(when)s in ATRI is not sufficient. "
+                    "Reason: %(reason)s. Please complete it on the ATRI portal and then confirm "
+                    "it on the absence request.", when=leave._ems_when(), reason=reason)
+            else:
+                message = _(
+                    "Your absence of %(when)s does not appear in ATRI. Reason: %(reason)s. Please "
+                    "request it on the ATRI portal and then confirm it on the absence request.",
+                    when=leave._ems_when(), reason=reason)
+            leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, message)
         self._ems_notify_request_changes()
         return True
 
@@ -1297,8 +1349,10 @@ class EmsAbsenceLeave(models.Model):
             if not leave[escalated_field] and (today - leave.request_date_to).days >= escalation:
                 heads = leave._ems_head_users()
                 leave._ems_notify(heads.partner_id, report)
+                # The note above is the Head's email; the activity only goes on their list.
                 for head in heads:
-                    leave.activity_schedule(overdue_xmlid, date_deadline=today, user_id=head.id)
+                    leave.with_context(mail_activity_quick_update=True).activity_schedule(
+                        overdue_xmlid, date_deadline=today, user_id=head.id)
                 leave[escalated_field] = True
 
     def _ems_reminder_messages(self):

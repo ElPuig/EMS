@@ -49,6 +49,9 @@
   PDF report wizard: teachers never found it in the ⚙ menu, which keeps it as well. Done with a
   js_class on the pivot and graph views that only swaps their toolbar template and renderer, loaded in
   web.assets_backend_lazy like the views it extends.
+- The wizard opens on what the screen is filtered on: a student facet (e.g. coming from a student's
+  form) gives that student's report, a subject the by-subject report (narrowed to the group facet if
+  any), a group the by-group report.
 - Clicking a pivot cell or a graph bar no longer opens the bare attendance lines in a default list
   (disable_linking).
 - The three manual screenshots showing the pivot toolbar were regenerated.

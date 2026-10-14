@@ -34,7 +34,7 @@ Para consultar la asistencia de un solo alumno, abre su ficha y haz clic en el b
 
 ## Imprimir un informe PDF
 
-En la pantalla de **Informes de asistencia**, haz clic en el botón de la **impresora**, el último de la fila de encima de la tabla (junto al de descarga), también en la vista de gráfico. También está en el menú **⚙ (engranaje)**, como **Imprimir informe de asistencia**. En el formulario, elige el **Tipo de informe** — por grupo, por alumno o por asignatura — y los campos se adaptan a tu elección. Las listas ofrecen exactamente los alumnos, grupos y asignaturas que ves en la tabla dinámica (solo el curso actual), y el PDF incluye las mismas sesiones que la tabla.
+En la pantalla de **Informes de asistencia**, haz clic en el botón de la **impresora**, el último de la fila de encima de la tabla (junto al de descarga), también en la vista de gráfico. También está en el menú **⚙ (engranaje)**, como **Imprimir informe de asistencia**. Si la tabla está filtrada por un alumno, un grupo o una asignatura (en la barra de búsqueda), el formulario se abre en ese informe con el filtro ya elegido: desde la ficha de un alumno, por ejemplo, es el informe de ese alumno. En el formulario, elige el **Tipo de informe** — por grupo, por alumno o por asignatura — y los campos se adaptan a tu elección. Las listas ofrecen exactamente los alumnos, grupos y asignaturas que ves en la tabla dinámica (solo el curso actual), y el PDF incluye las mismas sesiones que la tabla.
 
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo**.

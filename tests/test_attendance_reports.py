@@ -228,6 +228,32 @@ class TestAttendanceReportWizards(AttendanceReportCommon):
         wizard._onchange_subject_label()
         self.assertEqual(set(wizard.group_ids.ids), {self.group1.id, self.group2.id})
 
+    # --- Prefill from the 'Reports' screen's search facets (issue #633) ------------------
+
+    def _defaults(self, **context):
+        keys = {f'ems_report_{name}': value for name, value in context.items()}
+        return self.env['ems.attendance_report_wizard'].with_user(self.owner_user).with_context(**keys).default_get(
+            ['report_type', 'student_id', 'group_id', 'subject_label'])
+
+    def test_student_facet_prefills_the_student_report(self):
+        defaults = self._defaults(student_id=self.student1.id, student_group_id=self.group1.id)
+        self.assertEqual((defaults['report_type'], defaults['student_id']), ('student', self.student1.id))
+
+    def test_group_facet_prefills_the_group_report(self):
+        defaults = self._defaults(student_group_id=self.group2.id)
+        self.assertEqual((defaults['report_type'], defaults['group_id']), ('group', self.group2.id))
+
+    def test_subject_and_group_facets_prefill_the_subject_report_on_that_group(self):
+        defaults = self._defaults(subject_id=self.subject_a.id, student_group_id=self.group2.id)
+        self.assertEqual((defaults['report_type'], defaults['subject_label']), ('subject', self.subject_a.display_name))
+        wizard = self.env['ems.attendance_report_wizard'].with_user(self.owner_user).with_context(
+            ems_report_student_group_id=self.group2.id).new(defaults)
+        wizard._onchange_subject_label()
+        self.assertEqual(wizard.group_ids._origin, self.group2)
+
+    def test_no_facet_keeps_the_plain_defaults(self):
+        self.assertEqual(self._defaults()['report_type'], 'group')
+
     # --- tutor_ids: unified for all 3 types --------------------------------------------
 
     def test_tutor_ids_follow_report_type(self):

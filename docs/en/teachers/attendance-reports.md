@@ -49,7 +49,8 @@ To look at a single student's attendance, open their file and click the **Attend
 
 On the **Attendance reports** screen, click the **printer** button, the last one in the row above the table
 (next to the download one), also in the graph view. It's also in the **⚙ (gear)** menu, as **Print attendance
-report**. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
+report**. If the table is filtered on a student, a group or a subject (in the search bar), the form opens on
+that report with it already selected: from a student's file, for instance, it's that student's report. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
 to your choice. The lists offer exactly the students, groups and subjects you see on the pivot table
 (current course only), and the PDF covers the same sessions as the table.
 

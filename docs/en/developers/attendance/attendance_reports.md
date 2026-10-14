@@ -194,6 +194,15 @@ above:
 
 - **From/To prefill:** each selection's onchange fills the dates with the first and last `date` of its own
   lines (date range off).
+- **Prefill from the screen's filters:** the print button (and the ⚙ entry) pass the active search facets
+  on `student_id`, `student_group_id` and `subject_id` as `ems_report_<field>` context keys
+  (`attendance_report_print.js`; a facet with several values or free text is ignored).
+  `_defaults_from_search()`, called by `default_get()`, turns them into the report they point at:
+  student → by student; subject → by subject (its label when it has a single one in scope, otherwise the
+  user picks the topic), the groups narrowed to the group facet if any (`_onchange_subject_label`); group
+  alone → by group. The form's first onchange runs every default's onchange, so the dates fill as when
+  picked by hand. From a student's form (its `search_default_student_id` facet) this gives that student's
+  report.
 - **Nothing is taken from the client.** The 3 `ir.actions.report` have `model = ems.attendance_report_wizard`
   and `print()` calls `report_action(self)` with no `data`; the report data models
   (`report.ems.attendance_report_{group,student,subject}`) browse the wizard and recompute its lines. A value

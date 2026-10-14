@@ -139,7 +139,28 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		res = super().default_get(fields_list)
 		res.setdefault("allowed_group_ids", [(6, 0, [group.id for group in self._get_scope_values("student_group_id")])])
 		res.setdefault("allowed_student_ids", [(6, 0, [student.id for student in self._get_scope_values("student_id")])])
+		res.update(self._defaults_from_search())
 		return res
+
+	@api.model
+	def _defaults_from_search(self):
+		"""The report the 'Reports' screen's active search facets point at (issue #633), passed by its
+		print button as ems_report_<field> context keys (attendance_report_print.js): a student gives
+		the by-student report; a subject the by-subject one, its groups narrowed to the group facet if
+		there is one; a group alone the by-group one. The onchanges then fill the dates and groups,
+		as when picked by hand (the form's first onchange runs them for every default). A subject
+		split into several topics in the user's scope leaves the subject to pick."""
+		context = self.env.context
+		student, group, subject = (context.get(f"ems_report_{name}")
+								   for name in ("student_id", "student_group_id", "subject_id"))
+		if student:
+			return {"report_type": "student", "student_id": student}
+		if subject:
+			labels = self._get_scope_values("subject_label", [("subject_id", "=", subject)])
+			return {"report_type": "subject", "subject_label": labels[0] if len(labels) == 1 else False}
+		if group:
+			return {"report_type": "group", "group_id": group}
+		return {}
 
 	# --- computes -----------------------------------------------------------------------------
 
@@ -199,9 +220,12 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		for wizard in self:
 			if wizard.report_type != "subject":
 				continue
-			# Pre-fill with every group having the subject; the user can then remove the ones
-			# they don't want (the field stays editable, restricted to allowed_group_ids).
-			wizard.group_ids = wizard._get_groups_teaching(wizard.subject_label)
+			# Pre-fill with every group having the subject, or only the group filtered on the screen
+			# the wizard was opened from (_defaults_from_search); the user can then remove or add
+			# groups (the field stays editable, restricted to allowed_group_ids).
+			groups = wizard._get_groups_teaching(wizard.subject_label)
+			searched = groups.browse(self.env.context.get("ems_report_student_group_id")) & groups
+			wizard.group_ids = searched or groups
 			if wizard.subject_label:
 				wizard._fill_dates(wizard._get_subject_lines(date_range=False))
 

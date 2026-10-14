@@ -261,5 +261,19 @@ registry.category("web_tour.tours").add("ems_attendance_report_from_student", {
         },
         { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
+        // The print button opens the wizard on the student filtered on (issue #633).
+        { trigger: ".o_attendance_report_print", content: "Print from the student's screen", run: "click" },
+        {
+            trigger: ".o_form_view .o_field_widget[name='report_type'] input[data-value='student']:checked",
+            content: "By-student report preselected",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_id'] input:value('Student Scope Tour Student')",
+            content: "The student filtered on is preselected",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='from_date'] input:not([value=''])",
+            content: "Dates filled from the student's sessions",
+        },
     ],
 });

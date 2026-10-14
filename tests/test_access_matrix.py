@@ -31,6 +31,9 @@ ACCESS_MATRIX = {
     'ems.teaching': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'rwc'},
     'ems.teaching_reduction_type': {'teacher': 'r', 'department_chief': 'rwcu'},
     'ems.tracking': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #635: the roles that may edit the academic history.
+    'ems.title_import_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
+    'ems.title_register_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.workgroup': {'teacher': 'r', 'secretary': 'r'},
     'resource.calendar': {'teacher': 'r'},
     'resource.calendar.attendance': {'teacher': 'r'},

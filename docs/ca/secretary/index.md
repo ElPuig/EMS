@@ -24,6 +24,7 @@ Aquesta secció conté els manuals per al **personal de secretaria**.
 - [Assistència a reunions amb la targeta NFC](meeting-attendance.md) — Crear la sessió d'una reunió (claustre, departament, formació), posar el quiosc a l'entrada, marcar-ne les persones presents i imprimir-ne el PDF.
 - [Revisar els documents dels alumnes](student-documents.md) — Aprovar, rebutjar o reobrir tramitacions de DNI/targeta sanitària/IBAN/beneficis, i què fa cada decisió per darrere.
 - [Marcar una graduació i tramitar una baixa](graduation-withdrawal.md) — La diferència entre la marca diferida de graduació i una baixa immediata, i tota la cascada de la baixa pas a pas.
+- [Registrar els títols obtinguts](titles.md) — Importar els títols d'un curs des del llistat de sol·licituds de títol d'Esfera, o registrar el títol d'un alumne, i què fa amb cada alumne.
 - [Importar alumnat des d'Esfera (SAGA)](student-import-esfera.md) — Actualitzar massivament les dades de l'alumnat ja matriculat (no confondre amb la importació de preinscripció GEDAC), què es fa coincidir/crea, i les limitacions conegudes de deduplicació.
 - [Actualitzar dades de l'alumnat des d'un CSV](student-update-csv.md) — Actualització massiva genèrica, de qualsevol format CSV, per a alumnat existent (mai en crea), amb columnes mapejables i actualització opcional del compte bancari.
 - [Aprovar les absències del personal PAS](absences.md) — Qui aprova les absències de l'àrea ASP i en què es diferencia de prefectura d'estudis.

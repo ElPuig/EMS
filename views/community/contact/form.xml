@@ -141,6 +141,12 @@
                                     string="Add a previous record"
                                     invisible="contact_type != 'student'"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
+                            <!-- Issue #635: the roles that may edit the academic history. A
+                                 withdrawal with a title becomes alumni. -->
+                            <button name="action_title_register_wizard" type="object"
+                                    string="Register title"
+                                    invisible="contact_type not in ('student', 'withdrawal')"
+                                    groups="ems.group_academic_admin,ems.group_secretary"/>
                         </div>
                     </header>
                     <!-- Same groups as the buttons above: the teacher role has read

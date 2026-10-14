@@ -177,6 +177,14 @@ class EmsGroup(models.Model):
 		for group in self:
 			group.managing_department_ids = (group.study_id | group.parent_group_ids.study_id).managing_department_id
 
+	@api.model
+	def _managed_by_departments_domain(self, departments):
+		"""Domain of the groups these departments, or one of their sub-departments, manage (issue
+		#622): through the group's study or, for a reinforcement group, its main groups' studies -
+		the same reading as managing_department_ids, which is not searchable."""
+		return ['|', ('study_id.managing_department_id', 'child_of', departments.ids),
+				('parent_group_ids.study_id.managing_department_id', 'child_of', departments.ids)]
+
 	def _absence_manager_users(self):
 		"""The users who organise the absences of this group's classes (issue #622): the chiefs
 		of the departments that manage it, whoever heads a department or area they hang from,

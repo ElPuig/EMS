@@ -414,7 +414,7 @@ class ems_working_schedule_assignation(models.Model):
 	# genuinely change on an existing row (a block belongs to the calendar it was created on) -
 	# included anyway as a defensive, cheap safety net rather than assuming that invariant holds.
 	_SYNC_TRIGGER_FIELDS = {
-		'active', 'subject_id', 'group_ids', 'dayofweek', 'hour_from', 'hour_to', 'space_id',
+		'active', 'subject_id', 'topic', 'group_ids', 'dayofweek', 'hour_from', 'hour_to', 'space_id',
 		'date_from', 'date_to', 'non_teaching', 'calendar_id',
 	}
 	# Issue #453 - every field ems.report_group_schedule prints (or filters by) from a block, so a
@@ -512,7 +512,7 @@ class ems_working_schedule_assignation(models.Model):
 		reports already print entries from several different teachers at once, so there's no single
 		"language it was saved in" to freeze in the first place."""
 		self.ensure_one()
-		return "%s - %s" % (self.subject_id.display_name, self.topic) if self.topic else self.subject_id.display_name
+		return self.subject_id._label_with_topic(self.topic)
 
 	def relocate_or_flag_pending(self, new_space):
 		"""Attempts to move this block (and its derived 'ems.attendance_schedule' line, if it has

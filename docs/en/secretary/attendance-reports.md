@@ -7,7 +7,7 @@
 **Attendance → Reports** opens the **Attendance reports** screen: a pivot table you can explore and export
 yourself, plus 3 printable PDF reports (by group, by student, by subject) reachable from its header.
 
-**Required role:** Secretariat (read-only)
+**Required role:** Secretariat
 
 ---
 
@@ -19,7 +19,9 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
    axis) twice: once to unfold the subjects, once more to unfold each subject's students. The main number
    is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are
    shown alongside it, so you can tell whether a 33% comes from 3 sessions or from 30, and whether it comes
-   with disciplinary strikes attached.
+   with disciplinary strikes attached. A subject your schedule splits into parts taught apart (its
+   **topic**, e.g. the Physical Education of a CFGB module) is listed as a subject of its own, as
+   "Subject - Topic".
 
    ![Attendance reports pivot table, expanded by subject and student](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
@@ -46,7 +48,8 @@ To look at a single student's attendance, open their file and click the **Attend
 
 On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Print attendance
 report**. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
-to your choice.
+to your choice. The lists offer exactly the students, groups and subjects you see on the pivot table
+(current course only), and the PDF covers the same sessions as the table.
 
 **Attendance report (by group):**
 1. Pick a **Group**.

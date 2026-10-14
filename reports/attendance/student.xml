@@ -27,7 +27,7 @@
                         <t t-set="rows" t-value="[
                             {'style' : '', 'value' : 'self.attendance_session_id.date'},
                             {'style' : '', 'value' : 'self.status_id.name'},
-                            {'style' : '', 'value' : 'self.attendance_session_id.subject_id.display_name'},
+                            {'style' : '', 'value' : 'self.subject_label'},
                             {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
                             {'style' : '', 'value' : 'self.notes'},
                         ]"/>
@@ -36,7 +36,7 @@
 
                         <h2>Subjects</h2>
                         <t t-foreach="lines" t-as="subject">
-                            <t t-set="section_name" t-value="subject.display_name"/>
+                            <t t-set="section_name" t-value="subject"/>
                             <t t-set="section_data" t-value="lines[subject]"/>
                             <t t-set="section_detail_entries" t-value="detail_entries[subject]"/>
                             <t t-set="section_strikes" t-value="detail_strikes[subject]"/>

@@ -6,14 +6,14 @@
 
 **Asistencia → Informes** abre la pantalla de **Informes de asistencia**: una tabla dinámica que puedes explorar y exportar tú mismo, además de 3 informes PDF imprimibles (por grupo, por alumno, por asignatura) accesibles desde su cabecera.
 
-**Rol necesario:** Secretaría (solo lectura)
+**Rol necesario:** Secretaría
 
 ---
 
 ## Explorar los informes de asistencia
 
 1. Ve a **Asistencia → Informes**. Se abre directamente con una **tabla dinámica**, mostrando **todo el centro** por defecto.
-2. La tabla agrupa por **asignatura y luego por alumno**. Haz clic en el icono **Expandir todo** (arriba a la derecha, junto a Invertir ejes) dos veces: una para desplegar las asignaturas y otra para desplegar los alumnos de cada asignatura. El número principal es el **% de faltas por alumno** — el **Recuento** (número de sesiones contabilizadas) y el **Recuento de strikes** se muestran al lado, así puedes saber si un 33% sale de 3 sesiones o de 30, y si viene acompañado de strikes disciplinarios.
+2. La tabla agrupa por **asignatura y luego por alumno**. Haz clic en el icono **Expandir todo** (arriba a la derecha, junto a Invertir ejes) dos veces: una para desplegar las asignaturas y otra para desplegar los alumnos de cada asignatura. El número principal es el **% de faltas por alumno** — el **Recuento** (número de sesiones contabilizadas) y el **Recuento de strikes** se muestran al lado, así puedes saber si un 33% sale de 3 sesiones o de 30, y si viene acompañado de strikes disciplinarios. Una asignatura que el horario divide en partes impartidas por separado (su **tema**, por ejemplo la Educación física de un módulo de CFGB) aparece como una asignatura propia, «Asignatura - Tema».
 
    ![Tabla dinámica de los informes de asistencia, desplegada por asignatura y alumno](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Usa la barra de búsqueda para filtrar más (por alumno, grupo, asignatura o estado), y **Agrupar por** para cambiar cómo se pliega la tabla. El grupo es el del alumno en la fecha de cada sesión: una sesión compartida por varios grupos cuenta a cada alumno solo en su grupo.
@@ -34,7 +34,7 @@ Para consultar la asistencia de un solo alumno, abre su ficha y haz clic en el b
 
 ## Imprimir un informe PDF
 
-En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige **Imprimir informe de asistencia**. En el formulario, elige el **Tipo de informe** — por grupo, por alumno o por asignatura — y los campos se adaptan a tu elección.
+En la pantalla de **Informes de asistencia**, haz clic en el icono **⚙ (engranaje)** de la cabecera y elige **Imprimir informe de asistencia**. En el formulario, elige el **Tipo de informe** — por grupo, por alumno o por asignatura — y los campos se adaptan a tu elección. Las listas ofrecen exactamente los alumnos, grupos y asignaturas que ves en la tabla dinámica (solo el curso actual), y el PDF incluye las mismas sesiones que la tabla.
 
 **Informe de asistencia (por grupo):**
 1. Selecciona un **Grupo**.

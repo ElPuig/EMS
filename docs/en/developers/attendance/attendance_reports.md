@@ -2,29 +2,68 @@
 
 ## Overview
 
-Three printable PDF report variants over `ems.attendance_session_line` — by group, by student, by subject —
-driven by a **single unified wizard** (`ems.attendance_report_wizard`) with a `report_type` selector, plus a
-self-service **Attendance reports** pivot/graph screen. **Attendance → Reports** opens the pivot/graph
-screen directly (pivot by default); the PDF wizard is reachable from its header's ⚙ Actions menu (one
-"Attendance report" entry), not from a separate menu entry. The 3 variants were originally 3 separate
-wizard models/views/actions; they were later merged into one (see "Unification" below).
+Two ways to consult `ems.attendance_session_line`, which always show the same data:
 
-**Trigger for this change:** the 3 PDF wizards (`ems.attendance_report_{group,student,subject}_wizard`)
-used raw `cr.execute()` SQL against physical table/column names to fetch report data and to filter their
-dropdowns. This broke silently on model renames (it already happened once, during the `status` →
-`status_id` migration — see [ems.attendance_status](attendance_status.md)), and one wizard built its query
-via unparameterized string interpolation. All SQL was replaced with ORM calls, and a native pivot/graph
-screen was added so staff can explore data themselves instead of being limited to the 3 fixed PDF layouts.
-The pivot/graph screen initially shipped with a 4th, "Attendance analysis" list view and its own menu
-entries for the 3 wizards; both were folded away shortly after (see "Attendance reports" section below) once
-actual usage showed the list added no value and the wizards read better as quick actions on the analysis
-screen than as separate menu items.
+- the **Attendance reports** screen (pivot/graph), opened from **Attendance → Reports** and from the
+  **Attendance** button of a student's form;
+- three printable PDF reports (by group, by student, by subject), driven by a **single wizard**
+  (`ems.attendance_report_wizard`) with a `report_type` selector, reachable from that screen's ⚙ Actions
+  menu.
 
-**Module files:** `models/attendance/attendance_reports.py`, `models/attendance/attendance_session.py`
-(new stored fields on `ems.attendance_session_line`), `views/attendance/attendance_reports/{wizard,menu,analysis_views}.xml`,
+Both take what the user may consult from one method, `ems.attendance_session_line._get_reports_domain()`
+(issue #633). Before that, the screen and the wizard decided it each on their own (the wizard from
+`ems.teaching`, the screen from the attendance templates), and Guidance could read every student's
+attendance on the screen but only pick its own pupils in the wizard.
+
+**Module files:** `models/attendance/attendance_reports.py` (wizard + report data models),
+`models/attendance/attendance_session.py` (scope and stored fields on `ems.attendance_session_line`),
+`views/attendance/attendance_reports/{wizard,menu,analysis_views}.xml`,
 `reports/attendance/{group,student,subject}.xml` + `reports/attendance/templates/{sumary_table,details_table,detail_section}.xml`,
 `static/src/js/backend/attendance_report_analysis_cog_menu.js` +
 `static/src/xml/backend/attendance_report_analysis_cog_menu.xml`.
+
+---
+
+## Scope: who sees what
+
+`_get_reports_domain()` returns the lines of the current course (`session_active`) and, unless the user sees
+the whole centre, only those reached through the chain of command, never by role alone:
+
+| Who | Lines | Mechanism |
+|---|---|---|
+| Teacher | The subjects they teach: the attendance templates they are a teacher of. A roll-call taken on guard duty or as a substitute belongs to the template's teacher, not to whoever took it | `('template_teacher_ids.user_id', '=', uid)` |
+| Tutor | Every subject of their students | `('student_id.tutor_id.tutor_scope_user_ids', '=', uid)`; a student's tutor is their main group's (`res.partner.tutor_id`) |
+| Department / Seminar Chief | The students of the tutors below them, plus every student of the studies their department manages | The tutor scope above walks `parent_id` up from the tutor (issue #483); `('student_group_id', 'in', <groups managed by the user's departments>)` (issue #622) |
+| Head of Studies / Deputy | The same two ways: the tutors below them, and the studies of their area (the area is a top-level department they manage; `child_of` covers the departments under it) | As above |
+| Director, administrator, Guidance, Coexistence, Secretariat | The whole centre | `_user_sees_whole_centre()` |
+
+`_user_sees_whole_centre()` checks `ems.group_director` (the academic administrator implies it),
+`ems.group_orientation`, `ems.group_coexistence`, `ems.group_secretary` and `ems.group_secretary_admin`.
+It deliberately does **not** check `ems.group_student_data_reader`: the Head of Studies implies it to read
+every student's file (issue #448), but their attendance reports cover their own area.
+
+The managed groups come from two shared helpers: `hr.department._headed_by(users)` (the departments the
+users chief as Department Chief or Seminar Chief) and `ems.group._managed_by_departments_domain(departments)`
+(the groups whose study, or whose main groups' study for a reinforcement group, is managed by one of those
+departments or a sub-department). Both are also used by the notices' department scope
+(`notice_department_scope.py`). The group ids are resolved under `sudo()`, so the group and study record
+rules never narrow them.
+
+This is the same "two ways" criterion the guard duty board uses to decide who manages an absence
+(`ems.course._is_absence_manager`): the absent teacher's chain of command, and the chiefs of the department
+managing the group. A study with no managing department (`ems.study.managing_department_id` empty) is only
+reached through the tutors' chain.
+
+```mermaid
+flowchart TD
+    U[User] --> W{_user_sees_whole_centre?}
+    W -- yes --> A[session_active lines]
+    W -- no --> D["session_active lines AND (<br/>template teacher = user<br/>OR student's tutor scope has user<br/>OR student_group in groups managed by the user's departments)"]
+    A --> P[Reports screen domain]
+    D --> P
+    A --> Z[Wizard dropdowns and PDF lines]
+    D --> Z
+```
 
 ---
 
@@ -32,496 +71,142 @@ screen than as separate menu items.
 
 ```mermaid
 erDiagram
+    ems_attendance_template ||--o{ ems_attendance_schedule : "attendance_schedule_ids"
+    ems_attendance_schedule ||--o{ resource_calendar_attendance : "calendar_attendance_ids"
+    ems_attendance_schedule ||--o{ ems_attendance_session_header : "attendance_session_ids"
     ems_attendance_session_header ||--o{ ems_attendance_session_line : "attendance_session_id"
     ems_attendance_session_line }o--|| ems_attendance_status : "status_id"
     ems_attendance_session_line }o--o| res_partner : "student_id"
-    ems_attendance_report_wizard ..> ems_attendance_session_line : "_get_report_lines() (per report_type)"
+    ems_attendance_report_wizard ..> ems_attendance_session_line : "_get_scope_lines()"
 ```
 
-The single `ems.attendance_report_wizard` carries a `report_type` selector (`group` / `student` / `subject`)
-and the union of the 3 variants' fields; only the ones relevant to the chosen type are shown/required. Its
-`print()` dispatches to one of the 3 `ir.actions.report` (unchanged) by `report_type`; the 3 report
-data `AbstractModel`s (`report.ems.attendance_report_{group,student,subject}`) all `browse` this one wizard
-and share a single `_build_report_values(env, docids, group_key)` helper (they differ only in the
-`group_key` used to group the per-line entries — student for by-subject, subject for by-group/by-student).
+Stored fields on `ems.attendance_session_line`, so the screen can group and filter without joins and without
+going through the session header's record rules (a teacher only reads their own headers):
 
-`ems.attendance_session_line` gained 5 stored `related` fields, copied from `attendance_session_id` purely
-so the analysis pivot/graph can `GROUP BY` them without a join: `date`, `level_id`, `study_ids`, `group_ids`,
-`subject_id`. `group_ids`/`study_ids` are related Many2many fields with `store=True`, which each need their
-own explicit `relation`/`column1`/`column2` (Odoo cannot auto-derive a relation table name for a *related*
-Many2many the way it does for an owned/computed one) — see `attendance_session.py`. (`study_id` was a
-`Many2one` at the time this report code was ported; it became the `Many2many` `study_ids` in a later pass,
-2026-08-05 — see [`attendance_template.md`](attendance_template.md).)
+- `date`, `level_id`, `study_ids`, `group_ids`, `subject_id`: related to the session. The related Many2many
+  fields need their own explicit `relation`/`column1`/`column2`.
+- `student_group_id`: the **student's own group when the roll-call was taken** (`student_id.main_group_id`,
+  depends on `student_id` only). Reports filter and group by it, never by the session's `group_ids`: a session
+  shared by several groups would put each of its students under every one of them. A later group change
+  only moves the following roll-calls.
+- `session_active`: related to the session's `active`. The course transition archives every outgoing
+  session, so it means "current course". Filtering on the `attendance_session_id.active` path instead would
+  apply the header's record rules.
+- `topic` and `subject_label` (issue #633), see below.
+- `absence_rate` (`100.0` for an absence-category status, else `0.0`, `aggregator="avg"`, so the average is
+  a percentage) and `strike_count` (stored so it can be a measure).
 
-`student_group_id` (`Many2one` to `ems.group`, `compute`+`store`, indexed) is the **student's own group when
-the roll-call was taken** (`student_id.main_group_id`), and it is what the analysis screen's *Group* filter
-and group-by, and the by-group PDF, use. `group_ids` is the *session's* groups: a session shared by several
-groups (e.g. a subject taught to ASIX2A, ASIX2B, DAM2A, DAM2B and DAW2A together) would put each of its
-students under every one of those groups. The compute depends on `student_id` only, on purpose: when a
-student changes group, the lines already taken keep the old group and the following ones get the new one,
-so each absence counts in the group the student was in on that date. A withdrawal clears the student's main
-group but leaves their earlier lines in their group. On the upgrade that added the field, Odoo computed it
-for the existing lines from each student's main group at that moment.
+### Topic: a subject split into parts taught apart
 
-`session_active` (`Boolean`, stored `related="attendance_session_id.active"`) marks the lines of the current
-course (the course transition archives every outgoing session). It exists so the analysis screen can filter on
-the current course without going through `attendance_session_id`: a domain on that path is resolved with
-`ems.attendance_session_header._search()`, which applies the header's record rules (a teacher only reads their
-own sessions) and would hide the other teachers' sessions a tutor must see.
+A schedule block (`resource.calendar.attendance`) can carry a free-text `topic` (issue #428): a CFGB module
+taught in parts by different teachers (e.g. *Ciències aplicades I*: Physical Education and Maths;
+*Comunicació i ciències socials I*: English and Catalan/Spanish). For attendance, each topic is a subject of
+its own:
 
-It also gained `absence_rate` (`Float`, `compute`+`store`, `aggregator="avg"`): `100.0` if
-`status_id.category == 'absence'` else `0.0`. Storing 0/100 rather than a boolean means the graph view's
-`avg` aggregation resolves directly to a percentage — no separate widget/formatting needed. Odoo 18 field
-API uses `aggregator` (replaces the pre-18 `group_operator`); pivot/graph and `read_group` calls pick it up
-automatically once the field is used as a measure.
+- `ems.attendance_template.topic` is part of the template's identity. The schedule sync keys templates by
+  `_sync_key(subject_id, topic, group_ids)` (then splits by teacher set), so two topics of one subject make
+  two templates, even with the same teacher and group. `hr.employee._teaching_entries_from_calendar()` puts
+  the block's topic in each entry, and `topic` is one of `resource.calendar.attendance._SYNC_TRIGGER_FIELDS`,
+  so changing it regenerates the template. The uniqueness check (`_check_unique_teaching_assignment`)
+  includes it too. `ems.attendance_template.find_self_conflicts()` deliberately keeps comparing by
+  (subject, groups): a changed topic in the same slot is an update of the class, not a double booking.
+- The template's `topic` is set when the sync creates it and never changes afterwards (it is in
+  `_LOCKED_FIELDS`). A changed topic archives the old template and creates a new one, so the sessions
+  already taken keep the topic they were taken under. The field is a stored compute **with no
+  dependencies**: Odoo only runs it when the column is created, filling the existing templates from the
+  blocks linked to them (`ems.attendance_schedule.calendar_attendance_ids`, the inverse of the blocks'
+  `attendance_schedule_id`). Templates created before that link existed (2026-08-11) get no topic until
+  their next sync. It is `readonly=False` only so that the value `create()` receives is kept instead of
+  recomputed; `_LOCKED_FIELDS` forbids editing it.
+- `ems.attendance_session_header.topic` and `ems.attendance_session_line.topic` are stored related fields.
+  `ems.attendance_session_line.subject_label` (stored compute) is `ems.subject._label_with_topic(topic)`:
+  `"ACR: Name - Topic"`, or the subject's display name alone. The same helper builds the template's display
+  name and the schedules' labels (`resource.calendar.attendance.get_subject_display_label()`).
 
 ---
 
-## Wizards: SQL → ORM
+## Attendance reports screen (pivot/graph)
 
-Each wizard has 2 responsibilities, both formerly raw SQL, now plain ORM:
+`action_attendance_report_analysis` opens the lines in `pivot,graph` (pivot first), with no list view. It is
+only reached through `ems.attendance_session_line._get_reports_action()`, called by:
 
-| Wizard | Dropdown filter (`allowed_*_ids`) | `print()` |
-|---|---|---|
-| `..._group_wizard` | `env['ems.teaching'].search([('teacher_id', '=', current_teacher.id)]).mapped('group_id')` (no study filter — see "Wizard simplification" below), plus the groups in the user's tutor scope (`_get_tutor_group_ids()`) | `_get_group_lines()` — see "Tutor scope in the PDF reports" below |
-| `..._student_wizard` | enrollments whose `(group_id, subject_id)` matches one of the teacher's `ems.teaching` pairs (no group filter anymore — see "Wizard simplification" below), plus every student whose tutor has the current user in `tutor_scope_user_ids` | `_get_student_lines()` — see "By-student report: own sessions vs tutor scope" below |
-| `..._subject_wizard` | `allowed_subject_ids`: teacher's own taught subjects (no group filter — see "Wizard simplification" below) plus every subject taught in a group of the user's tutor scope; `allowed_group_ids` (`_get_groups_teaching()`): the groups where the subject is taught by the user **or** that are in the user's tutor scope | `_get_sessions()` — see "Tutor scope in the PDF reports" below |
+- `action_attendance_reports_open`, the **Attendance → Reports** menu's `ir.actions.server` (its `groups_id`
+  lets it run without write access on the model);
+- `res.partner.action_view_attendance_reports()`, the **Attendance** button of a student's form (issue #519),
+  which names the action after the student, adds a removable **Student** facet
+  (`search_default_student_id`) and drops **My subjects**, so the user sees every subject of that student
+  within their scope.
 
-None of these filters applies when `_is_teacher_scoped()` is false: the dropdowns then offer every group,
-student and subject. That is the case for ADMIN (a user with no `hr.employee` record, or whose employee id
-is 1) and for every post reading the students' attendance centre-wide, decided by
-`ems.attendance_session_line._user_sees_whole_centre()` (`ems.group_student_data_reader`, i.e. Head of
-Studies, Director, Guidance and Coexistence, plus Secretariat). It is the same predicate the "Reports"
-screen uses (`_get_reports_action()`), so both offer the same students: before issue #633, Guidance could
-read any student's attendance on that screen but only find its own pupils and tutees in the PDF wizard.
-These users need no `sudo()` to print: their own `domain_force=[]` rules already let them read every
-session (see the table below).
+`_get_reports_action()` reads the act_window (`sudo().read()`), sets `domain = _get_reports_domain()` (a
+Python list: the read act_window domain is a raw string), `context['pivot_measures'] = ['absence_rate',
+'strike_count', '__count']`, `context['graph_measure'] = 'absence_rate'` and `context['active_test'] = True`,
+and, for whoever doesn't see the whole centre, turns on the removable **My subjects** filter
+(`[('template_teacher_ids.user_id', '=', uid)]`).
 
-**Two pre-existing bugs were fixed while porting this code**, not just carried over:
-1. `allowed_group_ids` never actually filtered by `study_id` despite triggering on it — it returned every
-   group the teacher taught, regardless of study. Fixed by adding `('group_id.study_id', '=', study_id)` to
-   the domain.
-2. `allowed_subject_ids` appended the `group_id` domain tuple a second time by mistake instead of adding a
-   `teacher_id` filter, so non-admin teachers saw every subject taught in the group by *any* teacher, not
-   just their own.
-
-### Printing: on the wizard, with a per-selection file name
-
-`print()` calls `report_action(self)` on the wizard, with **no `data`**. The 3 `ir.actions.report`
-records have `model = ems.attendance_report_wizard`, no binding (they're only reachable from the wizard's
-Print button) and `print_report_name = object.get_report_filename()`.
-
-- **Why no `data`:** the web client downloads a report with `data` through the "particular report" route
-  (`/report/pdf/<name>?options=...`), where `web/controllers/report.py::report_download` always names the
-  file after `report.name` and never evaluates `print_report_name`. Only the docids route
-  (`/report/pdf/<name>/<ids>`) does, browsing `report.model` — hence the wizard as the report's model.
-- **File name:** `get_report_filename()` returns `<report name>_<student|group|subject name>`, spaces as
-  `_` (e.g. `Informe d'assistència: per estudiant_Name_Surname`; the browser turns the `:` into `_`).
-  The report name is the translated one, in the language of the user downloading it.
-- **Lines:** each report data model's `_get_report_values(docids)` browses the wizard (`docids`) and calls
-  `_get_report_lines()`, which dispatches on `report_type` (`_get_student_lines()` for by-student; lines of
-  the readable session headers in the date range for by-group/by-subject, orphan lines excluded). Nothing
-  is read from the client-side `data`.
-
-**Not a security fix:** `ir.rule` (`security/rules/attendance.xml`) already grants every teacher
-unrestricted read on `ems.attendance_session_line` (`rule_attendance_session_line_teacher_all_read`,
-`domain_force=[]`) — deliberately, so tutors can see justification-relevant data across sessions they don't
-own. The wizard-side scoping above is UX convenience (don't overwhelm a teacher's dropdown with groups/
-subjects/students they don't teach), not a security boundary; it was never enforced by `ir.rule` and still
-isn't after this change.
-
-### Tutor scope in the PDF reports
-
-Session **lines** are readable by every teacher, but session **headers**
-(`ems.attendance_session_header`) only by the teacher who owns the session
-(`rule_attendance_session_teacher_own`). The PDF reports need both. A plain teacher gets their own sessions
-only; the tutor scope (`hr.employee.tutor_scope_user_ids`: the tutor, their chiefs up the `parent_id` chain
-and the Director) gets every session of their tutees or tutored groups, whatever the subject or teacher, by
-reading them under `sudo()`. There is no read `ir.rule` on the header for the tutor scope on purpose: it
-would also list those sessions in the tutor's *Attendance sessions* screen.
-
-#### By-student report
-
-It decides which sessions to include in a single place,
-`ems.attendance_report_wizard._get_student_lines(date_range=True)`, used by the From/To prefill
-(`_onchange_student_id`), by `print()` and by the PDF render. The own-sessions vs `sudo()` split itself
-lives in `_search_scoped_lines()`, shared with the by-group report:
-
-| Who | Sessions in the by-student report | How |
-|---|---|---|
-| Plain teacher | Only their own sessions (same criterion as the by-group and by-subject reports) | Line search restricted to `attendance_session_id in <headers the user can read>` (`ems.attendance_session_header._search([])`), so record rules decide |
-| The student's tutor, their chiefs up the `parent_id` chain and the Director (`EmsBase.user_acts_as_tutor(student.tutor_id)`, i.e. `hr.employee.tutor_scope_user_ids`) | Every session of the student, whatever subject or teacher | Same line search under `sudo()`, scoped to that one student |
-| Academic admin / student data reader (HoS, DHoS, Director, Orientation) | Every session | Their own `domain_force=[]` rules on the header already allow it |
-
-```mermaid
-flowchart TD
-    A[Student picked / Print / PDF render] --> B{user_acts_as_tutor<br/>student.tutor_id?}
-    B -- yes --> C[lines.sudo search<br/>student + dates]
-    B -- no --> D[lines search<br/>student + dates +<br/>session in readable headers]
-    C --> E[From/To prefill, PDF entries]
-    D --> E
-```
-
-The `sudo()` never leaves the wizard: it only applies to the one student already selected, and only after
-the tutor-scope check. The PDF render browses the wizard (a transient record, readable only by its
-creator) and calls `_get_student_lines()` again (see "Printing" above), so a hand-crafted request can't
-use the `sudo()` path for another student. Strikes listed in the PDF are still searched with the user's own
-rights (`Strike: tutees` already covers the tutor scope).
-
-#### By-group report
-
-`_get_group_lines(date_range=True)` (From/To prefill in `_onchange_group_id`, `print()`, PDF render) searches
-the **lines** whose `student_group_id` is the selected group, in the current course (`session_active`), with
-a student. It never goes through the session's `group_ids`, so a session shared with other groups only
-brings this group's students, and a student of the group attending a session of another group (a subject
-taken with another group) is still included. Access goes through the same `_search_scoped_lines()` as the
-by-student report:
-
-| Selected group | Lines in the report | How |
-|---|---|---|
-| In the user's tutor scope (`_get_tutor_group_ids()`: `ems.group` whose `tutor_id.tutor_scope_user_ids` contains the user) | Every line of the group's students, whatever subject or teacher | Line search under `sudo()` |
-| Any other group | Only the lines of the sessions the user can read (their own) | Line search restricted to the readable headers, record rules decide |
-
-#### By-subject report
-
-`_get_sessions(date_range=True)` (From/To prefill in `_onchange_subject_id`, `print()`, PDF render;
-`_get_report_lines()` then searches the lines of those sessions) selects the subject's sessions by the
-**session's** `group_ids`:
-
-| Selected groups | Sessions in the report | How |
-|---|---|---|
-| Groups in the user's tutor scope | Every session of that subject in the group, whoever taught it | Header search under `sudo()`, restricted to those groups |
-| Any other group | Only the sessions the user can read (their own) | Plain header search, record rules decide |
-
-The lines are returned in the sessions' environment (`sudo()` when the tutor scope widened them), so the
-PDF can read the other teachers' session headers. The widening is per group: a group picked by hand outside
-the dropdown and outside the tutor scope never gets the `sudo()` path. A session shared by a selected group
-and another group (a joint session) brings all of its lines, including the other group's students. Inside
-an onchange the wizard's `group_ids` are `NewId` copies, so `_get_sessions()` works on `._origin`.
-
-The dropdowns follow the same scope: by group, the tutored groups are added to the ones the user teaches;
-by subject, the subjects taught by anyone in a tutored group are added, and for such a subject only the
-tutored groups (plus the ones the user teaches it in) are offered and prefilled.
-
-### Wizard simplification: all 3, done incrementally
-
-The 3 wizards originally all shared the same level → study → group/student/subject cascade. They were
-simplified one at a time, by explicit request, each requiring a sign-off before moving to the next:
-by-group first, then by-student, then by-subject.
-
-- **By group**: `level_id`/`study_id` removed, `group_id` is now the only selection step; `tutor_id`/
-  `from_date`/`to_date` still auto-fill from it exactly as before.
-- **By student**: `level_id`/`study_id`/`group_id` all removed, `student_id` is now the only selection
-  step. `tutor_id` used to be `related="group_id.tutor_id"`; with `group_id` gone it's now
-  `related="student_id.tutor_id"` — `res.partner` already carries its own `tutor_id`
-  (`related="main_group_id.tutor_id"`, `models/contacts/contact.py:69`), so this is a one-line change, not
-  a new lookup. `allowed_student_ids` used to scope to enrollments in *one* group (the one the user had
-  already picked) whose subject the teacher taught there; with no group step first, it now has to check
-  the teacher's *entire* teaching load: build the `{(group_id, subject_id), ...}` pairs from all of the
-  teacher's `ems.teaching` rows, pre-filter `ems.enrollment` by `group_id in <those groups>` (cheap, SQL
-  level), then `.filtered()` in Python for an exact `(group_id, subject_id)` pair match — a plain
-  `('subject_id', 'in', ...)` domain would have been wrong, since it would match a student enrolled in a
-  *different* group for a subject the teacher happens to teach elsewhere.
-- **By subject** (the one that changed shape, not just lost fields): `level_id`/`study_id`/the old single
-  `group_id`/`tutor_id` are gone; `subject_id` is now the only *selection* step, but it drives two new
-  fields instead of just filtering the next one:
-  - `group_ids` (`Many2many`, editable): pre-filled by `_onchange_subject_id` with *every* group where the
-    current teacher teaches that subject (`ems.teaching` rows matching `subject_id` + `teacher_id`) — the
-    user can remove entries afterward (tags widget), but its `domain` is still wired to `allowed_group_ids`
-    (same `@api.depends('subject_id')` pattern as `allowed_subject_ids`→`subject_id` elsewhere) so re-adding
-    one is restricted to the same allowed set, not a free-for-all.
-  - `tutor_ids` (`Many2many`, read-only, informational): the distinct tutors of whatever's currently in
-    `group_ids`. **Cannot be a `related="group_ids.tutor_id"` field** — Odoo raised `TypeError: Type of
-    related field ... is inconsistent with ems.group.tutor_id` at `_auto_init` (a related chain through a
-    Many2many to a trailing Many2one doesn't auto-promote to Many2many the way `store=True` related M2M
-    fields do elsewhere in this file for `ems.attendance_session_line.group_ids`). Needed an explicit
-    `compute='_compute_tutor_ids'` (`@api.depends('group_ids.tutor_id')`) instead — one line
-    (`wizard.tutor_ids = wizard.group_ids.tutor_id`), since reading a Many2one field off a multi-record
-    recordset already returns the deduplicated aggregate in the ORM.
-  - `print()`'s domain changed from `("group_ids", "in", [self.group_id.id])` (singular) to
-    `("group_ids", "in", self.group_ids.ids)` (the multi-select). The PDF template's header
-    (`reports/attendance/subject.xml`) used `o.group_id.display_name` — switched to
-    `', '.join(o.group_ids.mapped('display_name'))` via `t-esc` (no `t-field` equivalent for joining a
-    recordset's names).
-- All 3 use the same 2×2-ish layout: `<group col="2">` with nested single-field `<group>` elements (not
-  plain `<field>` inside one `<group col="4">` — that renders one field per row instead of 2-per-row;
-  confirmed by screenshot, see `views/planning_grading/grading/form.xml` for another in-repo example of the
-  working pattern). By-group/by-student: row 1 is the main field + its related tutor, row 2 is
-  `from_date`+`to_date`. By-subject needed 3 full-width rows first (`subject_id`, then `group_ids` tags,
-  then `tutor_ids` tags — `colspan="2"` on each nested group) before the same `from_date`/`to_date` row.
-
-Two things worth knowing, useful beyond just this feature:
-
-- **The selection field's domain must be wired to its `allowed_*_ids`** (e.g.
-  `domain="[('id','in', allowed_group_ids)]"`) — previously it wasn't for `group_id`: the original view
-  filtered it only via `('study_id', '=', study_id)`, and `allowed_group_ids`/`_compute_allowed_group_ids`
-  existed but were never actually referenced by any view domain (dead code). Removing the level/study
-  fields removes whatever filter they provided, so wiring the `allowed_*_ids` field in is what makes the
-  dropdown teacher-scoped *at all* now — not a regression, but the first time these compute results
-  actually reach the UI.
-- **A compute field with only `@api.depends_context('uid')` (no dependency on a real field) is not reliably
-  computed on a freshly-created record** — confirmed empirically both in `TransactionCase` tests (reading
-  `wizard.allowed_group_ids`/`allowed_student_ids`/`allowed_subject_ids` right after `.create({})` returned
-  empty; calling `wizard._compute_allowed_*_ids()` explicitly fixed it) and in the browser tour (the
-  dropdown showed no matches at all, so typing the seeded record's name fell through to the "Create new"
-  quick-create suggestion instead — a full "Create Group" form dialog appearing in a failure screenshot was
-  the tell). Since there's no other field left to hang an `@api.onchange` off once level/study/group are
-  gone, the fix is a `default_get()` override that populates the `allowed_*_ids` field directly —
-  `default_get()` is reliably called by the web client when opening a new wizard form, unlike the
-  compute-on-access path. The compute method (still `@api.depends_context('uid')`) stays as a fallback for
-  any other access path (e.g. server-side code creating the wizard directly), sharing the actual lookup
-  logic via a small `_get_allowed_*_ids()` helper so it isn't duplicated between the two. Note
-  `allowed_group_ids` on the by-subject wizard *doesn't* need this trick — it genuinely depends on a real
-  field (`subject_id`), so plain `@api.depends('subject_id')` is reliable on its own; only the
-  context-only `allowed_subject_ids` there needed the `default_get()` workaround.
-- **Tour flakiness after a `Print` click ("Tour finished with an open form view in edition mode")**
-  recurred across more than one of these wizards' tours (same class of flake as `TestWithdrawalTour` —
-  click-vs-reflow contention, not a real bug: every tour step had already matched by the time it fired).
-  Fixed the same way: `step_delay=300` on all 4 `start_tour()` calls in
-  `tests/test_attendance_reports_tour.py`.
-
-### By-subject wizard: opt-in per-student detail (`detail_status_ids`/`include_strikes`)
-
-**The problem.** The by-subject PDF's "Students" section prints one full "Details" table per student —
-every single session line for that student, unfiltered — with a forced page-break after each student. For
-a subject taught across several large groups over a long date range this is a lot of unaggregated rows fed
-to wkhtmltopdf (single-threaded, memory-heavy, and known to struggle with many forced page-breaks): a real
-case with 182 sessions / 4725 lines / 59 students triggered a memory/row-count failure generating the PDF.
-The "Summary" section (percentages, via `_report_data`) was never the problem — it's already aggregated;
-only the per-student session-by-session listing scales with total session count.
-
-**The fix.** The per-student "Details" table is now opt-in and filterable, not unconditional:
-
-- `detail_status_ids` (`Many2many` on `ems.attendance_status`) — which statuses appear in the per-student
-  "Details" table. Defaults to absence-category statuses only (`_default_detail_status_ids()`:
-  `search([('category', '=', 'absence')])`), so by default the table only lists what's actually worth
-  reading (misses, justified misses) instead of every "Attended" session.
-- `include_strikes` (`Boolean`, default `True`) — whether the new per-student "Strikes" table (a separate
-  small table, not routed through `attendance_template_details_table`/`report_eval`) is included at all.
-- `detail_status_warning` (`Boolean`, `compute='_compute_detail_status_warning'`,
-  `@api.depends('detail_status_ids')`) is `True` whenever the current selection isn't a subset of the
-  default absence-only set (i.e. the user added something beyond the default), `False` otherwise (including
-  when narrowing, e.g. down to just "Miss"). The view (`subject_wizard.xml`) renders it as an inline
-  `<div class="alert alert-warning" invisible="not detail_status_warning">` on the form itself, not a
-  blocking dialog — an onchange-returned `{'warning': {...}}` dict was the first approach, but was changed
-  to this compute + inline-`alert` pattern (matching `views/community/working_schedules/import_wizard.xml`'s
-  `blocking_error_message`/`email_mismatch_warning` fields) once a modal was found to be too disruptive for
-  what's just a heads-up, not a blocking condition — the user can still submit the form either way.
-- `EmsAttendanceReportSubject._get_report_values()` computes `detail_entries`/`detail_strikes` dicts
-  (keyed by student) alongside the existing `lines` dict: `detail_entries[student]` is
-  `grp_by_student[student]` filtered to `entry.status_id.id in detail_status_ids`; `detail_strikes[student]`
-  is `ems.strike.search([('attendance_session_line_id', 'in', [that student's entry ids])])` when
-  `include_strikes` is set, otherwise an empty recordset. Both are computed off `grp_by_student` — which
-  still aggregates *every* entry for the "Summary" percentages regardless of `detail_status_ids` — so
-  narrowing the detail table never affects the summary numbers above it.
-- In `reports/attendance/subject.xml`, both the "Details" and the new "Strikes" subsection are wrapped in
-  `<t t-if="detail_entries[student]">` / `<t t-if="detail_strikes[student]">` respectively, so a student
-  with nothing to show in either gets neither heading.
-
-**Gotcha hit while building the "Strikes" table**: `<td t-field="strike.date"/>` (and siblings) raised
-`QWebException: Error when compiling xml template` / `AssertionError: QWeb widgets do not work correctly on
-'td' elements` at render time — only caught by the browser tour (a clean `./upgrade.sh` and passing
-`TransactionCase` tests don't render any QWeb, so neither catches this). QWeb widgets (`t-field`, which
-picks a widget by field type) cannot be applied directly to `<td>`/`<tr>`/table-structural elements; the fix
-is wrapping each field in a `<span t-field="...">` inside the `<td>` instead of putting `t-field` on the
-`<td>` itself — the pattern already implicit in the rest of this report via `t-esc`, which has no such
-restriction (that's why the older `attendance_template_details_table`/`report_eval` tables never hit this:
-they use `t-esc`, not `t-field`, on the `<td>`).
-
-**Also note**: the header/row column labels used by `attendance_template_details_table` (e.g. `'Date'`,
-`'Teacher'` in the `header`/`rows` Python list literals set via `t-set ... t-value="[...]"`) are plain
-Python string literals inside a QWeb expression attribute, not XML text nodes — Odoo's translation
-extractor only picks up genuine static text content, so those never got translation `#:` references and
-render in English regardless of language (a pre-existing gap, not introduced here). The new "Strikes" table
-was written with literal `<th>Date</th>`-style static text instead specifically so it *would* be
-extracted/translatable.
-
-### Report robustness: student-less lines and page-break-inside
-
-Two independent PDF-rendering issues fixed together after a "broken row" report on subject 0485 (groups
-DAM1A + DAW1A):
-
-- **Phantom blank-name row (the actual cause).** `ems.attendance_session_line.student_id` is a plain
-  `Many2one` with no explicit `ondelete`, so it defaults to `ondelete='set null'`: when a student partner
-  is *hard-deleted* (not archived), that student's session lines survive with `student_id = NULL`. In the
-  by-subject report, `grp_by_student` keys on `entry.student_id`, so all such orphans collapse under a
-  single **empty `res.partner()` recordset** key and render as one extra row/section with a blank name —
-  visually a "broken" row wedged between the real students (in the reported case, right after the student
-  whose lines happened to precede the orphans by id). Fixed at the source: the by-group and by-subject
-  reports' `_get_report_lines()` filters `('student_id', '!=', False)` when collecting the lines, so orphan lines
-  never enter the report at all (they also no longer skew the subject's overall totals). The by-student
-  wizard was already immune — it filters `('student_id', '=', self.student_id.id)`, which NULL never
-  matches. Diagnosed by rendering the report to **HTML** (`_render_qweb_html`, no wkhtmltopdf, so no memory
-  cost) and dumping the row order: the grouped student list contained an `id=False` entry. The two orphan
-  lines themselves (session 38, from two students deleted from the DB) are left in place — the report is now
-  robust to them regardless; deleting orphan data is a separate, centre-owned decision.
-- **Row splitting across page boundaries (separate hardening).** Every per-row `<tr>` in the report tables
-  (`sumary_table.xml`, `details_table.xml`, and the subject/group per-line tables + the new Strikes table)
-  now carries `style="page-break-inside: avoid;"` so a single row isn't split top/bottom across two pages
-  in a multi-page table. This was the initial hypothesis for the "broken row" before the phantom-row cause
-  was found; kept because it's a genuine, low-risk improvement for any report table that spans pages.
-
-### Unification: one wizard for all 3 variants
-
-The 3 wizards (`ems.attendance_report_{group,student,subject}_wizard`) were near-identical — same dates,
-same `default_get`/current-teacher/print scaffolding — differing only in the selection field, its
-`allowed_*` scoping, the date-filling onchange, and which report template `print()` dispatched to. They were
-merged into a single `ems.attendance_report_wizard` reached from **one** cog-menu entry, with the user
-picking the variant via a `report_type` radio inside the form (chosen over keeping 3 preset entries).
-
-- **Model.** One `report_type` `Selection`; the union of selection fields (`group_id` / `student_id` /
-  `subject_id` / `group_ids`), each shown/required in the view by `report_type`. The 3 old per-variant
-  `allowed_*` computes collapsed into one `_compute_allowed_ids` (`@api.depends_context('uid')` +
-  `@api.depends('report_type', 'subject_id')`): `allowed_group_ids` means "the teacher's groups" for the
-  by-group variant but "groups teaching the chosen subject" for by-subject — same field, branch on
-  `report_type`. The 3 tutor fields collapsed into one computed `tutor_ids` (Many2many, so it holds one
-  tutor for group/student and several for subject). `detail_status_ids` / `include_strikes` /
-  `detail_status_warning` / `from_date` / `to_date` are now shared by all 3 variants (previously the
-  detail/strikes controls existed only on the by-subject wizard). `print()` branches on `report_type` to
-  build `status_ids` and pick the report `ir.actions.report` ref.
-- **Report data.** The 3 `AbstractModel`s stayed (one per template/action, so grouping/layout stay
-  explicit) but now share `_build_report_values(env, docids, data, group_key)` — the only difference is the
-  `group_key` lambda. All 3 now produce `detail_entries`/`detail_strikes`, so the opt-in Details/Strikes
-  sections render uniformly across variants.
-- **Templates.** The per-dimension "Summary + (filtered) Details + Strikes" block was extracted to a shared
-  `ems.attendance_template_detail_section` (`reports/attendance/templates/detail_section.xml`), `t-call`ed
-  by all 3 report templates (the caller sets `section_name` / `section_data` / `section_detail_entries` /
-  `section_strikes`). The by-group and by-student reports gained this per-subject section (they previously
-  had none / an unfiltered one); the by-subject report's hand-written per-student block was replaced by the
-  same `t-call`. Extracting it also fixed a latent bug in the old by-subject template, where each student's
-  "Summary" table re-used the whole-subject `data` (the per-row `data` was never re-`t-set`), so every
-  student showed the subject-wide numbers.
-- **XML-ID churn / migration.** No migration script was needed: the removed records are all module-owned
-  metadata that Odoo recreates/cleans up on `-u` — the 3 wizard `TransientModel`s (no persisted data), their
-  3 views, and their 3 `act_window` actions. The **render side is unchanged** on purpose (the 3
-  `ir.actions.report` + 3 report `AbstractModel`s + `report_name`s keep their XML IDs), so nothing that a
-  saved report attachment or external reference could point at was renamed. `security/ir.model.access.csv`'s
-  3×3 rows became 3 rows for the one model. The date-filling onchange also stopped calling
-  `sessions.search([], ...)` (which ignored the recordset and searched *all* sessions globally) — From/To
-  now reflect the actual filtered selection's range.
+- **Pivot:** rows `subject_label` → `student_id`, measures `absence_rate`, `strike_count`, `__count`. It
+  always loads collapsed; reaching subject → student takes the **Expand all** button twice (no custom
+  auto-expand JS).
+- **Graph:** grouped by `subject_label`. The graph shows one measure at a time, and its default is the
+  **last** `type="measure"` field of the arch (`graph_arch_parser.js`), so `absence_rate` is declared last;
+  `graph_measure` alone did not decide the first paint.
+- **Search:** filters on student, group (`student_group_id`), subject, status, **My subjects** and date;
+  group-bys on group, subject (`subject_label`), student, status and date.
+- **Students removed from the roll-call never count (issue #628):** removing a student archives their line.
+  A button's result inherits the context of the screen it is clicked on, and the students' list runs with
+  `active_test: False`, so every read path forces it back on (`_get_reports_action()`'s context, the
+  wizard's `_get_scope_lines()`/`_get_scope_values()`, the year record's `_attendance_rates()`).
+- The ⚙ Actions menu entry (`attendance_report_analysis_cog_menu.js`) matches the screen by
+  `searchModel.resModel === "ems.attendance_session_line"` and a pivot/graph `viewType`, not by action id: the
+  menu's action is the server action, while the screen runs the act_window it returns.
 
 ---
 
-## Attendance reports (pivot/graph)
+## PDF wizard
 
-`action_attendance_report_analysis` (named "Attendance reports") opens `ems.attendance_session_line`
-directly, `view_mode="pivot,graph"` — pivot is the default (first in the list), no list view. Pivot/graph/
-search views live in `views/attendance/attendance_reports/analysis_views.xml`. Reuses the model's existing
-`ir.model.access.csv` rows (teacher/secretary/admin already have read) — deliberately no new `ir.rule`
-scoping it more tightly than the PDF wizards' underlying data already is; see the security note above.
+One `ems.attendance_report_wizard` with `report_type` (`group` / `student` / `subject`); only the fields of
+the chosen type are shown and required. Every list it offers and every line it prints comes from the scope
+above:
 
-- **Pivot** (default view): rows = `subject_id` → `student_id` (nested — subject outer, student inner, so
-  a teacher's own students group naturally by subject), no columns, default measures `absence_rate` +
-  `strike_count` + `__count` (set both in the pivot arch's `type="measure"` fields and in
-  `action_attendance_reports_open`'s `context['pivot_measures']`, see below — the arch is the fallback for
-  any entry path that bypasses the server action). `strike_count` (`ems.attendance_session_line.strike_ids`
-  count) needed `store=True` added — a non-stored computed field cannot be aggregated by `read_group` at
-  all, so it couldn't be used as a measure before. The pivot always renders collapsed to a single "Total"
-  row on load — there is no context key or arch attribute that pre-expands row groups
-  (`expandedRowGroupBys` starts `[]` and is purely client interaction state, confirmed against
-  `web/static/src/views/pivot/pivot_model.js`); reaching the fully drilled-down subject/student view takes
-  2 clicks on the pivot's own "Expand all" button — a deliberate choice over adding custom auto-expand JS.
-- **Graph**: `<field name="subject_id"/>` (default groupBy/x-axis) + 2 `type="measure"` fields. Per the
-  `GraphArchParser` (`web/static/src/views/graph/graph_arch_parser.js`): a `<field>` without `type="measure"`
-  becomes the default groupBy if its type is groupable; each `<field type="measure">` becomes a *selectable*
-  measure (needs `aggregator` to qualify — `absence_rate`'s is `avg`, `strike_count`'s is the Integer default
-  `sum`), but **unlike pivot, the graph view can only display one measure at a time** — confirmed against
-  `web/static/src/views/graph/graph_model.js`/`graph_renderer.js`: `metaData.measure` is singular
-  throughout the whole data-fetch/render pipeline, and `onMeasureSelected` *replaces* it rather than
-  toggling a set. The "Measures" dropdown (`web.ReportViewMeasures`, same component pivot uses) lets the
-  user switch between "Absence rate" and "Strike count" with one click, each rendering its own bar chart —
-  there is no built-in way to plot both as separate bar series on the same chart; that would need a custom
-  chart component instead of the stock `<graph>` view.
-  - **Default measure = the *last* `type="measure"` field in the arch, not the context key alone.**
-    `GraphArchParser` explicitly picks the last declared measure field as `archInfo.measure`
-    (`graph_arch_parser.js`, comment: *"the last field with type='measure' (if any) will be used as
-    measure"*), and `graph_view.js` feeds that straight into the `GraphModel`'s initial `metaData.measure`
-    before any `load()`/context merge happens. The arch originally declared `absence_rate` before
-    `strike_count`, so — despite `action_attendance_reports_open` also setting
-    `context['graph_measure'] = 'absence_rate'` — the graph opened with **Strike count** selected, not
-    Absence rate. `graph_measure` isn't a no-op (`_buildMetaData` in `graph_model.js` does read it), but
-    empirically it wasn't enough to override the arch-derived initial state for the very first paint. Fixed
-    by swapping the arch order (`strike_count` declared first, `absence_rate` last) so the parser's own
-    "last measure wins" default lines up with what `graph_measure` was already trying to force — belt and
-    braces, and the arch order is now the actual source of truth. Caught by strengthening the tour's graph
-    step to assert `.o_menu_item.selected:contains('Absence rate')` in the Measures dropdown *before*
-    switching to Strike count (previously the tour only checked that a canvas rendered at all, which passed
-    regardless of which measure was showing) — a `TransactionCase`/clean `upgrade.sh` can't catch this
-    class of bug either, since it's pure client-side OWL/JS state.
-- **Menu → role-scoped entry point**: `menu_attendance_reports` ("Reports") no longer points at the
-  act_window directly — it points at `action_attendance_reports_open`, an `ir.actions.server` (`state=
-  "code"`, same style as `views/academic_management/enrollment/list_tutor.xml`'s
-  `action_student_group_enrollment`). Its code is a single call to
-  `ems.attendance_session_line._get_reports_action()`, which reads `action_attendance_report_analysis` via
-  `env.ref(...).sudo().read()[0]`, always sets `context['pivot_measures'] = ['absence_rate', 'strike_count',
-  '__count']` and `context['graph_measure'] = 'absence_rate'`. For pivot, `pivot_measures` reliably decides
-  which measures are enabled/visible (pivot can show several measures at once, so this is a whitelist, not a
-  single "current selection" — arch field order doesn't matter here). For graph the picture is more fragile:
-  `graph_measure` alone was *not* enough to control the actual default on first paint — see "Default measure
-  ..." above — the arch's own field order is what actually decides it, and `graph_measure` is now belt and
-  braces on top of that. "Count" is available as a pivot measure alongside the other two — sample size
-  matters when reading a percentage. Unless the user has `ems.group_student_data_reader`,
-  `ems.group_secretary` or `ems.group_secretary_admin` (`group_student_data_reader` is the technical group
-  of every post that reads the students' data centre-wide: head of studies/deputy/director/academic admin,
-  Guidance and Coexistence all imply it, `security/groups.xml`), the server action also:
-  - adds a `domain` scoping to the user's own teaching **or** their tutor scope's students:
-    `['|', ('template_teacher_ids.user_id', '=', uid), ('student_id.tutor_id.tutor_scope_user_ids', '=', uid)]`.
-    A tutor (and the chiefs above them, and the Director) sees every subject of their tutees, including the
-    ones taught by other teachers;
-  - turns on the **My subjects** filter by default (`context['search_default_my_subjects'] = 1`; filter
-    `my_subjects` in the search view, `[('template_teacher_ids.user_id', '=', uid)]`), so the screen opens
-    on the user's own subjects and removing the facet shows the tutees' other subjects.
-- **Student form entry point** (issue #519): the **Attendance** button in a student's button box
-  (`views/community/contact/form.xml`, same groups as the server action: teacher, secretary, secretary
-  admin) calls `res.partner.action_view_attendance_reports()`, which reuses `_get_reports_action()` (same
-  role-based domain) and then names the action after the student, sets `search_default_student_id` (a
-  removable **Student** facet) and drops `search_default_my_subjects`: coming from a student's file, the
-  user wants every subject of that student they can see (all of them for the tutor), while a plain teacher
-  still only reaches their own subjects through the domain.
+- `_get_scope_lines(domain, date_range)`: `search(_get_reports_domain() + domain [+ dates])` as the user,
+  with `active_test=True`, returned under `sudo()`. The scope is already decided by the domain; the `sudo()`
+  is what lets the PDF read the session's date and teacher when another teacher took it.
+- `_get_scope_values(field, domain)`: the distinct values of one field over the scope (`_read_group`), for
+  the dropdowns: `allowed_student_ids` (`student_id`), `allowed_group_ids` (`student_group_id`, or, by
+  subject, the groups having the chosen subject) and the options of `subject_label`
+  (`_selection_subject_label()`).
 
-  The action domain is UX scoping, not a security boundary (same distinction as the wizard dropdowns
-  above): it renders no facet chip and can't be removed from the search bar, while `ir.rule` still grants
-  every teacher read on every line underneath. The `template_teacher_ids.user_id` leaf goes through the
-  header's record rules, which is harmless there: it only has to match the user's own sessions.
-- **Students removed from the roll-call never count (issue #628)**: removing a student from a session's
-  roll-call archives their line (`active=False`), and no report or listing counts an archived line.
-  A plain search already leaves them out, but a button's result inherits the context of the screen it is
-  clicked on, and the students' list (`action_student_kanban`) runs with `active_test: False` to show
-  withdrawn and graduated students. So every read path forces it back on: `_get_reports_action()` sets
-  `context['active_test'] = True` (which the PDF wizard opened from that screen inherits), the wizard's own
-  searches (`_search_scoped_lines()`, `_get_sessions()`, `_get_report_lines()`) and the year record's
-  `_attendance_rates()` use `with_context(active_test=True)`. The only places that read archived lines on
-  purpose are the roll-call itself and the History form (`all_attendance_session_line_ids`), which list
-  them greyed out.
-- **Current-course-only by default (2026-08-10, developer feedback: "debe mostrar la información del curso
-  actual. Una vez transicionamos de curso, debería estar en blanco")**: before this, the screen had no
-  course/active scoping at all — it showed every `ems.attendance_session_line` ever recorded, across every
-  past course, since the model deliberately has no `active` field of its own ("statistical data... should be
-  unaltered", per its own docstring). Fixed with `[('attendance_session_id.active', '=', True)]` — the
-  *session* (the line's own parent) always has a real `active` field, and the course transition wizard
-  already archives every outgoing course's sessions (see `course_transition_wizard.md`), so filtering on the
-  session's own state is exactly "this course only". The domain is `[('session_active', '=', True)]`, on the
-  line's own stored copy of the session's `active` (see "Data model" above), never on the
-  `attendance_session_id.active` path, which would apply the header's record rules. Set on
-  `action_attendance_report_analysis`'s own XML `domain` (so the base action stays self-describing), but the
-  server action's code sets it again as a literal Python list rather than reading and extending the base
-  one — `.read()` returns `ir.actions.act_window.domain` as its raw stored **string**, not a parsed list,
-  and concatenating a list onto a string raises `TypeError`. The two are duplicated rather than one deriving
-  from the other, but since this action is only ever reached through the server action (confirmed by grep -
-  nothing else references `action_attendance_report_analysis`), there's no real path for them to silently
-  drift apart unnoticed.
-- **3 PDF wizards, reachable from the ⚙ Actions (cog) menu**: `static/src/js/backend/
-  attendance_report_analysis_cog_menu.js` registers 3 `cogMenu` registry entries (same building blocks as
-  `import_gedac_cog_menu.js` — a small `Component` per entry). `isDisplayed` matches on
-  `env.searchModel.resModel === "ems.attendance_session_line"` and `env.config.viewType` being `pivot` or
-  `graph` — **not** on `env.config.actionId` against a resolved menu `actionID` (the pattern
-  `import_gedac_cog_menu.js` uses): that comparison would break here, because the menu's *configured*
-  action is now the server action above, while `env.config.actionId` once the pivot is showing is the
-  *act_window*'s id after the server action's redirect — the two ids never match. Matching by `resModel` +
-  `viewType` sidesteps the mismatch entirely, and is precise enough since no other screen in this module
-  uses this model. Odoo's generic `CogMenu` component (`@web/search/cog_menu/cog_menu`, **not**
-  `ActionMenus`, which is list-view-only) is wired into both `PivotController` and `GraphController` — so
-  this works on both views. Each item calls `this.action.doAction("ems.action_attendance_report_<x>_wizard")`.
+| Report | Selection | Lines |
+|---|---|---|
+| By student | `student_id` | `_get_student_lines()`: that student's lines in scope |
+| By group | `group_id` | `_get_group_lines()`: `student_group_id` = the group, with a student |
+| By subject | `subject_label` (a `Selection` of the labels in scope) + `group_ids` (prefilled with every group having it, removable) | `_get_subject_lines()`: `subject_label` = the choice, `student_group_id` in the groups, with a student |
+
+- **From/To prefill:** each selection's onchange fills the dates with the first and last `date` of its own
+  lines (date range off).
+- **Nothing is taken from the client.** The 3 `ir.actions.report` have `model = ems.attendance_report_wizard`
+  and `print()` calls `report_action(self)` with no `data`; the report data models
+  (`report.ems.attendance_report_{group,student,subject}`) browse the wizard and recompute its lines. A value
+  sent by hand outside the dropdowns (another student, a subject label out of scope) only ever reaches the
+  lines in scope, i.e. none. `subject_label`'s dynamic options are not validated by Odoo on save, which is
+  why the domain, not the selection, is the guarantee.
+- **No `data`, for the file name:** with `data` the web client downloads through the "particular report"
+  route, which always names the file after the report and ignores `print_report_name`. Through the docids
+  route, `print_report_name = object.get_report_filename()` gives `<report name>_<student|group|subject>`,
+  spaces as `_` and without the subject label's `:`.
+- **Report data:** the 3 models share `_build_report_values(env, docids, group_key)`; by group and by student
+  group the per-dimension sections by `subject_label`, by subject by student. Strikes are searched in the
+  lines' environment, the same ones the screen counts as `strike_count`.
+- **Details/Strikes sections:** `detail_status_ids` (default: absence-category statuses) decides which
+  lines are listed one by one; `include_strikes` (default on) adds the strikes table; `detail_status_warning`
+  shows an inline alert when the selection goes beyond the default (a long period × many statuses made the
+  PDF fail in wkhtmltopdf). The summary percentages always count every line. The shared section template is
+  `ems.attendance_template_detail_section`.
+- **`default_get()` seeds `allowed_*`:** a compute depending only on the context (`uid`) isn't reliably run on
+  a freshly opened wizard, so the dropdowns would come up empty.
+- **Student-less lines:** a hard-deleted student leaves lines with `student_id = NULL`; the by-group and
+  by-subject reports filter `('student_id', '!=', False)`, otherwise they would render a blank row.
+- **QWeb gotcha:** `t-field` cannot go on a `<td>` (`QWeb widgets do not work correctly on 'td' elements`);
+  wrap it in a `<span>`. Every report table row carries `page-break-inside: avoid`.
 
 ---
 
@@ -529,51 +214,45 @@ scoping it more tightly than the PDF wizards' underlying data already is; see th
 
 | View | File |
 |---|---|
-| Unified PDF wizard form (`report_type` selector) | `views/attendance/attendance_reports/wizard.xml` |
-| Analysis pivot/graph/search | `views/attendance/attendance_reports/analysis_views.xml` |
-| Actions + `Attendance → Reports` menu + `action_attendance_reports_open` server action | `views/attendance/attendance_reports/menu.xml` |
+| PDF wizard form | `views/attendance/attendance_reports/wizard.xml` |
+| Pivot/graph/search | `views/attendance/attendance_reports/analysis_views.xml` |
+| Actions, `Attendance → Reports` menu, `action_attendance_reports_open` | `views/attendance/attendance_reports/menu.xml` |
 | PDF templates | `reports/attendance/{group,student,subject,session}.xml` + `reports/attendance/templates/{sumary_table,details_table,detail_section}.xml` |
-| ⚙ Actions cog menu (single PDF shortcut) | `static/src/js/backend/attendance_report_analysis_cog_menu.js` + `static/src/xml/backend/attendance_report_analysis_cog_menu.xml` |
+| ⚙ Actions entry | `static/src/js/backend/attendance_report_analysis_cog_menu.js` + `static/src/xml/backend/attendance_report_analysis_cog_menu.xml` |
 
 ## Access control
 
-| Role | PDF wizard (create/read on `ems.attendance_report_wizard`) | Analysis screen (read on `ems.attendance_session_line`) |
-|---|:---:|:---:|
-| Administrator / Director / Head of Studies (+ deputy) | ✓ | ✓ (all data, no default domain) |
-| Secretary (+ admin) | read-only | ✓ (all data, no default domain) |
-| Teacher / Tutor / Department Chief | ✓ (dropdowns scoped to own teaching plus the tutor scope; tutored groups/students cover every subject, see "Tutor scope in the PDF reports") | ✓ (own teaching plus the tutor scope's students, with the removable **My subjects** filter on by default via `action_attendance_reports_open`) |
+| Role | PDF wizard (`ems.attendance_report_wizard`) | Lines shown (screen and PDFs) |
+|---|:---:|---|
+| Teacher | read/write/create | Their own subjects (**My subjects** on by default) |
+| Tutor | read/write/create | Plus every subject of their students |
+| Department / Seminar Chief | read/write/create | Plus the students of the tutors below them and of the studies their department manages |
+| Head of Studies / Deputy | read/write/create | Plus the students of the tutors below them and of the studies of their area |
+| Director, administrator | read/write/create | Whole centre |
+| Guidance, Coexistence | read/write/create (as teachers: the post is a teaching one) | Whole centre |
+| Secretary (+ admin) | read/write/create | Whole centre |
+
+The record rules on the lines are not what narrows this down: every teacher can read every line
+(`rule_attendance_session_line_teacher_all_read`, needed to justify absences). The scope is the domain
+above, applied identically by both screens.
 
 ## Testing
 
-- `tests/test_attendance_reports.py` (`TransactionCase`): admin-vs-teacher scoping of `allowed_*` per
-  `report_type` (including the bug fixes), `group_ids` prefill for the by-subject variant, `tutor_ids`
-  following the type, `print()` dispatching to the right report per type + skipping student-less orphan
-  lines, the stored related fields, `absence_rate`, `strike_count`'s `store=True` (aggregatable via
-  `read_group`), `action_attendance_reports_open`'s role-based domain (`.run()` `with_user(...)` for a
-  plain teacher vs. an academic admin, Guidance and Coexistence), and the student form's `action_view_attendance_reports()` (same
-  domain, student facet, no **My subjects**). Also: `detail_status_ids`'s default (absence-category only),
-  `detail_status_warning` computing `False`/`True`, and `_get_report_values` producing correctly filtered
-  `detail_entries`/`detail_strikes` for **all 3** report data models (by-subject grouped by student,
-  by-group/by-student grouped by subject).
-- `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js` (`HttpCase`):
-  one wizard tour that switches through all 3 `report_type`s on a single open form (each variant's selector
-  shows, its onchange fills tutor/dates, the by-subject prefills `group_ids`), exercises the shared Detail
-  statuses / Include strikes defaults + the inline size-warning banner (absent within the default, appears
-  after adding "Attended"), and prints once at the end; plus the analysis-screen tour (pivot default, 2× Expand-all
-  drilling subject → student, graph + Measures switch, and the single ⚙ cog entry opening the unified
-  wizard — the only coverage of the custom `cogMenu` JS). Both `start_tour()` calls use `step_delay=300`
-  (see the flakiness note above). All 3 variants' PDF *data* (QWeb HTML) render was additionally verified
-  out-of-band via `_render_qweb_html` (no wkhtmltopdf), which is what catches template crashes like the
-  `<td t-field=...>` one — a `TransactionCase`/clean `upgrade.sh` renders no QWeb.
-- Tutor scope (`AttendanceReportTutorScopeCommon` fixture: a second teacher's session in the tutored group,
-  a tutor of that group who teaches nothing, a department chief above them):
-  `TestAttendanceStudentReportScope` (by student), `TestAttendanceGroupSubjectReportScope` (by group and by
-  subject: dropdowns, date prefill, every subject for the tutor and the chief, own sessions only for a plain
-  teacher, no widening for a group outside the tutor scope) and `TestAttendanceReportsAnalysisScope` (the
-  pivot's action domain as tutor/chief/plain teacher, the **My subjects** filter, `read_group` by subject as
-  tutor, and the current-course filter on `session_active`). Tours `ems_attendance_report_student_scope`
-  (as a plain teacher and as a tutor) and `ems_attendance_report_tutor_scope` (as a tutor: the default
-  facet, removing it shows other teachers' subjects in the pivot, graph, then the by-group and by-subject
-  PDFs of the tutored group; the wizard stays open after a download, so both print from the same dialog),
-  plus `ems_attendance_report_from_student` (as a tutor: the student form's **Attendance** button opens
-  the pivot on the student facet, without **My subjects**, listing both subjects; then the graph).
+- `tests/test_attendance_reports.py`:
+  - `TestAttendanceReportScopeLadder`: the chain of command for every profile (teacher, teacher on guard
+    duty, tutor, chief above the tutor, chief of the managing department and of another one, Head of Studies
+    of the area and of another area, Director, Guidance, Coexistence, Secretariat); the **parity test**, for
+    each profile, that the wizard's students, groups and subjects are those of the lines on the screen and
+    that the by-student PDFs of the offered students add up to exactly those lines; the three PDFs printed by
+    Guidance, Coexistence and Secretariat; current course only; guard-duty roll-calls belong to the template's
+    teacher.
+  - `TestAttendanceReportWizards`, `TestAttendanceStudentReportScope`, `TestAttendanceGroupSubjectReportScope`,
+    `TestAttendanceReportsAnalysisScope`: dropdowns, prefills, printing, file names, detail sections, the
+    stored fields, the screen's actions, archived lines (issue #628).
+- `tests/test_attendance_template.py` (`TestEmployeeSyncScheduleFromCalendar`): two topics of one subject make
+  two templates; no topic changes nothing; a changed topic keeps the old sessions' label.
+- `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js`: the wizard through
+  its 3 types (the subject picked by its "subject - topic" label), the screen (pivot rows with the topic,
+  graph, measures, ⚙ entry), the by-student wizard as a plain teacher and as a tutor, the tutor's screen and
+  PDFs, and the student form's **Attendance** button.
+- `tests/test_access_matrix.py`: the wizard's ACL for teachers and Secretariat.

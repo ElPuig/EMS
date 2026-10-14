@@ -23,6 +23,15 @@ function selectMany2one(fieldName, searchText) {
     ];
 }
 
+// The by-subject picker is a plain <select> of 'subject [- topic]' labels (issue #633).
+function selectSubject(label) {
+    return {
+        trigger: ".o_form_view .o_field_widget[name='subject_label'] select",
+        content: `Select subject '${label}'`,
+        run: `selectByLabel ${label}`,
+    };
+}
+
 function pickReportType(label) {
     return {
         trigger: `.o_form_view .o_field_widget[name='report_type'] label:contains('${label}')`,
@@ -59,8 +68,8 @@ registry.category("web_tour.tours").add("ems_attendance_report_wizard", {
 
         // --- Switch to by subject (the richest variant: prefilled groups + the detail controls) ---
         pickReportType("By subject"),
-        { trigger: ".o_form_view .o_field_widget[name='subject_id']", content: "By-subject selector now shown" },
-        ...selectMany2one("subject_id", "Attendance Reports Tour Subject"),
+        { trigger: ".o_form_view .o_field_widget[name='subject_label']", content: "By-subject selector now shown" },
+        selectSubject("TART: Attendance Reports Tour Subject - Tour Topic"),
         {
             trigger: ".o_form_view .o_field_widget[name='group_ids'] .o_tag:contains('Attendance Reports Tour Group')",
             content: "group_ids got pre-filled with every group teaching the subject",
@@ -109,8 +118,8 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
         { trigger: ".o_pivot_flip_button, .o_pivot_expand_button", content: "Pivot toolbar loaded" },
         { trigger: ".o_pivot_expand_button", content: "Expand all: Total -> subject", run: "click" },
         {
-            trigger: ".o_pivot_view :contains('Attendance Reports Tour Subject')",
-            content: "Subject row appears",
+            trigger: ".o_pivot_view :contains('Attendance Reports Tour Subject - Tour Topic')",
+            content: "Subject row appears, with the topic of its schedule block (issue #633)",
         },
         { trigger: ".o_pivot_expand_button", content: "Expand all again: subject -> student", run: "click" },
         {
@@ -200,7 +209,7 @@ registry.category("web_tour.tours").add("ems_attendance_report_tutor_scope", {
         // --- By subject PDF (same dialog, which stays open after a download): a subject taught by
         // another teacher in the tutored group ---
         pickReportType("By subject"),
-        ...selectMany2one("subject_id", "Student Scope Tour Subject 2"),
+        selectSubject("TARS2: Student Scope Tour Subject 2"),
         {
             trigger: ".o_form_view .o_field_widget[name='group_ids'] .o_tag:contains('Student Scope Tour Group')",
             content: "group_ids got pre-filled with the tutored group",

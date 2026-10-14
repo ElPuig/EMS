@@ -22303,3 +22303,77 @@ msgstr "Una absència ATRI es justifica al portal ATRI: es retorna allà, no per
 #: code:addons/ems/models/employees/absence.py:0
 msgid "The documentation of your absence of %(when)s in ATRI is not sufficient. Reason: %(reason)s. Please complete it on the ATRI portal and then confirm it on the absence request."
 msgstr "La documentació de la teva absència del %(when)s a ATRI no és suficient. Motiu: %(reason)s. Completa-la al portal ATRI i després confirma-ho a la sol·licitud d'absència."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "About"
+msgstr "Quant a"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_version
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Installed version"
+msgstr "Versió instal·lada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The EMS version running on this installation."
+msgstr "La versió d'EMS que funciona en aquesta instal·lació."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_latest_version
+msgid "Latest version"
+msgstr "Darrera versió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_latest_version_url
+msgid "Latest version URL"
+msgstr "URL de la darrera versió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_version_status
+msgid "Version status"
+msgstr "Estat de la versió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_version_message
+msgid "Version check"
+msgstr "Comprovació de la versió"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__ems_version_status__latest
+msgid "Up to date"
+msgstr "Al dia"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__ems_version_status__outdated
+msgid "Newer version available"
+msgstr "Hi ha una versió més nova"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__res_config_settings__ems_version_status__unknown
+msgid "Not checked"
+msgstr "No comprovada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Check again"
+msgstr "Torna-ho a comprovar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/settings.py:0
+msgid "The latest version could not be checked."
+msgstr "No s'ha pogut comprovar quina és la darrera versió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/settings.py:0
+msgid "You are on the latest version."
+msgstr "Tens la darrera versió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/settings.py:0
+msgid "A newer version is available: %(version)s"
+msgstr "Hi ha una versió més nova: %(version)s"

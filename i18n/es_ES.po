@@ -6740,6 +6740,7 @@ msgstr "Hora de última entrada de importación de horario"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__use_schedule
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Schedule sending"
 msgstr "Programar envío"
 
@@ -19185,6 +19186,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Actions"
 msgstr "Acciones"
 
@@ -22824,3 +22826,8 @@ msgstr "Títulos registrados"
 #: code:addons/ems/models/grades/title_import_wizard.py:0
 msgid "Withdrawals that became alumni"
 msgstr "Bajas que han pasado a antiguo alumnado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__can_manage
+msgid "Can manage"
+msgstr "Puede gestionar"

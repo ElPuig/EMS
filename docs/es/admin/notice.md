@@ -43,8 +43,10 @@ Se encuentra en **Comunicaciones → Comunicados**.
    > válido (`nombre@dominio`) — EMS no permite guardar un valor que no lo sea, como un número
    > de teléfono escrito por error.
 8. Haga una de las dos opciones:
-   - Pulse **Enviar** para poner los correos en cola inmediatamente, o
-   - Marque **Programar el envío** y elija una fecha/hora, y pulse **Enviar** — el comunicado
+   - Abra el menú **Acciones** en la parte superior del formulario y pulse **Enviar ahora**
+     para poner los correos en cola inmediatamente, o
+   - Marque **Programar el envío** y elija una fecha/hora, y pulse **Acciones → Programar
+     envío** — el comunicado
      pasa a **Programado** y los correos salen en ese momento.
 9. El **Estado** del comunicado sigue el progreso: **Borrador** → **Programado** → **Enviado**
    (o **Fallido** si el envío ha fallado para todos los destinatarios). Cada fila de
@@ -53,7 +55,7 @@ Se encuentra en **Comunicaciones → Comunicados**.
 
 ![Un comunicado en borrador, con la lista de destinatarios generada automáticamente a partir del grupo seleccionado](../../assets/admin/admin-notice-create-form.png)
 
-Un comunicado **programado** (aún no enviado) se puede **cancelar**, devolviéndolo a Borrador
+Un comunicado **programado** (aún no enviado) se puede **cancelar** (**Acciones → Cancelar**), devolviéndolo a Borrador
 para que pueda editarlo y volver a enviarlo.
 
 Si un destinatario pulsa **Responder** al correo que ha recibido, la respuesta llega

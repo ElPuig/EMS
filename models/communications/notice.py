@@ -61,6 +61,14 @@ class EmsNotice(models.Model):
         compute="_compute_can_cancel",
         store=False,
     )
+    # Whether the current user may edit, send or cancel this notice: its creator, or someone above
+    # them in the chain of command (security/rules/communications.xml). Hides the form's actions
+    # from everyone else, who may still read it (e.g. another Head of Studies, for supervision).
+    can_manage = fields.Boolean(
+        string="Can manage",
+        compute="_compute_can_manage",
+        store=False,
+    )
 
     @api.depends('notice_line_ids')
     def _compute_recipient_count(self):
@@ -83,6 +91,14 @@ class EmsNotice(models.Model):
                 line.notification_id and line.notification_id.state in RUNNING
                 for line in notice.notice_line_ids
             )
+
+    @api.depends_context('uid')
+    def _compute_can_manage(self):
+        # A record still being created carries a NewId, which the rule check skips: a new notice
+        # is always the user's own.
+        writable = self._filtered_access('write')
+        for notice in self:
+            notice.can_manage = notice in writable
 
     def _compute_display_name(self):
         for notice in self:

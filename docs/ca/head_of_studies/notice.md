@@ -25,14 +25,23 @@ resta.
 
 Si mai necessiteu comprovar què ha enviat un company amb el mateix rol — per supervisar —
 cliqueu la **✕** de l'etiqueta "Mostra només els meus" a la barra de cerca (o obriu el panell
-de cerca i desmarqueu-la) per veure tots els comunicats de tot el centre. Només podreu **editar
-o eliminar els vostres propis**; el comunicat d'una altra persona s'obre en mode només lectura.
+de cerca i desmarqueu-la) per veure tots els comunicats de tot el centre. Podreu **editar,
+enviar o eliminar els vostres** i els de les persones que depenen de vosaltres a la cadena de
+comandament (vegeu més avall); qualsevol altre comunicat s'obre en mode només lectura, sense el
+menú **Accions**.
 
 El **Director** té exactament el mateix filtre per defecte (igual que un Administrador) — la
 diferència és només en què li permet fer treure'l, no en qui el veu: un Director pot editar
 qualsevol comunicat un cop tret el filtre, mentre que vosaltres només podeu editar o eliminar
-els vostres propis independentment del filtre. Vegeu el
+els vostres i els de la vostra branca independentment del filtre. Vegeu el
 [manual d'Administrador](../admin/notice.md#qui-veu-quins-comunicats).
+
+### Comunicats de la vostra branca
+
+Un comunicat que ha redactat algú que depèn de vosaltres a la cadena de comandament — per
+exemple, un cap de departament de la vostra branca — també el podeu revisar i enviar: obriu-lo,
+corregiu el que calgui i envieu-lo des del menú **Accions**. Un cap d'estudis d'una altra branca,
+o un altre cap de departament, el pot llegir però no modificar ni enviar.
 
 ---
 

@@ -3,7 +3,10 @@ from datetime import date
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, mock_outgoing_email, next_student_id
+from .common import (
+    create_head_of_studies_branch, create_level_study_group, create_role_employee, mock_outgoing_email,
+    next_student_id,
+)
 
 
 class TestNotice(TransactionCase):
@@ -568,6 +571,79 @@ class TestNoticeAccessControl(TransactionCase):
         self.assertEqual(found, line, "HOS B should be able to read HOS A's notice line for supervision")
         with self.assertRaises(AccessError):
             line.with_user(self.hos_b_user).write({'email': 'hijacked@example.com'})
+
+
+
+class TestNoticeHierarchyAccess(TransactionCase):
+    """A notice can be edited and sent by its creator and by everyone above them in the chain of
+    command (hr.employee.tutor_scope_user_ids: every chief above them through parent_id, and the
+    Director) - not by any other holder of the same role (issue #636: a Deputy Head of Studies
+    could not send a draft written by a Department Chief below them)."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        teacher = cls.env['hr.employee'].create({'name': 'Notice Hierarchy Teacher', 'employee_type': 'teacher'})
+        create_head_of_studies_branch(cls, 'NoticeHier', teacher)
+        # message_post() (action_send's chatter) needs the acting user's email.
+        for user in (cls.head_of_studies, cls.department_chief, cls.other_department_chief, cls.other_head_of_studies):
+            user.email = f'{user.login}@example.com'
+        cls.other_chief_employee = cls.other_department_chief.employee_ids
+        # Created as the chief, outside their department's groups check (sudo keeps create_uid).
+        cls.notice = cls.env['ems.notice'].with_user(cls.department_chief).sudo().create({
+            'subject': 'Chief draft', 'message': '<p>Draft</p>', 'recipient_type': 'both',
+            'notice_line_ids': [(0, 0, {'email': 'hierarchy.recipient@example.com'})],
+        })
+
+    def test_head_of_studies_above_creator_can_edit_and_send(self):
+        notice = self.notice.with_user(self.head_of_studies)
+        self.assertTrue(notice.can_manage)
+        notice.write({'subject': 'Reviewed by the Head of Studies'})
+        notice.notice_line_ids.write({'email': 'reviewed.recipient@example.com'})
+        notice.action_send()
+        self.assertEqual(self.notice.state, 'scheduled')
+        self.assertEqual(self.notice.sent_by, self.head_of_studies)
+
+    def test_creator_can_send(self):
+        notice = self.notice.with_user(self.department_chief)
+        self.assertTrue(notice.can_manage)
+        notice.action_send()
+        self.assertEqual(self.notice.state, 'scheduled')
+
+    def test_head_of_studies_of_another_branch_cannot_send(self):
+        notice = self.notice.with_user(self.other_head_of_studies)
+        self.assertFalse(notice.can_manage)
+        with self.assertRaises(AccessError):
+            notice.action_send()
+        with self.assertRaises(AccessError):
+            notice.notice_line_ids.write({'email': 'hijacked@example.com'})
+
+    def test_peer_department_chief_cannot_send(self):
+        notice = self.notice.with_user(self.other_department_chief)
+        with self.assertRaises(AccessError):
+            notice.write({'subject': 'Hijacked'})
+
+    def test_chief_above_another_chief_can_send(self):
+        # A Seminar/Department Chief who hangs below another chief: the upper one can act too.
+        self.other_chief_employee.parent_id = self.department_chief.employee_ids
+        notice = self.env['ems.notice'].with_user(self.other_department_chief).sudo().create({
+            'subject': 'Lower chief draft', 'message': '<p>Draft</p>', 'recipient_type': 'both',
+        })
+        notice.with_user(self.department_chief).write({'subject': 'Reviewed by the upper chief'})
+        self.assertEqual(notice.subject, 'Reviewed by the upper chief')
+
+    def test_director_can_send(self):
+        director = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Notice Hierarchy Director', 'login': 'test_notice_hier_director',
+            'email': 'test_notice_hier_director@example.com',
+            'groups_id': [(4, self.env.ref('ems.group_director').id), (4, self.env.ref('base.group_user').id)],
+        })
+        create_role_employee(self, director)
+        notice = self.notice.with_user(director)
+        self.assertTrue(notice.can_manage)
+        notice.action_send()
+        self.assertEqual(self.notice.state, 'scheduled')
 
 
 def base_encoded_png():

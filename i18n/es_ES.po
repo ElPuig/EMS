@@ -22304,3 +22304,19 @@ msgstr "Una ausencia ATRI se justifica en el portal ATRI: se devuelve allí, no 
 #: code:addons/ems/models/employees/absence.py:0
 msgid "The documentation of your absence of %(when)s in ATRI is not sufficient. Reason: %(reason)s. Please complete it on the ATRI portal and then confirm it on the absence request."
 msgstr "La documentación de tu ausencia del %(when)s en ATRI no es suficiente. Motivo: %(reason)s. Complétala en el portal ATRI y después confírmalo en la solicitud de ausencia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "About"
+msgstr "Acerca de"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_version
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Installed version"
+msgstr "Versión instalada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "The EMS version running on this installation."
+msgstr "La versión de EMS que funciona en esta instalación."

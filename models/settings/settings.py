@@ -64,6 +64,15 @@ class ems_settings(models.TransientModel):
    google_ws_dry_run  = fields.Boolean(related="company_id.google_ws_dry_run", readonly=False)
    google_ws_sa_json  = fields.Text(related="company_id.google_ws_sa_json", readonly=False)
 
+   # A default, not a compute: the settings form gets its values from onchange(), which never
+   # computes a field with no dependencies. latest_version is the version the database was last
+   # installed/upgraded to, i.e. the one actually running, whatever the code on disk says.
+   ems_version = fields.Char(
+      string="Installed version",
+      readonly=True,
+      default=lambda self: self.env['ir.module.module'].sudo().search([('name', '=', 'ems')], limit=1).latest_version,
+   )
+
    def set_values(self):
       super().set_values()
       if self.auto_checkout_mode != 'ems':

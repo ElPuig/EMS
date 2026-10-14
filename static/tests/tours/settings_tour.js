@@ -79,6 +79,10 @@ registry.category("web_tour.tours").add("ems_settings_edit", {
             content: "The checkbox actually toggled (not just clicked)",
         },
         {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='ems_version'] span:contains('18.0.')",
+            content: "The About block shows the installed EMS version",
+        },
+        {
             // Discard (unlike Save) stays a normal in-place SPA action - res.config.settings.
             // cancel() just re-reads the record, no client-side "reload" action tag involved -
             // so it's the safe way to leave the tour with a clean (non-dirty) form.

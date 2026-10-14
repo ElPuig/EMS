@@ -6,7 +6,7 @@
 
 **Module file:** `models/settings/settings.py`
 
-The only behaviour that isn't a plain passthrough is `set_values()`.
+The only behaviour that isn't a plain passthrough is `set_values()`, plus the read-only `ems_version` field.
 
 ---
 
@@ -27,6 +27,12 @@ Switching `auto_checkout_mode` back to `native` does **not** deactivate the cron
 
 ---
 
+## `ems_version` — installed EMS version
+
+Read-only field shown in the **About** block at the bottom of the EMS Management tab. It reads `ir.module.module.latest_version` for `ems` (with `sudo()`), i.e. the version the database was last installed/upgraded to, which is the one actually running, rather than the manifest on disk (code that has been pulled but not yet upgraded would show the new number too early). It is a `default`, not a compute: the settings form takes its initial values from `onchange()`, which never computes a field with no dependencies.
+
+---
+
 ## Access Control
 
 Same as any `res.config.settings`: reaching the screen at all requires Settings access (standard Odoo `base.group_system`-gated navigation), not an EMS-specific rule.
@@ -37,4 +43,4 @@ Same as any `res.config.settings`: reaching the screen at all requires Settings 
 
 | View | File | Notes |
 |------|------|-------|
-| Settings form | `views/settings/form.xml` | See [res.company](company.md)'s Views section — same page, already covered by the `ems_course_settings` tour |
+| Settings form | `views/settings/form.xml` | See [res.company](company.md)'s Views section — same page, already covered by the `ems_course_settings` tour; the `ems_settings_edit` tour also checks the About block's version |

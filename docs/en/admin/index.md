@@ -14,6 +14,7 @@ This section contains the manuals for **administrators**.
 - [Studies](curriculum-studies.md) — Curriculum configuration: study programmes, their subjects and curriculum documents.
 - [Subjects](curriculum-subjects.md) — Curriculum configuration: subjects, their learning outcomes/content, and the automatic billing product sync.
 - [Current Course](course-settings.md) — Switching the academic year used for day-to-day operations.
+- [Installed EMS version](ems-version.md) — Which EMS version is running on this installation.
 - [Convalidations settings](convalidation-settings.md) — The yearly period to request convalidations from the portal and the texts of the official resolution.
 - [Workgroups](workgroups.md) — Free-form employee groupings (project teams, committees).
 - [Spaces and Space Types](facilities.md) — Physical rooms and their types, used across sessions/groups/minutes/schedules.

@@ -1,3 +1,4 @@
+from odoo.modules.module import get_manifest
 from odoo.tests.common import TransactionCase
 
 
@@ -5,7 +6,7 @@ class TestSettings(TransactionCase):
     """res.config.settings (models/settings/settings.py) is a thin related-field proxy over
     res.company (see test_company_settings.py/test_company_director.py/test_course.py for
     the fields it exposes) — the only behaviour unique to this model is set_values()
-    activating the EMS auto-checkout cron."""
+    activating the EMS auto-checkout cron, and the installed EMS version it shows."""
 
     def _get_cron(self):
         return self.env.ref('hr_attendance.hr_attendance_check_out_cron', raise_if_not_found=False)
@@ -36,3 +37,7 @@ class TestSettings(TransactionCase):
         settings.set_values()
 
         self.assertFalse(cron.active)
+
+    def test_ems_version_is_the_installed_one(self):
+        settings = self.env['res.config.settings'].create({})
+        self.assertEqual(settings.ems_version, get_manifest('ems')['version'])

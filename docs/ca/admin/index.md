@@ -14,6 +14,7 @@ Aquesta secció conté els manuals per a **administradors**.
 - [Estudis](curriculum-studies.md) — Configuració curricular: programes d'estudi, les seves assignatures i documents curriculars.
 - [Assignatures](curriculum-subjects.md) — Configuració curricular: assignatures, els seus resultats d'aprenentatge/continguts, i la sincronització automàtica del producte de facturació.
 - [Curs Actual](course-settings.md) — Canviar l'any acadèmic utilitzat per a les operacions del dia a dia.
+- [Versió d'EMS instal·lada](ems-version.md) — Quina versió d'EMS funciona en aquesta instal·lació.
 - [Configuració de convalidacions](convalidation-settings.md) — El període anual per sol·licitar convalidacions des del portal i els textos de la resolució oficial.
 - [Grups de treball](workgroups.md) — Agrupacions lliures d'empleats (equips de projecte, comissions).
 - [Espais i tipus d'espai](facilities.md) — Aules físiques i els seus tipus, usats en sessions/grups/actes/horaris.

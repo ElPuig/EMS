@@ -1215,8 +1215,42 @@ replaced because one email per release was too frequent for staff). When asked:
    merged --json number,title,body,mergeCommit`), which is where the changelog survives after
    `changelog/` is deleted before merge. Write **one** email for the whole period, grouped by
    topic rather than by version.
-4. Send it (mechanism below). Once the shell output confirms `state=sent`, update the memory marker
-   to the newest tag included, with the send date.
+4. Show the draft in chat and wait for the developer's OK (unless they asked to send it straight
+   away), then send it (mechanism below). Once the shell output confirms `state=sent`, update the
+   memory marker to the newest tag included, with the send date.
+
+**Content: light, written for rank-and-file teachers (developer, 2026-09-28 to 2026-10-14).** Most
+readers are basic users, not Heads of Studies, secretary or admin, and a long list buries the few
+things they need (a first draft covering every topic was "demasiado largo", the second cut too
+much; the third was approved). Structure that works:
+1. A short intro with a two-part list: **"Per a tot el professorat"** (only what every teacher
+   uses: check-in/fitxatges, meeting attendance, the Documentation menu) and **"Només per a cicles
+   formatius"** (everything else). Outside CCFF, EMS is only used for check-in: staff absences and
+   the guard duty board are CCFF-only too, since ESO/BTX still use the old system, and an ESO/BTX
+   Head of Studies shouldn't get questions they can't answer.
+2. Right after that list, before the first `<h2>`, a callout box presenting EMS with the "Què és
+   EMS?" video on the shared Drive
+   (<https://drive.google.com/file/d/1yRnv_r2r6n1Iz-MA_4B67AAHodlDH3Hw/view?usp=sharing>, as a
+   button link: a Drive video can't be embedded in an email).
+3. One `<h2>` per section with only **concrete features a teacher uses**, 2-3 bullets per topic and
+   one manual link (the teacher-facing one, not the HOS/secretary/admin manuals).
+4. **"Altres canvis rellevants"** (its own `<h2>`, after both sections, no audience split): fixes
+   of things that were annoying to users (duplicate emails for one event, replies landing in the
+   general mailbox, a character that couldn't be typed, two screens showing the same thing
+   differently).
+5. Closing: the docs index link, plus "if you want the full list of changes (in English)" linking
+   each GitHub release of the period (`https://github.com/ElPuig/EMS/releases/tag/<tag>`; the repo
+   is public).
+
+Leave out small form/field changes (copy buttons, label tweaks), workflows only approvers or
+managers use (Actions dropdown, undoing a decision, convalidation states, imports, schedules) and
+internal changes. Everything reads as one package: never mark items as "Nou:", even when the
+email covers several releases. When the developer supplies the wording for an item, use it
+verbatim. Extra material with no image file (e.g. several Drive videos) goes in the body as a
+card block in the house colors (a table with number, duration, title, audience and a "▶ Veure"
+button per video), linking each Drive file individually (the folder isn't public, the files are
+shared by link). The `[DEV]` subject prefix a dev machine adds doesn't matter: the developer
+removes it when forwarding.
 
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and

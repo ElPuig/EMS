@@ -182,6 +182,12 @@
                                 <field name="google_ws_sa_json" widget="text" placeholder='{ "type": "service_account", ... }'/>
                             </setting>
                         </block>
+
+                        <block title="About" name="ems_about">
+                            <setting string="Installed version" help="The EMS version running on this installation." id="ems_version">
+                                <field name="ems_version"/>
+                            </setting>
+                        </block>
                     </app>
                 </xpath>
             </field>

@@ -858,3 +858,47 @@ class TestAttendanceReportsAnalysisScope(AttendanceReportTutorScopeCommon):
 
     def _fixture_ids(self):
         return {self.line_recent.id, self.line_old.id, self.line_other.id, self.line_foreign.id}
+
+
+class TestAttendanceReportWholeCentreScope(AttendanceReportTutorScopeCommon):
+    """Issue #633: the posts reading every student's attendance (Guidance here, teaching and tutoring
+    nothing) get the whole centre in the PDF wizard's dropdowns and reports, as they already did on
+    the 'Reports' screen, not only their own teaching and tutor scope."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.orientation_user = create_role_user(cls, 'orientation', 'test_orientation_arw633')
+        create_role_employee(cls, cls.orientation_user)
+
+    def _allowed(self, user, report_type):
+        wizard = self._wizard(user, report_type=report_type)
+        wizard._compute_allowed_ids()
+        return wizard
+
+    def test_pickers_offer_every_student_group_and_subject(self):
+        wizard = self._allowed(self.orientation_user, 'student')
+        self.assertLessEqual(self.student1 | self.student2, wizard.allowed_student_ids)
+        self.assertLessEqual(self.group1 | self.group2, wizard.allowed_group_ids)
+        self.assertLessEqual(self.subject_a | self.subject_b, wizard.allowed_subject_ids)
+        self.assertEqual(wizard._get_groups_teaching(self.subject_a), self.group1 | self.group2)
+
+    def test_student_report_every_subject_of_any_student(self):
+        wizard = self._wizard(self.orientation_user, report_type='student', student_id=self.student1.id,
+                              from_date=self.other_date, to_date=self.today)
+        self.assertEqual(set(wizard._get_report_lines().ids), {self.line_recent.id, self.line_old.id, self.line_other.id})
+        self.assertEqual(set(self._values(wizard)['lines']), {self.subject_a, self.subject_b})
+        wizard.student_id = self.student2
+        self.assertEqual(wizard._get_report_lines(), self.line_foreign)
+
+    def test_group_report_every_subject_of_any_group(self):
+        wizard = self._wizard(self.orientation_user, report_type='group', group_id=self.group1.id,
+                              from_date=self.other_date, to_date=self.today)
+        self.assertEqual(set(self._values(wizard)['lines']), {self.subject_a, self.subject_b})
+
+    def test_reports_screen_every_subject_of_any_student(self):
+        Line = self.env['ems.attendance_session_line'].with_user(self.orientation_user)
+        action = self.student1.with_user(self.orientation_user).action_view_attendance_reports()
+        groups = Line.read_group(action['domain'] + [('student_id', '=', self.student1.id)],
+                                 ['absence_rate:avg'], ['subject_id'])
+        self.assertEqual({group['subject_id'][0] for group in groups}, {self.subject_a.id, self.subject_b.id})

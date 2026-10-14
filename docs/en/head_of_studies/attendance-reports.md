@@ -46,7 +46,8 @@ To look at a single student's attendance, open their file and click the **Attend
 
 On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Print attendance
 report**. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
-to your choice.
+to your choice. The **Group**, **Student** and **Subject** lists offer the whole centre, the same students
+you can see on the pivot table, not only the ones you teach or tutor.
 
 **Attendance report (by group):**
 1. Pick a **Group**.

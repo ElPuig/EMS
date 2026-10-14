@@ -63,8 +63,15 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		return self.env["ems.attendance_status"].search([("category", "=", "absence")])
 
 	def _get_current_teacher(self):
-		# An employee id <= 1 means ADMIN: no teacher-scoping is applied to the dropdowns.
 		return self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
+
+	def _is_teacher_scoped(self):
+		"""Whether the dropdowns are narrowed to the user's own teaching and tutor scope. Not for the
+		posts reading every student's attendance (Guidance, Coexistence, Head of Studies, Director,
+		Secretariat: the same ones the 'Reports' screen shows the whole centre to, issue #633), nor
+		for ADMIN (an employee id <= 1)."""
+		return (self._get_current_teacher().id > 1
+				and not self.env["ems.attendance_session_line"]._user_sees_whole_centre())
 
 	def _get_tutor_group_ids(self):
 		"""Groups whose tutor has the user in their tutor scope (the tutor, the chiefs above them,
@@ -72,22 +79,20 @@ class EmsAttendanceReportWizard(models.TransientModel):
 		return self.env["ems.group"].search([("tutor_id.tutor_scope_user_ids", "=", self.env.uid)])
 
 	def _get_teacher_group_ids(self):
-		teacher = self._get_current_teacher()
-		domain = [("teacher_id", "=", teacher.id)] if teacher.id > 1 else []
+		domain = [("teacher_id", "=", self._get_current_teacher().id)] if self._is_teacher_scoped() else []
 		return self.env["ems.teaching"].search(domain).mapped("group_id") | self._get_tutor_group_ids()
 
 	def _get_teacher_subject_ids(self):
-		teacher = self._get_current_teacher()
-		domain = [("teacher_id", "=", teacher.id)] if teacher.id > 1 else []
+		domain = [("teacher_id", "=", self._get_current_teacher().id)] if self._is_teacher_scoped() else []
 		taught = self.env["ems.teaching"].search(domain).mapped("subject_id")
 		# Plus every subject taught in a group of the user's tutor scope, whoever teaches it.
 		tutored = self.env["ems.teaching"].search([("group_id", "in", self._get_tutor_group_ids().ids)]).mapped("subject_id")
 		return taught | tutored
 
 	def _get_teacher_student_ids(self):
-		teacher = self._get_current_teacher()
-		if teacher.id <= 1:
+		if not self._is_teacher_scoped():
 			return self.env["ems.enrollment"].search([]).mapped("student_id")
+		teacher = self._get_current_teacher()
 		# A student is allowed if enrolled in a (group, subject) pair the teacher actually teaches.
 		teachings = self.env["ems.teaching"].search([("teacher_id", "=", teacher.id)])
 		taught_pairs = {(teaching.group_id.id, teaching.subject_id.id) for teaching in teachings}
@@ -102,10 +107,10 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	def _get_groups_teaching(self, subject):
 		if not subject:
 			return self.env["ems.group"]
-		teacher = self._get_current_teacher()
 		domain = [("subject_id", "=", subject.id)]
-		if teacher.id > 1:
-			domain = ["&"] + domain + ["|", ("teacher_id", "=", teacher.id), ("group_id", "in", self._get_tutor_group_ids().ids)]
+		if self._is_teacher_scoped():
+			domain = ["&"] + domain + ["|", ("teacher_id", "=", self._get_current_teacher().id),
+									   ("group_id", "in", self._get_tutor_group_ids().ids)]
 		return self.env["ems.teaching"].search(domain).mapped("group_id")
 
 	def _search_scoped_lines(self, domain, date_range, tutor_scope):

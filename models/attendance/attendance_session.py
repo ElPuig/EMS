@@ -861,12 +861,20 @@ class EmsAttendanceSessionLine(models.Model):
         }
         # The read domain is a string (how act_window stores it), so it's rebuilt as a list here.
         action['domain'] = [('session_active', '=', True)]
-        user = self.env.user
-        if not (user.has_group('ems.group_student_data_reader') or user.has_group('ems.group_secretary')
-                or user.has_group('ems.group_secretary_admin')):
+        if not self._user_sees_whole_centre():
             action['domain'] += [
-                '|', ('template_teacher_ids.user_id', '=', user.id),
-                ('student_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                '|', ('template_teacher_ids.user_id', '=', self.env.uid),
+                ('student_id.tutor_id.tutor_scope_user_ids', '=', self.env.uid),
             ]
             action['context']['search_default_my_subjects'] = 1
         return action
+
+    @api.model
+    def _user_sees_whole_centre(self):
+        """Whether the user reads every student's attendance, not just their own teaching and tutor
+        scope: the posts reading the students' data centre-wide (group_student_data_reader: Head of
+        Studies, Director, Guidance, Coexistence) and Secretariat. Shared by the 'Reports' screen and
+        the PDF report wizard, so both offer the same students, groups and subjects."""
+        user = self.env.user
+        return (user.has_group('ems.group_student_data_reader') or user.has_group('ems.group_secretary')
+                or user.has_group('ems.group_secretary_admin'))

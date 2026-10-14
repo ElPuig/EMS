@@ -87,8 +87,15 @@ Each wizard has 2 responsibilities, both formerly raw SQL, now plain ORM:
 | `..._student_wizard` | enrollments whose `(group_id, subject_id)` matches one of the teacher's `ems.teaching` pairs (no group filter anymore — see "Wizard simplification" below), plus every student whose tutor has the current user in `tutor_scope_user_ids` | `_get_student_lines()` — see "By-student report: own sessions vs tutor scope" below |
 | `..._subject_wizard` | `allowed_subject_ids`: teacher's own taught subjects (no group filter — see "Wizard simplification" below) plus every subject taught in a group of the user's tutor scope; `allowed_group_ids` (`_get_groups_teaching()`): the groups where the subject is taught by the user **or** that are in the user's tutor scope | `_get_sessions()` — see "Tutor scope in the PDF reports" below |
 
-The `current_teacher.id > 1` admin-bypass check (an existing convention: any user with no `hr.employee`
-record, or whose employee id is 1, sees unfiltered data) was preserved as-is — not in scope to change.
+None of these filters applies when `_is_teacher_scoped()` is false: the dropdowns then offer every group,
+student and subject. That is the case for ADMIN (a user with no `hr.employee` record, or whose employee id
+is 1) and for every post reading the students' attendance centre-wide, decided by
+`ems.attendance_session_line._user_sees_whole_centre()` (`ems.group_student_data_reader`, i.e. Head of
+Studies, Director, Guidance and Coexistence, plus Secretariat). It is the same predicate the "Reports"
+screen uses (`_get_reports_action()`), so both offer the same students: before issue #633, Guidance could
+read any student's attendance on that screen but only find its own pupils and tutees in the PDF wizard.
+These users need no `sudo()` to print: their own `domain_force=[]` rules already let them read every
+session (see the table below).
 
 **Two pre-existing bugs were fixed while porting this code**, not just carried over:
 1. `allowed_group_ids` never actually filtered by `study_id` despite triggering on it — it returned every

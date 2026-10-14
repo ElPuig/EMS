@@ -2,7 +2,7 @@
 import { DropdownItem } from "@web/core/dropdown/dropdown_item";
 import { registry } from "@web/core/registry";
 import { Component } from "@odoo/owl";
-import { useService } from "@web/core/utils/hooks";
+import { usePrintAttendanceReport } from "./attendance_report_print";
 
 const cogMenuRegistry = registry.category("cogMenu");
 
@@ -29,11 +29,11 @@ class AttendanceReportCogMenu extends Component {
     static props = {};
 
     setup() {
-        this.action = useService("action");
+        this.print = usePrintAttendanceReport();
     }
 
     onClickCogMenu() {
-        this.action.doAction("ems.action_attendance_report_wizard");
+        this.print();
     }
 }
 

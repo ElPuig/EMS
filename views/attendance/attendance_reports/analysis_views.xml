@@ -5,7 +5,9 @@
             <field name="name">ems.attendance_session_line.analysis.pivot</field>
             <field name="model">ems.attendance_session_line</field>
             <field name="arch" type="xml">
-                <pivot string="Attendance reports">
+                <pivot string="Attendance reports" disable_linking="1" js_class="ems_attendance_report_pivot">
+                    <!-- disable_linking: a cell click would open the bare lines in a list nobody asked for.
+                         js_class: adds the 'Print attendance report' button (attendance_report_analysis_views.js). -->
                     <!-- 'subject [- topic]': a topic taught apart is a subject of its own here (issue #633). -->
                     <field name="subject_label" type="row"/>
                     <field name="student_id" type="row"/>
@@ -19,7 +21,7 @@
             <field name="name">ems.attendance_session_line.analysis.graph</field>
             <field name="model">ems.attendance_session_line</field>
             <field name="arch" type="xml">
-                <graph string="Attendance reports" type="bar">
+                <graph string="Attendance reports" type="bar" disable_linking="1" js_class="ems_attendance_report_graph">
                     <field name="subject_label"/>
                     <!-- Odoo's graph arch parser defaults to the LAST type="measure" field
                          declared here (see web/static/src/views/graph/graph_arch_parser.js) — keep

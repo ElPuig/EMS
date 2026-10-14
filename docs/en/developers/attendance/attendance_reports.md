@@ -7,8 +7,8 @@ Two ways to consult `ems.attendance_session_line`, which always show the same da
 - the **Attendance reports** screen (pivot/graph), opened from **Attendance → Reports** and from the
   **Attendance** button of a student's form;
 - three printable PDF reports (by group, by student, by subject), driven by a **single wizard**
-  (`ems.attendance_report_wizard`) with a `report_type` selector, reachable from that screen's ⚙ Actions
-  menu.
+  (`ems.attendance_report_wizard`) with a `report_type` selector, opened from that screen's print button
+  (and its ⚙ Actions menu).
 
 Both take what the user may consult from one method, `ems.attendance_session_line._get_reports_domain()`
 (issue #633). Before that, the screen and the wizard decided it each on their own (the wizard from
@@ -19,7 +19,8 @@ attendance on the screen but only pick its own pupils in the wizard.
 `models/attendance/attendance_session.py` (scope and stored fields on `ems.attendance_session_line`),
 `views/attendance/attendance_reports/{wizard,menu,analysis_views}.xml`,
 `reports/attendance/{group,student,subject}.xml` + `reports/attendance/templates/{sumary_table,details_table,detail_section}.xml`,
-`static/src/js/backend/attendance_report_analysis_cog_menu.js` +
+`static/src/views/attendance_report_analysis/` (pivot/graph extensions, lazy-loaded),
+`static/src/js/backend/attendance_report_print.js` + `attendance_report_analysis_cog_menu.js` +
 `static/src/xml/backend/attendance_report_analysis_cog_menu.xml`.
 
 ---
@@ -143,10 +144,11 @@ Python list: the read act_window domain is a raw string), `context['pivot_measur
 and, for whoever doesn't see the whole centre, turns on the removable **My subjects** filter
 (`[('template_teacher_ids.user_id', '=', uid)]`).
 
-- **Pivot:** rows `subject_label` → `student_id`, measures `absence_rate`, `strike_count`, `__count`. It
+- **Pivot:** rows `subject_label` → `student_id`, measures `absence_rate`, `strike_count`, `__count`.
+  `disable_linking="1"`: a cell click opens nothing (it used to open the bare lines in a default list). It
   always loads collapsed; reaching subject → student takes the **Expand all** button twice (no custom
   auto-expand JS).
-- **Graph:** grouped by `subject_label`. The graph shows one measure at a time, and its default is the
+- **Graph:** grouped by `subject_label`, `disable_linking="1"` too (a bar click opened the same list). The graph shows one measure at a time, and its default is the
   **last** `type="measure"` field of the arch (`graph_arch_parser.js`), so `absence_rate` is declared last;
   `graph_measure` alone did not decide the first paint.
 - **Search:** filters on student, group (`student_group_id`), subject, status, **My subjects** and date;
@@ -155,7 +157,16 @@ and, for whoever doesn't see the whole centre, turns on the removable **My subje
   A button's result inherits the context of the screen it is clicked on, and the students' list runs with
   `active_test: False`, so every read path forces it back on (`_get_reports_action()`'s context, the
   wizard's `_get_scope_lines()`/`_get_scope_values()`, the year record's `_attendance_rates()`).
-- The ⚙ Actions menu entry (`attendance_report_analysis_cog_menu.js`) matches the screen by
+- **Print button:** both views have a `js_class` (`ems_attendance_report_pivot`, `ems_attendance_report_graph`,
+  `static/src/views/attendance_report_analysis/`) that only swaps the toolbar (`buttonTemplate`, a primary
+  inherit of `web.PivotView.Buttons`/`web.GraphView.Buttons` adding a printer button last) and the
+  renderer, which is what renders that toolbar and so holds the click handler
+  (`usePrintAttendanceReport()`, `static/src/js/backend/attendance_report_print.js`, shared with the ⚙
+  entry). Odoo 18 lazy-loads the pivot and graph views (`web.assets_backend_lazy`), so these files are
+  declared in that bundle in `__manifest__.py` (`ems/static/src/views/**`), not in `web.assets_backend`:
+  there `@web/views/pivot/...` is undefined and the whole module fails to load. `View` loads the lazy
+  bundle whenever a `js_class` isn't registered yet, so the screen works on first open.
+- The ⚙ Actions menu entry (`attendance_report_analysis_cog_menu.js`), kept besides the button, matches the screen by
   `searchModel.resModel === "ems.attendance_session_line"` and a pivot/graph `viewType`, not by action id: the
   menu's action is the server action, while the screen runs the act_window it returns.
 
@@ -218,6 +229,7 @@ above:
 | Pivot/graph/search | `views/attendance/attendance_reports/analysis_views.xml` |
 | Actions, `Attendance → Reports` menu, `action_attendance_reports_open` | `views/attendance/attendance_reports/menu.xml` |
 | PDF templates | `reports/attendance/{group,student,subject,session}.xml` + `reports/attendance/templates/{sumary_table,details_table,detail_section}.xml` |
+| Print button (pivot/graph `js_class`) | `static/src/views/attendance_report_analysis/attendance_report_analysis_views.{js,xml}` |
 | ⚙ Actions entry | `static/src/js/backend/attendance_report_analysis_cog_menu.js` + `static/src/xml/backend/attendance_report_analysis_cog_menu.xml` |
 
 ## Access control
@@ -252,7 +264,7 @@ above, applied identically by both screens.
 - `tests/test_attendance_template.py` (`TestEmployeeSyncScheduleFromCalendar`): two topics of one subject make
   two templates; no topic changes nothing; a changed topic keeps the old sessions' label.
 - `tests/test_attendance_reports_tour.py` + `static/tests/tours/attendance_reports_tour.js`: the wizard through
-  its 3 types (the subject picked by its "subject - topic" label), the screen (pivot rows with the topic,
-  graph, measures, ⚙ entry), the by-student wizard as a plain teacher and as a tutor, the tutor's screen and
+  its 3 types (the subject picked by its "subject - topic" label), the screen (pivot rows with the topic, a
+  cell click opening nothing, the print button in the pivot and the graph, measures, ⚙ entry), the by-student wizard as a plain teacher and as a tutor, the tutor's screen and
   PDFs, and the student form's **Attendance** button.
 - `tests/test_access_matrix.py`: the wizard's ACL for teachers and Secretariat.

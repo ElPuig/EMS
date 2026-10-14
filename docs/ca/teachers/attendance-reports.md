@@ -34,7 +34,7 @@ Per consultar l'assistència d'un sol alumne, obre la seva fitxa i fes clic al b
 
 ## Imprimir un informe PDF
 
-A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria **Imprimeix informe d'assistència**. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria. Les llistes ofereixen exactament els alumnes, grups i assignatures que veus a la taula dinàmica (només el curs actual), i el PDF inclou les mateixes sessions que la taula.
+A la pantalla d'**Informes d'assistència**, fes clic al botó de la **impressora**, l'últim de la fila de damunt de la taula (al costat del de descàrrega), també a la vista de gràfic. També és al menú **⚙ (engranatge)**, com a **Imprimeix informe d'assistència**. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria. Les llistes ofereixen exactament els alumnes, grups i assignatures que veus a la taula dinàmica (només el curs actual), i el PDF inclou les mateixes sessions que la taula.
 
 ![Formulari d'impressió d'informe d'assistència, amb el grup seleccionat i els camps preomplerts](../../assets/teachers/informes-02-imprimir.png)
 

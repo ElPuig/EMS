@@ -545,6 +545,10 @@
             'ems/static/src/js/shared/**/*',
             'ems/static/src/js/backend/**/*',
         ],
+        # Extensions of the pivot and graph views, which Odoo 18 lazy-loads in their own bundle.
+        'web.assets_backend_lazy': [
+            'ems/static/src/views/**/*',
+        ],
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',
            'ems/static/src/scss/frontend/**/*',

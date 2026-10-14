@@ -1976,6 +1976,7 @@ msgstr "Informe d'assistència"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/attendance_report_analysis_cog_menu.xml:0
+#: code:addons/ems/static/src/views/attendance_report_analysis/attendance_report_analysis_views.xml:0
 msgid "Print attendance report"
 msgstr "Imprimeix informe d'assistència"
 

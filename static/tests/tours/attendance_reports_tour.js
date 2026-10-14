@@ -126,6 +126,12 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
             trigger: ".o_pivot_view :contains('Attendance Reports Tour Student')",
             content: "Nested student row appears under the subject",
         },
+        // disable_linking: clicking a value cell opens nothing (it used to open the bare lines in a list).
+        { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Click a value cell", run: "click" },
+        {
+            trigger: ".o_pivot_view:not(:has(.o_list_view))",
+            content: "Still on the pivot, no list of lines opened",
+        },
         { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
         { trigger: ".btn:contains('Measures')", content: "Open the Measures dropdown", run: "click" },
@@ -139,6 +145,16 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
             run: "click",
         },
         { trigger: ".o_graph_renderer canvas", content: "Graph still renders after switching measure" },
+        { trigger: ".o_graph_view .o_attendance_report_print", content: "The graph has its own print button too" },
+        { trigger: ".o_switch_view.o_pivot", content: "Back to the pivot", run: "click" },
+        {
+            trigger: ".o_pivot_buttons .o_pivot_download + .o_attendance_report_print",
+            content: "Print button right after the download one — click it",
+            run: "click",
+        },
+        { trigger: ".o_form_view .o_field_widget[name='report_type']", content: "The report wizard opened" },
+        { trigger: ".modal .btn-close", content: "Close the wizard", run: "click" },
+        { trigger: "body:not(:has(.modal))", content: "Wizard closed" },
         { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
         {
             trigger: ".o_attendance_report_cog_menu",
@@ -195,8 +211,7 @@ registry.category("web_tour.tours").add("ems_attendance_report_tutor_scope", {
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
 
         // --- By group PDF: the tutored group, although the tutor teaches nothing in it ---
-        { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
-        { trigger: ".o_attendance_report_cog_menu", content: "Open the PDF wizard", run: "click" },
+        { trigger: ".o_attendance_report_print", content: "Open the PDF wizard from the print button", run: "click" },
         { trigger: ".o_form_view .o_field_widget[name='group_id']", content: "By-group selector shown by default" },
         ...selectMany2one("group_id", "Student Scope Tour Group"),
         {

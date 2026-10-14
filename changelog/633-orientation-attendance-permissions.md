@@ -44,6 +44,15 @@
   the pivot, the graph and the PDFs group by it, and the by-subject wizard offers each label as its
   own subject. The template's display name shows the topic too.
 
+## Attendance reports screen: print button, and no list opening on a cell click (issue #633):
+- A printer button, right after the pivot's download one (and last in the graph's toolbar), opens the
+  PDF report wizard: teachers never found it in the ⚙ menu, which keeps it as well. Done with a
+  js_class on the pivot and graph views that only swaps their toolbar template and renderer, loaded in
+  web.assets_backend_lazy like the views it extends.
+- Clicking a pivot cell or a graph bar no longer opens the bare attendance lines in a default list
+  (disable_linking).
+- The three manual screenshots showing the pivot toolbar were regenerated.
+
 # Internal changes
 
 ## Attendance reports tests and docs (issue #633):

@@ -188,7 +188,7 @@ the reader `is_absence_manager` or `is_absence_direction` - the status bar says 
 
 | Field | Values | Source |
 |---|---|---|
-| `ems_document_state` "Supporting document status" | Not required / Awaiting documentation / Pending validation / Validated | Set by `action_approve()` from the type and the attachments; moved by attaching the document and by the buttons |
+| `ems_document_state` "Supporting document status" | Not required / Awaiting documentation / Pending validation / Validated / Waived | Set by `action_approve()` from the type and the attachments; moved by attaching the document and by the buttons |
 | `ems_head_state` "Head status" | Pending / Awaiting documentation / Pending validation / Approved / Refused | Stored compute over Odoo's `state` and `ems_document_state` |
 | `ems_atri_state` "ATRI confirmation" | Not required / Pending ATRI confirmation / Confirmed by the employee | Set by `action_approve()` from the type; moved by the employee's confirmation and by Direction's "Not in ATRI" (see *ATRI absences wait for the employee's confirmation*) |
 | `ems_direction_state` "Direction status" | Pending / Done / Refused | Direction's buttons |
@@ -229,7 +229,19 @@ is also the note of their new "Attach the absence's supporting document" activit
 document is sent back again before it is validated, the dialog opens with the previous reason
 (`default_reason`) to edit. Validating the document (`action_ems_document_validate`) clears the
 reason, so a later send-back by Direction starts from an empty one; resetting the request clears
-it too. Who counts as the Head is `is_absence_head`: the
+it too.
+
+**Waiving the document (issue #634).** While a request is Awaiting documentation, "Exempt from
+supporting document" (`action_ems_document_waive`, an entry of the form's Actions dropdown,
+confirming first, no reason asked) lets it go on without one: `ems_document_state` becomes
+`waived`, never `validated`, so the list, the filters and the chatter's tracking keep telling a
+document nobody checked from one that was. From there it follows the circuit as a validated one
+would (Pending ATRI confirmation when it is an ATRI absence, then Pending Direction); the
+employee's "attach the document" activity is closed and they get a note saying the document is no
+longer needed. Who may waive it is the non-stored `ems_can_waive_document`, re-checked on the
+server: the Head (`is_absence_head`), Direction (`is_absence_direction`) and the administrator
+(`_ems_is_absence_admin()`). A reason the document had been sent back with is kept, so undoing the
+waiver shows it to the employee again. Who counts as the Head is `is_absence_head`: the
 employee's `leave_manager_id`, or an officer other than Direction - the same line
 `_compute_can_approve()` draws.
 
@@ -570,6 +582,7 @@ administrator account `res.users._ems_sync_time_off_groups()` leaves holding it.
 stateDiagram-v2
     Approved --> PendingDirection: undo (Direction)
     PendingDirection --> PendingValidation: undo (document had been validated)
+    PendingDirection --> AwaitingDocumentation: undo (document had been waived)
     PendingDirection --> Pending: undo (type requires no document)
     PendingValidation --> Pending: undo
     AwaitingDocumentation --> Pending: undo
@@ -581,7 +594,8 @@ stateDiagram-v2
 
 - **Forward decisions are undone by the sequence itself** (`_ems_undo()`): Approved clears
   Direction's check; Pending Direction puts the document back to `submitted` when it had been
-  validated; anything else left is the Head's acknowledgement, which goes back to Pending.
+  validated, and back to `awaiting` when it had been waived (from Pending ATRI confirmation
+  too); anything else left is the Head's acknowledgement, which goes back to Pending.
 - **A refusal, a cancellation and a document sent back are undone from what was kept.** Nothing
   in the request says where it stood before one of those, so `ems_decision_before` (Json) keeps
   the three `DECISION_FIELDS` (`state`, `ems_document_state`, `ems_direction_state`):
@@ -1087,9 +1101,9 @@ through the same `write()`, which also clears the technical attendances they had
 | Group | `hr.leave` records visible | Reason and attachment | Can |
 |---|---|---|---|
 | Any employee | Own requests; colleagues' via the native calendar/dashboard | Own only — `private_name` renders as `*****` for everyone else | Create, edit and cancel their own while unapproved; file the supporting document at any time, approved included |
-| Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse, undo their own decisions |
-| Head of Studies, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, undo the Head's decisions (the academic admin, as administrator, also Direction's), manage the catalogue |
-| Director (`ems.group_director`, implies the row above) | All, centre-wide | Yes | Direction's own approval (done / documentation insufficient / refuse) on any request the Head has validated; undo any decision, the Head's included; acknowledge/validate/refuse as the Head only where it is the employee's `leave_manager_id` (screens only, see *The approval, step by step*) |
+| Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse, waive a supporting document, undo their own decisions |
+| Head of Studies, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, waive a supporting document, undo the Head's decisions (the academic admin, as administrator, also Direction's), manage the catalogue |
+| Director (`ems.group_director`, implies the row above) | All, centre-wide | Yes | Direction's own approval (done / documentation insufficient / refuse) on any request the Head has validated; waive the supporting document of any request awaiting it; undo any decision, the Head's included; acknowledge/validate/refuse as the Head only where it is the employee's `leave_manager_id` (screens only, see *The approval, step by step*) |
 
 Two native mechanisms carry most of this:
 

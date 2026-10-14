@@ -56,6 +56,8 @@ Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les 
 
 Si el justificant no és vàlid, **Documentació insuficient** et demana el motiu (obligatori) i torna la sol·licitud a la persona (En espera de documentació) amb un missatge que l'inclou. La persona també el veu a dalt de la sol·licitud fins que adjunta un justificant nou. Si el nou tampoc no és vàlid, el diàleg s'obre amb el motiu anterior perquè el puguis modificar; quan valides un justificant, el motiu s'esborra.
 
+**Si el justificant no arribarà i no cal**, mentre la sol·licitud és **En espera de documentació** fes servir **Eximir del justificant** (menú **Accions** de dalt del formulari). Demana confirmació i la sol·licitud continua cap a Direcció com si s'hagués validat el justificant, però el seu estat queda com a **Eximit**, per distingir-lo d'un justificant revisat. La persona deixa de rebre recordatoris i rep un missatge que li diu que ja no cal. Direcció i l'administrador també ho poden fer, i es desfà com qualsevol altra decisió.
+
 Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat). Una absència de `Salut` passa llavors directament a Direcció. Una `ATRI` s'atura sempre abans a **Pendent de confirmar ATRI**: la persona ha de confirmar que l'ha sol·licitada al portal ATRI (**Accions > Confirmo que està sol·licitada a ATRI**), i només llavors arriba a Direcció. Valides tu primer expressament, perquè sovint es tria ATRI per al que no ho és, i a l'inrevés: corregeix el tipus abans de validar. A la persona se li recorda igual que amb un justificant pendent, i a tu se t'avisa un cop si continua sense confirmar al cap d'uns dies de l'absència.
 
 La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formulari, tornes al llistat.
@@ -138,7 +140,7 @@ Una decisió presa per error es desfà amb **Desfés l'última decisió**: la ic
 | Estat | En desfer queda en |
 |---|---|
 | Aprovat | Pendent de Direcció |
-| Pendent de Direcció | Pendent de validació, o Pendent si el tipus no exigeix justificant |
+| Pendent de Direcció | Pendent de validació, En espera de documentació si s'havia eximit del justificant, o Pendent si el tipus no exigeix justificant |
 | Pendent de validació, En espera de documentació | Pendent |
 | Pendent de confirmar ATRI | Pendent, o Pendent de Direcció si Direcció l'havia retornat per no constar a ATRI |
 | Rebutjat, Cancel·lat | L'estat que tenia just abans |

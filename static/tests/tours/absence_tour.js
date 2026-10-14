@@ -606,6 +606,38 @@ registry.category("web_tour.tours").add("ems_absence_undo", {
     ],
 });
 
+// A supporting document that is not going to arrive and is not needed after all: the Head
+// lets the request go on without it from the form's Actions (issue #634). No "url": the test
+// opens its own action, which lists the one fixture request.
+registry.category("web_tour.tours").add("ems_absence_waive_document", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Waived Teacher') td[name='ems_status']:contains('Awaiting documentation')",
+            content: "Open the request still awaiting its supporting document",
+            run: "click",
+        },
+        ...checkActions(
+            { offered: ["action_ems_document_waive"], notOffered: ["action_ems_document_validate"] },
+            "The Head can exempt it from its document"
+        ),
+        ...clickAction("action_ems_document_waive", "Exempt it from its supporting document"),
+        {
+            trigger: ".modal:contains('waived') .modal-footer button.btn-primary",
+            content: "It asks first",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_status'] button.o_arrow_button_current[data-value='pending_direction']",
+            content: "The request goes on to Direction",
+        },
+        ...checkActions(
+            { offered: ["action_ems_undo"], notOffered: ["action_ems_document_waive"] },
+            "There is nothing left to exempt, and the decision can be undone"
+        ),
+    ],
+});
+
 // Times that cover the whole timetable of the day are a whole-day absence (issue #613): the
 // form ticks the box itself and says why. No "url": the test opens a new request already dated
 // on a day the fixture teacher has lessons from 09:00 to 11:00.

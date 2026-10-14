@@ -22,7 +22,7 @@ Working in the secretariat does not grant this: everyone else on the team reques
 
 Only your area's requests appear there, in state **Pending** while they await your acknowledgement.
 
-When the absence type requires a supporting document (every type except `Health` and `ATRI`), your side has two steps: **Received: pending documentation** first, and **Validate documentation** once the employee has attached the document (the request comes back to you on its own). If the document is not valid, **Documentation insufficient** returns it to the employee, with the reason you write. For `Health` and `ATRI`, a single **Validate**. An `ATRI` absence then waits for the employee to confirm it is requested in ATRI before it reaches Direction.
+When the absence type requires a supporting document (every type except `Health` and `ATRI`), your side has two steps: **Received: pending documentation** first, and **Validate documentation** once the employee has attached the document (the request comes back to you on its own). If the document is not valid, **Documentation insufficient** returns it to the employee, with the reason you write. If the document is not going to arrive and is not needed, **Exempt from supporting document** (the form's **Actions** menu) lets the request go on without it. For `Health` and `ATRI`, a single **Validate**. An `ATRI` absence then waits for the employee to confirm it is requested in ATRI before it reaches Direction.
 
 ![Absences list, with Approve/Refuse actions on a pending request](../../assets/head_of_studies/hos-absences-list.png)
 

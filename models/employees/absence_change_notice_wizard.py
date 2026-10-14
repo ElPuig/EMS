@@ -9,6 +9,7 @@ DECISION_METHODS = (
     'action_approve',
     'action_refuse',
     'action_ems_document_validate',
+    'action_ems_document_waive',
     'action_ems_direction_done',
     'action_ems_direction_refuse',
 )

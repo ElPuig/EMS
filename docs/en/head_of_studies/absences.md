@@ -56,6 +56,8 @@ That lists your area's requests, opening on **Waiting For Me**: the ones pending
 
 If the document is not valid, **Documentation insufficient** asks you why (required) and sends the request back to the employee (Awaiting documentation) with a message that includes your reason. The employee also sees it at the top of the request until they attach a new document. If the new document is not valid either, the dialog opens with your previous reason so you can edit it; once you validate a document, the reason is cleared.
 
+**If the document is not going to arrive and is not needed**, while the request is **Awaiting documentation** use **Exempt from supporting document** (the **Actions** menu at the top of the form). It asks for confirmation, and the request goes on to Direction as if the document had been validated, but its status is **Waived**, so it is told apart from a document somebody checked. The employee stops receiving reminders and gets a message saying it is no longer required. Direction and the administrator can do it too, and it is undone like any other decision.
+
 For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list). A `Health` absence then goes straight to Direction. An `ATRI` one always stops first at **Pending ATRI confirmation**: the employee has to confirm they have requested it on the ATRI portal (**Actions > I confirm it is requested in ATRI**), and only then does it reach Direction. You validate first on purpose, because ATRI is often picked for what is not, and the other way round: correct the type before validating. The employee is reminded like for a missing supporting document, and you are told once if it stays unconfirmed a few days after the absence.
 
 The cross refuses, at any of these steps. Once you decide from the form, you are taken back to the list.
@@ -140,7 +142,7 @@ A decision taken by mistake is taken back with **Undo the last decision**: the a
 | Status | Undoing it leaves it |
 |---|---|
 | Approved | Pending Direction |
-| Pending Direction | Pending validation, or Pending when the type requires no supporting document |
+| Pending Direction | Pending validation, Awaiting documentation when the document had been waived, or Pending when the type requires no supporting document |
 | Pending validation, Awaiting documentation | Pending |
 | Pending ATRI confirmation | Pending, or Pending Direction when Direction had sent it back as not in ATRI |
 | Refused, Cancelled | The status it had just before |

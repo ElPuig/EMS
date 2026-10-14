@@ -250,11 +250,13 @@ class EmsAbsenceLeave(models.Model):
             ('awaiting', 'Awaiting documentation'),
             ('submitted', 'Pending validation'),
             ('validated', 'Validated'),
+            ('waived', 'Waived'),
         ],
         copy=False, tracking=True, readonly=True,
         help="Set when the Head acknowledges the request: absence types that require a "
              "supporting document wait for it, and attaching it sends the request back to the "
-             "Head for validation.")
+             "Head for validation. Waived: the Head or Direction let the request go on without "
+             "it.")
     ems_document_reminder_date = fields.Date(
         string="Last document reminder", copy=False, readonly=True,
         help="The last day the employee was reminded that the supporting document is missing.")
@@ -288,6 +290,11 @@ class EmsAbsenceLeave(models.Model):
         string="Current user can confirm it is requested in ATRI", compute="_compute_ems_can_mark_atri",
         help="Whether the user reading this request may confirm it has been requested in ATRI: "
              "the employee themselves, or whoever manages the absence on their behalf.")
+    ems_can_waive_document = fields.Boolean(
+        string="Current user can waive the supporting document",
+        compute="_compute_ems_can_waive_document",
+        help="Whether the user reading this request may let it go on without its supporting "
+             "document: the Head, Direction and the administrator, while it is awaited.")
     ems_refusal_reason = fields.Text(
         string="Reason for the refusal", copy=False, readonly=True,
         help="Written by the Head or Direction when refusing the request. Sent to the employee "
@@ -494,6 +501,13 @@ class EmsAbsenceLeave(models.Model):
             leave.ems_can_mark_atri = leave.ems_status == 'pending_atri' and (
                 leave.employee_id.user_id == self.env.user or leave.is_absence_manager
                 or leave.is_absence_direction or leave._ems_is_absence_admin())
+
+    @api.depends_context('uid')
+    @api.depends('ems_status')
+    def _compute_ems_can_waive_document(self):
+        for leave in self:
+            leave.ems_can_waive_document = leave.ems_status == 'pending_document' and (
+                leave.is_absence_head or leave.is_absence_direction or leave._ems_is_absence_admin())
 
     def _compute_can_approve(self):
         """Direction does not approve on the Head's behalf.
@@ -1146,6 +1160,30 @@ class EmsAbsenceLeave(models.Model):
         self._ems_notify_request_changes()
         return True
 
+    def action_ems_document_waive(self):
+        """Lets a request awaiting its supporting document go on without it, when it is not
+        going to arrive and is not needed after all (issue #634). Recorded as 'waived', never as
+        validated, so nobody takes it for a document somebody checked. A reason it had been
+        sent back with is kept: undoing the waiver shows it to the employee again."""
+        self._ems_check_status('pending_document', _(
+            "Only a request awaiting its supporting document can be exempted from it."))
+        if not all(leave.ems_can_waive_document for leave in self):
+            raise AccessError(_("Only the Head who approves this absence, Direction or the "
+                                "administrator can exempt it from its supporting document."))
+        wizard = self._ems_ask_change_message('action_ems_document_waive')
+        if wizard:
+            return wizard
+        self._ems_forget_decision_before()
+        # sudo: the right to waive it is checked above, and the administrator need not be the
+        # Head or Direction write() requires.
+        self.sudo().write({'ems_document_state': 'waived'})
+        for leave in self:
+            leave._ems_notify(leave.employee_id.user_id.partner_id, _(
+                "The supporting document for your absence of %(when)s is no longer required.",
+                when=leave._ems_when()))
+        self._ems_notify_request_changes()
+        return True
+
     def action_ems_document_insufficient(self):
         """Asks the Head (validating the document) or Direction (reviewing it) why it is not
         sufficient before sending the request back: the employee needs to know what to attach
@@ -1486,8 +1524,8 @@ class EmsAbsenceLeave(models.Model):
 
     def action_ems_undo(self):
         """Takes back the last decision on the request, one step at a time: Approved goes back
-        to Pending Direction, that to Pending validation (or straight to Pending when its type
-        requires no document), and the Head's acknowledgement back to Pending; a refused,
+        to Pending Direction, that to Pending validation (back to Awaiting documentation when
+        the document was waived, or straight to Pending when its type requires no document), and the Head's acknowledgement back to Pending; a refused,
         cancelled or sent-back request returns to where it stood just before. Taking back the
         acknowledgement takes the absence out of the calendar, the hour balance and the guard
         duty board until it is acknowledged again."""
@@ -1524,6 +1562,8 @@ class EmsAbsenceLeave(models.Model):
             self.ems_direction_state = 'not_done'
         elif self.ems_status == 'pending_direction' and self.ems_document_state == 'validated':
             self.ems_document_state = 'submitted'
+        elif self.ems_status in ('pending_atri', 'pending_direction') and self.ems_document_state == 'waived':
+            self.ems_document_state = 'awaiting'
         else:
             self._ems_restore_decisions(NOT_DECIDED)
         self.ems_decision_before = False

@@ -18,7 +18,7 @@ Puedes enviar comunicados al alumnado y las familias de los **grupos donde da cl
 
 ## Qué comunicados ves
 
-La lista se abre con el filtro **"Mostrar solamente los míos"**, con los comunicados que has creado tú. Quítalo para ver también los que otras personas han enviado a los grupos de tu departamento. Esos los puedes leer, pero solo puedes modificar, enviar o eliminar los tuyos.
+La lista se abre con el filtro **"Mostrar solamente los míos"**, con los comunicados que has creado tú. Quítalo para ver también los que otras personas han enviado a los grupos de tu departamento. Esos los puedes leer, pero solo puedes modificar, enviar o eliminar los tuyos y los de los jefes que dependen de ti en la cadena de mando (por ejemplo, los jefes de seminario que dependen de ti). El jefe de estudios del que dependes también puede revisar y enviar los tuyos.
 
 ---
 

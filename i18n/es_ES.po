@@ -6683,7 +6683,7 @@ msgstr "Guardar"
 
 #. module: ems
 #. odoo-python
-#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_notice_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions model_terms:ir.ui.view,arch_db:ems.portal_schedule code:addons/ems/controllers/portal_schedule.py:0 model:ir.model.fields,field_description:ems.field_ems_space__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_space_form
+#: model:ir.model.fields,field_description:ems.field_ems_group__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_base__schedule_attendance_ids model:ir.model.fields,field_description:ems.field_hr_employee_public__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_schedule_form model_terms:ir.ui.view,arch_db:ems.view_employee_form model_terms:ir.ui.view,arch_db:ems.view_group_form model:ir.model.fields,field_description:ems.field_ems_guard_duty_board__board_attendance_ids model:ir.model.fields,field_description:ems.field_res_partner__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model:ir.model.fields,field_description:ems.field_res_users__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_users_form_profile_ems_restrictions model_terms:ir.ui.view,arch_db:ems.portal_schedule code:addons/ems/controllers/portal_schedule.py:0 model:ir.model.fields,field_description:ems.field_ems_space__schedule_attendance_ids model_terms:ir.ui.view,arch_db:ems.view_space_form
 msgid "Schedule"
 msgstr "Horario"
 
@@ -6699,6 +6699,7 @@ msgstr "Hora de última entrada de importación de horario"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_notice__use_schedule
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Schedule sending"
 msgstr "Programar envío"
 
@@ -19133,6 +19134,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 msgid "Actions"
 msgstr "Acciones"
 
@@ -22304,3 +22306,8 @@ msgstr "Una ausencia ATRI se justifica en el portal ATRI: se devuelve allí, no 
 #: code:addons/ems/models/employees/absence.py:0
 msgid "The documentation of your absence of %(when)s in ATRI is not sufficient. Reason: %(reason)s. Please complete it on the ATRI portal and then confirm it on the absence request."
 msgstr "La documentación de tu ausencia del %(when)s en ATRI no es suficiente. Motivo: %(reason)s. Complétala en el portal ATRI y después confírmalo en la solicitud de ausencia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__can_manage
+msgid "Can manage"
+msgstr "Puede gestionar"

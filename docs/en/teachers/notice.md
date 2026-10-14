@@ -18,7 +18,7 @@ You can send notices to the students and families of the **groups your departmen
 
 ## Which Notices You See
 
-The list opens with the **"Show only mine"** filter, showing the notices you created. Remove it to also see the notices other people have sent to your department's groups. You can read those, but you can only edit, send or delete your own.
+The list opens with the **"Show only mine"** filter, showing the notices you created. Remove it to also see the notices other people have sent to your department's groups. You can read those, but you can only edit, send or delete your own and those of the chiefs below you in the chain of command (for example, the Seminar Chiefs who depend on you). The Head of Studies above you can also review and send yours.
 
 ---
 

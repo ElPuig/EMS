@@ -233,9 +233,23 @@ have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, al
 | Group | Sees (read) | Creates/edits/deletes |
 |-------|------|------------------------|
 | `group_academic_admin`, `group_director` | Every notice | Every notice |
-| `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Only notices they created |
-| `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Only notices they created |
-| `group_department_chief` (Department/Seminar Chief) | Their own, and every notice addressed to a group their department teaches or manages | Only notices they created, and only to groups their department teaches or manages |
+| `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Notices they created, and those of everyone below them in the chain of command |
+| `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Notices they created, and those of everyone below them in the chain of command |
+| `group_department_chief` (Department/Seminar Chief) | Their own, their branch's, and every notice addressed to a group their department teaches or manages | Notices they created and those of the chiefs below them; what they write only to groups their department teaches or manages |
+
+**Chain of command (issue #636).** "Their own" in every edit rule also covers the notices of
+everyone below the user in the chain of command: a notice can be edited, sent, cancelled and
+deleted by its creator and by every user in `create_uid.employee_ids.tutor_scope_user_ids` (the
+chiefs above the creator through `hr.employee.parent_id`, and the Director - the same resolution
+tutor-scoped rights use, see "Tutor scope" in
+[role_hierarchy.md](../employees/role_hierarchy.md)). A Deputy Head of Studies can therefore send
+a draft written by a Department Chief of their own branch, but a Head of Studies of another branch,
+or a peer Department Chief, only reads it. Admins and the Director edit every notice anyway.
+
+The form's actions (Send now, Schedule sending, Cancel) live in its "Actions" dropdown
+([actions_dropdown.md](../shared/actions_dropdown.md)) and are hidden by `can_manage` (non-stored,
+`@api.depends_context('uid')`: whether the current user may write the record, through
+`_filtered_access('write')`) for anyone who only reads it, so they no longer hit an access error.
 
 **Timetable-change notices (issues #539/#581).** A notice with `absence_date`,
 `absence_group_id`, `absence_change_type` and `absence_change_hour` set
@@ -261,7 +275,8 @@ groups plus any other group its teachers teach.
 
 - Rules (`security/rules/communications.xml`): `rule_notice_department_chief_read` (read: own, or
   addressed to one of those groups - `group_ids.department_chief_user_ids in user`) and
-  `rule_notice_department_chief_own` (write/create/unlink: own), each with its line variant.
+  `rule_notice_department_chief_own` (write/create/unlink: own and their branch's), each with its
+  line variant. Both also match the notices of the chiefs below them (see "Chain of command").
 - `_check_department_chief_groups` refuses a notice of theirs addressed to any other group, or with
   a recipient line that does not come from one of those groups. The form's Groups field only offers
   `available_group_ids` (every group for anyone else).
@@ -273,7 +288,8 @@ Enforced by `security/rules/communications.xml`: `rule_notice_admin`/`rule_notic
 (`domain_force=[(1,'=',1)]`, full CRUD, groups `group_academic_admin` + `group_director`),
 `rule_notice_read_all`/`rule_notice_line_read_all` (`domain_force=[]`, `perm_read` only, groups
 `group_head_of_studies` + `group_quality_admin`) and `rule_notice_own`/`rule_notice_line_own`
-(`domain_force=[('create_uid','=',user.id)]` — the line variant reads through
+(`domain_force`: `create_uid = user.id` or `create_uid.employee_ids.tutor_scope_user_ids = user.id`, see
+"Chain of command" above — the line variant reads through
 `notice_id.create_uid` instead, since lines have no menu of their own — `perm_write`/
 `perm_create`/`perm_unlink` only, same two groups).
 
@@ -289,8 +305,8 @@ open read access, and `views/communications/notice/search.xml`'s "Show only mine
 `action_communication_list`'s `context: {'search_default_only_mine': 1}` — so a HOS/DHOS or
 Quality coordinator still gets the same comfortable "just mine" default view as before, but
 can remove the filter to supervise everyone else's notices, rather than having no access to
-them at all. Write/create/unlink stay hard-restricted to `create_uid = user.id` either way -
-only *read* visibility changed.
+them at all. Write/create/unlink stay restricted to their own notices (and, since issue #636,
+their branch's) either way - only *read* visibility changed.
 
 **Correction (still 2026-09-05):** the default filter is a single static `context` on
 `action_communication_list` itself — there is only one "Notices" menu/action, shared by every

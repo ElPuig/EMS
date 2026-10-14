@@ -1988,6 +1988,27 @@ class TestAbsenceRequest(TransactionCase):
         self.assertEqual(len(told), 1, "the approval's own email says it, nothing on top")
         self.assertIn('waiting for your approval', told.body)
 
+    def test_waiving_the_document_hands_it_to_direction(self):
+        """Waiving (issue #634) passes it on like validating does (issue #632): the Director
+        follows it and is told, and undoing the waiver gives it back to the Head."""
+        owner, head, direction, chiefs = self._stage_fixture('Waive Stage')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.with_user(head).action_approve()
+        self.assertEqual(leave.ems_status, 'pending_document')
+
+        leave.with_user(head).action_ems_document_waive()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertEqual(leave.message_partner_ids, (owner | direction).partner_id)
+        self.assertTrue(leave.message_ids.filtered(
+            lambda message: direction.partner_id in message.partner_ids
+            and 'It is now in your hands' in message.body))
+
+        leave.with_user(head).action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending_document')
+        self.assertEqual(leave.message_partner_ids, (owner | head).partner_id)
+
     # --- What the Department Chief and the Seminar Chief hear afterwards ----------------------
 
     def _department_notes(self, leave, chiefs):

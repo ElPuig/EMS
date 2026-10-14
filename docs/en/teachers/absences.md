@@ -92,6 +92,8 @@ For a medical appointment, the document must expressly state the patient's first
 
 If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message with the reason. The reason is also shown at the top of the request until you attach a new document: attach a valid one the same way.
 
+If your Head decides the document is not needed, they can waive it: the request goes on to Direction, you stop receiving reminders and you get a message telling you so.
+
 To remove one, click the cross on the file and confirm.
 
 ---

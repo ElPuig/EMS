@@ -18792,17 +18792,6 @@ msgstr ""
 "Adjunta'l a la sol·licitud perquè es pugui validar."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_hr_leave__ems_document_state
-msgid ""
-"Set when the Head acknowledges the request: absence types that require a "
-"supporting document wait for it, and attaching it sends the request back to "
-"the Head for validation."
-msgstr ""
-"S'estableix quan el cap dona per rebuda la sol·licitud: els tipus d'absència"
-" que requereixen justificant l'esperen, i adjuntar-lo retorna la sol·licitud"
-" al cap perquè el validi."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Supporting document reminder"
 msgstr "Recordatori del justificant"
@@ -22449,3 +22438,51 @@ msgstr "Assignatura (tema)"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__calendar_attendance_ids
 msgid "Schedule blocks"
 msgstr "Franges de l'horari"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_document_state
+msgid "Set when the Head acknowledges the request: absence types that require a supporting document wait for it, and attaching it sends the request back to the Head for validation. Waived: the Head or Direction let the request go on without it."
+msgstr "S'estableix quan el cap dona per rebuda la sol·licitud: els tipus d'absència que requereixen justificant l'esperen, i adjuntar-lo retorna la sol·licitud al cap perquè el validi. Eximit: el cap o Direcció han deixat continuar la sol·licitud sense justificant."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_document_state__waived
+msgid "Waived"
+msgstr "Eximit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_can_waive_document
+msgid "Current user can waive the supporting document"
+msgstr "L'usuari actual pot eximir del justificant"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_hr_leave__ems_can_waive_document
+msgid "Whether the user reading this request may let it go on without its supporting document: the Head, Direction and the administrator, while it is awaited."
+msgstr "Si l'usuari que llegeix aquesta sol·licitud la pot deixar continuar sense justificant: el cap, Direcció i l'administrador, mentre s'espera."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "Exempt from supporting document"
+msgstr "Eximir del justificant"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
+msgid "The request goes on without its supporting document, which is recorded as waived, and the employee stops being asked for it. Exempt it?"
+msgstr "La sol·licitud continua sense justificant, que queda com a eximit, i a la persona ja no se li demana. Vols eximir-la?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only a request awaiting its supporting document can be exempted from it."
+msgstr "Només es pot eximir del justificant una sol·licitud que l'està esperant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Only the Head who approves this absence, Direction or the administrator can exempt it from its supporting document."
+msgstr "Només el cap que aprova aquesta absència, Direcció o l'administrador la poden eximir del justificant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "The supporting document for your absence of %(when)s is no longer required."
+msgstr "El justificant de la teva absència del %(when)s ja no és necessari."

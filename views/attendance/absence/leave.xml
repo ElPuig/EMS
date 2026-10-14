@@ -185,7 +185,8 @@
                     <field name="ems_document_state" invisible="not ems_document_state or not (is_absence_manager or is_absence_direction)" widget="badge"
                            decoration-muted="ems_document_state == 'not_required'"
                            decoration-warning="ems_document_state in ('awaiting', 'submitted')"
-                           decoration-success="ems_document_state == 'validated'"/>
+                           decoration-success="ems_document_state == 'validated'"
+                           decoration-info="ems_document_state == 'waived'"/>
                     <field name="ems_atri_state" invisible="not ems_atri_state or ems_atri_state == 'not_required' or not (is_absence_manager or is_absence_direction)" widget="badge"
                            decoration-warning="ems_atri_state == 'awaiting'"
                            decoration-success="ems_atri_state == 'requested'"/>
@@ -263,6 +264,7 @@
                     <field name="is_absence_head" invisible="1"/>
                     <field name="ems_can_undo" invisible="1"/>
                     <field name="ems_can_mark_atri" invisible="1"/>
+                    <field name="ems_can_waive_document" invisible="1"/>
                     <field name="ems_status" widget="statusbar"
                            statusbar_visible="pending,pending_direction,approved"/>
                 </xpath>
@@ -288,6 +290,11 @@
                             invisible="ems_status != 'pending_validation' or not is_absence_head"/>
                     <button string="Documentation insufficient" name="action_ems_document_insufficient" type="object"
                             invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"/>
+                    <!-- A document that is not going to arrive and is not needed after all
+                         (hr.leave.action_ems_document_waive, issue #634). -->
+                    <button string="Exempt from supporting document" name="action_ems_document_waive" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not ems_can_waive_document"
+                            confirm="The request goes on without its supporting document, which is recorded as waived, and the employee stops being asked for it. Exempt it?"/>
                     <xpath expr="//header/button[@name='action_validate']" position="move"/>
                     <!-- The employee's own step on an ATRI absence their Head has validated, and
                          Direction sending it back to them when it is not really in ATRI

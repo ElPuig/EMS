@@ -58,6 +58,8 @@ Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que
 
 Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo. Si el nuevo tampoco es válido, el diálogo se abre con el motivo anterior para que puedas modificarlo; cuando validas un justificante, el motivo se borra.
 
+**Si el justificante no llegará y no hace falta**, mientras la solicitud está **En espera de documentación** usa **Eximir del justificante** (menú **Acciones** de arriba del formulario). Pide confirmación y la solicitud continúa hacia Dirección como si se hubiera validado el justificante, pero su estado queda como **Eximido**, para distinguirlo de un justificante revisado. La persona deja de recibir recordatorios y recibe un mensaje que le dice que ya no hace falta. Dirección y el administrador también pueden hacerlo, y se deshace como cualquier otra decisión.
+
 Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado). Una ausencia de `Salud` pasa entonces directamente a Dirección. Una `ATRI` se detiene siempre antes en **Pendiente de confirmar ATRI**: la persona tiene que confirmar que la ha solicitado en el portal ATRI (**Acciones > Confirmo que está solicitada en ATRI**), y solo entonces llega a Dirección. Validas tú primero a propósito, porque a menudo se elige ATRI para lo que no lo es, y al revés: corrige el tipo antes de validar. A la persona se le recuerda igual que con un justificante pendiente, y a ti se te avisa una vez si sigue sin confirmar a los pocos días de la ausencia.
 
 La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
@@ -140,7 +142,7 @@ Una decisión tomada por error se deshace con **Deshacer la última decisión**:
 | Estado | Al deshacer queda en |
 |---|---|
 | Aprobado | Pendiente de Dirección |
-| Pendiente de Dirección | Pendiente de validación, o Pendiente si el tipo no exige justificante |
+| Pendiente de Dirección | Pendiente de validación, En espera de documentación si se había eximido del justificante, o Pendiente si el tipo no exige justificante |
 | Pendiente de validación, En espera de documentación | Pendiente |
 | Pendiente de confirmar ATRI | Pendiente, o Pendiente de Dirección si Dirección la había devuelto por no constar en ATRI |
 | Rechazado, Cancelado | El estado que tenía justo antes |

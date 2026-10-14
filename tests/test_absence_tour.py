@@ -179,6 +179,19 @@ class TestAbsenceTour(HttpCase):
         leaves.invalidate_recordset()
         self.assertEqual(leaves.mapped('ems_status'), ['pending', 'pending'])
 
+    def test_absence_waive_document_tour(self):
+        """The Head exempts a request from its supporting document from the form's Actions
+        (issue #634)."""
+        leave = self._create_request('Tour Waived Teacher', 'ems.leave_type_sick_leave',
+                                     self.day + timedelta(days=91))
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_document')
+        self.start_tour(f"/odoo/action-{self._listing_action(leave).id}", "ems_absence_waive_document",
+                        login="absence_tour_hos")
+        leave.invalidate_recordset()
+        self.assertEqual(leave.ems_document_state, 'waived')
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
     def test_absence_whole_timetable_tour(self):
         """A new request whose times cover the teacher's whole timetable for its day is ticked
         as a whole day by the form itself (issue #613)."""

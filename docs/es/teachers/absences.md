@@ -92,6 +92,8 @@ En el caso de consulta médica, el justificante debe hacer constar expresamente 
 
 Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje con el motivo. El motivo también aparece arriba de la solicitud hasta que adjuntas un justificante nuevo: adjunta uno válido de la misma manera.
 
+Si tu jefe decide que el justificante no hace falta, puede eximirlo: la solicitud continúa hacia Dirección, dejas de recibir recordatorios y recibes un mensaje que te lo dice.
+
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 
 ---

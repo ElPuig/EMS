@@ -829,6 +829,79 @@ class TestAbsenceRequest(TransactionCase):
         with self.assertRaises(AccessError):
             leave.with_user(owner).action_ems_document_insufficient()
 
+    # --- Waiving the supporting document (issue #634) ---------------------------------------
+
+    def _awaiting_document(self, week=0):
+        leave = self._create_leave(self.type_sick_leave, self._monday() + timedelta(weeks=week),
+                                   ems_full_day=True)
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_document')
+        return leave
+
+    def test_waiving_the_document_sends_the_request_on_to_direction(self):
+        """Recorded as waived, never as validated: nobody checked a document that never came.
+        The employee stops being asked for it and is told."""
+        self._direction()
+        owner = self._employee_user('Test Absence Waived', 'absence_waived@absence.test')
+        leave = self._awaiting_document()
+
+        leave.action_ems_document_waive()
+
+        self.assertEqual(leave.ems_document_state, 'waived')
+        self.assertEqual(leave.ems_head_state, 'approved')
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        upload = self.env.ref('ems.mail_activity_absence_document_upload')
+        self.assertFalse(leave.activity_ids.filtered(lambda activity: activity.activity_type_id == upload),
+                         "the employee's to-do is closed")
+        message = leave.message_ids.sorted('id')[-1]
+        self.assertIn(owner.partner_id, message.partner_ids, 'the employee is told')
+        leave.action_ems_direction_done()
+        self.assertEqual(leave.ems_status, 'approved', 'and Direction decides on it as usual')
+
+    def test_only_a_request_awaiting_its_document_can_be_waived(self):
+        pending = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        submitted = self._awaiting_document(week=1)
+        self._attach(submitted)
+
+        for leave in (pending, submitted):
+            with self.subTest(status=leave.ems_status), self.assertRaises(UserError):
+                leave.action_ems_document_waive()
+            self.assertFalse(leave.ems_can_waive_document)
+
+    def test_who_can_waive_a_document(self):
+        """The Head, Direction above them and the administrator above everyone - not the
+        employee, nor any other teacher."""
+        direction = self._direction()
+        head = create_role_user(self, 'head_of_studies', 'absence_waive_hos@absence.test',
+                                email='absence_waive_hos@example.com')
+        admin = create_role_user(self, 'academic_admin', 'absence_waive_admin@absence.test',
+                                 email='absence_waive_admin@example.com')
+        teacher = create_role_user(self, 'teacher', 'absence_waive_teacher@absence.test')
+        owner = self._employee_user('Test Absence Waiver Owner', 'absence_waive_owner@absence.test')
+
+        leave = self._awaiting_document()
+        self.assertFalse(leave.with_user(owner).ems_can_waive_document)
+        for user in (owner, teacher):
+            with self.subTest(user=user.login), self.assertRaises(AccessError):
+                leave.with_user(user).action_ems_document_waive()
+        for week, user in enumerate((head, direction, admin), start=1):
+            leave = self._awaiting_document(week=week)
+            with self.subTest(user=user.login):
+                self.assertTrue(leave.with_user(user).ems_can_waive_document)
+                leave.with_user(user).action_ems_document_waive()
+                self.assertEqual(leave.ems_document_state, 'waived')
+
+    def test_undoing_a_waiver_waits_for_the_document_again(self):
+        """With the reason it had been sent back for, if any, shown to the employee again."""
+        leave = self._awaiting_document()
+        self._attach(leave)
+        self._return_document(leave, "Test the stamp is missing")
+        leave.action_ems_document_waive()
+
+        self.assertEqual(self._undo_statuses(leave, 1), ['pending_document'])
+        self.assertEqual(leave.ems_document_state, 'awaiting')
+        self.assertEqual(leave.ems_document_return_reason, "Test the stamp is missing")
+
     def test_a_head_refusal_refuses_the_request(self):
         leave = self._create_leave(self.type_justified, self._monday())
 

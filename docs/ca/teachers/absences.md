@@ -92,6 +92,8 @@ En el cas de consulta mèdica, el justificant ha de fer constar expressament el 
 
 Si el teu cap o Direcció consideren que el justificant no és vàlid, la sol·licitud torna a **En espera de documentació** i reps un missatge amb el motiu. El motiu també apareix a dalt de la sol·licitud fins que adjuntes un justificant nou: adjunta'n un de vàlid de la mateixa manera.
 
+Si el teu cap decideix que el justificant no cal, el pot eximir: la sol·licitud continua cap a Direcció, deixes de rebre recordatoris i reps un missatge que t'ho diu.
+
 Per esborrar-ne un, fes clic a la creu del fitxer i confirma.
 
 ---

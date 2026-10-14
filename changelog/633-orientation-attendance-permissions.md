@@ -67,6 +67,12 @@
 
 # Internal changes
 
+## Head of Studies screenshot test fixed (issue #633):
+- The Head of Studies' manual screenshots test failed on the attendance corrections list: since issue
+  #543 a Head of Studies only sees the requests of their own branch, and the fixture's employee
+  depended on nobody. The employee now hangs below the fixture's Head of Studies. The regenerated
+  screenshot also shows the list headers translated.
+
 ## Attendance reports tests and docs (issue #633):
 - New TestAttendanceReportScopeLadder: the chain of command for 13 profiles and a parity test (for
   every profile, the wizard's students/groups/subjects are those of the pivot's lines, and the

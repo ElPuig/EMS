@@ -106,8 +106,9 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         })
 
         # --- Attendance correction ---
+        # Below the Head of Studies: they only see the requests of their own branch (issue #543).
         cls.correction_employee = cls.env['hr.employee'].create({
-            'name': '0000 Anna Exemple', 'employee_type': 'teacher',
+            'name': '0000 Anna Exemple', 'employee_type': 'teacher', 'parent_id': cls.hos_employee.id,
         })
         cls.attendance = cls.env['hr.attendance'].create({
             'employee_id': cls.correction_employee.id,

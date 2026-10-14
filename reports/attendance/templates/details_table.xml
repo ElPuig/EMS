@@ -1,11 +1,21 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <template id="attendance_template_details_table">        
+    <template id="attendance_template_details_table">
+        <!-- Callers pick the columns by key ('header': [{'style': ..., 'label': 'date'}, ...]). The titles
+             live here, as plain text, because a string inside a t-value expression is never translated. -->
+        <t t-set="label_date">Date</t>
+        <t t-set="label_status">Status</t>
+        <t t-set="label_subject">Subject</t>
+        <t t-set="label_teacher">Teacher</t>
+        <t t-set="label_student">Student</t>
+        <t t-set="label_comment">Comment</t>
+        <t t-set="labels" t-value="{'date': label_date, 'status': label_status, 'subject': label_subject,
+                                    'teacher': label_teacher, 'student': label_student, 'comment': label_comment}"/>
         <table class="table">
             <thead>
                 <tr>
                     <t t-foreach="header" t-as="e">
-                        <th t-att-style="e['style']" t-esc="e['value']"/>
+                        <th t-att-style="e['style']" t-esc="labels[e['label']]"/>
                     </t>
                 </tr>                                
             </thead>

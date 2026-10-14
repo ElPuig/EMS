@@ -8,6 +8,7 @@
                     <field name="teacher_ids" widget="many2many_avatar_employee"/>
                     <field name="study_ids" widget="many2many_tags"/>
                     <field name="subject_id"/>
+                    <field name="topic" optional="show"/>
                     <field name="group_ids" widget="many2many_tags"/>
                     <field name="start_date" optional="hide"/>
                     <field name="end_date" optional="hide"/>

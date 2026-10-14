@@ -314,6 +314,8 @@ class ems_employee_base(models.AbstractModel):
         self.ensure_one()
         return [{
             'subject_id': attendance.subject_id.id,
+            # Part of the attendance template's identity (issue #633), not of ems.teaching's.
+            'topic': attendance.topic or False,
             'group_ids': attendance.group_ids.ids,
             'dayofweek': attendance.dayofweek,
             'hour_from': attendance.hour_from,

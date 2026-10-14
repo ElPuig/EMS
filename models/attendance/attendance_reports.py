@@ -2,8 +2,6 @@
 
 from odoo import api, fields, models
 
-from ..shared import base
-
 overall_status = [("assistance", "Assistance"), ("absence", "Absence")]
 
 REPORT_REFS = {
@@ -32,13 +30,15 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	# Selection fields: only the one matching report_type is shown/required (see the view).
 	group_id = fields.Many2one(string="Group", comodel_name="ems.group")
 	student_id = fields.Many2one(string="Student", comodel_name="res.partner", domain="[('contact_type', '=', 'student')]")
-	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
+	# The subject as the reports list it: 'subject [- topic]' (issue #633), so a topic taught apart
+	# is a subject of its own. Its options are the user's own (_selection_subject_label); a value
+	# outside their scope sent by hand only ever reaches the lines in scope, i.e. none.
+	subject_label = fields.Selection(string="Subject", selection="_selection_subject_label")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
 
-	# Dropdown scoping (a teacher only sees their own teaching); computed per report_type.
+	# Dropdown scoping: what the user may consult (see _get_scope_lines); computed per report_type.
 	allowed_group_ids = fields.Many2many("ems.group", compute="_compute_allowed_ids")
 	allowed_student_ids = fields.Many2many("res.partner", compute="_compute_allowed_ids")
-	allowed_subject_ids = fields.Many2many("ems.subject", compute="_compute_allowed_ids")
 
 	# Read-only, informational: the tutor(s) of whatever is currently selected, whichever the type.
 	tutor_ids = fields.Many2many(string="Tutors", comodel_name="hr.employee", compute="_compute_tutor_ids")
@@ -57,135 +57,126 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	from_date = fields.Date(string="From", default=fields.Datetime.now, required=True)
 	to_date = fields.Date(string="To", default=fields.Datetime.now, required=True)
 
-	# --- defaults / teacher-scoping helpers ---------------------------------------------------
+	# --- scope: one source with the 'Reports' screen ------------------------------------------
 
 	def _default_detail_status_ids(self):
 		return self.env["ems.attendance_status"].search([("category", "=", "absence")])
 
-	def _get_current_teacher(self):
-		# An employee id <= 1 means ADMIN: no teacher-scoping is applied to the dropdowns.
-		return self.env["hr.employee"].search([("user_id", "=", self.env.uid)])
-
-	def _get_tutor_group_ids(self):
-		"""Groups whose tutor has the user in their tutor scope (the tutor, the chiefs above them,
-		the Director): the by-group and by-subject reports cover every subject of these groups."""
-		return self.env["ems.group"].search([("tutor_id.tutor_scope_user_ids", "=", self.env.uid)])
-
-	def _get_teacher_group_ids(self):
-		teacher = self._get_current_teacher()
-		domain = [("teacher_id", "=", teacher.id)] if teacher.id > 1 else []
-		return self.env["ems.teaching"].search(domain).mapped("group_id") | self._get_tutor_group_ids()
-
-	def _get_teacher_subject_ids(self):
-		teacher = self._get_current_teacher()
-		domain = [("teacher_id", "=", teacher.id)] if teacher.id > 1 else []
-		taught = self.env["ems.teaching"].search(domain).mapped("subject_id")
-		# Plus every subject taught in a group of the user's tutor scope, whoever teaches it.
-		tutored = self.env["ems.teaching"].search([("group_id", "in", self._get_tutor_group_ids().ids)]).mapped("subject_id")
-		return taught | tutored
-
-	def _get_teacher_student_ids(self):
-		teacher = self._get_current_teacher()
-		if teacher.id <= 1:
-			return self.env["ems.enrollment"].search([]).mapped("student_id")
-		# A student is allowed if enrolled in a (group, subject) pair the teacher actually teaches.
-		teachings = self.env["ems.teaching"].search([("teacher_id", "=", teacher.id)])
-		taught_pairs = {(teaching.group_id.id, teaching.subject_id.id) for teaching in teachings}
-		enrollments = self.env["ems.enrollment"].search([("group_id", "in", teachings.mapped("group_id").ids)])
-		enrollments = enrollments.filtered(lambda enrollment: (enrollment.group_id.id, enrollment.subject_id.id) in taught_pairs)
-		# Plus the students in the user's tutor scope, even when the user doesn't teach them.
-		tutees = self.env["res.partner"].search([
-			("contact_type", "=", "student"), ("tutor_id.tutor_scope_user_ids", "=", self.env.uid),
-		])
-		return enrollments.mapped("student_id") | tutees
-
-	def _get_groups_teaching(self, subject):
-		if not subject:
-			return self.env["ems.group"]
-		teacher = self._get_current_teacher()
-		domain = [("subject_id", "=", subject.id)]
-		if teacher.id > 1:
-			domain = ["&"] + domain + ["|", ("teacher_id", "=", teacher.id), ("group_id", "in", self._get_tutor_group_ids().ids)]
-		return self.env["ems.teaching"].search(domain).mapped("group_id")
-
-	def _search_scoped_lines(self, domain, date_range, tutor_scope):
-		"""Session lines are readable by every teacher, but session headers only by their own
-		teacher: a plain teacher gets the lines of their own sessions only, while the tutor scope
-		(tutor, chiefs above them, Director) gets every session, whatever the subject or teacher,
-		via sudo()."""
+	@api.model
+	def _get_scope_lines(self, domain, date_range=None):
+		"""The attendance lines the user may consult (ems.attendance_session_line._get_reports_domain(),
+		the same the 'Reports' screen shows, issue #633) narrowed down by 'domain' and, if given, a
+		(from, to) 'date_range'. Searched as the user, returned under sudo(): the scope is already
+		decided by the domain, and the PDF reads the session's date and teacher, which the session's
+		record rules hide from a tutor or a chief when another teacher took it. active_test forced on:
+		a student removed from the roll-call (archived line) never counts, even when the wizard is
+		reached from a screen listing archived records (issue #628)."""
+		Line = self.env["ems.attendance_session_line"].with_context(active_test=True)
+		domain = Line._get_reports_domain() + domain
 		if date_range:
-			domain = domain + [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
-		# active_test forced on: a student removed from the roll-call (archived line) never counts,
-		# even when the wizard is reached from a screen listing archived records (issue #628).
-		lines = self.env["ems.attendance_session_line"].with_context(active_test=True)
-		if tutor_scope:
-			return lines.sudo().search(domain)
-		return lines.search(domain + [("attendance_session_id", "in", self.env["ems.attendance_session_header"]._search([]))])
+			domain += [("date", ">=", date_range[0]), ("date", "<=", date_range[1])]
+		return Line.search(domain).sudo()
+
+	@api.model
+	def _get_scope_values(self, field_name, domain=None):
+		"""The distinct values of one field over the user's scope (_get_scope_lines' domain), without
+		loading the lines: what the dropdowns offer."""
+		Line = self.env["ems.attendance_session_line"].with_context(active_test=True)
+		groups = Line._read_group(Line._get_reports_domain() + (domain or []), [field_name])
+		return [value for value, in groups if value]
+
+	@api.model
+	def _selection_subject_label(self):
+		return [(label, label) for label in sorted(self._get_scope_values("subject_label"))]
+
+	def _date_range(self):
+		return (self.from_date, self.to_date)
 
 	def _get_student_lines(self, date_range=True):
-		"""The session lines the by-student report covers, shared by the date prefill, print() and
-		the PDF render: every session of this one student for its tutor scope."""
+		"""The by-student report's lines: every subject of this one student in the user's scope."""
 		self.ensure_one()
-		return self._search_scoped_lines(
-			[("student_id", "=", self.student_id.id)], date_range,
-			base.EmsBase.user_acts_as_tutor(self, self.student_id.tutor_id),
-		)
+		if not self.student_id:
+			return self.env["ems.attendance_session_line"]
+		return self._get_scope_lines([("student_id", "=", self.student_id._origin.id)], date_range and self._date_range())
 
 	def _get_group_lines(self, date_range=True):
-		"""The session lines the by-group report covers, shared by the date prefill, print() and the
-		PDF render: those of the group's students, by the group each line keeps from its roll-call
-		(student_group_id), not by the session's groups, which would bring in every other group's
-		students of a shared session. Current course only, like the pivot."""
+		"""The by-group report's lines: those of the group's students, by the group each line keeps
+		from its roll-call (student_group_id), not by the session's groups, which would bring in
+		every other group's students of a shared session."""
 		self.ensure_one()
-		group = self.group_id._origin
-		if not group:
+		if not self.group_id:
 			return self.env["ems.attendance_session_line"]
-		return self._search_scoped_lines(
-			[("student_group_id", "=", group.id), ("session_active", "=", True), ("student_id", "!=", False)],
-			date_range, bool(group & self._get_tutor_group_ids()),
-		)
+		return self._get_scope_lines(
+			[("student_group_id", "=", self.group_id._origin.id), ("student_id", "!=", False)],
+			date_range and self._date_range())
 
-	def _get_sessions(self, date_range=True):
-		"""The sessions the by-subject report covers, shared by the date prefill, print() and the
-		PDF render. Headers are only readable by their own teacher, so a plain teacher gets their
-		own sessions; for the selected groups in the user's tutor scope, every session of the
-		group (any teacher) is added via sudo()."""
+	def _get_subject_lines(self, date_range=True):
+		"""The by-subject report's lines: the selected subject (and topic) of the selected groups'
+		students, by the group each line keeps from its roll-call, like the by-group report.
+		Student-less lines (a hard-deleted student keeps their lines with student_id = NULL) would
+		render a phantom blank row."""
 		self.ensure_one()
+		if not self.subject_label:
+			return self.env["ems.attendance_session_line"]
 		# _origin: inside an onchange the wizard's x2many values are NewId copies of the groups.
-		groups, domain = self.group_ids._origin, [("subject_id", "=", self.subject_id.id)]
-		if date_range:
-			domain += [("date", ">=", self.from_date), ("date", "<=", self.to_date)]
-		headers = self.env["ems.attendance_session_header"].with_context(active_test=True)
-		sessions = headers.search(domain + [("group_ids", "in", groups.ids)])
-		tutor_groups = groups & self._get_tutor_group_ids()
-		if tutor_groups:
-			sessions = sessions.sudo() | headers.sudo().search(domain + [("group_ids", "in", tutor_groups.ids)])
-		return sessions
+		return self._get_scope_lines([
+			("subject_label", "=", self.subject_label),
+			("student_group_id", "in", self.group_ids._origin.ids),
+			("student_id", "!=", False),
+		], date_range and self._date_range())
+
+	def _get_groups_teaching(self, subject_label):
+		"""The groups whose students have the given subject (and topic) in the user's scope."""
+		if not subject_label:
+			return self.env["ems.group"]
+		return self.env["ems.group"].browse(
+			[group.id for group in self._get_scope_values("student_group_id", [("subject_label", "=", subject_label)])])
 
 	@api.model
 	def default_get(self, fields_list):
 		# A compute that only depends on context (uid) isn't reliably run on a freshly-opened
 		# wizard, so seed the allowed_* sets here (default_get is always called on form open).
 		res = super().default_get(fields_list)
-		res.setdefault("allowed_group_ids", [(6, 0, self._get_teacher_group_ids().ids)])
-		res.setdefault("allowed_student_ids", [(6, 0, self._get_teacher_student_ids().ids)])
-		res.setdefault("allowed_subject_ids", [(6, 0, self._get_teacher_subject_ids().ids)])
+		res.setdefault("allowed_group_ids", [(6, 0, [group.id for group in self._get_scope_values("student_group_id")])])
+		res.setdefault("allowed_student_ids", [(6, 0, [student.id for student in self._get_scope_values("student_id")])])
+		res.update(self._defaults_from_search())
 		return res
+
+	@api.model
+	def _defaults_from_search(self):
+		"""The report the 'Reports' screen's active search facets point at (issue #633), passed by its
+		print button as ems_report_<field> context keys (attendance_report_print.js): a student gives
+		the by-student report; a subject the by-subject one, its groups narrowed to the group facet if
+		there is one; a group alone the by-group one. The onchanges then fill the dates and groups,
+		as when picked by hand (the form's first onchange runs them for every default). A subject
+		split into several topics in the user's scope leaves the subject to pick."""
+		context = self.env.context
+		student, group, subject = (context.get(f"ems_report_{name}")
+								   for name in ("student_id", "student_group_id", "subject_id"))
+		if student:
+			return {"report_type": "student", "student_id": student}
+		if subject:
+			labels = self._get_scope_values("subject_label", [("subject_id", "=", subject)])
+			return {"report_type": "subject", "subject_label": labels[0] if len(labels) == 1 else False}
+		if group:
+			return {"report_type": "group", "group_id": group}
+		return {}
 
 	# --- computes -----------------------------------------------------------------------------
 
 	@api.depends_context("uid")
-	@api.depends("report_type", "subject_id")
+	@api.depends("report_type", "subject_label")
 	def _compute_allowed_ids(self):
 		for wizard in self:
-			wizard.allowed_student_ids = wizard._get_teacher_student_ids()
-			wizard.allowed_subject_ids = wizard._get_teacher_subject_ids()
-			# For the by-subject variant the group picker is scoped to groups teaching the chosen
-			# subject; otherwise (by-group) it's scoped to the teacher's own groups.
+			wizard.allowed_student_ids = self.env["res.partner"].browse(
+				[student.id for student in wizard._get_scope_values("student_id")])
+			# For the by-subject variant the group picker is scoped to the groups having the chosen
+			# subject; otherwise (by-group) to every group in scope.
 			if wizard.report_type == "subject":
-				wizard.allowed_group_ids = wizard._get_groups_teaching(wizard.subject_id)
+				wizard.allowed_group_ids = wizard._get_groups_teaching(wizard.subject_label)
 			else:
-				wizard.allowed_group_ids = wizard._get_teacher_group_ids()
+				wizard.allowed_group_ids = self.env["ems.group"].browse(
+					[group.id for group in wizard._get_scope_values("student_group_id")])
 
 	@api.depends("report_type", "group_id.tutor_id", "student_id.tutor_id", "group_ids.tutor_id")
 	def _compute_tutor_ids(self):
@@ -203,38 +194,40 @@ class EmsAttendanceReportWizard(models.TransientModel):
 			default_ids = set(wizard._default_detail_status_ids().ids)
 			wizard.detail_status_warning = not set(wizard.detail_status_ids.ids) <= default_ids
 
-	# --- onchange: fill From/To from the selection's own session range ------------------------
+	# --- onchange: fill From/To from the selection's own lines --------------------------------
 
-	def _fill_dates(self, sessions):
-		if not sessions:
+	def _fill_dates(self, lines):
+		if not lines:
 			return
-		ordered = sessions.sorted("date")
-		self.from_date = ordered[0].date
-		self.to_date = ordered[-1].date
+		dates = lines.mapped("date")
+		self.from_date = min(dates)
+		self.to_date = max(dates)
 
 	@api.onchange("group_id")
 	def _onchange_group_id(self):
 		for wizard in self:
 			if wizard.report_type == "group" and wizard.group_id:
-				wizard._fill_dates(wizard._get_group_lines(date_range=False).attendance_session_id)
+				wizard._fill_dates(wizard._get_group_lines(date_range=False))
 
 	@api.onchange("student_id")
 	def _onchange_student_id(self):
 		for wizard in self:
 			if wizard.report_type == "student" and wizard.student_id:
-				wizard._fill_dates(wizard._get_student_lines(date_range=False).attendance_session_id)
+				wizard._fill_dates(wizard._get_student_lines(date_range=False))
 
-	@api.onchange("subject_id")
-	def _onchange_subject_id(self):
+	@api.onchange("subject_label")
+	def _onchange_subject_label(self):
 		for wizard in self:
 			if wizard.report_type != "subject":
 				continue
-			allowed_groups = wizard._get_groups_teaching(wizard.subject_id)
-			# Pre-fill with every group teaching the subject; the user can then remove the ones
-			# they don't want (the field stays editable, restricted to allowed_group_ids).
-			wizard.group_ids = allowed_groups
-			if wizard.subject_id:
-				wizard._fill_dates(wizard._get_sessions(date_range=False))
+			# Pre-fill with every group having the subject, or only the group filtered on the screen
+			# the wizard was opened from (_defaults_from_search); the user can then remove or add
+			# groups (the field stays editable, restricted to allowed_group_ids).
+			groups = wizard._get_groups_teaching(wizard.subject_label)
+			searched = groups.browse(self.env.context.get("ems_report_student_group_id")) & groups
+			wizard.group_ids = searched or groups
+			if wizard.subject_label:
+				wizard._fill_dates(wizard._get_subject_lines(date_range=False))
 
 	# --- action -------------------------------------------------------------------------------
 
@@ -249,36 +242,28 @@ class EmsAttendanceReportWizard(models.TransientModel):
 	def _get_report_lines(self):
 		"""The session lines the selected report covers."""
 		self.ensure_one()
-		if self.report_type == "student":
-			return self._get_student_lines()
-		if self.report_type == "group":
-			return self._get_group_lines()
-		sessions = self._get_sessions()
-		# Exclude student-less lines: when a student partner is hard-deleted, their session
-		# lines survive with student_id = NULL (Odoo's default ondelete='set null'). Grouping
-		# those by student would render a phantom blank-name row/group in the PDF.
-		# Same env as the sessions: sudo() when the tutor scope widened them, so the PDF can read
-		# the other teachers' session headers.
-		return self.env["ems.attendance_session_line"].with_env(sessions.env).with_context(active_test=True).search([
-			("attendance_session_id", "in", sessions.ids),
-			("student_id", "!=", False),
-		])
+		return {
+			"student": self._get_student_lines,
+			"group": self._get_group_lines,
+			"subject": self._get_subject_lines,
+		}[self.report_type]()
 
 	def get_report_filename(self):
 		"""Download file name (print_report_name of the 3 reports): the report's own name plus the
 		student, group or subject it's about, so several downloads can be told apart."""
 		self.ensure_one()
-		subject = {"group": self.group_id, "student": self.student_id, "subject": self.subject_id}[self.report_type]
-		return f"{self.env.ref(REPORT_REFS[self.report_type]).name}_{subject.name.replace(' ', '_')}"
+		subject = {"group": self.group_id.name, "student": self.student_id.name, "subject": self.subject_label}[self.report_type]
+		# No colon: the subject's label carries one ('ACR: Name') and some systems reject it in a file name.
+		return f"{self.env.ref(REPORT_REFS[self.report_type]).name}_{(subject or '').replace(':', '').replace(' ', '_')}"
 
 
 def _build_report_values(env, docids, group_key):
 	# Shared by the 3 report data models below: they only differ in group_key (the dimension the
 	# per-line entries are grouped by for the detail sections). docids is the wizard: the lines are
-	# always recomputed from it, never taken from the client (the by-student report may widen them
-	# to the tutor scope, see _get_student_lines).
+	# always recomputed from it, never taken from the client (see _get_scope_lines).
 	wizard = env["ems.attendance_report_wizard"].browse(docids)
-	entries = list(wizard._get_report_lines())
+	report_lines = wizard._get_report_lines()
+	entries = list(report_lines)
 	main = _report_data(entries, env)
 
 	grouped = {}
@@ -294,7 +279,9 @@ def _build_report_values(env, docids, group_key):
 	detail_strikes = {}
 	for key, items in grouped.items():
 		detail_entries[key] = [entry for entry in items if entry.status_id.id in detail_status_ids]
-		detail_strikes[key] = env["ems.strike"].search([
+		# Same environment as the lines (sudo): the strikes of lines already in the user's scope, the
+		# ones the 'Reports' screen counts as strike_count.
+		detail_strikes[key] = report_lines.env["ems.strike"].search([
 			("attendance_session_line_id", "in", [entry.id for entry in items]),
 		]) if wizard.include_strikes else env["ems.strike"]
 
@@ -307,7 +294,8 @@ def _build_report_values(env, docids, group_key):
 		"detail_entries": detail_entries,
 		"detail_strikes": detail_strikes,
 		"attendance_session_line": {status.id: status.name for status in env["ems.attendance_status"].with_context(active_test=False).search([])},
-		"overall_status": dict(overall_status),
+		# Translated here, in the report's language: the module-level labels are only the keys' English.
+		"overall_status": {"assistance": env._("Assistance"), "absence": env._("Absence")},
 	}
 
 
@@ -316,7 +304,7 @@ class EmsAttendanceReportGroup(models.AbstractModel):
 	_description = "Attendance report data: by group."
 
 	def _get_report_values(self, docids, data=None):
-		return _build_report_values(self.env, docids, lambda entry: entry.attendance_session_id.subject_id)
+		return _build_report_values(self.env, docids, lambda entry: entry.subject_label)
 
 
 class EmsAttendanceReportStudent(models.AbstractModel):
@@ -324,7 +312,7 @@ class EmsAttendanceReportStudent(models.AbstractModel):
 	_description = "Attendance report data: by student."
 
 	def _get_report_values(self, docids, data=None):
-		return _build_report_values(self.env, docids, lambda entry: entry.attendance_session_id.subject_id)
+		return _build_report_values(self.env, docids, lambda entry: entry.subject_label)
 
 
 class EmsAttendanceReportSubject(models.AbstractModel):

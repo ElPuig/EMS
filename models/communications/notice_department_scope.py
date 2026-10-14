@@ -32,14 +32,11 @@ class EmsGroupDepartmentScope(models.Model):
         if operator not in ('=', 'in'):
             raise NotImplementedError(_("Unsupported search on department_chief_user_ids"))
         user_ids = [user_id for user_id in ([value] if isinstance(value, int) else value or []) if user_id]
-        chiefs = self.env['hr.employee'].sudo().search([('user_id', 'in', user_ids)])
-        headed = self.env['hr.department'].sudo().search([
-            '|', ('manager_id', 'in', chiefs.ids), ('seminar_chief_id', 'in', chiefs.ids)])
+        headed = self.env['hr.department']._headed_by(self.env['res.users'].browse(user_ids))
         if not headed:
             return [('id', '=', False)]
         teachings = self.env['ems.teaching'].sudo().search([('teacher_id.department_id', 'child_of', headed.ids)])
-        return ['|', '|', ('id', 'in', teachings.group_id.ids), ('study_id.managing_department_id', 'child_of', headed.ids),
-                ('parent_group_ids.study_id.managing_department_id', 'child_of', headed.ids)]
+        return ['|', ('id', 'in', teachings.group_id.ids)] + self._managed_by_departments_domain(headed)
 
 
 class EmsNoticeDepartmentScope(models.Model):

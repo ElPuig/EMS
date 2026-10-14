@@ -6,14 +6,14 @@
 
 **Assistència → Informes** obre la pantalla d'**Informes d'assistència**: una taula dinàmica que pots explorar i exportar tu mateix, més 3 informes PDF imprimibles (per grup, per alumne, per assignatura) accessibles des de la seva capçalera.
 
-**Rol necessari:** Secretaria (només lectura)
+**Rol necessari:** Secretaria
 
 ---
 
 ## Explorar els informes d'assistència
 
 1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica**, mostrant **tot el centre** per defecte.
-2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris.
+2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris. Una assignatura que l'horari divideix en parts impartides per separat (el seu **tema**, per exemple l'Educació física d'un mòdul de CFGB) apareix com una assignatura pròpia, «Assignatura - Tema».
 
    ![Taula dinàmica dels informes d'assistència, desplegada per assignatura i alumne](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Fes servir la barra de cerca per filtrar més (per alumne, grup, assignatura o estat), i **Agrupa per** per canviar com es plega la taula. El grup és el de l'alumne en la data de cada sessió: una sessió compartida per diversos grups compta cada alumne només al seu grup.
@@ -34,7 +34,7 @@ Per consultar l'assistència d'un sol alumne, obre la seva fitxa i fes clic al b
 
 ## Imprimir un informe PDF
 
-A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria **Imprimeix informe d'assistència**. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria.
+A la pantalla d'**Informes d'assistència**, fes clic al botó de la **impressora**, l'últim de la fila de damunt de la taula (al costat del de descàrrega), també a la vista de gràfic. També és al menú **⚙ (engranatge)**, com a **Imprimeix informe d'assistència**. Si la taula està filtrada per un alumne, un grup o una assignatura (a la barra de cerca), el formulari s'obre en aquell informe amb el filtre ja triat: des de la fitxa d'un alumne, per exemple, és l'informe d'aquest alumne. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria. Les llistes ofereixen exactament els alumnes, grups i assignatures que veus a la taula dinàmica (només el curs actual), i el PDF inclou les mateixes sessions que la taula.
 
 **Informe d'assistència (per grup):**
 1. Selecciona un **Grup**.

@@ -57,6 +57,11 @@ class EmsAttendanceSchedule(models.Model):
     attendance_session_ids = fields.One2many(
         string="Sessions", comodel_name="ems.attendance_session_header", inverse_name="attendance_schedule_id",
         copy=False)
+    # The teachers' schedule blocks this line represents (one per co-teacher, see
+    # resource.calendar.attendance.attendance_schedule_id).
+    calendar_attendance_ids = fields.One2many(
+        string="Schedule blocks", comodel_name="resource.calendar.attendance", inverse_name="attendance_schedule_id",
+        copy=False)
 
     # Used only for permission filtering purposes (see security/rules/attendance.xml).
     teacher_ids = fields.Many2many(string='Teachers', related="attendance_template_id.teacher_ids", store=False)

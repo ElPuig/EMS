@@ -8,3 +8,6 @@
 
 ## Staff newsletter format moved into CLAUDE.md:
 - The format agreed for the staff newsletter (light, for rank-and-file teachers: everyone/CCFF-only split, concrete features only, an "Altres canvis rellevants" section for annoying fixes, links to each GitHub release) now lives in CLAUDE.md's "Staff newsletter email" section instead of only in one developer's agent memory, so every session follows it. Drafts are shown for approval before sending.
+
+## CLAUDE.md: name the exact role, never a bare "chiefs"/"heads":
+- New "Naming roles" section: always say Department Chief / Seminar Chief (department level) or Head of Studies / Deputy Head of Studies / Director / Secretary (management level), never a generic "chiefs", "heads" or "jefes", which had caused misunderstandings.

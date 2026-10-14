@@ -6,7 +6,7 @@
             <field name="name">ems.title_import_wizard.form</field>
             <field name="model">ems.title_import_wizard</field>
             <field name="arch" type="xml">
-                <form string="Import titles">
+                <form string="Import titles" js_class="ems_title_import_wizard_form">
                     <sheet>
                         <div class="alert alert-info" role="alert" invisible="line_ids">
                             Registers in the academic history the titles obtained in a course, from
@@ -15,13 +15,13 @@
                             title request status or the student's name, they are used too: rows of
                             another course are left out, and a cancelled request does not count.
                         </div>
-                        <div class="alert alert-info" role="alert" invisible="not line_ids">
+                        <div class="alert alert-info" role="alert" invisible="not line_ids or result_html">
                             Check what will happen to each student before registering the titles.
                             A student who no longer has a group leaves the centre as a graduate: the
                             pending enrollments are cancelled, the portal access is revoked and the
                             contact is archived.
                         </div>
-                        <group>
+                        <group invisible="result_html">
                             <group>
                                 <field name="file" filename="file_name" readonly="line_ids"/>
                                 <field name="file_name" invisible="1"/>
@@ -32,7 +32,13 @@
                                 <field name="apply_count" invisible="not line_ids"/>
                             </group>
                         </group>
-                        <field name="line_ids" nolabel="1" invisible="not line_ids" readonly="1">
+                        <group invisible="not result_html">
+                            <field name="result_html" nolabel="1" colspan="2"/>
+                            <field name="log_file" widget="auto_download_binary" filename="log_file_name"
+                                   string="Download import log (CSV)"/>
+                            <field name="log_file_name" invisible="1"/>
+                        </group>
+                        <field name="line_ids" nolabel="1" invisible="not line_ids or result_html" readonly="1">
                             <list decoration-success="outcome == 'graduate'"
                                   decoration-info="outcome in ('alumni', 'title')"
                                   decoration-muted="outcome == 'already'"
@@ -49,7 +55,7 @@
                         <button name="action_preview" type="object" string="Preview" class="btn-primary"
                                 invisible="line_ids"/>
                         <button name="action_apply" type="object" string="Register titles" class="btn-primary"
-                                invisible="not apply_count"
+                                invisible="not apply_count or result_html"
                                 confirm="The titles are registered, and the students with no group leave the centre as graduates. Continue?"/>
                         <button special="cancel" string="Close"/>
                     </footer>

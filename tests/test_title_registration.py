@@ -152,6 +152,13 @@ class TestTitleRegistration(TransactionCase):
         })
         self.assertEqual(wizard.apply_count, 3)
         wizard.action_apply()
+        # The result stays in the wizard, with a log of every row of the file.
+        self.assertTrue(wizard.result_html)
+        log = base64.b64decode(wizard.log_file).decode('utf-8-sig').splitlines()
+        self.assertEqual(len(log), 1 + 8)
+        rows = {row.split(',')[0]: row for row in log[1:]}
+        self.assertIn('Yes', rows[graduate.student_id])
+        self.assertIn('No', rows['TESTMISSING'])
         self.assertTrue(graduate_record.title_obtained)
         self.assertEqual(graduate.contact_type, 'alumni')
         self.assertFalse(graduate.active)

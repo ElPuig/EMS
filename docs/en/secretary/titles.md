@@ -40,6 +40,8 @@ Use it with the list of title requests exported from Esfera, or with any list of
 
 ![Import titles wizard: the preview with the result of each student of the file](../../assets/secretary/titols-01-importar.png)
 
+When it finishes, the wizard shows a summary (titles registered, students who left the centre, withdrawals that became alumni and rows not registered) and downloads a CSV file with the result of every row of the file. You can download it again with **Download import log (CSV)**.
+
 The only column the file needs is the student identifier, named **Identificador de l'alumne/a** (as Esfera exports it) or **IDALU**. If the file also has these columns, they are used too:
 
 - **Curs**: rows of a course different from the one chosen are left out.

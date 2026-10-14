@@ -4,6 +4,8 @@ import base64
 import csv
 import io
 
+from markupsafe import Markup
+
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
@@ -22,7 +24,7 @@ def _cell_text(value):
 
 
 def _title_notification(summary, titles):
-    """The result notification shared by both title wizards."""
+    """The result notification of the Register title wizard."""
     message = _("%(titles)s title(s) registered.", titles=titles)
     if summary['graduated']:
         message += " " + _("%(graduated)s student(s) left the centre as graduates.",
@@ -47,12 +49,12 @@ def _title_notification(summary, titles):
 
 
 def _register_titles(records):
-    """Tick the title of `records` and apply its effects on the students, returning the
-    notification. The write skips the automatic effects so they run once, here, where their
-    summary is kept."""
+    """Tick the title of `records` and apply its effects on the students, returning
+    (records registered, summary of _ems_register_title()). The write skips the automatic effects
+    so they run once, here, where their summary is kept."""
     records = records.filtered(lambda record: not record.title_obtained)
     records.with_context(ems_skip_title_effects=True).write({'title_obtained': True})
-    return _title_notification(records._ems_register_title(), len(records))
+    return records, records._ems_register_title()
 
 
 class EmsTitleImportWizard(models.TransientModel):
@@ -80,6 +82,9 @@ class EmsTitleImportWizard(models.TransientModel):
     line_ids = fields.One2many(string="Students", comodel_name='ems.title_import_wizard.line',
                                inverse_name='wizard_id')
     apply_count = fields.Integer(string="Titles to register", compute='_compute_apply_count')
+    result_html = fields.Html(string="Import result", readonly=True)
+    log_file = fields.Binary(string="Import log (CSV)", readonly=True)
+    log_file_name = fields.Char()
 
     @api.model
     def _default_course(self):
@@ -200,6 +205,64 @@ class EmsTitleImportWizard(models.TransientModel):
         students = self._read_students()
         self.line_ids = [(5, 0, 0)] + [
             (0, 0, self._line_vals(identifier, entry)) for identifier, entry in students.items()]
+        return self._reopen()
+
+    def action_apply(self):
+        """Register the titles one line at a time, so the log can say what happened to each
+        student, and show the result in the wizard with its CSV log (downloaded on its own)."""
+        self.ensure_one()
+        totals = {'titles': 0, 'graduated': 0, 'alumni': 0, 'revoked': 0, 'issues': []}
+        log = []
+        for line in self.line_ids:
+            registered, summary = _register_titles(line.record_id) if line.to_apply \
+                else (line.record_id.browse(), {'issues': []})
+            if registered:
+                totals['titles'] += 1
+                for key in ('graduated', 'alumni', 'revoked'):
+                    totals[key] += summary[key]
+                totals['issues'] += summary['issues']
+            log.append((line, bool(registered), summary['issues']))
+        self.log_file = self._build_log_csv(log)
+        self.log_file_name = (f"import_titles_"
+                              f"{self.env['ems.datetime_utils'].get_local_datetime().strftime('%Y%m%d_%H%M%S')}.csv")
+        self.result_html = self._build_result_html(totals)
+        return self._reopen()
+
+    def _build_log_csv(self, log):
+        outcomes = dict(self.line_ids._fields['outcome']._description_selection(self.env))
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow([_("Student ID (IDALU)"), _("Name"), _("Course"), _("Result"),
+                         _("Title registered"), _("Issues")])
+        for line, registered, issues in log:
+            writer.writerow([line.student_identifier, line.name or '', self.course_id.name,
+                             outcomes.get(line.outcome, ''), _("Yes") if registered else _("No"),
+                             " | ".join(issues)])
+        return base64.b64encode(output.getvalue().encode('utf-8-sig'))
+
+    def _build_result_html(self, totals):
+        skipped = len(self.line_ids) - totals['titles']
+        issues_html = Markup("")
+        if totals['issues']:
+            issues_html = Markup("<p><strong>{} ({}):</strong></p>{}").format(
+                _("Issues"), len(totals['issues']), self.env['ems.base'].build_html_list(totals['issues']))
+        return Markup(
+            "<p>✅ <strong>{}:</strong> {}</p>"
+            "<p>🎓 <strong>{}:</strong> {}</p>"
+            "<p>🔁 <strong>{}:</strong> {}</p>"
+            "<p>🔒 <strong>{}:</strong> {}</p>"
+            "<p>⏭️ <strong>{}:</strong> {}</p>"
+            "{}"
+        ).format(
+            _("Titles registered"), totals['titles'],
+            _("Students who left the centre as graduates"), totals['graduated'],
+            _("Withdrawals that became alumni"), totals['alumni'],
+            _("Portal accesses revoked"), totals['revoked'],
+            _("Rows not registered (see the log)"), skipped,
+            issues_html,
+        )
+
+    def _reopen(self):
         return {
             'type': 'ir.actions.act_window',
             'name': _("Import titles"),
@@ -209,10 +272,6 @@ class EmsTitleImportWizard(models.TransientModel):
             'target': 'new',
             'context': {'dialog_size': 'extra-large'},
         }
-
-    def action_apply(self):
-        self.ensure_one()
-        return _register_titles(self.line_ids.filtered('to_apply').record_id)
 
 
 class EmsTitleImportWizardLine(models.TransientModel):
@@ -293,4 +352,5 @@ class EmsTitleRegisterWizard(models.TransientModel):
 
     def action_apply(self):
         self.ensure_one()
-        return _register_titles(self.record_id)
+        registered, summary = _register_titles(self.record_id)
+        return _title_notification(summary, len(registered))

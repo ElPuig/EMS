@@ -40,6 +40,8 @@ Feu-lo servir amb el llistat de sol·licituds de títol exportat d'Esfera, o amb
 
 ![Assistent Importar títols: la previsualització amb el resultat de cada alumne del fitxer](../../assets/secretary/titols-01-importar.png)
 
+En acabar, l'assistent mostra un resum (títols registrats, alumnes que han sortit del centre, baixes que han passat a antic alumnat i files no registrades) i descarrega un fitxer CSV amb el resultat de cada fila del fitxer. El podeu tornar a baixar amb **Descarregar log d'importació (CSV)**.
+
 L'única columna que ha de tenir el fitxer és l'identificador de l'alumne, amb el nom **Identificador de l'alumne/a** (com l'exporta Esfera) o **IDALU**. Si el fitxer també té aquestes columnes, es fan servir:
 
 - **Curs**: les files d'un curs diferent del triat es descarten.

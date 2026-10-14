@@ -40,6 +40,8 @@ Usadlo con el listado de solicitudes de título exportado de Esfera, o con cualq
 
 ![Asistente Importar títulos: la previsualización con el resultado de cada alumno del fichero](../../assets/secretary/titols-01-importar.png)
 
+Al terminar, el asistente muestra un resumen (títulos registrados, alumnos que han salido del centro, bajas que han pasado a antiguo alumnado y filas no registradas) y descarga un fichero CSV con el resultado de cada fila del fichero. Podéis volver a descargarlo con **Descargar log de importación (CSV)**.
+
 La única columna que debe tener el fichero es el identificador del alumno, con el nombre **Identificador de l'alumne/a** (como lo exporta Esfera) o **IDALU**. Si el fichero también tiene estas columnas, se usan:
 
 - **Curs**: las filas de un curso distinto del elegido se descartan.

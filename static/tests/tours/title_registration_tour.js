@@ -48,8 +48,12 @@ registry.category("web_tour.tours").add("ems_title_import", {
             run: "click",
         },
         {
-            trigger: ".o_notification",
-            content: "The result is notified",
+            trigger: ".o_dialog .o_field_widget[name='result_html'] p",
+            content: "The result stays in the wizard, with the import log",
+        },
+        {
+            trigger: ".o_dialog .o_field_widget[name='log_file']",
+            content: "The import log can be downloaded again",
         },
     ],
 });

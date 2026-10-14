@@ -153,6 +153,22 @@ newsletter). A refused email ends in "Delivery failed" with the reason. Details:
 `docs/en/developers/shared/dev_mail_guard.md`. If a send you expected fails on a dev machine with
 "Email blocked", that's the guard: add the address to the allowlist only if the developer says so.
 
+## Naming roles: never "chiefs"/"heads"/"jefes" on its own (developer, 2026-10-14)
+
+Always name the exact role, in chat, plans, docs, code comments and changelog alike. A bare
+"chiefs", "heads" or "jefes" mixes up two different levels of the hierarchy and has already caused
+misunderstandings (*"Es importante que distingas SIEMPRE entre jefes de departamento y jefes de
+estudio"*):
+- **Department level:** Department Chief (jefe de departamento) and Seminar Chief (jefe de
+  seminario), both `ems.group_department_chief`; the employee's `parent_id`.
+- **Studies/management level:** Head of Studies (jefe de estudios, **JE**) and Deputy Head of
+  Studies (jefe de estudios adjunto, **JEA**), both `ems.group_head_of_studies`; the Director
+  (directora/director) above them; the Secretary where it acts as an Area Manager.
+
+When the code itself uses a generic word (e.g. `hr.leave`'s "Head" = whoever approves the absence,
+the employee's Area Manager: JE, JEA or Secretary; its "chiefs" = Department/Seminar Chief), say
+which concrete roles it means instead of repeating the generic word.
+
 ## Module structure
 
 ```

@@ -60,11 +60,11 @@
                         <h3>Comments</h3>
                         <t t-set="entries" t-value="main.comments"/>
                         <t t-set="header" t-value="[
-                            {'style' : 'width:10%;', 'value' : 'Date'},
-                            {'style' : 'width:10%;', 'value' : 'Status'},
-                            {'style' : 'width:20%;', 'value' : 'Teacher'},
-                            {'style' : 'width:20%;', 'value' : 'Student'},
-                            {'style' : '', 'value' : 'Comment'}
+                            {'style' : 'width:10%;', 'label' : 'date'},
+                            {'style' : 'width:10%;', 'label' : 'status'},
+                            {'style' : 'width:20%;', 'label' : 'teacher'},
+                            {'style' : 'width:20%;', 'label' : 'student'},
+                            {'style' : '', 'label' : 'comment'}
                         ]"/>
                         <!-- Note: 'self' will be an 'attendance_session_line' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
                         <t t-set="rows" t-value="[

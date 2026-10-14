@@ -53,6 +53,15 @@
   (disable_linking).
 - The three manual screenshots showing the pivot toolbar were regenerated.
 
+## Attendance PDFs fully translated (issue #633):
+- The section titles of the shared per-subject/per-student block (Summary, Details, Strikes and its
+  columns) had no Catalan/Spanish reference for that template, the detail tables' column titles were
+  plain strings inside a t-value expression (never extracted for translation), and the "Assistance"/
+  "Absence" overall columns came from untranslated module-level labels. The column titles now live
+  once, as plain template text, in the shared details table; the overall labels are translated with
+  env._(); the .po files reference both shared templates. Checked by rendering the reports in Catalan
+  and Spanish with no English left.
+
 # Internal changes
 
 ## Attendance reports tests and docs (issue #633):

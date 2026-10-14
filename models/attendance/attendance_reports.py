@@ -270,7 +270,8 @@ def _build_report_values(env, docids, group_key):
 		"detail_entries": detail_entries,
 		"detail_strikes": detail_strikes,
 		"attendance_session_line": {status.id: status.name for status in env["ems.attendance_status"].with_context(active_test=False).search([])},
-		"overall_status": dict(overall_status),
+		# Translated here, in the report's language: the module-level labels are only the keys' English.
+		"overall_status": {"assistance": env._("Assistance"), "absence": env._("Absence")},
 	}
 
 

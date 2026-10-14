@@ -1228,9 +1228,11 @@ msgid "ASP's Name"
 msgstr "Nombre del PAS"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__absence
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__leave_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__leave_id
+#: code:addons/ems/models/attendance/attendance_reports.py:0
 msgid "Absence"
 msgstr "Ausencia"
 
@@ -1834,7 +1836,9 @@ msgid "Assigned to"
 msgstr "Asignado a"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_status__category__assistance
+#: code:addons/ems/models/attendance/attendance_reports.py:0
 msgid "Assistance"
 msgstr "Asistencia"
 
@@ -2608,6 +2612,7 @@ msgstr "Combinar con el horario existente de cada docente"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Comment"
 msgstr "Comentario"
 
@@ -2989,6 +2994,8 @@ msgstr "Datos descargados"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__date
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Date"
 msgstr "Fecha"
 
@@ -3126,6 +3133,7 @@ msgstr "Descripción y notas"
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__details
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 msgid "Details"
 msgstr "Detalles"
 
@@ -5464,6 +5472,7 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_res_partner__comment
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 msgid "Notes"
 msgstr "Notas"
 
@@ -7192,6 +7201,7 @@ msgstr "Estado / Provincia"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__state
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Status"
 msgstr "Estado"
 
@@ -7250,6 +7260,7 @@ msgstr "Calle 2"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__student_id
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Student"
 msgstr "Alumno"
 
@@ -7435,6 +7446,7 @@ msgstr "Estudio: El tipo concreto de estudio (tipo de licenciatura, titulación 
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__line_id
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Subject"
 msgstr "Asignatura"
 
@@ -7527,6 +7539,7 @@ msgstr "Nota de la asignatura sugerida aplicando las ponderaciones de la planifi
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 msgid "Summary"
 msgstr "Resumen"
 
@@ -7626,6 +7639,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Teacher"
 msgstr "Profesor"
 
@@ -9412,6 +9427,7 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__reason_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__reason_id
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 msgid "Reason"
 msgstr "Motivo"
 
@@ -10891,6 +10907,7 @@ msgstr "Strike: un aviso disciplinario puesto por un profesor a un alumno."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_strike_list model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__strike_ids model:ir.model.fields,field_description:ems.field_res_partner__strike_ids model:ir.model.fields,field_description:ems.field_res_users__strike_ids model:ir.ui.menu,name:ems.menu_coexistence_strikes model:ir.ui.menu,name:ems.menu_coexistence_config_strikes model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
+#: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 msgid "Strikes"
 msgstr "Strikes"
 

@@ -22377,3 +22377,45 @@ msgstr "Tens la darrera versió."
 #: code:addons/ems/models/settings/settings.py:0
 msgid "A newer version is available: %(version)s"
 msgstr "Hi ha una versió més nova: %(version)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "It is now in your hands."
+msgstr "Ara és a les teves mans."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "This absence will not take place: its request has been refused."
+msgstr "Aquesta absència no es produirà: la sol·licitud s'ha rebutjat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "This absence will not take place: its request has been cancelled."
+msgstr "Aquesta absència no es produirà: la sol·licitud s'ha cancel·lat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "This absence will not take place: its request has been withdrawn."
+msgstr "Aquesta absència no es produirà: la sol·licitud s'ha retirat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "This absence request is going ahead again."
+msgstr "Aquesta sol·licitud d'absència torna a seguir endavant."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "The dates or the type of this absence have changed."
+msgstr "Les dates o el tipus d'aquesta absència han canviat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "Absence request withdrawn"
+msgstr "Sol·licitud d'absència retirada"

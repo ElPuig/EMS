@@ -39,6 +39,8 @@ Nobody approves their own absence: an Area Manager's request is decided by Direc
 
 When somebody in your area sends a request you receive an email with the employee, the absence type, the dates and the hours, so you can arrange the cover, and the request is added to your activities.
 
+**Messages on the request.** While a request is in your hands, you and the employee are its only followers: what either of you writes in its message history (**Send message**) reaches the other and nobody else. The Department Chief and the Seminar Chief do not follow it: they receive the filing and, afterwards, only what changes the cover (refused, cancelled, other dates or another type). Once you validate it and it reaches Direction, the Director follows it instead of you. If Direction sends the supporting document back, or undoes its way back to one of your steps, the request is in your hands again and you receive an email saying so. An ATRI absence Direction sends back as not in ATRI (or with its ATRI documentation insufficient) stays with Direction, since the employee settles it on the portal.
+
 **Employee Attendances > Absences > Management > Requested absences**.
 
 That lists your area's requests, opening on **Waiting For Me**: the ones pending your acknowledgement and the ones whose supporting document you have to validate. Every absence goes through you first and then through Direction, and the list has one column for each:
@@ -60,7 +62,7 @@ For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the l
 
 The cross refuses, at any of these steps. Once you decide from the form, you are taken back to the list.
 
-**Refusing asks for the reason first.** A dialog opens with a box for the reason of the refusal, which is optional: what you write is sent to the employee alone (not to the department's chiefs or anyone else following the request) and stays at the top of the request, in red, while it is refused. Confirm with **Refuse**, or cancel to leave the request as it was.
+**Refusing asks for the reason first.** A dialog opens with a box for the reason of the refusal, which is optional: what you write is sent to the employee alone (not to the Department Chief, the Seminar Chief or anyone else) and stays at the top of the request, in red, while it is refused. Confirm with **Refuse**, or cancel to leave the request as it was.
 
 ![Dialog to refuse an absence request, with the box for the reason](../../assets/head_of_studies/hos-absences-refuse.png)
 
@@ -88,7 +90,7 @@ One field on the form, changeable at any time:
 
 You can also correct the **absence type** when the employee picked one that does not apply, while the request is pending (or refused or cancelled). An approved request can no longer be changed: [undo the approval](#undoing-a-decision) first, correct it and validate it again.
 
-**The employee is told what you change.** When you (or Direction) change the absence type, the dates or the times of a request somebody else filed, the next time you decide on it (acknowledging, validating, sending the document back, refusing) a dialog shows the changes and lets you write a message for the requester. Leave it blank and they are only told what was changed. Either way it reaches the requester alone, not the department's chiefs or anyone else following the request. On a request that is already refused or cancelled, the requester is told as soon as you save the change.
+**The employee is told what you change.** When you (or Direction) change the absence type, the dates or the times of a request somebody else filed, the next time you decide on it (acknowledging, validating, sending the document back, refusing) a dialog shows the changes and lets you write a message for the requester. Leave it blank and they are only told what was changed. Either way it reaches the requester alone, not the Department Chief, the Seminar Chief or anyone else. On a request that is already refused or cancelled, the requester is told as soon as you save the change.
 
 ![Dialog listing the changes made to the request, with the box for the message to the requester](../../assets/head_of_studies/hos-absences-change-message.png)
 
@@ -114,7 +116,7 @@ Review them from the list with the icons beside **Direction status**, or open on
 | Arrow back | **Undo the last decision** | Back to the previous status, see [Undoing a decision](#undoing-a-decision) |
 | Cross | **Refuse** | Refused. It refuses the whole request, and it asks for confirmation first |
 
-When a Head receives an absence, you receive its summary as a follower.
+When an absence reaches Direction (Pending Direction) you receive an email with its summary, and from then on you follow it instead of the Head: messages written on it reach you and the employee, and nobody else.
 
 **Status**:
 

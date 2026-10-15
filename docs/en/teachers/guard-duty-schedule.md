@@ -39,43 +39,51 @@ The two buttons on the right of the toolbar switch between the two ways of readi
 
 ## Reading the Timetable
 
-The table's columns are the groups with a class in that shift; each row is a time block. A cell shows the subject (as its short code, e.g. "MP 0440"), the teacher(s) — more than one if the class is co-taught — and the classroom for that group's class at that time. An empty cell simply means nothing is scheduled there for that group.
+The table's columns are the groups with a class in that shift, grouped by **area** (for example ESO / BTX and VET): each area has its own time framework, and the table's header shows it with one band per area.
 
-The **Guard duty** column on the right lists every teacher on guard duty in that time block, each in a thin-bordered box. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column. A teacher on a **Guard (WC)** duty specifically shows a **"(WC)"** tag right after their name — worth calling out because, unlike a break-time guard (see below), a WC guard duty can fall at any time of day, so there's no other way to tell it apart from a plain guard duty at a glance.
+Since each area starts and ends its lessons at different times (ESO has its break at 10:00 and VET at 11:00, for example), the table's rows are the stretches between every start and end time of the shift, and each class spans the stretches it lasts: a class from 10:25 to 11:25 spans the 10:25-11:00 and 11:00-11:25 stretches. Both areas line up by clock without bending anybody's lessons, and a longer stretch is a taller row.
+
+Each cell shows its own start and end time, the subject (as its short code, e.g. "MP 0440"), the teacher(s) — more than one if the class is co-taught — and the classroom for that group's class at that time. An empty cell simply means nothing is scheduled there for that group.
+
+The **Guard duty** column on the right lists every teacher on guard duty, grouped by the time of their guard duty (also shown at the top of each block), each in a thin-bordered box. When two guard duties overlap in time (the ESO break guard and a 10:00-11:00 VET guard, for example), they sit side by side. A guard-duty teacher has no group of their own at that moment (that's the whole point of guard duty), so they only ever appear here, never in a group's column. A teacher on a **Guard (WC)** duty specifically shows a **"(WC)"** tag right after their name — worth calling out because, unlike a break-time guard (see below), a WC guard duty can fall at any time of day, so there's no other way to tell it apart from a plain guard duty at a glance.
 
 The small number in a circle after each name is how many classes that teacher has been sent to cover this course (including covers already planned for a coming day). Several groups looked after together in the same room at the same time count as a single cover; groups in different rooms count separately. It helps share the covers out fairly.
 
-A row whose time block is a break period for some level — with no class scheduled in it for anyone — gets a small **"Break"** label next to its time, plus a thin brown accent on the left edge of that same cell, so an otherwise empty-looking row doesn't read as a gap in the schedule.
+Each group's break shows as a block of its own, with its time and a **"Break"** label, and a brown accent on its left edge, so it doesn't read as a gap in the schedule. Break-time guard duties in the Guard duty column carry the same accent.
 
-![Guard duty schedule for one time block: a group's class, a plain guard, a Guard (WC), a Break row with its own guard, and a teacher marked absent in bold red](../../assets/teachers/guard-duty-01-horari.png)
+![Guard duty schedule of two areas whose breaks fall at different times: each group's classes with their time, the break blocks with their brown accent, the plain, WC and break guards, and the absent teachers in red](../../assets/teachers/guard-duty-01-horari.png)
 
 ---
 
-## Filtering by Level
+## Filtering by Area
 
-Next to the shift dropdown there's a **level filter** button (it reads "All levels" until you check something). Click it to open a checklist of every level — ESO, Batxillerat, each vocational-training cycle, etc. — and check as many as you need. For example, check both **ESO** and **Batxillerat** together to see only that half of the centre while a colleague works from the vocational-training levels instead. Leave everything unchecked to see every level at once, exactly as before.
+Next to the shift dropdown there's an **area filter** button (it reads "All areas" until you check something). Click it to open a checklist of every area — for example ESO / BTX and VET — and check as many as you need. Leave everything unchecked to see every area at once.
 
-Once one or more levels are checked:
-- Only the groups belonging to the checked level(s) become columns — every other group disappears from the table.
-- The **Guard duty** column keeps listing every teacher on duty in a visible time block, regardless of what they otherwise teach — being on duty is what matters, not which level a guard happens to teach elsewhere that day.
-- A guard duty that falls during the checked level's own break, with no class of that level running then, gets its own dedicated "Break" row so it stays visible even though no class of that level is on at that moment (the same "Break" marker described above already covers this under "All levels" too).
+Once one or more areas are checked:
+- Only the groups of the checked area(s) become columns, including the reinforcement groups of their groups.
+- The **Guard duty** column keeps listing every teacher on duty in a visible time block, regardless of what they otherwise teach — being on duty is what matters, not which area a guard happens to teach in that day. A guard duty on another area's break is left out.
+- A guard duty on the checked area's own break gets its own "Break" row, even though no group has a class then.
+
+A group's area is that of the study managing it (the **Managed by the department** field on the study's form, or the top-level department above it).
+
+> The area filter replaced the level filter in version 18.0.0.38.0.
 
 ---
 
 ## Reading the Absences Table
 
-Each row is a time block of the shift on screen:
+The table uses the same stretches of time as the timetable, with one column per area:
 
-- **Absences** — one line per class left without a teacher: who is away, and the group, subject and classroom that needs covering.
-- **Guard duty** — the teachers on guard duty in that time block, the same ones the timetable shows.
+- **One column per area** — one line per class left without a teacher in that area: who is away, and the group, subject and classroom that needs covering, in a block carrying the class's time. The area's break shows as a "Break" block.
+- **Guard duty** — the teachers on guard duty, grouped by the time of their guard duty, the same ones the timetable shows.
 
-A time block where nobody is missing has an empty Absences column.
+So you can see at a glance which guard duties line up with each class to cover, even when the two areas run their lessons at different times. A stretch where nobody is missing has empty area columns.
 
 In a co-taught class (two teachers in the same classroom) where only one of them is away, their line is **struck through**: it stays there so you know who is missing, but no guard is needed because the other teacher is taking the class. Hover over the line or click it to see why; the **ⓘ** icon on its left shows there is an explanation.
 
 Every struck-through line has that icon, whatever the reason: a co-teacher is in the class, a guard teacher has already been sent to it (their name appears next to it), or the families were told the students can stay at home for it (see [Organising an absence](#organising-an-absence)). If both are away, or each teacher has half of the group in a different classroom, the line is not struck through and the class does need covering.
 
-![Absences table for the same time block: the absent teacher and what needs covering, against who is on guard duty](../../assets/teachers/guard-duty-02-absencies.png)
+![Absences table of the same day: one column per area with the classes to cover, one already covered by a guard, and an absent teacher's break guard in the Guard duty column](../../assets/teachers/guard-duty-02-absencies.png)
 
 ---
 
@@ -90,7 +98,7 @@ Refused and cancelled requests are not shown.
 
 An absence their chief or the Head of Studies already knows about, but the teacher has not requested yet (an *expected absence*, see below), is also shown as awaiting approval.
 
-A teacher on an ordinary guard duty who is away is marked in the Guard duty column, and produces no line in the Absences column: they have no class of their own for anyone to cover. A guard duty that is a fixed post, like the WC or the break guard, is different: somebody has to be there, so when its teacher is away it gets its own line in the Absences column, with the guard duty's name (for example **Guard (WC)**) where a class shows its group, to be covered like a class (see [Covering a WC or break guard](#covering-a-wc-or-break-guard)).
+A teacher on an ordinary guard duty who is away is marked in the Guard duty column, and produces no line in the Absences column: they have no class of their own for anyone to cover. A guard duty that is a fixed post, like the WC or the break guard, is different: somebody has to be there, so when its teacher is away it gets its own line in the **Guard duty** column of the Absences table, under the guards of its own block, with the guard duty's name (for example **Guard (WC)**) where a class shows its group, to be covered like a class (see [Covering a WC or break guard](#covering-a-wc-or-break-guard)).
 
 Only the fact that somebody is away is shown here. The type of absence, its reason and any supporting document are not.
 
@@ -103,7 +111,7 @@ If you are on guard duty in a time block, you don't have to wait for somebody to
 1. In the **Absences table**, click the line of the class (lines you can take show a hand pointer and the tooltip **Click to cover this class yourself**).
 2. Click **Cover it** to confirm.
 
-The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. Only a class with no guard yet can be taken, and only in a time block you are on an ordinary guard duty (not a WC or break guard, and not while you are away yourself). The same goes for the line of a WC or break guard who is away: you can take it yourself the same way.
+The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. If your guard duty only coincides with part of the class, you take that part (the dialog tells you which), and someone else can cover the rest. Only a class, or your part of it, with no guard yet can be taken, and only in a time block you are on an ordinary guard duty (not a WC or break guard, and not while you are away yourself). The same goes for the line of a WC or break guard who is away: you can take it yourself the same way.
 
 If you change your mind, click the line again and then **Stop covering this class**: the class is left without a guard again. You can only do this with a class you took yourself; if somebody sent you to it, ask them to change it. Whoever organises the absence can still change or remove a guard who took a class on their own.
 
@@ -136,7 +144,7 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 ### Sending a guard to a class
 
 1. Click the line of the class to cover (lines you can organise show a hand pointer).
-2. If the dialog offers possible arrangements (see [Rearranging the lessons instead of sending a guard](#rearranging-the-lessons-instead-of-sending-a-guard)), choose **Send a guard teacher**. Then choose the **Guard teacher**. Only the teachers on an ordinary guard duty in that time block are offered (never those on a WC or break guard, who are needed at their post), except those who are away themselves. Next to each name you see how many classes they have covered this course, so you can choose whoever has covered the fewest.
+2. If the dialog offers possible arrangements (see [Rearranging the lessons instead of sending a guard](#rearranging-the-lessons-instead-of-sending-a-guard)), choose **Send a guard teacher**. Then choose the **Guard teacher**. Only the teachers on an ordinary guard duty during the class are offered (never those on a WC or break guard, who are needed at their post), except those who are away themselves. Those who can cover the whole class come first, then those who can only cover part of it, with the part they would cover (see [Covering a class between several guards](#covering-a-class-between-several-guards)). Next to each name you see how many classes they have covered this course, so you can choose whoever has covered the fewest.
 3. Optionally, write a **message**: what the students have to work on, where the materials are...
 4. Click **Assign and notify**.
 
@@ -144,13 +152,23 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 
 The guard teacher receives an Odoo message (in their inbox, or by email, depending on their own notification preference) with the date, time, group, subject, classroom, the absent teacher and your message. If they reply to that email, the answer reaches you.
 
-The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. When several guards cover classes in the same time block, each guard has their own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take that guard's colour.
+The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. The colour belongs to the class covered: when several guards cover different classes at the same time, each class has its own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take the same colour.
 
-To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. **Remove assignment** takes the guard off the class and tells them so.
+To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. To take a guard off the class, click **Remove assignment** next to their name, at the top of the dialog: they are told so.
+
+### Covering a class between several guards
+
+When the areas run different timetables, no guard may coincide with a whole class. For example, an ESO class from 10:25 to 11:25 and two VET guards, one from 10:00 to 11:00 and the other from 11:00 to 12:00. The dialog then also offers those who coincide with part of the class, with the part they would cover (*"… - 10:25-11:00, part of the class"*), and each guard covers exactly that part.
+
+While a part is still missing, the line is not struck through: it shows the guard with their part and a dashed red tag with what is missing (*"Missing 11:00-11:25"*), so you can send someone else. Once together they cover the whole class, the line is struck through.
+
+Every guard covering the same class shares its colour. A dotted border (on the line, the tag and the guard's box) means a partial cover; a solid one, a class covered in full.
+
+![A class covered in part: the guard with their part and the part still missing, with dotted borders](../../assets/teachers/guard-duty-08-cobertura-parcial.png)
 
 ### Covering a WC or break guard
 
-When the teacher of a WC or break guard is away, their guard duty appears as a line of the Absences table, with the guard duty's name instead of a group. It is covered exactly like a class: click it, choose one of the teachers on an ordinary guard duty in that time block, and click **Assign and notify**. The message they receive says it is a guard duty to cover. If the absence is cancelled afterwards, the guard is offered for release like any other.
+When the teacher of a WC or break guard is away, their guard duty appears as a line in the **Guard duty** column of the Absences table, under the guards of its own block, with the guard duty's name instead of a group. It is covered exactly like a class: click it, choose one of the teachers on an ordinary guard duty in that time block, and click **Assign and notify**. The message they receive says it is a guard duty to cover. If the absence is cancelled afterwards, the guard is offered for release like any other.
 
 ### Rearranging the lessons instead of sending a guard
 
@@ -214,13 +232,13 @@ If an absence is refused, cancelled or shortened, or a co-teacher turns out to b
 
 ## Coming Back to Where You Were
 
-The board's address keeps the week, day, shift, view and levels you are looking at. Going back to it from a notice - with the breadcrumbs or the browser's back button - or reloading the page returns you to the same place, and you can copy the address to send a colleague straight there. Opening it from the menu always starts at today's day and shift.
+The board's address keeps the week, day, shift, view and areas you are looking at. Going back to it from a notice - with the breadcrumbs or the browser's back button - or reloading the page returns you to the same place, and you can copy the address to send a colleague straight there. Opening it from the menu always starts at today's day and shift.
 
 ---
 
 ## Exporting to PDF
 
-Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever level filter is currently checked is applied to the PDF too. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active, with its guards, colours and struck-through lines as on screen.
+Click **PDF** in the toolbar to download the day and shift currently shown (not the whole week) as a printable document — whatever area filter is currently checked is applied to the PDF too, which uses the same stretches of time and the same columns as the screen. The PDF prints whichever of the two views is on screen: the timetable if **Guard duty schedule** is active, or the Absences table if **Absences table** is active, with its guards, colours and struck-through lines as on screen.
 
 ---
 

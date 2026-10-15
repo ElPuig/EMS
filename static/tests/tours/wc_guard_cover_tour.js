@@ -31,7 +31,7 @@ registry.category("web_tour.tours").add("ems_wc_guard_cover", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('08:00-09:00')) .o_guard_board_absence_manageable:contains('Tour WC Guard'):contains('Guard (WC)')",
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_manageable:contains('Tour WC Guard'):contains('Guard (WC)')",
             content: "The absent WC guard's duty needs covering: open it to send a guard",
             run: "click",
         },
@@ -48,7 +48,7 @@ registry.category("web_tour.tours").add("ems_wc_guard_cover", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('08:00-09:00')) .o_guard_board_absence_struck.o_guard_board_cover_0:contains('Tour WC Guard'):contains('Tour Cover Guard')",
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck.o_guard_board_cover_0:contains('Tour WC Guard'):contains('Tour Cover Guard')",
             content: "The covered guard duty is struck out in the guard's colour",
         },
     ],

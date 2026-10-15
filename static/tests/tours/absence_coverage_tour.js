@@ -54,7 +54,7 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             },
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
             content: "Open the second lesson to send a guard",
             run: "click",
         },
@@ -85,19 +85,19 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck.o_guard_board_cover_0:contains('Tour Cover Guard')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck.o_guard_board_cover_0:contains('Tour Cover Guard')",
             content: "The covered lesson is struck out in the guard's colour",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_guard_badge.o_guard_board_cover_0:contains('Tour Cover Guard')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_guard_badge.o_guard_board_cover_0:contains('Tour Cover Guard')",
             content: "The guard shares that colour",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_guard_badge:contains('Tour Cover Guard') .o_guard_board_guard_count:contains('1')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_guard_badge:contains('Tour Cover Guard') .o_guard_board_guard_count:contains('1')",
             content: "Their badge now counts the class they were sent to cover",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_absence_info)",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_absence_info)",
             content: "The struck-out line has an info icon; clicking anywhere on the line explains it",
             run: "click",
         },

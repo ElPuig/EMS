@@ -1583,8 +1583,8 @@ msgstr "Tarda"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "All levels"
-msgstr "Tots els nivells"
+msgid "All areas"
+msgstr "Totes les àrees"
 
 #. module: ems
 #. odoo-javascript
@@ -11745,6 +11745,8 @@ msgstr "Altres Coordinacions"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model:ems.non_teaching_type,name:ems.non_teaching_br
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board_break
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board_guards
 msgid "Break"
 msgstr "Pati"
 
@@ -22828,3 +22830,39 @@ msgstr "Baixes que han passat a antic alumnat"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__can_manage
 msgid "Can manage"
 msgstr "Pot gestionar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Other groups"
+msgstr "Altres grups"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Missing %s"
+msgstr "Falta %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to the part still missing"
+msgstr "Fes clic per enviar un docent de guàrdia a la part que falta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teachers sent to it."
+msgstr "Coberta per %s, els docents de guàrdia que s'hi han enviat."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s - %(time)s, part of the class (%(count)s covered this course)"
+msgstr "%(name)s - %(time)s, part de la classe (%(count)s cobertures aquest curs)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Guards assigned"
+msgstr "Docents de guàrdia assignats"

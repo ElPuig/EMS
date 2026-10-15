@@ -39,43 +39,51 @@ Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de
 
 ## Llegir l'horari
 
-Les columnes de la taula són els grups que tenen classe en aquell torn; cada fila és una franja horària. Una cel·la mostra l'assignatura (amb el seu codi curt, p. ex. "MP 0440"), el o els docents — més d'un si la classe és compartida — i l'aula de la classe d'aquell grup a aquella hora. Una cel·la buida simplement vol dir que no hi ha res programat per a aquell grup en aquell moment.
+Les columnes de la taula són els grups que tenen classe en aquell torn, agrupats per **àrea** (per exemple ESO / BTX i FP): cada àrea té el seu propi marc horari, i la capçalera de la taula ho indica amb una banda per àrea.
 
-La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia en aquella franja horària, cadascun en un requadre de vora fina. Un docent de guàrdia no té cap grup propi en aquell moment (és precisament el sentit de la guàrdia), per això només apareix aquí, mai a la columna d'un grup. Un docent en guàrdia de **WC** en concret mostra l'etiqueta **"(WC)"** just després del seu nom — es destaca perquè, a diferència d'una guàrdia de pati (vegeu més avall), una guàrdia de WC pot caure en qualsevol moment del dia, així que no hi ha cap altra manera de distingir-la d'una guàrdia normal a simple vista.
+Com que cada àrea comença i acaba les classes a hores diferents (l'ESO fa el pati a les 10:00 i la FP a les 11:00, per exemple), les files de la taula són els trams entre totes les hores d'inici i de final del torn, i cada classe ocupa els trams que dura: una classe de 10:25 a 11:25 ocupa els trams 10:25-11:00 i 11:00-11:25. Així les dues àrees queden alineades pel rellotge sense deformar les classes de ningú, i les files són més altes com més llarg és el tram.
+
+Cada cel·la mostra la seva pròpia hora d'inici i de final, l'assignatura (amb el seu codi curt, p. ex. "MP 0440"), el o els docents — més d'un si la classe és compartida — i l'aula de la classe d'aquell grup a aquella hora. Una cel·la buida simplement vol dir que no hi ha res programat per a aquell grup en aquell moment.
+
+La columna **Guàrdia**, a la dreta, llista tots els docents de guàrdia, agrupats per la franja de la seva guàrdia (que també s'indica a dalt de cada bloc), cadascun en un requadre de vora fina. Quan dues guàrdies se solapen en el temps (la del pati de l'ESO i una guàrdia de FP de 10:00 a 11:00, per exemple), surten l'una al costat de l'altra. Un docent de guàrdia no té cap grup propi en aquell moment (és precisament el sentit de la guàrdia), per això només apareix aquí, mai a la columna d'un grup. Un docent en guàrdia de **WC** en concret mostra l'etiqueta **"(WC)"** just després del seu nom — es destaca perquè, a diferència d'una guàrdia de pati (vegeu més avall), una guàrdia de WC pot caure en qualsevol moment del dia, així que no hi ha cap altra manera de distingir-la d'una guàrdia normal a simple vista.
 
 El número petit encerclat després de cada nom indica quantes classes ha cobert aquell docent aquest curs (incloses les cobertures ja previstes per a un dia vinent). Diversos grups atesos junts a la mateixa aula i a la mateixa hora compten com una sola cobertura; els grups en aules diferents compten per separat. Serveix per repartir les cobertures de manera equitativa.
 
-Una fila la franja horària de la qual coincideix amb el pati d'algun nivell — sense cap classe programada en ella per a ningú — mostra una petita etiqueta **"Pati"** al costat de l'hora, a més d'una vora marró al costat esquerre d'aquella mateixa cel·la, perquè una franja que sembla buida no es llegeixi com un forat a l'horari.
+El pati de cada grup es mostra com un bloc propi, amb la seva hora i l'etiqueta **"Pati"**, i una vora marró al costat esquerre, perquè no es llegeixi com un forat a l'horari. Les guàrdies de pati de la columna Guàrdia porten la mateixa vora.
 
-![Horari de guàrdies d'una franja horària: la classe d'un grup, una guàrdia normal, una guàrdia de WC, una fila de Pati amb la seva pròpia guàrdia, i un docent marcat com a absent en vermell i negreta](../../assets/teachers/guard-duty-01-horari.png)
+![Horari de guàrdies de dues àrees amb el pati a hores diferents: les classes de cada grup amb la seva hora, els blocs de pati amb la vora marró, les guàrdies normals, de WC i de pati, i les docents absents en vermell](../../assets/teachers/guard-duty-01-horari.png)
 
 ---
 
-## Filtrar per nivell
+## Filtrar per àrea
 
-Al costat del desplegable de torn hi ha un botó de **filtre de nivell** (mostra "All levels" fins que hi marques alguna cosa). Fes-hi clic per obrir una llista amb totes les caselles de cada nivell — ESO, Batxillerat, cada cicle formatiu, etc. — i marca els que necessitis. Per exemple, marca **ESO** i **Batxillerat** alhora per veure només aquesta meitat del centre mentre un company treballa amb els cicles formatius marcats. Deixa-ho tot desmarcat per veure tots els nivells alhora, exactament com abans.
+Al costat del desplegable de torn hi ha un botó de **filtre d'àrea** (mostra "Totes les àrees" fins que hi marques alguna cosa). Fes-hi clic per obrir una llista amb una casella per a cada àrea — per exemple ESO / BTX i FP — i marca les que necessitis. Deixa-ho tot desmarcat per veure totes les àrees alhora.
 
-Un cop marques un o més nivells:
-- Només les columnes dels grups d'aquell(s) nivell(s) es mostren — la resta de grups desapareixen de la taula.
-- La columna **Guàrdia** continua mostrant tots els docents de guàrdia en qualsevol franja visible, sense importar què fan per la resta — el que compta és que estan de guàrdia, no a quin nivell facin classe aquell dia.
-- Una guàrdia que coincideix amb el pati del nivell marcat, sense cap classe d'aquell nivell en aquella franja, obté la seva pròpia fila de "Pati" perquè continuï essent visible encara que cap grup d'aquell nivell tingui classe llavors (la mateixa marca de "Pati" descrita més amunt ja cobreix aquest cas també a "All levels").
+Un cop marques una o més àrees:
+- Només es mostren les columnes dels grups d'aquella àrea, inclosos els grups de reforç dels seus grups.
+- La columna **Guàrdia** continua mostrant tots els docents de guàrdia en qualsevol franja visible, sense importar què fan per la resta — el que compta és que estan de guàrdia, no a quina àrea facin classe aquell dia. Una guàrdia que és del pati d'una altra àrea no surt.
+- Una guàrdia del pati de l'àrea marcada obté la seva pròpia fila de "Pati", encara que cap grup tingui classe llavors.
+
+L'àrea d'un grup és la dels estudis que el gestionen (camp **Gestionat pel departament** de la fitxa dels estudis, o el departament de nivell superior al qual pertany).
+
+> El filtre d'àrea va substituir el filtre de nivell a la versió 18.0.0.38.0.
 
 ---
 
 ## Llegir la taula d'absències
 
-Cada fila és una franja horària del torn que tens a la pantalla:
+La taula fa servir els mateixos trams de temps que l'horari, amb una columna per àrea:
 
-- **Absències** — una línia per cada classe que es queda sense docent: qui falta, i el grup, l'assignatura i l'aula que s'han de cobrir.
-- **Guàrdia** — els docents de guàrdia en aquella franja, els mateixos que mostra l'horari.
+- **Una columna per àrea** — una línia per cada classe que es queda sense docent en aquella àrea: qui falta, i el grup, l'assignatura i l'aula que s'han de cobrir, dins d'un bloc amb l'hora de la classe. El pati de l'àrea surt com un bloc "Pati".
+- **Guàrdia** — els docents de guàrdia, agrupats per la franja de la seva guàrdia, els mateixos que mostra l'horari.
 
-Una franja on no falta ningú té la columna d'absències buida.
+Així veus d'un cop d'ull quines guàrdies coincideixen amb cada classe que cal cobrir, encara que les dues àrees tinguin les classes a hores diferents. Un tram on no falta ningú té les columnes d'àrea buides.
 
 En una classe amb codocència (dos docents a la mateixa aula) on només en falta un, la seva línia surt **ratllada**: hi continua perquè sàpigues qui falta, però no cal guàrdia perquè l'altre docent es fa càrrec de la classe. Passa el ratolí per sobre de la línia o fes-hi clic per veure'n el motiu; la icona **ⓘ** de la seva esquerra indica que hi ha una explicació.
 
 Tota línia ratllada té aquesta icona, sigui quin sigui el motiu: un altre docent és a la classe, ja s'hi ha enviat un docent de guàrdia (el seu nom apareix al costat), o s'ha comunicat a les famílies que l'alumnat no ha de venir a aquella classe (consulta [Organitzar una absència](#organitzar-una-absencia)). Si falten tots dos, o cada docent té mig grup en una aula diferent, la línia no surt ratllada i sí que cal cobrir la classe.
 
-![Taula d'absències de la mateixa franja horària: el docent absent i què cal cobrir, davant de qui està de guàrdia](../../assets/teachers/guard-duty-02-absencies.png)
+![Taula d'absències del mateix dia: una columna per àrea amb les classes que cal cobrir, una ja coberta per un docent de guàrdia, i la guàrdia de pati d'una docent absent a la columna Guàrdia](../../assets/teachers/guard-duty-02-absencies.png)
 
 ---
 
@@ -90,7 +98,7 @@ Les sol·licituds denegades i cancel·lades no es mostren.
 
 Una absència que el seu cap o Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat (una *absència prevista*, vegeu més avall) també es mostra com a pendent d'aprovar.
 
-Un docent de guàrdia ordinària que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir. Una guàrdia que és un lloc fix, com la de WC o la de pati, és diferent: algú hi ha de ser, així que quan en falta el docent té la seva pròpia línia a la columna d'absències, amb el nom de la guàrdia (per exemple **Guàrdia (WC)**) on una classe mostra el grup, i es cobreix com una classe (consulta [Cobrir una guàrdia de WC o de pati](#cobrir-una-guardia-de-wc-o-de-pati)).
+Un docent de guàrdia ordinària que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir. Una guàrdia que és un lloc fix, com la de WC o la de pati, és diferent: algú hi ha de ser, així que quan en falta el docent té la seva pròpia línia a la columna **Guàrdia** de la taula d'absències, sota els docents de guàrdia del seu bloc, amb el nom de la guàrdia (per exemple **Guàrdia (WC)**) on una classe mostra el grup, i es cobreix com una classe (consulta [Cobrir una guàrdia de WC o de pati](#cobrir-una-guardia-de-wc-o-de-pati)).
 
 Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el justificant, no.
 
@@ -103,7 +111,7 @@ Si estàs de guàrdia en una franja, no cal que esperis que algú t'hi enviï: p
 1. A la **Taula d'absències**, fes clic a la línia de la classe (les línies que pots agafar mostren una mà en passar-hi per sobre i l'indicació **Fes clic per cobrir tu aquesta classe**).
 2. Fes clic a **Cobrir-la** per confirmar-ho.
 
-La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Només es pot agafar una classe que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia ordinària (no en una guàrdia de WC o de pati, ni mentre tu mateix estàs absent). El mateix val per a la línia d'una guàrdia de WC o de pati el docent de la qual falta: també la pots agafar tu mateix.
+La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Si la teva guàrdia només coincideix amb una part de la classe, n'agafes aquesta part (el diàleg t'indica quina), i algú altre en pot cobrir la resta. Només es pot agafar una classe, o la teva part, que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia ordinària (no en una guàrdia de WC o de pati, ni mentre tu mateix estàs absent). El mateix val per a la línia d'una guàrdia de WC o de pati el docent de la qual falta: també la pots agafar tu mateix.
 
 Si canvies d'idea, torna a fer clic a la línia i després a **Deixa de cobrir aquesta classe**: la classe torna a quedar sense guàrdia. Només ho pots fer amb una classe que t'has agafat tu; si algú t'hi ha enviat, demana-li que ho canviï. Qui organitza l'absència sempre pot canviar o treure un docent de guàrdia que s'hagi agafat una classe pel seu compte.
 
@@ -136,7 +144,7 @@ Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera 
 ### Enviar un docent de guàrdia a una classe
 
 1. Fes clic a la línia de la classe que cal cobrir (les línies que pots organitzar mostren el cursor de mà).
-2. Si el diàleg ofereix reorganitzacions possibles (vegeu [Reorganitzar les classes en lloc d'enviar una guàrdia](#reorganitzar-les-classes-en-lloc-denviar-una-guàrdia)), tria **Enviar un docent de guàrdia**. Després tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia ordinària en aquella franja (mai els de guàrdia de WC o de pati, que són necessaris al seu lloc), excepte els que també estan absents. Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
+2. Si el diàleg ofereix reorganitzacions possibles (vegeu [Reorganitzar les classes en lloc d'enviar una guàrdia](#reorganitzar-les-classes-en-lloc-denviar-una-guàrdia)), tria **Enviar un docent de guàrdia**. Després tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia ordinària durant la classe (mai els de guàrdia de WC o de pati, que són necessaris al seu lloc), excepte els que també estan absents. Primer surten els que poden cobrir tota la classe i després els que només en poden cobrir una part, amb el tram que cobririen (consulta [Cobrir una classe entre diversos docents de guàrdia](#cobrir-una-classe-entre-diversos-docents-de-guardia)). Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
 3. Opcionalment, escriu un **missatge**: què ha de treballar l'alumnat, on són els materials...
 4. Fes clic a **Assignar i avisar**.
 
@@ -144,13 +152,23 @@ Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera 
 
 El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu, segons la seva preferència de notificacions) amb la data, l'hora, el grup, l'assignatura, l'aula, el docent absent i el teu missatge. Si respon a aquest correu, la resposta t'arriba a tu.
 
-Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. Quan diversos docents de guàrdia cobreixen classes a la mateixa franja, cadascun té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el seu color.
+Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. El color és de la classe coberta: quan diversos docents de guàrdia cobreixen classes diferents a la mateixa hora, cada classe té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el mateix color.
 
-Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o treure el docent de guàrdia** (només ho veu qui organitza l'absència), i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. **Treure l'assignació** treu el docent de la classe i l'avisa.
+Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o treure el docent de guàrdia** (només ho veu qui organitza l'absència), i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. Per treure un docent de la classe, fes clic a **Treure l'assignació** al costat del seu nom, a la part de dalt del diàleg: se l'avisa.
+
+### Cobrir una classe entre diversos docents de guàrdia
+
+Quan les àrees tenen horaris diferents, pot ser que cap docent de guàrdia coincideixi amb tota una classe. Per exemple, una classe d'ESO de 10:25 a 11:25 i dos docents de guàrdia de FP, un de 10:00 a 11:00 i l'altre d'11:00 a 12:00. Aleshores el diàleg també ofereix els que coincideixen amb una part de la classe, amb el tram que cobririen (*"… - 10:25-11:00, part de la classe"*), i cada docent cobreix exactament aquest tram.
+
+Mentre falti una part per cobrir, la línia no es ratlla: mostra el docent amb el seu tram i una etiqueta vermella discontínua amb el que falta (*"Falta 11:00-11:25"*), perquè hi enviïs un altre docent. Quan entre tots cobreixen tota la classe, la línia es ratlla.
+
+Tots els docents que cobreixen la mateixa classe comparteixen el seu color. Una vora de puntets (a la línia, a l'etiqueta i a la casella del docent) indica una cobertura parcial; una vora contínua, una classe coberta sencera.
+
+![Una classe coberta en part: el docent de guàrdia amb el seu tram i la part que encara falta, amb vores de puntets](../../assets/teachers/guard-duty-08-cobertura-parcial.png)
 
 ### Cobrir una guàrdia de WC o de pati
 
-Quan falta el docent d'una guàrdia de WC o de pati, la seva guàrdia apareix com una línia de la taula d'absències, amb el nom de la guàrdia en lloc d'un grup. Es cobreix exactament com una classe: fes-hi clic, tria un dels docents de guàrdia ordinària d'aquella franja i fes clic a **Assignar i avisar**. El missatge que rep indica que és una guàrdia el que ha de cobrir. Si després l'absència s'anul·la, se t'ofereix alliberar el docent de guàrdia com qualsevol altre.
+Quan falta el docent d'una guàrdia de WC o de pati, la seva guàrdia apareix com una línia a la columna **Guàrdia** de la taula d'absències, sota els docents de guàrdia del seu bloc, amb el nom de la guàrdia en lloc d'un grup. Es cobreix exactament com una classe: fes-hi clic, tria un dels docents de guàrdia ordinària d'aquella franja i fes clic a **Assignar i avisar**. El missatge que rep indica que és una guàrdia el que ha de cobrir. Si després l'absència s'anul·la, se t'ofereix alliberar el docent de guàrdia com qualsevol altre.
 
 ### Reorganitzar les classes en lloc d'enviar una guàrdia
 
@@ -214,13 +232,13 @@ Si una absència es rebutja, s'anul·la o s'escurça, o resulta que un altre doc
 
 ## Tornar on eres
 
-L'adreça de l'horari conserva la setmana, el dia, el torn, la vista i els nivells que estàs mirant. Si hi tornes des d'un comunicat (amb les molles de pa o amb el botó enrere del navegador) o recarregues la pàgina, tornes al mateix lloc, i pots copiar l'adreça per enviar-hi directament un company. Si l'obres des del menú, sempre comença al dia i el torn d'avui.
+L'adreça de l'horari conserva la setmana, el dia, el torn, la vista i les àrees que estàs mirant. Si hi tornes des d'un comunicat (amb les molles de pa o amb el botó enrere del navegador) o recarregues la pàgina, tornes al mateix lloc, i pots copiar l'adreça per enviar-hi directament un company. Si l'obres des del menú, sempre comença al dia i el torn d'avui.
 
 ---
 
 ## Exportar a PDF
 
-Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre de nivell que tinguis marcat s'aplica també al PDF. El PDF imprimeix la vista que tinguis activa a la pantalla: l'horari si està activa **Horari de guàrdies**, o la taula d'absències si està activa **Taula d'absències**.
+Fes clic a **PDF** a la barra d'eines per descarregar el dia i el torn que s'estan mostrant (no tota la setmana) com a document imprimible — el filtre d'àrea que tinguis marcat s'aplica també al PDF, que fa servir els mateixos trams de temps i les mateixes columnes que la pantalla. El PDF imprimeix la vista que tinguis activa a la pantalla: l'horari si està activa **Horari de guàrdies**, o la taula d'absències si està activa **Taula d'absències**.
 
 ---
 

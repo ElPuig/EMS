@@ -122,9 +122,8 @@ class TestGuardDutyBoardTour(HttpCase):
             'subject_id': subject.id, 'group_ids': [group.id], 'name': 'TGDBT: TGDBT (afternoon)',
         }])
 
-        # A second level/study/group (issue #390's level filter), so the tour can prove checking
-        # a level in the dropdown actually narrows the board down - not just that the dropdown
-        # opens. Own subject: 'subject' above is only valid for 'study' (see 'ems.
+        # A second level/study/group, in an area of its own, so the tour can prove checking an area
+        # in the dropdown actually narrows the board down - not just that the dropdown opens. Own subject: 'subject' above is only valid for 'study' (see 'ems.
         # attendance_template._check_subject_valid_for_all_studies'), not 'study2'.
         level2, study2 = create_level_study(self, 'TGDBT2', level={'name': 'Tour Guard Board Level 2'}, study={
             'code': 'TGDBT2001', 'name': 'Test Study 2 (Guard Duty Board Tour)', 'date': date.today(),
@@ -142,6 +141,11 @@ class TestGuardDutyBoardTour(HttpCase):
             'course': 1, 'acronym': 'TGDBT2', 'level_id': level2.id, 'study_id': study2.id,
             'space_id': space2.id, 'shift': 'morning',
         })
+        # One area per study (issue #637): the board's filter picks areas, the top-level department
+        # above the department that manages each study.
+        for area_name, area_study in (('Tour Guard Board Area 1', study), ('Tour Guard Board Area 2', study2)):
+            area_study.managing_department_id = self.env['hr.department'].create({
+                'name': area_name, 'is_top_level': True, 'top_level_area': 'academic'})
         level2_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Level 2 Teacher', 'employee_type': 'teacher'})
         level2_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Level 2 Calendar', 'employee_id': level2_teacher.id})
         level2_teacher.resource_calendar_id = level2_calendar

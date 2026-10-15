@@ -1583,8 +1583,8 @@ msgstr "Tarde"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "All levels"
-msgstr "Todos los niveles"
+msgid "All areas"
+msgstr "Todas las áreas"
 
 #. module: ems
 #. odoo-javascript
@@ -11745,6 +11745,8 @@ msgstr "Otras Coordinaciones"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model:ems.non_teaching_type,name:ems.non_teaching_br
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board_break
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board_guards
 msgid "Break"
 msgstr "Patio"
 
@@ -22831,3 +22833,39 @@ msgstr "Bajas que han pasado a antiguo alumnado"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__can_manage
 msgid "Can manage"
 msgstr "Puede gestionar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Other groups"
+msgstr "Otros grupos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Missing %s"
+msgstr "Falta %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to the part still missing"
+msgstr "Haz clic para enviar un docente de guardia a la parte que falta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teachers sent to it."
+msgstr "Cubierta por %s, los docentes de guardia enviados."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s - %(time)s, part of the class (%(count)s covered this course)"
+msgstr "%(name)s - %(time)s, parte de la clase (%(count)s coberturas este curso)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Guards assigned"
+msgstr "Docentes de guardia asignados"

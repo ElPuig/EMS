@@ -118,12 +118,12 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             content: "The patio guard shows up in the Guard duty column",
         },
         {
-            trigger: ".o_guard_board_table tr.o_guard_board_row_break:has(.o_guard_board_guard_badge:contains('Tour Guard Board Patio Guard'))",
-            content: "That guard's own row is marked as a break/'Patio' row",
+            trigger: ".o_guard_board_table td.o_guard_board_cell_break:has(.o_guard_board_guard_badge:contains('Tour Guard Board Patio Guard'))",
+            content: "That guard's own block is marked as a break/'Patio' block",
         },
         {
-            trigger: ".o_guard_board_table tr.o_guard_board_row_break .o_guard_board_break_label:contains('Break')",
-            content: "The row carries the (translatable) 'Break' text label",
+            trigger: ".o_guard_board_table td.o_guard_board_cell_break .o_guard_board_break_label:contains('Break')",
+            content: "The block carries the (translatable) 'Break' text label",
         },
         {
             trigger: ".o_guard_board_table:not(:has(td:contains('Tour Guard Board Afternoon Teacher')))",
@@ -214,31 +214,31 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             // specifically so this can assert real exclusion, not just that the dropdown opens.
             // 'data-bs-auto-close="outside"' (guard_duty_board.xml) keeps the dropdown open across
             // several checkbox clicks in a row, so it never needs re-opening between them.
-            trigger: ".o_guard_board_level_toggle",
-            content: "Open the level filter dropdown",
+            trigger: ".o_guard_board_area_toggle",
+            content: "Open the area filter dropdown",
             run: "click",
         },
         {
-            trigger: ".o_guard_board_level_item:contains('Tour Guard Board Level 1') input[type='checkbox']",
-            content: "Check the seeded level (level 1) to narrow the board down to it",
+            trigger: ".o_guard_board_area_item:contains('Tour Guard Board Area 1') input[type='checkbox']",
+            content: "Check the seeded area (area 1) to narrow the board down to it",
             run: "click",
         },
         {
             trigger: ".o_guard_board_table td:contains('Tour Guard Board Teacher')",
-            content: "Level 1's own teacher still shows once level 1 is checked",
+            content: "Area 1's own teacher still shows once area 1 is checked",
         },
         {
             trigger: ".o_guard_board_table:not(:has(td:contains('Tour Guard Board Level 2 Teacher')))",
-            content: "Level 2's teacher is NOT shown while only level 1 is checked",
+            content: "Area 2's teacher is NOT shown while only area 1 is checked",
         },
         {
-            trigger: ".o_guard_board_level_item:contains('Tour Guard Board Level 1') input[type='checkbox']",
-            content: "Uncheck level 1 to go back to 'All levels'",
+            trigger: ".o_guard_board_area_item:contains('Tour Guard Board Area 1') input[type='checkbox']",
+            content: "Uncheck area 1 to go back to 'All areas'",
             run: "click",
         },
         {
             trigger: ".o_guard_board_table td:contains('Tour Guard Board Level 2 Teacher')",
-            content: "Back on 'All levels', level 2's teacher shows again too",
+            content: "Back on 'All areas', area 2's teacher shows again too",
         },
         {
             // The board now stands for a real week, not just a weekday: absences happen on
@@ -272,24 +272,20 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
         },
         {
             // Regression check for a real complaint (developer feedback, 2026-09-08: "queda
-            // demasiado disperso en la pantalla"). With only three columns, Bootstrap's own
-            // `.table { width: 100% }` spread them across the whole window; the table now sizes
-            // to its own fixed <col> widths and is centred instead (see guard_duty_board.css).
+            // demasiado disperso en la pantalla"): the table sizes to its own fixed <col> widths
+            // instead of Bootstrap's `.table { width: 100% }`, and is centred when there is room
+            // to spare (one absences column per area since issue #637, so a centre with many
+            // areas can legitimately fill the page).
             trigger: ".o_guard_board_duty_table",
-            content: "The guard duty table keeps its own width and stays centred",
+            content: "The absences table keeps its own width and stays centred",
             run: () => {
                 const table = document.querySelector(".o_guard_board_duty_table");
                 const wrap = table.closest(".o_guard_board_table_wrap");
                 const tableBox = table.getBoundingClientRect();
                 const wrapBox = wrap.getBoundingClientRect();
-                if (tableBox.width >= wrapBox.width) {
-                    throw new Error(`The table should be narrower than the page, got table=${tableBox.width} wrap=${wrapBox.width}`);
-                }
-                // Only meaningful when there is spare room to centre it in; a narrow window
-                // legitimately leaves none.
                 const left = tableBox.left - wrapBox.left;
                 const right = wrapBox.right - tableBox.right;
-                if (Math.abs(left - right) > 2) {
+                if (tableBox.width < wrapBox.width && Math.abs(left - right) > 2) {
                     throw new Error(`The table is not centred: ${left}px on the left, ${right}px on the right`);
                 }
                 // Each absence stays on one line (developer feedback, 2026-09-08). Measured
@@ -324,8 +320,8 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             run: "click",
         },
         {
-            trigger: ".o_guard_board_duty_table:not(:has(.o_guard_board_absent))",
-            content: "Next week has no absence, so nobody is marked",
+            trigger: ".o_guard_board_duty_table:not(:has(.o_guard_board_absent:contains('Tour Guard Board Teacher')))",
+            content: "Next week the fixture teacher is no longer marked absent",
         },
         {
             trigger: ".o_guard_board_week_nav button:first-child",

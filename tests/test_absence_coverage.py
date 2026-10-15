@@ -112,7 +112,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         line = self._teaching_line(self.day, 8, 9)
         row = self._absence_row(line, self.teacher_a)
 
-        self.assertEqual(row['cover'].guard_employee_id, self.teacher_guard)
+        self.assertEqual(row['covers'].guard_employee_id, self.teacher_guard)
         self.assertEqual(line['guard_colors'], {self.teacher_guard.id: 0})
 
     def test_the_pdf_prints_the_guard_colour_and_strike(self):
@@ -172,7 +172,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.Cover.with_user(self.department_chief).board_release(cover.id)
 
         self.assertEqual(cover.state, 'released')
-        self.assertFalse(self._row()['cover'])
+        self.assertFalse(self._row()['covers'])
         self.assertEqual(len(self._guard_messages(self.teacher_guard)), 2)
 
     def test_only_the_absent_teachers_chain_of_command_can_assign(self):
@@ -454,8 +454,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._absence(self.teacher_a, self.day)
 
         self.assertEqual(expected.state, 'linked')
-        self.assertEqual(self._row(8, 9)['cover'].guard_employee_id, self.teacher_guard)
-        self.assertFalse(self._row(10, 11)['cover'], "the hour the request adds is new, to be decided")
+        self.assertEqual(self._row(8, 9)['covers'].guard_employee_id, self.teacher_guard)
+        self.assertFalse(self._row(10, 11)['covers'], "the hour the request adds is new, to be decided")
         self.assertNotIn('obsolete_cover', [action['type'] for action in self._actions()])
 
     def test_a_guard_no_longer_needed_is_offered_for_release(self):
@@ -522,7 +522,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual((cover.duty_id, cover.group_id), (self.non_teaching_guard_wc, self.env['ems.group']))
         self.assertEqual(cover.display_name, self.non_teaching_guard_wc.name)
         self.assertFalse(cover.subject_id or cover.space_id)
-        self.assertEqual(self._duty_row()['cover'], cover)
+        self.assertEqual(self._duty_row()['covers'], cover)
         self.assertEqual(self._teaching_line(self.day, 8, 9)['guard_colors'], {self.teacher_guard.id: 0})
         messages = self._guard_messages(self.teacher_guard)
         self.assertEqual(len(messages), 1)
@@ -608,8 +608,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
     def _board_row(self, user, hour_from=8):
         data = self.env.company.current_course_id.with_user(user).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))
-        line = next(line for line in data['lines'] if line['hour_from'] == hour_from)
-        return next(row for row in line['absences'] if row['teacher_id'] == self.teacher_a.id)
+        # Several rows can start at hour_from: another level's break is a row of its own (issue #637).
+        return next(row for line in data['lines'] if line['hour_from'] == hour_from
+                    for row in line['absences'] if row['teacher_id'] == self.teacher_a.id)
 
     def test_a_guard_takes_a_free_class_without_anybody_being_notified(self):
         self._morning()
@@ -619,7 +620,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(cover.guard_employee_id, self.teacher_guard)
         self.assertEqual(cover.assigned_by_id, self.guard_user)
         self.assertTrue(cover.is_self_assigned)
-        self.assertEqual(self._row()['cover'], cover)
+        self.assertEqual(self._row()['covers'], cover)
         messages = self.env['mail.message'].search([('model', '=', 'ems.absence_cover'), ('res_id', '=', cover.id)])
         self.assertFalse(messages.partner_ids, "nobody is notified: the board already shows it")
 
@@ -628,7 +629,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._absence(self.teacher_a, self.day)
 
         self.assertTrue(self._board_row(self.guard_user)['can_self_assign'])
-        self.assertFalse(self._board_row(self.guard_user, hour_from=8)['can_self_release'])
+        self.assertFalse(self._board_row(self.guard_user, hour_from=8)['self_cover_id'])
         self.assertFalse(self._board_row(self.teacher_a_user)['can_self_assign'], "the absent teacher is not on guard")
 
     def test_only_a_guard_on_duty_can_take_a_class(self):
@@ -663,7 +664,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._morning()
         self._absence(self.teacher_a, self.day)
         cover = self.Cover.browse(self._self_assign())
-        self.assertTrue(self._board_row(self.guard_user)['can_self_release'])
+        self.assertTrue(self._board_row(self.guard_user)['self_cover_id'])
 
         self.Cover.with_user(self.guard_user).board_self_release(cover.id)
 
@@ -676,7 +677,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         cover = self.Cover.browse(self._assign())
 
         self.assertFalse(cover.is_self_assigned)
-        self.assertFalse(self._board_row(self.guard_user)['can_self_release'])
+        self.assertFalse(self._board_row(self.guard_user)['self_cover_id'])
         with self.assertRaises(AccessError):
             self.Cover.with_user(self.guard_user).board_self_release(cover.id)
         self.assertEqual(cover.state, 'assigned')
@@ -1132,7 +1133,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertFalse(notice_action, "a swap loses no lesson: there is nothing to tell the families")
         self.assertTrue(cover.is_effective)
         self.assertEqual(self._row()['arrangement'], cover)
-        self.assertFalse(self._row()['cover'], "an arrangement is no guard: no colour, no guard tag")
+        self.assertFalse(self._row()['covers'], "an arrangement is no guard: no colour, no guard tag")
         self.assertIsNone(self._states()['entry']['status'], "somebody is with the group at 8")
         self.assertIsNone(self._states()['leave']['status'], "the absent teacher teaches at 11")
         cell = next(cell for cell in self._teaching_line(self.day, 11, 12)['cells'] if cell['group'] == self.group_a)
@@ -1318,7 +1319,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._assign(guard=self.teacher_guard_2)
         self.assertEqual(arrangement.state, 'released')
         self.assertTrue(self._messages(self.teacher_b, 'Arrangement cancelled'))
-        self.assertEqual(self._row()['cover'].guard_employee_id, self.teacher_guard_2)
+        self.assertEqual(self._row()['covers'].guard_employee_id, self.teacher_guard_2)
 
     def test_an_arrangement_no_longer_valid_is_offered_for_removal(self):
         self._morning()
@@ -1356,3 +1357,107 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertIn(b'gdb-absence-row gdb-absence-covered', html)
         self.assertIn(b'Swap:', html)
+
+    # Partial cover (issue #637): a guard whose duty only overlaps part of a class covers that part.
+
+    def _partial_morning(self):
+        """teacher_a, away, teaches group_a 9-10; teacher_guard is on guard 8:30-9:30 and
+        teacher_guard_2 9:30-10:30, so each overlaps half of the class."""
+        self._schedule_class(self.teacher_a, self.group_a, 'TABC Calendar A (Partial)', periods=((9, 10),))
+        self._guards(self.teacher_guard, periods=((8.5, 9.5),))
+        self._guards(self.teacher_guard_2, periods=((9.5, 10.5),))
+        self._absence(self.teacher_a, self.day)
+
+    def test_a_guard_overlapping_part_of_a_class_covers_that_part(self):
+        self._partial_morning()
+
+        candidates = self.env['ems.course']._get_guard_candidates(self.day, 9, 10)
+        self.assertEqual(candidates[self.teacher_guard], (9, 9.5))
+        self.assertEqual(candidates[self.teacher_guard_2], (9.5, 10))
+
+        cover = self.Cover.browse(self._assign(self.teacher_guard, 9, 10))
+        self.assertEqual((cover.hour_from, cover.hour_to), (9, 9.5))
+        row = self._row(9, 10)
+        self.assertEqual(row['covers'], cover)
+        self.assertEqual(row['missing'], [(9.5, 10)], "the rest of the class still needs a guard")
+
+        second = self.Cover.browse(self._assign(self.teacher_guard_2, 9, 10))
+        self.assertEqual((second.hour_from, second.hour_to), (9.5, 10))
+        row = self._row(9, 10)
+        self.assertEqual(row['covers'], cover | second, "two guards, each with their part")
+        self.assertEqual(row['missing'], [])
+
+    def test_a_guard_for_the_whole_class_only_replaces_the_parts_it_overlaps(self):
+        self._partial_morning()
+        self._guards(self.teacher_c, periods=((9, 10),))
+        first = self.Cover.browse(self._assign(self.teacher_guard, 9, 10))
+
+        whole = self.Cover.browse(self._assign(self.teacher_c, 9, 10))
+
+        self.assertEqual((whole.hour_from, whole.hour_to), (9, 10))
+        self.assertEqual(first.state, 'released')
+        self.assertEqual(self._row(9, 10)['covers'], whole)
+
+    def test_the_board_offers_whole_guards_first_then_partial_ones_with_their_part(self):
+        self._partial_morning()
+        self._guards(self.teacher_c, periods=((9, 10),))
+
+        data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        line = next(line for line in data['lines'] if line['time_label'] == '09:00-10:00')
+        ours = [candidate for candidate in line['guard_candidates']
+                if candidate['id'] in (self.teacher_guard | self.teacher_guard_2 | self.teacher_c).ids]
+        self.assertEqual([(candidate['id'], candidate['label'], candidate['partial']) for candidate in ours], [
+            (self.teacher_c.id, '09:00-10:00', False),
+            (self.teacher_guard.id, '09:00-09:30', True),
+            (self.teacher_guard_2.id, '09:30-10:00', True),
+        ])
+
+    def test_a_guard_takes_their_own_part_of_a_class(self):
+        self._partial_morning()
+        row = self._board_row(self.guard_user, hour_from=9)
+        self.assertTrue(row['can_self_assign'])
+        self.assertEqual(row['self_label'], '09:00-09:30')
+
+        cover = self.Cover.browse(self.Cover.with_user(self.guard_user).board_self_assign(
+            str(self.day), 9, 10, self.teacher_a.id, self.group_a.id))
+
+        self.assertEqual((cover.hour_from, cover.hour_to), (9, 9.5))
+        row = self._board_row(self.guard_user, hour_from=9)
+        self.assertFalse(row['can_self_assign'], "their part is taken")
+        self.assertEqual(row['self_cover_id'], cover.id)
+        self.assertEqual(len(row['missing']), 1)
+        self.assertIn('09:30-10:00', row['missing'][0])
+
+    def test_a_partial_guard_shares_their_colour_across_lines_and_shows_as_partial(self):
+        """The class is on another line than the guard's own block (9-10 against 8:30-9:30): they
+        share one colour for the whole shift, and the guard's badge is marked partial."""
+        self._partial_morning()
+        self._assign(self.teacher_guard, 9, 10)
+
+        data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        lines = {line['time_label']: line for line in data['lines']}
+        cover = next(row for row in lines['09:00-10:00']['absences'] if row['teacher_id'] == self.teacher_a.id)['covers'][0]
+        badge = next(guard for guard in lines['08:30-09:30']['guards'] if guard['id'] == self.teacher_guard.id)
+        self.assertTrue(cover['partial'])
+        self.assertEqual(badge['color'], cover['color'])
+        self.assertTrue(badge['partial'])
+
+    def test_guards_covering_one_class_share_its_colour_and_no_overlapping_class_takes_it(self):
+        """The colour belongs to the class covered (issue #637): two guards each covering part of
+        it share it; another class covered at the same time gets another one."""
+        self._partial_morning()
+        self._schedule_class(self.teacher_b, self.group_b, 'TABC Calendar B (Colours)', periods=((9, 10),))
+        self._absence(self.teacher_b, self.day)
+        self._guards(self.teacher_c, periods=((9, 10),))
+        self._assign(self.teacher_guard, 9, 10)
+        self._assign(self.teacher_guard_2, 9, 10)
+        self.Cover.with_user(self.department_chief).board_assign(
+            str(self.day), 9, 10, self.teacher_b.id, self.group_b.id, self.teacher_c.id, 'Other class')
+
+        colors = self.env['ems.course']._board_cover_colors(
+            self.course.get_guard_duty_board_lines('0', 'morning', day=self.day)['lines'])
+
+        self.assertEqual(colors[self.teacher_guard.id], colors[self.teacher_guard_2.id])
+        self.assertNotEqual(colors[self.teacher_c.id], colors[self.teacher_guard.id])

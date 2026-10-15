@@ -9,10 +9,12 @@ import { _t } from "@web/core/l10n/translation";
 //   ems.course._get_arrangement_options), offered first, swaps before moved lessons: the students
 //   should lose as few lessons as possible. A moved lesson changes the group's day, so saving it
 //   opens the notice for the families, and it only counts once that notice is sent.
-// - By sending a guard teacher (issue #571). Only the guards on duty in that row are offered (see
-//   ems.course._get_guard_candidates, which the server checks again on save), with a free-text
-//   message for them. Saving notifies the guard; removing an assignment tells them they are no
-//   longer needed.
+// - By sending a guard teacher (issue #571). Only the guards on duty during the class are offered,
+//   those covering all of it first and then those whose guard duty only overlaps part of it, with
+//   the part each one would cover (issue #637; see ems.course._guard_spans, which the server
+//   checks again on save), and a free-text message for them. Saving notifies the guard; several
+//   can each cover part of the class, and each assignment can be removed on its own, which tells
+//   that guard they are no longer needed.
 // - With an arrangement the board cannot work out (two groups joined for the same subject...),
 //   described by hand so that it is on record, with the teacher involved if there is one.
 export class GuardCoverDialog extends Component {
@@ -30,12 +32,15 @@ export class GuardCoverDialog extends Component {
     };
 
     setup() {
-        const { cover, arrangement } = this.props.row;
+        const { covers, arrangement } = this.props.row;
         const candidates = this.props.line.guard_candidates;
+        // The guard already covering the whole class, to re-send their message; with a part still
+        // missing, the planner is choosing somebody else, so nobody is preselected.
+        const only = covers.length === 1 && !this.props.row.missing.length ? covers[0] : null;
         this.state = useState({
             mode: this.initialMode(),
-            guardId: cover ? cover.guard_id : candidates.length === 1 ? candidates[0].id : false,
-            message: cover ? cover.message : "",
+            guardId: only ? only.guard_id : !covers.length && candidates.length === 1 ? candidates[0].id : false,
+            message: only ? only.message : "",
             teacherId: arrangement && arrangement.type === "manual" ? arrangement.teacher_id : false,
             note: arrangement && arrangement.type === "manual" ? arrangement.note : "",
             manualCandidates: [],
@@ -47,11 +52,11 @@ export class GuardCoverDialog extends Component {
     }
 
     initialMode() {
-        const { cover, arrangement, arrangement_options: options } = this.props.row;
+        const { covers, arrangement, arrangement_options: options } = this.props.row;
         if (arrangement) {
             return arrangement.type === "manual" ? "manual" : "current";
         }
-        if (cover || !options.length) {
+        if (covers.length || !options.length) {
             return "guard";
         }
         return "option-0";
@@ -82,14 +87,22 @@ export class GuardCoverDialog extends Component {
             assign: _t("Assign and notify"),
             apply: _t("Apply and notify"),
             arrange: _t("Save arrangement"),
-            release: this.props.row.arrangement ? _t("Remove arrangement") : _t("Remove assignment"),
+            release: _t("Remove arrangement"),
+            assigned: _t("Guards assigned"),
+            removeCover: _t("Remove assignment"),
             cancel: _t("Cancel"),
         };
     }
 
     // How many classes each guard has covered this course (issue #600), so the planner can share
     // the covers out fairly.
+    // A guard whose duty only overlaps part of the class says which part (issue #637).
     candidateLabel(candidate) {
+        if (candidate.partial) {
+            return _t("%(name)s - %(time)s, part of the class (%(count)s covered this course)", {
+                name: candidate.name, time: candidate.label, count: candidate.cover_count,
+            });
+        }
         return _t("%(name)s (%(count)s covered this course)", { name: candidate.name, count: candidate.cover_count });
     }
 
@@ -165,10 +178,10 @@ export class GuardCoverDialog extends Component {
         await this.props.onOpenNotice();
     }
 
-    async release() {
+    async release(coverId = false) {
         this.state.saving = true;
         try {
-            await this.props.onRelease();
+            await this.props.onRelease(coverId);
             this.props.close();
         } finally {
             this.state.saving = false;

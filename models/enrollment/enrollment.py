@@ -496,6 +496,15 @@ class SaleOrder(models.Model):
                 "Please contact the secretary or admin."))
         return super().action_cancel()
 
+    def action_ems_close_unconfirmed(self):
+        return self.env['ems.enrollment_close_wizard'].action_open(self)
+
+    def _ems_has_payment(self):
+        """Whether any of these enrollments has money involved (an online payment attempt or an
+        invoice): ems.enrollment_close_wizard leaves such a person for a human to review."""
+        orders = self.sudo()
+        return bool(orders.transaction_ids or orders.invoice_ids)
+
     def action_quotation_sent(self):
         if self._is_blocked_tutor():
             raise ValidationError(_(

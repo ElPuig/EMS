@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickListHeaderAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // "Preinscription" (action_ems_applicants, res.partner filtered to contact_type='applicant')
 // had zero coverage: neither the list itself, nor an applicant's own form (whose "Applicant
@@ -60,11 +61,7 @@ registry.category("web_tour.tours").add("ems_applicant_form_and_proposal", {
             content: "Select the applicant",
             run: "click",
         },
-        {
-            trigger: ".o_list_view button:contains('Enrollment proposal')",
-            content: "Open the enrollment proposal wizard",
-            run: "click",
-        },
+        ...clickListHeaderAction("action_enrollment_proposal", "Open the enrollment proposal wizard"),
         {
             trigger: ".modal .o_field_widget[name='template_id'] input:not(:value(''))",
             content: "The template got auto-preselected (granted course matches the template's study year) - verified against the DB afterward",

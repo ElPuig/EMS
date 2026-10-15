@@ -26,9 +26,10 @@ From Step 3 on, the circuit is the same for both.
 5. [Step 4 — Give portal access to students and families](#step-4--give-portal-access-to-students-and-families)
 6. [Step 5 — Review the generated enrollments](#step-5--review-the-generated-enrollments)
 7. [Step 6 — Send the enrollment proposals](#step-6--send-the-enrollment-proposals)
-8. [Study changes that do not come from GEDAC](#study-changes-that-do-not-come-from-gedac)
-9. [Bonifications and exemptions approved after confirmation](#bonifications-and-exemptions-approved-after-confirmation)
-10. [FAQ](#faq)
+8. [Step 7 — Close the enrollments nobody confirmed](#step-7--close-the-enrollments-nobody-confirmed)
+9. [Study changes that do not come from GEDAC](#study-changes-that-do-not-come-from-gedac)
+10. [Bonifications and exemptions approved after confirmation](#bonifications-and-exemptions-approved-after-confirmation)
+11. [FAQ](#faq)
 
 ---
 
@@ -92,7 +93,7 @@ Tick the students heading to **the same destination study** and go to [Step 3](#
 
 ## Step 3 — Create the enrollment proposals
 
-With the students selected (whether from the new-students Step 2 or the continuers one), press the **Enrollment proposal (1)** button in the top bar.
+With the students selected (whether from the new-students Step 2 or the continuers one), open the **Actions (1)** dropdown and choose **Enrollment proposal**.
 
 ![Applicant selection and the Enrollment proposal button](../../assets/secretary/preinscrpcio-Secretaria-05.png)
 
@@ -140,7 +141,7 @@ In the list you can check, for each enrollment, the **student**, the **level** a
 
 ## Step 6 — Send the enrollment proposals
 
-Once the enrollments are reviewed, select the ones you want to send by ticking their checkboxes **(1)**. The **Send enrollment (2)** button appears at the top; press it.
+Once the enrollments are reviewed, select the ones you want to send by ticking their checkboxes **(1)**, open the **Actions** dropdown **(2)** and choose **Send enrollment**.
 
 ![Enrollment selection and the Send enrollment button](../../assets/secretary/preinscrpcio-Secretaria-09.png)
 
@@ -151,6 +152,33 @@ Pressing **Send enrollment** does the following for each selected enrollment:
 * If the student had left the centre in a previous course (a withdrawal or a graduate), they become an **applicant** again and are unarchived, so they can be granted portal access and confirm the enrollment themselves. An expelled student is not reinstated.
 
 > From here on, the families receive the email and can **confirm the enrollment** from the portal by following the [Guide to confirm the enrollment proposal](../families/manual-confirmacio-matricula.md).
+
+---
+
+## Step 7 — Close the enrollments nobody confirmed
+
+When the enrollment period is over, the enrollments still in draft or sent belong to people who never formalised them. Close them all at once:
+
+1. In **Enrollment**, the list shows the unconfirmed enrollments by default. Select the ones to close (or all of them).
+2. Open the **Actions** dropdown and choose **Close unconfirmed enrollments**.
+3. The assistant starts with a summary (how many people and enrollments, and how many people get each action and what it means), followed by every person with the action that will be applied to them:
+
+| Action | Who | What happens |
+|---|---|---|
+| **Delete the person** | Applicants who were never students at the centre | The person is deleted, with their portal user, enrollments, authorizations and uploaded documents. |
+| **Archive** | Applicants who were never students but already have a corporate account or a convalidation | The enrollment is cancelled, the portal access revoked and the contact archived. |
+| **Back to graduate or withdrawal** | Applicants who had already studied at the centre | The enrollment is cancelled and they go back to graduate (if they obtained a title) or withdrawal, with their previous exit data. They receive the usual warning that their corporate account will be suspended after the grace period. |
+| **Withdraw** | Students without a group | The same as the withdrawal assistant, with the **Exit date** and **Exit reason** shown at the top of the assistant. |
+| **Cancel the enrollment only** | Students with a group or with this course's enrollment confirmed, graduates, withdrawals and expelled students | Only the enrollment is cancelled. |
+| **Review by hand (payment)** | People with an enrollment that has a payment or an invoice | Nothing is touched: check them one by one. |
+
+4. Press **Apply** and confirm. Deletions cannot be undone. A whole course can take a few minutes: the screen stays locked with a message until it finishes.
+
+The assistant then shows how many people got each action and any issue, and downloads a CSV log with what happened to each person (it can be downloaded again from the same screen). A family keeps its portal access while it has another child enrolled. Families get no email, and the students only the corporate account warning mentioned above.
+
+### Applicants who never got an enrollment
+
+In **Preinscription**, the **Without enrollment** filter lists the applicants who never got an enrollment proposal (e.g. those imported from GEDAC who never came). Select them, open the **Actions** dropdown and choose **Close unconfirmed enrollments**: the same assistant opens, and they are deleted (or archived, if they have a corporate account or a convalidation).
 
 ---
 

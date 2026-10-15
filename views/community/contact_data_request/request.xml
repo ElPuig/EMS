@@ -7,7 +7,7 @@
             <field name="name">ems.contact.data.request.list</field>
             <field name="model">ems.contact.data.request</field>
             <field name="arch" type="xml">
-                <list string="Contact data requests" create="false"
+                <list string="Contact data requests" create="false" class="o_ems_header_actions"
                       decoration-info="state == 'submitted'" decoration-muted="state == 'done'">
                     <header>
                         <button name="%(action_ems_contact_data_request_send)d" type="action"

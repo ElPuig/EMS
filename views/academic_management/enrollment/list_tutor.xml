@@ -34,7 +34,7 @@
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <list string="Students - Tutor View"
-                      class="ems-tutor-enrollment-list"
+                      class="ems-tutor-enrollment-list o_ems_header_actions"
                       default_order="main_group_id asc, name asc"
                       decoration-muted="not active">
                     <header>

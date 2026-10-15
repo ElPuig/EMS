@@ -97,7 +97,7 @@ The wizard leaves a **log with the list of students and their destination group*
 
 Three loose ends to deal with in the following days:
 
-- **Students with no destination.** Review the list and register the withdrawal of the ones who really left. One at a time from the student form, or **several at once**: select them in the *Group enrollment proposal* list and click **Withdrawal**. Only academic administration and the secretariat see that button, since registering an exit cancels enrollments and revokes the portal. The ones who enroll late need nothing: when their enrollment is confirmed, they are placed in their group automatically.
+- **Students with no destination.** Review the list and register the withdrawal of the ones who really left. One at a time from the student form, or **several at once**: select them in the *Group enrollment proposal* list and choose **Actions → Withdrawal**. Only academic administration, the secretariat and the head of studies see that action, since registering an exit cancels enrollments and revokes the portal. The ones who enroll late need nothing: when their enrollment is confirmed, they are placed in their group automatically.
 - **Students enrolled without a group** turning up later (an enrollment confirmed in September with no group, say): just **fill the destination group in on the enrollment**. That alone places them, subjects included.
 - **Unconfirmed enrollments for the incoming course.** They are neither cancelled nor touched. Whoever confirms in September is placed in their group on their own, with nothing for you to re-run — **as long as the enrollment has a destination group**. With no group, confirming places nobody.
 

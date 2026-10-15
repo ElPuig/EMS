@@ -31,7 +31,7 @@ In the left panel **(1)**, select the group of students you want to work with (f
 
 In the list, check the checkbox for all students who have passed the course and for whom you want to propose enrollment in the next course. Students who already have an active enrollment appear with the enrollment number in the **Enrollment** column.
 
-Once you have made your selection, click the **Enrollment Proposals** button in the top bar **(2)**.
+Once you have made your selection, open the **Actions** dropdown **(2)** and choose **Enrollment Proposals**.
 
 ![List of students with selection and Enrollment Proposals button](../../assets/tutors/propostes-01-llista-alumnes.png)
 

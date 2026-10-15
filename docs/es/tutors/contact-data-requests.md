@@ -67,7 +67,7 @@ Haced clic en la fila para compararlas una al lado de la otra, a tamaño grande.
 
 ![La foto actual y la propuesta una al lado de la otra](../../assets/tutors/dades-contacte-06-foto.png)
 
-Para aprobar varias a la vez, seleccionadlas en la lista y haced clic en **Aprobar**.
+Para aprobar varias a la vez, seleccionadlas en la lista y elegid **Acciones → Aprobar**.
 
 ## Devolver una respuesta a la familia
 
@@ -78,4 +78,4 @@ La familia recibe un correo con el motivo y puede volver a enviar los datos desd
 
 ## Enviar un recordatorio
 
-Seleccionad las solicitudes **Pendiente de respuesta** y haced clic en **Enviar recordatorio**. La columna **Recordatorios** cuenta cuántos se han enviado.
+Seleccionad las solicitudes **Pendiente de respuesta** y elegid **Acciones → Enviar recordatorio**. La columna **Recordatorios** cuenta cuántos se han enviado.

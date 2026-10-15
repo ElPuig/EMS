@@ -98,6 +98,58 @@ class TestExitManagement(TransactionCase):
             ('contact_type', '=', 'student'), ('transition_status', '=', 'missing')])
         self.assertIn(student, missing)
 
+    def _transition_fixtures(self):
+        """One contact per transition status, plus the cases a domain could get wrong: a
+        cancelled next-course enrollment (still missing) and a family contact (no status)."""
+        Order = self.env['sale.order']
+        enrolled = self._student('TSC Enrolled')
+        Order.create({'partner_id': enrolled.id, 'ems_course_id': self.next_course.id,
+                      'ems_study_id': self.study.id, 'ems_group_id': self.group.id})
+        unplaced = self._student('TSC Unplaced')
+        Order.create({'partner_id': unplaced.id, 'ems_course_id': self.next_course.id})
+        cancelled = self._student('TSC Cancelled')
+        Order.create({'partner_id': cancelled.id, 'ems_course_id': self.next_course.id}).write(
+            {'state': 'cancel'})
+        return {
+            'enrolled': enrolled,
+            'unplaced': unplaced,
+            'missing': self._student('TSC Missing') + cancelled,
+            'graduated': self._student('TSC Graduated', exit_type='graduation',
+                                       exit_course_id=self.current_course.id),
+            'former': self._student('TSC Withdrawal', contact_type='withdrawal')
+                      + self._student('TSC Expelled', contact_type='expelled'),
+            None: self.env['res.partner'].create({'name': 'TSC Family', 'contact_type': 'family'}),
+        }
+
+    def _assert_search_matches_compute(self, fixtures):
+        people = self.env['res.partner'].concat(*fixtures.values())
+        Partner = self.env['res.partner']
+        # Only students and ex-students are found by status, as before; a family contact is
+        # only ever on the '!=' side.
+        lifecycle = people - fixtures[None]
+        for status in ('enrolled', 'unplaced', 'missing', 'graduated', 'former'):
+            computed = lifecycle.filtered(lambda p: p.transition_status == status)
+            self.assertEqual(computed, fixtures[status], status)
+            found = Partner.search([('id', 'in', people.ids), ('transition_status', '=', status)])
+            self.assertEqual(found, computed, f"= {status}")
+            others = Partner.search([('id', 'in', people.ids), ('transition_status', '!=', status)])
+            self.assertEqual(others, people - computed, f"!= {status}")
+
+    def test_transition_status_search_matches_compute(self):
+        """The search is the compute's rules as a domain (issue #643): both must agree on
+        every status, with either operator."""
+        self._assert_search_matches_compute(self._transition_fixtures())
+
+    def test_transition_status_without_next_course(self):
+        fixtures = self._transition_fixtures()
+        self.env['ems.course'].search([('is_enrollment_default', '=', True)]).write(
+            {'is_enrollment_default': False})
+        self.env.invalidate_all()
+        # With no course to enroll into, nobody is enrolled: every pending student is missing.
+        fixtures['missing'] |= fixtures.pop('enrolled') | fixtures.pop('unplaced')
+        fixtures['enrolled'] = fixtures['unplaced'] = self.env['res.partner']
+        self._assert_search_matches_compute(fixtures)
+
     # --- graduation wizard --------------------------------------------------
 
     def test_graduation_wizard_marks_without_converting(self):

@@ -331,13 +331,14 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
             wait_for='.o_data_row + .o_data_row + .o_data_row + .o_data_row',
             click=['.o_data_row:nth-child(1) .o_list_record_selector input',
                    '.o_data_row:nth-child(2) .o_list_record_selector input',
-                   '.o_data_row:nth-child(4) .o_list_record_selector input'],
+                   '.o_data_row:nth-child(4) .o_list_record_selector input',
+                   ".o_list_selection_container .o_ems_actions_toggle"],
             wait_after=['.o_data_row.o_data_row_selected',
                         '.o_data_row.o_data_row_selected + .o_data_row.o_data_row_selected',
                         "button[name='action_enrollment_proposal']"],
             # (1) is the group in the left panel, as the manual's text says.
             marks=[('.o_search_panel .o_search_panel_category_value:last-child .o_search_panel_label_title', '1', 'right'),
-                   ("button[name='action_enrollment_proposal']", '2', 'top')],
+                   (".o_list_selection_container .o_ems_actions_toggle", '2', 'top')],
         )
 
         # Step 2: the proposal dialog, with the next-course template picked.

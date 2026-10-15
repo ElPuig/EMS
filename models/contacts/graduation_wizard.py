@@ -167,10 +167,6 @@ class EmsWithdrawalWizard(models.TransientModel):
     def _can_register_exits(self):
         return self.env['res.partner']._ems_user_can_register_exits()
 
-    def _current_course(self):
-        return self.env.company.current_course_id \
-            or self.env['ems.course'].search([('is_current', '=', True)], limit=1)
-
     def _line_vals(self, student):
         pending = self.env['sale.order'].search_count([
             ('partner_id', '=', student.id),
@@ -185,7 +181,6 @@ class EmsWithdrawalWizard(models.TransientModel):
         self.ensure_one()
         if not self._can_register_exits():
             raise UserError(_("Only the secretary, the head of studies or an administrator can register withdrawals."))
-        course = self._current_course()
         done = 0
         revoked = skipped = 0
         issues = []
@@ -193,21 +188,7 @@ class EmsWithdrawalWizard(models.TransientModel):
             student = line.student_id
             if student.contact_type != 'student':
                 continue
-            student.write({
-                'exit_type': 'expulsion' if self.exit_kind == 'expulsion' else 'withdrawal',
-                'exit_course_id': course.id if course else False,
-                'exit_date': self.exit_date,
-                'exit_reason': self.exit_reason,
-            })
-            student._ems_cancel_pending_enrollments()
-            # Freeze the academic history NOW, while the student still has its
-            # group: the transition wizard captures by main_group_id, so without
-            # this a mid-course withdrawal would never get a year record. Sudo:
-            # the generator reads grade/attendance models the secretary cannot.
-            if course:
-                self.env['ems.student.year_record'].sudo().generate_for_students(
-                    student, course)
-            summary = student._ems_leave_centre(kind=self.exit_kind)
+            summary = student._ems_register_exit(self.exit_kind, self.exit_date, self.exit_reason)
             revoked += summary['revoked']
             skipped += summary['skipped']
             issues += summary['issues']

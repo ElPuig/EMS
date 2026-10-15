@@ -53,14 +53,14 @@ Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les 
 
 **La teva part té dos passos quan el tipus d'absència exigeix justificant** (tots menys `Salut` i `ATRI`), perquè sovint el justificant només existeix després de l'absència:
 
-1. **Rebuda: pendent de documentació** (icona de safata al llistat, o el menú **Accions** de dalt del formulari). Dones per rebuda la sol·licitud sense haver vist encara el justificant. Passa a **En espera de documentació** i es demana el justificant a la persona. Si ja l'havia adjuntat amb la sol·licitud, passa directament a **Pendent de validació**.
+1. **Rebuda: pendent de documentació** (icona de safata al llistat, o a dalt del formulari). Dones per rebuda la sol·licitud sense haver vist encara el justificant. Passa a **En espera de documentació** i es demana el justificant a la persona. Si ja l'havia adjuntat amb la sol·licitud, passa directament a **Pendent de validació**.
 2. Quan la persona adjunta el justificant, la sol·licitud et torna sola com a **Pendent de validació**. Obre-la, revisa el justificant i fes servir **Validar documentació** (també una icona de validació al llistat). Llavors passa a Direcció.
 
 Si el justificant no és vàlid, **Documentació insuficient** et demana el motiu (obligatori) i torna la sol·licitud a la persona (En espera de documentació) amb un missatge que l'inclou. La persona també el veu a dalt de la sol·licitud fins que adjunta un justificant nou. Si el nou tampoc no és vàlid, el diàleg s'obre amb el motiu anterior perquè el puguis modificar; quan valides un justificant, el motiu s'esborra.
 
-**Si el justificant no arribarà i no cal**, mentre la sol·licitud és **En espera de documentació** fes servir **Eximir del justificant** (menú **Accions** de dalt del formulari). Demana confirmació i la sol·licitud continua cap a Direcció com si s'hagués validat el justificant, però el seu estat queda com a **Eximit**, per distingir-lo d'un justificant revisat. La persona deixa de rebre recordatoris i rep un missatge que li diu que ja no cal. Direcció i l'administrador també ho poden fer, i es desfà com qualsevol altra decisió.
+**Si el justificant no arribarà i no cal**, mentre la sol·licitud és **En espera de documentació** fes servir **Eximir del justificant** (a dalt del formulari). Demana confirmació i la sol·licitud continua cap a Direcció com si s'hagués validat el justificant, però el seu estat queda com a **Eximit**, per distingir-lo d'un justificant revisat. La persona deixa de rebre recordatoris i rep un missatge que li diu que ja no cal. Direcció i l'administrador també ho poden fer, i es desfà com qualsevol altra decisió.
 
-Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat). Una absència de `Salut` passa llavors directament a Direcció. Una `ATRI` s'atura sempre abans a **Pendent de confirmar ATRI**: la persona ha de confirmar que l'ha sol·licitada al portal ATRI (**Accions > Confirmo que està sol·licitada a ATRI**), i només llavors arriba a Direcció. Valides tu primer expressament, perquè sovint es tria ATRI per al que no ho és, i a l'inrevés: corregeix el tipus abans de validar. A la persona se li recorda igual que amb un justificant pendent, i a tu se t'avisa un cop si continua sense confirmar al cap d'uns dies de l'absència.
+Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat). Una absència de `Salut` passa llavors directament a Direcció. Una `ATRI` s'atura sempre abans a **Pendent de confirmar ATRI**: la persona ha de confirmar que l'ha sol·licitada al portal ATRI (**Confirmo que està sol·licitada a ATRI**, a dalt del formulari), i només llavors arriba a Direcció. Valides tu primer expressament, perquè sovint es tria ATRI per al que no ho és, i a l'inrevés: corregeix el tipus abans de validar. A la persona se li recorda igual que amb un justificant pendent, i a tu se t'avisa un cop si continua sense confirmar al cap d'uns dies de l'absència.
 
 La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formulari, tornes al llistat.
 
@@ -106,7 +106,7 @@ Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella
 
 **Assistència del personal > Absències > Administració > Absències sol·licitades** s'obre amb **Pendent de mi**: totes les absències **Pendent Direcció**, i les absències dels mateixos caps d'àrea, que gestiones tu com a cap seu (amb els botons del cap descrits més amunt). Cadascuna et deixa també una activitat ("Revisió de direcció de l'absència").
 
-Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o obre'n una i fes servir el menú **Accions** de dalt, que et torna al llistat en acabar:
+Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o obre'n una i fes servir les accions de dalt del formulari, que et torna al llistat en acabar:
 
 | Icona | Botó | Resultat |
 |---|---|---|
@@ -137,7 +137,7 @@ El panell de cerca de l'esquerra filtra per **Estat**.
 
 ## Desfer una decisió
 
-Una decisió presa per error es desfà amb **Desfés l'última decisió**: la icona de fletxa enrere al final de la fila al llistat, o el menú **Accions** de dalt del formulari. Demana confirmació i retrocedeix un pas cada vegada:
+Una decisió presa per error es desfà amb **Desfés l'última decisió**: la icona de fletxa enrere al final de la fila al llistat, o a dalt del formulari. Demana confirmació i retrocedeix un pas cada vegada:
 
 | Estat | En desfer queda en |
 |---|---|

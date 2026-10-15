@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.37.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.38.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -302,6 +302,7 @@
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
             'views/academic_management/enrollment/enrollment_list.xml',
+            'views/academic_management/enrollment/close_unconfirmed_wizard.xml',
             'views/academic_management/enrollment/list_tutor.xml',
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',

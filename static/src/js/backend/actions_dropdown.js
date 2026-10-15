@@ -15,7 +15,8 @@ import { toStringExpression } from "@web/views/utils";
  * A form's "Actions" dropdown: every button of a `<div name="ems_actions" string="...">` inside
  * `<header>` becomes one entry of a single header button, instead of a row of header buttons.
  * Each entry is still a plain ViewButton, so it keeps its own `invisible=`, `groups=` and
- * `confirm=`, and the dropdown is not rendered at all when none of them is visible.
+ * `confirm=`. When only one of them is visible it is shown as a plain header button (with its own
+ * `class`, e.g. `btn-primary`) instead of a dropdown, and when none is, nothing is rendered.
  * See docs/en/developers/shared/actions_dropdown.md.
  */
 export class EmsActionsDropdown extends StatusBarButtons {

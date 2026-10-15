@@ -137,7 +137,7 @@ El filtro **Mis justificantes pendientes** muestra las solicitudes que esperan u
 
 **Ausencias ATRI: confirmar la solicitud.** Una ausencia ATRI se concede en el portal de la Generalitat, no en EMS. Por eso, cuando tu jefe la ha validado, la solicitud se detiene siempre en **Pendiente de confirmar ATRI** antes de pasar a Dirección. No significa que nadie haya visto que falte en ATRI: solo se te pide que confirmes que la has solicitado allí.
 
-- Si ya la has solicitado en ATRI, abre la solicitud y usa **Acciones > Confirmo que está solicitada en ATRI** en ese mismo momento. Entonces pasa a Dirección.
+- Si ya la has solicitado en ATRI, abre la solicitud y usa **Confirmo que está solicitada en ATRI**, arriba del formulario, en ese mismo momento. Entonces pasa a Dirección.
 - Si no, solicítala primero en el portal (el aviso de lo alto de la solicitud tiene el enlace) y después confirma.
 
 Mientras no esté confirmada, una vez pasada la ausencia recibes un recordatorio cada día, y a los pocos días se avisa a tu jefe. El filtro **Mis confirmaciones de ATRI pendientes** muestra las solicitudes que lo esperan. Si después Dirección comprueba que la ausencia no consta en ATRI, o que la documentación que has aportado allí no es suficiente, devuelve la solicitud a este estado y recibes el motivo, que también se muestra en la solicitud. Lo que falte se resuelve en el portal ATRI, no adjuntando un justificante en EMS; cuando lo hayas hecho, vuelve a confirmarlo.

@@ -39,8 +39,8 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             content: "Both empty first lessons let the group start at 10:00",
         },
         {
-            trigger: ".o_guard_board_proposals .o_guard_board_actions_help",
-            content: "The proposals box explains that sending the notice strikes the lessons off",
+            trigger: ".o_guard_board_section:contains('TABTG') .o_guard_board_notice_plan:contains('Only tell the families') .o_guard_board_action:contains('Could start at 10:00')",
+            content: "The change alone is the group's last proposal: only telling the families",
         },
         {
             trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_option",
@@ -54,7 +54,7 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             },
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
             content: "Open the second lesson to send a guard",
             run: "click",
         },
@@ -85,19 +85,19 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck.o_guard_board_cover_0:contains('Tour Cover Guard')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck.o_guard_board_cover_0:contains('Tour Cover Guard')",
             content: "The covered lesson is struck out in the guard's colour",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_guard_badge.o_guard_board_cover_0:contains('Tour Cover Guard')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_guard_badge.o_guard_board_cover_0:contains('Tour Cover Guard')",
             content: "The guard shares that colour",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_guard_badge:contains('Tour Cover Guard') .o_guard_board_guard_count:contains('1')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_guard_badge:contains('Tour Cover Guard') .o_guard_board_guard_count:contains('1')",
             content: "Their badge now counts the class they were sent to cover",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_absence_info)",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_absence_info)",
             content: "The struck-out line has an info icon; clicking anywhere on the line explains it",
             run: "click",
         },

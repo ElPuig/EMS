@@ -53,14 +53,14 @@ Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que
 
 **Tu parte tiene dos pasos cuando el tipo de ausencia exige justificante** (todos menos `Salud` y `ATRI`), porque a menudo el justificante solo existe después de la ausencia:
 
-1. **Recibida: pendiente de documentación** (icono de bandeja en el listado, o el menú **Acciones** de arriba del formulario). Das por recibida la solicitud sin haber visto todavía el justificante. Pasa a **En espera de documentación** y se pide el justificante a la persona. Si ya lo había adjuntado con la solicitud, pasa directamente a **Pendiente de validación**.
+1. **Recibida: pendiente de documentación** (icono de bandeja en el listado, o arriba del formulario). Das por recibida la solicitud sin haber visto todavía el justificante. Pasa a **En espera de documentación** y se pide el justificante a la persona. Si ya lo había adjuntado con la solicitud, pasa directamente a **Pendiente de validación**.
 2. Cuando la persona adjunta el justificante, la solicitud vuelve sola a ti como **Pendiente de validación**. Ábrela, revisa el justificante y usa **Validar documentación** (también un icono de validación en el listado). Entonces pasa a Dirección.
 
 Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo. Si el nuevo tampoco es válido, el diálogo se abre con el motivo anterior para que puedas modificarlo; cuando validas un justificante, el motivo se borra.
 
-**Si el justificante no llegará y no hace falta**, mientras la solicitud está **En espera de documentación** usa **Eximir del justificante** (menú **Acciones** de arriba del formulario). Pide confirmación y la solicitud continúa hacia Dirección como si se hubiera validado el justificante, pero su estado queda como **Eximido**, para distinguirlo de un justificante revisado. La persona deja de recibir recordatorios y recibe un mensaje que le dice que ya no hace falta. Dirección y el administrador también pueden hacerlo, y se deshace como cualquier otra decisión.
+**Si el justificante no llegará y no hace falta**, mientras la solicitud está **En espera de documentación** usa **Eximir del justificante** (arriba del formulario). Pide confirmación y la solicitud continúa hacia Dirección como si se hubiera validado el justificante, pero su estado queda como **Eximido**, para distinguirlo de un justificante revisado. La persona deja de recibir recordatorios y recibe un mensaje que le dice que ya no hace falta. Dirección y el administrador también pueden hacerlo, y se deshace como cualquier otra decisión.
 
-Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado). Una ausencia de `Salud` pasa entonces directamente a Dirección. Una `ATRI` se detiene siempre antes en **Pendiente de confirmar ATRI**: la persona tiene que confirmar que la ha solicitado en el portal ATRI (**Acciones > Confirmo que está solicitada en ATRI**), y solo entonces llega a Dirección. Validas tú primero a propósito, porque a menudo se elige ATRI para lo que no lo es, y al revés: corrige el tipo antes de validar. A la persona se le recuerda igual que con un justificante pendiente, y a ti se te avisa una vez si sigue sin confirmar a los pocos días de la ausencia.
+Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado). Una ausencia de `Salud` pasa entonces directamente a Dirección. Una `ATRI` se detiene siempre antes en **Pendiente de confirmar ATRI**: la persona tiene que confirmar que la ha solicitado en el portal ATRI (**Confirmo que está solicitada en ATRI**, arriba del formulario), y solo entonces llega a Dirección. Validas tú primero a propósito, porque a menudo se elige ATRI para lo que no lo es, y al revés: corrige el tipo antes de validar. A la persona se le recuerda igual que con un justificante pendiente, y a ti se te avisa una vez si sigue sin confirmar a los pocos días de la ausencia.
 
 La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
 
@@ -106,7 +106,7 @@ Si la ausencia es de día entero o de unas horas concretas lo controla la casill
 
 **Asistencia del personal > Ausencias > Administración > Ausencias solicitadas** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**, y las ausencias de los propios jefes de área, que gestionas tú como su jefe (con los botones del jefe descritos más arriba). Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
 
-Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa el menú **Acciones** de arriba, que te devuelve al listado al acabar:
+Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa las acciones de arriba del formulario, que te devuelve al listado al acabar:
 
 | Icono | Botón | Resultado |
 |---|---|---|
@@ -137,7 +137,7 @@ El panel de búsqueda de la izquierda filtra por **Estado**.
 
 ## Deshacer una decisión
 
-Una decisión tomada por error se deshace con **Deshacer la última decisión**: el icono de flecha atrás al final de la fila en el listado, o el menú **Acciones** de arriba del formulario. Pide confirmación y retrocede un paso cada vez:
+Una decisión tomada por error se deshace con **Deshacer la última decisión**: el icono de flecha atrás al final de la fila en el listado, o arriba del formulario. Pide confirmación y retrocede un paso cada vez:
 
 | Estado | Al deshacer queda en |
 |---|---|

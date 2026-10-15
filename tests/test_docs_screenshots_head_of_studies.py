@@ -363,14 +363,12 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         )
         self._capture(
             '/odoo/action-ems.action_employee_kanban/%d' % self.new_teacher.id,
-            # The form's Actions dropdown, open. Its menu is an overlay outside the form, hence
-            # the body; beyond_viewport=False because the dropdown closes when Chrome resizes the
-            # page.
+            # Create Google account is the only action that applies, so it is a plain header
+            # button rather than an Actions dropdown.
             'body', 'hos-staff-management-create-account.png',
-            login='doc_shot_hos', wait_for='.o_form_statusbar .o_ems_actions_toggle',
-            click='.o_form_statusbar .o_ems_actions_toggle',
-            wait_after='.o_ems_actions_menu button[name="action_create_google_account"]',
-            max_height=420, beyond_viewport=False,
+            login='doc_shot_hos',
+            wait_for='.o_form_statusbar button[name="action_create_google_account"]',
+            max_height=420,
         )
         self._capture(
             '/odoo/action-ems.action_strike_list/%d' % self.strike.id,

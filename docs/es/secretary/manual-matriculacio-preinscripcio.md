@@ -26,9 +26,10 @@ A partir del Paso 3 el circuito es el mismo para ambos.
 5. [Paso 4 — Dar acceso al portal al alumnado y las familias](#paso-4--dar-acceso-al-portal-al-alumnado-y-las-familias)
 6. [Paso 5 — Revisar las matrículas generadas](#paso-5--revisar-las-matrículas-generadas)
 7. [Paso 6 — Enviar las propuestas de matrícula](#paso-6--enviar-las-propuestas-de-matrícula)
-8. [Cambios de estudios que no vienen de GEDAC](#cambios-de-estudios-que-no-vienen-de-gedac)
-9. [Bonificaciones y exenciones aprobadas después de confirmar](#bonificaciones-y-exenciones-aprobadas-después-de-confirmar)
-10. [Preguntas frecuentes](#preguntas-frecuentes)
+8. [Paso 7 — Cerrar las matrículas que nadie ha confirmado](#paso-7--cerrar-las-matrículas-que-nadie-ha-confirmado)
+9. [Cambios de estudios que no vienen de GEDAC](#cambios-de-estudios-que-no-vienen-de-gedac)
+10. [Bonificaciones y exenciones aprobadas después de confirmar](#bonificaciones-y-exenciones-aprobadas-después-de-confirmar)
+11. [Preguntas frecuentes](#preguntas-frecuentes)
 
 ---
 
@@ -92,7 +93,7 @@ Marcad los alumnos que van **a los mismos estudios de destino** e id al [Paso 3]
 
 ## Paso 3 — Crear las propuestas de matrícula
 
-Con los alumnos seleccionados (vengan del Paso 2 de alumnos nuevos o del de continuadores), pulsad el botón **Propuestas de matrícula (1)** de la barra superior.
+Con los alumnos seleccionados (vengan del Paso 2 de alumnos nuevos o del de continuadores), abrid el desplegable **Acciones (1)** y elegid **Propuestas de matrícula**.
 
 ![Selección de aspirantes y botón Propuestas de matrícula](../../assets/secretary/preinscrpcio-Secretaria-05.png)
 
@@ -140,7 +141,7 @@ En la lista podéis comprobar, para cada matrícula, el **estudiante**, el **niv
 
 ## Paso 6 — Enviar las propuestas de matrícula
 
-Cuando las matrículas estén revisadas, seleccionad las que queráis enviar marcando sus casillas **(1)**. Arriba aparecerá el botón **Enviar matrícula (2)**; pulsadlo.
+Cuando las matrículas estén revisadas, seleccionad las que queráis enviar marcando sus casillas **(1)**, abrid el desplegable **Acciones** **(2)** y elegid **Enviar matrícula**.
 
 ![Selección de matrículas y botón Enviar matrícula](../../assets/secretary/preinscrpcio-Secretaria-09.png)
 
@@ -151,6 +152,33 @@ Al pulsar **Enviar matrícula**, para cada matrícula seleccionada:
 * Si el alumno había dejado el centro en un curso anterior (una baja o un graduado), vuelve a ser **solicitante** y se desarchiva, de modo que ya se le puede dar acceso al portal y confirmar él mismo la matrícula. Un alumno expulsado no se readmite.
 
 > A partir de aquí, las familias reciben el correo y pueden **confirmar la matrícula** desde el portal siguiendo la guía [Guía para confirmar la propuesta de matrícula](../families/manual-confirmacio-matricula.md).
+
+---
+
+## Paso 7 — Cerrar las matrículas que nadie ha confirmado
+
+Cuando termina el periodo de matrícula, las matrículas que siguen en borrador o enviadas son de personas que no las han formalizado. Cerradlas todas de una vez:
+
+1. En **Matrícula**, la lista muestra por defecto las matrículas no confirmadas. Seleccionad las que queráis cerrar (o todas).
+2. Abrid el desplegable **Acciones** y elegid **Cerrar matrículas no confirmadas**.
+3. El asistente empieza con un resumen (cuántas personas y matrículas hay, y cuántas personas reciben cada acción y qué significa), y debajo muestra cada persona con la acción que se le aplicará:
+
+| Acción | A quién | Qué pasa |
+|---|---|---|
+| **Eliminar la persona** | Solicitantes que nunca han sido alumnos del centro | Se elimina la persona, con su usuario del portal, las matrículas, las autorizaciones y los documentos subidos. |
+| **Archivar** | Solicitantes que nunca han sido alumnos pero ya tienen cuenta corporativa o una convalidación | Se cancela la matrícula, se revoca el acceso al portal y se archiva el contacto. |
+| **Volver a graduado/a o baja** | Solicitantes que ya habían estudiado en el centro | Se cancela la matrícula y vuelven a graduado/a (si obtuvieron el título) o a baja, con sus datos de salida anteriores. Reciben el aviso habitual de que la cuenta corporativa se suspenderá al terminar el periodo de gracia. |
+| **Dar de baja** | Alumnado sin grupo | Lo mismo que el asistente de baja, con la **Fecha de salida** y el **Motivo de salida** que se muestran arriba del asistente. |
+| **Solo cancelar la matrícula** | Alumnado con grupo o con la matrícula de este curso confirmada, graduados, bajas y expulsados | Solo se cancela la matrícula. |
+| **Revisar a mano (pago)** | Personas con alguna matrícula con un pago o una factura | No se toca nada: revisadlas una por una. |
+
+4. Pulsad **Aplicar** y confirmad. Las eliminaciones no se pueden deshacer. Un curso entero puede tardar unos minutos: la pantalla queda bloqueada con un mensaje hasta que termina.
+
+Al terminar, el asistente muestra cuántas personas han recibido cada acción y las incidencias, y descarga un registro CSV con qué ha pasado con cada persona (se puede volver a descargar desde la misma pantalla). Una familia mantiene el acceso al portal mientras tenga otro hijo matriculado. Las familias no reciben ningún correo, y el alumnado solo el aviso de la cuenta corporativa mencionado arriba.
+
+### Solicitantes que nunca han tenido matrícula
+
+En **Pre-inscripción**, el filtro **Sin matrícula** muestra los solicitantes que nunca han recibido una propuesta de matrícula (por ejemplo, los importados de GEDAC que no se han presentado). Seleccionadlos, abrid el desplegable **Acciones** y elegid **Cerrar matrículas no confirmadas**: se abre el mismo asistente y se eliminan (o se archivan, si tienen cuenta corporativa o una convalidación).
 
 ---
 

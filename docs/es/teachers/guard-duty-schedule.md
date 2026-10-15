@@ -39,43 +39,51 @@ Los dos botones de la derecha de la barra de herramientas cambian entre las dos 
 
 ## Leer el horario
 
-Las columnas de la tabla son los grupos que tienen clase en ese turno; cada fila es una franja horaria. Una celda muestra la asignatura (con su código corto, p. ej. "MP 0440"), el o los docentes — más de uno si la clase es compartida — y el aula de la clase de ese grupo en esa hora. Una celda vacía simplemente significa que no hay nada programado para ese grupo en ese momento.
+Las columnas de la tabla son los grupos que tienen clase en ese turno, agrupados por **área** (por ejemplo ESO / BTX y FP): cada área tiene su propio marco horario, y la cabecera de la tabla lo indica con una banda por área.
 
-La columna **Guardia**, a la derecha, lista todos los docentes de guardia en esa franja horaria, cada uno en un recuadro de borde fino. Un docente de guardia no tiene ningún grupo propio en ese momento (es precisamente el sentido de la guardia), por eso solo aparece aquí, nunca en la columna de un grupo. Un docente en guardia de **WC** en concreto muestra la etiqueta **"(WC)"** justo después de su nombre — se destaca porque, a diferencia de una guardia de patio (ver más abajo), una guardia de WC puede caer en cualquier momento del día, así que no hay otra forma de distinguirla de una guardia normal a simple vista.
+Como cada área empieza y acaba las clases a horas distintas (la ESO hace el patio a las 10:00 y la FP a las 11:00, por ejemplo), las filas de la tabla son los tramos entre todas las horas de inicio y de final del turno, y cada clase ocupa los tramos que dura: una clase de 10:25 a 11:25 ocupa los tramos 10:25-11:00 y 11:00-11:25. Así las dos áreas quedan alineadas por el reloj sin deformar las clases de nadie, y las filas son más altas cuanto más largo es el tramo.
+
+Cada celda muestra su propia hora de inicio y de final, la asignatura (con su código corto, p. ej. "MP 0440"), el o los docentes — más de uno si la clase es compartida — y el aula de la clase de ese grupo en esa hora. Una celda vacía simplemente significa que no hay nada programado para ese grupo en ese momento.
+
+La columna **Guardia**, a la derecha, lista todos los docentes de guardia, agrupados por la franja de su guardia (que también se indica arriba de cada bloque), cada uno en un recuadro de borde fino. Cuando dos guardias se solapan en el tiempo (la del patio de la ESO y una guardia de FP de 10:00 a 11:00, por ejemplo), aparecen una al lado de la otra. Un docente de guardia no tiene ningún grupo propio en ese momento (es precisamente el sentido de la guardia), por eso solo aparece aquí, nunca en la columna de un grupo. Un docente en guardia de **WC** en concreto muestra la etiqueta **"(WC)"** justo después de su nombre — se destaca porque, a diferencia de una guardia de patio (ver más abajo), una guardia de WC puede caer en cualquier momento del día, así que no hay otra forma de distinguirla de una guardia normal a simple vista.
 
 El número pequeño en un círculo tras cada nombre indica cuántas clases ha cubierto ese docente este curso (incluidas las coberturas ya previstas para un día próximo). Varios grupos atendidos juntos en la misma aula y a la misma hora cuentan como una sola cobertura; los grupos en aulas distintas cuentan por separado. Sirve para repartir las coberturas de forma equitativa.
 
-Una fila cuya franja horaria coincide con el patio de algún nivel — sin ninguna clase programada en ella para nadie — muestra una pequeña etiqueta **"Patio"** junto a la hora, además de un borde marrón en el lado izquierdo de esa misma celda, para que una franja que parece vacía no se lea como un hueco en el horario.
+El patio de cada grupo se muestra como un bloque propio, con su hora y la etiqueta **"Patio"**, y un borde marrón en el lado izquierdo, para que no se lea como un hueco en el horario. Las guardias de patio de la columna Guardia llevan el mismo borde.
 
-![Horario de guardias de una franja horaria: la clase de un grupo, una guardia normal, una guardia de WC, una fila de Patio con su propia guardia, y un docente marcado como ausente en rojo y negrita](../../assets/teachers/guard-duty-01-horari.png)
+![Horario de guardias de dos áreas con el patio a horas distintas: las clases de cada grupo con su hora, los bloques de patio con el borde marrón, las guardias normales, de WC y de patio, y las docentes ausentes en rojo](../../assets/teachers/guard-duty-01-horari.png)
 
 ---
 
-## Filtrar por nivel
+## Filtrar por área
 
-Junto al desplegable de turno hay un botón de **filtro de nivel** (muestra "All levels" hasta que marcas algo). Haz clic para abrir una lista con una casilla por cada nivel — ESO, Bachillerato, cada ciclo formativo, etc. — y marca los que necesites. Por ejemplo, marca **ESO** y **Bachillerato** a la vez para ver solo esa mitad del centro mientras un compañero trabaja con los ciclos formativos marcados. Deja todo sin marcar para ver todos los niveles a la vez, exactamente como antes.
+Junto al desplegable de turno hay un botón de **filtro de área** (muestra "Todas las áreas" hasta que marcas algo). Haz clic para abrir una lista con una casilla por cada área — por ejemplo ESO / BTX y FP — y marca las que necesites. Deja todo sin marcar para ver todas las áreas a la vez.
 
-Una vez marcas uno o más niveles:
-- Solo se muestran las columnas de los grupos de ese/esos nivel(es) — el resto de grupos desaparecen de la tabla.
-- La columna **Guardia** sigue mostrando a todos los docentes de guardia en cualquier franja visible, sin importar qué dan clase por lo demás — lo que importa es que están de guardia, no en qué nivel den clase ese día.
-- Una guardia que coincide con el patio del nivel marcado, sin ninguna clase de ese nivel en esa franja, obtiene su propia fila de "Patio" para que siga siendo visible aunque ningún grupo de ese nivel tenga clase entonces (la misma marca de "Patio" descrita más arriba ya cubre este caso también en "All levels").
+Una vez marcas una o más áreas:
+- Solo se muestran las columnas de los grupos de esa área, incluidos los grupos de refuerzo de sus grupos.
+- La columna **Guardia** sigue mostrando a todos los docentes de guardia en cualquier franja visible, sin importar qué hacen por lo demás — lo que importa es que están de guardia, no en qué área den clase ese día. Una guardia del patio de otra área no aparece.
+- Una guardia del patio del área marcada obtiene su propia fila de "Patio", aunque ningún grupo tenga clase entonces.
+
+El área de un grupo es la de los estudios que lo gestionan (campo **Gestionado por el departamento** de la ficha de los estudios, o el departamento de nivel superior al que pertenece).
+
+> El filtro de área sustituyó al filtro de nivel en la versión 18.0.0.38.0.
 
 ---
 
 ## Leer la tabla de ausencias
 
-Cada fila es una franja horaria del turno que tienes en pantalla:
+La tabla usa los mismos tramos de tiempo que el horario, con una columna por área:
 
-- **Ausencias** — una línea por cada clase que se queda sin docente: quién falta, y el grupo, la asignatura y el aula que hay que cubrir.
-- **Guardia** — los docentes de guardia en esa franja, los mismos que muestra el horario.
+- **Una columna por área** — una línea por cada clase que se queda sin docente en esa área: quién falta, y el grupo, la asignatura y el aula que hay que cubrir, dentro de un bloque con la hora de la clase. El patio del área aparece como un bloque "Patio".
+- **Guardia** — los docentes de guardia, agrupados por la franja de su guardia, los mismos que muestra el horario.
 
-Una franja donde no falta nadie tiene la columna de ausencias vacía.
+Así ves de un vistazo qué guardias coinciden con cada clase que hay que cubrir, aunque las dos áreas tengan las clases a horas distintas. Un tramo donde no falta nadie tiene las columnas de área vacías.
 
 En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Pasa el ratón por encima de la línea o haz clic en ella para ver el motivo; el icono **ⓘ** de su izquierda indica que hay una explicación.
 
 Toda línea tachada tiene ese icono, sea cual sea el motivo: otro docente está en la clase, ya se ha enviado un docente de guardia (su nombre aparece al lado), o se ha comunicado a las familias que el alumnado no tiene que venir a esa clase (ver [Organizar una ausencia](#organizar-una-ausencia)). Si faltan los dos, o cada docente tiene medio grupo en un aula distinta, la línea no aparece tachada y sí hay que cubrir la clase.
 
-![Tabla de ausencias de la misma franja horaria: el docente ausente y qué hay que cubrir, frente a quién está de guardia](../../assets/teachers/guard-duty-02-absencies.png)
+![Tabla de ausencias del mismo día: una columna por área con las clases que hay que cubrir, una ya cubierta por un docente de guardia, y la guardia de patio de una docente ausente en la columna Guardia](../../assets/teachers/guard-duty-02-absencies.png)
 
 ---
 
@@ -90,7 +98,7 @@ Las solicitudes denegadas y canceladas no se muestran.
 
 Una ausencia que su jefe o Jefatura de Estudios ya conoce pero que el docente todavía no ha solicitado (una *ausencia prevista*, ver más abajo) también se muestra como pendiente de aprobar.
 
-Un docente de guardia ordinaria que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir. Una guardia que es un puesto fijo, como la de WC o la de patio, es distinta: alguien tiene que estar allí, así que cuando falta su docente tiene su propia línea en la columna de ausencias, con el nombre de la guardia (por ejemplo **Guardia (WC)**) donde una clase muestra el grupo, y se cubre como una clase (consulta [Cubrir una guardia de WC o de patio](#cubrir-una-guardia-de-wc-o-de-patio)).
+Un docente de guardia ordinaria que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir. Una guardia que es un puesto fijo, como la de WC o la de patio, es distinta: alguien tiene que estar allí, así que cuando falta su docente tiene su propia línea en la columna **Guardia** de la tabla de ausencias, debajo de los docentes de guardia de su bloque, con el nombre de la guardia (por ejemplo **Guardia (WC)**) donde una clase muestra el grupo, y se cubre como una clase (consulta [Cubrir una guardia de WC o de patio](#cubrir-una-guardia-de-wc-o-de-patio)).
 
 Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el justificante, no.
 
@@ -103,7 +111,7 @@ Si estás de guardia en una franja, no hace falta que esperes a que alguien te e
 1. En la **Tabla de ausencias**, haz clic en la línea de la clase (las líneas que puedes coger muestran una mano al pasar por encima y la indicación **Haz clic para cubrir tú esta clase**).
 2. Haz clic en **Cubrirla** para confirmarlo.
 
-La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Solo se puede coger una clase que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia ordinaria (no en una guardia de WC o de patio, ni mientras tú mismo estás ausente). Lo mismo vale para la línea de una guardia de WC o de patio cuyo docente falta: también puedes cogerla tú mismo.
+La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Si tu guardia solo coincide con una parte de la clase, coges esa parte (el diálogo te indica cuál), y otra persona puede cubrir el resto. Solo se puede coger una clase, o tu parte, que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia ordinaria (no en una guardia de WC o de patio, ni mientras tú mismo estás ausente). Lo mismo vale para la línea de una guardia de WC o de patio cuyo docente falta: también puedes cogerla tú mismo.
 
 Si cambias de idea, vuelve a hacer clic en la línea y después en **Deja de cubrir esta clase**: la clase vuelve a quedarse sin guardia. Solo puedes hacerlo con una clase que te has cogido tú; si alguien te ha enviado, pídele que lo cambie. Quien organiza la ausencia siempre puede cambiar o quitar a un docente de guardia que se haya cogido una clase por su cuenta.
 
@@ -131,12 +139,12 @@ Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del
 
 Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espera a que pulses su botón. Un día que ya ha pasado no se puede cambiar.
 
-![Tabla de ausencias como Jefe de departamento: una propuesta de entrada tarde, las reorganizaciones posibles y dos clases cubiertas por dos docentes de guardia, cada uno con su color](../../assets/teachers/guard-duty-03-organitzar.png)
+![Tabla de ausencias como Jefe de departamento: las propuestas para un grupo, que acaban con solo avisar a las familias, y dos clases cubiertas por dos docentes de guardia, cada uno con su color](../../assets/teachers/guard-duty-03-organitzar.png)
 
 ### Enviar un docente de guardia a una clase
 
 1. Haz clic en la línea de la clase que hay que cubrir (las líneas que puedes organizar muestran el cursor de mano).
-2. Si el diálogo ofrece reorganizaciones posibles (véase [Reorganizar las clases en lugar de enviar una guardia](#reorganizar-las-clases-en-lugar-de-enviar-una-guardia)), elige **Enviar un docente de guardia**. Después elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia ordinaria en esa franja (nunca los de guardia de WC o de patio, que son necesarios en su puesto), salvo los que también están ausentes. Junto a cada nombre se ve cuántas clases ha cubierto este curso, para poder elegir a quien menos haya cubierto.
+2. Si el diálogo ofrece reorganizaciones posibles (véase [Reorganizar las clases en lugar de enviar una guardia](#reorganizar-las-clases-en-lugar-de-enviar-una-guardia)), elige **Enviar un docente de guardia**. Después elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia ordinaria durante la clase (nunca los de guardia de WC o de patio, que son necesarios en su puesto), salvo los que también están ausentes. Primero aparecen los que pueden cubrir toda la clase y después los que solo pueden cubrir una parte, con el tramo que cubrirían (consulta [Cubrir una clase entre varios docentes de guardia](#cubrir-una-clase-entre-varios-docentes-de-guardia)). Junto a cada nombre se ve cuántas clases ha cubierto este curso, para poder elegir a quien menos haya cubierto.
 3. Opcionalmente, escribe un **mensaje**: qué tiene que trabajar el alumnado, dónde están los materiales...
 4. Haz clic en **Asignar y avisar**.
 
@@ -144,47 +152,63 @@ Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espe
 
 El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por correo, según su preferencia de notificaciones) con la fecha, la hora, el grupo, la asignatura, el aula, el docente ausente y tu mensaje. Si responde a ese correo, la respuesta te llega a ti.
 
-Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. Cuando varios docentes de guardia cubren clases en la misma franja, cada uno tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman su color.
+Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. El color es de la clase cubierta: cuando varios docentes de guardia cubren clases distintas a la misma hora, cada clase tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman el mismo color.
 
-Para cambiar el docente de guardia, haz clic en la línea y después en **Cambiar o quitar el docente de guardia** (solo lo ve quien organiza la ausencia), y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. **Quitar la asignación** saca al docente de la clase y le avisa.
+Para cambiar el docente de guardia, haz clic en la línea y después en **Cambiar o quitar el docente de guardia** (solo lo ve quien organiza la ausencia), y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. Para sacar a un docente de la clase, haz clic en **Quitar la asignación** junto a su nombre, en la parte de arriba del diálogo: se le avisa.
+
+### Cubrir una clase entre varios docentes de guardia
+
+Cuando las áreas tienen horarios distintos, puede que ningún docente de guardia coincida con toda una clase. Por ejemplo, una clase de ESO de 10:25 a 11:25 y dos docentes de guardia de FP, uno de 10:00 a 11:00 y otro de 11:00 a 12:00. Entonces el diálogo también ofrece los que coinciden con una parte de la clase, con el tramo que cubrirían (*"… - 10:25-11:00, parte de la clase"*), y cada docente cubre exactamente ese tramo.
+
+Mientras falte una parte por cubrir, la línea no se tacha: muestra el docente con su tramo y una etiqueta roja discontinua con lo que falta (*"Falta 11:00-11:25"*), para que envíes a otro docente. Cuando entre todos cubren toda la clase, la línea se tacha.
+
+Todos los docentes que cubren la misma clase comparten su color. Un borde de puntitos (en la línea, en la etiqueta y en la casilla del docente) indica una cobertura parcial; un borde continuo, una clase cubierta entera.
+
+![Una clase cubierta en parte: el docente de guardia con su tramo y la parte que aún falta, con bordes de puntitos](../../assets/teachers/guard-duty-08-cobertura-parcial.png)
 
 ### Cubrir una guardia de WC o de patio
 
-Cuando falta el docente de una guardia de WC o de patio, su guardia aparece como una línea de la tabla de ausencias, con el nombre de la guardia en lugar de un grupo. Se cubre exactamente como una clase: haz clic en ella, elige uno de los docentes de guardia ordinaria de esa franja y haz clic en **Asignar y avisar**. El mensaje que recibe indica que lo que debe cubrir es una guardia. Si después la ausencia se anula, se te ofrece liberar al docente de guardia como cualquier otro.
+Cuando falta el docente de una guardia de WC o de patio, su guardia aparece como una línea en la columna **Guardia** de la tabla de ausencias, debajo de los docentes de guardia de su bloque, con el nombre de la guardia en lugar de un grupo. Se cubre exactamente como una clase: haz clic en ella, elige uno de los docentes de guardia ordinaria de esa franja y haz clic en **Asignar y avisar**. El mensaje que recibe indica que lo que debe cubrir es una guardia. Si después la ausencia se anula, se te ofrece liberar al docente de guardia como cualquier otro.
 
 ### Reorganizar las clases en lugar de enviar una guardia
 
-A menudo no hace falta ninguna guardia, porque los propios docentes del grupo pueden reorganizar sus clases de ese día. El cuadrante lo calcula para cada clase que todavía no tiene a nadie y lo propone en el recuadro **Reorganizaciones posibles**, encima de la tabla (solo lo ve quien puede organizar la ausencia); esas líneas muestran además una etiqueta como **2 reorganizaciones posibles**.
+A menudo no hace falta ninguna guardia, porque los docentes pueden reorganizar sus clases de ese día. El cuadrante lo calcula para cada clase que todavía no tiene a nadie y lo propone en el recuadro **Propuestas para las ausencias**, encima de la tabla (solo lo ve quien puede organizar la ausencia); esas líneas muestran además una etiqueta como **3 reorganizaciones posibles**.
 
-![Recuadro de reorganizaciones posibles: un intercambio y dos clases movidas, cada una con su botón Aplicar y, en naranja, las horas de entrada y salida que cambia](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+El recuadro tiene una sección por grupo, encabezada con su nombre. Los grupos que comparten una clase ese día (dos grupos que dan clase juntos) comparten sección, porque reorganizar una clase compartida cambia el día de ambos. En cada sección aparece primero lo que está pendiente (una reorganización que espera su comunicado, un comunicado por rectificar), después las propuestas, numeradas a partir de la mejor, y al final **Solo avisar a las familias** (ver [Entrada tarde, salida anticipada o sin clases](#entrada-tarde-salida-anticipada-o-sin-clases)).
 
-Se proponen de dos tipos, siempre entre docentes del mismo grupo y dentro del mismo día:
+![Recuadro de propuestas para las ausencias: la sección de dos grupos, con tres propuestas numeradas, cada una con una lista de pasos con su casilla y, en naranja, las horas de entrada y salida que cambian, y al final la opción de solo avisar a las familias](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
-- **Intercambio**: otro docente del grupo, que está libre a esa hora, da clase entonces, y el docente ausente da la clase de ese docente con el grupo más tarde (o más temprano). El alumnado no pierde ninguna clase, y no hay que comunicar nada a las familias.
-- **Clase movida**: otro docente del grupo trae a esa hora su clase del principio o del final del día del grupo (o de junto a un patio). El grupo entra más tarde, sale antes o tiene un patio más largo, así que hay que comunicarlo a las familias.
+Cada propuesta es una lista de pasos, uno por línea, siempre entre docentes de esos grupos y dentro del mismo día:
 
-Se ordenan para que el alumnado pierda el mínimo de clases: primero las que no hacen perder ninguna. Una clase compartida con otro grupo no se propone nunca, porque cambiaría también el día de ese otro grupo.
+- **Clase movida**: un docente que está libre a esa hora da entonces una clase suya con el grupo de otra hora. La clase que deja se convierte en un hueco, que otro paso puede llenar a su vez: un docente adelanta una clase, otro llena el hueco que deja, y así sucesivamente, hasta que lo que queda libre está al principio o al final del día (o junto a un patio).
+- **Intercambio**: otro docente del grupo da clase entonces, y el docente ausente, que está en el centro a otra hora, da la clase de ese docente con el grupo.
+- **Aviso a las familias**: el grupo entra más tarde, sale antes o tiene un patio más largo, por las clases que quedan libres al principio o al final del día.
 
-**La jornada de nadie se alarga.** Una reorganización solo se propone si ningún docente implicado acaba con una jornada más larga (contada desde su primera franja hasta la última, tanto clases como guardias y cualquier otra tarea): quien tenga que entrar antes debe salir antes, y quien tenga que salir más tarde debe entrar más tarde. Cuando cambia la hora de entrada o de salida de alguien, una línea naranja bajo la propuesta dice exactamente de quién y cómo (*"… entra a las 08:00 en lugar de a las 10:00"*), de modo que se distinguen fácilmente de las que no cambian el horario de nadie.
+Una clase compartida por varios grupos se mueve para todos, siempre que todos tengan el mismo hueco, y entonces el aviso va a cada grupo.
 
-Para aplicar una, haz clic en **Aplicar** en su línea, o haz clic en la clase y elígela en el diálogo, donde las reorganizaciones posibles aparecen primero, por encima de enviar una guardia:
+Las propuestas aparecen en este orden: primero las que hacen perder menos clases al alumnado; entre esas, las que le hacen pasar menos horas en el centro sin clase (con una guardia o en un patio más largo); después las que necesitan menos comunicados y menos docentes que muevan clases, las que mantienen juntas dos horas de la misma materia y las que cambian menos horas de entrada o de salida. Se muestran hasta tres por grupo.
 
-![Diálogo de una clase: las reorganizaciones posibles, con el comunicado y los cambios de entrada y salida que implica cada una, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+**La jornada de nadie se alarga.** Una propuesta solo incluye un paso si ningún docente implicado acaba con una jornada más larga (contada desde su primera franja hasta la última, tanto clases como guardias y cualquier otra tarea): quien tenga que entrar antes debe salir antes, y quien tenga que salir más tarde debe entrar más tarde. Cuando un paso cambia la hora de entrada o de salida de alguien, una línea naranja debajo dice exactamente de quién y cómo (*"… sale a las 20:20 en lugar de a las 21:20"*).
 
-- Un **intercambio** tiene efecto de inmediato: la clase queda tachada, con el docente que está con el grupo, y los dos docentes reciben un mensaje de Odoo con el cambio (y su nueva hora de entrada o de salida, si cambia).
-- Una **clase movida** abre directamente el borrador del comunicado para las familias. **Solo cuenta cuando ese comunicado se ha enviado**: hasta entonces la clase no queda tachada y el recuadro de propuestas la muestra pendiente del comunicado (**Abrir borrador**). Los docentes reciben el aviso cuando se envía el comunicado. Si borras el borrador, la reorganización se descarta. Una vez enviado, la clase muestra las dos etiquetas: el docente que está con el grupo y, en verde, lo que se ha comunicado a las familias (*"Sale a las 12:25"*, *"Entra a las 09:00"*).
+**Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados** debajo, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
+
+![Diálogo de una clase: las propuestas que la resuelven, la primera elegida con sus pasos marcados, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+
+- Un **intercambio**, y una **clase movida** que no depende de ningún aviso, tienen efecto de inmediato: la clase queda tachada con el docente que está con el grupo, y los docentes implicados reciben un mensaje de Odoo con el cambio (y su nueva hora de entrada o de salida, si cambia).
+- Un **aviso** abre directamente su borrador para las familias (uno por grupo). **Las clases movidas que dependen de él solo cuentan cuando se ha enviado**: hasta entonces esas clases no quedan tachadas, y la sección las muestra pendientes del comunicado (**Abrir borrador**). Los docentes reciben el aviso cuando se envía el comunicado. Si borras el borrador, esas clases movidas se descartan. Una vez enviado, la clase muestra las dos etiquetas: quién está con el grupo y, en verde, lo que se ha comunicado a las familias (*"Sale a las 12:25"*).
+- **Si dejas fuera el aviso**, las clases movidas se aplican sin él, y la clase que deja libre una clase movida aparece como una línea más de la tabla, con la etiqueta **Clase pasada a las 15:00**: cúbrela como cualquier otra (con una guardia, otra reorganización o una descrita a mano), o envía el comunicado más tarde desde **Solo avisar a las familias**. La organiza quien organiza la ausencia original.
 
 Cuando una reorganización tiene efecto, el **Horario de guardias** muestra quién da realmente cada clase implicada, y un docente que estaba de guardia a una hora en la que ahora da clase aparece tachado en la columna **Guardia** en esa franja: no se le puede enviar a cubrir nada más entonces, y nadie puede coger esa clase por su cuenta.
 
 **Otra reorganización (descrita a mano)**, la última opción del diálogo, sirve para todo lo que el cuadrante no puede deducir, para que quede constancia: dos grupos que se juntan para dar la misma materia, un docente de otro grupo... Descríbela y, si hay un docente implicado, elígelo (recibe un mensaje). Esa clase ya no necesita guardia.
 
-Para cambiar de idea, haz clic en la línea y después en **Cambiar o quitar la reorganización**: **Quitar la reorganización** la deshace (se avisa a los docentes), y elegir una guardia u otra reorganización la sustituye.
+Para cambiar de idea, haz clic en la línea y después en **Cambiar o quitar la reorganización**: **Quitar la reorganización** la deshace (se avisa a los docentes), y elegir una guardia u otra reorganización la sustituye. Una clase movida para varios grupos se deshace para todos.
 
 ### Entrada tarde, salida anticipada o sin clases
 
 Cuando las clases sin docente son las primeras del día del grupo (una, dos o más seguidas), el alumnado podría entrar más tarde; cuando son las últimas, podría salir antes; cuando todas las clases del día quedan sin docente, el grupo podría no tener clases. Una clase donde hay alguien con el alumnado (otro docente que no está ausente, la otra mitad de un grupo desdoblado, una optativa o un docente de guardia ya enviado) corta la secuencia.
 
-Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y el recuadro **Propuestas de entrada, salida y patio**, encima de la tabla (solo lo ve quien puede organizar la ausencia), ofrece el cambio de ese grupo. Enviar el comunicado tacha esas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas.
+Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y la sección del grupo en el recuadro **Propuestas para las ausencias**, encima de la tabla (solo lo ve quien puede organizar la ausencia), ofrece ese cambio como última propuesta, **Solo avisar a las familias**. Enviar el comunicado tacha esas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas.
 
 El selector de cada propuesta te permite comunicar a las familias menos de lo que permiten las ausencias: con dos clases sin docente, puedes elegir **Entra a las 09:00** en lugar de **Entra a las 10:00**. Entonces solo se tacha la primera clase; la segunda sigue necesitando un docente de guardia, que envías como siempre. Elegir el cambio más corto es decisión tuya: nada te pedirá que lo rectifiques.
 
@@ -214,13 +238,13 @@ Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí
 
 ## Volver a donde estabas
 
-La dirección del horario conserva la semana, el día, el turno, la vista y los niveles que estás mirando. Si vuelves desde un comunicado (con las migas de pan o con el botón atrás del navegador) o recargas la página, vuelves al mismo sitio, y puedes copiar la dirección para enviar a un compañero directamente ahí. Si lo abres desde el menú, siempre empieza en el día y el turno de hoy.
+La dirección del horario conserva la semana, el día, el turno, la vista y las áreas que estás mirando. Si vuelves desde un comunicado (con las migas de pan o con el botón atrás del navegador) o recargas la página, vuelves al mismo sitio, y puedes copiar la dirección para enviar a un compañero directamente ahí. Si lo abres desde el menú, siempre empieza en el día y el turno de hoy.
 
 ---
 
 ## Exportar a PDF
 
-Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de nivel que tengas marcado se aplica también al PDF. El PDF imprime la vista que tengas activa en pantalla: el horario si está activo **Horario de guardias**, o la tabla de ausencias si está activo **Tabla de ausencias**.
+Haz clic en **PDF** en la barra de herramientas para descargar el día y el turno que se están mostrando (no toda la semana) como documento imprimible — el filtro de área que tengas marcado se aplica también al PDF, que usa los mismos tramos de tiempo y las mismas columnas que la pantalla. El PDF imprime la vista que tengas activa en pantalla: el horario si está activo **Horario de guardias**, o la tabla de ausencias si está activo **Tabla de ausencias**.
 
 ---
 

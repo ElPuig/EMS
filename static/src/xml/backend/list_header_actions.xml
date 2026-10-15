@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="ems.ListActionsDropdown">
+        <Dropdown t-if="props.buttons.length" menuClass="'o_ems_actions_menu'">
+            <button class="btn btn-secondary o_ems_actions_toggle">
+                Actions
+                <i class="fa fa-caret-down ms-1"/>
+            </button>
+            <t t-set-slot="content">
+                <t t-foreach="props.buttons" t-as="button" t-key="button.id">
+                    <DropdownItem class="'o-dropdown-item-unstyled-button o_ems_actions_item'">
+                        <MultiRecordViewButton
+                            list="props.list"
+                            className="button.className"
+                            clickParams="button.clickParams"
+                            defaultRank="'btn-secondary'"
+                            domain="props.domain"
+                            icon="button.icon"
+                            string="button.string"
+                            title="button.title"
+                            attrs="button.attrs"
+                        />
+                    </DropdownItem>
+                </t>
+            </t>
+        </Dropdown>
+    </t>
+
+    <!-- The selection's header buttons go in the dropdown instead of loose next to it (a lone one stays loose). -->
+    <t t-inherit="web.ListView" t-inherit-mode="extension">
+        <xpath expr="//t[@t-set-slot='control-panel-selection-actions']//t[@t-foreach='archInfo.headerButtons']" position="attributes">
+            <attribute name="t-if">!evalViewModifier(button.invisible) and !emsHeaderActionsDropdown</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='control-panel-selection-actions']//t[@t-foreach='archInfo.headerButtons']" position="before">
+            <EmsListActionsDropdown t-if="emsHeaderActionsDropdown" buttons="emsHeaderActionButtons"
+                                    list="model.root" domain="props.domain"/>
+        </xpath>
+    </t>
+
+</templates>

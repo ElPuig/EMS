@@ -30,7 +30,7 @@ En ambos casos, secretaría registra después la resolución en Esfera y cierra 
 | **Rechazada** | Registrada, sin ningún módulo convalidado. |
 | **Anulada** | El alumno o la familia la ha anulado desde el portal. |
 
-El estado solo cambia con las acciones de cada paso, en el menú **Acciones** del formulario.
+El estado solo cambia con las acciones de cada paso, arriba del formulario (en el menú **Acciones** cuando hay más de una).
 
 ---
 

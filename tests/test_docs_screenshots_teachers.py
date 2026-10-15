@@ -312,196 +312,209 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             max_height=350,
         )
 
-    def test_capture_guard_duty_schedule(self):
-        from datetime import date, timedelta
+    def _guard_board_calendar(self, name, rows):
+        employee = self.env['hr.employee'].create({'name': name, 'employee_type': 'teacher'})
+        calendar = self.env['resource.calendar'].create({'name': f'{name} Calendar', 'employee_id': employee.id})
+        employee.resource_calendar_id = calendar
+        calendar.apply_schedule_changes([{'dayofweek': '0', 'day_period': 'morning', **row} for row in rows])
+        return employee
 
-        # get_current_course_data() raises a friendly error when unset - this dev DB already has
-        # one configured, but a fresh CI DB doesn't (same guard as test_guard_duty_board_tour.py).
+    def test_capture_guard_duty_schedule(self):
+        """Both views of the board with two areas whose time frameworks differ (issue #637): ESO
+        has its break at 10:00, vocational training at 11:00, so lessons, breaks and guards only
+        line up by clock. Classes, a plain, a WC and two break guards, an approved absence, a
+        pending one (with its break guard post to cover) and a class already covered. Every name
+        and group is invented."""
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
-
-        level, study, group = create_level_study_group(self, 'DOCGUARD', level={
-            'name': 'Formació professional',
-        }, study={
-            'code': 'DOCGUARD01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
-        }, group={'acronym': 'A', 'course': 1})
-        subject = self.env['ems.subject'].create({
-            'code': 'DOCGUARDSUB', 'acronym': 'BD', 'name': 'Bases de dades',
-            'study_ids': [(6, 0, [study.id])],
-        })
-        space = self.env['ems.space'].create({
-            'code': 'DOCGUARD-A', 'name': 'Aula Exemple',
-            'space_type_id': self.env.ref('ems.space_type_classroom').id,
-            'work_location_id': self.env.ref('ems.work_location_main').id,
-        })
-
-        # The teaching teacher whose class fills a group column - also the one made absent below,
-        # so their name shows struck in bold red both in this cell and in the Absences table.
-        teaching_teacher = self.env['hr.employee'].create({'name': '0000 Berta Exemple', 'employee_type': 'teacher'})
-        teaching_calendar = self.env['resource.calendar'].create({
-            'name': '0000 Berta Exemple Calendar', 'employee_id': teaching_teacher.id})
-        teaching_teacher.resource_calendar_id = teaching_calendar
-        teaching_calendar.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'subject_id': subject.id, 'group_ids': [group.id], 'name': 'DOCGUARD: BD',
-        }])
-
-        # A plain guard duty, same time block - shows in the Guard duty column, never in a group's
-        # own column (a guard slot has no group_ids/subject_id of its own).
-        guard_teacher = self.env['hr.employee'].create({'name': '0000 Martí Mostra', 'employee_type': 'teacher'})
-        guard_calendar = self.env['resource.calendar'].create({
-            'name': '0000 Martí Mostra Calendar', 'employee_id': guard_teacher.id})
-        guard_teacher.resource_calendar_id = guard_calendar
-        guard_calendar.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'non_teaching': self.env.ref('ems.non_teaching_g').id, 'name': 'Guàrdia',
-        }])
-
-        # A Guard (WC) duty, same time block - the manual specifically calls out its "(WC)" tag,
-        # since it's the one guard subtype that can fall at any time of day.
-        wc_guard_teacher = self.env['hr.employee'].create({'name': '0000 Clara Prova', 'employee_type': 'teacher'})
-        wc_guard_calendar = self.env['resource.calendar'].create({
-            'name': '0000 Clara Prova Calendar', 'employee_id': wc_guard_teacher.id})
-        wc_guard_teacher.resource_calendar_id = wc_guard_calendar
-        wc_guard_calendar.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'non_teaching': self.env.ref('ems.non_teaching_gwc').id, 'name': 'Guàrdia (WC)',
-        }])
-
-        # A break-time ("patio") guard: a dedicated level whose own framework has only a break
-        # period, no teaching entry - so the row it lands on shows the "Break" label with no cell
-        # content of its own (same recipe as test_guard_duty_board_tour.py).
-        patio_level = self.env['ems.level'].create({'acronym': 'DOCGUARDP', 'name': 'Nivell Pati Exemple'})
-        patio_framework = self.env['resource.calendar'].create({
-            'name': 'Marc Pati Exemple', 'is_framework': True, 'level_id': patio_level.id,
-            'full_time_required_hours': 24,
-        })
-        self.env['resource.calendar.attendance'].create({
-            'calendar_id': patio_framework.id, 'name': 'BR: Pati', 'dayofweek': '0',
-            'hour_from': 8.9, 'hour_to': 9.6, 'day_period': 'morning',
-            'non_teaching': self.env.ref('ems.non_teaching_br').id,
-        })
-        patio_guard_teacher = self.env['hr.employee'].create({'name': '0000 Roger Fictici', 'employee_type': 'teacher'})
-        patio_guard_calendar = self.env['resource.calendar'].create({
-            'name': '0000 Roger Fictici Calendar', 'employee_id': patio_guard_teacher.id})
-        patio_guard_teacher.resource_calendar_id = patio_guard_calendar
-        patio_guard_calendar.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 8.9, 'hour_to': 9.6, 'day_period': 'morning',
-            'non_teaching': self.env.ref('ems.non_teaching_gb').id, 'name': 'Guàrdia de pati',
-        }])
-
-        # An approved whole-day absence for the teaching teacher, on the Monday of the CURRENT
-        # week - the same Monday the board's own date picker resolves to (see mondayOf() in
-        # guard_duty_board.js), so forcing the "Monday" tab below always lands on this absence
-        # regardless of which real weekday the capture actually runs on.
         mock_outgoing_email(self)
-        today = date.today()
+
+        Department = self.env['hr.department']
+        area_eso = Department.create({'name': 'ESO / BTX (exemple)', 'is_top_level': True, 'top_level_area': 'academic'})
+        area_fp = Department.create({'name': 'FP (exemple)', 'is_top_level': True, 'top_level_area': 'academic'})
+        br = self.env.ref('ems.non_teaching_br').id
+        guard = self.env.ref('ems.non_teaching_g').id
+        guard_break = self.env.ref('ems.non_teaching_gb').id
+        guard_wc = self.env.ref('ems.non_teaching_gwc').id
+
+        def level_with_framework(acronym, name, periods, breaks):
+            level = self.env['ems.level'].create({'acronym': acronym, 'name': name})
+            framework = self.env['resource.calendar'].create({
+                'name': f'Marc {acronym}', 'is_framework': True, 'level_id': level.id, 'full_time_required_hours': 24})
+            for hour_from, hour_to in periods:
+                self.env['resource.calendar.attendance'].create({
+                    'calendar_id': framework.id, 'name': 'Classe', 'dayofweek': '0',
+                    'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning'})
+            for hour_from, hour_to in breaks:
+                self.env['resource.calendar.attendance'].create({
+                    'calendar_id': framework.id, 'name': 'BR: Pati', 'dayofweek': '0',
+                    'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning', 'non_teaching': br})
+            return level
+
+        eso_periods = [(8, 9), (9, 10), (10 + 25 / 60, 11 + 25 / 60), (11 + 25 / 60, 12 + 25 / 60)]
+        fp_periods = [(8, 9), (9, 10), (10, 11), (11 + 25 / 60, 12 + 25 / 60)]
+        eso_break, fp_break = (10, 10 + 25 / 60), (11, 11 + 25 / 60)
+        level_eso = level_with_framework('T637E', 'ESO exemple', eso_periods, [eso_break])
+        level_fp = level_with_framework('T637F', 'FP exemple', fp_periods, [fp_break])
+
+        def study(code, acronym, level, area):
+            return self.env['ems.study'].create({
+                'code': code, 'acronym': acronym, 'name': f'{acronym} exemple', 'level_id': level.id, 'date': '2026-01-01',
+                'managing_department_id': area.id})
+
+        study_eso = study('T637ESO', 'ESOX', level_eso, area_eso)
+        study_dam = study('T637DAM', 'DAMX', level_fp, area_fp)
+        study_smx = study('T637SMX', 'SMXX', level_fp, area_fp)
+
+        def group(study, level, acronym):
+            return self.env['ems.group'].create({
+                'course': 1, 'acronym': acronym, 'level_id': level.id, 'study_id': study.id})
+
+        eso_a, eso_b = group(study_eso, level_eso, 'A'), group(study_eso, level_eso, 'B')
+        dam, smx = group(study_dam, level_fp, 'A'), group(study_smx, level_fp, 'A')
+
+        subjects = {}
+        for acronym, study_record in (('MAT', study_eso), ('CAT', study_eso), ('ANG', study_eso), ('TEC', study_eso),
+                                      ('BD', study_dam), ('PRG', study_dam), ('SO', study_smx), ('XAR', study_smx)):
+            subjects[acronym] = self.env['ems.subject'].create({
+                'code': f'T637{acronym}', 'acronym': acronym, 'name': acronym, 'study_ids': [(6, 0, [study_record.id])]})
+
+        def lesson(period, acronym, group_record):
+            return {'hour_from': period[0], 'hour_to': period[1], 'subject_id': subjects[acronym].id,
+                    'group_ids': [group_record.id], 'name': acronym}
+
+        def duty(period, non_teaching):
+            return {'hour_from': period[0], 'hour_to': period[1], 'non_teaching': non_teaching, 'name': 'Guàrdia'}
+
+        p = eso_periods
+        q = fp_periods
+        absent = self._guard_board_calendar('0000 Anna Exemple', [lesson(p[0], 'MAT', eso_a), lesson(p[2], 'MAT', eso_b)])
+        employees = absent
+        employees |= self._guard_board_calendar('0000 Biel Prova', [lesson(p[1], 'CAT', eso_a), lesson(p[0], 'CAT', eso_b), lesson(p[3], 'CAT', eso_a)])
+        employees |= self._guard_board_calendar('0000 Carla Mostra', [lesson(p[2], 'ANG', eso_a), lesson(p[1], 'ANG', eso_b)])
+        dani = self._guard_board_calendar('0000 Dani Fictici', [lesson(p[3], 'TEC', eso_b), duty(eso_break, guard_break)])
+        employees |= dani
+        elna = self._guard_board_calendar('0000 Elna Exemple', [lesson(q[0], 'BD', dam), lesson(q[2], 'BD', dam), lesson(q[1], 'SO', smx)])
+        employees |= elna
+        employees |= self._guard_board_calendar('0000 Ferran Prova', [lesson(q[1], 'PRG', dam), lesson(q[0], 'XAR', smx), lesson(q[3], 'PRG', dam)])
+        employees |= self._guard_board_calendar('0000 Gina Mostra', [lesson(q[2], 'XAR', smx), lesson(q[3], 'SO', smx), duty(fp_break, guard_break)])
+        employees |= self._guard_board_calendar('0000 Hugo Fictici', [duty(p[0], guard), duty(p[1], guard), duty(eso_break, guard_break)])
+        employees |= self._guard_board_calendar('0000 Irene Exemple', [duty(p[2], guard), duty(p[3], guard)])
+        jordi = self._guard_board_calendar('0000 Jordi Prova', [duty(q[2], guard), duty(fp_break, guard_break)])
+        employees |= jordi
+        employees |= self._guard_board_calendar('0000 Laia Mostra', [duty(q[3], guard_wc)])
+
+        today = self.env['ems.datetime_utils'].get_local_today()
         monday = today - timedelta(days=today.weekday())
         self.env['hr.leave'].create({
-            'employee_id': teaching_teacher.id,
-            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'employee_id': absent.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
             'request_date_from': monday, 'request_date_to': monday,
             'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
         }).action_approve()
-
-        # Classes covered earlier this course, so the guard badges show a count other than 0
-        # (issue #600).
-        course_start = self.env.company.current_course_id.date_range()[0]
-        for offset, guard in enumerate((guard_teacher, guard_teacher, guard_teacher, patio_guard_teacher)):
-            self.env['ems.absence_cover'].create({
-                'date': course_start + timedelta(days=offset), 'hour_from': 9, 'hour_to': 10,
-                'absent_employee_id': teaching_teacher.id, 'group_id': group.id,
-                'guard_employee_id': guard.id})
-
-        # A second teaching teacher, in another group at the same time, whose absence the Head of
-        # Studies has entered as expected (issue #509): it reads as pending, not approved.
-        expected_group = self.env['ems.group'].create({
-            'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id,
+        self.env['hr.leave'].create({
+            'employee_id': elna.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': monday, 'request_date_to': monday,
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+        self.env['hr.leave'].create({
+            'employee_id': dani.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': monday, 'request_date_to': monday,
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
         })
-        expected_teacher = self.env['hr.employee'].create({'name': '0000 Joan Prova', 'employee_type': 'teacher'})
-        expected_calendar = self.env['resource.calendar'].create({
-            'name': '0000 Joan Prova Calendar', 'employee_id': expected_teacher.id})
-        expected_teacher.resource_calendar_id = expected_calendar
-        expected_calendar.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
-            'subject_id': subject.id, 'group_ids': [expected_group.id], 'name': 'DOCGUARD: BD',
-        }])
-        Pending = self.env['ems.absence_pending']
-        start, stop = Pending._utc_bounds(monday, 8.0, 15.0)
-        Pending.create({'employee_id': expected_teacher.id, 'date_from': start, 'date_to': stop})
+        self.env['ems.absence_cover'].create({
+            'date': monday, 'hour_from': q[2][0], 'hour_to': q[2][1], 'absent_employee_id': elna.id,
+            'group_id': dam.id, 'guard_employee_id': jordi.id})
 
-        # This board has no domain to scope it by (get_guard_duty_board_data() is a plain RPC,
-        # not a view/action with a 'domain' field) and its own aggregation is explicitly
-        # centre-wide by design (_get_guard_duty_board_attendance_ids()'s own NOTE) - even WITH
-        # a level filter applied, the Guard duty column still shows every REAL teacher on real
-        # guard duty in the same time block, regardless of level (see
-        # get_guard_duty_board_lines()'s own docstring: "once a time block is visible... every
-        # guard on duty then is relevant, regardless of what they otherwise teach"). Found while
-        # actually looking at the first capture attempt: it showed this dev DB's real timetable
-        # (real teacher names, real group codes) for every group centre-wide, not just this
-        # fixture's own "DAM1A" column - confirmed real personal data, not safe to publish (see
-        # CLAUDE.md's "Screenshots must never expose real personal data"). Since there is no
-        # domain-scoped action to substitute (the "create our own ir.actions.act_window" trick
-        # used elsewhere in this file doesn't apply to a client action), the attendance
-        # aggregation itself is patched for the duration of this test to only ever return this
-        # fixture's own 4 teachers' rows - the same real method, just pre-filtered, so every
-        # downstream computation (groups, periods, guards, absences) naturally narrows to fixture
-        # data only. addCleanup (not addClassCleanup): this is a real, process-wide monkeypatch,
-        # not a DB write - it must not leak into any other test in this class.
-        fixture_employee_ids = (
-            teaching_teacher | guard_teacher | wc_guard_teacher | patio_guard_teacher
-            | expected_teacher).ids
+        # The board is centre-wide by design (no domain to scope it by), so its aggregation is
+        # narrowed to this fixture's teachers: the dev DB's real timetable, real names included,
+        # must never reach a manual's screenshot.
+        fixture_ids = employees.ids
         course_model = type(self.env['ems.course'])
-        original_get_attendance_ids = course_model._get_guard_duty_board_attendance_ids
-
-        def _scoped_get_attendance_ids(course_record):
-            return original_get_attendance_ids(course_record).filtered(
-                lambda attendance: attendance.calendar_id.employee_id.id in fixture_employee_ids)
-
-        patcher = patch.object(
-            course_model, '_get_guard_duty_board_attendance_ids', _scoped_get_attendance_ids)
+        original = course_model._get_guard_duty_board_attendance_ids
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids',
+                               lambda course, domain=(): original(course, domain).filtered(
+                                   lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
         patcher.start()
         self.addCleanup(patcher.stop)
+        # Only the fixture's frameworks, so the real ones' breaks don't leak into the rows.
+        framework_ids = self.env['resource.calendar'].search([('level_id', 'in', (level_eso | level_fp).ids)]).ids
+        calendar_model = type(self.env['resource.calendar'])
+        original_search = calendar_model.search
 
-        # The board defaults its day tab/shift to the browser's own real wall-clock time (see
-        # getDefaultDayAndShift() in guard_duty_board.js) - every fixture above is keyed to Monday
-        # morning regardless, so both captures force that combination explicitly via run= instead
-        # of depending on when the capture actually happens to execute. A click on an already-
-        # active tab/an unchanged <select> value is a harmless no-op (setActiveDay()/
-        # onShiftChange() both early-return on no change), so this converges correctly either way.
+        def scoped_search(model, domain, *args, **kwargs):
+            records = original_search(model, domain, *args, **kwargs)
+            if ('is_framework', '=', True) in domain:
+                records = records.filtered(lambda calendar: calendar.id in framework_ids)
+            return records
+
+        search_patcher = patch.object(calendar_model, 'search', scoped_search)
+        search_patcher.start()
+        self.addCleanup(search_patcher.stop)
+
         force_monday_morning = [
             "document.querySelector('.o_guard_board_tabs .nav-item:nth-of-type(1) .nav-link').click();",
-            """
-                (function () {
-                    var select = document.querySelector('.o_guard_board_shift_select');
-                    select.value = 'morning';
-                    select.dispatchEvent(new Event('change'));
-                })();
-            """,
+            """(function () { var select = document.querySelector('.o_guard_board_shift_select');
+                select.value = 'morning'; select.dispatchEvent(new Event('change')); })();""",
         ]
-        force_monday_morning_wait = [
-            '.o_guard_board_tabs .nav-item:nth-of-type(1) .nav-link.active',
-            '.o_guard_board_guard_cell .o_guard_board_guard_badge',
-        ]
-
-        # The board opens on the absences table (the first of its two views); the timetable is the
-        # second one.
+        wait = ['.o_guard_board_tabs .nav-item:nth-of-type(1) .nav-link.active', '.o_guard_board_guard_badge']
         self._capture(
-            '/odoo/action-ems.action_guard_duty_board',
-            '.o_guard_board', 'guard-duty-01-horari.png',
+            '/odoo/action-ems.action_guard_duty_board', '.o_guard_board', 'guard-duty-01-horari.png',
             login='doc_shot_teacher', wait_for='.o_guard_board_toolbar',
             run=force_monday_morning + [
-                "document.querySelector('.o_guard_board_view_tabs .nav-item:nth-of-type(2) .nav-link').click();",
-            ],
-            wait_after=force_monday_morning_wait + ['.o_guard_board_table:not(.o_guard_board_duty_table)'],
-        )
+                "document.querySelector('.o_guard_board_view_tabs .nav-item:nth-of-type(2) .nav-link').click();"],
+            wait_after=wait + ['.o_guard_board_table:not(.o_guard_board_duty_table)'])
         self._capture(
-            '/odoo/action-ems.action_guard_duty_board',
-            '.o_guard_board', 'guard-duty-02-absencies.png',
+            '/odoo/action-ems.action_guard_duty_board', '.o_guard_board', 'guard-duty-02-absencies.png',
             login='doc_shot_teacher', wait_for='.o_guard_board_toolbar',
-            run=force_monday_morning,
-            wait_after=force_monday_morning_wait + ['.o_guard_board_duty_table'],
-        )
+            run=force_monday_morning, wait_after=wait + ['.o_guard_board_duty_table'])
+
+
+    def _partial_cover_teacher(self, name, rows):
+        employee = self.env['hr.employee'].create({'name': name, 'employee_type': 'teacher'})
+        calendar = self.env['resource.calendar'].create({'name': f'{name} Calendar', 'employee_id': employee.id})
+        employee.resource_calendar_id = calendar
+        calendar.apply_schedule_changes([{'dayofweek': '0', 'day_period': 'morning', **row} for row in rows])
+        return employee
+
+    def test_capture_guard_duty_partial_cover(self):
+        """A class covered by a guard whose duty only overlaps part of it (issue #637): the guard's
+        part with dotted borders and the part still missing. Every name and group is invented."""
+        if not self.env.company.current_course_id:
+            self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
+        mock_outgoing_email(self)
+        area = self.env['hr.department'].create({'name': 'ESO / BTX (exemple)', 'is_top_level': True, 'top_level_area': 'academic'})
+        level = self.env['ems.level'].create({'acronym': 'T637P', 'name': 'ESO exemple'})
+        study = self.env['ems.study'].create({'code': 'T637P', 'acronym': 'ESOX', 'name': 'ESO exemple', 'level_id': level.id,
+                                              'date': '2026-01-01', 'managing_department_id': area.id})
+        group = self.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id})
+        subject = self.env['ems.subject'].create({'code': 'T637PMAT', 'acronym': 'MAT', 'name': 'MAT', 'study_ids': [(6, 0, study.ids)]})
+        guard = self.env.ref('ems.non_teaching_g').id
+        lesson = (10 + 25 / 60, 11 + 25 / 60)
+        anna = self._partial_cover_teacher('0000 Anna Exemple', [{'hour_from': lesson[0], 'hour_to': lesson[1], 'subject_id': subject.id,
+                                                    'group_ids': [group.id], 'name': 'MAT'}])
+        irene = self._partial_cover_teacher('0000 Irene Exemple', [{'hour_from': lesson[0], 'hour_to': lesson[1], 'non_teaching': guard, 'name': 'G'}])
+        hugo = self._partial_cover_teacher('0000 Hugo Fictici', [{'hour_from': 10, 'hour_to': 11, 'non_teaching': guard, 'name': 'G'}])
+        laia = self._partial_cover_teacher('0000 Laia Mostra', [{'hour_from': 11, 'hour_to': 12, 'non_teaching': guard, 'name': 'G'}])
+        today = self.env['ems.datetime_utils'].get_local_today()
+        monday = today + timedelta(days=7 - today.weekday())
+        self.env['hr.leave'].create({
+            'employee_id': anna.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': monday, 'request_date_to': monday,
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+        # Only this fixture's rows, never the dev DB's real timetable (see test_capture_guard_duty_schedule).
+        fixture_ids = (anna | irene | hugo | laia).ids
+        course_model = type(self.env['ems.course'])
+        original = course_model._get_guard_duty_board_attendance_ids
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course, domain=(): original(course, domain).filtered(
+            lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.env['ems.absence_cover'].board_assign(str(monday), lesson[0], lesson[1], anna.id, group.id, hugo.id, "Exercicis")
+
+        url = f'/odoo/action-ems.action_guard_duty_board?date={monday}&shift=morning&view=table'
+        self._capture(url, '.o_guard_board_table_wrap', 'guard-duty-08-cobertura-parcial.png', login='doc_shot_teacher',
+                      wait_for='.o_guard_board_missing_tag')
 
     def test_capture_guard_duty_management(self):
         """Organising absences from the absences table (issues #539, #571, #581, #605), as the
@@ -523,7 +536,11 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'code': 'DOCMGMTSUB', 'acronym': 'BD', 'name': 'Bases de dades', 'study_ids': [(6, 0, [study.id])]})
         chief_user = create_role_user(self, 'department_chief', 'doc_shot_chief', lang='ca_ES', name='Cap Exemple')
         chief = create_role_employee(self, chief_user)
-        department = self.env['hr.department'].create({'name': 'Departament Exemple', 'manager_id': chief.id})
+        # Under an area that manages the study, so the absences table heads its column with the area.
+        area = self.env['hr.department'].create({'name': 'FP (exemple)', 'is_top_level': True, 'top_level_area': 'academic'})
+        department = self.env['hr.department'].create({
+            'name': 'Departament Exemple', 'manager_id': chief.id, 'parent_id': area.id})
+        study.managing_department_id = department
 
         def teacher(name, periods, group=None, non_teaching=None):
             employee = self.env['hr.employee'].create({
@@ -568,23 +585,23 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         fixture_ids = department.member_ids.ids
         course_model = type(self.env['ems.course'])
         original = course_model._get_guard_duty_board_attendance_ids
-        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course: original(course).filtered(
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course, domain=(): original(course, domain).filtered(
             lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
         patcher.start()
         self.addCleanup(patcher.stop)
 
         # The board keeps its day, shift and view in the URL, so it opens straight on next Monday.
         url = f'/odoo/action-ems.action_guard_duty_board?date={day}&shift=morning&view=table'
-        open_class = """[...document.querySelectorAll('.o_guard_board_duty_table tr')]
-            .find((row) => row.textContent.includes('%s'))
+        open_class = """[...document.querySelectorAll('.o_guard_board_duty_table td.o_guard_board_absence_cell')]
+            .find((cell) => cell.querySelector('.o_guard_board_block_time').textContent.includes('%s'))
             .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();"""
         self._capture(
             url, '.o_guard_board', 'guard-duty-03-organitzar.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
+            wait_for='.o_guard_board_notice_plan .o_guard_board_action_option',
         )
         self._capture(
             url, '.modal-content', 'guard-duty-04-enviar-guardia.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
+            wait_for='.o_guard_board_notice_plan .o_guard_board_action_option',
             run=[open_class % '09:00-10:00',
                  # The dialog opens on the first arrangement the board detected (issue #605): this
                  # shot is about sending a guard.
@@ -600,22 +617,82 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         )
         self._capture(
             url, '.o_form_view .o_form_sheet', 'guard-duty-05-comunicat.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
-            run=["document.querySelector('.o_guard_board_proposals .o_guard_board_action_button').click();"],
+            wait_for='.o_guard_board_notice_plan .o_guard_board_action_option',
+            run=["document.querySelector('.o_guard_board_notice_plan .o_guard_board_action_button').click();"],
             wait_after=['.o_form_view .alert-info'], max_height=760,
         )
-        # Issue #605: the arrangements the board detected for the classes still left without
-        # anybody (0000 Jordi Mostra can swap or move his 10:00 lesson with the group), and the
-        # dialog of one of those classes, which offers them above sending a guard.
-        self._capture(
-            url, '.o_guard_board_arrangements', 'guard-duty-06-reorganitzacions.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_arrangements .o_guard_board_action_button',
-        )
-        self._capture(
-            url, '.modal-content', 'guard-duty-07-aplicar-reorganitzacio.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_arrangements .o_guard_board_action_button',
-            run=[open_class % '08:00-09:00'], wait_after=['.o_guard_cover_option'],
-        )
+
+    def test_capture_guard_duty_chained_arrangement(self):
+        """Issue #645, as the Department Chief: the proposals box and a class's dialog for two
+        groups whose teacher, away all day, teaches them together at 8:00 and 12:00. The best
+        proposal: the two groups' teachers bring their two hours forward, a teacher on guard brings
+        in the last lesson of the day, which they teach both groups, and both groups leave at 12:00.
+        Every name and group is invented."""
+        if not self.env.company.current_course_id:
+            self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
+        mock_outgoing_email(self)
+        level, study, group_a = create_level_study_group(self, 'DOCCHAIN', level={'name': 'Formació professional'}, study={
+            'code': 'DOCCHAIN01', 'acronym': 'AIX', 'name': 'Administració (exemple)',
+        }, group={'acronym': 'A', 'course': 1})
+        group_b = self.env['ems.group'].create({'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id})
+        subject = self.env['ems.subject'].create({
+            'code': 'DOCCHAINSUB', 'acronym': 'MP', 'name': 'Mòdul exemple', 'study_ids': [(6, 0, [study.id])]})
+        chief = create_role_employee(self, create_role_user(self, 'department_chief', 'doc_shot_chief', lang='ca_ES', name='Cap Exemple'))
+        area = self.env['hr.department'].create({'name': 'FP (exemple)', 'is_top_level': True, 'top_level_area': 'academic'})
+        department = self.env['hr.department'].create({'name': 'Departament Exemple', 'manager_id': chief.id, 'parent_id': area.id})
+        study.managing_department_id = department
+        space_a, space_b = (self.env['ems.space'].create({
+            'name': f'Aula exemple {letter}', 'code': f'DOCCHAIN-{letter}',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id}) for letter in 'AB')
+        duties = {'guard': self.env.ref('ems.non_teaching_g'), 'wc': self.env.ref('ems.non_teaching_gwc')}
+        both = group_a | group_b
+
+        def teacher(name, rows):
+            employee = self.env['hr.employee'].create({'name': name, 'employee_type': 'teacher', 'department_id': department.id})
+            employee.parent_id = chief
+            calendar = self.env['resource.calendar'].create({
+                'name': f'{name} Calendar', 'employee_id': employee.id, 'attendance_ids': [(5, 0, 0)]})
+            employee.resource_calendar_id = calendar
+            calendar.apply_schedule_changes([{
+                'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+                **({'non_teaching': duties[groups].id, 'name': 'Guàrdia'} if isinstance(groups, str) else
+                   {'subject_id': subject.id, 'group_ids': groups.ids, 'name': 'MP',
+                    'space_id': (space_a if group_a in groups else space_b).id}),
+            } for hour_from, hour_to, groups in rows])
+            return employee
+
+        carla = teacher('0000 Carla Exemple', ((8, 9, both), (12, 13, both)))
+        teacher('0000 Sergi Mostra', ((8, 9, 'guard'), (9, 10, group_a), (10, 11, group_a)))
+        teacher('0000 Joana Prova', ((8, 9, 'guard'), (9, 10, group_b), (10, 11, group_b)))
+        teacher('0000 Carles Fictici', ((8, 9, 'wc'), (11, 12, both)))
+        teacher('0000 Ferran Mostra', ((8, 9, 'wc'), (10, 11, 'guard'), (12, 13, 'guard'), (13, 14, both)))
+        day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
+        while day.weekday() != 0:
+            day += timedelta(days=1)
+        self.env['hr.leave'].create({
+            'employee_id': carla.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day, 'request_date_to': day, 'ems_full_day': True,
+            'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+        # Only this fixture's rows, never the dev DB's real timetable (see test_capture_guard_duty_schedule).
+        fixture_ids = department.member_ids.ids
+        course_model = type(self.env['ems.course'])
+        original = course_model._get_guard_duty_board_attendance_ids
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course, domain=(): original(course, domain).filtered(
+            lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+        url = f'/odoo/action-ems.action_guard_duty_board?date={day}&shift=morning&view=table'
+        self._capture(url, '.o_guard_board_arrangements', 'guard-duty-06-reorganitzacions.png', login='doc_shot_chief',
+                      wait_for='.o_guard_board_arrangements .o_guard_board_plan_apply')
+        open_class = """[...document.querySelectorAll('.o_guard_board_duty_table td.o_guard_board_absence_cell')]
+            .find((cell) => cell.querySelector('.o_guard_board_block_time').textContent.includes('08:00-09:00'))
+            .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();"""
+        self._capture(url, '.modal-content', 'guard-duty-07-aplicar-reorganitzacio.png', login='doc_shot_chief',
+                      wait_for='.o_guard_board_arrangements .o_guard_board_plan_apply',
+                      run=[open_class], wait_after=['.o_guard_cover_option'])
 
     def test_capture_photo_visibility(self):
         # "My Profile" (hr.res_users_action_my) has no stable action URL of its own - its res_id

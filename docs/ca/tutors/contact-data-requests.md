@@ -67,7 +67,7 @@ Feu clic a la fila per comparar-les una al costat de l'altra, a mida gran. En ap
 
 ![La foto actual i la proposada una al costat de l'altra](../../assets/tutors/dades-contacte-06-foto.png)
 
-Per aprovar-ne diverses alhora, seleccioneu-les a la llista i feu clic a **Aprovar**.
+Per aprovar-ne diverses alhora, seleccioneu-les a la llista i trieu **Accions → Aprovar**.
 
 ## Retornar una resposta a la família
 
@@ -78,4 +78,4 @@ La família rep un correu amb el motiu i pot tornar a enviar les dades des del p
 
 ## Enviar un recordatori
 
-Seleccioneu les sol·licituds **Pendent de resposta** i feu clic a **Enviar recordatori**. La columna **Recordatoris** compta quants se n'han enviat.
+Seleccioneu les sol·licituds **Pendent de resposta** i trieu **Accions → Enviar recordatori**. La columna **Recordatoris** compta quants se n'han enviat.

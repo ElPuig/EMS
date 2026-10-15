@@ -73,7 +73,7 @@ Al guardar la ficha, si están todos los datos requeridos (nombre y correo priva
 - Envía las credenciales por correo a la dirección privada indicada en el paso 3 (el mensaje también explica cómo entrar en el EMS).
 - Guarda un PDF con las credenciales en la ficha del profesor, en el bloque **Cuenta de Google** de la pestaña **Recursos humanos**. Solo lo ven los roles que gestionan la cuenta.
 
-No hace falta pulsar nada más. Si faltaba algún dato obligatorio, complételo y guarde la ficha: la cuenta se crea de la misma manera. La opción **Crear cuenta de Google**, en el menú **Acciones** de la cabecera de la ficha, solo aparece mientras el profesor no tiene cuenta corporativa y no se está creando ninguna (por ejemplo, si la creación automática ha fallado). Al pulsarla se inicia la creación, y en unos momentos el resultado aparece en el historial de mensajes de la ficha.
+No hace falta pulsar nada más. Si faltaba algún dato obligatorio, complételo y guarde la ficha: la cuenta se crea de la misma manera. El botón **Crear cuenta de Google**, arriba de la ficha, solo aparece mientras el profesor no tiene cuenta corporativa y no se está creando ninguna (por ejemplo, si la creación automática ha fallado). Al pulsarla se inicia la creación, y en unos momentos el resultado aparece en el historial de mensajes de la ficha.
 
 ---
 

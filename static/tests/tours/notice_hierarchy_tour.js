@@ -31,7 +31,7 @@ registry.category("web_tour.tours").add("ems_notice_hierarchy_send", {
     url: "/odoo/action-ems.action_communication_list",
     steps: () => [
         ...openChiefDraft(),
-        ...clickAction("action_send", "Send it, from the Actions dropdown"),
+        ...clickAction("action_send", "Send it"),
         {
             trigger: ".o_statusbar_status button[data-value='scheduled'].o_arrow_button_current",
             content: "The notice is now Scheduled",

@@ -1,7 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { clickAction } from "./actions_dropdown_helpers";
+import { clickAction, loneAction } from "./actions_dropdown_helpers";
 
 // ems.notice (action_communication_list): a bulk-email screen with three widget types that
 // had never been driven in a real browser - widget="html" (a rich-text editor, provided by
@@ -87,7 +87,12 @@ registry.category("web_tour.tours").add("ems_notice_create_and_send", {
             trigger: ".o_statusbar_status button[data-value='draft'].o_arrow_button_current",
             content: "State starts as Draft",
         },
-        ...clickAction("action_send", "Send now, from the Actions dropdown"),
+        loneAction("action_send", "A draft's only action, Send now, is a plain header button, not a dropdown"),
+        {
+            trigger: ".o_form_statusbar button[name='action_send'].btn-primary",
+            content: "Send now is highlighted as the form's main action",
+        },
+        ...clickAction("action_send", "Send now"),
         {
             trigger: ".o_statusbar_status button[data-value='scheduled'].o_arrow_button_current",
             content: "State transitioned to Scheduled - the recipient's send job was queued",

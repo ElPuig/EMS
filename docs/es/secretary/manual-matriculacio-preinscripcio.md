@@ -161,7 +161,7 @@ Cuando termina el periodo de matrícula, las matrículas que siguen en borrador 
 
 1. En **Matrícula**, la lista muestra por defecto las matrículas no confirmadas. Seleccionad las que queráis cerrar (o todas).
 2. Abrid el desplegable **Acciones** y elegid **Cerrar matrículas no confirmadas**.
-3. El asistente muestra cada persona con la acción que se le aplicará:
+3. El asistente empieza con un resumen (cuántas personas y matrículas hay, y cuántas personas reciben cada acción y qué significa), y debajo muestra cada persona con la acción que se le aplicará:
 
 | Acción | A quién | Qué pasa |
 |---|---|---|
@@ -172,9 +172,9 @@ Cuando termina el periodo de matrícula, las matrículas que siguen en borrador 
 | **Solo cancelar la matrícula** | Alumnado con grupo o con la matrícula de este curso confirmada, graduados, bajas y expulsados | Solo se cancela la matrícula. |
 | **Revisar a mano (pago)** | Personas con alguna matrícula con un pago o una factura | No se toca nada: revisadlas una por una. |
 
-4. Pulsad **Aplicar** y confirmad. Las eliminaciones no se pueden deshacer.
+4. Pulsad **Aplicar** y confirmad. Las eliminaciones no se pueden deshacer. Un curso entero puede tardar unos minutos: la pantalla queda bloqueada con un mensaje hasta que termina.
 
-Aparece un resumen con cuántas personas han recibido cada acción. Una familia mantiene el acceso al portal mientras tenga otro hijo matriculado. Las familias no reciben ningún correo, y el alumnado solo el aviso de la cuenta corporativa mencionado arriba.
+Al terminar, el asistente muestra cuántas personas han recibido cada acción y las incidencias, y descarga un registro CSV con qué ha pasado con cada persona (se puede volver a descargar desde la misma pantalla). Una familia mantiene el acceso al portal mientras tenga otro hijo matriculado. Las familias no reciben ningún correo, y el alumnado solo el aviso de la cuenta corporativa mencionado arriba.
 
 ### Solicitantes que nunca han tenido matrícula
 

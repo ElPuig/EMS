@@ -161,7 +161,7 @@ When the enrollment period is over, the enrollments still in draft or sent belon
 
 1. In **Enrollment**, the list shows the unconfirmed enrollments by default. Select the ones to close (or all of them).
 2. Open the **Actions** dropdown and choose **Close unconfirmed enrollments**.
-3. The assistant lists every person with the action that will be applied to them:
+3. The assistant starts with a summary (how many people and enrollments, and how many people get each action and what it means), followed by every person with the action that will be applied to them:
 
 | Action | Who | What happens |
 |---|---|---|
@@ -172,9 +172,9 @@ When the enrollment period is over, the enrollments still in draft or sent belon
 | **Cancel the enrollment only** | Students with a group or with this course's enrollment confirmed, graduates, withdrawals and expelled students | Only the enrollment is cancelled. |
 | **Review by hand (payment)** | People with an enrollment that has a payment or an invoice | Nothing is touched: check them one by one. |
 
-4. Press **Apply** and confirm. Deletions cannot be undone.
+4. Press **Apply** and confirm. Deletions cannot be undone. A whole course can take a few minutes: the screen stays locked with a message until it finishes.
 
-A summary shows how many people got each action. A family keeps its portal access while it has another child enrolled. Families get no email, and the students only the corporate account warning mentioned above.
+The assistant then shows how many people got each action and any issue, and downloads a CSV log with what happened to each person (it can be downloaded again from the same screen). A family keeps its portal access while it has another child enrolled. Families get no email, and the students only the corporate account warning mentioned above.
 
 ### Applicants who never got an enrollment
 

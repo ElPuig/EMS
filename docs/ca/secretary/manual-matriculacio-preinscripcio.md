@@ -161,7 +161,7 @@ Quan s'acaba el període de matrícula, les matrícules que encara són en esbor
 
 1. A **Matrícula**, la llista mostra per defecte les matrícules no confirmades. Seleccioneu les que voleu tancar (o totes).
 2. Obriu el desplegable **Accions** i trieu **Tancar matrícules no confirmades**.
-3. L'assistent mostra cada persona amb l'acció que se li aplicarà:
+3. L'assistent comença amb un resum (quantes persones i matrícules hi ha, i quantes persones reben cada acció i què vol dir), i a sota mostra cada persona amb l'acció que se li aplicarà:
 
 | Acció | A qui | Què passa |
 |---|---|---|
@@ -172,9 +172,9 @@ Quan s'acaba el període de matrícula, les matrícules que encara són en esbor
 | **Només cancel·lar la matrícula** | Alumnat amb grup o amb la matrícula d'aquest curs confirmada, graduats, baixes i expulsats | Només es cancel·la la matrícula. |
 | **Revisar a mà (pagament)** | Persones amb alguna matrícula amb un pagament o una factura | No es toca res: reviseu-les una per una. |
 
-4. Premeu **Aplicar** i confirmeu. Les eliminacions no es poden desfer.
+4. Premeu **Aplicar** i confirmeu. Les eliminacions no es poden desfer. Un curs sencer pot trigar uns minuts: la pantalla queda bloquejada amb un missatge fins que acaba.
 
-Apareix un resum amb quantes persones han rebut cada acció. Una família manté l'accés al portal mentre tingui un altre fill matriculat. Les famílies no reben cap correu, i l'alumnat només l'avís del compte corporatiu esmentat a dalt.
+En acabar, l'assistent mostra quantes persones han rebut cada acció i les incidències, i descarrega un registre CSV amb què ha passat amb cada persona (es pot tornar a descarregar des de la mateixa pantalla). Una família manté l'accés al portal mentre tingui un altre fill matriculat. Les famílies no reben cap correu, i l'alumnat només l'avís del compte corporatiu esmentat a dalt.
 
 ### Sol·licitants que no han tingut mai matrícula
 

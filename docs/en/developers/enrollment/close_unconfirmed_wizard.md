@@ -69,3 +69,18 @@ sent are the Google Workspace grace-period warnings of `withdraw` and `ex_studen
 
 Same as the withdrawal wizard (`res.partner._ems_user_can_register_exits()`): secretary, Head of
 Studies, administrator. Anybody else gets a `UserError` on open and on apply.
+
+## Preview, progress and result
+
+The form (`js_class="ems_enrollment_close_wizard_form"`, `static/src/js/backend/
+enrollment_close_wizard_form.js`) is a `blockingActionFormView`: "Apply" locks the screen with a
+message while it runs (see `blocking_action_form.js` for why there is no live counter).
+
+- Before: `preview_html` (computed from the lines) gives the number of people and enrollments and,
+  per action, how many people get it and what it means.
+- After: `action_apply()` reopens the wizard with `result_html` (people per action actually
+  applied, portals revoked, issues) and `log_file`, a CSV with one row per person (contact type,
+  enrollments, planned action, action applied, issues), downloaded on its own by the
+  `auto_download_binary` widget. A failed deletion shows as planned "Delete the person", applied
+  "Archive".
+

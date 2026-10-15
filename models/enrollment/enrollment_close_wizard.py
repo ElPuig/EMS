@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import base64
+import csv
+import io
+
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
@@ -12,6 +18,8 @@ CLOSE_ACTIONS = [
     ('cancel', 'Cancel the enrollment only'),
     ('review', 'Review by hand (payment)'),
 ]
+ACTION_ICONS = {'delete': '🗑️', 'archive': '📦', 'ex_student': '🎓', 'withdraw': '🚪',
+                'cancel': '✖️', 'review': '⚠️'}
 
 
 class EmsEnrollmentCloseWizard(models.TransientModel):
@@ -25,12 +33,46 @@ class EmsEnrollmentCloseWizard(models.TransientModel):
     exit_reason = fields.Text(string='Exit reason',
                               default=lambda self: _("Enrollment not formalised"))
     line_ids = fields.One2many('ems.enrollment_close_wizard.line', 'wizard_id', string='People')
-    has_withdrawals = fields.Boolean(compute='_compute_has_withdrawals')
+    has_withdrawals = fields.Boolean(compute='_compute_preview')
+    preview_html = fields.Html(string='What will happen', compute='_compute_preview')
+    result_html = fields.Html(string='Result', readonly=True)
+    log_file = fields.Binary(string='Log (CSV)', readonly=True)
+    log_file_name = fields.Char()
 
-    @api.depends('line_ids.action')
-    def _compute_has_withdrawals(self):
+    @api.depends('line_ids.action', 'line_ids.order_ids')
+    def _compute_preview(self):
         for wizard in self:
-            wizard.has_withdrawals = 'withdraw' in wizard.line_ids.mapped('action')
+            actions = wizard.line_ids.mapped('action')
+            wizard.has_withdrawals = 'withdraw' in actions
+            counts = {action: actions.count(action) for action in dict(CLOSE_ACTIONS)}
+            wizard.preview_html = Markup("<p><strong>{}</strong></p>{}").format(
+                _("People: %(people)s. Enrollments: %(enrollments)s.",
+                  people=len(wizard.line_ids), enrollments=len(wizard.line_ids.order_ids)),
+                self._summary_html(counts, self._action_explanations()))
+
+    @api.model
+    def _action_explanations(self):
+        return {
+            'delete': _("they were never students: the person is deleted, with their portal user, "
+                        "enrollments, authorizations and documents."),
+            'archive': _("they were never students but have a corporate account or a convalidation: "
+                         "the enrollment is cancelled, the portal revoked and the contact archived."),
+            'ex_student': _("they had studied here: the enrollment is cancelled and they go back to "
+                            "graduate (with a title) or withdrawal, with the Google account's grace period."),
+            'withdraw': _("students without a group: withdrawn as with the withdrawal assistant, with the "
+                          "exit date and reason below."),
+            'cancel': _("they stay as they are: only the enrollment is cancelled."),
+            'review': _("nothing is done: an enrollment has a payment or an invoice, review it by hand."),
+        }
+
+    @api.model
+    def _summary_html(self, counts, details):
+        """One line per action that applies to somebody: icon, label, how many and `details`."""
+        labels = dict(self.env['ems.enrollment_close_wizard.line']._fields['action']._description_selection(self.env))
+        rows = [Markup("<li>{} <strong>{}: {}</strong> - {}</li>").format(
+                    ACTION_ICONS[action], labels[action], count, details[action])
+                for action, count in counts.items() if count]
+        return Markup("<ul class='list-unstyled'>{}</ul>").format(Markup("").join(rows))
 
     @api.model
     def default_get(self, fields_list):
@@ -100,17 +142,21 @@ class EmsEnrollmentCloseWizard(models.TransientModel):
         return 'delete'
 
     def action_apply(self):
+        """Apply each person's action, then show the result in the wizard with a CSV log of what
+        happened to every person (downloaded on its own)."""
         self.ensure_one()
         self._check_can_close()
         counts = dict.fromkeys(dict(CLOSE_ACTIONS), 0)
         revoked = 0
         issues = []
+        log = []
         for line in self.line_ids:
             partner = line.partner_id.sudo()
             orders = line.order_ids.sudo()
             action = line.action
+            row = [partner.display_name, partner.contact_type or '', " ".join(orders.mapped('name')), action]
             summary = {'revoked': 0, 'issues': []}
-            if action == 'delete' and not self._delete(partner, orders, issues):
+            if action == 'delete' and not self._delete(partner, orders, summary['issues']):
                 action = 'archive'
             elif action == 'withdraw':
                 summary = partner._ems_register_exit('withdrawal', self.exit_date, self.exit_reason)
@@ -119,11 +165,52 @@ class EmsEnrollmentCloseWizard(models.TransientModel):
             if action == 'ex_student':
                 summary = partner._ems_return_to_ex_student()
             elif action == 'archive':
-                summary = self._archive(partner)
+                archived = self._archive(partner)
+                archived['issues'] = summary['issues'] + archived['issues']
+                summary = archived
             counts[action] += 1
             revoked += summary['revoked']
             issues += summary['issues']
-        return self._notification(counts, revoked, issues)
+            log.append(row + [action, " | ".join(summary['issues'])])
+        self.log_file = self._build_log_csv(log)
+        self.log_file_name = (f"close_enrollments_"
+                              f"{self.env['ems.datetime_utils'].get_local_datetime().strftime('%Y%m%d_%H%M%S')}.csv")
+        self.result_html = self._build_result_html(counts, revoked, issues)
+        return self._reopen()
+
+    def _build_log_csv(self, log):
+        labels = dict(self.line_ids._fields['action']._description_selection(self.env))
+        types = dict(self.env['res.partner']._fields['contact_type']._description_selection(self.env))
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow([_("Person"), _("Contact Type"), _("Enrollments"), _("Planned action"),
+                         _("Action applied"), _("Issues")])
+        for name, contact_type, orders, planned, applied, issues in log:
+            writer.writerow([name, types.get(contact_type, ''), orders, labels[planned], labels[applied], issues])
+        return base64.b64encode(output.getvalue().encode('utf-8-sig'))
+
+    def _build_result_html(self, counts, revoked, issues):
+        done = {action: _("done.") for action in counts}
+        done['review'] = _("left untouched, review them by hand.")
+        html = Markup("<p><strong>{}</strong></p>{}").format(
+            _("People processed: %(people)s.", people=sum(counts.values())), self._summary_html(counts, done))
+        if revoked:
+            html += Markup("<p>🔒 <strong>{}:</strong> {}</p>").format(_("Portal accesses revoked"), revoked)
+        if issues:
+            html += Markup("<p><strong>{} ({}):</strong></p>{}").format(
+                _("Issues"), len(issues), self.env['ems.base'].build_html_list(issues))
+        return html
+
+    def _reopen(self):
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Close unconfirmed enrollments"),
+            'res_model': self._name,
+            'res_id': self.id,
+            'view_mode': 'form',
+            'views': [[False, 'form']],
+            'target': 'new',
+        }
 
     def _delete(self, partner, orders, issues):
         """Delete a person who was never a student, with everything that only existed for them.
@@ -157,33 +244,6 @@ class EmsEnrollmentCloseWizard(models.TransientModel):
         else:
             partner.write({'active': False})
         return {'revoked': len(summary['revoked']), 'issues': issues}
-
-    def _notification(self, counts, revoked, issues):
-        labels = {
-            'delete': _("%(count)s deleted"),
-            'archive': _("%(count)s archived"),
-            'ex_student': _("%(count)s back to alumni/withdrawal"),
-            'withdraw': _("%(count)s withdrawn"),
-            'cancel': _("%(count)s kept, enrollment cancelled"),
-            'review': _("%(count)s left for review (payment)"),
-        }
-        parts = [labels[action] % {'count': count} for action, count in counts.items() if count]
-        if revoked:
-            parts.append(_("%(count)s portal access(es) revoked", count=revoked))
-        message = ", ".join(parts)
-        if issues:
-            message += "\n" + _("Issues:") + "\n- " + "\n- ".join(issues)
-        return {
-            'type': 'ir.actions.client',
-            'tag': 'display_notification',
-            'params': {
-                'title': _("Unconfirmed enrollments closed"),
-                'message': message,
-                'type': 'warning' if issues else 'success',
-                'sticky': bool(issues),
-                'next': {'type': 'ir.actions.client', 'tag': 'soft_reload'},
-            },
-        }
 
 
 class EmsEnrollmentCloseWizardLine(models.TransientModel):

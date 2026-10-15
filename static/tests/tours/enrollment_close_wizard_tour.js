@@ -8,6 +8,10 @@ import { clickListHeaderAction } from "@ems/../tests/tours/actions_dropdown_help
 
 const applyWizard = (name) => [
     {
+        trigger: ".o_dialog .o_field_widget[name='preview_html']:contains('Delete the person: 1')",
+        content: "The summary says how many people get each action and what it means",
+    },
+    {
         trigger: `.o_dialog div[name='line_ids'] .o_data_row:has(td:contains('${name}')) td[name='action']:contains('Delete')`,
         content: "The preview tells what happens to the person: never a student, so deleted",
     },
@@ -22,12 +26,21 @@ const applyWizard = (name) => [
         run: "click",
     },
     {
-        trigger: ".o_notification:contains('1 deleted')",
-        content: "The summary reports the deletion",
+        trigger: ".o_dialog .o_field_widget[name='result_html']:contains('People processed: 1.')",
+        content: "The result stays in the wizard",
+    },
+    {
+        trigger: ".o_dialog .o_field_widget[name='log_file']",
+        content: "with the log, which can be downloaded again",
+    },
+    {
+        trigger: ".o_dialog footer button.btn-secondary",
+        content: "Close",
+        run: "click",
     },
     {
         trigger: "body:not(:has(.o_dialog))",
-        content: "The wizard closed itself",
+        content: "The wizard closed",
     },
 ];
 

@@ -6,20 +6,25 @@
             <field name="name">ems.enrollment_close_wizard.form</field>
             <field name="model">ems.enrollment_close_wizard</field>
             <field name="arch" type="xml">
-                <form string="Close unconfirmed enrollments">
+                <form string="Close unconfirmed enrollments" js_class="ems_enrollment_close_wizard_form">
                     <sheet>
-                        <div class="alert alert-warning" role="alert">
-                            Each person gets the action shown below, as soon as you confirm: people who were
-                            never students are deleted, ex-students go back to alumni or withdrawal, students
-                            without a group are withdrawn and everybody else only loses the enrollment.
-                            Enrollments with a payment are left untouched for you to review.
+                        <div class="alert alert-warning" role="alert" invisible="result_html">
+                            Each person gets the action shown below as soon as you confirm. Deletions cannot
+                            be undone.
                         </div>
-                        <group invisible="not has_withdrawals">
+                        <field name="preview_html" nolabel="1" invisible="result_html"/>
+                        <group invisible="not has_withdrawals or result_html">
                             <field name="exit_date"/>
                             <field name="exit_reason"/>
                         </group>
                         <field name="has_withdrawals" invisible="1"/>
-                        <field name="line_ids" nolabel="1">
+                        <group invisible="not result_html">
+                            <field name="result_html" nolabel="1" colspan="2"/>
+                            <field name="log_file" widget="auto_download_binary" filename="log_file_name"
+                                   string="Download the log (CSV)"/>
+                            <field name="log_file_name" invisible="1"/>
+                        </group>
+                        <field name="line_ids" nolabel="1" invisible="result_html">
                             <list create="0" delete="0" editable="bottom"
                                   decoration-danger="action == 'delete'"
                                   decoration-warning="action == 'review'">
@@ -32,8 +37,9 @@
                     </sheet>
                     <footer>
                         <button name="action_apply" type="object" string="Apply" class="btn-danger"
+                                invisible="result_html"
                                 confirm="This applies the action of every person listed, deletions included, and cannot be undone. Continue?"/>
-                        <button special="cancel" string="Cancel"/>
+                        <button special="cancel" string="Close"/>
                     </footer>
                 </form>
             </field>

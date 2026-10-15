@@ -1,3 +1,4 @@
+import base64
 from unittest.mock import patch
 
 from odoo.exceptions import UserError
@@ -198,7 +199,11 @@ class TestEnrollmentCloseWizard(TransactionCase):
         self.assertTrue(applicant.exists())
         self.assertFalse(applicant.active)
         self.assertEqual(order.state, 'cancel')
-        self.assertIn('still referenced', result['params']['message'])
+        self.assertEqual(result['res_id'], wizard.id)
+        self.assertIn('still referenced', wizard.result_html)
+        log = base64.b64decode(wizard.log_file).decode('utf-8-sig').splitlines()
+        self.assertIn('Delete the person,Archive', log[1])
+        self.assertIn('still referenced', log[1])
 
     # --- launched from Pre-inscripció ------------------------------------------------
 
@@ -244,3 +249,32 @@ class TestEnrollmentCloseWizard(TransactionCase):
         order = self._order(applicant)
         with self.assertRaises(UserError):
             self._wizard(order, user=self.teacher)
+
+    # --- summary before and after ----------------------------------------------------------
+
+    def test_preview_counts_people_and_enrollments_per_action(self):
+        new = self._partner('ECW Preview New', 'applicant')
+        student = self._partner('ECW Preview Student', 'student', main_group_id=self.group.id)
+        orders = self._order(new) + self._order(student)
+        wizard = self._wizard(orders)
+        self.assertIn('People: 2. Enrollments: 2.', wizard.preview_html)
+        self.assertIn('Delete the person: 1', wizard.preview_html)
+        self.assertIn('Cancel the enrollment only: 1', wizard.preview_html)
+        self.assertNotIn('Withdraw', wizard.preview_html)
+        self.assertFalse(wizard.has_withdrawals)
+
+    def test_result_and_log_after_applying(self):
+        new = self._partner('ECW Result New', 'applicant')
+        student = self._partner('ECW Result No Group', 'student')
+        orders = self._order(new) + self._order(student)
+        wizard = self._wizard(orders)
+        self.assertTrue(wizard.has_withdrawals)
+        wizard.action_apply()
+        self.assertIn('People processed: 2.', wizard.result_html)
+        self.assertIn('Withdraw: 1', wizard.result_html)
+        log = base64.b64decode(wizard.log_file).decode('utf-8-sig').splitlines()
+        self.assertEqual(len(log), 3)
+        rows = {row.split(',')[0]: row for row in log[1:]}
+        self.assertIn('Delete the person,Delete the person', rows['ECW Result New'])
+        self.assertIn('Withdraw,Withdraw', rows['ECW Result No Group'])
+        self.assertTrue(wizard.log_file_name.endswith('.csv'))

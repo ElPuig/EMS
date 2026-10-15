@@ -27,13 +27,13 @@
         </Dropdown>
     </t>
 
-    <!-- The selection's header buttons go in the dropdown instead of loose next to it. -->
+    <!-- The selection's header buttons go in the dropdown instead of loose next to it (a lone one stays loose). -->
     <t t-inherit="web.ListView" t-inherit-mode="extension">
         <xpath expr="//t[@t-set-slot='control-panel-selection-actions']//t[@t-foreach='archInfo.headerButtons']" position="attributes">
-            <attribute name="t-if">!evalViewModifier(button.invisible) and !emsHeaderActions</attribute>
+            <attribute name="t-if">!evalViewModifier(button.invisible) and !emsHeaderActionsDropdown</attribute>
         </xpath>
         <xpath expr="//t[@t-set-slot='control-panel-selection-actions']//t[@t-foreach='archInfo.headerButtons']" position="before">
-            <EmsListActionsDropdown t-if="emsHeaderActions" buttons="emsHeaderActionButtons"
+            <EmsListActionsDropdown t-if="emsHeaderActionsDropdown" buttons="emsHeaderActionButtons"
                                     list="model.root" domain="props.domain"/>
         </xpath>
     </t>

@@ -115,16 +115,22 @@ export function noArchiveInCog(content) {
 
 /**
  * A list's header button, on a list with the "Actions" dropdown (static/src/js/backend/
- * list_header_actions.js): open the selection's dropdown and click the entry. Records must
- * already be selected, as for any header button.
+ * list_header_actions.js): open the selection's dropdown and click the entry, or click the button
+ * itself when it is the only one (then it stays loose, with no dropdown). Records must already be
+ * selected, as for any header button.
  */
 export function clickListHeaderAction(name, content) {
+    const selection = ".o_list_selection_container";
     return [
         {
-            trigger: ".o_list_selection_container .o_ems_actions_toggle",
-            content: "Open the selection's Actions dropdown",
-            run: "click",
+            trigger: `${selection} :is(.o_ems_actions_toggle:not(.show), button[name='${name}'])`,
+            content: "Open the selection's Actions dropdown (a lone action is a plain button)",
+            run() {
+                if (this.anchor.matches(".o_ems_actions_toggle")) {
+                    this.anchor.click();
+                }
+            },
         },
-        { trigger: `${ACTIONS_MENU} button[name='${name}']`, content, run: "click" },
+        { trigger: `:is(${ACTIONS_MENU}, ${selection}) button[name='${name}']`, content, run: "click" },
     ];
 }

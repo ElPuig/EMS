@@ -71,10 +71,14 @@ own ⚙ menu next to it keeps the actions bound to the model (export, delete, se
   contact data requests list (`request.xml`) and Matrícules (`action_ems_enrollments`).
 - The buttons stay ordinary `<header>` buttons, so they keep `invisible=`, `groups=` and
   `confirm=`; a `display="always"` button (shown with no selection) stays loose.
+- **A lone button stays loose**, as on a form: the dropdown is only rendered when two or more
+  buttons apply (after `groups=` and `invisible=`), so a role offered a single action on an
+  opted-in list gets a plain button.
 - `static/src/js/backend/list_header_actions.js` + `static/src/xml/backend/list_header_actions.xml`:
-  a `ListController` patch (`emsHeaderActions`, `emsHeaderActionButtons`) and an extension of
+  a `ListController` patch (`emsHeaderActions`, `emsHeaderActionButtons`, `emsHeaderActionsDropdown`) and an extension of
   `web.ListView` that renders `EmsListActionsDropdown` (one `MultiRecordViewButton` per entry, the
   same component Odoo uses for header buttons) and stops rendering them loose. Small screens are
   left alone: Odoo already moves header buttons into its cog menu there.
-- Tours: `clickListHeaderAction(name, content)` in `actions_dropdown_helpers.js`.
+- Tours: `clickListHeaderAction(name, content)` in `actions_dropdown_helpers.js`, which handles
+  both the dropdown and the lone button.
 

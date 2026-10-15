@@ -18,6 +18,9 @@ PRIVATE_NOTES_GROUPS = ('ems.group_academic_admin', 'ems.group_orientation', 'em
 # Contact types whose 'email' is a personal address, so it can never be a corporate one (issue
 # #514). Staff work contacts (no contact_type) are left out: their email IS the corporate account.
 PERSONAL_EMAIL_CONTACT_TYPES = ('student', 'family', 'applicant', 'alumni', 'withdrawal', 'expelled')
+# Enrollments that still count: anything but cancelled.
+LIVE_ENROLLMENT_STATES = ['draft', 'sent', 'sale']
+
 
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
@@ -290,6 +293,10 @@ class ResPartner(models.Model):
         search='_search_current_enrollment',
     )
     ems_enrollment_state = fields.Selection(related='ems_current_enrollment_id.state', store=False, string='Enrollment State')
+    # Any enrollment still alive (draft, sent or confirmed), whatever its course: what tells
+    # apart the applicants who never got an offer (Pre-inscripció's "Without enrollment" filter).
+    ems_has_enrollment = fields.Boolean(string='Has enrollment', compute='_compute_ems_has_enrollment',
+                                        search='_search_ems_has_enrollment')
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
@@ -341,7 +348,7 @@ class ResPartner(models.Model):
         Course = self.env['ems.course']
         running = Course.search([('is_current', '=', True)], limit=1)
         orders = self.sale_order_ids.filtered(
-            lambda order: order.state in ('draft', 'sent', 'sale'))
+            lambda order: order.state in LIVE_ENROLLMENT_STATES)
         in_force = orders.filtered(lambda order: order.ems_course_id == running)
         if in_force:
             return in_force[0]
@@ -432,6 +439,17 @@ class ResPartner(models.Model):
 
     def _search_current_enrollment(self, operator, value):
         return [('sale_order_ids.name', operator, value)]
+
+    def _compute_ems_has_enrollment(self):
+        for partner in self:
+            partner.ems_has_enrollment = any(
+                order.state in LIVE_ENROLLMENT_STATES for order in partner.sale_order_ids)
+
+    def _search_ems_has_enrollment(self, operator, value):
+        if operator not in ('=', '!='):
+            raise UserError(_("Unsupported search on 'Has enrollment'."))
+        domain = [('sale_order_ids.state', 'in', LIVE_ENROLLMENT_STATES)]
+        return domain if (operator == '=') == bool(value) else ['!'] + domain
 
     def _compute_current_enrollment(self):
         for partner in self:
@@ -560,6 +578,9 @@ class ResPartner(models.Model):
             'target': 'new',
             'context': {'active_ids': students.ids},
         }
+
+    def action_ems_close_unconfirmed(self):
+        return self.env['ems.enrollment_close_wizard'].action_open(self)
 
     def action_withdrawal_wizard(self):
         students = self.filtered(lambda p: p.contact_type == 'student')
@@ -1268,6 +1289,46 @@ class ResPartner(models.Model):
             ('partner_id', 'in', self.ids), ('state', 'in', ['draft', 'sent'])])
         if orders:
             orders.sudo()._action_cancel()
+
+    def _ems_register_exit(self, kind, exit_date, exit_reason):
+        """Withdraw or expel ('withdrawal'/'expulsion') this student now, as of the current
+        course: what the withdrawal wizard applies to each line, and what
+        ems.enrollment_close_wizard applies to a student who never confirmed (issue #643).
+        Returns _ems_leave_centre()'s summary."""
+        self.ensure_one()
+        course = self.env.company.current_course_id \
+            or self.env['ems.course'].search([('is_current', '=', True)], limit=1)
+        self.write({
+            'exit_type': 'expulsion' if kind == 'expulsion' else 'withdrawal',
+            'exit_course_id': course.id if course else False,
+            'exit_date': exit_date,
+            'exit_reason': exit_reason,
+        })
+        self._ems_cancel_pending_enrollments()
+        # Freeze the academic history NOW, while the student still has its
+        # group: the transition wizard captures by main_group_id, so without
+        # this a mid-course withdrawal would never get a year record. Sudo:
+        # the generator reads grade/attendance models the secretary cannot.
+        if course:
+            self.env['ems.student.year_record'].sudo().generate_for_students(self, course)
+        return self._ems_leave_centre(kind=kind)
+
+    def _ems_return_to_ex_student(self):
+        """Send an applicant who was a student before back to where they were: the reverse of
+        sale.order._ems_offer_to_ex_student(), for an offer they never confirmed (issue #643).
+
+        The offer cleared the exit data; it comes back from the newest academic history record
+        that kept one. Then the usual exit: alumni if they ever graduated, withdrawal otherwise,
+        Google grace period, portal revoked, archived. Returns _ems_leave_centre()'s summary."""
+        self.ensure_one()
+        records = self.year_record_ids.sorted(lambda record: record.course_id.start, reverse=True)
+        record = records.filtered('exit_type')[:1] or records[:1]
+        self.write({
+            'exit_type': record.exit_type or ('graduation' if self.has_graduated else 'withdrawal'),
+            'exit_course_id': record.course_id.id,
+            'exit_date': record.exit_date,
+        })
+        return self._ems_leave_centre()
 
     def _ems_leave_centre(self, kind=None):
         """The steps every exit shares once the academic history is frozen: the withdrawal

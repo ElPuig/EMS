@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_enrollment_close_wizard_form" model="ir.ui.view">
+            <field name="name">ems.enrollment_close_wizard.form</field>
+            <field name="model">ems.enrollment_close_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Close unconfirmed enrollments">
+                    <sheet>
+                        <div class="alert alert-warning" role="alert">
+                            Each person gets the action shown below, as soon as you confirm: people who were
+                            never students are deleted, ex-students go back to alumni or withdrawal, students
+                            without a group are withdrawn and everybody else only loses the enrollment.
+                            Enrollments with a payment are left untouched for you to review.
+                        </div>
+                        <group invisible="not has_withdrawals">
+                            <field name="exit_date"/>
+                            <field name="exit_reason"/>
+                        </group>
+                        <field name="has_withdrawals" invisible="1"/>
+                        <field name="line_ids" nolabel="1">
+                            <list create="0" delete="0" editable="bottom"
+                                  decoration-danger="action == 'delete'"
+                                  decoration-warning="action == 'review'">
+                                <field name="partner_id" readonly="1" force_save="1"/>
+                                <field name="contact_type" readonly="1"/>
+                                <field name="order_ids" widget="many2many_tags" readonly="1" force_save="1"/>
+                                <field name="action" readonly="1" force_save="1"/>
+                            </list>
+                        </field>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply" type="object" string="Apply" class="btn-danger"
+                                confirm="This applies the action of every person listed, deletions included, and cannot be undone. Continue?"/>
+                        <button special="cancel" string="Cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Matrícules list (Action menu) and enrollment form. -->
+        <record id="action_server_enrollment_close" model="ir.actions.server">
+            <field name="name">Close unconfirmed enrollments</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin'), ref('ems.group_secretary'), ref('ems.group_head_of_studies')])]"/>
+            <field name="state">code</field>
+            <field name="code">action = records.action_ems_close_unconfirmed()</field>
+        </record>
+
+        <!-- "Send Enrollment", moved from a loose header button into the Action menu. List only:
+             the form already offers it as its own "Send by email" button. -->
+        <record id="action_server_enrollment_send" model="ir.actions.server">
+            <field name="name">Send Enrollment</field>
+            <field name="model_id" ref="sale.model_sale_order"/>
+            <field name="binding_model_id" ref="sale.model_sale_order"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin'), ref('ems.group_secretary')])]"/>
+            <field name="state">code</field>
+            <field name="code">action = records.action_send_enrollment_proposal()</field>
+        </record>
+
+    </data>
+</odoo>

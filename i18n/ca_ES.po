@@ -1370,6 +1370,7 @@ msgstr "Acrònim"
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__mode
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__action
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__action
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__action
 msgid "Action"
 msgstr "Acció"
 
@@ -1762,6 +1763,7 @@ msgstr "Aplica als estudis"
 #. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.view_grade_session_state_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__to_apply model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__to_apply
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
 msgid "Apply"
 msgstr "Aplicar"
 
@@ -2394,6 +2396,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_reject_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2724,6 +2727,7 @@ msgstr "Contacte"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__contact_type model:ir.model.fields,field_description:ems.field_res_users__contact_type
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__contact_type
 msgid "Contact Type"
 msgstr "Tipus de contacte"
 
@@ -3658,6 +3662,7 @@ msgstr "Matrícula: relació ternària entre estudiant-grup-uf."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/mail_activity.py:0 model:ir.actions.act_window,name:ems.action_ems_enrollments model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__limesurvey_enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollments model:ir.ui.menu,name:ems.menu_enrollments model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_form
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__order_ids
 msgid "Enrollments"
 msgstr "Matrícules"
 
@@ -4234,6 +4239,7 @@ msgstr "Dades de grup"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 msgid "Group by"
 msgstr "Agrupar per"
 
@@ -4772,6 +4778,7 @@ msgstr "Retard de notificació d'incidència"
 #. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0 code:addons/ems/models/enrollment/authorization_send_wizard.py:0
 #: code:addons/ems/models/grades/title_import_wizard.py:0
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
 msgid "Issues:"
 msgstr "Incidències:"
 
@@ -8564,6 +8571,7 @@ msgstr "Indica si hi ha nota final (la nota calculada està disponible)."
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Assistent"
 
@@ -10056,11 +10064,13 @@ msgstr "Curs de sortida"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__exit_date model:ir.model.fields,field_description:ems.field_res_users__exit_date model:ir.model.fields,field_description:ems.field_ems_student_year_record__exit_date model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_date
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard__exit_date
 msgid "Exit date"
 msgstr "Data de sortida"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__exit_reason model:ir.model.fields,field_description:ems.field_res_users__exit_reason model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_reason
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard__exit_reason
 msgid "Exit reason"
 msgstr "Motiu de sortida"
 
@@ -10113,6 +10123,7 @@ msgstr "Baixes tramitades: %(done)s"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
 msgid "%(student)s: portal access could not be revoked, kept active"
 msgstr "%(student)s: no s'ha pogut revocar l'accés al portal, es manté actiu"
 
@@ -10225,6 +10236,7 @@ msgstr "Desmarcar"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_wizard_form
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_close_wizard_line__action__withdraw
 msgid "Withdraw"
 msgstr "Donar de baixa"
 
@@ -10671,6 +10683,7 @@ msgstr "Continuistes interns encara matriculats (p. ex. de CFGM a CFGS abans de 
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
+#: model:ir.actions.server,name:ems.action_server_enrollment_send
 msgid "Send Enrollment"
 msgstr "Enviar matrícula"
 
@@ -17057,6 +17070,7 @@ msgstr "Pendents fa més d'una setmana"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__person_name
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__partner_id
 msgid "Person"
 msgstr "Persona"
 
@@ -17803,6 +17817,7 @@ msgstr "Passeu la targeta"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__line_ids model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard__line_ids
 msgid "People"
 msgstr "Persones"
 
@@ -22828,3 +22843,142 @@ msgstr "Baixes que han passat a antic alumnat"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__can_manage
 msgid "Can manage"
 msgstr "Pot gestionar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(count)s archived"
+msgstr "%(count)s arxivats/des"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(count)s back to alumni/withdrawal"
+msgstr "%(count)s tornen a graduats/des o baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(count)s deleted"
+msgstr "%(count)s eliminats/des"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(count)s kept, enrollment cancelled"
+msgstr "%(count)s es mantenen, amb la matrícula cancel·lada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(count)s left for review (payment)"
+msgstr "%(count)s per revisar a mà (pagament)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(count)s portal access(es) revoked"
+msgstr "Accessos al portal revocats: %(count)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(count)s withdrawn"
+msgstr "%(count)s donats/des de baixa"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "%(name)s: could not be deleted, archived instead (%(error)s)"
+msgstr "%(name)s: no s'ha pogut eliminar i s'ha arxivat (%(error)s)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_close_wizard_line__action__archive
+msgid "Archive"
+msgstr "Arxivar"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_close_wizard_line__action__ex_student
+msgid "Back to alumni/withdrawal"
+msgstr "Tornar a graduat/da o baixa"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_close_wizard_line__action__cancel
+msgid "Cancel the enrollment only"
+msgstr "Només cancel·lar la matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0 model:ir.actions.server,name:ems.action_server_enrollment_close model:ir.model,name:ems.model_ems_enrollment_close_wizard model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+msgid "Close unconfirmed enrollments"
+msgstr "Tancar matrícules no confirmades"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_enrollment_close_wizard_line
+msgid "Close unconfirmed enrollments: one person"
+msgstr "Tancar matrícules no confirmades: una persona"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+msgid "Each person gets the action shown below, as soon as you confirm: people who were\n                            never students are deleted, ex-students go back to alumni or withdrawal, students\n                            without a group are withdrawn and everybody else only loses the enrollment.\n                            Enrollments with a payment are left untouched for you to review."
+msgstr "Cada persona rep l'acció que es mostra a sota tan bon punt confirmeu: les que no han estat mai alumnes s'eliminen, les que ja ho havien estat tornen a graduats/des o baixa, l'alumnat sense grup es dona de baixa i la resta només perd la matrícula. Les matrícules amb algun pagament no es toquen perquè les reviseu a mà."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "Enrollment not formalised"
+msgstr "Matrícula no formalitzada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard__has_withdrawals
+msgid "Has Withdrawals"
+msgstr "Té baixes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__ems_has_enrollment model:ir.model.fields,field_description:ems.field_res_users__ems_has_enrollment
+msgid "Has enrollment"
+msgstr "Té matrícula"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "None of the selected records has an enrollment left to close."
+msgstr "Cap dels registres seleccionats té matrícules per tancar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "Only the secretary, the head of studies or an administrator can close enrollments."
+msgstr "Només secretaria, el cap d'estudis o administració poden tancar matrícules."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_close_wizard_line__action__review
+msgid "Review by hand (payment)"
+msgstr "Revisar a mà (pagament)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+msgid "This applies the action of every person listed, deletions included, and cannot be undone. Continue?"
+msgstr "Això aplica l'acció de cada persona de la llista, eliminacions incloses, i no es pot desfer. Voleu continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+msgid "Unconfirmed enrollments closed"
+msgstr "Matrícules no confirmades tancades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact.py:0
+msgid "Unsupported search on 'Has enrollment'."
+msgstr "Cerca no admesa a 'Té matrícula'."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+msgid "Without enrollment"
+msgstr "Sense matrícula"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_close_wizard_line__action__delete
+msgid "Delete the person"
+msgstr "Eliminar la persona"

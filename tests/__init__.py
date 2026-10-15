@@ -16,6 +16,7 @@ from . import test_enrollment_slot_tour
 from . import test_enrollment_subject_group
 from . import test_enrollment_subject_group_tour
 from . import test_enrollment_benefit
+from . import test_enrollment_close_wizard
 from . import test_enrollment_template
 from . import test_enrollment_placement
 from . import test_exit_management
@@ -172,6 +173,7 @@ from . import test_enrollment_line
 from . import test_enrollment_tour
 from . import test_enrollment_placement_tour
 from . import test_enrollment_proposal_tour
+from . import test_enrollment_close_wizard_tour
 from . import test_applicant_tour
 from . import test_no_destination_tour
 from . import test_year_record_tour

@@ -302,6 +302,7 @@
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
             'views/academic_management/enrollment/enrollment_list.xml',
+            'views/academic_management/enrollment/close_unconfirmed_wizard.xml',
             'views/academic_management/enrollment/list_tutor.xml',
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',

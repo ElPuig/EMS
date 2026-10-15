@@ -99,6 +99,7 @@ Technical reference for developers working on the EMS module.
 | Model | Description |
 |-------|-------------|
 | [ems.enrollment_proposal_wizard](enrollment/enrollment_proposal_wizard.md) | Bulk draft enrollments from a student selection, and the secretary-only `allow_other_study` flag that enrolls a current student into a different study |
+| [ems.enrollment_close_wizard](enrollment/close_unconfirmed_wizard.md) | Close the enrollments nobody confirmed: delete applicants who were never students, send ex-students back to alumni/withdrawal, withdraw students without a group, cancel the rest |
 | [Enrollment benefits](enrollment/enrollment_benefits.md) | Fee bonifications/exemptions: draft-order recompute, freeze after confirmation and the secretary re-apply action that regenerates the invoice |
 
 ---

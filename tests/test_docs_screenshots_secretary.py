@@ -360,15 +360,16 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
             marks=[(".o_main_navbar [data-menu-xmlid='ems.menu_ems_enrollment']", '1', 'right'),
                    ('.o_searchview_facet', '2', 'right')],
         )
-        # 09: enrollments ticked (1) and Send enrollment (2).
+        # 09: enrollments ticked (1) and the ⚙ action menu holding Send enrollment (2).
         self._capture(
             enrollments_url, '.o_action_manager', 'preinscrpcio-Secretaria-09.png', login=login,
             wait_for='.o_data_row + .o_data_row', max_height=300,
             click=['.o_data_row .o_list_record_selector input',
-                   '.o_data_row + .o_data_row .o_list_record_selector input'],
-            wait_after=['.o_data_row.o_data_row_selected', "button[name='action_send_enrollment_proposal']"],
+                   '.o_data_row + .o_data_row .o_list_record_selector input',
+                   '.o_cp_action_menus button:has(.fa-cog)'],
+            wait_after=['.o_data_row.o_data_row_selected', '.o-dropdown--menu .o-dropdown-item'],
             marks=[('.o_data_row .o_list_record_selector', '1'),
-                   ("button[name='action_send_enrollment_proposal']", '2', 'top')],
+                   ('.o_cp_action_menus button:has(.fa-cog)', '2', 'top')],
         )
         # 10-11: Re-apply Benefits on a confirmed enrollment, and its confirmation.
         confirmed_url = '%s/%d' % (enrollments_url, confirmed.id)

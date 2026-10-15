@@ -42,9 +42,34 @@
                   t-esc="absence.arrangement.change"/>
             <span t-if="absence.authorized" class="o_guard_board_absence_tag o_guard_board_authorized_tag" t-esc="absence.authorized"/>
             <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
-            <span t-if="absence.arrangement_options.length" class="o_guard_board_absence_tag o_guard_board_options_tag">
+            <!-- Issue #645: a lesson an arrangement moved elsewhere leaves the group without anybody. -->
+            <span t-if="absence.moved" class="o_guard_board_absence_tag o_guard_board_moved_tag">
+                <i class="fa fa-arrows-v me-1"/><t t-esc="absence.moved"/>
+            </span>
+            <span t-if="absence.arrangement_plans.length" class="o_guard_board_absence_tag o_guard_board_options_tag">
                 <i class="fa fa-exchange me-1"/><t t-esc="arrangementCountLabel(absence)"/>
             </span>
+        </div>
+    </t>
+
+    <!-- One of the day's pending actions that is not an arrangement plan: a timetable change to
+         propose (with the selector of how much of it to tell the families), a correction, or an
+         arrangement or a change waiting for its draft notice. Expects 'action'. -->
+    <t t-name="ems.GuardBoardActionRow">
+        <div class="o_guard_board_action" t-att-class="'o_guard_board_action_' + action.type">
+            <i t-att-class="actionIcon(action)"/>
+            <span class="o_guard_board_action_label" t-esc="action.label"/>
+            <t t-if="action.draft_id">
+                <span class="o_guard_board_absence_tag" t-esc="action.draft_label"/>
+            </t>
+            <select t-elif="action.options.length" class="form-select form-select-sm o_guard_board_action_option"
+                    t-on-change="(ev) => this.onActionOptionChange(action, ev)">
+                <t t-foreach="action.options" t-as="option" t-key="option_index">
+                    <option t-att-value="option_index" t-att-selected="option_index === action.default" t-esc="option.label"/>
+                </t>
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button"
+                    t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
         </div>
     </t>
 
@@ -205,51 +230,47 @@
                     <!-- Tab 2: the same shift read the other way round - one row per time block,
                          what has to be covered against who is available to cover it. -->
                     <div t-else="" class="o_guard_board_table_wrap">
-                        <!-- Only for whoever may act on them (the server sends nothing to anyone
-                             else), and nothing here happens on its own: each one waits for its
-                             button. Late entry / early leave proposals (issues #539, #581) first:
-                             the planner picks how much of it to tell the families, and sending
-                             the notice strikes those lessons off the table so no guard is sent. -->
-                        <div t-if="proposalActions.length" class="o_guard_board_actions o_guard_board_proposals">
-                            <div class="o_guard_board_actions_title" t-esc="actionLabels.proposalsTitle"/>
-                            <div class="o_guard_board_actions_help text-muted" t-esc="actionLabels.proposalsHelp"/>
-                            <t t-foreach="proposalActions" t-as="action" t-key="action_index">
-                                <div class="o_guard_board_action" t-att-class="'o_guard_board_action_' + action.type">
-                                    <i t-att-class="actionIcon(action)"/>
-                                    <span class="o_guard_board_action_label" t-esc="action.label"/>
-                                    <t t-if="action.draft_id">
-                                        <span class="o_guard_board_absence_tag" t-esc="action.draft_label"/>
-                                    </t>
-                                    <select t-else="" class="form-select form-select-sm o_guard_board_action_option"
-                                            t-on-change="(ev) => this.onActionOptionChange(action, ev)">
-                                        <t t-foreach="action.options" t-as="option" t-key="option_index">
-                                            <option t-att-value="option_index" t-att-selected="option_index === action.default" t-esc="option.label"/>
-                                        </t>
-                                    </select>
-                                    <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button"
-                                            t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
-                                </div>
-                            </t>
-                        </div>
-                        <!-- Issue #605: internal arrangements the board detected, swaps first (the
-                             students lose no lesson); applying one notifies the teachers involved,
-                             and a moved lesson opens its notice for the families. -->
-                        <div t-if="arrangementActions.length" class="o_guard_board_actions o_guard_board_arrangements">
+                        <!-- The boxes above the table take the table's own width (issue #645). -->
+                        <div class="o_guard_board_duty_block">
+                        <!-- Issues #539, #581, #605, #645: everything proposed to organise the day's
+                         absences, only for whoever may act on it (the server sends nothing to anyone
+                         else), and nothing happens on its own: each one waits for its button. One
+                         section per group (with the groups sharing lessons with it): first what is
+                         waiting (an arrangement waiting for its notice, a notice to correct), then
+                         the arrangement plans, the best first, and last the timetable change alone,
+                         telling the families without rearranging anything. -->
+                        <div t-if="proposalSections.length" class="o_guard_board_actions o_guard_board_arrangements">
                             <div class="o_guard_board_actions_title" t-esc="actionLabels.arrangementsTitle"/>
                             <div class="o_guard_board_actions_help text-muted" t-esc="actionLabels.arrangementsHelp"/>
-                            <t t-foreach="arrangementActions" t-as="action" t-key="action_index">
-                                <div class="o_guard_board_action o_guard_board_action_arrangement_option">
-                                    <i t-att-class="actionIcon(action)"/>
-                                    <!-- Whose entry or exit time it changes goes on a line of its own under
-                                         the proposal, so every row ends the same way: its button. -->
-                                    <div class="o_guard_board_action_label">
-                                        <span t-esc="action.label"/>
-                                        <div t-if="action.schedule_changes.length" class="o_guard_board_action_schedule">
-                                            <i class="fa fa-clock-o me-1"/><t t-esc="action.schedule_changes.join(' ')"/>
+                            <t t-foreach="proposalSections" t-as="section" t-key="section.key">
+                                <div class="o_guard_board_section">
+                                    <div class="o_guard_board_section_title" t-esc="section.title"/>
+                                    <t t-foreach="section.waiting" t-as="action" t-key="action_index">
+                                        <t t-call="ems.GuardBoardActionRow"/>
+                                    </t>
+                                    <t t-foreach="section.plans" t-as="action" t-key="action.plan.key">
+                                        <GuardArrangementPlan plan="action.plan" selection="planSelection(action.plan)" showGroups="false"
+                                                              onToggle="(index, checked) => this.togglePlanStep(action.plan, index, checked)">
+                                            <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_plan_apply"
+                                                    t-att-disabled="!hasSelectedSteps(action.plan)"
+                                                    t-on-click="() => this.applyPlan(action.plan, this.planSelection(action.plan))"
+                                                    t-esc="actionLabels.applyPlan"/>
+                                        </GuardArrangementPlan>
+                                    </t>
+                                    <!-- The timetable change alone: sending the notice strikes those
+                                         lessons off the table. The planner may choose a shorter change
+                                         and send a guard to the rest. -->
+                                    <div t-if="section.notices.length" class="o_guard_board_plan o_guard_board_notice_plan">
+                                        <div class="o_guard_board_plan_title">
+                                            <strong t-esc="noticePlanTitle(section)"/>
+                                            <span class="ms-1" t-esc="actionLabels.noticeOnly"/>
+                                        </div>
+                                        <div class="o_guard_board_plan_steps">
+                                            <t t-foreach="section.notices" t-as="action" t-key="action_index">
+                                                <t t-call="ems.GuardBoardActionRow"/>
+                                            </t>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button"
-                                            t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
                                 </div>
                             </t>
                         </div>
@@ -332,11 +353,45 @@
                                 </t>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </t>
             </div>
         </div>
     </t>
+    <!-- Issue #645: one detected arrangement plan - "Proposal N:" and, indented below it, one
+         line per step with its checkbox on the left, the entry/exit changes it brings under it.
+         The default slot holds whatever applies it (the box's own button; nothing in the dialog,
+         whose footer does). -->
+    <t t-name="ems.GuardArrangementPlan">
+        <div class="o_guard_board_plan">
+            <div class="o_guard_board_plan_title">
+                <strong t-esc="props.plan.title"/>
+                <span t-if="props.showGroups !== false" class="text-muted ms-1" t-esc="props.plan.groups"/>
+            </div>
+            <ul class="list-unstyled o_guard_board_plan_steps">
+                <t t-foreach="props.plan.steps" t-as="step" t-key="step_index">
+                    <li class="o_guard_board_plan_step">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input o_guard_board_plan_check"
+                                   t-att-id="props.plan.key + '-' + step_index"
+                                   t-att-checked="props.selection[step_index]" t-att-disabled="props.disabled"
+                                   t-on-change="(ev) => props.onToggle(step_index, ev.target.checked)"/>
+                            <label class="form-check-label" t-att-for="props.plan.key + '-' + step_index">
+                                <i t-att-class="step.kind === 'notice' ? 'fa fa-envelope-o me-1' : step.kind === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
+                                <t t-esc="step.label"/>
+                            </label>
+                            <t t-foreach="step.schedule_changes" t-as="change" t-key="change_index">
+                                <div class="o_guard_board_plan_shift"><i class="fa fa-clock-o me-1"/><t t-esc="change"/></div>
+                            </t>
+                        </div>
+                    </li>
+                </t>
+            </ul>
+            <t t-slot="default"/>
+        </div>
+    </t>
+
     <!-- Why a struck-out line of the absences table needs no guard (its info icon, on click). -->
     <t t-name="ems.GuardBoardReasonPopover">
         <div class="o_guard_board_reason_popover p-2">
@@ -372,21 +427,17 @@
                                     t-on-click="() => this.openNotice()" t-esc="labels.openNotice"/>
                         </div>
                     </t>
-                    <t t-if="props.row.arrangement_options.length">
+                    <!-- Issue #645: the detected plans that resolve this class, the best first. Choosing
+                         one enables its steps' checkboxes: the planner may keep only some of them. -->
+                    <t t-if="props.row.arrangement_plans.length">
                         <div class="fw-bold mb-1" t-esc="labels.options"/>
-                        <t t-foreach="props.row.arrangement_options" t-as="option" t-key="option_index">
+                        <t t-foreach="props.row.arrangement_plans" t-as="plan" t-key="plan.key">
                             <div class="form-check o_guard_cover_option">
-                                <input class="form-check-input" type="radio" name="o_guard_cover_mode" t-att-id="'o_guard_cover_option_' + option_index"
-                                       t-att-checked="state.mode === 'option-' + option_index" t-on-change="() => this.onModeChange('option-' + option_index)"/>
-                                <label class="form-check-label" t-att-for="'o_guard_cover_option_' + option_index">
-                                    <i t-att-class="option.type === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
-                                    <t t-esc="option.label"/>
-                                    <span t-if="option.change_label" class="d-block text-muted small" t-esc="noticeLabel(option)"/>
-                                    <!-- Whose entry or exit time it changes, if anybody's: never hidden in the sentence. -->
-                                    <t t-foreach="option.schedule_changes" t-as="change" t-key="change_index">
-                                        <span class="d-block small o_guard_cover_schedule_change"><i class="fa fa-clock-o me-1"/><t t-esc="change"/></span>
-                                    </t>
-                                </label>
+                                <input class="form-check-input" type="radio" name="o_guard_cover_mode" t-att-id="'o_guard_cover_option_' + plan_index"
+                                       t-att-checked="state.mode === 'plan-' + plan_index" t-on-change="() => this.onModeChange('plan-' + plan_index)"/>
+                                <GuardArrangementPlan plan="plan" selection="state.selections[plan_index]"
+                                                      disabled="state.mode !== 'plan-' + plan_index"
+                                                      onToggle="(index, checked) => this.togglePlanStep(plan_index, index, checked)"/>
                             </div>
                         </t>
                     </t>

@@ -139,7 +139,7 @@ Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del
 
 Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espera a que pulses su botón. Un día que ya ha pasado no se puede cambiar.
 
-![Tabla de ausencias como Jefe de departamento: una propuesta de entrada tarde, las reorganizaciones posibles y dos clases cubiertas por dos docentes de guardia, cada uno con su color](../../assets/teachers/guard-duty-03-organitzar.png)
+![Tabla de ausencias como Jefe de departamento: las propuestas para un grupo, que acaban con solo avisar a las familias, y dos clases cubiertas por dos docentes de guardia, cada uno con su color](../../assets/teachers/guard-duty-03-organitzar.png)
 
 ### Enviar un docente de guardia a una clase
 
@@ -172,37 +172,43 @@ Cuando falta el docente de una guardia de WC o de patio, su guardia aparece como
 
 ### Reorganizar las clases en lugar de enviar una guardia
 
-A menudo no hace falta ninguna guardia, porque los propios docentes del grupo pueden reorganizar sus clases de ese día. El cuadrante lo calcula para cada clase que todavía no tiene a nadie y lo propone en el recuadro **Reorganizaciones posibles**, encima de la tabla (solo lo ve quien puede organizar la ausencia); esas líneas muestran además una etiqueta como **2 reorganizaciones posibles**.
+A menudo no hace falta ninguna guardia, porque los docentes pueden reorganizar sus clases de ese día. El cuadrante lo calcula para cada clase que todavía no tiene a nadie y lo propone en el recuadro **Propuestas para las ausencias**, encima de la tabla (solo lo ve quien puede organizar la ausencia); esas líneas muestran además una etiqueta como **3 reorganizaciones posibles**.
 
-![Recuadro de reorganizaciones posibles: un intercambio y dos clases movidas, cada una con su botón Aplicar y, en naranja, las horas de entrada y salida que cambia](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+El recuadro tiene una sección por grupo, encabezada con su nombre. Los grupos que comparten una clase ese día (dos grupos que dan clase juntos) comparten sección, porque reorganizar una clase compartida cambia el día de ambos. En cada sección aparece primero lo que está pendiente (una reorganización que espera su comunicado, un comunicado por rectificar), después las propuestas, numeradas a partir de la mejor, y al final **Solo avisar a las familias** (ver [Entrada tarde, salida anticipada o sin clases](#entrada-tarde-salida-anticipada-o-sin-clases)).
 
-Se proponen de dos tipos, siempre entre docentes del mismo grupo y dentro del mismo día:
+![Recuadro de propuestas para las ausencias: la sección de dos grupos, con tres propuestas numeradas, cada una con una lista de pasos con su casilla y, en naranja, las horas de entrada y salida que cambian, y al final la opción de solo avisar a las familias](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
-- **Intercambio**: otro docente del grupo, que está libre a esa hora, da clase entonces, y el docente ausente da la clase de ese docente con el grupo más tarde (o más temprano). El alumnado no pierde ninguna clase, y no hay que comunicar nada a las familias.
-- **Clase movida**: otro docente del grupo trae a esa hora su clase del principio o del final del día del grupo (o de junto a un patio). El grupo entra más tarde, sale antes o tiene un patio más largo, así que hay que comunicarlo a las familias.
+Cada propuesta es una lista de pasos, uno por línea, siempre entre docentes de esos grupos y dentro del mismo día:
 
-Se ordenan para que el alumnado pierda el mínimo de clases: primero las que no hacen perder ninguna. Una clase compartida con otro grupo no se propone nunca, porque cambiaría también el día de ese otro grupo.
+- **Clase movida**: un docente que está libre a esa hora da entonces una clase suya con el grupo de otra hora. La clase que deja se convierte en un hueco, que otro paso puede llenar a su vez: un docente adelanta una clase, otro llena el hueco que deja, y así sucesivamente, hasta que lo que queda libre está al principio o al final del día (o junto a un patio).
+- **Intercambio**: otro docente del grupo da clase entonces, y el docente ausente, que está en el centro a otra hora, da la clase de ese docente con el grupo.
+- **Aviso a las familias**: el grupo entra más tarde, sale antes o tiene un patio más largo, por las clases que quedan libres al principio o al final del día.
 
-**La jornada de nadie se alarga.** Una reorganización solo se propone si ningún docente implicado acaba con una jornada más larga (contada desde su primera franja hasta la última, tanto clases como guardias y cualquier otra tarea): quien tenga que entrar antes debe salir antes, y quien tenga que salir más tarde debe entrar más tarde. Cuando cambia la hora de entrada o de salida de alguien, una línea naranja bajo la propuesta dice exactamente de quién y cómo (*"… entra a las 08:00 en lugar de a las 10:00"*), de modo que se distinguen fácilmente de las que no cambian el horario de nadie.
+Una clase compartida por varios grupos se mueve para todos, siempre que todos tengan el mismo hueco, y entonces el aviso va a cada grupo.
 
-Para aplicar una, haz clic en **Aplicar** en su línea, o haz clic en la clase y elígela en el diálogo, donde las reorganizaciones posibles aparecen primero, por encima de enviar una guardia:
+Las propuestas aparecen en este orden: primero las que hacen perder menos clases al alumnado; entre esas, las que le hacen pasar menos horas en el centro sin clase (con una guardia o en un patio más largo); después las que necesitan menos comunicados y menos docentes que muevan clases, las que mantienen juntas dos horas de la misma materia y las que cambian menos horas de entrada o de salida. Se muestran hasta tres por grupo.
 
-![Diálogo de una clase: las reorganizaciones posibles, con el comunicado y los cambios de entrada y salida que implica cada una, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+**La jornada de nadie se alarga.** Una propuesta solo incluye un paso si ningún docente implicado acaba con una jornada más larga (contada desde su primera franja hasta la última, tanto clases como guardias y cualquier otra tarea): quien tenga que entrar antes debe salir antes, y quien tenga que salir más tarde debe entrar más tarde. Cuando un paso cambia la hora de entrada o de salida de alguien, una línea naranja debajo dice exactamente de quién y cómo (*"… sale a las 20:20 en lugar de a las 21:20"*).
 
-- Un **intercambio** tiene efecto de inmediato: la clase queda tachada, con el docente que está con el grupo, y los dos docentes reciben un mensaje de Odoo con el cambio (y su nueva hora de entrada o de salida, si cambia).
-- Una **clase movida** abre directamente el borrador del comunicado para las familias. **Solo cuenta cuando ese comunicado se ha enviado**: hasta entonces la clase no queda tachada y el recuadro de propuestas la muestra pendiente del comunicado (**Abrir borrador**). Los docentes reciben el aviso cuando se envía el comunicado. Si borras el borrador, la reorganización se descarta. Una vez enviado, la clase muestra las dos etiquetas: el docente que está con el grupo y, en verde, lo que se ha comunicado a las familias (*"Sale a las 12:25"*, *"Entra a las 09:00"*).
+**Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados** debajo, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
+
+![Diálogo de una clase: las propuestas que la resuelven, la primera elegida con sus pasos marcados, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+
+- Un **intercambio**, y una **clase movida** que no depende de ningún aviso, tienen efecto de inmediato: la clase queda tachada con el docente que está con el grupo, y los docentes implicados reciben un mensaje de Odoo con el cambio (y su nueva hora de entrada o de salida, si cambia).
+- Un **aviso** abre directamente su borrador para las familias (uno por grupo). **Las clases movidas que dependen de él solo cuentan cuando se ha enviado**: hasta entonces esas clases no quedan tachadas, y la sección las muestra pendientes del comunicado (**Abrir borrador**). Los docentes reciben el aviso cuando se envía el comunicado. Si borras el borrador, esas clases movidas se descartan. Una vez enviado, la clase muestra las dos etiquetas: quién está con el grupo y, en verde, lo que se ha comunicado a las familias (*"Sale a las 12:25"*).
+- **Si dejas fuera el aviso**, las clases movidas se aplican sin él, y la clase que deja libre una clase movida aparece como una línea más de la tabla, con la etiqueta **Clase pasada a las 15:00**: cúbrela como cualquier otra (con una guardia, otra reorganización o una descrita a mano), o envía el comunicado más tarde desde **Solo avisar a las familias**. La organiza quien organiza la ausencia original.
 
 Cuando una reorganización tiene efecto, el **Horario de guardias** muestra quién da realmente cada clase implicada, y un docente que estaba de guardia a una hora en la que ahora da clase aparece tachado en la columna **Guardia** en esa franja: no se le puede enviar a cubrir nada más entonces, y nadie puede coger esa clase por su cuenta.
 
 **Otra reorganización (descrita a mano)**, la última opción del diálogo, sirve para todo lo que el cuadrante no puede deducir, para que quede constancia: dos grupos que se juntan para dar la misma materia, un docente de otro grupo... Descríbela y, si hay un docente implicado, elígelo (recibe un mensaje). Esa clase ya no necesita guardia.
 
-Para cambiar de idea, haz clic en la línea y después en **Cambiar o quitar la reorganización**: **Quitar la reorganización** la deshace (se avisa a los docentes), y elegir una guardia u otra reorganización la sustituye.
+Para cambiar de idea, haz clic en la línea y después en **Cambiar o quitar la reorganización**: **Quitar la reorganización** la deshace (se avisa a los docentes), y elegir una guardia u otra reorganización la sustituye. Una clase movida para varios grupos se deshace para todos.
 
 ### Entrada tarde, salida anticipada o sin clases
 
 Cuando las clases sin docente son las primeras del día del grupo (una, dos o más seguidas), el alumnado podría entrar más tarde; cuando son las últimas, podría salir antes; cuando todas las clases del día quedan sin docente, el grupo podría no tener clases. Una clase donde hay alguien con el alumnado (otro docente que no está ausente, la otra mitad de un grupo desdoblado, una optativa o un docente de guardia ya enviado) corta la secuencia.
 
-Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y el recuadro **Propuestas de entrada, salida y patio**, encima de la tabla (solo lo ve quien puede organizar la ausencia), ofrece el cambio de ese grupo. Enviar el comunicado tacha esas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas.
+Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y la sección del grupo en el recuadro **Propuestas para las ausencias**, encima de la tabla (solo lo ve quien puede organizar la ausencia), ofrece ese cambio como última propuesta, **Solo avisar a las familias**. Enviar el comunicado tacha esas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas.
 
 El selector de cada propuesta te permite comunicar a las familias menos de lo que permiten las ausencias: con dos clases sin docente, puedes elegir **Entra a las 09:00** en lugar de **Entra a las 10:00**. Entonces solo se tacha la primera clase; la segunda sigue necesitando un docente de guardia, que envías como siempre. Elegir el cambio más corto es decisión tuya: nada te pedirá que lo rectifiques.
 

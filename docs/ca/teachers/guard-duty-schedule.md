@@ -139,7 +139,7 @@ Qui ho pot fer: el **Cap de seminari** o el **Cap de departament** del docent ab
 
 Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera que en premis el botó. Un dia que ja ha passat no es pot canviar.
 
-![Taula d'absències com a Cap de departament: una proposta d'entrada tard, les reorganitzacions possibles i dues classes cobertes per dos docents de guàrdia, cadascun amb el seu color](../../assets/teachers/guard-duty-03-organitzar.png)
+![Taula d'absències com a Cap de departament: les propostes per a un grup, que acaben amb només avisar les famílies, i dues classes cobertes per dos docents de guàrdia, cadascun amb el seu color](../../assets/teachers/guard-duty-03-organitzar.png)
 
 ### Enviar un docent de guàrdia a una classe
 
@@ -172,37 +172,43 @@ Quan falta el docent d'una guàrdia de WC o de pati, la seva guàrdia apareix co
 
 ### Reorganitzar les classes en lloc d'enviar una guàrdia
 
-Sovint no cal cap guàrdia, perquè els mateixos docents del grup poden reorganitzar les seves classes d'aquell dia. El quadrant ho calcula per a cada classe que encara no té ningú i ho proposa al quadre **Reorganitzacions possibles**, damunt la taula (només el veu qui pot organitzar l'absència); aquestes línies també mostren una etiqueta com ara **2 reorganitzacions possibles**.
+Sovint no cal cap guàrdia, perquè els docents poden reorganitzar les seves classes d'aquell dia. El quadrant ho calcula per a cada classe que encara no té ningú i ho proposa al quadre **Propostes per a les absències**, damunt la taula (només el veu qui pot organitzar l'absència); aquestes línies també mostren una etiqueta com ara **3 reorganitzacions possibles**.
 
-![Quadre de reorganitzacions possibles: un intercanvi i dues classes mogudes, cadascuna amb el seu botó Aplica i, en taronja, les hores d'entrada i sortida que canvia](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+El quadre té una secció per grup, encapçalada pel seu nom. Els grups que comparteixen una classe aquell dia (dos grups que fan classe junts) comparteixen secció, perquè reorganitzar una classe compartida canvia el dia de tots dos. A cada secció surt primer el que està pendent (una reorganització que espera el seu comunicat, un comunicat per rectificar), després les propostes, numerades a partir de la millor, i al final **Només avisar les famílies** (vegeu [Entrada tard, sortida abans d'hora o sense classes](#entrada-tard-sortida-abans-dhora-o-sense-classes)).
 
-Se'n proposen de dos tipus, sempre entre docents del mateix grup i dins el mateix dia:
+![Quadre de propostes per a les absències: la secció de dos grups, amb tres propostes numerades, cadascuna amb una llista de passos amb la seva casella i, en taronja, les hores d'entrada i sortida que canvien, i al final l'opció de només avisar les famílies](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
-- **Intercanvi**: un altre docent del grup, que està lliure en aquella hora, fa classe aleshores, i el docent absent fa la classe d'aquest docent amb el grup més tard (o més d'hora). L'alumnat no perd cap classe, i no cal comunicar res a les famílies.
-- **Classe moguda**: un altre docent del grup porta a aquella hora la seva classe del principi o del final del dia del grup (o del costat d'un pati). El grup entra més tard, surt abans o té un pati més llarg, de manera que cal comunicar-ho a les famílies.
+Cada proposta és una llista de passos, un per línia, sempre entre docents d'aquells grups i dins el mateix dia:
 
-S'ordenen perquè l'alumnat perdi el mínim de classes: primer les que no en fan perdre cap. Una classe compartida amb un altre grup no es proposa mai, perquè també canviaria el dia d'aquell altre grup.
+- **Classe moguda**: un docent que està lliure en aquella hora hi fa una classe seva amb el grup d'una altra hora. La classe que deixa es converteix en un buit, que un altre pas pot omplir alhora: un docent avança una classe, un altre omple el buit que deixa, i així successivament, fins que el que queda lliure és al principi o al final del dia (o al costat d'un pati).
+- **Intercanvi**: un altre docent del grup fa classe aleshores, i el docent absent, que és al centre en una altra hora, fa la classe d'aquest docent amb el grup.
+- **Avís a les famílies**: el grup entra més tard, surt abans o té un pati més llarg, per les classes que queden lliures al principi o al final del dia.
 
-**La jornada de ningú no s'allarga.** Una reorganització només es proposa si cap docent implicat acaba amb una jornada més llarga (comptada des de la seva primera franja fins a l'última, tant classes com guàrdies i qualsevol altra tasca): qui hagi d'entrar abans ha de sortir abans, i qui hagi de sortir més tard ha d'entrar més tard. Quan canvia l'hora d'entrada o de sortida d'algú, una línia taronja sota la proposta diu exactament de qui i com (*"… entra a les 08:00 en lloc de les 10:00"*), de manera que es distingeixen fàcilment de les que no canvien l'horari de ningú.
+Una classe compartida per diversos grups es mou per a tots, sempre que tots tinguin el mateix buit, i aleshores l'avís va a cada grup.
 
-Per aplicar-ne una, fes clic a **Aplica** a la seva línia, o fes clic a la classe i tria-la al diàleg, on les reorganitzacions possibles surten primer, per sobre d'enviar una guàrdia:
+Les propostes surten en aquest ordre: primer les que fan perdre menys classes a l'alumnat; entre aquestes, les que li fan passar menys hores al centre sense classe (amb una guàrdia o en un pati més llarg); després les que necessiten menys comunicats i menys docents que moguin classes, les que mantenen juntes dues hores de la mateixa matèria i les que canvien menys hores d'entrada o de sortida. Se'n mostren fins a tres per grup.
 
-![Diàleg d'una classe: les reorganitzacions possibles, amb el comunicat i els canvis d'entrada i sortida que implica cadascuna, per sobre d'enviar una guàrdia i de la reorganització descrita a mà](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+**La jornada de ningú no s'allarga.** Una proposta només inclou un pas si cap docent implicat acaba amb una jornada més llarga (comptada des de la seva primera franja fins a l'última, tant classes com guàrdies i qualsevol altra tasca): qui hagi d'entrar abans ha de sortir abans, i qui hagi de sortir més tard ha d'entrar més tard. Quan un pas canvia l'hora d'entrada o de sortida d'algú, una línia taronja a sota diu exactament de qui i com (*"… surt a les 20:20 en lloc de les 21:20"*).
 
-- Un **intercanvi** té efecte immediatament: la classe queda ratllada, amb el docent que és amb el grup, i tots dos docents reben un missatge d'Odoo amb el canvi (i la seva nova hora d'entrada o de sortida, si canvia).
-- Una **classe moguda** obre directament l'esborrany del comunicat per a les famílies. **Només compta quan aquest comunicat s'ha enviat**: fins aleshores la classe no queda ratllada i el quadre de propostes la mostra pendent del comunicat (**Obrir esborrany**). Els docents reben l'avís quan s'envia el comunicat. Si esborres l'esborrany, la reorganització es descarta. Un cop enviat, la classe mostra totes dues etiquetes: el docent que és amb el grup i, en verd, el que s'ha comunicat a les famílies (*"Surt a les 12:25"*, *"Entra a les 09:00"*).
+**Aplicar una proposta.** Fes clic a **Aplicar els passos marcats** a sota, o fes clic a la classe i tria la proposta al diàleg, on les propostes que resolen aquella classe surten primer, per sobre d'enviar una guàrdia. Tots els passos surten marcats: desmarca els que no vulguis. Un pas que en necessita un altre es desmarca amb ell (una classe moguda al buit que en deixa una altra, un avís que només té sentit per una classe moguda), i marcar un pas marca el que necessita.
+
+![Diàleg d'una classe: les propostes que la resolen, la primera triada amb els seus passos marcats, per sobre d'enviar una guàrdia i de la reorganització descrita a mà](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
+
+- Un **intercanvi**, i una **classe moguda** que no depèn de cap avís, tenen efecte immediatament: la classe queda ratllada amb el docent que és amb el grup, i els docents implicats reben un missatge d'Odoo amb el canvi (i la seva nova hora d'entrada o de sortida, si canvia).
+- Un **avís** obre directament el seu esborrany per a les famílies (un per grup). **Les classes mogudes de les quals depèn només compten quan s'ha enviat**: fins aleshores aquelles classes no queden ratllades, i la secció les mostra pendents del comunicat (**Obrir esborrany**). Els docents reben l'avís quan s'envia el comunicat. Si esborres l'esborrany, aquelles classes mogudes es descarten. Un cop enviat, la classe mostra totes dues etiquetes: qui és amb el grup i, en verd, el que s'ha comunicat a les famílies (*"Surt a les 12:25"*).
+- **Si deixes fora l'avís**, les classes mogudes s'apliquen sense ell, i la classe que deixa lliure una classe moguda apareix com una línia més de la taula, amb l'etiqueta **Classe passada a les 15:00**: cobreix-la com qualsevol altra (amb una guàrdia, una altra reorganització o una de descrita a mà), o envia el comunicat més tard des de **Només avisar les famílies**. L'organitza qui organitza l'absència original.
 
 Quan una reorganització té efecte, l'**Horari de guàrdies** mostra qui fa realment cada classe implicada, i un docent que estava de guàrdia en una hora en què ara fa classe surt ratllat a la columna **Guàrdia** en aquella franja: no se'l pot enviar a cobrir res més aleshores, i ningú no pot agafar aquella classe pel seu compte.
 
 **Una altra reorganització (descrita a mà)**, l'última opció del diàleg, serveix per a tot allò que el quadrant no pot deduir, perquè en quedi constància: dos grups que s'ajunten per fer la mateixa matèria, un docent d'un altre grup... Descriu-la i, si hi ha un docent implicat, tria'l (rep un missatge). Aquella classe ja no necessita guàrdia.
 
-Per canviar d'idea, fes clic a la línia i després a **Canviar o treure la reorganització**: **Treure la reorganització** la desfà (s'avisa els docents), i triar una guàrdia o una altra reorganització la substitueix.
+Per canviar d'idea, fes clic a la línia i després a **Canviar o treure la reorganització**: **Treure la reorganització** la desfà (s'avisa els docents), i triar una guàrdia o una altra reorganització la substitueix. Una classe moguda per a diversos grups es desfà per a tots.
 
 ### Entrada tard, sortida abans d'hora o sense classes
 
 Quan les classes sense docent són les primeres del dia del grup (una, dues o més seguides), l'alumnat podria entrar més tard; quan són les últimes, podria sortir abans; quan totes les classes del dia queden sense docent, el grup podria no tenir classes. Una classe on hi ha algú amb l'alumnat (un altre docent que no és absent, l'altra meitat d'un grup desdoblat, una optativa o un docent de guàrdia ja enviat) talla la seqüència.
 
-Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10:00**, i el quadre **Propostes d'entrada, sortida i pati**, damunt la taula (només el veu qui pot organitzar l'absència), ofereix el canvi d'aquell grup. Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir.
+Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10:00**, i la secció del grup al quadre **Propostes per a les absències**, damunt la taula (només el veu qui pot organitzar l'absència), ofereix aquest canvi com a última proposta, **Només avisar les famílies**. Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir.
 
 El selector de cada proposta et permet comunicar a les famílies menys del que permeten les absències: amb dues classes sense docent, pots triar **Entra a les 09:00** en lloc d'**Entra a les 10:00**. Aleshores només es ratlla la primera classe; la segona encara necessita un docent de guàrdia, que envies com sempre. Triar el canvi més curt és decisió teva: res no et demanarà que el rectifiquis.
 

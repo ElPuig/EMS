@@ -59,6 +59,12 @@ class EmsGroup(models.Model):
 			"schedule of each of them.")
 	subgroup_ids = fields.Many2many(string="Subgroups", comodel_name="ems.group", relation="ems_group_parent_rel",
 		column1="parent_id", column2="subgroup_id")
+	# The main groups are set by hand: a split or an optative of a level whose enrolment is not done
+	# in EMS has no enrolled student to read them from, and a group's schedule is planned before
+	# anybody enrols. When students are enrolled, this says which of their main groups are missing.
+	missing_parent_group_ids = fields.Many2many(string="Main groups of its students not set",
+		comodel_name="ems.group", compute="_compute_missing_parent_group_ids",
+		help="The main groups of this group's enrolled students that are not among its main groups.")
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
@@ -132,6 +138,16 @@ class EmsGroup(models.Model):
 	def _compute_enrolled_student_ids(self):
 		for group in self:
 			group.enrolled_student_ids = self.env["ems.enrollment"].search([("group_id", "=", group.id)]).mapped("student_id") or False
+
+	@api.depends("group_type", "parent_group_ids")
+	def _compute_missing_parent_group_ids(self):
+		for group in self:
+			if group.group_type != "reinforcement":
+				group.missing_parent_group_ids = False
+				continue
+			main_groups = group.enrolled_student_ids.filtered("active").main_group_id.filtered(
+				lambda main: main.group_type == "main")
+			group.missing_parent_group_ids = main_groups - group.parent_group_ids
 
 	def _compute_enrollment_ids(self):
 		# NOTE: deliberately a compute WITH side effects (delete + recreate ems.enrollment_view
@@ -365,6 +381,14 @@ class EmsGroup(models.Model):
 			"type": "ir.actions.client",
 			"tag": "soft_reload",
 		}
+
+	def action_fill_parent_groups(self):
+		"""Adds to a reinforcement group's main groups those of its enrolled students that are
+		missing (see missing_parent_group_ids). Never removes one: a main group set by hand may have
+		no student enrolled yet. As the user: whoever cannot edit the group cannot do this either."""
+		for group in self.filtered(lambda group: group.group_type == "reinforcement" and group.missing_parent_group_ids):
+			group.parent_group_ids |= group.missing_parent_group_ids
+		return True
 
 	def action_open_classroom_change_wizard(self):
 		"""Opens 'ems.group_classroom_change_wizard' for this group's pending classroom conflicts

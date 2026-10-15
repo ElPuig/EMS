@@ -9,6 +9,7 @@ import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { GuardCoverDialog } from "./guard_cover_dialog";
+import { GuardArrangementPlan, fullPlanSelection, selectedPlanSteps, toggledPlanSelection } from "./guard_arrangement_plan";
 
 // The reason a struck-out line needs no guard, opened by clicking its info icon - the same text
 // its tooltip shows on hover, for whoever doesn't hover (or uses a touchscreen).
@@ -105,6 +106,7 @@ function mondayOf(date) {
 // read a prefetched field this way only ever showed real data for whichever weekday loaded first.
 export class GuardDutyBoard extends Component {
     static template = "ems.GuardDutyBoard";
+    static components = { GuardArrangementPlan };
     static props = ["*"];
 
     setup() {
@@ -129,6 +131,9 @@ export class GuardDutyBoard extends Component {
             loading: true,
             courseId: null,
             courseName: "",
+            // Which steps of each detected plan are checked (issue #645), by plan key: all of
+            // them until the planner unchecks some. Forgotten on every reload.
+            planSelections: {},
         });
         onWillStart(async () => {
             const [course, areas] = await Promise.all([
@@ -350,6 +355,7 @@ export class GuardDutyBoard extends Component {
 
     async loadBoard() {
         this.state.loading = true;
+        this.state.planSelections = {};
         this.state.board = await this.orm.call(
             "ems.course",
             "get_guard_duty_board_data",
@@ -365,6 +371,10 @@ export class GuardDutyBoard extends Component {
         if (absence === "approved") {
             return "o_guard_board_absent";
         }
+        if (absence === "moved") {
+            // Issue #645: not away, their lesson went elsewhere - nobody is with the group then.
+            return "o_guard_board_absent_moved";
+        }
         return absence === "pending" ? "o_guard_board_absent_pending" : "";
     }
 
@@ -375,17 +385,16 @@ export class GuardDutyBoard extends Component {
 
     get actionLabels() {
         return {
-            proposalsTitle: _t("Late entry, early leave and break proposals"),
-            proposalsHelp: _t("Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."),
             releasesTitle: _t("Guards no longer needed"),
             propose: _t("Propose notice"),
             rectify: _t("Propose correction"),
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
             removeArrangement: _t("Remove arrangement"),
-            arrangementsTitle: _t("Possible arrangements"),
-            arrangementsHelp: _t("Teachers of the group who could rearrange their lessons so that no guard is needed, first those where the students lose no lesson. The teachers involved are notified."),
-            applyArrangement: _t("Apply"),
+            arrangementsTitle: _t("Proposals for the absences"),
+            arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
+            noticeOnly: _t("Only tell the families"),
+            applyPlan: _t("Apply the checked steps"),
         };
     }
 
@@ -422,7 +431,7 @@ export class GuardDutyBoard extends Component {
         if (absence.arrangement) {
             return _t("%s It only counts once its notice to the families is sent.", absence.arrangement.label);
         }
-        if (absence.arrangement_options.length && absence.can_manage) {
+        if (absence.arrangement_plans.length && absence.can_manage) {
             return _t("Click to see the possible arrangements, or to send a guard teacher");
         }
         // A row can also be a guard duty that is not regular (WC, break...) left without its
@@ -519,31 +528,70 @@ export class GuardDutyBoard extends Component {
         return `${base} o_guard_board_cover_${guard.color}${guard.partial ? " o_guard_board_cover_partial" : ""}`;
     }
 
-    get proposalActions() {
-        return this.state.board.actions.filter((action) => !["obsolete_cover", "arrangement_option"].includes(action.type));
+    // Issues #539, #605, #645: the day's proposals, one section per group (with the groups sharing
+    // lessons with it): what is waiting (an arrangement waiting for its notice, a correction), the
+    // arrangement plans, the best first, and the timetable changes alone.
+    get proposalSections() {
+        const sections = new Map();
+        for (const action of this.state.board.actions) {
+            if (action.type === "obsolete_cover") {
+                continue;
+            }
+            if (!sections.has(action.section_key)) {
+                sections.set(action.section_key, { key: action.section_key, title: action.section_title, waiting: [], plans: [], notices: [] });
+            }
+            const section = sections.get(action.section_key);
+            if (action.type === "arrangement_plan") {
+                section.plans.push(action);
+            } else if (action.type === "proposal") {
+                section.notices.push(action);
+            } else {
+                section.waiting.push(action);
+            }
+        }
+        return [...sections.values()].sort((first, second) => first.title.localeCompare(second.title));
     }
 
-    // Issue #605: the internal arrangements the board detected, swaps first.
-    get arrangementActions() {
-        return this.state.board.actions.filter((action) => action.type === "arrangement_option");
+    // The timetable change alone comes after the section's arrangement plans, numbered with them.
+    noticePlanTitle(section) {
+        return _t("Proposal %s:", section.plans.length + 1);
     }
 
     arrangementCountLabel(absence) {
-        const count = absence.arrangement_options.length;
+        const count = absence.arrangement_plans.length;
         return count === 1 ? _t("1 possible arrangement") : _t("%s possible arrangements", count);
     }
 
-    // Applies a detected arrangement (or a manual one). A moved lesson opens its notice for the
-    // families straight away: the arrangement only counts once it is sent.
-    async applyArrangement(classHours, absentId, groupId, type, teacherId, note, option) {
-        const result = await this.orm.call("ems.absence_cover", "board_arrange", [
-            this.activeDate, classHours.hour_from, classHours.hour_to, absentId, groupId, type,
-            teacherId || false, note || false, option ? option.hour_from : 0, option ? option.hour_to : 0,
+    planSelection(plan) {
+        return this.state.planSelections[plan.key] || fullPlanSelection(plan);
+    }
+
+    hasSelectedSteps(plan) {
+        return this.planSelection(plan).some((checked) => checked);
+    }
+
+    togglePlanStep(plan, index, checked) {
+        this.state.planSelections[plan.key] = toggledPlanSelection(plan, this.planSelection(plan), index, checked);
+    }
+
+    // Applies the checked steps of a detected plan. A notice among them opens its draft for the
+    // families straight away: the moves it frees the group from only count once it is sent.
+    async applyPlan(plan, selection) {
+        const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [
+            this.activeDate, selectedPlanSteps(plan, selection),
         ]);
         if (result.notice_action) {
             await this.actionService.doAction(result.notice_action);
             return;
         }
+        await this.loadBoard();
+    }
+
+    // An arrangement described by hand (issue #605).
+    async applyManualArrangement(classHours, absentId, groupId, teacherId, note) {
+        await this.orm.call("ems.absence_cover", "board_arrange", [
+            this.activeDate, classHours.hour_from, classHours.hour_to, absentId, groupId, "manual", teacherId || false, note,
+        ]);
         await this.loadBoard();
     }
 
@@ -561,9 +609,6 @@ export class GuardDutyBoard extends Component {
         if (action.type === "obsolete_cover") {
             return "fa fa-user-times";
         }
-        if (action.type === "arrangement_option") {
-            return action.option_type === "swap" ? "fa fa-exchange" : "fa fa-arrows-v";
-        }
         if (action.type === "pending_arrangement") {
             return "fa fa-exchange";
         }
@@ -573,9 +618,6 @@ export class GuardDutyBoard extends Component {
     actionButtonLabel(action) {
         if (action.type === "obsolete_cover") {
             return action.cover_type === "arrangement" ? this.actionLabels.removeArrangement : this.actionLabels.release;
-        }
-        if (action.type === "arrangement_option") {
-            return this.actionLabels.applyArrangement;
         }
         if (action.draft_id) {
             return this.actionLabels.openDraft;
@@ -598,8 +640,8 @@ export class GuardDutyBoard extends Component {
             },
             // Issue #605: an internal arrangement, detected or described by hand.
             loadArrangementCandidates: () => this.orm.call("ems.course", "get_arrangement_candidates", classArgs),
-            onArrange: (type, teacherId, note, option) =>
-                this.applyArrangement(line, absence.teacher_id, absence.group_id, type, teacherId, note, option),
+            onApplyPlan: (plan, selection) => this.applyPlan(plan, selection),
+            onArrange: (teacherId, note) => this.applyManualArrangement(line, absence.teacher_id, absence.group_id, teacherId, note),
             onOpenNotice: absence.arrangement && absence.arrangement.pending ? () => this.actionService.doAction({
                 type: "ir.actions.act_window",
                 res_model: "ems.notice",
@@ -650,13 +692,6 @@ export class GuardDutyBoard extends Component {
     // the first time - for the planner to review and send from the notice's own form; releasing a
     // guard that is no longer needed notifies them straight away.
     async onAction(action) {
-        if (action.type === "arrangement_option") {
-            await this.applyArrangement(
-                { hour_from: action.class_hour_from, hour_to: action.class_hour_to }, action.absent_id,
-                action.group_id, action.option_type, action.teacher_id, false, action
-            );
-            return;
-        }
         if (action.type === "obsolete_cover") {
             await this.orm.call("ems.absence_cover", "board_release", [action.cover_id]);
             await this.loadBoard();

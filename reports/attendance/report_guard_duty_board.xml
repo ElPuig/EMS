@@ -315,6 +315,7 @@
                     <t t-foreach="absence['missing']" t-as="period">
                         <span class="gdb-absence-tag gdb-missing-tag" t-esc="course._missing_label(period)"/>
                     </t>
+                    <span t-if="absence['moved_cover']" class="gdb-absence-tag" t-esc="course._moved_label(absence['moved_cover'])"/>
                     <span t-if="absence['arrangement'] and absence['arrangement'].is_effective" class="gdb-absence-tag">⇄ <t t-esc="absence['arrangement']._arrangement_label()"/></span>
                     <span t-if="absence['arrangement_change']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['arrangement_change'])"/>
                     <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>

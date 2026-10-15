@@ -19212,6 +19212,7 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -23085,3 +23086,98 @@ msgstr "no han estat mai alumnes però tenen compte corporatiu o una convalidaci
 #: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
 msgid "they were never students: the person is deleted, with their portal user, enrollments, authorizations and documents."
 msgstr "no han estat mai alumnes: s'elimina la persona, amb el seu usuari del portal, les matrícules, les autoritzacions i els documents."
+
+#. module: ems
+#. odoo-javascript
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Proposal %s:"
+msgstr "Proposta %s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Notice to the families of %(groups)s: %(change)s."
+msgstr "Avís a les famílies de %(groups)s: %(change)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Swap (%(groups)s): %(teacher)s teaches at %(target)s and %(absent)s at %(lesson)s."
+msgstr "Intercanvi (%(groups)s): %(teacher)s fa classe a les %(target)s i %(absent)s a les %(lesson)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s moves their %(lesson)s lesson to %(target)s (%(groups)s)."
+msgstr "%(teacher)s passa la seva classe de les %(lesson)s a les %(target)s (%(groups)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Lesson moved to %s"
+msgstr "Classe passada a les %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose at least one step of the arrangement."
+msgstr "Tria almenys un pas de la reorganització."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "How the teachers of the group could rearrange their lessons so that the students lose as few lessons as possible and no guard is needed, the best first. Uncheck the steps you do not want: the lessons they would have solved stay on the table. The teachers involved are notified."
+msgstr "Com podrien reorganitzar les seves classes els docents del grup perquè l'alumnat perdi el mínim de classes possible i no calgui cap guàrdia, la millor primer. Desmarca els passos que no vulguis: les classes que resolien es queden a la taula. S'avisa els docents implicats."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Apply the checked steps"
+msgstr "Aplicar els passos marcats"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Proposals for the absences"
+msgstr "Propostes per a les absències"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."
+msgstr "Per a cada grup, com organitzar-ne les absències, la millor primer: que els docents reorganitzin les seves classes perquè l'alumnat perdi el mínim de classes possible i no calgui cap guàrdia, o només avisar les famílies. Desmarca els passos que no vulguis: les classes que resolien es queden a la taula. Enviar un avís treu de la taula les seves classes; pots triar un canvi més curt i enviar una guàrdia a la resta. S'avisa els docents implicats."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Only tell the families"
+msgstr "Només avisar les famílies"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Fill main groups from enrolled students"
+msgstr "Omplir els grups principals des de l'alumnat inscrit"
+
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Some of its enrolled students come from main groups that are not among its main groups:"
+msgstr "Part del seu alumnat inscrit ve de grups principals que no són entre els seus grups principals:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__missing_parent_group_ids
+msgid "Main groups of its students not set"
+msgstr "Grups principals del seu alumnat que hi falten"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__missing_parent_group_ids
+msgid "The main groups of this group's enrolled students that are not among its main groups."
+msgstr "Els grups principals de l'alumnat inscrit en aquest grup que no són entre els seus grups principals."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "<strong>Fill main groups from enrolled students</strong>, at the top of the form, adds them."
+msgstr "<strong>Omplir els grups principals des de l'alumnat inscrit</strong>, a dalt de la fitxa, els afegeix."

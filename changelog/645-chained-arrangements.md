@@ -8,6 +8,9 @@
 - The late entry / early leave proposals and the arrangements are now one box, "Proposals for the absences", with one section per group (together with the groups sharing lessons with it): what is waiting (an arrangement waiting for its notice, a notice to correct), then the arrangement plans, the best first, and last "Only tell the families", the timetable change alone with its selector, as one more proposal.
 - A lesson moved without telling the families is in effect at once, and the lesson it leaves free becomes one more row of the absences table ("Lesson moved to 15:00"), covered like any other: a guard, a manual arrangement or another plan. Whoever organises the absence organises it.
 
+## Main groups of a reinforcement group filled from its students:
+- A reinforcement group's form warns when some of its enrolled students come from main groups it does not list, and "Actions > Fill main groups from enrolled students" adds them (never removing any: a main group can be set before its students enrol, and splits or optatives of levels not enrolled through EMS have no students to read them from). Its main groups decide its area on the guard duty board, who organises its absences and the main groups whose schedule shows its classes.
+
 # Changes
 
 ## Arrangements on the guard duty board (#645):

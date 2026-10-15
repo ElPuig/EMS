@@ -19188,6 +19188,7 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.hr_leave_view_form_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -22935,3 +22936,28 @@ msgstr "Per a cada grup, com organitzar-ne les absències, la millor primer: que
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Only tell the families"
 msgstr "Només avisar les famílies"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Fill main groups from enrolled students"
+msgstr "Omplir els grups principals des de l'alumnat inscrit"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Actions &gt; Fill main groups from enrolled students adds them."
+msgstr "Accions &gt; Omplir els grups principals des de l'alumnat inscrit els afegeix."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Some of its enrolled students come from main groups that are not among its main groups:"
+msgstr "Part del seu alumnat inscrit ve de grups principals que no són entre els seus grups principals:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__missing_parent_group_ids
+msgid "Main groups of its students not set"
+msgstr "Grups principals del seu alumnat que hi falten"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__missing_parent_group_ids
+msgid "The main groups of this group's enrolled students that are not among its main groups."
+msgstr "Els grups principals de l'alumnat inscrit en aquest grup que no són entre els seus grups principals."

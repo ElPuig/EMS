@@ -15,6 +15,17 @@
                     <field name="public_schedule_url" invisible="1"/>
                     <field name="pending_classroom_conflict_count" invisible="1"/>
                     <field name="can_edit_schedule" invisible="1"/>
+                    <!-- Every action on the group sits in its "Actions" dropdown, never loose in the
+                         header (docs/en/developers/shared/actions_dropdown.md). -->
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <!-- Adds the main groups of its enrolled students that are missing, never
+                                 removes one (one set by hand may have nobody enrolled yet). -->
+                            <button name="action_fill_parent_groups" type="object" string="Fill main groups from enrolled students"
+                                    invisible="group_type != 'reinforcement' or not missing_parent_group_ids"
+                                    groups="ems.group_department_chief"/>
+                        </div>
+                    </header>
                     <!-- Outside <sheet> (above the white card), matching the equivalent banner on
                     the employee form's own "before sheet" placement (views/community/employee/
                     form.xml) - moved here 2026-09-12 (developer feedback: it used to render INSIDE
@@ -57,6 +68,12 @@
                                 <field name="name" />
                                 <field name="parent_group_ids" widget="many2many_tags" options="{'no_create': True}" />
                             </group>
+                            <div colspan="4" class="alert alert-warning o_group_missing_parent_groups" role="alert"
+                                 invisible="group_type != 'reinforcement' or not missing_parent_group_ids">
+                                Some of its enrolled students come from main groups that are not among its main groups:
+                                <field name="missing_parent_group_ids" widget="many2many_tags" nolabel="1" class="oe_inline"/>
+                                Actions &gt; Fill main groups from enrolled students adds them.
+                            </div>
                             <group colspan="2">
                                 <field name="space_id" />
                             </group>

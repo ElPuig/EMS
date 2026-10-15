@@ -44,6 +44,18 @@
                         </p>
                         <button name="action_open_classroom_change_wizard" type="object" string="Resolve pending classrooms" class="btn-warning"/>
                     </div>
+                    <!-- A reinforcement group whose enrolled students come from main groups it does not
+                         list: above the card too, like the classroom banner, with the button that adds
+                         them (also in the Actions dropdown). -->
+                    <div class="alert alert-warning o_group_missing_parent_groups" role="alert"
+                         invisible="group_type != 'reinforcement' or not missing_parent_group_ids">
+                        <p>
+                            Some of its enrolled students come from main groups that are not among its main groups:
+                            <field name="missing_parent_group_ids" widget="many2many_tags" nolabel="1" class="oe_inline"/>
+                        </p>
+                        <button name="action_fill_parent_groups" type="object" string="Fill main groups from enrolled students"
+                                class="btn-warning" groups="ems.group_department_chief"/>
+                    </div>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <group string="Main data" col="4">
@@ -68,12 +80,6 @@
                                 <field name="name" />
                                 <field name="parent_group_ids" widget="many2many_tags" options="{'no_create': True}" />
                             </group>
-                            <div colspan="4" class="alert alert-warning o_group_missing_parent_groups" role="alert"
-                                 invisible="group_type != 'reinforcement' or not missing_parent_group_ids">
-                                Some of its enrolled students come from main groups that are not among its main groups:
-                                <field name="missing_parent_group_ids" widget="many2many_tags" nolabel="1" class="oe_inline"/>
-                                Actions &gt; Fill main groups from enrolled students adds them.
-                            </div>
                             <group colspan="2">
                                 <field name="space_id" />
                             </group>

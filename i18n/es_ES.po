@@ -22945,10 +22945,6 @@ msgstr "Solo avisar a las familias"
 msgid "Fill main groups from enrolled students"
 msgstr "Rellenar los grupos principales desde el alumnado inscrito"
 
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_group_form
-msgid "Actions &gt; Fill main groups from enrolled students adds them."
-msgstr "Acciones &gt; Rellenar los grupos principales desde el alumnado inscrito los añade."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form

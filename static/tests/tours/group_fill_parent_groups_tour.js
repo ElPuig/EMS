@@ -1,10 +1,11 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
-import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
+import { checkActions } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // A reinforcement group whose enrolled students come from two main groups it does not list yet:
-// the form says so, and the Department Chief fills them from the Actions dropdown. Seed data comes
+// a warning above the form says so, and the Department Chief fills them from its button (also
+// offered in the Actions dropdown). Seed data comes
 // from TestGroupFillParentGroupsTour.
 registry.category("web_tour.tours").add("ems_group_fill_parent_groups", {
     test: true,
@@ -26,10 +27,15 @@ registry.category("web_tour.tours").add("ems_group_fill_parent_groups", {
             run: "click",
         },
         {
-            trigger: ".o_group_missing_parent_groups .o_field_widget[name='missing_parent_group_ids']:has(.o_tag ~ .o_tag)",
-            content: "The form says its students come from two main groups it does not list",
+            trigger: ".o_form_view .alert.o_group_missing_parent_groups:not(.o_form_sheet .o_group_missing_parent_groups) .o_field_widget[name='missing_parent_group_ids']:has(.o_tag ~ .o_tag)",
+            content: "A warning above the form says its students come from two main groups it does not list",
         },
-        ...clickAction("action_fill_parent_groups", "Fill the main groups from the enrolled students"),
+        ...checkActions({ offered: ["action_fill_parent_groups"] }, "The Actions dropdown offers to fill them too"),
+        {
+            trigger: ".o_group_missing_parent_groups button[name='action_fill_parent_groups']",
+            content: "Fill the main groups from the warning's own button",
+            run: "click",
+        },
         {
             trigger: ".o_form_view .o_field_widget[name='parent_group_ids']:has(.o_tag ~ .o_tag)",
             content: "Both are now its main groups",

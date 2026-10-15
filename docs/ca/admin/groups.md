@@ -50,7 +50,7 @@ Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per 
 2. Canvia **Tipus de grup** a **Reforç**. Nivell, Estudi, Tutor, Delegat i Sotsdelegat desapareixen — no apliquen.
 3. Omple un **Nom** directament (p. ex., `REF-MATES`).
 4. Si el grup és un desdoblament, un grup flexible o una optativa, indica a **Grups principals** els grups dels quals ve el seu alumnat (p. ex., `ESO1A` per a un desdoblament de 1A, o tots els grups de 1r per a una optativa de 1r). Les seves classes apareixeran també a l'horari de cadascun d'aquests grups.
-   Quan ja hi ha alumnat inscrit, si part d'ell ve de grups principals que no hi són, la fitxa ho indica: **Accions > Omplir els grups principals des de l'alumnat inscrit** els afegeix (mai no en treu cap, perquè un grup principal es pot indicar abans que el seu alumnat s'hi inscrigui).
+   Quan ja hi ha alumnat inscrit, si part d'ell ve de grups principals que no hi són, un avís groc a dalt de la fitxa ho indica, i el seu botó **Omplir els grups principals des de l'alumnat inscrit** (també a **Accions**) els afegeix (mai no en treu cap, perquè un grup principal es pot indicar abans que el seu alumnat s'hi inscrigui).
 5. Fes clic a **Desa**.
 6. Afegeix alumnes de la mateixa manera que a qualsevol altre grup: des de la fitxa del propi alumne (o el procés de matrícula), matricula'l en una assignatura amb aquest grup de reforç com a **Grup** — poden venir de qualsevol grup/estudi principal. Apareixeran a la pestanya **Inscrit** d'aquest grup.
 

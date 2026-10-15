@@ -22942,10 +22942,6 @@ msgstr "Només avisar les famílies"
 msgid "Fill main groups from enrolled students"
 msgstr "Omplir els grups principals des de l'alumnat inscrit"
 
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_group_form
-msgid "Actions &gt; Fill main groups from enrolled students adds them."
-msgstr "Accions &gt; Omplir els grups principals des de l'alumnat inscrit els afegeix."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form

@@ -1469,6 +1469,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         ], "two hours in a row of the same subject are kept together, and the groups leave at 12")
         self.assertEqual([step['depends'] for step in plans[0]['steps']], [[], [], [0, 1], [2]])
         self.assertEqual(plans[0]['steps'][2]['shifts'], [(self.teacher_guard, 'exit', 14, 13)])
+        self.assertEqual(plans[0]['steps'][0]['shifts'], [(self.teacher_b, 'exit', 11, 10)])
         self.assertEqual(self._plans(self.group_b), plans, "one set of plans for both groups")
 
     def test_applying_the_whole_chain_needs_no_guard_and_one_notice_per_group(self):

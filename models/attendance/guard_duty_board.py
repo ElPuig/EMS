@@ -1082,6 +1082,8 @@ class EmsCourseGuardDutyBoard(models.Model):
         for index, item in enumerate(ordered):
             if item['kind'] != 'notice':
                 last[item['teacher'].id] = index
+                if item['kind'] == 'swap':
+                    last[item['absent'].id] = index
         steps = []
         for index, item in enumerate(ordered):
             step = {key: value for key, value in item.items() if key not in ('needs', 'time', 'source')}

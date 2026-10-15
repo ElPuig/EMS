@@ -715,12 +715,12 @@ class ResPartner(models.Model):
             },
         }
 
-    @api.depends('contact_type', 'exit_type', 'sale_order_ids.ems_course_id',
-                 'sale_order_ids.state', 'sale_order_ids.ems_group_id')
     def _ems_transition_course(self):
         """The course a transition status looks at: the one being enrolled into."""
         return self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
 
+    @api.depends('contact_type', 'exit_type', 'sale_order_ids.ems_course_id',
+                 'sale_order_ids.state', 'sale_order_ids.ems_group_id')
     def _compute_transition_status(self):
         # One read of the next-course enrollments for the whole batch (a list of students), not
         # one search per row. A partner holds at most one live enrollment per course.

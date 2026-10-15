@@ -608,8 +608,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
     def _board_row(self, user, hour_from=8):
         data = self.env.company.current_course_id.with_user(user).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))
-        line = next(line for line in data['lines'] if line['hour_from'] == hour_from)
-        return next(row for row in line['absences'] if row['teacher_id'] == self.teacher_a.id)
+        # Several rows can start at hour_from: another level's break is a row of its own (issue #637).
+        return next(row for line in data['lines'] if line['hour_from'] == hour_from
+                    for row in line['absences'] if row['teacher_id'] == self.teacher_a.id)
 
     def test_a_guard_takes_a_free_class_without_anybody_being_notified(self):
         self._morning()

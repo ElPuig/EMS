@@ -32,7 +32,7 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('08:00-09:00')) .o_guard_board_options_tag",
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_options_tag",
             content: "The empty lesson says there are possible arrangements",
         },
         {
@@ -41,11 +41,11 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('08:00-09:00')) .o_guard_board_absence_struck:has(.o_guard_board_arrangement_tag:contains('Tour Swap Teacher'))",
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck:has(.o_guard_board_arrangement_tag:contains('Tour Swap Teacher'))",
             content: "The lesson is struck out, with the teacher who is with the group",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
             content: "Open the 9:00 lesson",
             run: "click",
         },
@@ -78,11 +78,11 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('11:00-12:00')) .o_guard_board_guard_busy:contains('Tour Swap Teacher')",
+            trigger: "td:has(.o_guard_board_block_time:contains('11:00-12:00')) .o_guard_board_guard_busy:contains('Tour Swap Teacher')",
             content: "At 11 the swap teacher's lesson is struck out...",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('11:00-12:00')) .o_guard_board_cell_substitute:contains('Tour Absent Teacher')",
+            trigger: "td:has(.o_guard_board_block_time:contains('11:00-12:00')) .o_guard_board_cell_substitute:contains('Tour Absent Teacher')",
             content: "...and the absent teacher teaches it instead",
         },
     ],
@@ -117,7 +117,7 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_change", {
             run: "click",
         },
         {
-            trigger: "tr:has(.o_guard_board_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_arrangement_tag:contains('Tour Move Teacher')) .o_guard_board_arrangement_change_tag:contains('Leaves at 11:00')",
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_arrangement_tag:contains('Tour Move Teacher')) .o_guard_board_arrangement_change_tag:contains('Leaves at 11:00')",
             content: "The 9:00 class says who teaches it and that the group leaves at 11:00",
         },
     ],

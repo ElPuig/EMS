@@ -1583,8 +1583,8 @@ msgstr "Tarda"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "All levels"
-msgstr "Tots els nivells"
+msgid "All areas"
+msgstr "Totes les àrees"
 
 #. module: ems
 #. odoo-javascript
@@ -11745,6 +11745,8 @@ msgstr "Altres Coordinacions"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 #: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
 #: model:ems.non_teaching_type,name:ems.non_teaching_br
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board_break
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board_guards
 msgid "Break"
 msgstr "Pati"
 
@@ -22828,3 +22830,9 @@ msgstr "Baixes que han passat a antic alumnat"
 #: model:ir.model.fields,field_description:ems.field_ems_notice__can_manage
 msgid "Can manage"
 msgstr "Pot gestionar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Other groups"
+msgstr "Altres grups"

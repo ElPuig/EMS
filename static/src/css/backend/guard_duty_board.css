@@ -92,38 +92,20 @@
     width: 130px;
 }
 
-.o_guard_board_col_guard {
-    width: 190px;
-}
-
 .o_guard_board_time {
-    font-weight: bold;
     white-space: nowrap;
+    font-size: 11px;
+    color: #666;
 }
 
-/* Break ("Patio") row label - a small text tag, not a background fill, matching this board's
-   own "no background colour anywhere" convention (see the guard badge's own comment below) -
-   the label alone is enough to tell a genuine break slot apart from a plain empty-looking row.
-   Originally issue #390's level filter only; generalized 2026-09-11 (developer request) to any
-   row whose period is break time for some level AND has no real class in it (see
-   guard_duty_board.py's own 'is_break' computation), so it now also fires under "All levels". */
+/* Break ("Patio") label - a small text tag, not a background fill, matching this board's own "no
+   background colour anywhere" convention (see the guard badge's own comment below). */
 .o_guard_board_break_label {
     display: block;
     font-size: 10px;
     font-style: italic;
     font-weight: normal;
     opacity: 0.8;
-}
-
-/* A break/"Patio" row's own accent (2026-09-11, developer request) - the ONE deliberate exception
-   to "no colour anywhere in this table" (see the guard badge's comment below, still fully in
-   force): a 4px left border on the time cell, reusing the exact same brown the teacher's own
-   Schedule tab already paints a break block with (schedule_grid.css's
-   '.o_schedule_grid_entry_break', '#8a6240') so the same colour means "patio" on both screens.
-   Deliberately NOT a background fill and NOT applied to the guard badge itself - the text label
-   above already carries the information on its own, this is only a secondary visual cue. */
-.o_guard_board_row_break > .o_guard_board_time {
-    border-left: 4px solid #8a6240;
 }
 
 .o_guard_board_cell_subject {
@@ -226,17 +208,13 @@
     opacity: 0.6;
 }
 
-/* The second tab: one row per time block, what needs covering against who can cover it. Its
-   absence column carries a whole line per uncovered class (teacher + group/subject/room), so it
-   is left-aligned and given more room than a group column ever needs.
+/* The absences table: one absences column per area (issue #637), each line a whole uncovered
+   class (teacher + group/subject/room), so left-aligned and given more room than a group column.
 
-   Unlike the timetable tab, this table is NOT stretched across the window. It only ever has
-   three columns, so Bootstrap's own `.table { width: 100% }` spread them over the full width of
-   a wide screen and left the content adrift in acres of empty cell (developer feedback,
-   2026-09-08: "queda demasiado disperso en la pantalla"). Overriding width to `auto` makes
-   `table-layout: fixed` size the table to the literal sum of the <col> widths below instead,
-   and `margin: 0 auto` centres that fixed block in the wrapper. The wrapper keeps its own
-   `overflow-x: auto`, so a narrow window still scrolls rather than squeezing the columns. */
+   Not stretched across the window (developer feedback, 2026-09-08: "queda demasiado disperso en
+   la pantalla"): width `auto` makes `table-layout: fixed` size the table to the sum of its <col>
+   widths, and `margin: 0 auto` centres it when there is room to spare. The wrapper keeps its own
+   `overflow-x: auto`, so a narrow window, or many areas, scroll rather than squeeze the columns. */
 .o_guard_board_duty_table {
     width: auto;
     margin-left: auto;
@@ -244,17 +222,11 @@
 }
 
 .o_guard_board_col_absences {
-    width: 600px;
+    width: 400px;
 }
 
-/* Narrower than the timetable tab's own columns: a time block is the same text either way, and
-   the guard column here holds the same badges but has no group columns competing for width. */
 .o_guard_board_duty_table .o_guard_board_col_time {
     width: 100px;
-}
-
-.o_guard_board_duty_table .o_guard_board_col_guard {
-    width: 230px;
 }
 
 .o_guard_board_duty_table .o_guard_board_absence_cell {
@@ -424,4 +396,42 @@
 .o_guard_board_reason_popover {
     max-width: 320px;
     white-space: normal;
+}
+
+/* Timetable on a real time axis (issue #637): rows are the shortest stretches between every
+   start and end time of the shift, so levels with different time frameworks line up by clock.
+   A lesson or a guard spans the stretches it lasts and carries its own time range. */
+.o_guard_board_timeline .o_guard_board_col_lane {
+    width: 170px;
+}
+
+.o_guard_board_timeline td {
+    vertical-align: middle;
+}
+
+.o_guard_board_area {
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    font-size: 11px;
+}
+
+/* A thicker rule where one area's columns end and the next one's begin. */
+.o_guard_board_timeline .o_guard_board_area,
+.o_guard_board_timeline .o_guard_board_area_start {
+    border-left: 2px solid #999 !important;
+}
+
+.o_guard_board_block_time {
+    display: block;
+    font-size: 10px;
+    color: #888;
+}
+
+/* A break block (a group's or an area's own break, or a break-time guard): a 4px left border in
+   the same brown the teacher's own Schedule tab paints a break with (schedule_grid.css's
+   '.o_schedule_grid_entry_break'), so it reads as "Patio", not as a hole in the timetable. The
+   one deliberate colour besides the absences' red: a border, never a fill, and never on a name.
+   A border rather than an inset box-shadow, which Bootstrap's own cell box-shadow paints over. */
+.o_guard_board_timeline .o_guard_board_cell_break {
+    border-left: 4px solid #8a6240 !important;
 }

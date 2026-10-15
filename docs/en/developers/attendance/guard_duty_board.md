@@ -16,12 +16,12 @@ flowchart LR
     NT["ems.non_teaching_type.is_guard"] -->|related, store=True| ATT["resource.calendar.attendance.non_teaching_is_guard"]
     T1["Teacher A: resource.calendar.attendance (teaching)"] --> AGG["ems.course._get_guard_duty_board_attendance_ids()"]
     T2["Teacher B: resource.calendar.attendance (guard)"] --> AGG
-    AGG --> LINES["ems.course.get_guard_duty_board_lines(weekday, shift, day) -- rows = time blocks, columns = groups, + guards list"]
+    AGG --> LINES["ems.course.get_guard_duty_board_lines(weekday, shift, area_ids, day) -- lines = time periods, columns = groups by area, + guards; laid out on a real time axis (BoardTimeGrid)"]
     ABS["hr.leave (approved or pending, covering 'day')"] --> LINES
     PTR["ems.absence_pending (state pending, covering 'day')"] --> LINES
-    LINES --> DATA["ems.course.get_guard_duty_board_data(weekday, shift, day) -- same, JSON-safe, @api.model"]
+    LINES --> DATA["ems.course.get_guard_duty_board_data(weekday, shift, area_ids, day) -- same, JSON-safe, @api.model"]
     LINES --> PDF["QWeb PDF: ems.report_guard_duty_board (model = ems.course)"]
-    DATA --> W["ir.actions.client 'ems_guard_duty_board' -- week picker + weekday tabs (Mon-Fri) x shift dropdown x two views (timetable / guard duty table)"]
+    DATA --> W["ir.actions.client 'ems_guard_duty_board' -- week picker + weekday tabs (Mon-Fri) x shift dropdown x area filter x two views (timetable / absences table)"]
 ```
 
 **No dedicated model.** An earlier version introduced a `ems.guard_duty_board` `TransientModel`
@@ -78,12 +78,14 @@ addressable by a real, stable URL.
   aggregation and its generic 8-12 block absorbed narrower real periods into itself (found via
   CI, which installs clean — this box's own long-lived dev DB never had that generic calendar
   to begin with, which is why the bug never showed up locally).
-- `get_guard_duty_board_lines(weekday, shift)` — instance method, `self.ensure_one()`, called
+- `get_guard_duty_board_lines(weekday, shift, area_ids=None, day=None)` — instance method, `self.ensure_one()`, called
   on a real `ems.course` record (the PDF template calls it on each of `docs`). For one weekday
   (`'0'`-`'4'`) and one shift (`'morning'`/`'afternoon'`, `SHIFT_HOURS` mirroring `ems.group`'s
-  own constant), returns `{'groups': [...], 'lines': [...]}`:
-  - `groups` — every `ems.group` actually taught in that weekday/shift slice, sorted by name
-    — these become the table's columns.
+  own constant), returns `{'groups': [...], 'areas': {...}, 'lines': [...], 'schedule_grid':
+  {...}, 'absence_grid': {...}, 'actions': [...]}`:
+  - `groups` — every `ems.group` actually taught in that weekday/shift slice, sorted by area, then
+    by name — these become the table's columns (`areas`: each group's area, see "A real time
+    axis" below, which also describes the two grids).
   - `lines` — one row per distinct `(hour_from, hour_to)` period, each with one `cells` entry
     per group (`entries`: the teaching `resource.calendar.attendance` record(s) there;
     `teachers`: every co-teacher, deduped, since a co-taught slot has one attendance row per
@@ -108,7 +110,8 @@ addressable by a real, stable URL.
     moment can differ by a hair's-width float remainder. A period with no containing period
     (e.g. a genuinely isolated 35-minute coordination slot with nothing else running at the same
     time) keeps its own row exactly as before — the merge only removes a row when another,
-    larger period's range actually covers it.
+    larger period's range actually covers it. A period of some schedule framework (a lesson or a break of
+    some level) is never absorbed - see "A real time axis" below (issue #637).
   - **A period left with no teaching cell and no guard, after the merge above, is dropped
     entirely** (developer follow-up, 2026-09-07) — `if not guards and not any(cell['entries']
     for cell in cells): continue`. Found on the Wednesday coordination-time slots
@@ -298,9 +301,10 @@ day to day) and the timetable (`schedule`). The absences table (`table`, labelle
 renamed from "Guard duty table" per issue #442, since the tab is about who's missing, not the
 board as a whole), rendered as `nav-pills` in the
 toolbar rather than a second row of `nav-tabs`, so they never compete visually with the weekday
-tabs above them. Both read the *same* already-fetched `state.board.lines` — the server sends
-`cells`, `guards` and `absences` on every line (see "Absences on the board" above), so switching
-view is a pure re-render. Every teacher arrives as `{name, absence}` rather than a bare name,
+tabs above them. Both come in the *same* already-fetched payload — the server sends `cells`,
+`guards` and `absences` on every line (see "Absences on the board" above) and both views already
+laid out on its real time axis (`schedule_grid`/`absence_grid`, see "A real time axis" below), so
+switching view is a pure re-render. Every teacher arrives as `{name, absence}` rather than a bare name,
 which is what lets both views mark absences the same way without matching names back against a
 separate list; `absenceClass()` maps that to `o_guard_board_absent` (bold red, an absence that
 is going to happen) or `o_guard_board_absent_pending` (lighter italic, still awaiting its
@@ -308,26 +312,24 @@ approver). That red is the only colour left anywhere on the board — everything
 deliberately stripped back to plain text and thin borders (developer feedback, 2026-09-01), so
 nothing competes with it.
 
-**The guard duty table is not stretched across the window, unlike the timetable.** It only ever
-has three columns, so Bootstrap's own `.table { width: 100% }` spread them over the full width of
-a wide screen and left the content adrift in empty cell (developer feedback, 2026-09-08: "queda
-demasiado disperso en la pantalla"). `.o_guard_board_duty_table` overrides `width` to `auto`, so
-`table-layout: fixed` sizes the table to the literal sum of its `<col>` widths (100 + 300 + 230 =
-750px), and `margin: 0 auto` centres that block. The wrapper keeps its own `overflow-x: auto`, so
-a narrow window scrolls rather than squeezing the columns. Each absence stays on **one line** —
-teacher and the class to cover side by side, never wrapped (developer feedback, 2026-09-08:
-"elimina el salto de línea aunque quede una columna un poco más ancha"). The absence column's
-420px comes from measuring the real worst case on this centre's own data (a 22-character name
-plus a 33-character group/subject/room detail, ~315px rendered) and leaving room to spare; the
-`text-overflow: ellipsis` alongside `white-space: nowrap` is not expected to trigger, it is there
-so a longer name degrades by being clipped rather than by spilling over the guard-duty column.
-All three are regression-tested in `guard_duty_board_tour.js`, which asserts the table is
-narrower than its wrapper, centred within it, and that no absence row wraps onto a second line
-(measured against its own computed `line-height`, not a hardcoded pixel height).
+**The absences table is not stretched across the window.** Bootstrap's own `.table { width: 100%
+}` spread its few columns over the full width of a wide screen and left the content adrift in
+empty cell (developer feedback, 2026-09-08: "queda demasiado disperso en la pantalla").
+`.o_guard_board_duty_table` overrides `width` to `auto`, so `table-layout: fixed` sizes the table
+to the literal sum of its `<col>` widths (100px of time, 400px per area, 170px per guard lane),
+and `margin: 0 auto` centres it when there is room to spare. The wrapper keeps its own
+`overflow-x: auto`, so a narrow window, or a centre with many areas, scrolls rather than squeezing
+the columns. Each absence stays on **one line** — teacher and the class to cover side by side,
+never wrapped (developer feedback, 2026-09-08: "elimina el salto de línea aunque quede una columna
+un poco más ancha"); the `text-overflow: ellipsis` alongside `white-space: nowrap` is there so a
+longer name degrades by being clipped rather than by spilling over the next column. Both are
+regression-tested in `guard_duty_board_tour.js`: the table is centred whenever it is narrower
+than its wrapper, and no absence row wraps onto a second line (measured against its own computed
+`line-height`, not a hardcoded pixel height).
 
 **Where the planner was survives leaving the board (2026-10-07).** `navigationState` (date, shift,
-view, levels) is published with `props.updateActionState()`, so the router keeps it in the URL's
-query string (`?date=...&shift=...&view=...&levels=...`), and handed back through
+view, areas) is published with `props.updateActionState()`, so the router keeps it in the URL's
+query string (`?date=...&shift=...&view=...&areas=...`), and handed back through
 `useSetupAction({ getLocalState })`. `restoreNavigation()` applies, over the defaults below, either
 `props.state` (coming back through the breadcrumbs) or `action.context.params` (the URL: browser
 back button, reload, a shared link), ignoring anything invalid. Opening the board from the menu
@@ -376,14 +378,14 @@ now has **no** `background-color`/`color` overrides at all, just a thin `1px sol
 colour). Applied identically to the PDF (see "PDF report" below) — same reasoning throughout,
 verified against a real generated PDF at each pass.
 
-**One deliberate, narrower exception added 2026-09-11 (developer request):** a break/"Patio"
-row's own `.o_guard_board_time` cell gets a 4px `border-left` accent (`#8a6240`, the exact same
-brown `schedule_grid.css`'s `.o_schedule_grid_entry_break` already uses for a break block on the
-teacher's own Schedule tab, so the same colour reads as "patio" on both screens). This does not
-reopen the decision above: it is a border, not a background fill; it lives on the time cell, not
-the guard badge; and it exists to distinguish a *row type* (this period is break time), not to
-recolour a person's name or a subject the way the removed washes did. See "Level filter" below
-for what actually decides which rows get it.
+**One deliberate, narrower exception (developer request, 2026-09-11, and issue #637):** a break
+block - a group's or an area's own break, or a break-time guard - carries a 4px `border-left`
+(`#8a6240`, the exact same brown `schedule_grid.css`'s `.o_schedule_grid_entry_break` already
+uses for a break block on the teacher's own Schedule tab, so the same colour reads as "patio" on
+both screens). This does not reopen the decision above: it is a border, not a background fill,
+and it marks a *kind of block* (break time), never a person's name or a subject the way the
+removed washes did. It is a real `border-left`, not an inset `box-shadow`: Bootstrap paints its
+own cell `box-shadow` over an inset one, which is why an earlier attempt never showed.
 
 **Why a table, not the existing absolute-positioned grid:** `schedule_grid_field.js`/
 `schedule_grid_readonly_field.js` position entries by pixel offset within one weekday column, at
@@ -394,14 +396,12 @@ entries). A centre-wide board is a different scale of the same problem — many 
 run in parallel at any given hour, not a handful — so instead of a 5-day-column grid, this renders
 weekday **tabs** (one day
 visible at a time) and, within a day, a genuine `<table>` whose **columns are the groups**
-taught in that shift and whose **rows are time blocks** — structurally the same shape
-`get_guard_duty_board_data()` already returns, rendered close to as-is.
+taught in that shift and whose **rows are stretches of time** - see "A real time axis" below.
 
 **Column widths are fixed, not content-driven — deliberately.** Each group column shares one
 identical CSS width (`.o_guard_board_col_group`) via an explicit `<colgroup>` combined with
-`table-layout: fixed` on the `<table>`; the Time block (first) and Guard duty (last) columns
-get their own, wider fixed widths (denser content: a full time range; one badge per teacher on
-duty). Two things this fixes, both found during manual review (2026-08-31):
+`table-layout: fixed` on the `<table>`; the Time block (first) column and each guard lane get
+their own fixed widths (`.o_guard_board_col_time`, `.o_guard_board_col_lane`). Two things this fixes, both found during manual review (2026-08-31):
 1. A first attempt used `table-layout: auto` with `min-width`/`max-width` hints instead — this
    let *each* shift's table auto-size its own columns from its own content, so Morning and
    Afternoon (or one weekday vs. another) never lined up the same way, and one abnormally long
@@ -465,14 +465,16 @@ own context, which every record obtained from `docs` already carries) and loops 
 day/shift; if a key is absent (defensive fallback only — no other caller omits either) it falls
 back to all 5 weekdays and/or both shifts, one `<div class="page">` per weekday (standard QWeb
 pagination). For whichever day(s)/shift(s) it renders, the template calls
-`course.get_guard_duty_board_lines(weekday, shift)` directly (Python-side, unlike the client
-action's own JSON RPC) to render the same groups-as-columns table (subject `acronym`, every
-co-teacher). No colour anywhere, same as the live screen — see the "No cell colouring" note
+`course.get_guard_duty_board_lines(weekday, shift, ...)` directly (Python-side, unlike the client
+action's own JSON RPC) and renders the very same grid the screen does (`schedule_grid`/
+`absence_grid`, see "A real time axis" below: same stretches, rowspans, lanes and break blocks),
+with the subject `acronym` and every co-teacher. No colour anywhere, same as the live screen — see the "No cell colouring" note
 above for the full history (including the guard-duty badge itself losing its fill on a second
 developer pass the same day).
 
 **Column widths are fixed here too — `<colgroup>` + `table-layout: fixed`, mirroring the live
-screen** (`.gdb-col-time`/`.gdb-col-group`/`.gdb-col-guard`: 85/115/160px, sized for A3
+screen** (`.gdb-col-time`/`.gdb-col-group`/`.gdb-col-guard`: 85/115/160px, the last one per guard
+lane, and the absences table's area columns `width: auto`, sized for A3
 landscape's own usable width — see the class comment in the template for the exact figure —
 not simply carried over from the live screen's 90/130/190px, nor from the original A4-sized
 60/75/110px attempt). **A bigger page alone does not widen a `table-layout: fixed` table** —
@@ -497,164 +499,136 @@ the same single accent colour, as the live screen. A cuadrante handed out on pap
 day's guards is no use without them. Omitting the key (any other caller) still prints the plain
 timetable.
 
-**The PDF prints whichever of the two tabs is on screen (issue #442, fixed 2026-09-11) —
-previously it always printed the timetable regardless of the Absences table tab being active.**
-`onPdfClick()` also forwards `guard_duty_view: this.state.activeView` (`'schedule'` or
-`'table'`), and the template reads it as `requested_view` (falsy/absent = `'schedule'`, the
-original, still-default behaviour, same fallback convention as every other `guard_duty_*`
-context key here). Per shift, once `data['lines']` is non-empty, the template branches on
-`requested_view` instead of always rendering the groups-as-columns table: `'table'` renders a
-second, 3-column `<table class="... gdb-duty-table">` (`gdb-col-time`/`gdb-col-absences`/
-`gdb-col-guard`, the last a fixed width like the timetable's own, the absences column left
-`width: auto` to take whatever the other two leave) off the very same `line['absences']`/
-`line['guards']`/`line['guard_absences']` the timetable branch already has - no second RPC/
-method call, same `data` variable, just a different loop over it. The page's own `<h1>` title
-also switches between "Guard Duty Schedule -" and "Absences Table -" so the printed heading
-never contradicts what's actually below it.
+**The PDF prints whichever of the two tabs is on screen (issue #442).** `onPdfClick()` also
+forwards `guard_duty_view: this.state.activeView` (`'schedule'` or `'table'`), and the template
+reads it as `requested_view` (falsy/absent = `'schedule'`, same fallback convention as every other
+`guard_duty_*` context key here) to render `schedule_grid` or `absence_grid`. The absence line and
+the guard badges are sub-templates of their own (`ems.report_guard_duty_board_absence`,
+`ems.report_guard_duty_board_guards`, plus `ems.report_guard_duty_board_break` for a break block),
+shared by both views. The page's own `<h1>` title also switches between "Guard Duty Schedule -" and
+"Absences Table -" so the printed heading never contradicts what's actually below it.
 
-## Level filter (issue #390)
+## A real time axis (issue #637)
 
-**Spec, written before implementation** — a level selector next to the existing shift
-`<select>`, letting a viewer narrow the board down to one or more `ems.level`s (e.g. "just my
-own vocational-training levels" while another colleague loads ESO/Batxillerat data in
-parallel). Design decisions confirmed with the developer 2026-09-07 (see
-`plans/guard_duty_board_level_filter.md` for the original design sketch/open questions this
-resolves):
+**The problem.** Each area keeps its own time framework: on this centre's data ESO/BTX have their
+break at 10:00-10:25 and 12:25-12:40, vocational training at 11:00-11:25 and 18:00-18:20, and their
+lessons start and end at different times. One row per period, with a shorter period folded into
+whichever longer one contained it (#410), mixed them up: the ESO break (10:00-10:25) folded into a
+VET lesson (10:00-11:00) and its break guards were listed against that lesson, as if they could
+cover it, while no break showed as such. The developer asked for a board "understandable without
+the level filters" (issue #637).
+
+**Framework periods never fold.** `_merge_absorbed_periods(periods, fixed=...)` takes every
+period of every schedule framework of the shift (`_get_guard_duty_board_framework_periods()`:
+lessons and breaks) and never absorbs one of them: a level's break is a block of its own. Only a
+teacher's own shortened period (the #410 case, e.g. 13:25-14:00 inside 13:25-14:25) still folds.
+This is what fixes the guards: a break guard has its own line, so it is never offered against a
+lesson that merely spans its break.
 
 ```mermaid
 flowchart TB
-    LVLSEL["Level filter (multi-select, 'ems.level')"] --> TE["teaching_entries: keep only rows with >=1 group_ids.level_id in the selection"]
-    TE --> GRP["groups: only the matching groups become columns"]
-    TE --> ROWS["periods/rows: built ONLY from the filtered teaching_entries (not every entry, unlike the unfiltered 'All levels' view) - this is the ONLY thing the filter controls"]
-    GUARD["guard_entries (never filtered by the guard's own teacher/level)"] -->|folded by containment into whichever row's range covers it| ROWS
-    GUARD -->|left over, no row above contains it| BREAK{"Falls inside one of the selected level(s)' own framework break period?"}
-    BREAK -->|yes| PATIO["Synthetic 'Patio'/break row (no group cells), added so a break-time guard stays visible"]
-    BREAK -->|no| DROP["Dropped - no visible block for this level to attach to (still visible under 'All levels')"]
+    LINES["lines (one per period, framework periods never folded)"] --> AXIS["BoardTimeGrid: rows = stretches between every start and end"]
+    AXIS --> SCH["schedule(): one column per group (lesson blocks, one lane), its level's breaks as blocks"]
+    AXIS --> ABSG["absences(): one column per area (absence blocks, lanes when they overlap), the area's breaks as blocks"]
+    AXIS --> GL["guard lanes: one block per line with guards, side by side when they overlap; absences(): + fixed guard posts left without teacher"]
+    SCH --> R["screen (guard_duty_board.xml) and PDF (report_guard_duty_board.xml) render the same grid"]
+    ABSG --> R
+    GL --> R
 ```
 
-- **What "a level" means for the filter**: a plain multi-select over existing `ems.level`
-  records (7 today: ESO, Batxillerat, CFGB, CFGM, CFGS, Cursos d'especialització, PFI) — no new
-  grouping model/field. The developer's own "ESO+Batxillerat" example is simply two boxes
-  checked at once; nothing persists the combination between visits. `ems.group` already carries
-  its own `level_id` (`models/contacts/group.py`, required for a "main" group, always empty for
-  a "reinforcement" one) — filtering reads `attendance.group_ids.filtered(lambda group:
-  group.level_id.id in level_ids)` directly, no `study_id` hop needed. A "reinforcement" group
-  (mixes students from several levels/studies by design) has no `level_id` at all, so it can
-  never match a level filter — only ever visible under "All levels", which the developer did not
-  flag as a problem for this iteration.
-- **The filter only ever controls which time blocks (rows) are visible — it never looks at a
-  guard's own teacher/level at all.** An earlier version (same day) derived a guard's "own level"
-  from whatever else that teacher taught that day (`level_teacher_ids`, an employee-id set) and
-  only showed a guard if they belonged to the filter that way — reverted after developer feedback
-  once it wrongly excluded a guard-only shift with no teaching entry of their own at all: *"no
-  tenemos forma de saber si un docente es de un nivel o de otro, pero es indiferente, porque está
-  de guardia y eso es lo que manda. Lo único que controlaremos con los filtros, es el marco
-  horario que aparece."* Once a row is visible (because some class of the filtered level(s) runs
-  then), **every** guard on duty during that block shows, regardless of what they otherwise
-  teach — a guard whose duty slot doesn't overlap **any** visible row is dropped under that
-  filter (not shown almost-empty), visible only under "All levels". The one exception is the
-  break/"Patio" case below, which exists specifically so a real break-time guard commitment
-  doesn't just vanish because no class runs during a break.
-- **Non-teaching, non-guard rows (CT/AC/CM/WIC, coordination/meetings)** need no filter logic of
-  their own — confirmed with the developer that the board never surfaces them as their own
-  content in the first place (they have no `group_ids` and aren't `non_teaching_is_guard`, so
-  the pre-existing "drop a period with nothing in it" rule from issue #410 already removes them
-  whether a level filter is active or not).
-- **Break ("Patio") labelling, once a level is selected**: the break itself is never a real
-  per-teacher attendance row (a teacher's own calendar has one continuous block spanning across
-  it, see `hr.employee._get_derived_break_entries`'s own docstring) — so a guard duty scheduled
-  specifically for a break period would otherwise have no teaching row to fold into and would
-  simply disappear once filtering periods to the selected level's own teaching entries. Instead,
-  after the normal per-period rows are built, any **remaining, still-unmatched** guard entry
-  (any guard not already folded into a row above — there is no per-teacher/level relevance check
-  any more, see above) is checked against that level's own framework(s)' break periods
-  (`resource.calendar` with
-  `is_framework=True` and `level_id` in the filter, `resource.calendar.attendance` rows with
-  `non_teaching_is_break=True`) — same source `_get_derived_break_entries` already reads. A
-  match becomes its own row (`is_break: True`, no group cells, just the guard(s)) labelled
-  distinctly by the client; a break period with no guard inside it is not rendered at all (same
-  "nothing to show" rule every other row already follows).
-- **`is_break` also fires under "All levels" (added 2026-09-11, developer request: make a patio
-  guard visually obvious without needing the level filter)** — but not via a synthetic row like
-  the level-filtered case above: every row the main per-period loop already builds (filtered or
-  not) is checked against `_get_guard_duty_board_break_periods(level_ids, ...)` (every
-  framework's own break periods when `level_ids` is falsy, only the selected one(s) otherwise —
-  shared by both this check and `_get_guard_duty_board_break_lines` above) and marked `is_break`
-  when its period falls inside one of them **AND** no group has a real class in it. That second
-  half is what keeps this safe despite different levels having different break windows
-  (confirmed against this dev DB, 2026-09-07: ESO/BTX break 10:00-10:25 + 12:25-12:40, ciclos
-  break 11:00-11:25 + 18:00-18:20): a period that coincides with one level's break clock time
-  while another level is genuinely teaching then already has a non-empty cell, so it's never
-  mislabelled "Patio" just because some other level happens to be on a break at that hour. Found
-  the hard way while writing this feature's own test against this dev DB's real data: a
-  deliberately *wide* guard/break test period (the level-filtered test's own original fixture,
-  ~1h47m, chosen to dodge being absorbed INTO an unrelated real class) ended up fully containing
-  a real, unrelated 09:00-10:00 class instead, populating its own cells and wrongly suppressing
-  `is_break` — the fix was narrowing that fixture to straddle one real hour boundary (not fully
-  inside either side of it) rather than spanning nearly two hours, which dodges both directions
-  of the absorption risk at once (see `test_get_guard_duty_board_lines_level_filter_shows_break_time_guard_as_patio_row`'s
-  own updated docstring in `tests/test_guard_duty_board.py`).
-- **`is_wc` (added 2026-09-11, developer request)**: a per-guard flag on the JSON payload's own
-  guard column (see `get_guard_duty_board_data` below), set when a guard's own
-  `non_teaching.code == 'GWC'` ("Guard (WC)"). Deliberately *not* computed on `get_guard_duty_board_lines`
-  itself, only on the JSON wrapper — the raw `resource.calendar.attendance` recordset the lines
-  method returns already carries `non_teaching` for any caller (the PDF report) that needs it,
-  so only the client-facing payload needs the reduction to a plain boolean. Unlike `is_break`,
-  this is worth surfacing precisely because it's *not* redundant with anything else on the row: a
-  "Guard (Break)" duty always coincides with a break period (already covered by `is_break`
-  above), but a "Guard (WC)" duty can fall at any time of day, so there is no other visual cue
-  that tells it apart from a plain "Guard" duty in the same period.
+**`BoardTimeGrid`** (module-level class, `models/attendance/guard_duty_board.py`) lays both views
+out once, from the board's lines, and `get_guard_duty_board_lines()` returns them as
+`schedule_grid`/`absence_grid` (passed through as-is to the JSON payload: only ints, strings and
+booleans). The screen and the PDF only render them - no layout logic on either side, so they can
+never disagree.
+- **Rows** are the stretches between every distinct start and end time of the shift's lines
+  (`HOUR_EPSILON`-tolerant), so a 10:25-11:25 lesson spans the 10:25-11:00 and 11:00-11:25
+  stretches when another area has a boundary at 11:00. Each row carries its `minutes`; the screen
+  makes a longer stretch a taller row, so the grid reads like a clock.
+- **A slot** is either `{'empty': True}`, a block where an item starts (its `rowspan`, its own
+  `label` - the item's real time, shown in every block so a cell reads on its own among many
+  columns - and `line`, the index of its line in `lines`), or nothing under a block's rowspan.
+  A lesson slot adds its `column`; an absences slot its `absences` (indexes into its line's
+  `absences`); a guard slot `guards: True`, `is_break` and, in the absences table, `posts`.
+- **Lanes:** `_lay_lanes()` puts items that overlap in time side by side, as few lanes as needed.
+  A group column keeps one lane (a group has one lesson at a time); an area column of the absences
+  table and the guard column grow lanes when two of their blocks overlap (the ESO break guard and a
+  10:00-11:00 VET guard). The header's `colspan` follows.
+- **Breaks:** `_lay_breaks()` fills a column's own breaks (its group's level framework, or the
+  union of an area's groups') into its first lane as blocks of their own (`is_break` + `label`)
+  wherever nothing else is scheduled, so an empty-looking gap reads as "Patio". A guard block is
+  marked `is_break` from its line.
+- **Fixed guard posts:** an absence row with no group (a WC or break guard whose teacher is away,
+  issue #606) belongs to no area, so the absences table lists it under the guards of its own block,
+  in the guard column (`posts`), not in an area column.
 
-**Backend** (`models/attendance/guard_duty_board.py`):
-- `_period_contains(container, period)` — new module-level helper, extracted from the
-  containment check `_merge_absorbed_periods()` already had inline, now reused for folding a
-  guard/break row into whichever row's range covers it (a real containment check, not the exact
-  tuple-membership check the unfiltered path still uses — a guard's own period is no longer
-  necessarily one of the `periods` the rows come from once filtering restricts `periods` to
-  teaching entries only).
-- `get_guard_duty_board_lines(weekday, shift, level_ids=None, day=None)` — new optional
-  `level_ids` (falsy/omitted = "All levels", the exact previous behaviour, unchanged).
-  `groups`/`periods` come from level-filtered `teaching_entries` only when a filter is active.
-  `level_ids` and `day` (see "Absences on the board" above) are independent of each other and
-  compose freely — a level-filtered break/"Patio" row still carries its own `guard_absences`,
-  computed from the same `intervals` the caller already resolved for `day`.
-  **`level_ids` covering every existing `ems.level` is normalized to the falsy/"All levels" path
-  too** (bug fix, 2026-09-07, developer report): checking every checkbox in the client's own
-  filter dropdown is meant to mean "show everything", the same as checking none. Even with guard
-  visibility now purely time-based (above), a level-filtered view's rows still only ever come
-  from `teaching_entries` — never from a guard-only period, or a "reinforcement" group's period
-  (no `level_id` at all), the way the unfiltered path's own `entries`-wide `periods` naturally
-  include both. Comparing `set(level_ids)` against every current `ems.level` id and falling back
-  to `None` keeps "select everything" an exact match for "no filter" despite that structural
-  difference, without weakening the row-narrowing for a genuine *partial* selection (e.g. ESO+BTX
-  only, still correctly hiding every ciclos group/row).
-- `_get_guard_duty_board_break_periods(level_ids, weekday, shift_start, shift_end)` — the
-  `{(hour_from, hour_to), ...}` set of break periods from the relevant framework(s), shared by
-  both the main loop's own `is_break` check and `_get_guard_duty_board_break_lines` below (which
-  used to compute this inline, now delegates here).
-- `_get_guard_duty_board_break_lines(level_ids, weekday, shift_start, shift_end, groups,
-  unmatched_guards, intervals)` — new private helper, the break/"Patio" row logic above.
-- `get_guard_duty_board_data(weekday, shift, level_ids=None, day=None)` — passes both through;
-  each JSON line also carries `is_break` (default `False`) for the client template; each guard in
-  a line's `guards` list also carries `is_wc` (`_guard_duty_teacher_data`'s new `wc_employee_ids`
-  parameter).
-- `get_guard_duty_board_levels()` — new `@api.model`, `[{'id':, 'name':} ...]` for every
-  `ems.level` (centre-wide curriculum data, not course-scoped), read once by the client action
-  to populate the filter's checkbox list.
+**Columns grouped by area.** `get_guard_duty_board_lines()` sorts `groups` by area name, then
+group name (groups with no area last), and returns `areas` (`{group id: area}`,
+`_guard_duty_group_areas()`: the top-level department above the department that manages the
+group's study, or its main groups' studies for a reinforcement group - the same
+`ems.group.managing_department_ids` that decides who organises its absences). The timetable heads
+each area's groups with a band (`grid['areas']`, with its `colspan`) and draws a thicker rule
+between areas; the absences table has one column per area. A group whose study has no managing
+department falls under "Other groups".
 
-**Frontend** (`static/src/js/backend/guard_duty_board.js` /
-`static/src/xml/backend/guard_duty_board.xml`): `state.activeLevelIds` (array, empty = "All
-levels") + `state.levels` (fetched once `onWillStart`, alongside the existing course-data call).
-A Bootstrap dropdown-with-checkboxes next to the shift `<select>` (native multi-`<select>`
-would need ctrl/cmd-click, which is not discoverable) — `o_guard_board_level_dropdown`/
-`o_guard_board_level_menu`. Toggling a checkbox re-runs `loadBoard()`, now passing
-`state.activeLevelIds` as the RPC's third argument (`this.activeDate`, from the absences work
-below, is the fourth). The PDF button forwards the same selection via a `guard_duty_level_ids`
-context key, mirroring `guard_duty_weekday`/`guard_duty_shift`/`guard_duty_date`.
+**Why the layout lives on the server.** The screen built it in JS at first; the PDF needed the same
+layout, and a second copy in QWeb/Python would have been the same logic twice (CLAUDE.md's DRY
+rule). The client only resolves a slot's `line` index against `state.board.lines` to reach the
+cell, guard or absence data it already renders (`slotAbsences()`), and keeps every interaction
+(clicks, popovers, dialogs) exactly as before.
 
-**PDF report** (`reports/attendance/report_guard_duty_board.xml`): reads
-`guard_duty_level_ids` from context the same way as the existing weekday/shift/date keys,
-passed through to `get_guard_duty_board_lines()`.
+**Performance (issue #637).** On this centre's real timetable (~75 groups in the morning) the RPC
+took 1.6s in `odoo shell` (14-17s on the dev service, which runs under `debugpy`). Now ~0.15-0.2s
+cold, thanks to three rules applied throughout the file:
+- **Index, don't filter per cell:** `_entries_by_group()` indexes the shift's lessons once by group
+  and period; a cell (and a group's day block) is a dict lookup instead of a `filtered()` over every
+  lesson of the shift (rows x groups x lessons, ~200k lambda calls).
+- **Filter in SQL:** `_get_guard_duty_board_attendance_ids(domain)` adds the weekday, shift hours,
+  groups or guard type to its search, instead of fetching the whole centre's rows and filtering them
+  in Python - it is called several times per load (management, guard candidates, needed blocks).
+- **Batch the reads:** the indexed recordsets keep the shift's prefetch (`with_prefetch()`), and
+  `get_guard_duty_board_data()` reads every name on the board in one batch: read cell by cell, each
+  employee was fetched on its own, every fetch paying `hr.employee`'s per-read field access check.
+
+## Area filter (issue #637)
+
+Replaces the level filter (issue #390), which the timetable on a real time axis made unnecessary to
+read the board, but which planners still want to narrow it down to their own area. An area is a
+top-level department (`hr.department.is_top_level`) that manages some study, itself or through one
+of its departments (`_get_guard_duty_board_area_records()`; ASP manages none, so it is never
+offered). Areas map onto time frameworks on this centre's data: ESO/BTX share one, every VET level
+another.
+
+- **Groups:** with `area_ids` set, `groups` and the lines' teaching periods only come from groups
+  in those areas. A reinforcement group follows its main groups' area, so - unlike with the level
+  filter, where it had no level and never matched - it shows under its area.
+- **Guards:** shown on whichever line their period falls in, whatever they teach (developer
+  feedback, 2026-09-07, still in force: *"no tenemos forma de saber si un docente es de un nivel o
+  de otro, pero es indiferente, porque está de guardia y eso es lo que manda"*). A guard on a
+  period of another area's framework only (its break, say) is left out: it has no line here and
+  must not fold into one of this area's lines that merely spans it. A period both areas share
+  (8:00-9:00) is this area's too.
+- **Break guards of the selected area:** no lesson runs during its break, so
+  `_get_guard_duty_board_break_lines()` gives them a "Patio" line of their own (the frameworks of
+  the selected areas' groups' levels).
+- **Every area checked = no filter:** `area_ids` covering every area is normalized to "All areas",
+  since a filtered view only builds its lines from teaching periods.
+- **`is_break`** marks a line whose period falls inside some framework's break **and** where no
+  group has a class: the second half keeps a period right when another area is teaching through
+  that break (confirmed against this dev DB, see the method's own docstring).
+
+**Client:** `state.activeAreaIds` (empty = "All areas") + `state.areas` (`get_guard_duty_board_areas()`,
+fetched once `onWillStart`), a Bootstrap dropdown with one checkbox per area
+(`o_guard_board_area_dropdown`/`o_guard_board_area_menu`; a native multi-`<select>` would need
+ctrl/cmd-click, which is not discoverable). Toggling a checkbox re-runs `loadBoard()`. The URL
+keeps the selection (`?areas=...`), and the PDF button forwards it as `guard_duty_area_ids`, which
+the report passes to `get_guard_duty_board_lines(..., area_ids=...)`.
+
+**Area names:** `data/custom/hr.department.csv` seeds the three areas in English only (a CSV row
+carries no translations, and `data/custom` is frozen after its first load). `_translate_area_names()`
+(`__init__.py`, from `post_init_hook` and `migrations/18.0.0.38.0/post-migrate.py`) adds Catalan and
+Spanish (ESO / BTX, FP, PAS) to an area still named as the CSV left it, for a language nobody has
+filled in yet.
 
 ## Managing absences from the board (issues #539, #571, #581, #605)
 
@@ -815,7 +789,7 @@ WC or break guard (`GWC`, `GB`) is a post that must be manned. `ems.non_teaching
   too. `WC_GUARD_CODE` is still used, only to tag a WC guard "(WC)" on the board and its PDF.
 - **What needs covering.** When the teacher of a guard duty that is not regular is away in a
   board period, `_board_duty_rows()` adds one row per absent guard to that period's `absences`
-  (both the main rows and the level filter's dedicated break rows): `group` is empty, `duty` is
+  (both the main rows and the area filter's dedicated break rows): `group` is empty, `duty` is
   the `ems.non_teaching_type`, `label` its name (what the screen and the PDF show where a class
   shows its group), no subject or room, never `covered` (co-teaching does not apply) and never
   `authorized`/`proposed` (a timetable change notice concerns a group's classes, not a guard

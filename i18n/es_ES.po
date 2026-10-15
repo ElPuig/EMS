@@ -22869,3 +22869,52 @@ msgstr "%(name)s - %(time)s, parte de la clase (%(count)s coberturas este curso)
 #: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
 msgid "Guards assigned"
 msgstr "Docentes de guardia asignados"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Proposal %s:"
+msgstr "Propuesta %s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Notice to the families of %(groups)s: %(change)s."
+msgstr "Aviso a las familias de %(groups)s: %(change)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Swap (%(groups)s): %(teacher)s teaches at %(target)s and %(absent)s at %(lesson)s."
+msgstr "Intercambio (%(groups)s): %(teacher)s da clase a las %(target)s y %(absent)s a las %(lesson)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s moves their %(lesson)s lesson to %(target)s (%(groups)s)."
+msgstr "%(teacher)s pasa su clase de las %(lesson)s a las %(target)s (%(groups)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Lesson moved to %s"
+msgstr "Clase pasada a las %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose at least one step of the arrangement."
+msgstr "Elige al menos un paso de la reorganización."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "How the teachers of the group could rearrange their lessons so that the students lose as few lessons as possible and no guard is needed, the best first. Uncheck the steps you do not want: the lessons they would have solved stay on the table. The teachers involved are notified."
+msgstr "Cómo podrían reorganizar sus clases los docentes del grupo para que el alumnado pierda las menos clases posibles y no haga falta ninguna guardia, la mejor primero. Desmarca los pasos que no quieras: las clases que resolvían se quedan en la tabla. Se avisa a los docentes implicados."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Apply the checked steps"
+msgstr "Aplicar los pasos marcados"

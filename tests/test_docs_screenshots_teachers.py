@@ -621,16 +621,17 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             run=["document.querySelector('.o_guard_board_proposals .o_guard_board_action_button').click();"],
             wait_after=['.o_form_view .alert-info'], max_height=760,
         )
-        # Issue #605: the arrangements the board detected for the classes still left without
-        # anybody (0000 Jordi Mostra can swap or move his 10:00 lesson with the group), and the
-        # dialog of one of those classes, which offers them above sending a guard.
+        # Issues #605, #645: the arrangement plans the board detected for the classes still left
+        # without anybody, each with its steps to check (0000 Jordi Mostra can swap or move his
+        # 10:00 lesson with the group), and the dialog of one of those classes, which offers them
+        # above sending a guard.
         self._capture(
             url, '.o_guard_board_arrangements', 'guard-duty-06-reorganitzacions.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_arrangements .o_guard_board_action_button',
+            wait_for='.o_guard_board_arrangements .o_guard_board_plan_apply',
         )
         self._capture(
             url, '.modal-content', 'guard-duty-07-aplicar-reorganitzacio.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_arrangements .o_guard_board_action_button',
+            wait_for='.o_guard_board_arrangements .o_guard_board_plan_apply',
             run=[open_class % '08:00-09:00'], wait_after=['.o_guard_cover_option'],
         )
 

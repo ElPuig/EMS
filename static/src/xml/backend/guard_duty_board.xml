@@ -42,7 +42,11 @@
                   t-esc="absence.arrangement.change"/>
             <span t-if="absence.authorized" class="o_guard_board_absence_tag o_guard_board_authorized_tag" t-esc="absence.authorized"/>
             <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
-            <span t-if="absence.arrangement_options.length" class="o_guard_board_absence_tag o_guard_board_options_tag">
+            <!-- Issue #645: a lesson an arrangement moved elsewhere leaves the group without anybody. -->
+            <span t-if="absence.moved" class="o_guard_board_absence_tag o_guard_board_moved_tag">
+                <i class="fa fa-arrows-v me-1"/><t t-esc="absence.moved"/>
+            </span>
+            <span t-if="absence.arrangement_plans.length" class="o_guard_board_absence_tag o_guard_board_options_tag">
                 <i class="fa fa-exchange me-1"/><t t-esc="arrangementCountLabel(absence)"/>
             </span>
         </div>
@@ -231,26 +235,21 @@
                                 </div>
                             </t>
                         </div>
-                        <!-- Issue #605: internal arrangements the board detected, swaps first (the
-                             students lose no lesson); applying one notifies the teachers involved,
-                             and a moved lesson opens its notice for the families. -->
+                        <!-- Issues #605, #645: internal arrangements the board detected, the best
+                             first, one block per proposal with a checkbox per step: the planner
+                             applies all of it or only some steps. The teachers involved are
+                             notified, and a notice step opens its draft for the families. -->
                         <div t-if="arrangementActions.length" class="o_guard_board_actions o_guard_board_arrangements">
                             <div class="o_guard_board_actions_title" t-esc="actionLabels.arrangementsTitle"/>
                             <div class="o_guard_board_actions_help text-muted" t-esc="actionLabels.arrangementsHelp"/>
-                            <t t-foreach="arrangementActions" t-as="action" t-key="action_index">
-                                <div class="o_guard_board_action o_guard_board_action_arrangement_option">
-                                    <i t-att-class="actionIcon(action)"/>
-                                    <!-- Whose entry or exit time it changes goes on a line of its own under
-                                         the proposal, so every row ends the same way: its button. -->
-                                    <div class="o_guard_board_action_label">
-                                        <span t-esc="action.label"/>
-                                        <div t-if="action.schedule_changes.length" class="o_guard_board_action_schedule">
-                                            <i class="fa fa-clock-o me-1"/><t t-esc="action.schedule_changes.join(' ')"/>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button"
-                                            t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
-                                </div>
+                            <t t-foreach="arrangementActions" t-as="action" t-key="action.plan.key">
+                                <GuardArrangementPlan plan="action.plan" selection="planSelection(action.plan)"
+                                                      onToggle="(index, checked) => this.togglePlanStep(action.plan, index, checked)">
+                                    <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_plan_apply"
+                                            t-att-disabled="!hasSelectedSteps(action.plan)"
+                                            t-on-click="() => this.applyPlan(action.plan, this.planSelection(action.plan))"
+                                            t-esc="actionLabels.applyPlan"/>
+                                </GuardArrangementPlan>
                             </t>
                         </div>
                         <!-- Guards whose class no longer needs them (the absence changed after
@@ -337,6 +336,39 @@
             </div>
         </div>
     </t>
+    <!-- Issue #645: one detected arrangement plan - "Proposal N:" and, indented below it, one
+         line per step with its checkbox on the left, the entry/exit changes it brings under it.
+         The default slot holds whatever applies it (the box's own button; nothing in the dialog,
+         whose footer does). -->
+    <t t-name="ems.GuardArrangementPlan">
+        <div class="o_guard_board_plan">
+            <div class="o_guard_board_plan_title">
+                <strong t-esc="props.plan.title"/>
+                <span class="text-muted ms-1" t-esc="props.plan.groups"/>
+            </div>
+            <ul class="list-unstyled o_guard_board_plan_steps">
+                <t t-foreach="props.plan.steps" t-as="step" t-key="step_index">
+                    <li class="o_guard_board_plan_step">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input o_guard_board_plan_check"
+                                   t-att-id="props.plan.key + '-' + step_index"
+                                   t-att-checked="props.selection[step_index]" t-att-disabled="props.disabled"
+                                   t-on-change="(ev) => props.onToggle(step_index, ev.target.checked)"/>
+                            <label class="form-check-label" t-att-for="props.plan.key + '-' + step_index">
+                                <i t-att-class="step.kind === 'notice' ? 'fa fa-envelope-o me-1' : step.kind === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
+                                <t t-esc="step.label"/>
+                            </label>
+                            <t t-foreach="step.schedule_changes" t-as="change" t-key="change_index">
+                                <div class="o_guard_board_plan_shift"><i class="fa fa-clock-o me-1"/><t t-esc="change"/></div>
+                            </t>
+                        </div>
+                    </li>
+                </t>
+            </ul>
+            <t t-slot="default"/>
+        </div>
+    </t>
+
     <!-- Why a struck-out line of the absences table needs no guard (its info icon, on click). -->
     <t t-name="ems.GuardBoardReasonPopover">
         <div class="o_guard_board_reason_popover p-2">
@@ -372,21 +404,17 @@
                                     t-on-click="() => this.openNotice()" t-esc="labels.openNotice"/>
                         </div>
                     </t>
-                    <t t-if="props.row.arrangement_options.length">
+                    <!-- Issue #645: the detected plans that resolve this class, the best first. Choosing
+                         one enables its steps' checkboxes: the planner may keep only some of them. -->
+                    <t t-if="props.row.arrangement_plans.length">
                         <div class="fw-bold mb-1" t-esc="labels.options"/>
-                        <t t-foreach="props.row.arrangement_options" t-as="option" t-key="option_index">
+                        <t t-foreach="props.row.arrangement_plans" t-as="plan" t-key="plan.key">
                             <div class="form-check o_guard_cover_option">
-                                <input class="form-check-input" type="radio" name="o_guard_cover_mode" t-att-id="'o_guard_cover_option_' + option_index"
-                                       t-att-checked="state.mode === 'option-' + option_index" t-on-change="() => this.onModeChange('option-' + option_index)"/>
-                                <label class="form-check-label" t-att-for="'o_guard_cover_option_' + option_index">
-                                    <i t-att-class="option.type === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
-                                    <t t-esc="option.label"/>
-                                    <span t-if="option.change_label" class="d-block text-muted small" t-esc="noticeLabel(option)"/>
-                                    <!-- Whose entry or exit time it changes, if anybody's: never hidden in the sentence. -->
-                                    <t t-foreach="option.schedule_changes" t-as="change" t-key="change_index">
-                                        <span class="d-block small o_guard_cover_schedule_change"><i class="fa fa-clock-o me-1"/><t t-esc="change"/></span>
-                                    </t>
-                                </label>
+                                <input class="form-check-input" type="radio" name="o_guard_cover_mode" t-att-id="'o_guard_cover_option_' + plan_index"
+                                       t-att-checked="state.mode === 'plan-' + plan_index" t-on-change="() => this.onModeChange('plan-' + plan_index)"/>
+                                <GuardArrangementPlan plan="plan" selection="state.selections[plan_index]"
+                                                      disabled="state.mode !== 'plan-' + plan_index"
+                                                      onToggle="(index, checked) => this.togglePlanStep(plan_index, index, checked)"/>
                             </div>
                         </t>
                     </t>

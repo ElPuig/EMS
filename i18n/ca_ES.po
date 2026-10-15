@@ -22866,3 +22866,52 @@ msgstr "%(name)s - %(time)s, part de la classe (%(count)s cobertures aquest curs
 #: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
 msgid "Guards assigned"
 msgstr "Docents de guàrdia assignats"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Proposal %s:"
+msgstr "Proposta %s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Notice to the families of %(groups)s: %(change)s."
+msgstr "Avís a les famílies de %(groups)s: %(change)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Swap (%(groups)s): %(teacher)s teaches at %(target)s and %(absent)s at %(lesson)s."
+msgstr "Intercanvi (%(groups)s): %(teacher)s fa classe a les %(target)s i %(absent)s a les %(lesson)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s moves their %(lesson)s lesson to %(target)s (%(groups)s)."
+msgstr "%(teacher)s passa la seva classe de les %(lesson)s a les %(target)s (%(groups)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Lesson moved to %s"
+msgstr "Classe passada a les %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Choose at least one step of the arrangement."
+msgstr "Tria almenys un pas de la reorganització."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "How the teachers of the group could rearrange their lessons so that the students lose as few lessons as possible and no guard is needed, the best first. Uncheck the steps you do not want: the lessons they would have solved stay on the table. The teachers involved are notified."
+msgstr "Com podrien reorganitzar les seves classes els docents del grup perquè l'alumnat perdi el mínim de classes possible i no calgui cap guàrdia, la millor primer. Desmarca els passos que no vulguis: les classes que resolien es queden a la taula. S'avisa els docents implicats."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Apply the checked steps"
+msgstr "Aplicar els passos marcats"

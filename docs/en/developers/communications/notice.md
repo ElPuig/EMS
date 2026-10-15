@@ -247,7 +247,8 @@ a draft written by a Department Chief of their own branch, but a Head of Studies
 or a peer Department Chief, only reads it. Admins and the Director edit every notice anyway.
 
 The form's actions (Send now, Schedule sending, Cancel) live in its "Actions" dropdown
-([actions_dropdown.md](../shared/actions_dropdown.md)) and are hidden by `can_manage` (non-stored,
+([actions_dropdown.md](../shared/actions_dropdown.md)); only one of them applies at a time, so it
+shows as a plain header button, with Send now/Schedule sending as `btn-primary`. They are hidden by `can_manage` (non-stored,
 `@api.depends_context('uid')`: whether the current user may write the record, through
 `_filtered_access('write')`) for anyone who only reads it, so they no longer hit an access error.
 

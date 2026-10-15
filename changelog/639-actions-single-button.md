@@ -1,0 +1,7 @@
+# Changes
+
+## A form's lone action shows as a plain button, not inside "Actions":
+- The form "Actions" dropdown (`static/src/js/backend/actions_dropdown.js` + `static/src/xml/backend/actions_dropdown.xml`) now renders its only visible entry directly as a header button, keeping its own classes; the dropdown appears only when two or more actions apply. General rule for every form using it (contact, employee, convalidation request, absence, notice).
+- Reason: a teacher creating a notice (e.g. telling families that students leave early) didn't see "Send now" hidden in the dropdown, and a notice was left in draft.
+- The notice's "Send now" and "Schedule sending" are now `btn-primary`, so in a draft they show as the highlighted main button. Convalidation steps already marked `btn-primary` get the same highlight when they are the only action.
+- Tour helpers `clickAction`/`checkActions` work with either layout; new `loneAction` helper; `notice_tour.js` checks a draft notice shows a highlighted "Send now" with no dropdown. Notice manuals (admin, head of studies; ca/es/en) and the developer docs updated.

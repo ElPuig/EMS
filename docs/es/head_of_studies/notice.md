@@ -27,8 +27,8 @@ Si alguna vez necesitas comprobar qué ha enviado un compañero con el mismo rol
 supervisar — pulsa la **✕** de la etiqueta "Mostrar solo los míos" en la barra de búsqueda (o
 abre el panel de búsqueda y desmárcala) para ver todos los comunicados de todo el centro.
 Podrás **editar, enviar o eliminar los tuyos** y los de las personas que dependen de ti en la
-cadena de mando (ver más abajo); cualquier otro comunicado se abre en modo solo lectura, sin el
-menú **Acciones**.
+cadena de mando (ver más abajo); cualquier otro comunicado se abre en modo solo lectura, sin
+ningún botón de acción.
 
 El **Director** tiene exactamente el mismo filtro por defecto (igual que un Administrador) —
 la diferencia está solo en lo que le permite hacer al quitarlo, no en quién lo ve: un Director
@@ -40,7 +40,7 @@ o eliminar los tuyos y los de tu rama independientemente del filtro. Vea el
 
 Un comunicado redactado por alguien que depende de ti en la cadena de mando — por ejemplo, un
 jefe de departamento de tu rama — también lo puedes revisar y enviar: ábrelo, corrige lo que
-haga falta y envíalo desde el menú **Acciones**. Un jefe de estudios de otra rama, u otro jefe de
+haga falta y envíalo con el botón **Enviar ahora** de la cabecera. Un jefe de estudios de otra rama, u otro jefe de
 departamento, lo puede leer pero no modificar ni enviar.
 
 ---

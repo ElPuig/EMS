@@ -22957,3 +22957,8 @@ msgstr "Grups principals del seu alumnat que hi falten"
 #: model:ir.model.fields,help:ems.field_ems_group__missing_parent_group_ids
 msgid "The main groups of this group's enrolled students that are not among its main groups."
 msgstr "Els grups principals de l'alumnat inscrit en aquest grup que no són entre els seus grups principals."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "<strong>Fill main groups from enrolled students</strong>, at the top of the form, adds them."
+msgstr "<strong>Omplir els grups principals des de l'alumnat inscrit</strong>, a dalt de la fitxa, els afegeix."

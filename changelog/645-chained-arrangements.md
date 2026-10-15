@@ -9,7 +9,7 @@
 - A lesson moved without telling the families is in effect at once, and the lesson it leaves free becomes one more row of the absences table ("Lesson moved to 15:00"), covered like any other: a guard, a manual arrangement or another plan. Whoever organises the absence organises it.
 
 ## Main groups of a reinforcement group filled from its students:
-- A reinforcement group's form warns at the top when some of its enrolled students come from main groups it does not list, and its "Fill main groups from enrolled students" button (also in Actions) adds them (never removing any: a main group can be set before its students enrol, and splits or optatives of levels not enrolled through EMS have no students to read them from). Its main groups decide its area on the guard duty board, who organises its absences and the main groups whose schedule shows its classes.
+- A reinforcement group's form warns at the top when some of its enrolled students come from main groups it does not list, and its "Fill main groups from enrolled students" action adds them (never removing any: a main group can be set before its students enrol, and splits or optatives of levels not enrolled through EMS have no students to read them from). Its main groups decide its area on the guard duty board, who organises its absences and the main groups whose schedule shows its classes.
 
 # Changes
 

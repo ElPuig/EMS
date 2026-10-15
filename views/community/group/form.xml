@@ -45,16 +45,16 @@
                         <button name="action_open_classroom_change_wizard" type="object" string="Resolve pending classrooms" class="btn-warning"/>
                     </div>
                     <!-- A reinforcement group whose enrolled students come from main groups it does not
-                         list: above the card too, like the classroom banner, with the button that adds
-                         them (also in the Actions dropdown). -->
+                         list: above the card too, like the classroom banner. The action that adds them
+                         is the header's (Actions dropdown, or a plain button when it is the only one,
+                         #639): no second button here. -->
                     <div class="alert alert-warning o_group_missing_parent_groups" role="alert"
                          invisible="group_type != 'reinforcement' or not missing_parent_group_ids">
                         <p>
                             Some of its enrolled students come from main groups that are not among its main groups:
                             <field name="missing_parent_group_ids" widget="many2many_tags" nolabel="1" class="oe_inline"/>
                         </p>
-                        <button name="action_fill_parent_groups" type="object" string="Fill main groups from enrolled students"
-                                class="btn-warning" groups="ems.group_department_chief"/>
+                        <p class="mb-0"><strong>Fill main groups from enrolled students</strong>, at the top of the form, adds them.</p>
                     </div>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>

@@ -227,6 +227,21 @@
     margin-right: auto;
 }
 
+/* The absences table with the boxes above it, as wide as the table and centred (issue #645): the
+   boxes' own width (0, at least all of it) never makes the block wider than the table, however
+   long their text. */
+.o_guard_board_duty_block {
+    width: fit-content;
+    margin: 0 auto;
+}
+
+.o_guard_board_duty_block > .o_guard_board_actions {
+    width: 0;
+    min-width: 100%;
+    max-width: none;
+    margin: 0 0 12px 0;
+}
+
 .o_guard_board_col_absences {
     width: 400px;
 }

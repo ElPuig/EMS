@@ -230,6 +230,8 @@
                     <!-- Tab 2: the same shift read the other way round - one row per time block,
                          what has to be covered against who is available to cover it. -->
                     <div t-else="" class="o_guard_board_table_wrap">
+                        <!-- The boxes above the table take the table's own width (issue #645). -->
+                        <div class="o_guard_board_duty_block">
                         <!-- Issues #539, #581, #605, #645: everything proposed to organise the day's
                          absences, only for whoever may act on it (the server sends nothing to anyone
                          else), and nothing happens on its own: each one waits for its button. One
@@ -351,6 +353,7 @@
                                 </t>
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 </t>
             </div>

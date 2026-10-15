@@ -2,7 +2,12 @@
 <templates xml:space="preserve">
 
     <t t-name="ems.ActionsDropdown">
-        <Dropdown t-if="visibleSlotNames.length" menuClass="'o_ems_actions_menu'">
+        <!-- A lone action is shown as the plain header button it is: a dropdown hiding a single
+             entry only makes it harder to find. -->
+        <t t-if="visibleSlotNames.length === 1">
+            <t t-slot="{{ visibleSlotNames[0] }}"/>
+        </t>
+        <Dropdown t-elif="visibleSlotNames.length" menuClass="'o_ems_actions_menu'">
             <button class="btn btn-secondary o_ems_actions_toggle">
                 <t t-esc="props.string"/>
                 <i class="fa fa-caret-down ms-1"/>

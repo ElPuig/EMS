@@ -1,6 +1,6 @@
 # Technical Reference: form "Actions" dropdown
 
-A form's actions on the record it shows live in **one "Actions" dropdown button in the header**, never as loose header buttons. Each entry is still an ordinary form button, so it keeps its own `invisible=`, `groups=` and `confirm=`: the dropdown only lists what applies to this record and this user, and it isn't rendered at all when nothing does.
+A form's actions on the record it shows live in **one "Actions" dropdown button in the header**, never as loose header buttons. Each entry is still an ordinary form button, so it keeps its own `invisible=`, `groups=` and `confirm=`: the dropdown only lists what applies to this record and this user, and it isn't rendered at all when nothing does. **When exactly one entry applies, it is shown as that plain header button instead of a dropdown** (issue #639): a dropdown hiding a single action only makes it harder to find, and a notice was left in draft because its teacher never saw the "Send now" inside it.
 
 It exists because neither native option covers the three needs at once:
 
@@ -35,6 +35,7 @@ Rules:
 - **`type="object"`, not `type="action"`**, to run a bulk method on this one record. A form button of `type="action"` sends `active_ids` = the record's `resIds`, which can be the whole pager list rather than the record on screen. The bulk methods (`res.partner.action_portal_access_bulk()` etc.) already work on any recordset, a single record included.
 - **Per-record permissions** go in a non-stored compute with `@api.depends_context('uid')` read by the entry's `invisible=` (e.g. `can_reset_google_password`, `can_download_google_credentials`), and the method re-checks them server-side. `groups=` alone only says the user holds a role, not that the role applies to this record.
 - **The same action on the list** stays a cog-menu binding (`binding_view_types` = `list`), since there it acts on the selection. Don't also bind it to `form`: it would show twice.
+- **Mark the form's main action `class="btn-primary"`** (e.g. a notice's "Send now", a convalidation's next step): inside the dropdown every entry looks the same, but when it is the only one it becomes a highlighted header button, like a native form's main button. Other entries keep the default `btn-secondary`.
 - The `string` attribute is a view term, translated through the `.po` files like any other label.
 
 ## How it works
@@ -42,7 +43,7 @@ Rules:
 `static/src/js/backend/actions_dropdown.js` + `static/src/xml/backend/actions_dropdown.xml`:
 
 - A `form_compilers` registry entry (Odoo's own extension point, the one `mail` uses for the chatter) compiles `div[name='ems_actions']` into an `EmsActionsDropdown` component, with one slot per compiled button. Each slot's `isVisible` is the button's compiled `t-if` (its `invisible=`); `groups=` are already stripped server-side.
-- `EmsActionsDropdown` extends Odoo's `StatusBarButtons`, so it reuses `visibleSlotNames`. It renders a `Dropdown` (menu class `o_ems_actions_menu`) with one `DropdownItem` per visible slot (`o-dropdown-item-unstyled-button`, the same wrapping Odoo uses for header buttons folded into a menu), or nothing when no slot is visible.
+- `EmsActionsDropdown` extends Odoo's `StatusBarButtons`, so it reuses `visibleSlotNames`. It renders the slot directly (a plain header button with its own classes) when exactly one slot is visible, a `Dropdown` (menu class `o_ems_actions_menu`) with one `DropdownItem` per visible slot (`o-dropdown-item-unstyled-button`, the same wrapping Odoo uses for header buttons folded into a menu) when there are more, or nothing when no slot is visible.
 - The component is added to `FormRenderer.components`, where the compiled form template resolves it.
 - **Small screens:** Odoo already moves every header button into the cog menu there (`FormController` compiles the header a second time with `asDropdownItems`). A patch on `FormCompiler.compileHeader` unwraps the `div` in that pass, so its buttons become ordinary cog entries instead of a dropdown nested inside the cog menu.
 
@@ -50,8 +51,9 @@ Rules:
 
 `static/tests/tours/actions_dropdown_helpers.js` holds the tour steps every tour needs to reach the entries: they only exist while the dropdown is open, and the open menu is rendered in the overlay container, outside `.o_form_view`. So a plain `.o_form_view button[name=...]` trigger never finds an entry, and a `:not(:has(button[name=...]))` check on the form passes whether it is offered or not.
 
-- `clickAction(name, content)` opens the dropdown and clicks one entry.
-- `checkActions({offered, notOffered}, content)` opens it, checks which entries it lists and closes it again. `offered` must not be empty: it is what proves the menu has rendered.
+- `clickAction(name, content)` opens the dropdown and clicks one entry, or clicks the lone header button when it is the only action.
+- `checkActions({offered, notOffered}, content)` opens it, checks which entries it lists and closes it again (or checks the lone header button). `offered` must not be empty: it is what proves the actions have rendered.
+- `loneAction(name, content)`: exactly one action applies, so it is a plain header button and there is no dropdown.
 - `noActions(content)`: nothing applies, so no dropdown is rendered. With nothing else in the header, Odoo also leaves out the whole status bar.
 
-`tests/test_actions_dropdown_tour.py` covers the component itself: as a tutor, which entries a real render offers for one of their students, that no button is left loose in the header, and that a family contact gets no dropdown; as an administrator on an employee with extra hours, that EMS's entries and the native "Deduct Extra Hours" share the one dropdown with nothing loose in the header.
+`tests/test_actions_dropdown_tour.py` covers the component itself: as a tutor, which entries a real render offers for one of their students, that no button is left loose in the header, and that a family contact gets no dropdown; as an administrator on an employee with extra hours, that EMS's entries and the native "Deduct Extra Hours" share the one dropdown with nothing loose in the header. `tests/test_notice_tour.py` covers the single-entry case: a draft notice's only action, "Send now", is a highlighted header button with no dropdown.

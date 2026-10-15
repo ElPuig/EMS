@@ -30,7 +30,7 @@ En tots dos casos, secretaria registra després la resolució a l'Esfera i tanca
 | **Rebutjada** | Registrada, sense cap mòdul convalidat. |
 | **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal. |
 
-L'estat només canvia amb les accions de cada pas, al menú **Accions** del formulari.
+L'estat només canvia amb les accions de cada pas, a dalt del formulari (al menú **Accions** quan n'hi ha més d'una).
 
 ---
 

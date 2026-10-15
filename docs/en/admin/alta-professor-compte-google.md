@@ -73,7 +73,7 @@ When the record is saved, if all the required data is present (name and private 
 - Sends the credentials by email to the private address provided in step 3 (the message also explains how to enter EMS).
 - Saves a PDF with the credentials on the teacher's record, in the **Google account** block of the **Human Resources** tab. Only the roles that manage the account can see it.
 
-You don't need to press anything else. If some required data was missing, complete it and save the record: the account is then created the same way. The **Create Google account** entry, in the record's **Actions** menu (header), only appears while the teacher has no corporate account and none is being created (for example, if the automatic creation failed). Pressing it starts the creation, and the result appears in the record's message log in a few moments.
+You don't need to press anything else. If some required data was missing, complete it and save the record: the account is then created the same way. The **Create Google account** button, at the top of the record, only appears while the teacher has no corporate account and none is being created (for example, if the automatic creation failed). Pressing it starts the creation, and the result appears in the record's message log in a few moments.
 
 ---
 

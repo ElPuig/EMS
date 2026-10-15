@@ -26,7 +26,7 @@ If you ever need to check what a colleague holding the same role has sent — fo
 click the **✕** on the "Show only mine" tag in the search bar (or open the search panel and
 untick it) to see every notice centre-wide. You can **edit, send or delete your own** and
 those of the people below you in the chain of command (see below); any other notice opens in
-read-only mode, with no **Actions** menu.
+read-only mode, with no action buttons.
 
 The **Director** gets the exact same default filter (so does an Administrator) — the
 difference is only in what removing it lets you *do*, not who sees it: a Director can fully
@@ -38,7 +38,7 @@ See the [Administrator manual](../admin/notice.md#who-sees-which-notices).
 
 A notice drafted by someone below you in the chain of command — for example a Department Chief
 of your branch — is yours to review and send too: open it, correct whatever needs it and send
-it from the **Actions** menu. A Head of Studies of another branch, or another Department Chief,
+it with the **Send now** button in the header. A Head of Studies of another branch, or another Department Chief,
 can read it but not change or send it.
 
 ---

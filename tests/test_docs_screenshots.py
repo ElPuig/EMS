@@ -474,7 +474,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '/odoo/action-ems.action_convalidation/%d' % resolved.id,
             '.o_form_view', 'convalidations-secretary.png',
             login='doc_shot_secretary',
-            wait_for=".o_form_statusbar .o_ems_actions_toggle",
+            # Its only action, so a plain header button rather than an Actions dropdown.
+            wait_for=".o_form_statusbar button[name='action_complete']",
             max_height=420,
         )
 

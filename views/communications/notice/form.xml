@@ -17,12 +17,14 @@
                             <button string="Send now"
                                 name="action_send"
                                 type="object"
+                                class="btn-primary"
                                 icon="fa-send"
                                 invisible="state != 'draft' or use_schedule or not can_manage"
                             />
                             <button string="Schedule sending"
                                 name="action_send"
                                 type="object"
+                                class="btn-primary"
                                 icon="fa-clock-o"
                                 invisible="state != 'draft' or not use_schedule or not can_manage"
                             />

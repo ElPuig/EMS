@@ -137,7 +137,7 @@ El filtre **Els meus justificants pendents** mostra les sol·licituds que espere
 
 **Absències ATRI: confirmar la sol·licitud.** Una absència ATRI es concedeix al portal de la Generalitat, no a EMS. Per això, quan el teu cap l'ha validada, la sol·licitud s'atura sempre a **Pendent de confirmar ATRI** abans de passar a Direcció. No vol dir que ningú hagi vist que falti a ATRI: només se't demana que confirmis que l'has sol·licitada allà.
 
-- Si ja l'has sol·licitada a ATRI, obre la sol·licitud i fes servir **Accions > Confirmo que està sol·licitada a ATRI** en aquell mateix moment. Llavors passa a Direcció.
+- Si ja l'has sol·licitada a ATRI, obre la sol·licitud i fes servir **Confirmo que està sol·licitada a ATRI**, a dalt del formulari, en aquell mateix moment. Llavors passa a Direcció.
 - Si no, sol·licita-la primer al portal (l'avís de dalt de la sol·licitud té l'enllaç) i després confirma.
 
 Mentre no estigui confirmada, un cop passada l'absència reps un recordatori cada dia, i al cap d'uns dies s'avisa el teu cap. El filtre **Les meves confirmacions d'ATRI pendents** mostra les sol·licituds que ho esperen. Si després Direcció comprova que l'absència no consta a ATRI, o que la documentació que hi has aportat no és suficient, retorna la sol·licitud a aquest estat i en reps el motiu, que també es mostra a la sol·licitud. El que falti es resol al portal ATRI, no adjuntant un justificant a EMS; quan ho hagis fet, torna-ho a confirmar.

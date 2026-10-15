@@ -385,16 +385,15 @@ export class GuardDutyBoard extends Component {
 
     get actionLabels() {
         return {
-            proposalsTitle: _t("Late entry, early leave and break proposals"),
-            proposalsHelp: _t("Sending the notice strikes these lessons off the table, so no guard teacher has to cover them. You can choose a shorter change and send a guard to the rest."),
             releasesTitle: _t("Guards no longer needed"),
             propose: _t("Propose notice"),
             rectify: _t("Propose correction"),
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
             removeArrangement: _t("Remove arrangement"),
-            arrangementsTitle: _t("Possible arrangements"),
-            arrangementsHelp: _t("How the teachers of the group could rearrange their lessons so that the students lose as few lessons as possible and no guard is needed, the best first. Uncheck the steps you do not want: the lessons they would have solved stay on the table. The teachers involved are notified."),
+            arrangementsTitle: _t("Proposals for the absences"),
+            arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
+            noticeOnly: _t("Only tell the families"),
             applyPlan: _t("Apply the checked steps"),
         };
     }
@@ -529,13 +528,33 @@ export class GuardDutyBoard extends Component {
         return `${base} o_guard_board_cover_${guard.color}${guard.partial ? " o_guard_board_cover_partial" : ""}`;
     }
 
-    get proposalActions() {
-        return this.state.board.actions.filter((action) => !["obsolete_cover", "arrangement_plan"].includes(action.type));
+    // Issues #539, #605, #645: the day's proposals, one section per group (with the groups sharing
+    // lessons with it): what is waiting (an arrangement waiting for its notice, a correction), the
+    // arrangement plans, the best first, and the timetable changes alone.
+    get proposalSections() {
+        const sections = new Map();
+        for (const action of this.state.board.actions) {
+            if (action.type === "obsolete_cover") {
+                continue;
+            }
+            if (!sections.has(action.section_key)) {
+                sections.set(action.section_key, { key: action.section_key, title: action.section_title, waiting: [], plans: [], notices: [] });
+            }
+            const section = sections.get(action.section_key);
+            if (action.type === "arrangement_plan") {
+                section.plans.push(action);
+            } else if (action.type === "proposal") {
+                section.notices.push(action);
+            } else {
+                section.waiting.push(action);
+            }
+        }
+        return [...sections.values()].sort((first, second) => first.title.localeCompare(second.title));
     }
 
-    // Issues #605, #645: the internal arrangement plans the board detected, the best first.
-    get arrangementActions() {
-        return this.state.board.actions.filter((action) => action.type === "arrangement_plan");
+    // The timetable change alone comes after the section's arrangement plans, numbered with them.
+    noticePlanTitle(section) {
+        return _t("Proposal %s:", section.plans.length + 1);
     }
 
     arrangementCountLabel(absence) {

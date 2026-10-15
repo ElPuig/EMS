@@ -72,7 +72,7 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             content: "The lesson left free at 12:00 is a class to cover",
         },
         {
-            trigger: ".o_guard_board_proposals .o_guard_board_action:contains('TABTG'):contains('Could leave at 12:00')",
+            trigger: ".o_guard_board_notice_plan .o_guard_board_action:contains('TABTG'):contains('Could leave at 12:00')",
             content: "...and the families can still be told the group leaves at 12:00",
         },
         {

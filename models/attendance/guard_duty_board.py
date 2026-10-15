@@ -1325,7 +1325,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             'lines': lines,
             'schedule_grid': grid.schedule(),
             'absence_grid': grid.absences(),
-            'actions': (management['actions'] + self._arrangement_plan_actions(dated_lines)) if management else [],
+            'actions': self._board_action_sections(
+                management, day, management['actions'] + self._arrangement_plan_actions(dated_lines)) if management else [],
         }
 
     def _board_cell_arrangements(self, management, group, teachers, hour_from, hour_to):
@@ -1359,6 +1360,22 @@ class EmsCourseGuardDutyBoard(models.Model):
             management['arrangement_context'] = self._arrangement_context(day)
         plans = self._get_arrangement_plans(day, row['group'], context=management['arrangement_context'])
         return [plan for plan in plans if self._plan_resolves(plan, row['group'], hour_from, hour_to)]
+
+    def _board_action_sections(self, management, day, actions):
+        """`actions`, each with its 'section': the groups it is about together with those sharing
+        lessons with them that day (see _linked_groups), so that everything proposed for the same
+        groups - their arrangement plans, the timetable change alone, a correction, an arrangement
+        waiting for its notice - is shown together, under one heading per set of groups (issue
+        #645). A guard no longer needed has a box of its own and no section."""
+        sectioned = [action for action in actions if action['type'] != 'obsolete_cover']
+        if sectioned:
+            if 'arrangement_context' not in management:
+                management['arrangement_context'] = self._arrangement_context(day)
+            context = management['arrangement_context']
+            for action in sectioned:
+                action['section'] = action['plan']['groups'] if action['type'] == 'arrangement_plan' \
+                    else self._linked_groups(context, action['group']).sorted('name')
+        return actions
 
     @staticmethod
     def _arrangement_plan_actions(dated_lines):
@@ -1869,6 +1886,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         """JSON-safe version of one of the day's pending actions (see
         _get_board_absence_management), with the sentence the absences table shows for it."""
         data = {'type': action['type'], 'group_id': action['group'].id, 'can_manage': action['can_manage']}
+        if action.get('section'):
+            data.update(section_key='-'.join(map(str, sorted(action['section'].ids))),
+                        section_title=format_list(self.env, action['section'].mapped('name')))
         values = {'group': action['cover'].display_name if action.get('cover') else action['group'].name}
         if action['type'] == 'arrangement_plan':
             data.update(plan=self._arrangement_plan_data(action['plan']))

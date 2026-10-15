@@ -17,6 +17,8 @@ export class GuardArrangementPlan extends Component {
         selection: Array,
         onToggle: Function,
         disabled: { type: Boolean, optional: true },
+        // False under a section that already names the groups (the board's proposals box).
+        showGroups: { type: Boolean, optional: true },
         slots: { type: Object, optional: true },
     };
 }

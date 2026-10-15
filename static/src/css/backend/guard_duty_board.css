@@ -323,6 +323,28 @@
     color: #6c757d;
 }
 
+/* Issue #645: the proposals box, one section per group (with the groups sharing lessons with it):
+   its name, then its proposals, each described below its own title. */
+.o_guard_board_section {
+    margin-top: 8px;
+}
+
+.o_guard_board_section + .o_guard_board_section {
+    border-top: 1px solid #f0ad4e;
+    padding-top: 6px;
+}
+
+.o_guard_board_section_title {
+    font-weight: 600;
+    font-size: 1.05em;
+    margin-bottom: 2px;
+}
+
+.o_guard_board_section > .o_guard_board_action,
+.o_guard_board_section > .o_guard_board_plan {
+    margin-left: 0.75rem;
+}
+
 /* Issue #645: a detected arrangement plan - "Proposal N:" and, indented below it, one line per
    step with its checkbox on the left, so it is clear which step each box belongs to. */
 .o_guard_board_plan {

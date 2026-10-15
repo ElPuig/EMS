@@ -1568,6 +1568,10 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         actions = [action for action in data['actions'] if action['type'] == 'arrangement_plan']
         self.assertEqual([action['plan']['title'] for action in actions][:2], ['Proposal 1:', 'Proposal 2:'])
+        # One section for both groups: their plans and the change alone (coming in at 9) together.
+        sections = {(action['type'], action['section_title']) for action in data['actions']}
+        title = f"{self.group_a.name} and {self.group_b.name}"
+        self.assertEqual(sections, {('arrangement_plan', title), ('proposal', title)})
         first = actions[0]['plan']
         self.assertEqual(first['steps'][3]['label'],
                          f"Notice to the families of {self.group_a.name} and {self.group_b.name}: Leaves at 12:00.")

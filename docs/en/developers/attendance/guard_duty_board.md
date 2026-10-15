@@ -911,8 +911,8 @@ sentence per step, `depends` (indexes) and the `payload` the server needs to app
 Only to whoever may organise the absence (`can_manage`) and only for a class still left without
 anybody (`_board_row_arrangement_plans()`): on every row a plan resolves (`_plan_resolves()`: a
 step fills it, or one of its notices frees the group from it) - as a tag and at the top of its
-dialog - and once per plan in the "Possible arrangements" box (`_arrangement_plan_actions()`,
-action type `arrangement_plan`). Each plan is a block: its title and, indented below it, one line
+dialog - and once per plan in the "Proposals for the absences" box, under its groups' section
+(`_arrangement_plan_actions()`, action type `arrangement_plan`; see "Pending actions"). Each plan is a block: its title and, indented below it, one line
 per step with its checkbox on the left (`GuardArrangementPlan`,
 `static/src/js/backend/guard_arrangement_plan.js`), all checked by default. Unchecking a step
 unchecks those that need it, checking one checks what it needs (`toggledPlanSelection()`).
@@ -977,14 +977,22 @@ its own notice: the families of each group are told separately.
 
 `_get_board_absence_management()` lists the day's decisions that belong to no single row, shown
 above the table in two boxes, and only sent to whoever can act on them (`can_manage`: to any other
-teacher they are noise, and the struck-out rows already say what was decided): **Late entry / early
-leave proposals** (a `proposal` or `rectification` for one of the shift's groups, with a selector of
-its options and a reminder that sending the notice strikes those lessons off so no guard has to
-cover them) and **Guards no longer needed** (an `obsolete_cover` for every guard of the shift whose
-class `_get_needed_absence_block()` no longer finds: the absence was refused, cancelled or shrunk,
-the families were told the students stay at home, or a co-teacher is now in). Nothing is released or sent until the planner presses the
-button; doing it automatically, behind a setting, is planned in
-`plans/absence_management_automation.md`.
+teacher they are noise, and the struck-out rows already say what was decided):
+
+- **Proposals for the absences** (`o_guard_board_arrangements`): one section per group together
+  with the groups sharing lessons with it that day (`_board_action_sections()`, the action's
+  `section_key`/`section_title`; the same sets of groups the arrangement plans work on). In each
+  section: first what is waiting (`pending_arrangement`, an arrangement waiting for its notice, and
+  `rectification`, a notice to correct), then the arrangement plans (`arrangement_plan`,
+  "Proposal 1:", "Proposal 2:"...) and last, numbered after them, **Only tell the families**: the
+  `proposal` of each group and side, with a selector of its options (sending the notice strikes
+  those lessons off, so no guard has to cover them; a shorter change leaves the rest to a guard).
+- **Guards no longer needed** (an `obsolete_cover` for every guard of the shift whose class
+  `_get_needed_absence_block()` no longer finds: the absence was refused, cancelled or shrunk, the
+  families were told the students stay at home, or a co-teacher is now in).
+
+Nothing is released or sent until the planner presses the button; doing it automatically, behind a
+setting, is planned in `plans/absence_management_automation.md`.
 
 ### Colours
 

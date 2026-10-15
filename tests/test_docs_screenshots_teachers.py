@@ -597,11 +597,11 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             .querySelector('.o_guard_board_absence_manageable:not(.o_guard_board_absence_struck)').click();"""
         self._capture(
             url, '.o_guard_board', 'guard-duty-03-organitzar.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
+            wait_for='.o_guard_board_notice_plan .o_guard_board_action_option',
         )
         self._capture(
             url, '.modal-content', 'guard-duty-04-enviar-guardia.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
+            wait_for='.o_guard_board_notice_plan .o_guard_board_action_option',
             run=[open_class % '09:00-10:00',
                  # The dialog opens on the first arrangement the board detected (issue #605): this
                  # shot is about sending a guard.
@@ -617,8 +617,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         )
         self._capture(
             url, '.o_form_view .o_form_sheet', 'guard-duty-05-comunicat.png', login='doc_shot_chief',
-            wait_for='.o_guard_board_proposals .o_guard_board_action_option',
-            run=["document.querySelector('.o_guard_board_proposals .o_guard_board_action_button').click();"],
+            wait_for='.o_guard_board_notice_plan .o_guard_board_action_option',
+            run=["document.querySelector('.o_guard_board_notice_plan .o_guard_board_action_button').click();"],
             wait_after=['.o_form_view .alert-info'], max_height=760,
         )
         # Issues #605, #645: the arrangement plans the board detected for the classes still left

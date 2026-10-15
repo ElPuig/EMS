@@ -22868,8 +22868,10 @@ msgid "Guards assigned"
 msgstr "Docents de guàrdia assignats"
 
 #. module: ems
+#. odoo-javascript
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Proposal %s:"
 msgstr "Proposta %s:"
 
@@ -22915,3 +22917,21 @@ msgstr "Com podrien reorganitzar les seves classes els docents del grup perquè 
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Apply the checked steps"
 msgstr "Aplicar els passos marcats"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Proposals for the absences"
+msgstr "Propostes per a les absències"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."
+msgstr "Per a cada grup, com organitzar-ne les absències, la millor primer: que els docents reorganitzin les seves classes perquè l'alumnat perdi el mínim de classes possible i no calgui cap guàrdia, o només avisar les famílies. Desmarca els passos que no vulguis: les classes que resolien es queden a la taula. Enviar un avís treu de la taula les seves classes; pots triar un canvi més curt i enviar una guàrdia a la resta. S'avisa els docents implicats."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Only tell the families"
+msgstr "Només avisar les famílies"

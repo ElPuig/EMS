@@ -13,3 +13,8 @@
 
 ## "Actions" dropdown on lists:
 - The lists with several header buttons (Enrollments, Pre-inscription, Enrollment proposals, Contact data requests) now group them in one "Actions" dropdown, like the forms already do, instead of a row of loose buttons. Opt-in per list (`o_ems_header_actions` class) or per action context (`ems_header_actions`), so native lists are untouched.
+
+# Fixes
+
+## Students without destination loads instantly:
+- The view's filter by transition status (no next-course enrollment, or enrolled without a group) is now resolved by the database in one query instead of loading every student and searching their enrollment one by one (from ~1,700 queries to 5 on the current data, results unchanged). The status column of the lists is computed in batch too. It matters most during the enrollment period, when the view lists most of the students.

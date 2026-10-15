@@ -3,6 +3,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize, format_date
+from odoo.osv import expression
 from ..shared import base
 import re
 from dateutil.relativedelta import relativedelta
@@ -716,8 +717,22 @@ class ResPartner(models.Model):
 
     @api.depends('contact_type', 'exit_type', 'sale_order_ids.ems_course_id',
                  'sale_order_ids.state', 'sale_order_ids.ems_group_id')
+    def _ems_transition_course(self):
+        """The course a transition status looks at: the one being enrolled into."""
+        return self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
+
     def _compute_transition_status(self):
-        next_course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
+        # One read of the next-course enrollments for the whole batch (a list of students), not
+        # one search per row. A partner holds at most one live enrollment per course.
+        next_course = self._ems_transition_course()
+        partner_ids = [partner_id for partner_id in self.ids if isinstance(partner_id, int)]
+        enrollments = {}
+        if next_course and partner_ids:
+            for order in self.env['sale.order'].search([
+                    ('partner_id', 'in', partner_ids),
+                    ('ems_course_id', '=', next_course.id),
+                    ('state', '!=', 'cancel')]):
+                enrollments.setdefault(order.partner_id.id, order)
         for partner in self:
             if partner.contact_type in ('alumni', 'withdrawal', 'expelled'):
                 partner.transition_status = 'former'
@@ -726,10 +741,7 @@ class ResPartner(models.Model):
                 # (once executed it becomes alumni, caught by 'former' above).
                 partner.transition_status = 'graduated'
             else:
-                enrollment = next_course and self.env['sale.order'].search([
-                    ('partner_id', '=', partner.id),
-                    ('ems_course_id', '=', next_course.id),
-                    ('state', '!=', 'cancel')], limit=1)
+                enrollment = enrollments.get(partner.id)
                 if not enrollment:
                     # No next-course enrollment at all.
                     partner.transition_status = 'missing'
@@ -740,13 +752,31 @@ class ResPartner(models.Model):
                     partner.transition_status = 'unplaced'
 
     def _search_transition_status(self, operator, value):
+        """The compute's own rules as a domain, resolved by the database in one query: the
+        Students without destination view filters on this, over every student (issue #643)."""
         if operator not in ('=', '!='):
             raise NotImplementedError(_("Unsupported search on transition_status"))
-        # Only lifecycle contacts can have a transition status.
-        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal', 'expelled'])])
-        matching = candidates.filtered(lambda p: p.transition_status == value)
-        positive = (operator == '=')
-        return [('id', 'in' if positive else 'not in', matching.ids)]
+        domain = self._ems_transition_status_domain(value)
+        return domain if operator == '=' else ['!'] + expression.normalize_domain(domain)
+
+    def _ems_transition_status_domain(self, status):
+        """Lifecycle contacts (students and ex-students) whose transition status is `status`."""
+        if status == 'former':
+            return [('contact_type', 'in', ['alumni', 'withdrawal', 'expelled'])]
+        if status == 'graduated':
+            return [('contact_type', '=', 'student'), ('exit_type', '=', 'graduation')]
+        pending = [('contact_type', '=', 'student'), ('exit_type', '!=', 'graduation')]
+        next_course = self._ems_transition_course()
+        if not next_course:
+            return pending if status == 'missing' else expression.FALSE_DOMAIN
+        live = [('ems_course_id', '=', next_course.id), ('state', '!=', 'cancel')]
+        if status == 'missing':
+            return pending + [('sale_order_ids', 'not any', live)]
+        if status == 'enrolled':
+            return pending + [('sale_order_ids', 'any', live + [('ems_group_id', '!=', False)])]
+        if status == 'unplaced':
+            return pending + [('sale_order_ids', 'any', live + [('ems_group_id', '=', False)])]
+        return expression.FALSE_DOMAIN
 
     def _ems_my_students_domain(self):
         """Domain matching the students of the current user's own groups, shared by the

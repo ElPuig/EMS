@@ -20,9 +20,17 @@
                     <t t-esc="absence.group"/><t t-if="absence.subject"> · <t t-esc="absence.subject"/></t><t t-if="absence.room"> · <t t-esc="absence.room"/></t>
                 </span>
             </span>
-            <span t-if="absence.cover" class="o_guard_board_absence_tag o_guard_board_cover_tag">
-                <i class="fa fa-user-circle me-1"/><t t-esc="absence.cover.guard"/>
-            </span>
+            <!-- One tag per guard, with the part they cover when it is not the whole class, and one
+                 per part still missing (issue #637). -->
+            <t t-foreach="absence.covers" t-as="cover" t-key="cover.id">
+                <span class="o_guard_board_absence_tag o_guard_board_cover_tag"
+                      t-att-class="'o_guard_board_cover_' + cover.color + (cover.partial ? ' o_guard_board_cover_partial' : '')">
+                    <i class="fa fa-user-circle me-1"/><t t-esc="cover.guard"/><t t-if="cover.partial"> <t t-esc="cover.label"/></t>
+                </span>
+            </t>
+            <t t-foreach="absence.missing" t-as="missing" t-key="missing_index">
+                <span class="o_guard_board_absence_tag o_guard_board_missing_tag" t-esc="missing"/>
+            </t>
             <span t-if="absence.arrangement" class="o_guard_board_absence_tag o_guard_board_arrangement_tag"
                   t-att-class="{ o_guard_board_arrangement_pending: absence.arrangement.pending }">
                 <i class="fa fa-exchange me-1"/><t t-esc="absence.arrangement.teacher"/>
@@ -394,6 +402,20 @@
                     </div>
                 </div>
                 <t t-if="state.mode === 'guard'">
+                    <!-- The guards already covering it, each removable on its own (issue #637). -->
+                    <div t-if="props.row.covers.length" class="mb-3 o_guard_cover_current">
+                        <div class="fw-bold mb-1" t-esc="labels.assigned"/>
+                        <t t-foreach="props.row.covers" t-as="cover" t-key="cover.id">
+                            <div class="d-flex align-items-center gap-2 mb-1 o_guard_cover_current_row">
+                                <span><i class="fa fa-user-circle me-1"/><t t-esc="cover.guard"/> <span class="text-muted" t-esc="cover.label"/></span>
+                                <button type="button" class="btn btn-sm btn-link text-danger o_guard_cover_remove" t-att-disabled="state.saving"
+                                        t-on-click="() => this.release(cover.id)" t-esc="labels.removeCover"/>
+                            </div>
+                        </t>
+                        <t t-foreach="props.row.missing" t-as="missing" t-key="missing_index">
+                            <span class="o_guard_board_absence_tag o_guard_board_missing_tag" t-esc="missing"/>
+                        </t>
+                    </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold" for="o_guard_cover_guard" t-esc="labels.guard"/>
                         <div t-if="!props.line.guard_candidates.length" class="text-muted" t-esc="labels.noCandidates"/>
@@ -432,7 +454,7 @@
             <t t-set-slot="footer">
                 <button class="btn btn-primary o_guard_cover_assign" t-att-disabled="!canSave"
                         t-on-click="() => this.save()" t-esc="saveLabel"/>
-                <button t-if="props.row.cover or props.row.arrangement" class="btn btn-outline-danger o_guard_cover_release" t-att-disabled="state.saving"
+                <button t-if="props.row.arrangement" class="btn btn-outline-danger o_guard_cover_release" t-att-disabled="state.saving"
                         t-on-click="() => this.release()" t-esc="labels.release"/>
                 <button class="btn btn-secondary" t-on-click="() => this.props.close()" t-esc="labels.cancel"/>
             </t>

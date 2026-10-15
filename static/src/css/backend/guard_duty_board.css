@@ -351,6 +351,20 @@
     padding-left: 4px;
 }
 
+/* Issue #637: the same colours whether a guard covers all of a class or only part of it; the
+   border tells them apart - a solid bar for a whole class, a thin dotted one for a part (the row,
+   while a part is still missing; a guard's tag and badge, when their cover is partial). Dotted
+   and thinner: a 4px dashed bar draws as big blocks. */
+.o_guard_board_cover_partial {
+    border-left-style: dotted !important;
+    border-left-width: 2px !important;
+}
+
+.o_guard_board_cover_tag.o_guard_board_cover_partial,
+.o_guard_board_guard_badge.o_guard_board_cover_partial {
+    border-style: dotted !important;
+}
+
 /* The day's pending actions, above the absences table. */
 .o_guard_board_actions {
     max-width: 930px;
@@ -434,4 +448,12 @@
    A border rather than an inset box-shadow, which Bootstrap's own cell box-shadow paints over. */
 .o_guard_board_timeline .o_guard_board_cell_break {
     border-left: 4px solid #8a6240 !important;
+}
+
+/* Part of a class no guard covers yet, while others cover the rest (issue #637): dashed, in the
+   absences' red, so it reads as "still to do". */
+.o_guard_board_missing_tag {
+    border-style: dashed;
+    border-color: #b52a37;
+    color: #b52a37;
 }

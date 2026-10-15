@@ -469,6 +469,53 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             run=force_monday_morning, wait_after=wait + ['.o_guard_board_duty_table'])
 
 
+    def _partial_cover_teacher(self, name, rows):
+        employee = self.env['hr.employee'].create({'name': name, 'employee_type': 'teacher'})
+        calendar = self.env['resource.calendar'].create({'name': f'{name} Calendar', 'employee_id': employee.id})
+        employee.resource_calendar_id = calendar
+        calendar.apply_schedule_changes([{'dayofweek': '0', 'day_period': 'morning', **row} for row in rows])
+        return employee
+
+    def test_capture_guard_duty_partial_cover(self):
+        """A class covered by a guard whose duty only overlaps part of it (issue #637): the guard's
+        part with dotted borders and the part still missing. Every name and group is invented."""
+        if not self.env.company.current_course_id:
+            self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
+        mock_outgoing_email(self)
+        area = self.env['hr.department'].create({'name': 'ESO / BTX (exemple)', 'is_top_level': True, 'top_level_area': 'academic'})
+        level = self.env['ems.level'].create({'acronym': 'T637P', 'name': 'ESO exemple'})
+        study = self.env['ems.study'].create({'code': 'T637P', 'acronym': 'ESOX', 'name': 'ESO exemple', 'level_id': level.id,
+                                              'date': '2026-01-01', 'managing_department_id': area.id})
+        group = self.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id})
+        subject = self.env['ems.subject'].create({'code': 'T637PMAT', 'acronym': 'MAT', 'name': 'MAT', 'study_ids': [(6, 0, study.ids)]})
+        guard = self.env.ref('ems.non_teaching_g').id
+        lesson = (10 + 25 / 60, 11 + 25 / 60)
+        anna = self._partial_cover_teacher('0000 Anna Exemple', [{'hour_from': lesson[0], 'hour_to': lesson[1], 'subject_id': subject.id,
+                                                    'group_ids': [group.id], 'name': 'MAT'}])
+        irene = self._partial_cover_teacher('0000 Irene Exemple', [{'hour_from': lesson[0], 'hour_to': lesson[1], 'non_teaching': guard, 'name': 'G'}])
+        hugo = self._partial_cover_teacher('0000 Hugo Fictici', [{'hour_from': 10, 'hour_to': 11, 'non_teaching': guard, 'name': 'G'}])
+        laia = self._partial_cover_teacher('0000 Laia Mostra', [{'hour_from': 11, 'hour_to': 12, 'non_teaching': guard, 'name': 'G'}])
+        today = self.env['ems.datetime_utils'].get_local_today()
+        monday = today + timedelta(days=7 - today.weekday())
+        self.env['hr.leave'].create({
+            'employee_id': anna.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': monday, 'request_date_to': monday,
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+        # Only this fixture's rows, never the dev DB's real timetable (see test_capture_guard_duty_schedule).
+        fixture_ids = (anna | irene | hugo | laia).ids
+        course_model = type(self.env['ems.course'])
+        original = course_model._get_guard_duty_board_attendance_ids
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course, domain=(): original(course, domain).filtered(
+            lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.env['ems.absence_cover'].board_assign(str(monday), lesson[0], lesson[1], anna.id, group.id, hugo.id, "Exercicis")
+
+        url = f'/odoo/action-ems.action_guard_duty_board?date={monday}&shift=morning&view=table'
+        self._capture(url, '.o_guard_board_table_wrap', 'guard-duty-08-cobertura-parcial.png', login='doc_shot_teacher',
+                      wait_for='.o_guard_board_missing_tag')
+
     def test_capture_guard_duty_management(self):
         """Organising absences from the absences table (issues #539, #571, #581, #605), as the
         absent teachers' Department Chief, on next Monday (a past day is read-only): a late entry

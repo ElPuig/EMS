@@ -144,6 +144,9 @@
                                     .gdb-block-time { display: block; font-size: 7px; color: #777; }
                                     .gdb-break { border-left: 3px solid #8a6240 !important; }
                                     .gdb-break-label { display: block; font-size: 8px; font-style: italic; }
+                                    .gdb-missing-tag { border-style: dashed; border-color: #b52a37; color: #b52a37; }
+                                    .gdb-cover-partial { border-left-style: dotted !important; border-left-width: 2px !important; }
+                                    .gdb-guard-badge.gdb-cover-partial { border-style: dotted; }
                                 </style>
 
                                 <h1 class="gdb-title">
@@ -299,11 +302,19 @@
              families, or an internal arrangement in effect (#605). Expects 'line' and 'absence_index'. -->
         <template id="report_guard_duty_board_absence">
             <t t-set="absence" t-value="line['absences'][absence_index]"/>
-            <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or absence['cover'] or absence['authorized'] or (absence['arrangement'] and absence['arrangement'].is_effective) else '') + (' gdb-cover-%s' % line['guard_colors'].get(absence['cover'].guard_employee_id.id, 0) if absence['cover'] else '')">
+            <!-- Several guards can each cover part of the class (issue #637): struck out only once
+                 nothing is missing. -->
+            <t t-set="covers" t-value="absence['covers']"/>
+            <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or (covers and not absence['missing']) or absence['authorized'] or (absence['arrangement'] and absence['arrangement'].is_effective) else '') + (' gdb-cover-%s' % line['guard_colors'].get(covers[:1].guard_employee_id.id, 0) if covers else '') + (' gdb-cover-partial' if covers and absence['missing'] else '')">
                 <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
                 <span class="gdb-absence-class">
                     <t t-esc="absence['label']"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
-                    <span t-if="absence['cover']" class="gdb-absence-tag">→ <t t-esc="absence['cover'].guard_employee_id.name"/></span>
+                    <t t-foreach="covers" t-as="cover">
+                        <span class="gdb-absence-tag">→ <t t-esc="cover.guard_employee_id.name"/><t t-if="absence['missing'] or len(covers) > 1"> <t t-esc="cover._time_label()"/></t></span>
+                    </t>
+                    <t t-foreach="absence['missing']" t-as="period">
+                        <span class="gdb-absence-tag gdb-missing-tag" t-esc="course._missing_label(period)"/>
+                    </t>
                     <span t-if="absence['arrangement'] and absence['arrangement'].is_effective" class="gdb-absence-tag">⇄ <t t-esc="absence['arrangement']._arrangement_label()"/></span>
                     <span t-if="absence['arrangement_change']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['arrangement_change'])"/>
                     <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>
@@ -317,7 +328,7 @@
             <span class="gdb-block-time" t-esc="slot['label']"/>
             <span t-if="slot['is_break']" class="gdb-break-label">Break</span>
             <t t-foreach="line['guards']" t-as="guard">
-                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '') + (' gdb-guard-busy' if guard.employee_id.id in line['guard_busy'] else '')">
+                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '') + (' gdb-cover-partial' if guard.employee_id.id in line['partial_guard_ids'] else '') + (' gdb-guard-busy' if guard.employee_id.id in line['guard_busy'] else '')">
                     <t t-esc="guard.employee_id.name"/>
                     <t t-if="guard.non_teaching.code == 'GWC'"> (WC)</t>
                 </span>

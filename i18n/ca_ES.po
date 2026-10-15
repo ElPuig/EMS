@@ -22836,3 +22836,33 @@ msgstr "Pot gestionar"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Other groups"
 msgstr "Altres grups"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Missing %s"
+msgstr "Falta %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Click to send a guard teacher to the part still missing"
+msgstr "Fes clic per enviar un docent de guàrdia a la part que falta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Covered by %s, the guard teachers sent to it."
+msgstr "Coberta per %s, els docents de guàrdia que s'hi han enviat."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "%(name)s - %(time)s, part of the class (%(count)s covered this course)"
+msgstr "%(name)s - %(time)s, part de la classe (%(count)s cobertures aquest curs)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+msgid "Guards assigned"
+msgstr "Docents de guàrdia assignats"

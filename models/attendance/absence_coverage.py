@@ -278,7 +278,8 @@ class EmsAbsenceCover(models.Model):
     def _check_board_assignable(self, day, hour_from, hour_to, absent, group, duty, guard):
         """What `guard` may be sent to: the block of `group`'s day, or the absent teacher's own
         guard duty `duty` - the day is not over, it still needs a guard and `guard` is on regular
-        guard duty then. Raises otherwise."""
+        guard duty then. Raises otherwise. Returns that block (or duty entry) and the part of the
+        period `guard` covers (issue #637: their guard duty may only overlap part of it)."""
         course = self.env['ems.course']
         course._check_board_day_not_past(day)
         if duty:
@@ -289,9 +290,10 @@ class EmsAbsenceCover(models.Model):
             needed = course._get_needed_absence_block(day, group, absent, hour_from, hour_to)
             if not needed:
                 raise UserError(_("This class no longer needs covering: the absence or the class has changed. Reload the board."))
-        if guard not in course._get_guard_candidates(day, hour_from, hour_to):
+        span = course._get_guard_candidates(day, hour_from, hour_to).get(guard)
+        if not span:
             raise UserError(_("%s is not on guard duty in this period.", guard.name))
-        return needed
+        return needed, span
 
     def _board_current_covers(self, day, hour_from, hour_to, absent, group, duty):
         """Whatever resolves this class (or guard duty) now - a guard or an arrangement, effective
@@ -336,22 +338,27 @@ class EmsAbsenceCover(models.Model):
                      duty_id=False):
         """Sends `guard_employee_id` to cover `absent_employee_id`'s class of `group_id` in the
         period - or, with `duty_id` and no group, their guard duty (issue #606) - notifying them.
-        Assigning someone else to a class that already had a guard releases (and tells) the
-        previous one, and replaces an internal arrangement; assigning the same one again re-sends
-        the message, which is how a planner adds or corrects the instructions."""
+        The guard covers the part of the period their own guard duty overlaps, all of it or only
+        some (issue #637), so several guards can each cover part of one class. Assigning someone
+        else to a part that already had a guard releases (and tells) the previous one, and replaces
+        an internal arrangement; assigning the same one again re-sends the message, which is how a
+        planner adds or corrects the instructions."""
         day = fields.Date.to_date(day)
         absent, group, duty, guard = self._board_records(absent_employee_id, group_id, guard_employee_id, duty_id)
         self.env['ems.course']._check_absence_manager(absent, group)
-        needed = self._check_board_assignable(day, hour_from, hour_to, absent, group, duty, guard)
+        needed, (span_from, span_to) = self._check_board_assignable(day, hour_from, hour_to, absent, group, duty, guard)
 
-        current = self._board_current_covers(day, hour_from, hour_to, absent, group, duty)
-        same = current.filtered(lambda cover: cover.cover_type == 'guard' and cover.guard_employee_id == guard)[:1]
+        # Only what overlaps the part `guard` covers is replaced: another guard may be covering the
+        # rest of the class (issue #637).
+        current = self._board_current_covers(day, span_from, span_to, absent, group, duty)
+        same = current.filtered(lambda cover: cover.cover_type == 'guard' and cover.guard_employee_id == guard
+                                and (cover.hour_from, cover.hour_to) == (span_from, span_to))[:1]
         (current - same)._board_withdraw()
         if same:
             cover = same
             cover.write({'message': message, 'assigned_by_id': self.env.uid})
         else:
-            cover = self._board_create_cover(day, hour_from, hour_to, absent, group, duty, guard, needed, message)
+            cover = self._board_create_cover(day, span_from, span_to, absent, group, duty, guard, needed, message)
         cover._notify_guard(guard, released=False, message=message)
         return cover.id
 
@@ -430,16 +437,18 @@ class EmsAbsenceCover(models.Model):
     @api.model
     def board_self_assign(self, day, hour_from, hour_to, absent_employee_id, group_id, duty_id=False):
         """The current user, on regular guard duty in the period, covers `absent_employee_id`'s
-        class of `group_id` - or their guard duty `duty_id` (issue #606) - themselves."""
+        class of `group_id` - or their guard duty `duty_id` (issue #606) - themselves: the part of
+        it their own guard duty overlaps (issue #637)."""
         day = fields.Date.to_date(day)
         guard = self.env.user.employee_id
         if not guard:
             raise UserError(_("Only a teacher on guard duty can cover a class."))
         absent, group, duty, guard = self._board_records(absent_employee_id, group_id, guard.id, duty_id)
-        needed = self._check_board_assignable(day, hour_from, hour_to, absent, group, duty, guard)
-        if self._board_current_covers(day, hour_from, hour_to, absent, group, duty):
+        needed, (span_from, span_to) = self._check_board_assignable(day, hour_from, hour_to, absent, group, duty, guard)
+        # Their own part of the class (issue #637), as long as nobody covers it yet.
+        if self._board_current_covers(day, span_from, span_to, absent, group, duty):
             raise UserError(_("This class already has a guard teacher assigned. Reload the board."))
-        return self._board_create_cover(day, hour_from, hour_to, absent, group, duty, guard, needed).id
+        return self._board_create_cover(day, span_from, span_to, absent, group, duty, guard, needed).id
 
     @api.model
     def board_self_release(self, cover_id):

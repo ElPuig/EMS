@@ -111,7 +111,7 @@ If you are on guard duty in a time block, you don't have to wait for somebody to
 1. In the **Absences table**, click the line of the class (lines you can take show a hand pointer and the tooltip **Click to cover this class yourself**).
 2. Click **Cover it** to confirm.
 
-The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. Only a class with no guard yet can be taken, and only in a time block you are on an ordinary guard duty (not a WC or break guard, and not while you are away yourself). The same goes for the line of a WC or break guard who is away: you can take it yourself the same way.
+The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. If your guard duty only coincides with part of the class, you take that part (the dialog tells you which), and someone else can cover the rest. Only a class, or your part of it, with no guard yet can be taken, and only in a time block you are on an ordinary guard duty (not a WC or break guard, and not while you are away yourself). The same goes for the line of a WC or break guard who is away: you can take it yourself the same way.
 
 If you change your mind, click the line again and then **Stop covering this class**: the class is left without a guard again. You can only do this with a class you took yourself; if somebody sent you to it, ask them to change it. Whoever organises the absence can still change or remove a guard who took a class on their own.
 
@@ -144,7 +144,7 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 ### Sending a guard to a class
 
 1. Click the line of the class to cover (lines you can organise show a hand pointer).
-2. If the dialog offers possible arrangements (see [Rearranging the lessons instead of sending a guard](#rearranging-the-lessons-instead-of-sending-a-guard)), choose **Send a guard teacher**. Then choose the **Guard teacher**. Only the teachers on an ordinary guard duty in that time block are offered (never those on a WC or break guard, who are needed at their post), except those who are away themselves. Next to each name you see how many classes they have covered this course, so you can choose whoever has covered the fewest.
+2. If the dialog offers possible arrangements (see [Rearranging the lessons instead of sending a guard](#rearranging-the-lessons-instead-of-sending-a-guard)), choose **Send a guard teacher**. Then choose the **Guard teacher**. Only the teachers on an ordinary guard duty during the class are offered (never those on a WC or break guard, who are needed at their post), except those who are away themselves. Those who can cover the whole class come first, then those who can only cover part of it, with the part they would cover (see [Covering a class between several guards](#covering-a-class-between-several-guards)). Next to each name you see how many classes they have covered this course, so you can choose whoever has covered the fewest.
 3. Optionally, write a **message**: what the students have to work on, where the materials are...
 4. Click **Assign and notify**.
 
@@ -152,9 +152,19 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 
 The guard teacher receives an Odoo message (in their inbox, or by email, depending on their own notification preference) with the date, time, group, subject, classroom, the absent teacher and your message. If they reply to that email, the answer reaches you.
 
-The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. When several guards cover classes in the same time block, each guard has their own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take that guard's colour.
+The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. The colour belongs to the class covered: when several guards cover different classes at the same time, each class has its own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take the same colour.
 
-To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. **Remove assignment** takes the guard off the class and tells them so.
+To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. To take a guard off the class, click **Remove assignment** next to their name, at the top of the dialog: they are told so.
+
+### Covering a class between several guards
+
+When the areas run different timetables, no guard may coincide with a whole class. For example, an ESO class from 10:25 to 11:25 and two VET guards, one from 10:00 to 11:00 and the other from 11:00 to 12:00. The dialog then also offers those who coincide with part of the class, with the part they would cover (*"… - 10:25-11:00, part of the class"*), and each guard covers exactly that part.
+
+While a part is still missing, the line is not struck through: it shows the guard with their part and a dashed red tag with what is missing (*"Missing 11:00-11:25"*), so you can send someone else. Once together they cover the whole class, the line is struck through.
+
+Every guard covering the same class shares its colour. A dotted border (on the line, the tag and the guard's box) means a partial cover; a solid one, a class covered in full.
+
+![A class covered in part: the guard with their part and the part still missing, with dotted borders](../../assets/teachers/guard-duty-08-cobertura-parcial.png)
 
 ### Covering a WC or break guard
 

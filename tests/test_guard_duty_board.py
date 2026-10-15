@@ -815,6 +815,14 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertIn({'id': self.area2.id, 'name': self.area2.name}, data)
         self.assertNotIn(unused.id, [area['id'] for area in data])
 
+    def test_uncovered_periods(self):
+        """What is left of a class once some guards cover parts of it (issue #637)."""
+        from odoo.addons.ems.models.attendance.guard_duty_board import _uncovered_periods
+        self.assertEqual(_uncovered_periods((9, 10), []), [(9, 10)])
+        self.assertEqual(_uncovered_periods((9, 10), [(9, 9.5)]), [(9.5, 10)])
+        self.assertEqual(_uncovered_periods((9, 10), [(9.5, 10), (9, 9.25)]), [(9.25, 9.5)])
+        self.assertEqual(_uncovered_periods((9, 10), [(8.5, 9.5), (9.5, 10.5)]), [])
+
     # --- Areas with different time frameworks (issue #637) -----------------------------------
     #
     # Odd minutes (13:05, 13:30, 14:05) keep these periods apart from this dev DB's own real ones.

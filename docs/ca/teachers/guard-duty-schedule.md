@@ -111,7 +111,7 @@ Si estàs de guàrdia en una franja, no cal que esperis que algú t'hi enviï: p
 1. A la **Taula d'absències**, fes clic a la línia de la classe (les línies que pots agafar mostren una mà en passar-hi per sobre i l'indicació **Fes clic per cobrir tu aquesta classe**).
 2. Fes clic a **Cobrir-la** per confirmar-ho.
 
-La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Només es pot agafar una classe que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia ordinària (no en una guàrdia de WC o de pati, ni mentre tu mateix estàs absent). El mateix val per a la línia d'una guàrdia de WC o de pati el docent de la qual falta: també la pots agafar tu mateix.
+La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Si la teva guàrdia només coincideix amb una part de la classe, n'agafes aquesta part (el diàleg t'indica quina), i algú altre en pot cobrir la resta. Només es pot agafar una classe, o la teva part, que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia ordinària (no en una guàrdia de WC o de pati, ni mentre tu mateix estàs absent). El mateix val per a la línia d'una guàrdia de WC o de pati el docent de la qual falta: també la pots agafar tu mateix.
 
 Si canvies d'idea, torna a fer clic a la línia i després a **Deixa de cobrir aquesta classe**: la classe torna a quedar sense guàrdia. Només ho pots fer amb una classe que t'has agafat tu; si algú t'hi ha enviat, demana-li que ho canviï. Qui organitza l'absència sempre pot canviar o treure un docent de guàrdia que s'hagi agafat una classe pel seu compte.
 
@@ -144,7 +144,7 @@ Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera 
 ### Enviar un docent de guàrdia a una classe
 
 1. Fes clic a la línia de la classe que cal cobrir (les línies que pots organitzar mostren el cursor de mà).
-2. Si el diàleg ofereix reorganitzacions possibles (vegeu [Reorganitzar les classes en lloc d'enviar una guàrdia](#reorganitzar-les-classes-en-lloc-denviar-una-guàrdia)), tria **Enviar un docent de guàrdia**. Després tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia ordinària en aquella franja (mai els de guàrdia de WC o de pati, que són necessaris al seu lloc), excepte els que també estan absents. Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
+2. Si el diàleg ofereix reorganitzacions possibles (vegeu [Reorganitzar les classes en lloc d'enviar una guàrdia](#reorganitzar-les-classes-en-lloc-denviar-una-guàrdia)), tria **Enviar un docent de guàrdia**. Després tria el **Docent de guàrdia**. Només s'ofereixen els docents de guàrdia ordinària durant la classe (mai els de guàrdia de WC o de pati, que són necessaris al seu lloc), excepte els que també estan absents. Primer surten els que poden cobrir tota la classe i després els que només en poden cobrir una part, amb el tram que cobririen (consulta [Cobrir una classe entre diversos docents de guàrdia](#cobrir-una-classe-entre-diversos-docents-de-guardia)). Al costat de cada nom es veu quantes classes ha cobert aquest curs, per poder triar qui n'ha cobert menys.
 3. Opcionalment, escriu un **missatge**: què ha de treballar l'alumnat, on són els materials...
 4. Fes clic a **Assignar i avisar**.
 
@@ -152,9 +152,19 @@ Tot es fa des de la **Taula d'absències**, i res no passa sol: cada pas espera 
 
 El docent de guàrdia rep un missatge d'Odoo (a la safata d'entrada o per correu, segons la seva preferència de notificacions) amb la data, l'hora, el grup, l'assignatura, l'aula, el docent absent i el teu missatge. Si respon a aquest correu, la resposta t'arriba a tu.
 
-Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. Quan diversos docents de guàrdia cobreixen classes a la mateixa franja, cadascun té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el seu color.
+Aleshores la classe queda ratllada, hi apareix el nom del docent de guàrdia, i la línia i la casella del docent a la columna Guàrdia comparteixen el mateix color. El color és de la classe coberta: quan diversos docents de guàrdia cobreixen classes diferents a la mateixa hora, cada classe té el seu color, de manera que es veu d'un cop d'ull qui cobreix què. Un docent de guàrdia pot cobrir més d'una classe: totes prenen el mateix color.
 
-Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o treure el docent de guàrdia** (només ho veu qui organitza l'absència), i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. **Treure l'assignació** treu el docent de la classe i l'avisa.
+Per canviar el docent de guàrdia, fes clic a la línia i després a **Canviar o treure el docent de guàrdia** (només ho veu qui organitza l'absència), i tria'n un altre: a l'anterior se li comunica que ja no cal. Per enviar un missatge nou al mateix docent, torna'l a triar i fes clic a **Assignar i avisar**. Per treure un docent de la classe, fes clic a **Treure l'assignació** al costat del seu nom, a la part de dalt del diàleg: se l'avisa.
+
+### Cobrir una classe entre diversos docents de guàrdia
+
+Quan les àrees tenen horaris diferents, pot ser que cap docent de guàrdia coincideixi amb tota una classe. Per exemple, una classe d'ESO de 10:25 a 11:25 i dos docents de guàrdia de FP, un de 10:00 a 11:00 i l'altre d'11:00 a 12:00. Aleshores el diàleg també ofereix els que coincideixen amb una part de la classe, amb el tram que cobririen (*"… - 10:25-11:00, part de la classe"*), i cada docent cobreix exactament aquest tram.
+
+Mentre falti una part per cobrir, la línia no es ratlla: mostra el docent amb el seu tram i una etiqueta vermella discontínua amb el que falta (*"Falta 11:00-11:25"*), perquè hi enviïs un altre docent. Quan entre tots cobreixen tota la classe, la línia es ratlla.
+
+Tots els docents que cobreixen la mateixa classe comparteixen el seu color. Una vora de puntets (a la línia, a l'etiqueta i a la casella del docent) indica una cobertura parcial; una vora contínua, una classe coberta sencera.
+
+![Una classe coberta en part: el docent de guàrdia amb el seu tram i la part que encara falta, amb vores de puntets](../../assets/teachers/guard-duty-08-cobertura-parcial.png)
 
 ### Cobrir una guàrdia de WC o de pati
 

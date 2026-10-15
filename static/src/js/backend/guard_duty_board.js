@@ -395,13 +395,22 @@ export class GuardDutyBoard extends Component {
     absenceRowClass(absence) {
         const classes = {
             o_guard_board_absence_covered: absence.covered,
-            o_guard_board_absence_struck: !absence.covered && Boolean(absence.cover || absence.authorized || this.isArranged(absence)),
-            o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || absence.can_self_release,
+            o_guard_board_absence_struck: !absence.covered && Boolean(this.isFullyCovered(absence) || absence.authorized || this.isArranged(absence)),
+            o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || Boolean(absence.self_cover_id),
         };
-        if (absence.cover) {
-            classes[`o_guard_board_cover_${absence.cover.color}`] = true;
+        if (absence.covers.length) {
+            classes[`o_guard_board_cover_${absence.covers[0].color}`] = true;
+            // Painted as soon as a guard covers any of it; a dashed border while a part is still
+            // missing, solid once it is all covered (issue #637).
+            classes.o_guard_board_cover_partial = absence.missing.length > 0;
         }
         return classes;
+    }
+
+    // Several guards can each cover part of a class (issue #637): it only needs nobody else once
+    // nothing is missing.
+    isFullyCovered(absence) {
+        return absence.covers.length > 0 && !absence.missing.length;
     }
 
     // The line's tooltip: why it is struck out (the same as its info icon), or, on a line still
@@ -419,6 +428,9 @@ export class GuardDutyBoard extends Component {
         // A row can also be a guard duty that is not regular (WC, break...) left without its
         // teacher (issue #606): 'duty_id' set, 'group' holding the duty's name.
         if (this.isAssignable(absence)) {
+            if (absence.covers.length) {
+                return _t("Click to send a guard teacher to the part still missing");
+            }
             return absence.duty_id
                 ? _t("Click to send a guard teacher to this guard duty")
                 : _t("Click to send a guard teacher to this class");
@@ -438,10 +450,14 @@ export class GuardDutyBoard extends Component {
         if (absence.authorized) {
             return _t("No guard needed: the families were told \"%s\".", absence.authorized);
         }
-        if (absence.cover) {
+        if (this.isFullyCovered(absence)) {
+            if (absence.covers.length > 1) {
+                const guards = absence.covers.map((cover) => `${cover.guard} (${cover.label})`).join(", ");
+                return _t("Covered by %s, the guard teachers sent to it.", guards);
+            }
             return absence.duty_id
-                ? _t("Covered by %s, the guard teacher sent to this guard duty.", absence.cover.guard)
-                : _t("Covered by %s, the guard teacher sent to this class.", absence.cover.guard);
+                ? _t("Covered by %s, the guard teacher sent to this guard duty.", absence.covers[0].guard)
+                : _t("Covered by %s, the guard teacher sent to this class.", absence.covers[0].guard);
         }
         if (this.isArranged(absence)) {
             return _t("No guard needed: %s", absence.arrangement.label);
@@ -466,17 +482,20 @@ export class GuardDutyBoard extends Component {
                 this.openCoverDialog(line, absence);
             } else if (absence.can_self_assign) {
                 this.confirmSelfAssign(line, absence);
+            } else if (absence.self_cover_id) {
+                // Their own part of a class still missing another (issue #637).
+                this.confirmSelfRelease(absence);
             }
             return;
         }
         const props = { reason };
-        if (absence.cover && this.isAssignable(absence)) {
+        if (absence.covers.length && this.isAssignable(absence)) {
             props.actionLabel = _t("Change or remove the guard");
             props.onAction = () => this.openCoverDialog(line, absence);
         } else if (absence.arrangement && this.isAssignable(absence)) {
             props.actionLabel = _t("Change or remove the arrangement");
             props.onAction = () => this.openCoverDialog(line, absence);
-        } else if (absence.can_self_release) {
+        } else if (absence.self_cover_id) {
             props.actionLabel = _t("Stop covering this class");
             props.onAction = () => this.confirmSelfRelease(absence);
         }
@@ -494,7 +513,10 @@ export class GuardDutyBoard extends Component {
         if (guard.busy) {
             base += " o_guard_board_guard_busy";
         }
-        return guard.color === false ? base : `${base} o_guard_board_cover_${guard.color}`;
+        if (guard.color === false) {
+            return base;
+        }
+        return `${base} o_guard_board_cover_${guard.color}${guard.partial ? " o_guard_board_cover_partial" : ""}`;
     }
 
     get proposalActions() {
@@ -585,9 +607,8 @@ export class GuardDutyBoard extends Component {
                 views: [[false, "form"]],
                 target: "current",
             }) : undefined,
-            onRelease: async () => {
-                const resolved = absence.cover || absence.arrangement;
-                await this.orm.call("ems.absence_cover", "board_release", [resolved.id]);
+            onRelease: async (coverId) => {
+                await this.orm.call("ems.absence_cover", "board_release", [coverId || absence.arrangement.id]);
                 await this.loadBoard();
             },
         });
@@ -599,7 +620,7 @@ export class GuardDutyBoard extends Component {
         this.dialog.add(ConfirmationDialog, {
             title: _t("Cover this class"),
             body: _t("You will cover %(group)s (%(time)s) instead of %(teacher)s.", {
-                group: absence.group, time: line.time_label, teacher: absence.teacher,
+                group: absence.group, time: absence.self_label, teacher: absence.teacher,
             }),
             confirmLabel: _t("Cover it"),
             confirm: async () => {
@@ -618,7 +639,7 @@ export class GuardDutyBoard extends Component {
             body: _t("%(group)s will be left without a guard teacher again.", { group: absence.group }),
             confirmLabel: _t("Stop covering"),
             confirm: async () => {
-                await this.orm.call("ems.absence_cover", "board_self_release", [absence.cover.id]);
+                await this.orm.call("ems.absence_cover", "board_self_release", [absence.self_cover_id]);
                 await this.loadBoard();
             },
             cancel: () => {},

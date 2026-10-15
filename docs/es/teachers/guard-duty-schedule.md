@@ -111,7 +111,7 @@ Si estás de guardia en una franja, no hace falta que esperes a que alguien te e
 1. En la **Tabla de ausencias**, haz clic en la línea de la clase (las líneas que puedes coger muestran una mano al pasar por encima y la indicación **Haz clic para cubrir tú esta clase**).
 2. Haz clic en **Cubrirla** para confirmarlo.
 
-La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Solo se puede coger una clase que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia ordinaria (no en una guardia de WC o de patio, ni mientras tú mismo estás ausente). Lo mismo vale para la línea de una guardia de WC o de patio cuyo docente falta: también puedes cogerla tú mismo.
+La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Si tu guardia solo coincide con una parte de la clase, coges esa parte (el diálogo te indica cuál), y otra persona puede cubrir el resto. Solo se puede coger una clase, o tu parte, que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia ordinaria (no en una guardia de WC o de patio, ni mientras tú mismo estás ausente). Lo mismo vale para la línea de una guardia de WC o de patio cuyo docente falta: también puedes cogerla tú mismo.
 
 Si cambias de idea, vuelve a hacer clic en la línea y después en **Deja de cubrir esta clase**: la clase vuelve a quedarse sin guardia. Solo puedes hacerlo con una clase que te has cogido tú; si alguien te ha enviado, pídele que lo cambie. Quien organiza la ausencia siempre puede cambiar o quitar a un docente de guardia que se haya cogido una clase por su cuenta.
 
@@ -144,7 +144,7 @@ Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espe
 ### Enviar un docente de guardia a una clase
 
 1. Haz clic en la línea de la clase que hay que cubrir (las líneas que puedes organizar muestran el cursor de mano).
-2. Si el diálogo ofrece reorganizaciones posibles (véase [Reorganizar las clases en lugar de enviar una guardia](#reorganizar-las-clases-en-lugar-de-enviar-una-guardia)), elige **Enviar un docente de guardia**. Después elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia ordinaria en esa franja (nunca los de guardia de WC o de patio, que son necesarios en su puesto), salvo los que también están ausentes. Junto a cada nombre se ve cuántas clases ha cubierto este curso, para poder elegir a quien menos haya cubierto.
+2. Si el diálogo ofrece reorganizaciones posibles (véase [Reorganizar las clases en lugar de enviar una guardia](#reorganizar-las-clases-en-lugar-de-enviar-una-guardia)), elige **Enviar un docente de guardia**. Después elige el **Docente de guardia**. Solo se ofrecen los docentes de guardia ordinaria durante la clase (nunca los de guardia de WC o de patio, que son necesarios en su puesto), salvo los que también están ausentes. Primero aparecen los que pueden cubrir toda la clase y después los que solo pueden cubrir una parte, con el tramo que cubrirían (consulta [Cubrir una clase entre varios docentes de guardia](#cubrir-una-clase-entre-varios-docentes-de-guardia)). Junto a cada nombre se ve cuántas clases ha cubierto este curso, para poder elegir a quien menos haya cubierto.
 3. Opcionalmente, escribe un **mensaje**: qué tiene que trabajar el alumnado, dónde están los materiales...
 4. Haz clic en **Asignar y avisar**.
 
@@ -152,9 +152,19 @@ Todo se hace desde la **Tabla de ausencias**, y nada ocurre solo: cada paso espe
 
 El docente de guardia recibe un mensaje de Odoo (en su bandeja de entrada o por correo, según su preferencia de notificaciones) con la fecha, la hora, el grupo, la asignatura, el aula, el docente ausente y tu mensaje. Si responde a ese correo, la respuesta te llega a ti.
 
-Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. Cuando varios docentes de guardia cubren clases en la misma franja, cada uno tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman su color.
+Entonces la clase queda tachada, aparece el nombre del docente de guardia, y la línea y la casilla del docente en la columna Guardia comparten el mismo color. El color es de la clase cubierta: cuando varios docentes de guardia cubren clases distintas a la misma hora, cada clase tiene su color, de modo que se ve de un vistazo quién cubre qué. Un docente de guardia puede cubrir más de una clase: todas toman el mismo color.
 
-Para cambiar el docente de guardia, haz clic en la línea y después en **Cambiar o quitar el docente de guardia** (solo lo ve quien organiza la ausencia), y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. **Quitar la asignación** saca al docente de la clase y le avisa.
+Para cambiar el docente de guardia, haz clic en la línea y después en **Cambiar o quitar el docente de guardia** (solo lo ve quien organiza la ausencia), y elige otro: al anterior se le comunica que ya no hace falta. Para enviar un mensaje nuevo al mismo docente, vuelve a elegirlo y haz clic en **Asignar y avisar**. Para sacar a un docente de la clase, haz clic en **Quitar la asignación** junto a su nombre, en la parte de arriba del diálogo: se le avisa.
+
+### Cubrir una clase entre varios docentes de guardia
+
+Cuando las áreas tienen horarios distintos, puede que ningún docente de guardia coincida con toda una clase. Por ejemplo, una clase de ESO de 10:25 a 11:25 y dos docentes de guardia de FP, uno de 10:00 a 11:00 y otro de 11:00 a 12:00. Entonces el diálogo también ofrece los que coinciden con una parte de la clase, con el tramo que cubrirían (*"… - 10:25-11:00, parte de la clase"*), y cada docente cubre exactamente ese tramo.
+
+Mientras falte una parte por cubrir, la línea no se tacha: muestra el docente con su tramo y una etiqueta roja discontinua con lo que falta (*"Falta 11:00-11:25"*), para que envíes a otro docente. Cuando entre todos cubren toda la clase, la línea se tacha.
+
+Todos los docentes que cubren la misma clase comparten su color. Un borde de puntitos (en la línea, en la etiqueta y en la casilla del docente) indica una cobertura parcial; un borde continuo, una clase cubierta entera.
+
+![Una clase cubierta en parte: el docente de guardia con su tramo y la parte que aún falta, con bordes de puntitos](../../assets/teachers/guard-duty-08-cobertura-parcial.png)
 
 ### Cubrir una guardia de WC o de patio
 

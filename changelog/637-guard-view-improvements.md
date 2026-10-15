@@ -9,6 +9,11 @@
 - The PDF prints the same layout as the screen, for both views; the layout is computed once on the server for both.
 - The areas' names (ESO / BTX, VET, ASP) get their Catalan and Spanish translations (ESO / BTX, FP, PAS), on new installations and by migration on existing ones, unless the centre already renamed them.
 
+## Partial guard cover (#637):
+- When no guard coincides with a whole class (the areas run different timetables), guards whose duty overlaps only part of it can each cover their part: the dialog offers whole-class guards first, then partial ones with the part they would cover, and each cover can be removed on its own. Guards can also take their own part of a class themselves.
+- A class still partly uncovered is not struck out and shows what is missing ("Missing 11:00-11:25"); it is struck out once its parts add up to the whole class. The PDF shows the same.
+- Colours now belong to the class covered: every guard covering one class shares its colour, across the whole shift, and two classes covered at the same time never share one. A dotted border marks a partial cover, a solid one a whole class.
+
 # Fixes
 
 ## Break guards offered against another area's lessons (#637):

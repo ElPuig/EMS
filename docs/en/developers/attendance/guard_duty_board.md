@@ -748,11 +748,25 @@ past while the board stayed open.
 `board_assign()` re-validates everything on the server: the user manages the absent teacher, the
 day is not over, the class still needs a guard (`_get_needed_absence_block()`: the teacher is away
 then, it is not co-taught, and it is outside every communicated window) and the guard is a
-candidate (`_get_guard_candidates()`: a regular guard duty overlapping the period - a WC or
-break guard is needed where they are, see "Guard duties that are not regular" -, not away, and not
-with a group through an internal arrangement then). Assigning someone else releases the
-previous guard; assigning the same guard again updates the message and re-sends it. One assigned
-guard per class (`_check_one_guard_per_class`), but one guard can cover several classes.
+candidate (`_get_guard_candidates()`, see below). Assigning someone else releases the previous
+guard of the part they cover; assigning the same guard again updates the message and re-sends it.
+One assigned guard per part of a class (`_check_one_guard_per_class` refuses two overlapping
+covers), but one guard can cover several classes.
+
+**Partial covers (issue #637).** With areas on different time frameworks, a guard's duty may only
+overlap part of a class (an ESO 10:25-11:25 lesson against a VET 10:00-11:00 guard). `_guard_spans()`
+gives each candidate the part they would cover: their regular guard duty (a WC or break guard is
+needed where they are, see "Guard duties that are not regular") clipped to the class, consecutive
+duties joined, the longest piece otherwise, dropping a guard away or with a group through an
+internal arrangement during it. It runs no query: the board calls it once per line with the
+shift's regular guard rows, absence intervals and covers it already holds (`line['guard_spans']`),
+and `_get_guard_candidates()` wraps it for the board actions with its own SQL-filtered search.
+`board_assign()` creates the cover for that part only (the server recomputes it, never trusting
+the client) and only withdraws the covers overlapping it, so several guards can each cover part of
+one class. A row carries `covers` (sorted) and `missing` (`_uncovered_periods()`, empty without any
+cover); it is resolved, struck out, only once nothing is missing, and arrangement options are only
+offered while no guard covers any of it. The dialog lists the whole-class candidates first, then the
+partial ones with their part, and every current cover with its own "Remove assignment".
 
 The guard is told through `message_notify()` on the cover (Odoo inbox or email, per their own
 notification preference), in their own language, with the date, time, group, subject, room, absent
@@ -817,13 +831,15 @@ notification, the release action's label and the dialog's title use. The duty-sp
 A teacher on guard duty may take a class still left without anybody themselves (#601), without
 being in the absent teacher's chain of command: `board_self_assign()` runs the same checks as
 `board_assign()` (`_check_board_assignable()`: day not over, class still needed, the current user's
-employee a guard candidate) and also refuses a class that already has a guard - changing someone
-else's assignment stays with the planner. Nobody is notified: the board shows it. The cover's
+employee a guard candidate) and also refuses a class whose part the guard would cover already has
+a guard - changing someone else's assignment stays with the planner. A guard whose duty only
+overlaps part of the class takes that part (issue #637). Nobody is notified: the board shows it. The cover's
 `assigned_by_id` is the guard's own user, which is what `is_self_assigned` (non-stored) reads.
 `board_self_release()` lets that same user leave it again, silently, and only a cover they took
 themselves: one a planner sent them to is the planner's to release. The planner can still change
 or release a self-assigned guard as any other. The board sends `can_self_assign` (the user is a
-candidate in the row, which is free and editable) and `can_self_release` per absence row; a
+candidate in the row and their part is free and editable), `self_label` (that part) and
+`self_cover_id` (the cover they took themselves, to leave it) per absence row; a
 manager's own dialog takes precedence when both apply.
 
 ### Internal arrangements (#605)
@@ -931,12 +947,23 @@ button; doing it automatically, behind a setting, is planned in
 
 ### Colours
 
-`_board_cover_colors()` gives each guard covering a class in a row its own colour index
-(`COVER_COLOR_COUNT` = 8, by guard name), shared by the guard's badge and every class they cover in
-that row: two guards covering at the same time never share a colour. The screen uses
-`o_guard_board_cover_N`, the PDF `gdb-cover-N`, with the same palette. This is the board's one
+`_board_cover_colors(lines)` gives colour indexes (`COVER_COLOR_COUNT` = 8) once for the whole
+shift, not per line (issue #637): a guard can cover part of a class on another line than their own
+guard block, and both must match. The colour belongs to the class covered (developer decision): every
+guard covering one class shares it, and a guard covering several classes joins them under one
+colour, since their badge can only have one (a union-find over classes and guards). Groups are
+coloured in time order, greedily: a group never takes the colour of another overlapping it in time -
+their classes, or the guard blocks their badges show in -, while one overlapping nobody may reuse a
+colour, so the palette only runs short with more groups at the same time than colours. The screen
+uses `o_guard_board_cover_N`, the PDF `gdb-cover-N`, with the same palette. This is the board's one
 deliberate use of background colour (see "No cell colouring" above): it pairs two things the
 planner must match at a glance, which plain text can't do.
+
+**Whole or partial: the border.** On top of the colour, a solid bar means a whole class covered and
+a thin dotted one a partial cover (`o_guard_board_cover_partial`/`gdb-cover-partial`): on the row
+while a part is still `missing`, on a guard's tag when their cover is partial, and on a guard's badge
+when any of their covers is (`line['partial_guard_ids']`, computed with the colours). Dotted and 2px
+rather than dashed: a 4px dashed bar draws as big blocks (developer feedback).
 
 ### Who can manage
 

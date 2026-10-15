@@ -53,14 +53,14 @@ That lists your area's requests, opening on **Waiting For Me**: the ones pending
 
 **Your side has two steps when the absence type requires a supporting document** (every type except `Health` and `ATRI`), because the document often only exists after the absence:
 
-1. **Received: pending documentation** (inbox icon in the list, or the **Actions** menu at the top of the form). You acknowledge the request without having seen the document yet. It becomes **Awaiting documentation** and the employee is asked for the document. If they had already attached it with the request, it goes straight to **Pending validation**.
+1. **Received: pending documentation** (inbox icon in the list, or at the top of the form). You acknowledge the request without having seen the document yet. It becomes **Awaiting documentation** and the employee is asked for the document. If they had already attached it with the request, it goes straight to **Pending validation**.
 2. When the employee attaches the document, the request comes back to you on its own as **Pending validation**. Open it, check the document and use **Validate documentation** (also a tick icon in the list). It then goes to Direction.
 
 If the document is not valid, **Documentation insufficient** asks you why (required) and sends the request back to the employee (Awaiting documentation) with a message that includes your reason. The employee also sees it at the top of the request until they attach a new document. If the new document is not valid either, the dialog opens with your previous reason so you can edit it; once you validate a document, the reason is cleared.
 
-**If the document is not going to arrive and is not needed**, while the request is **Awaiting documentation** use **Exempt from supporting document** (the **Actions** menu at the top of the form). It asks for confirmation, and the request goes on to Direction as if the document had been validated, but its status is **Waived**, so it is told apart from a document somebody checked. The employee stops receiving reminders and gets a message saying it is no longer required. Direction and the administrator can do it too, and it is undone like any other decision.
+**If the document is not going to arrive and is not needed**, while the request is **Awaiting documentation** use **Exempt from supporting document** (at the top of the form). It asks for confirmation, and the request goes on to Direction as if the document had been validated, but its status is **Waived**, so it is told apart from a document somebody checked. The employee stops receiving reminders and gets a message saying it is no longer required. Direction and the administrator can do it too, and it is undone like any other decision.
 
-For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list). A `Health` absence then goes straight to Direction. An `ATRI` one always stops first at **Pending ATRI confirmation**: the employee has to confirm they have requested it on the ATRI portal (**Actions > I confirm it is requested in ATRI**), and only then does it reach Direction. You validate first on purpose, because ATRI is often picked for what is not, and the other way round: correct the type before validating. The employee is reminded like for a missing supporting document, and you are told once if it stays unconfirmed a few days after the absence.
+For `Health` and `ATRI` there is a single step: **Validate** (the thumb in the list). A `Health` absence then goes straight to Direction. An `ATRI` one always stops first at **Pending ATRI confirmation**: the employee has to confirm they have requested it on the ATRI portal (**I confirm it is requested in ATRI**, at the top of the form), and only then does it reach Direction. You validate first on purpose, because ATRI is often picked for what is not, and the other way round: correct the type before validating. The employee is reminded like for a missing supporting document, and you are told once if it stays unconfirmed a few days after the absence.
 
 The cross refuses, at any of these steps. Once you decide from the form, you are taken back to the list.
 
@@ -108,7 +108,7 @@ Direction goes last: a request reaches you once its Head has validated it, toget
 
 **Employee Attendances > Absences > Management > Requested absences** opens on **Waiting For Me**: every absence **Pending Direction**, plus the Area Managers' own absences, which you handle as their Head (with the Head's buttons described above). Each one also leaves you an activity ("Direction review of the absence").
 
-Review them from the list with the icons beside **Direction status**, or open one and use the **Actions** menu at the top, which takes you back to the list once done:
+Review them from the list with the icons beside **Direction status**, or open one and use the actions at the top of the form, which takes you back to the list once done:
 
 | Icon | Button | Result |
 |---|---|---|
@@ -139,7 +139,7 @@ The search panel on the left filters by **Status**.
 
 ## Undoing a decision
 
-A decision taken by mistake is taken back with **Undo the last decision**: the arrow-back icon at the end of the row in the list, or the **Actions** menu at the top of the form. It asks for confirmation and goes back one step at a time:
+A decision taken by mistake is taken back with **Undo the last decision**: the arrow-back icon at the end of the row in the list, or at the top of the form. It asks for confirmation and goes back one step at a time:
 
 | Status | Undoing it leaves it |
 |---|---|

@@ -13,7 +13,7 @@
 ## Explorar els informes d'assistència
 
 1. Vés a **Assistència → Informes**. S'obre directament amb una **taula dinàmica** amb el filtre **Les meves assignatures** activat, que mostra només les assignatures que imparteixes. Treu aquest filtre (la **×** de la barra de cerca) per veure **tots els teus tutoritzats en totes les assignatures**, les imparteixi qui les imparteixi, juntament amb els teus alumnes.
-2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris.
+2. La taula agrupa per **assignatura i després per alumne**. Fes clic a la icona **Expandeix-ho tot** (a dalt a la dreta, al costat de Capgirar eixos) dues vegades: un cop per desplegar les assignatures i un altre per desplegar els alumnes de cada assignatura. El número principal és el **% de faltes per alumne** — el **Compte** (nombre de sessions comptabilitzades) i el **Recompte de strikes** es mostren al costat, així pots saber si un 33% surt de 3 sessions o de 30, i si ve acompanyat de strikes disciplinaris. Una assignatura que l'horari divideix en parts impartides per separat (el seu **tema**, per exemple l'Educació física d'un mòdul de CFGB) apareix com una assignatura pròpia, «Assignatura - Tema».
 
    ![Taula dinàmica dels informes d'assistència, desplegada per assignatura i alumne](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Fes servir la barra de cerca per filtrar més (per alumne, grup, assignatura o estat), i **Agrupa per** per canviar com es plega la taula. El grup és el de l'alumne en la data de cada sessió: una sessió compartida per diversos grups compta cada alumne només al seu grup.
@@ -34,27 +34,27 @@ Per consultar l'assistència d'un sol alumne, obre la seva fitxa i fes clic al b
 
 ## Imprimir un informe PDF
 
-A la pantalla d'**Informes d'assistència**, fes clic a la icona **⚙ (engranatge)** de la capçalera i tria **Imprimeix informe d'assistència**. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria.
+A la pantalla d'**Informes d'assistència**, fes clic al botó de la **impressora**, l'últim de la fila de damunt de la taula (al costat del de descàrrega), també a la vista de gràfic. També és al menú **⚙ (engranatge)**, com a **Imprimeix informe d'assistència**. Si la taula està filtrada per un alumne, un grup o una assignatura (a la barra de cerca), el formulari s'obre en aquell informe amb el filtre ja triat: des de la fitxa d'un alumne, per exemple, és l'informe d'aquest alumne. Al formulari, escull el **Tipus d'informe** — per grup, per alumne o per assignatura — i els camps s'adapten a la teva tria. Les llistes ofereixen exactament els alumnes, grups i assignatures que veus a la taula dinàmica (només el curs actual), i el PDF inclou les mateixes sessions que la taula.
 
 **Informe d'assistència (per grup):**
-1. Selecciona un **Grup** — el desplegable mostra els grups on imparteixes classe i els grups que tutories.
+1. Selecciona un **Grup** — el desplegable mostra els grups dels teus alumnes i dels teus tutoritzats.
 2. El **Tutor/a** i les dates **Des de**/**Fins a** es preomplen automàticament a partir del grup i del seu rang de sessions.
-3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Per a un grup que tutories inclou **totes les assignatures**, sigui qui sigui el docent de la sessió; per a la resta de grups, només les sessions que has impartit tu. Inclou l'alumnat del grup, segons el grup de cada alumne en la data de cada sessió.
+3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Per a un grup que tutories inclou **totes les assignatures**, sigui qui sigui el docent de la sessió; per a la resta de grups, només les assignatures que imparteixes. Inclou l'alumnat del grup, segons el grup de cada alumne en la data de cada sessió.
 
 **Informe d'assistència (per alumne):**
-1. Selecciona un **Alumne** — el desplegable mostra els alumnes matriculats en una assignatura que **imparteixes** i **tots els teus tutoritzats**, encara que no els imparteixis cap assignatura.
+1. Selecciona un **Alumne** — el desplegable mostra els alumnes als quals has passat llista a **les teves assignatures** i **tots els teus tutoritzats**, encara que no els imparteixis cap assignatura.
 2. El **Tutor/a** i les dates **Des de**/**Fins a** es preomplen automàticament a partir de l'alumne i del seu rang de sessions.
-3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Per als teus tutoritzats inclou **totes les assignatures**, sigui qui sigui el docent de la sessió; per a la resta d'alumnes, només les sessions que has impartit tu.
+3. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Per als teus tutoritzats inclou **totes les assignatures**, sigui qui sigui el docent de la sessió; per a la resta d'alumnes, només les assignatures que imparteixes.
 
    ![Formulari per imprimir l'informe d'assistència per alumne, amb un alumne tutorat seleccionat i el tutor i les dates emplenats](../../assets/tutors/tutor-informes-01-per-estudiant.png)
 
-El Cap de departament o de seminari, el Cap d'estudis que tens per sobre i el Director veuen el mateix que tu: els teus tutoritzats a la pantalla d'**Informes** i els informes PDF complets dels teus tutoritzats i dels grups que tutories.
+El Cap de departament o de seminari, el Cap d'estudis que tens per sobre i el Director veuen el mateix que tu: els teus tutoritzats a la pantalla d'**Informes** i els informes PDF complets dels teus tutoritzats i dels grups que tutories. El Cap de departament o de seminari del departament que gestiona l'estudi del teu grup, i el Cap d'estudis de la seva àrea, veuen a més tot l'alumnat d'aquest estudi.
 
 **Informe d'assistència (per assignatura):**
-1. Selecciona una **Assignatura** — el desplegable mostra les assignatures que imparteixes i totes les que s'imparteixen en un grup que tutories.
-2. El camp **Grups** es preomple automàticament amb tots els grups on imparteixes aquesta assignatura i els grups que tutories on s'imparteix, i **Tutors** mostra els seus tutors com a referència (aquí és on realment pots veure qui tutoritza cada grup — no cal triar el grup tu primer). Si només vols alguns d'aquests grups a l'informe, elimina la resta del camp **Grups** — es queda editable.
+1. Selecciona una **Assignatura** — el desplegable mostra les assignatures que imparteixes i totes les dels teus tutoritzats, cada tema com una assignatura pròpia.
+2. El camp **Grups** es preomple automàticament amb tots els grups dels alumnes que veus amb aquesta assignatura, i **Tutors** mostra els seus tutors com a referència (aquí és on realment pots veure qui tutoritza cada grup — no cal triar el grup tu primer). Si només vols alguns d'aquests grups a l'informe, elimina la resta del camp **Grups** — es queda editable.
 3. Les dates **Des de**/**Fins a** es preomplen automàticament per cobrir tot el rang de sessions de la teva selecció.
-4. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Per als grups que tutories inclou totes les sessions de l'assignatura, les hagi impartit qui les hagi impartit.
+4. Fes clic a **Imprimeix**. El PDF s'obre amb un resum global d'assistència/absència, un recompte per estat i les notes de sessió registrades durant el període. Per als teus tutoritzats inclou totes les sessions de l'assignatura, les hagi impartit qui les hagi impartit.
 
 **Per a qualsevol tipus d'informe**, dos controls governen el detall per línia al PDF:
 - **Estats de detall** — quins estats apareixen a les taules "Detalls". Per defecte només inclou estats

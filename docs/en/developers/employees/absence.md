@@ -188,7 +188,7 @@ the reader `is_absence_manager` or `is_absence_direction` - the status bar says 
 
 | Field | Values | Source |
 |---|---|---|
-| `ems_document_state` "Supporting document status" | Not required / Awaiting documentation / Pending validation / Validated | Set by `action_approve()` from the type and the attachments; moved by attaching the document and by the buttons |
+| `ems_document_state` "Supporting document status" | Not required / Awaiting documentation / Pending validation / Validated / Waived | Set by `action_approve()` from the type and the attachments; moved by attaching the document and by the buttons |
 | `ems_head_state` "Head status" | Pending / Awaiting documentation / Pending validation / Approved / Refused | Stored compute over Odoo's `state` and `ems_document_state` |
 | `ems_atri_state` "ATRI confirmation" | Not required / Pending ATRI confirmation / Confirmed by the employee | Set by `action_approve()` from the type; moved by the employee's confirmation and by Direction's "Not in ATRI" (see *ATRI absences wait for the employee's confirmation*) |
 | `ems_direction_state` "Direction status" | Pending / Done / Refused | Direction's buttons |
@@ -229,7 +229,19 @@ is also the note of their new "Attach the absence's supporting document" activit
 document is sent back again before it is validated, the dialog opens with the previous reason
 (`default_reason`) to edit. Validating the document (`action_ems_document_validate`) clears the
 reason, so a later send-back by Direction starts from an empty one; resetting the request clears
-it too. Who counts as the Head is `is_absence_head`: the
+it too.
+
+**Waiving the document (issue #634).** While a request is Awaiting documentation, "Exempt from
+supporting document" (`action_ems_document_waive`, an entry of the form's Actions dropdown,
+confirming first, no reason asked) lets it go on without one: `ems_document_state` becomes
+`waived`, never `validated`, so the list, the filters and the chatter's tracking keep telling a
+document nobody checked from one that was. From there it follows the circuit as a validated one
+would (Pending ATRI confirmation when it is an ATRI absence, then Pending Direction); the
+employee's "attach the document" activity is closed and they get a note saying the document is no
+longer needed. Who may waive it is the non-stored `ems_can_waive_document`, re-checked on the
+server: the Head (`is_absence_head`), Direction (`is_absence_direction`) and the administrator
+(`_ems_is_absence_admin()`). A reason the document had been sent back with is kept, so undoing the
+waiver shows it to the employee again. Who counts as the Head is `is_absence_head`: the
 employee's `leave_manager_id`, or an officer other than Direction - the same line
 `_compute_can_approve()` draws.
 
@@ -274,7 +286,9 @@ Head's email: the activity is scheduled with `mail_activity_quick_update`, which
 sending its own "assigned to you" email for the same thing. Both are company
 settings under Settings > Staff Absence Settings, with the same fallback-to-default helpers as the
 health allowance. The notes are `mail.mt_note` addressed to their recipients only, so the
-department chief and Direction following the request are not sent every reminder. Sending the
+Department Chief, the Seminar Chief and anyone else following the request are not sent every
+reminder. The escalation goes to whoever has the request in hand (`_ems_stage_users()`): the
+Head, or the Director when Direction sent an ATRI absence back. Sending the
 request back as insufficient resets both markers.
 
 **Upgrade.** `migrations/18.0.0.31.0/post-migrate.py` marks every request the Head had already
@@ -570,6 +584,7 @@ administrator account `res.users._ems_sync_time_off_groups()` leaves holding it.
 stateDiagram-v2
     Approved --> PendingDirection: undo (Direction)
     PendingDirection --> PendingValidation: undo (document had been validated)
+    PendingDirection --> AwaitingDocumentation: undo (document had been waived)
     PendingDirection --> Pending: undo (type requires no document)
     PendingValidation --> Pending: undo
     AwaitingDocumentation --> Pending: undo
@@ -581,7 +596,8 @@ stateDiagram-v2
 
 - **Forward decisions are undone by the sequence itself** (`_ems_undo()`): Approved clears
   Direction's check; Pending Direction puts the document back to `submitted` when it had been
-  validated; anything else left is the Head's acknowledgement, which goes back to Pending.
+  validated, and back to `awaiting` when it had been waived (from Pending ATRI confirmation
+  too); anything else left is the Head's acknowledgement, which goes back to Pending.
 - **A refusal, a cancellation and a document sent back are undone from what was kept.** Nothing
   in the request says where it stood before one of those, so `ems_decision_before` (Json) keeps
   the three `DECISION_FIELDS` (`state`, `ems_document_state`, `ems_direction_state`):
@@ -606,8 +622,10 @@ stateDiagram-v2
   `_ems_last_decision_is_directions()`); the administrator (`base.group_system`,
   `ems.group_academic_admin`) all of them. Nobody undoes a decision on their own absence unless
   they are Direction or the administrator.
-- **Who is told.** When Odoo's `state` changed (the absence went in or out of effect) the usual
-  summary is posted to everyone following the request (`_ems_post_outcome()`); otherwise a note
+- **Who is told.** When Odoo's `state` changed (the absence went in or out of effect) the employee
+  receives the usual summary (`_ems_post_outcome()`), and the Department Chief and the Seminar
+  Chief too when a refusal or cancellation is undone; whoever takes the request back gets "It is
+  now in your hands." (see "Who gets told"); otherwise a note
   goes to the employee alone with the new status.
 - **`action_reset_confirm()` is still overridden**, since undo goes through it: on its own
   Odoo's version only touches `state`, so the override also clears a Direction refusal, the
@@ -825,16 +843,59 @@ report. Nothing fails; the number is just wrong.
 
 ## Who gets told
 
-Most of this is Odoo's, and deliberately left alone:
+Three groups of people hear about a request, each for a different reason, and each only about
+what concerns them (issue #632):
+
+- **The employee's Department Chief and Seminar Chief** (`_ems_notify_partners()`) arrange the
+  guard duty that covers the absence. They are told it was filed, and afterwards only what
+  changes that cover: the absence will not take place (refused, cancelled, withdrawn), takes
+  place again (a refusal or cancellation undone) or moves (other dates or another type). Nothing
+  else, and they never follow the request.
+- **Whoever approves it** (the Head: the employee's Area Manager, i.e. the Head of Studies, the
+  Deputy Head of Studies or the Secretary, `_ems_head_users()`) takes it from its filing until
+  they validate it and pass it on to Direction.
+- **The Director** (`_ems_direction_users()`) takes it from then on, until it is closed.
+
+### The conversation follows the stage
+
+The request's followers are the employee and whoever has the request in hand at its current
+stage (`_ems_stage_users()`), and nobody else. A message written on the request ("Send message")
+therefore reaches only the other side of the conversation: the Head while the request is theirs,
+the Director once it is Direction's.
+
+| Status | In whose hands |
+|---|---|
+| Pending, Awaiting documentation, Pending validation | The Head |
+| Pending ATRI confirmation, after the Head's validation | The Head |
+| Pending ATRI confirmation, sent back by Direction (not in ATRI, or its ATRI documentation insufficient) | The Director: it is settled on the ATRI portal and goes straight back to Direction |
+| Pending Direction, Approved | The Director |
+| Refused, Cancelled | Unchanged: whoever had it when it was closed |
+
+When the Director finds the supporting document of a non-ATRI absence insufficient, the request
+goes back to "Awaiting documentation" and the new document is validated by the Head again, so it
+is back in the Head's hands. With no Director (none configured, or the Director is the absent
+employee), the Head keeps it throughout.
+
+`_ems_sync_followers()` applies this on every status change, from `_ems_update_activities()`
+(which `write()` runs whenever a decision field changes): it subscribes whoever now has the
+request and unsubscribes the Head or the Director who no longer does. Anybody else who chose to
+follow it, or who wrote on it (Odoo subscribes the author of a message), is left alone. Whoever
+newly takes the request receives the summary with "It is now in your hands." - unless they are
+the one who moved it there - and the activity Odoo would otherwise email them about is scheduled
+quietly (`mail_activity_quick_update`), so it is one email, not two.
+
+The chatter is not private: anyone with access to the request can read it. What changes is who
+receives each message.
+
+### What is sent, and when
 
 | When | Who | Mechanism |
 |---|---|---|
-| A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`). Its email is EMS's: the `activity_update()` override sends whoever the activity was just assigned to the summary (`_ems_summary()`) with "It is waiting for your approval.", as a note addressed to them alone, and stops Odoo's own (`mail_activity_quick_update`), which names the request and nothing else - no dates, no hours, not even the activity's note |
-| A request is sent | The **chiefs of the employee's own department**: its Department Chief and, when it has one, its Seminar Chief (`_ems_notify_partners()`) | EMS: `_ems_announce_request()`, called from `create()`, subscribes them and sends them the summary as a note addressed to them alone (the approver has their own email, the employee filed it; a chief who is also the approver gets the approver's only). From then on they follow the request and receive everything posted on it |
-| Approved or refused | The employee | Native message on the request |
-| Approved or refused | The employee's **own chiefs** | EMS: `_ems_inform_chiefs()` subscribes them just before the state change (they already follow requests filed through `_ems_announce_request()`; this covers older ones) |
-| Approved by the Head | **Direction** (the company's `director_id`) | EMS: `_ems_direction_partners()` subscribes it in `action_approve()` - its own review starts there. Not when the Director is the absent employee or is the one approving |
-| Approved or refused | Everyone following the request | EMS: `_ems_post_outcome()` posts the summary (`_ems_summary()`) - who, which type, the dates, the hours, and the overall status (`ems_status`, e.g. *Pending Direction*) |
+| A request is sent | The approver | Native activity scheduled on the request (`activity_update` → `_get_responsible_for_approval`), and the approver follows it (hr_holidays subscribes them). Its email is EMS's: the `activity_update()` override sends whoever the activity was just assigned to the summary (`_ems_summary()`) with "It is waiting for your approval.", as a note addressed to them alone, and stops Odoo's own (`mail_activity_quick_update`), which names the request and nothing else - no dates, no hours, not even the activity's note |
+| A request is sent | The Department Chief and the Seminar Chief | `_ems_announce_request()`, called from `create()`: the summary as a note addressed to them alone (a chief who is also the approver gets the approver's email only). They are not subscribed |
+| Approved, refused, or a decision undone that puts it in or out of effect | The employee | `_ems_post_outcome()`: the summary (`_ems_summary()`) - who, which type, the dates, the hours, and the overall status (`ems_status`, e.g. *Pending Direction*) - as a note addressed to them |
+| It reaches a new stage owner (e.g. Pending Direction) | The Director, or the Head when it comes back to them | `_ems_sync_followers()`: the summary with "It is now in your hands." |
+| Refused, cancelled, withdrawn (deleted while pending), reopened, or its dates or type changed | The Department Chief and the Seminar Chief | `_ems_inform_department()`, from `write()` (and `unlink()`, through `mail.thread.message_notify()`, since the request itself is gone): the summary under a line saying what changed |
 
 Odoo's own note on validation ("Your `<type>` planned on `<date>` has been accepted", with the
 type's full legal wording dropped mid-sentence and nothing else) is **suppressed** and replaced
@@ -846,22 +907,26 @@ calendar-meeting logic, so instead the note alone is stopped, through a context 
 
 **One email per person and event.** Nothing the system sends by itself reaches the same person
 twice for the same thing (issue #625); a comment somebody writes on the request is a separate
-email, and meant to be. Besides the two cases above (the approver's email and the escalation
-to the Head), `_track_subtype()` keeps the approval's tracking entry ("Status: Pending →
-Approved") a plain note: hr_holidays gives it the `mt_leave` subtype, which emailed every
-follower on top of the summary.
+email, and meant to be. Besides the cases above (the approver's email, the new stage owner's
+note and the escalation to the Head), `_track_subtype()` keeps the approval's tracking entry
+("Status: Pending → Approved") a plain note: hr_holidays gives it the `mt_leave` subtype, which
+emailed every follower on top of the summary.
 
-The department's chiefs are the one piece Odoo has no notion of. They are also the reason the
-Google form asked every employee which department they belonged to: purely to look up who to
-copy, the `Informat d'absencies` rows of its `Config` tab. EMS already knows the employee's
-chiefs, so the question left the form and the answer is derived. Neither chief is informed of
-their own absence.
+The Department Chief and the Seminar Chief are the one piece Odoo has no notion of. They are
+also the reason the Google form asked every employee which department they belonged to: purely
+to look up who to copy, the `Informat d'absencies` rows of its `Config` tab. EMS already knows
+them, so the question left the form and the answer is derived. Neither is informed of their own
+absence.
 
 They are **informed, not given access**: `private_name` still masks the written reason for
 anyone who is not the employee, their approver or an officer, and the summary leaves it out. A
-chief learns that a colleague is away and of what kind - what covering a department needs -
-without the reason behind it. As followers, though, they do receive anything posted on the
-request's chatter, the same as everyone else following it.
+Department Chief learns that a colleague is away and of what kind - what covering a department
+needs - without the reason behind it.
+
+**Upgrade.** Requests filed before issue #632 had the Department Chief, the Seminar Chief and the
+Director as followers from the start. The upgrade's post-migration (`_ems_reset_followers()`)
+unsubscribes the Department Chief and the Seminar Chief from every request, unless they have it
+in hand, and applies the stage rule above to every request that is not refused or cancelled.
 
 Mail leaves through the company's configured server, which is the other half of what this
 replaces: the Apps Script sent from the personal Google account of whoever last ran its
@@ -956,7 +1021,7 @@ it back from the list row with its reason).
 The Head or Direction can correct what the employee filed - above all the absence type, which
 employees get wrong often. The employee is told what was changed together with the next decision
 on the request, and whoever decides can add an explanation that reaches the employee alone (not
-the chatter, which every follower reads: the department's chiefs, Direction).
+the chatter, which anyone with access to the request can read).
 
 ```mermaid
 sequenceDiagram
@@ -1087,9 +1152,9 @@ through the same `write()`, which also clears the technical attendances they had
 | Group | `hr.leave` records visible | Reason and attachment | Can |
 |---|---|---|---|
 | Any employee | Own requests; colleagues' via the native calendar/dashboard | Own only — `private_name` renders as `*****` for everyone else | Create, edit and cancel their own while unapproved; file the supporting document at any time, approved included |
-| Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse, undo their own decisions |
-| Head of Studies, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, undo the Head's decisions (the academic admin, as administrator, also Direction's), manage the catalogue |
-| Director (`ems.group_director`, implies the row above) | All, centre-wide | Yes | Direction's own approval (done / documentation insufficient / refuse) on any request the Head has validated; undo any decision, the Head's included; acknowledge/validate/refuse as the Head only where it is the employee's `leave_manager_id` (screens only, see *The approval, step by step*) |
+| Area Manager (`hr_holidays.group_hr_holidays_responsible`) | Only employees whose `leave_manager_id` is them, via the native rule `[('employee_id.leave_manager_id', '=', user.id)]` | Yes, for those employees | Approve, refuse, waive a supporting document, undo their own decisions |
+| Head of Studies, academic admin (`hr_holidays.group_hr_holidays_user`) | All, centre-wide | Yes | Approve, refuse, waive a supporting document, undo the Head's decisions (the academic admin, as administrator, also Direction's), manage the catalogue |
+| Director (`ems.group_director`, implies the row above) | All, centre-wide | Yes | Direction's own approval (done / documentation insufficient / refuse) on any request the Head has validated; waive the supporting document of any request awaiting it; undo any decision, the Head's included; acknowledge/validate/refuse as the Head only where it is the employee's `leave_manager_id` (screens only, see *The approval, step by step*) |
 
 Two native mechanisms carry most of this:
 

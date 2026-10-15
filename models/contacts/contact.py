@@ -658,6 +658,13 @@ class ResPartner(models.Model):
         action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
         return action
 
+    def action_title_register_wizard(self):
+        """Register a title obtained by the student in its academic history (issue #635)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_title_register_wizard')
+        action['context'] = {'default_student_id': self.id}
+        return action
+
     def action_suggest_destination_group(self):
         """Fill the destination group on the selected students' next-course
         enrollments that still have none. Students without an enrollment are
@@ -1253,6 +1260,41 @@ class ResPartner(models.Model):
             # over the mail template / queue job. Guarded internally by
             # google_ws_enabled and student_email.
             partner.sudo()._gw_schedule_deactivation()
+
+    def _ems_cancel_pending_enrollments(self):
+        """Cancel the draft/sent enrollments of students leaving the centre. A confirmed one
+        is kept: it is what a withdrawal registered by mistake is undone from."""
+        orders = self.env['sale.order'].search([
+            ('partner_id', 'in', self.ids), ('state', 'in', ['draft', 'sent'])])
+        if orders:
+            orders.sudo()._action_cancel()
+
+    def _ems_leave_centre(self, kind=None):
+        """The steps every exit shares once the academic history is frozen: the withdrawal
+        wizard and a title registered for a student with no group (issue #635).
+
+        Deletes the operational records, converts the student (see
+        _ems_convert_to_ex_student() for `kind`), revokes the portal and archives the contact.
+        Returns {'revoked': int, 'skipped': int, 'issues': [str]} for the caller's summary.
+        """
+        self.ensure_one()
+        # Must run BEFORE the conversion, which detaches the student from its group.
+        self._ems_clear_operational_records()
+        self._ems_convert_to_ex_student(kind=kind)
+        # Student + families without another enrolled child.
+        summary = self._ems_revoke_student_portal()
+        issues = list(summary['issues'])
+        # Archive last, mirroring hr.employee (archiving an employee registers its departure):
+        # res.partner.write() refuses to archive a contact still linked to an active portal
+        # user. If the revoke failed (logged in issues instead of raising, so a batch is not
+        # aborted), skip the archive rather than let that guard roll back the whole batch.
+        if self._has_active_portal_user():
+            issues.append(_("%(student)s: portal access could not be revoked, kept active",
+                            student=self.display_name))
+        else:
+            self.write({'active': False})
+        return {'revoked': len(summary['revoked']), 'skipped': len(summary['skipped']),
+                'issues': issues}
 
     def _ems_clear_operational_records(self):
         """Delete the operational records of a student leaving the centre.

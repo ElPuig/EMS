@@ -24,6 +24,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [Asistencia a reuniones con la tarjeta NFC](meeting-attendance.md) — Crear la sesión de una reunión (claustro, departamento, formación), poner el quiosco en la entrada, marcar a las personas presentes e imprimir el PDF.
 - [Revisar los documentos del alumnado](student-documents.md) — Aprobar, rechazar o reabrir tramitaciones de DNI/tarjeta sanitaria/IBAN/beneficios, y qué hace cada decisión por detrás.
 - [Marcar una graduación y tramitar una baja](graduation-withdrawal.md) — La diferencia entre la marca diferida de graduación y una baja inmediata, y toda la cascada de la baja paso a paso.
+- [Registrar los títulos obtenidos](titles.md) — Importar los títulos de un curso desde el listado de solicitudes de título de Esfera, o registrar el título de un alumno, y qué hace con cada alumno.
 - [Importar alumnado desde Esfera (SAGA)](student-import-esfera.md) — Actualizar masivamente los datos del alumnado ya matriculado (no confundir con la importación de preinscripción GEDAC), qué se hace coincidir/crea, y las limitaciones conocidas de deduplicación.
 - [Actualizar datos del alumnado desde un CSV](student-update-csv.md) — Actualización masiva genérica, de cualquier formato CSV, para alumnado existente (nunca crea uno), con columnas mapeables y actualización opcional de la cuenta bancaria.
 - [Aprobar las ausencias del personal PAS](absences.md) — Quién aprueba las ausencias del área ASP y en qué se diferencia de jefatura de estudios.

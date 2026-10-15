@@ -22,7 +22,7 @@ Pertenecer a secretaría no da ese permiso: el resto del equipo pide sus ausenci
 
 Ahí salen solo las solicitudes de tu área, en estado **Pendiente** mientras esperan que las des por recibidas.
 
-Cuando el tipo de ausencia exige justificante (todos menos `Salud` y `ATRI`), tu parte tiene dos pasos: primero **Recibida: pendiente de documentación**, y **Validar documentación** cuando la persona ha adjuntado el justificante (la solicitud vuelve sola a ti). Si el justificante no es válido, **Documentación insuficiente** lo devuelve a la persona, con el motivo que escribas. Para `Salud` y `ATRI`, un solo **Validar**. Una ausencia `ATRI` espera después a que la persona confirme que está solicitada en ATRI antes de llegar a Dirección.
+Cuando el tipo de ausencia exige justificante (todos menos `Salud` y `ATRI`), tu parte tiene dos pasos: primero **Recibida: pendiente de documentación**, y **Validar documentación** cuando la persona ha adjuntado el justificante (la solicitud vuelve sola a ti). Si el justificante no es válido, **Documentación insuficiente** lo devuelve a la persona, con el motivo que escribas. Si el justificante no llegará y no hace falta, **Eximir del justificante** (menú **Acciones** del formulario) deja continuar la solicitud sin él. Para `Salud` y `ATRI`, un solo **Validar**. Una ausencia `ATRI` espera después a que la persona confirme que está solicitada en ATRI antes de llegar a Dirección.
 
 ![Lista de ausencias, con las acciones Aprobar/Rechazar en una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
 

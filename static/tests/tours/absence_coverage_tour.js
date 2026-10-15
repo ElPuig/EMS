@@ -7,6 +7,9 @@ import { registry } from "@web/core/registry";
 // the two lessons left without a teacher (the row takes the guard's colour and is struck out),
 // sees the timetable change the remaining empty first lesson allows, and proposes it, landing on
 // its draft notice. Seed data comes from TestAbsenceCoverageTour (tests/test_absence_coverage_tour.py).
+// The board's URL when the notice was opened, to know when the form has replaced it.
+let boardUrl = "";
+
 registry.category("web_tour.tours").add("ems_absence_coverage", {
     test: true,
     url: "/odoo/action-ems.action_guard_duty_board",
@@ -131,12 +134,22 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
         {
             trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_button",
             content: "Open the draft notice again",
-            run: "click",
+            run: (helpers) => {
+                boardUrl = window.location.href;
+                return helpers.click();
+            },
         },
         {
             trigger: ".o_form_view .alert-info:contains('TABTG')",
             content: "The draft notice is open",
-            run: () => window.history.back(),
+            // Only once the router has pushed the form's URL: going back any earlier leaves the
+            // browser on the form, which then pushes its URL on top of the board's.
+            run: async () => {
+                while (window.location.href === boardUrl) {
+                    await new Promise((resolve) => setTimeout(resolve, 50));
+                }
+                window.history.back();
+            },
         },
         {
             trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_button",

@@ -39,6 +39,8 @@ Ningú aprova la seva pròpia absència: la d'un responsable d'àrea la resol Di
 
 Quan algú de la teva àrea envia una sol·licitud reps un correu amb la persona, el tipus d'absència, les dates i les hores, per poder organitzar-ne la cobertura, i la sol·licitud queda a les teves activitats.
 
+**Missatges a la sol·licitud.** Mentre una sol·licitud és a les teves mans, tu i la persona en sou els únics seguidors: el que qualsevol dels dos escrigui a l'historial de missatges (**Envia un missatge**) arriba a l'altre i a ningú més. El cap de departament i el cap de seminari no en són seguidors: reben l'avís de la sol·licitud i, després, només el que canvia la cobertura (rebutjada, cancel·lada, altres dates o un altre tipus). Un cop la valides i arriba a Direcció, la directora o el director en passa a ser seguidor en lloc teu. Si Direcció retorna el justificant, o desfà fins a un dels teus passos, la sol·licitud torna a ser a les teves mans i reps un correu que t'ho diu. Una absència ATRI que Direcció retorna perquè no consta a ATRI (o perquè la documentació d'ATRI no és suficient) es queda amb Direcció, ja que la persona ho resol al portal.
+
 **Assistència del personal > Absències > Administració > Absències sol·licitades**.
 
 Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les que esperen que les donis per rebudes i les que tenen un justificant que has de validar. Cada absència passa primer per tu i després per Direcció, i el llistat té una columna per a cadascú:
@@ -56,11 +58,13 @@ Hi tens les sol·licituds de la teva àrea, i s'obre amb **Pendent de mi**: les 
 
 Si el justificant no és vàlid, **Documentació insuficient** et demana el motiu (obligatori) i torna la sol·licitud a la persona (En espera de documentació) amb un missatge que l'inclou. La persona també el veu a dalt de la sol·licitud fins que adjunta un justificant nou. Si el nou tampoc no és vàlid, el diàleg s'obre amb el motiu anterior perquè el puguis modificar; quan valides un justificant, el motiu s'esborra.
 
+**Si el justificant no arribarà i no cal**, mentre la sol·licitud és **En espera de documentació** fes servir **Eximir del justificant** (menú **Accions** de dalt del formulari). Demana confirmació i la sol·licitud continua cap a Direcció com si s'hagués validat el justificant, però el seu estat queda com a **Eximit**, per distingir-lo d'un justificant revisat. La persona deixa de rebre recordatoris i rep un missatge que li diu que ja no cal. Direcció i l'administrador també ho poden fer, i es desfà com qualsevol altra decisió.
+
 Per a `Salut` i `ATRI` hi ha un sol pas: **Validar** (el polze al llistat). Una absència de `Salut` passa llavors directament a Direcció. Una `ATRI` s'atura sempre abans a **Pendent de confirmar ATRI**: la persona ha de confirmar que l'ha sol·licitada al portal ATRI (**Accions > Confirmo que està sol·licitada a ATRI**), i només llavors arriba a Direcció. Valides tu primer expressament, perquè sovint es tria ATRI per al que no ho és, i a l'inrevés: corregeix el tipus abans de validar. A la persona se li recorda igual que amb un justificant pendent, i a tu se t'avisa un cop si continua sense confirmar al cap d'uns dies de l'absència.
 
 La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formulari, tornes al llistat.
 
-**Rebutjar demana abans el motiu.** S'obre un quadre de diàleg amb un quadre per al motiu del rebuig, que és opcional: el que hi escriguis s'envia només a la persona (no als caps de departament ni a la resta de seguidors de la sol·licitud) i queda a dalt de la sol·licitud, en vermell, mentre estigui rebutjada. Confirma amb **Rebutja**, o cancel·la per deixar la sol·licitud com estava.
+**Rebutjar demana abans el motiu.** S'obre un quadre de diàleg amb un quadre per al motiu del rebuig, que és opcional: el que hi escriguis s'envia només a la persona (no al cap de departament, ni al cap de seminari, ni a ningú més) i queda a dalt de la sol·licitud, en vermell, mentre estigui rebutjada. Confirma amb **Rebutja**, o cancel·la per deixar la sol·licitud com estava.
 
 ![Quadre de diàleg per rebutjar una sol·licitud d'absència, amb el quadre per al motiu](../../assets/head_of_studies/hos-absences-refuse.png)
 
@@ -88,7 +92,7 @@ Un camp del formulari, que pots canviar en qualsevol moment:
 
 També pots corregir el **tipus d'absència** quan la persona n'hagi triat un que no correspon, mentre la sol·licitud està pendent (o rebutjada o cancel·lada). Una sol·licitud aprovada ja no es pot canviar: primer [desfés l'aprovació](#desfer-una-decisió), corregeix-la i torna-la a validar.
 
-**La persona s'assabenta del que canvies.** Quan tu (o Direcció) canvies el tipus d'absència, les dates o les hores d'una sol·licitud que ha presentat una altra persona, la següent vegada que decideixes sobre ella (rebre-la, validar-la, retornar el justificant, rebutjar-la) un quadre de diàleg mostra els canvis i et permet escriure un missatge per a qui l'ha sol·licitat. Si el deixes en blanc, només se l'informa dels canvis realitzats. En tots dos casos l'avís arriba únicament a qui l'ha sol·licitat, no als caps de departament ni a la resta de seguidors de la sol·licitud. En una sol·licitud ja rebutjada o cancel·lada, se l'avisa tan bon punt deses el canvi.
+**La persona s'assabenta del que canvies.** Quan tu (o Direcció) canvies el tipus d'absència, les dates o les hores d'una sol·licitud que ha presentat una altra persona, la següent vegada que decideixes sobre ella (rebre-la, validar-la, retornar el justificant, rebutjar-la) un quadre de diàleg mostra els canvis i et permet escriure un missatge per a qui l'ha sol·licitat. Si el deixes en blanc, només se l'informa dels canvis realitzats. En tots dos casos l'avís arriba únicament a qui l'ha sol·licitat, no al cap de departament, ni al cap de seminari, ni a ningú més. En una sol·licitud ja rebutjada o cancel·lada, se l'avisa tan bon punt deses el canvi.
 
 ![Quadre de diàleg amb els canvis realitzats a la sol·licitud i el quadre per al missatge al sol·licitant](../../assets/head_of_studies/hos-absences-change-message.png)
 
@@ -112,7 +116,7 @@ Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o ob
 | Fletxa enrere | **Desfés l'última decisió** | Torna a l'estat anterior, vegeu [Desfer una decisió](#desfer-una-decisió) |
 | Creu | **Rebutja** | Rebutjat. Rebutja tota la sol·licitud, i demana confirmació abans |
 
-Quan un cap dona per rebuda una absència, en reps el resum com a seguidor.
+Quan una absència arriba a Direcció (Pendent Direcció) reps un correu amb el resum, i a partir d'aleshores en ets seguidor en lloc del cap d'estudis: els missatges que s'hi escriguin us arriben a tu i a la persona, i a ningú més.
 
 **Estat**:
 
@@ -138,7 +142,7 @@ Una decisió presa per error es desfà amb **Desfés l'última decisió**: la ic
 | Estat | En desfer queda en |
 |---|---|
 | Aprovat | Pendent de Direcció |
-| Pendent de Direcció | Pendent de validació, o Pendent si el tipus no exigeix justificant |
+| Pendent de Direcció | Pendent de validació, En espera de documentació si s'havia eximit del justificant, o Pendent si el tipus no exigeix justificant |
 | Pendent de validació, En espera de documentació | Pendent |
 | Pendent de confirmar ATRI | Pendent, o Pendent de Direcció si Direcció l'havia retornat per no constar a ATRI |
 | Rebutjat, Cancel·lat | L'estat que tenia just abans |

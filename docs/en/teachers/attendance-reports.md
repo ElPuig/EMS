@@ -20,7 +20,9 @@ yourself, plus 3 printable PDF reports (by group, by student, by subject) reacha
    axis) twice: once to unfold the subjects, once more to unfold each subject's students. The main number
    is the **% of absences per student** — **Count** (number of sessions counted) and **Strike count** are
    shown alongside it, so you can tell whether a 33% comes from 3 sessions or from 30, and whether it comes
-   with disciplinary strikes attached.
+   with disciplinary strikes attached. A subject your schedule splits into parts taught apart (its
+   **topic**, e.g. the Physical Education of a CFGB module) is listed as a subject of its own, as
+   "Subject - Topic".
 
    ![Attendance reports pivot table, expanded by subject and student](../../assets/teachers/informes-01-taula-dinamica.png)
 3. Use the search bar to filter further (by student, group, subject or status), and **Group By** to change
@@ -45,32 +47,36 @@ To look at a single student's attendance, open their file and click the **Attend
 
 ## Printing a PDF Report
 
-On the **Attendance reports** screen, click the **⚙ (gear)** icon in the header and choose **Print attendance
-report**. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
-to your choice.
+On the **Attendance reports** screen, click the **printer** button, the last one in the row above the table
+(next to the download one), also in the graph view. It's also in the **⚙ (gear)** menu, as **Print attendance
+report**. If the table is filtered on a student, a group or a subject (in the search bar), the form opens on
+that report with it already selected: from a student's file, for instance, it's that student's report. In the form, pick the **Report type** — by group, by student, or by subject — and the fields adapt
+to your choice. The lists offer exactly the students, groups and subjects you see on the pivot table
+(current course only), and the PDF covers the same sessions as the table.
 
 ![Print attendance report form, with a group selected and the fields filled in](../../assets/teachers/informes-02-imprimir.png)
 
 **Attendance report (by group):**
-1. Pick a **Group** — the dropdown only shows the groups **you actually teach**; if a group you expect is
-   missing, check that you're assigned to it in your teaching schedule.
+1. Pick a **Group** — the dropdown shows the groups of the students you've taken the roll-call of in your
+   subjects. A roll-call taken on guard duty belongs to the subject's own teacher, not to you.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the group and its full session
    range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
    session notes recorded for the period. It covers the group's students, in the group each one belonged to on the date of each session.
 
 **Attendance report (by student):**
-1. Pick a **Student** — the dropdown only shows students enrolled in a subject **you actually teach**; if a
-   student you expect is missing, check that you're assigned to their subject in your teaching schedule.
+1. Pick a **Student** — the dropdown shows the students you've taken the roll-call of in your subjects.
 2. The **Tutor** and the **From**/**To** dates fill in automatically from the student and their full
    session range.
 3. Click **Print**. The PDF opens with an overall assistance/absence breakdown, a per-status count, and any
-   session notes recorded for the period. It only includes **the sessions you taught** that student. If you
-   are the student's tutor, it includes every subject instead (see the tutors' manual).
+   session notes recorded for the period. It only includes **the subjects you teach** that student, including
+   a roll-call a colleague took on guard duty in your subject (one you took on guard duty in someone else's
+   subject is theirs). If you are the student's tutor, it includes every subject instead (see the tutors'
+   manual).
 
 **Attendance report (by subject):**
-1. Pick a **Subject** — the dropdown only shows subjects **you actually teach**.
-2. The **Groups** field fills in automatically with every group where you teach that subject, and
+1. Pick a **Subject** — the dropdown shows the subjects you teach, each topic as a subject of its own.
+2. The **Groups** field fills in automatically with every group whose students have that subject, and
    **Tutors** shows their tutors for reference. If you only want some of those groups in the report,
    remove the others from the **Groups** field — it stays editable.
 3. The **From**/**To** dates fill in automatically to cover the full session range for your selection.

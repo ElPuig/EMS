@@ -92,6 +92,8 @@ En el caso de consulta médica, el justificante debe hacer constar expresamente 
 
 Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje con el motivo. El motivo también aparece arriba de la solicitud hasta que adjuntas un justificante nuevo: adjunta uno válido de la misma manera.
 
+Si tu jefe decide que el justificante no hace falta, puede eximirlo: la solicitud continúa hacia Dirección, dejas de recibir recordatorios y recibes un mensaje que te lo dice.
+
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 
 ---
@@ -108,7 +110,9 @@ El botón está desactivado mientras falte algo. Pasa el ratón por encima y te 
 
 Si sales del formulario sin enviarlo, EMS te avisa y te deja descartarlo.
 
-Al enviarla, tu jefe de departamento y, si tu departamento lo tiene, tu jefe de seminario reciben un correo con el tipo de ausencia, las fechas y las horas, pero no el motivo. A partir de entonces son seguidores de la solicitud, así que también reciben todo lo que se escriba en su historial de mensajes.
+Al enviarla, tu jefe de departamento y, si tu departamento lo tiene, tu jefe de seminario reciben un correo con el tipo de ausencia, las fechas y las horas, pero no el motivo, para que puedan organizar las guardias que te cubran. Después solo vuelven a saber de ella si la ausencia no se producirá (rechazada, cancelada o borrada mientras aún estaba pendiente), si vuelve a seguir adelante o si cambian sus fechas o su tipo.
+
+**Mensajes en la solicitud.** Lo que escribas en el historial de mensajes de la solicitud (**Enviar mensaje**) llega a quien la tiene en sus manos y a nadie más: tu jefe (jefe de estudios adjunto, jefe de estudios o secretario/a) hasta que la valida y la pasa a Dirección, y la directora o el director a partir de entonces. Sus respuestas te llegan igual.
 
 ---
 

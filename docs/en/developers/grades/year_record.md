@@ -8,7 +8,7 @@ The record is a **frozen copy** of the grades subsystem output — never recalcu
 
 This model replaces the legacy, unused `ems.grade_outcome` (removed in this same issue).
 
-**Module files:** `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/external_record_wizard.py`, `models/grades/academic_record_pdf.py`, `models/contacts/contact.py` (O2m + history tab), `models/contacts/graduation_wizard.py` (withdrawal wizard generates the record), `views/planning_grading/grading/year_record/{form,list,search,menu,grade_review_wizard,external_record_wizard}.xml`, `views/community/contact/form.xml`, `security/rules/grading.xml`, `security/ir.model.access.csv`, `tests/test_year_record.py`, `tests/test_grade_review.py`, `tests/test_grade_review_tour.py`, `tests/test_external_record.py`, `tests/test_external_record_tour.py`
+**Module files:** `models/grades/year_record.py`, `models/grades/grade_review_wizard.py`, `models/grades/external_record_wizard.py`, `models/grades/academic_record_pdf.py`, `models/contacts/contact.py` (O2m + history tab), `models/contacts/graduation_wizard.py` (withdrawal wizard generates the record), `models/grades/title_import_wizard.py`, `views/planning_grading/grading/year_record/{form,list,search,menu,grade_review_wizard,external_record_wizard,title_wizards}.xml`, `views/community/contact/form.xml`, `security/rules/grading.xml`, `security/ir.model.access.csv`, `tests/test_year_record.py`, `tests/test_grade_review.py`, `tests/test_grade_review_tour.py`, `tests/test_external_record.py`, `tests/test_external_record_tour.py`, `tests/test_title_registration.py`, `tests/test_title_registration_tour.py`
 
 ## Hierarchy and relations
 
@@ -232,13 +232,37 @@ flowchart LR
 - **The rest of EMS leaves it alone:** `_generate_one()` returns an external record untouched, and `ems.convalidation._compute_has_centre_title` only counts it when its origin centre is this one (`res.company.center_code`): a title obtained elsewhere is not a title of this centre, one granted here before EMS is.
 - **Traceability:** the creation is logged in the student's chatter (centre, code, notes, author); every module added is stamped and logged like any grade review.
 
+## Titles obtained (issue #635)
+
+`title_obtained` is the per-course record of a title. The transition writes it for VET graduates; ESO and Batxillerat titles (whose grades EMS does not hold) are registered afterwards, from Esfera's list of title requests or by hand. Wherever it is ticked, the title carries over to the student through `_ems_register_title()`, called from `create()`/`write()` whenever the flag goes from false to true:
+
+```mermaid
+flowchart TD
+    A["title_obtained: False -> True<br/>(record form, Register title wizard, title import)"] --> B{"context<br/>ems_skip_title_effects?"}
+    B -- yes --> Z["nothing (generator, or a wizard<br/>that runs it itself for its summary)"]
+    B -- no --> C["academic_result = 'full' if empty<br/>student.has_graduated = True"]
+    C --> D{"_ems_title_effect()"}
+    D -- "'alumni': contact_type withdrawal" --> E["contact_type = 'alumni'<br/>(exit data of the withdrawal kept)"]
+    D -- "'graduate': active student, no main_group_id" --> F["exit_type 'graduation', exit_course = record's course,<br/>exit_date = today (student and record)"]
+    F --> G["_ems_cancel_pending_enrollments()<br/>_ems_leave_centre()<br/>(same steps as a withdrawal, history not regenerated)"]
+    D -- "'title': still in a group, alumni, expelled" --> H["only the mark"]
+```
+
+- **The generator never triggers it:** `_generate_one()` writes through `with_context(ems_skip_title_effects=True)`. The title it writes belongs to a graduation the transition or the withdrawal is already processing, and the student still has its group at that point.
+- **Unticking undoes nothing:** `has_graduated` is permanent (see [exit_wizards.md](../contacts/exit_wizards.md)).
+- **No history regeneration on the way out:** a student with no group has nothing to regenerate from (`_generate_one()` would return the existing record untouched anyway), so the graduate exit calls `res.partner._ems_leave_centre()` directly, the part of the withdrawal cascade that follows the history freeze.
+- **Two entry points**, both in `models/grades/title_import_wizard.py`, sharing `_register_titles()` (write with the skip context, then one `_ems_register_title()` call whose summary feeds the result):
+  - `ems.title_import_wizard` (**Planning and Grading → Grades → Import titles**): reads a CSV (UTF-8, or Windows-1252 as Esfera exports it; delimiter sniffed among `;`, `,` and tab) or an xlsx (every sheet). The only required column is the student identifier (`Identificador de l'alumne/a` or `IDALU`, matched normalized, Spanish aliases accepted). Optional columns: `Curs` (rows of another course are left out), `Estat de la sol·licitud` (a student counts only with at least one request whose status does not contain "anul") and the name columns (shown for students missing from EMS). The course comes from the wizard, defaulting to the course before the company's current one. `action_preview()` builds one line per identifier with its `outcome`; `action_apply()` registers the lines whose outcome is one of `TITLE_EFFECTS`, one record at a time so the CSV log (`log_file`, downloaded on its own by the `auto_download_binary` widget, like the other imports) says what happened to each row; the wizard stays open with a summary (`result_html`). Both buttons run behind the blocking overlay of `blocking_action_form.js` (`ems_title_import_wizard_form`).
+  - `ems.title_register_wizard`, opened from the student form (**Actions → Register title**, `res.partner.action_title_register_wizard()`, shown for `student`/`withdrawal` contacts): picks the course among those of its non-provisional records without a title (the latest by default), resolves the record from it and shows its effect before applying.
+- **Access:** both wizards are granted to `group_academic_admin` and `group_secretary` only, the roles with write access on the record. The effects run as the operator, like the withdrawal wizard: the steps that need more (`_ems_cancel_pending_enrollments`, the portal revoke, the Google suspension) elevate themselves.
+
 ## CRUD flow
 
 | Operation | Who | How |
 |-----------|-----|-----|
 | Create | Generator (withdrawal wizard, transition wizard); a course taken at another centre through `ems.external_record_wizard` | `generate_for_students()`; `action_create()` |
 | Read | Tab "Academic history" on the contact form (student/alumni/withdrawal); standalone list under Planning and Grading | — |
-| Update | Admin (and the secretariat, pre-existing) directly on the record; Head of Studies / Director and teachers are read-only. Grade corrections of every role go through the grade review wizard | Idempotent replace of copied children on re-generation |
+| Update | Admin (and the secretariat, pre-existing) directly on the record, and the title through the title wizards (see above); Head of Studies / Director and teachers are read-only. Grade corrections of every role go through the grade review wizard | Idempotent replace of copied children on re-generation |
 | Delete | Record: admin only (a wrongly generated record). Subject line: through the grade review wizard | — |
 
 ### The grade review wizard is the only door to a closed history

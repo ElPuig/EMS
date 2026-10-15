@@ -203,6 +203,7 @@ from . import test_strike_reason
 from . import test_minute
 from . import test_notice
 from . import test_notice_tour
+from . import test_notice_hierarchy_tour
 from . import test_limesurvey_api
 from . import test_limesurvey_orchestration
 from . import test_limesurvey_header
@@ -249,3 +250,5 @@ from . import test_dev_mail_guard
 from . import test_employee_presence_tour
 from . import test_student_chatter_replies
 from . import test_mail_reply_to
+from . import test_title_registration
+from . import test_title_registration_tour

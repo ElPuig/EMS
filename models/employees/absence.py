@@ -250,11 +250,13 @@ class EmsAbsenceLeave(models.Model):
             ('awaiting', 'Awaiting documentation'),
             ('submitted', 'Pending validation'),
             ('validated', 'Validated'),
+            ('waived', 'Waived'),
         ],
         copy=False, tracking=True, readonly=True,
         help="Set when the Head acknowledges the request: absence types that require a "
              "supporting document wait for it, and attaching it sends the request back to the "
-             "Head for validation.")
+             "Head for validation. Waived: the Head or Direction let the request go on without "
+             "it.")
     ems_document_reminder_date = fields.Date(
         string="Last document reminder", copy=False, readonly=True,
         help="The last day the employee was reminded that the supporting document is missing.")
@@ -288,6 +290,11 @@ class EmsAbsenceLeave(models.Model):
         string="Current user can confirm it is requested in ATRI", compute="_compute_ems_can_mark_atri",
         help="Whether the user reading this request may confirm it has been requested in ATRI: "
              "the employee themselves, or whoever manages the absence on their behalf.")
+    ems_can_waive_document = fields.Boolean(
+        string="Current user can waive the supporting document",
+        compute="_compute_ems_can_waive_document",
+        help="Whether the user reading this request may let it go on without its supporting "
+             "document: the Head, Direction and the administrator, while it is awaited.")
     ems_refusal_reason = fields.Text(
         string="Reason for the refusal", copy=False, readonly=True,
         help="Written by the Head or Direction when refusing the request. Sent to the employee "
@@ -494,6 +501,13 @@ class EmsAbsenceLeave(models.Model):
             leave.ems_can_mark_atri = leave.ems_status == 'pending_atri' and (
                 leave.employee_id.user_id == self.env.user or leave.is_absence_manager
                 or leave.is_absence_direction or leave._ems_is_absence_admin())
+
+    @api.depends_context('uid')
+    @api.depends('ems_status')
+    def _compute_ems_can_waive_document(self):
+        for leave in self:
+            leave.ems_can_waive_document = leave.ems_status == 'pending_document' and (
+                leave.is_absence_head or leave.is_absence_direction or leave._ems_is_absence_admin())
 
     def _compute_can_approve(self):
         """Direction does not approve on the Head's behalf.
@@ -715,6 +729,21 @@ class EmsAbsenceLeave(models.Model):
         leaves._ems_announce_request()
         return leaves
 
+    def unlink(self):
+        """A request withdrawn before it was decided (Odoo lets the employee delete it while it
+        is pending) will not take place either: the Department Chief and the Seminar Chief are
+        told, through message_notify since the request and its chatter are about to go."""
+        for leave in self.sudo().filtered(lambda leave: leave.state not in ('refuse', 'cancel')):
+            partners = leave._ems_notify_partners() - self.env.user.partner_id
+            if partners:
+                self.env['mail.thread'].sudo().message_notify(
+                    partner_ids=partners.ids, subject=_("Absence request withdrawn"),
+                    body=Markup("<p>%s</p>%s") % (
+                        _("This absence will not take place: its request has been withdrawn."),
+                        leave._ems_summary()),
+                    email_layout_xmlid='mail.mail_notification_light')
+        return super().unlink()
+
     def _ems_mark_whole_days(self, vals_list):
         """What _onchange_ems_whole_timetable does on the form, for a request filed any other
         way: one whose times cover the employee's whole timetable for its day is filed as a
@@ -745,7 +774,10 @@ class EmsAbsenceLeave(models.Model):
         self._ems_check_own_approved_write(vals)
         self._ems_keep_decision_before(vals)
         corrected = self._ems_keep_original_request(vals)
+        cover_before = {leave.id: leave._ems_cover_values() for leave in self} \
+            if vals.keys() & {'state', *REQUEST_FIELDS} else {}
         result = super().write(vals)
+        self._ems_inform_department(cover_before)
         # No decision is left to report the correction with: the employee is told now.
         corrected.filtered(
             lambda leave: leave.ems_status in CLOSED_STATUSES)._ems_notify_request_changes()
@@ -805,44 +837,108 @@ class EmsAbsenceLeave(models.Model):
                 partners |= chief.user_id.partner_id or chief.work_contact_id
         return partners
 
-    def _ems_direction_partners(self):
-        """Direction, told of every approval: its own review of the supporting document starts
-        there. Not when Direction is the absent employee or is itself approving."""
-        partners = self.env['res.partner']
-        for leave in self:
-            director = leave.employee_id.company_id.director_id or self.env.company.director_id
-            if not director or director == leave.employee_id or director.user_id == self.env.user:
-                continue
-            partners |= director.user_id.partner_id or director.work_contact_id
-        return partners
+    def _ems_stage_users(self):
+        """Whoever has the request in hand at its current stage, and so talks with the employee
+        about it (issue #632): the Head until they validate it and pass it on to Direction, the
+        Director from then on. An ATRI absence Direction sent back is settled on the ATRI portal
+        and comes straight back to it, so it stays Direction's; a supporting document it sent
+        back is the Head's to validate again, so that request is the Head's again. With no
+        Director to review it (none configured, or the Director is the one absent) the Head
+        keeps it throughout."""
+        self.ensure_one()
+        status = self.ems_status
+        directions = status in ('pending_direction', 'approved') or (
+            status == 'pending_atri' and self._ems_last_decision_is_directions())
+        return (directions and self._ems_direction_users()) or self._ems_head_users()
 
-    def _ems_inform_chiefs(self, with_direction=False):
-        """Subscribes the chiefs (and Direction, on approval) just before the state change, so
-        the outcome summary reaches them. The chiefs already follow a request filed through
-        '_ems_announce_request'; this covers the ones filed before it existed."""
-        for leave in self:
-            partners = leave._ems_notify_partners()
-            if with_direction:
-                partners |= leave._ems_direction_partners()
-            if partners:
-                leave.message_subscribe(partner_ids=partners.ids)
+    def _ems_sync_followers(self, announce=True):
+        """Keeps the employee and whoever has the request in hand (_ems_stage_users) as its
+        followers, so a message written on it reaches the other side of the conversation and
+        nobody else. Only the Head and the Director change hands: anybody else following it, by
+        choice or because they wrote on it, is left alone. A refused or cancelled request keeps
+        whoever had it when it was closed.
+
+        Whoever newly takes it is told, unless they are the one who moved it there. Returns the
+        partners told, whose activity for the same step needs no email of its own."""
+        told = self.env['res.partner']
+        for leave in self.sudo():
+            if leave.ems_status in ('refused', 'cancel'):
+                continue
+            employee = leave.employee_id
+            owners = leave._ems_stage_users().partner_id
+            roles = (leave._ems_head_users() | leave._ems_direction_users()).partner_id
+            followers = leave.message_partner_ids
+            leaving = (roles & followers) - owners - (employee.user_id.partner_id or employee.work_contact_id)
+            if leaving:
+                leave.message_unsubscribe(partner_ids=leaving.ids)
+            arriving = owners - followers
+            if arriving:
+                leave.message_subscribe(partner_ids=arriving.ids)
+            arriving -= self.env.user.partner_id
+            # Back to Pending, the approval activity's own email already says so (activity_update).
+            if announce and arriving and leave.ems_status != 'pending':
+                leave._ems_notify(arriving, Markup("%s<p>%s</p>") % (
+                    leave._ems_summary(), _("It is now in your hands.")))
+                told |= arriving
+        return told
+
+    def _ems_reset_followers(self):
+        """For requests filed before issue #632, which the Department Chief, the Seminar Chief
+        and the Director followed from the start: the Department Chief and the Seminar Chief
+        stop following them, unless they have them in hand, and every request still open is
+        left with the followers _ems_sync_followers gives it. Nobody is told."""
+        for leave in self.sudo():
+            keep = leave._ems_stage_users().partner_id
+            chiefs = leave._ems_notify_partners() - keep
+            if chiefs:
+                leave.message_unsubscribe(partner_ids=chiefs.ids)
+        self._ems_sync_followers(announce=False)
 
     def _ems_announce_request(self):
-        """Tells the chiefs a request has been filed, so they can plan the department's cover
-        ahead instead of learning of it once decided. They follow it from then on, like anyone
-        else involved, and receive whatever is posted on it.
+        """Tells the Department Chief and the Seminar Chief a request has been filed, so they
+        can arrange the department's cover ahead instead of learning of it once decided. They
+        do not follow it: what they hear afterwards is only what changes that cover (see
+        _ems_inform_department), never the conversation about the request (issue #632).
 
         A note addressed to them alone: the approver has their own email asking for the
-        approval and the employee filed it themselves. 'sudo' because the employee filing it cannot subscribe
-        anybody else - Odoo's own create subscribes the approver the same way."""
+        approval and the employee filed it themselves. 'sudo' because the employee filing it
+        need not be allowed to read the approver's activity."""
         for leave in self.sudo():
             partners = leave._ems_notify_partners()
             if partners:
-                leave.message_subscribe(partner_ids=partners.ids)
                 # A chief who is also the approver has the same summary in the email asking
                 # them to approve it (see activity_update): one email, not two.
                 leave._ems_notify(
                     partners - leave.activity_ids.user_id.partner_id, leave._ems_summary())
+
+    def _ems_cover_values(self):
+        """What the Department Chief and the Seminar Chief arranged the cover for: whether the
+        absence takes place, and when and of which kind."""
+        self.ensure_one()
+        return self.state in ('refuse', 'cancel'), self._ems_when(), self.holiday_status_id
+
+    def _ems_inform_department(self, before):
+        """Tells the Department Chief and the Seminar Chief what changed the cover they
+        arranged since 'before' (_ems_cover_values per request, read before the write): the
+        absence no longer takes place, takes place again, or moved to other dates or another
+        type. Nothing else reaches them. sudo: whoever changed it need not read the department."""
+        for leave in self.sudo():
+            if leave.id not in before:
+                continue
+            was_closed, when, leave_type = before[leave.id]
+            closed = leave.state in ('refuse', 'cancel')
+            if closed and not was_closed:
+                headline = _("This absence will not take place: its request has been refused.") \
+                    if leave.state == 'refuse' else \
+                    _("This absence will not take place: its request has been cancelled.")
+            elif was_closed and not closed:
+                headline = _("This absence request is going ahead again.")
+            elif not closed and (when, leave_type) != (leave._ems_when(), leave.holiday_status_id):
+                headline = _("The dates or the type of this absence have changed.")
+            else:
+                continue
+            partners = leave._ems_notify_partners() - self.env.user.partner_id
+            leave._ems_notify(partners, Markup("<p>%s</p>%s") % (headline, leave._ems_summary()))
 
     def _ems_when(self):
         """The absence's dates as a sentence fragment, for the messages about it."""
@@ -998,9 +1094,12 @@ class EmsAbsenceLeave(models.Model):
         return super()._track_subtype(init_values)
 
     def _ems_post_outcome(self):
-        """The summary of what was decided, for everyone following the request."""
+        """The summary of what was decided, for the employee. Whoever takes the request next is
+        told by _ems_sync_followers, and the Department Chief and the Seminar Chief by
+        _ems_inform_department - each only what concerns them (issue #632)."""
         for leave in self:
-            leave.message_post(body=leave._ems_summary(), subtype_xmlid='mail.mt_comment')
+            employee = leave.employee_id
+            leave._ems_notify(employee.user_id.partner_id or employee.work_contact_id, leave._ems_summary())
 
     def _validate_leave_request(self):
         """Suppresses Odoo's own one-line note, because '_ems_post_outcome' replaces it.
@@ -1090,7 +1189,6 @@ class EmsAbsenceLeave(models.Model):
                 atri_state = 'requested' if leave.ems_atri_state == 'requested' else 'awaiting'
             # sudo: the Head's right to acknowledge it is Odoo's own approval check, below.
             leave.sudo().write({'ems_document_state': document_state, 'ems_atri_state': atri_state})
-        self._ems_inform_chiefs(with_direction=True)
         result = super().action_approve(check_state=check_state)
         self._ems_post_outcome()
         self._ems_notify_request_changes()
@@ -1100,7 +1198,6 @@ class EmsAbsenceLeave(models.Model):
         wizard = self._ems_ask_change_message('action_refuse', refusal=True)
         if wizard:
             return wizard
-        self._ems_inform_chiefs()
         result = super().action_refuse()
         # The reason written in the dialog, kept on the request for the employee to read there
         # too. sudo: whoever may refuse need not be allowed to write the field itself.
@@ -1143,6 +1240,30 @@ class EmsAbsenceLeave(models.Model):
         self._ems_forget_decision_before()
         self.write({'ems_document_state': 'validated'})
         self.sudo().write({'ems_document_return_reason': False})
+        self._ems_notify_request_changes()
+        return True
+
+    def action_ems_document_waive(self):
+        """Lets a request awaiting its supporting document go on without it, when it is not
+        going to arrive and is not needed after all (issue #634). Recorded as 'waived', never as
+        validated, so nobody takes it for a document somebody checked. A reason it had been
+        sent back with is kept: undoing the waiver shows it to the employee again."""
+        self._ems_check_status('pending_document', _(
+            "Only a request awaiting its supporting document can be exempted from it."))
+        if not all(leave.ems_can_waive_document for leave in self):
+            raise AccessError(_("Only the Head who approves this absence, Direction or the "
+                                "administrator can exempt it from its supporting document."))
+        wizard = self._ems_ask_change_message('action_ems_document_waive')
+        if wizard:
+            return wizard
+        self._ems_forget_decision_before()
+        # sudo: the right to waive it is checked above, and the administrator need not be the
+        # Head or Direction write() requires.
+        self.sudo().write({'ems_document_state': 'waived'})
+        for leave in self:
+            leave._ems_notify(leave.employee_id.user_id.partner_id, _(
+                "The supporting document for your absence of %(when)s is no longer required.",
+                when=leave._ems_when()))
         self._ems_notify_request_changes()
         return True
 
@@ -1254,12 +1375,13 @@ class EmsAbsenceLeave(models.Model):
         so the employee's new activity, scheduled by write(), carries it."""
         self._ems_check_can_return_atri()
         before = {leave.id: leave._ems_decision_values() for leave in self}
-        # The status is written last: it is what schedules the employee's activity.
+        # The status is written last: it is what schedules the employee's activity and hands the
+        # request on (_ems_stage_users), which needs to know the decision was Direction's.
         self.sudo().write({'ems_atri_return_reason': reason, 'ems_atri_reminder_date': False,
                            'ems_atri_escalated': False})
-        self.sudo().write({'ems_atri_state': 'awaiting'})
         for leave in self.sudo():
             leave.ems_decision_before = before[leave.id]
+        self.sudo().write({'ems_atri_state': 'awaiting'})
         for leave in self:
             employee = leave.employee_id
             if documentation:
@@ -1278,8 +1400,7 @@ class EmsAbsenceLeave(models.Model):
 
     def _ems_notify(self, partners, message):
         """A note addressed to these partners only: unlike a comment, it is not sent to every
-        follower of the request - the department chief and Direction do not need each
-        reminder."""
+        follower of the request - whoever else follows it does not need each reminder."""
         self.ensure_one()
         if partners:
             self.message_post(body=message, partner_ids=partners.ids, subtype_xmlid='mail.mt_note')
@@ -1304,6 +1425,9 @@ class EmsAbsenceLeave(models.Model):
         on its own once the absence is over and the document is still missing."""
         today = self.env['ems.datetime_utils'].get_local_today()
         stale_xmlids = [*ACTIVITY_BY_STATUS.values(), OVERDUE_ACTIVITY_XMLID, ATRI_OVERDUE_ACTIVITY_XMLID]
+        # Whoever the summary just told the request is in their hands needs no second email
+        # for the activity of that same step.
+        told = self._ems_sync_followers()
         for leave in self.sudo():
             target = ACTIVITY_BY_STATUS.get(leave.ems_status)
             stale = [xmlid for xmlid in stale_xmlids if xmlid != target]
@@ -1326,13 +1450,15 @@ class EmsAbsenceLeave(models.Model):
             else:
                 users, deadline = leave._ems_direction_users(), today
             for user in users:
-                leave.activity_schedule(target, date_deadline=deadline, user_id=user.id, note=note)
+                leave.with_context(mail_activity_quick_update=user.partner_id in told).activity_schedule(
+                    target, date_deadline=deadline, user_id=user.id, note=note)
 
     @api.model
     def _cron_ems_document_reminder(self):
         """Reminds every employee whose absence is over and who still owes their step on it -
         the supporting document, or requesting it in ATRI (EMPLOYEE_STEPS) - every day by
-        default, and reports it to their Head once, a few days after the absence (both
+        default, and reports it once, a few days after the absence, to whoever has the request
+        in hand - their Head, or the Director for an ATRI absence it sent back (both intervals
         configurable in the settings). Calendar days, in the centre's own timezone."""
         company = self.env.company
         today = self.env['ems.datetime_utils'].get_local_today()
@@ -1347,7 +1473,8 @@ class EmsAbsenceLeave(models.Model):
                 leave._ems_notify(leave.employee_id.user_id.partner_id, reminder)
                 leave[reminder_field] = today
             if not leave[escalated_field] and (today - leave.request_date_to).days >= escalation:
-                heads = leave._ems_head_users()
+                # Whoever has it in hand: the Director for an ATRI absence it sent back.
+                heads = leave._ems_stage_users()
                 leave._ems_notify(heads.partner_id, report)
                 # The note above is the Head's email; the activity only goes on their list.
                 for head in heads:
@@ -1486,8 +1613,8 @@ class EmsAbsenceLeave(models.Model):
 
     def action_ems_undo(self):
         """Takes back the last decision on the request, one step at a time: Approved goes back
-        to Pending Direction, that to Pending validation (or straight to Pending when its type
-        requires no document), and the Head's acknowledgement back to Pending; a refused,
+        to Pending Direction, that to Pending validation (back to Awaiting documentation when
+        the document was waived, or straight to Pending when its type requires no document), and the Head's acknowledgement back to Pending; a refused,
         cancelled or sent-back request returns to where it stood just before. Taking back the
         acknowledgement takes the absence out of the calendar, the hour balance and the guard
         duty board until it is acknowledged again."""
@@ -1524,6 +1651,8 @@ class EmsAbsenceLeave(models.Model):
             self.ems_direction_state = 'not_done'
         elif self.ems_status == 'pending_direction' and self.ems_document_state == 'validated':
             self.ems_document_state = 'submitted'
+        elif self.ems_status in ('pending_atri', 'pending_direction') and self.ems_document_state == 'waived':
+            self.ems_document_state = 'awaiting'
         else:
             self._ems_restore_decisions(NOT_DECIDED)
         self.ems_decision_before = False

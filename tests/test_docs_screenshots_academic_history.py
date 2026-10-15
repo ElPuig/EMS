@@ -13,7 +13,7 @@ import base64
 
 from odoo.tests.common import Form, HttpCase, tagged
 
-from .common import DocsScreenshotMixin, build_academic_record_pdf, create_level_study, \
+from .common import DocsScreenshotMixin, build_academic_record_pdf, create_level_study, mock_outgoing_email, \
     create_level_study_group, create_role_employee, create_role_user, next_student_id
 
 
@@ -188,4 +188,71 @@ class TestDocsScreenshotsPreviousRecord(DocsScreenshotMixin, HttpCase):
             f'/odoo/action-ems.action_year_record_list/{record.id}', '.o_form_sheet',
             'academic-history-previous-record.png', login='doc_shot_previous_secretary',
             wait_for=".o_form_sheet div[name='subject_record_ids'] .o_data_row",
+        )
+
+
+@tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
+class TestDocsScreenshotsTitles(DocsScreenshotMixin, HttpCase):
+    """Registering titles (issue #635): the import preview, the student form's Actions entry and
+    its wizard. Invented students; the import file is built by the doc-shot tour."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        mock_outgoing_email(cls)
+        cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_titles_secretary',
+                                         lang='ca_ES', name='Secretaria',
+                                         email='secretaria.titols@example.com')
+        create_role_employee(cls, cls.secretary, employee_type='asp', name='0000 Secretaria')
+        Course = cls.env['ems.course']
+        cls.course = Course.search([('start', '=', 2024)], limit=1) \
+            or Course.create({'start': 2024, 'end': 2025})
+        # The titles belong to the course before the current one, the wizard's default.
+        current = Course.search([('start', '=', 2025)], limit=1) \
+            or Course.create({'start': 2025, 'end': 2026})
+        cls.env.company.current_course_id = current
+        cls.level, cls.study, cls.group = create_level_study_group(
+            cls, 'DOCT', level={'name': 'Batxillerat'},
+            study={'code': 'DOCTBTX', 'acronym': 'BTX', 'name': 'Batxillerat'},
+            group={'acronym': 'A', 'course': 1})
+        # Arnau left without a group, Clara is still studying, Biel was withdrawn, Núria's only
+        # request was cancelled; the fifth identifier of the file is nobody in EMS.
+        cls.arnau = cls._student('TESTDOC635001', 'Arnau Puig Casals')
+        cls._student('TESTDOC635002', 'Clara Vidal Font', main_group_id=cls.group.id)
+        cls._student('TESTDOC635003', 'Biel Roca Serra', contact_type='withdrawal', active=False)
+        cls._student('TESTDOC635004', 'Núria Pons Mas')
+
+    @classmethod
+    def _student(cls, student_id, name, **vals):
+        student = cls.env['res.partner'].create(dict({
+            'name': name, 'contact_type': 'student', 'student_id': student_id}, **vals))
+        cls.env['ems.student.year_record'].create({
+            'student_id': student.id, 'course_id': cls.course.id, 'study_id': cls.study.id,
+            'study_name': cls.study.display_name, 'group_name': 'BTX2A'})
+        return student
+
+    def test_capture_title_screenshots(self):
+        self._capture(
+            '/odoo/action-ems.action_title_import_wizard', '.modal-content', 'titols-01-importar.png',
+            login='doc_shot_titles_secretary', tour='ems_doc_shot_title_import', padding=0,
+        )
+        student_url = f'/odoo/action-ems.action_student_kanban/{self.arnau.id}'
+        # The form's Actions dropdown is an overlay outside the form, hence the body;
+        # beyond_viewport=False because the dropdown closes when Chrome resizes the page.
+        self._capture(
+            student_url, 'body', 'titols-02-accions.png',
+            login='doc_shot_titles_secretary',
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_title_register_wizard']",
+            max_height=420, beyond_viewport=False,
+        )
+        self._capture(
+            student_url, '.modal-content', 'titols-03-registrar.png',
+            login='doc_shot_titles_secretary',
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click=['.o_form_statusbar .o_ems_actions_toggle',
+                   ".o_ems_actions_menu button[name='action_title_register_wizard']"],
+            wait_after=['.o_ems_actions_menu', '.modal-content .alert-warning'],
+            padding=0,
         )

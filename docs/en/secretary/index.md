@@ -24,6 +24,7 @@ This section contains the manuals for **secretariat staff**.
 - [Meeting attendance with the NFC tag](meeting-attendance.md) — Creating the session of a meeting (staff meeting, department, training), setting the kiosk at the door, marking who is present and printing the PDF.
 - [Reviewing student documents](student-documents.md) — Approving, rejecting or reopening ID/medical/IBAN/benefit submissions, and what each decision does behind the scenes.
 - [Marking a graduation and registering a withdrawal](graduation-withdrawal.md) — The difference between the deferred graduation mark and an immediate withdrawal, and the full withdrawal cascade step by step.
+- [Registering the titles obtained](titles.md) — Importing the titles of a course from Esfera's list of title requests, or registering one student's title, and what it does to each student.
 - [Importing students from Esfera (SAGA)](student-import-esfera.md) — Bulk-refreshing already-enrolled students' data (not to be confused with the GEDAC preinscription import), what gets matched/created, and known dedup limitations.
 - [Updating student data from a CSV file](student-update-csv.md) — A generic, any-format CSV bulk-update for existing students (never creates one), with mappable columns and an optional bank account update.
 - [Approving absences for administrative and services staff](absences.md) — Who approves ASP absences and how it differs from the Head of Studies.

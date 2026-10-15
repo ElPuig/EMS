@@ -92,6 +92,8 @@ For a medical appointment, the document must expressly state the patient's first
 
 If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message with the reason. The reason is also shown at the top of the request until you attach a new document: attach a valid one the same way.
 
+If your Head decides the document is not needed, they can waive it: the request goes on to Direction, you stop receiving reminders and you get a message telling you so.
+
 To remove one, click the cross on the file and confirm.
 
 ---
@@ -108,7 +110,9 @@ The button stays disabled while something is missing. Hover over it and it will 
 
 If you leave the form without sending it, EMS tells you and lets you discard it.
 
-When you send it, your department chief and, if your department has one, your seminar chief receive an email with the absence type, the dates and the hours, but not the reason. They follow the request from then on, so they also receive anything written in its message history.
+When you send it, your Department Chief and, if your department has one, your Seminar Chief receive an email with the absence type, the dates and the hours, but not the reason, so they can arrange the guard duty that covers you. After that they only hear about it again if the absence will not take place (refused, cancelled, or deleted while still pending), goes ahead again, or its dates or type change.
+
+**Messages on the request.** What you write in the request's message history (**Send message**) reaches whoever has the request in hand, and nobody else: your Head (Deputy Head of Studies, Head of Studies or Secretary) until they validate it and pass it on to Direction, and the Director from then on. Their answers reach you the same way.
 
 ---
 

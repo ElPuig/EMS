@@ -5,8 +5,11 @@
             <field name="name">ems.attendance_session_line.analysis.pivot</field>
             <field name="model">ems.attendance_session_line</field>
             <field name="arch" type="xml">
-                <pivot string="Attendance reports">
-                    <field name="subject_id" type="row"/>
+                <pivot string="Attendance reports" disable_linking="1" js_class="ems_attendance_report_pivot">
+                    <!-- disable_linking: a cell click would open the bare lines in a list nobody asked for.
+                         js_class: adds the 'Print attendance report' button (attendance_report_analysis_views.js). -->
+                    <!-- 'subject [- topic]': a topic taught apart is a subject of its own here (issue #633). -->
+                    <field name="subject_label" type="row"/>
                     <field name="student_id" type="row"/>
                     <field name="absence_rate" type="measure"/>
                     <field name="strike_count" type="measure"/>
@@ -18,8 +21,8 @@
             <field name="name">ems.attendance_session_line.analysis.graph</field>
             <field name="model">ems.attendance_session_line</field>
             <field name="arch" type="xml">
-                <graph string="Attendance reports" type="bar">
-                    <field name="subject_id"/>
+                <graph string="Attendance reports" type="bar" disable_linking="1" js_class="ems_attendance_report_graph">
+                    <field name="subject_label"/>
                     <!-- Odoo's graph arch parser defaults to the LAST type="measure" field
                          declared here (see web/static/src/views/graph/graph_arch_parser.js) — keep
                          absence_rate last so it stays the default measure, regardless of the
@@ -44,7 +47,7 @@
                     <filter string="Date" name="filter_date" date="date"/>
                     <group string="Group By">
                         <filter string="Group" name="group_by_group" context="{'group_by': 'student_group_id'}"/>
-                        <filter string="Subject" name="group_by_subject" context="{'group_by': 'subject_id'}"/>
+                        <filter string="Subject" name="group_by_subject" context="{'group_by': 'subject_label'}"/>
                         <filter string="Student" name="group_by_student" context="{'group_by': 'student_id'}"/>
                         <filter string="Status" name="group_by_status" context="{'group_by': 'status_id'}"/>
                         <filter string="Date" name="group_by_date" context="{'group_by': 'date'}"/>

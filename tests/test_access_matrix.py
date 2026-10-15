@@ -14,6 +14,8 @@ ACCESS_MATRIX = {
     # Every write goes through the guard duty board's own methods, which check the hierarchy and
     # write with sudo() (see models/attendance/absence_coverage.py).
     'ems.absence_cover': {'teacher': 'r', 'department_chief': 'r', 'head_of_studies': 'r'},
+    # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
+    'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
     'ems.attendance_status': {'teacher': 'r'},
     'ems.content': {'teacher': 'r', 'secretary': 'r'},
     'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
@@ -31,6 +33,9 @@ ACCESS_MATRIX = {
     'ems.teaching': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'rwc'},
     'ems.teaching_reduction_type': {'teacher': 'r', 'department_chief': 'rwcu'},
     'ems.tracking': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #635: the roles that may edit the academic history.
+    'ems.title_import_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
+    'ems.title_register_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.workgroup': {'teacher': 'r', 'secretary': 'r'},
     'resource.calendar': {'teacher': 'r'},
     'resource.calendar.attendance': {'teacher': 'r'},

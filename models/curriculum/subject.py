@@ -138,3 +138,10 @@ class EmsSubject(models.Model):
     def _compute_display_name(self):
         for subject in self:
             subject.display_name = "%s: %s" % (subject.acronym, subject.name)
+
+    def _label_with_topic(self, topic):
+        """'subject [- topic]' (issue #428): a subject split into topics taught apart, as the
+        schedules, the attendance templates and the attendance reports show it. The topic is free
+        text typed by the teacher, appended as is."""
+        self.ensure_one()
+        return "%s - %s" % (self.display_name, topic) if topic else self.display_name

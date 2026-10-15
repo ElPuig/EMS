@@ -39,6 +39,8 @@ Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dire
 
 Cuando alguien de tu área envía una solicitud recibes un correo con la persona, el tipo de ausencia, las fechas y las horas, para poder organizar su cobertura, y la solicitud queda en tus actividades.
 
+**Mensajes en la solicitud.** Mientras una solicitud está en tus manos, tú y la persona sois sus únicos seguidores: lo que cualquiera de los dos escriba en su historial de mensajes (**Enviar mensaje**) llega al otro y a nadie más. El jefe de departamento y el jefe de seminario no la siguen: reciben el aviso de la solicitud y, después, solo lo que cambia la cobertura (rechazada, cancelada, otras fechas u otro tipo). Una vez la validas y llega a Dirección, la directora o el director pasa a seguirla en tu lugar. Si Dirección devuelve el justificante, o deshace hasta uno de tus pasos, la solicitud vuelve a estar en tus manos y recibes un correo que te lo dice. Una ausencia ATRI que Dirección devuelve porque no consta en ATRI (o porque la documentación de ATRI no es suficiente) se queda con Dirección, ya que la persona lo resuelve en el portal.
+
 **Asistencia del personal > Ausencias > Administración > Ausencias solicitadas**.
 
 Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que esperan que las des por recibidas y las que tienen un justificante que debes validar. Cada ausencia pasa primero por ti y después por Dirección, y el listado tiene una columna para cada uno:
@@ -56,11 +58,13 @@ Ahí tienes las solicitudes de tu área, y se abre con **Esperándome**: las que
 
 Si el justificante no es válido, **Documentación insuficiente** te pide el motivo (obligatorio) y devuelve la solicitud a la persona (En espera de documentación) con un mensaje que lo incluye. La persona también lo ve arriba de la solicitud hasta que adjunta un justificante nuevo. Si el nuevo tampoco es válido, el diálogo se abre con el motivo anterior para que puedas modificarlo; cuando validas un justificante, el motivo se borra.
 
+**Si el justificante no llegará y no hace falta**, mientras la solicitud está **En espera de documentación** usa **Eximir del justificante** (menú **Acciones** de arriba del formulario). Pide confirmación y la solicitud continúa hacia Dirección como si se hubiera validado el justificante, pero su estado queda como **Eximido**, para distinguirlo de un justificante revisado. La persona deja de recibir recordatorios y recibe un mensaje que le dice que ya no hace falta. Dirección y el administrador también pueden hacerlo, y se deshace como cualquier otra decisión.
+
 Para `Salud` y `ATRI` hay un solo paso: **Validar** (el pulgar en el listado). Una ausencia de `Salud` pasa entonces directamente a Dirección. Una `ATRI` se detiene siempre antes en **Pendiente de confirmar ATRI**: la persona tiene que confirmar que la ha solicitado en el portal ATRI (**Acciones > Confirmo que está solicitada en ATRI**), y solo entonces llega a Dirección. Validas tú primero a propósito, porque a menudo se elige ATRI para lo que no lo es, y al revés: corrige el tipo antes de validar. A la persona se le recuerda igual que con un justificante pendiente, y a ti se te avisa una vez si sigue sin confirmar a los pocos días de la ausencia.
 
 La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulario, vuelves al listado.
 
-**Rechazar pide antes el motivo.** Se abre un cuadro de diálogo con un cuadro para el motivo del rechazo, que es opcional: lo que escribas se envía solo a la persona (no a los jefes de departamento ni al resto de seguidores de la solicitud) y queda en lo alto de la solicitud, en rojo, mientras esté rechazada. Confirma con **Rechazar**, o cancela para dejar la solicitud como estaba.
+**Rechazar pide antes el motivo.** Se abre un cuadro de diálogo con un cuadro para el motivo del rechazo, que es opcional: lo que escribas se envía solo a la persona (no al jefe de departamento, ni al jefe de seminario, ni a nadie más) y queda en lo alto de la solicitud, en rojo, mientras esté rechazada. Confirma con **Rechazar**, o cancela para dejar la solicitud como estaba.
 
 ![Cuadro de diálogo para rechazar una solicitud de ausencia, con el cuadro para el motivo](../../assets/head_of_studies/hos-absences-refuse.png)
 
@@ -88,7 +92,7 @@ Un campo del formulario, que puedes cambiar en cualquier momento:
 
 También puedes corregir el **tipo de ausencia** cuando la persona haya elegido uno que no corresponde, mientras la solicitud está pendiente (o rechazada o cancelada). Una solicitud aprobada ya no se puede cambiar: primero [deshaz la aprobación](#deshacer-una-decisión), corrígela y vuelve a validarla.
 
-**La persona se entera de lo que cambias.** Cuando tú (o Dirección) cambias el tipo de ausencia, las fechas o las horas de una solicitud que ha presentado otra persona, la siguiente vez que decides sobre ella (recibirla, validarla, devolver el justificante, rechazarla) un cuadro de diálogo muestra los cambios y te permite escribir un mensaje para quien la solicitó. Si lo dejas en blanco, solo se le informa de los cambios realizados. En ambos casos el aviso llega únicamente a quien la solicitó, no a los jefes de departamento ni al resto de seguidores de la solicitud. En una solicitud ya rechazada o cancelada, se le avisa en cuanto guardas el cambio.
+**La persona se entera de lo que cambias.** Cuando tú (o Dirección) cambias el tipo de ausencia, las fechas o las horas de una solicitud que ha presentado otra persona, la siguiente vez que decides sobre ella (recibirla, validarla, devolver el justificante, rechazarla) un cuadro de diálogo muestra los cambios y te permite escribir un mensaje para quien la solicitó. Si lo dejas en blanco, solo se le informa de los cambios realizados. En ambos casos el aviso llega únicamente a quien la solicitó, no al jefe de departamento, ni al jefe de seminario, ni a nadie más. En una solicitud ya rechazada o cancelada, se le avisa en cuanto guardas el cambio.
 
 ![Cuadro de diálogo con los cambios realizados en la solicitud y el cuadro para el mensaje al solicitante](../../assets/head_of_studies/hos-absences-change-message.png)
 
@@ -112,7 +116,7 @@ Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre
 | Flecha atrás | **Deshacer la última decisión** | Vuelve al estado anterior, ver [Deshacer una decisión](#deshacer-una-decisión) |
 | Cruz | **Rechazar** | Rechazado. Rechaza toda la solicitud, y pide confirmación antes |
 
-Cuando un jefe da por recibida una ausencia, recibes su resumen como seguidor.
+Cuando una ausencia llega a Dirección (Pendiente Dirección) recibes un correo con su resumen, y a partir de entonces la sigues en lugar del jefe de estudios: los mensajes que se escriban en ella os llegan a ti y a la persona, y a nadie más.
 
 **Estado**:
 
@@ -138,7 +142,7 @@ Una decisión tomada por error se deshace con **Deshacer la última decisión**:
 | Estado | Al deshacer queda en |
 |---|---|
 | Aprobado | Pendiente de Dirección |
-| Pendiente de Dirección | Pendiente de validación, o Pendiente si el tipo no exige justificante |
+| Pendiente de Dirección | Pendiente de validación, En espera de documentación si se había eximido del justificante, o Pendiente si el tipo no exige justificante |
 | Pendiente de validación, En espera de documentación | Pendiente |
 | Pendiente de confirmar ATRI | Pendiente, o Pendiente de Dirección si Dirección la había devuelto por no constar en ATRI |
 | Rechazado, Cancelado | El estado que tenía justo antes |

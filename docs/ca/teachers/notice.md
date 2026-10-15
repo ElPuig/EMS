@@ -18,7 +18,7 @@ Pots enviar comunicats a l'alumnat i les famílies dels **grups on fa classe el 
 
 ## Quins comunicats veus
 
-La llista s'obre amb el filtre **"Mostrar tan sols els meus"**, amb els comunicats que has creat tu. Treu-lo per veure també els que altres persones han enviat als grups del teu departament. Aquests els pots llegir, però només pots modificar, enviar o eliminar els teus.
+La llista s'obre amb el filtre **"Mostrar tan sols els meus"**, amb els comunicats que has creat tu. Treu-lo per veure també els que altres persones han enviat als grups del teu departament. Aquests els pots llegir, però només pots modificar, enviar o eliminar els teus i els dels caps que depenen de tu a la cadena de comandament (per exemple, els caps de seminari que depenen de tu). El cap d'estudis de qui depens també pot revisar i enviar els teus.
 
 ---
 

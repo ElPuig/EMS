@@ -11,13 +11,13 @@ when confirmed.
 
 | Where | Launched on | People considered |
 |-------|-------------|-------------------|
-| Matrícules list, **Action → Close unconfirmed enrollments** (`action_server_enrollment_close`, bound to `sale.order`, `list` and `form`: the enrollment form has no Actions dropdown) | the selected enrollments | the customers of the selected draft/sent ones |
-| Pre-inscripció list, header button (next to "Enrollment proposal") | the selected applicants | each of them, with or without an enrollment |
+| Matrícules list, **Actions → Close unconfirmed enrollments** (header button `action_ems_close_unconfirmed` on `sale.order`) | the selected enrollments | the customers of the selected draft/sent ones |
+| Pre-inscripció list, **Actions → Close unconfirmed enrollments** (same button on `res.partner`) | the selected applicants | each of them, with or without an enrollment |
 
+Both lists show their header buttons in the list "Actions" dropdown (see
+[actions_dropdown.md](../shared/actions_dropdown.md#lists)); in Matrícules, next to "Send Enrollment".
 The Pre-inscripció list also gets a **Without enrollment** filter (no draft, sent or confirmed
 enrollment), which is how the applicants imported from GEDAC who never got an offer are found.
-The Matrícules list has no loose header button: "Send Enrollment" is in the same Action menu
-(`action_server_enrollment_send`, `list` only: the form has Odoo's own "Send by email").
 
 Every draft/sent enrollment of a person is handled, not only the selected ones: a person is either
 leaving or not. A person holds at most one live enrollment per course (the

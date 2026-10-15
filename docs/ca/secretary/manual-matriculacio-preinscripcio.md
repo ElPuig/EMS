@@ -93,7 +93,7 @@ Marqueu els alumnes que van **als mateixos estudis de destí** i aneu al [Pas 3]
 
 ## Pas 3 — Crear les propostes de matrícula
 
-Amb els alumnes seleccionats (vinguin del Pas 2 d'alumnes nous o del de continuadors), premeu el botó **Propostes de matrícula (1)** de la barra superior.
+Amb els alumnes seleccionats (vinguin del Pas 2 d'alumnes nous o del de continuadors), obriu el desplegable **Accions (1)** i trieu **Propostes de matrícula**.
 
 ![Selecció d'aspirants i botó Propostes de matrícula](../../assets/secretary/preinscrpcio-Secretaria-05.png)
 
@@ -141,7 +141,7 @@ A la llista podeu comprovar, per a cada matrícula, l'**estudiant**, el **nivell
 
 ## Pas 6 — Enviar les propostes de matrícula
 
-Quan les matrícules estiguin revisades, seleccioneu-ne les que vulgueu enviar marcant-ne les caselles **(1)**, obriu el menú d'accions **⚙ (engranatge)** **(2)** i trieu **Enviar matrícula**.
+Quan les matrícules estiguin revisades, seleccioneu-ne les que vulgueu enviar marcant-ne les caselles **(1)**, obriu el desplegable **Accions** **(2)** i trieu **Enviar matrícula**.
 
 ![Selecció de matrícules i botó Enviar matrícula](../../assets/secretary/preinscrpcio-Secretaria-09.png)
 
@@ -160,7 +160,7 @@ En prémer **Enviar matrícula**, per a cada matrícula seleccionada:
 Quan s'acaba el període de matrícula, les matrícules que encara són en esborrany o enviades són de persones que no les han formalitzat. Tanqueu-les totes de cop:
 
 1. A **Matrícula**, la llista mostra per defecte les matrícules no confirmades. Seleccioneu les que voleu tancar (o totes).
-2. Obriu el menú d'accions **⚙ (engranatge)** i trieu **Tancar matrícules no confirmades**.
+2. Obriu el desplegable **Accions** i trieu **Tancar matrícules no confirmades**.
 3. L'assistent mostra cada persona amb l'acció que se li aplicarà:
 
 | Acció | A qui | Què passa |
@@ -178,7 +178,7 @@ Apareix un resum amb quantes persones han rebut cada acció. Una família manté
 
 ### Sol·licitants que no han tingut mai matrícula
 
-A **Pre-inscripció**, el filtre **Sense matrícula** mostra els sol·licitants que no han rebut mai una proposta de matrícula (per exemple, els importats de GEDAC que no s'han presentat). Seleccioneu-los i premeu **Tancar matrícules no confirmades** a dalt de la llista: s'obre el mateix assistent i s'eliminen (o s'arxiven, si tenen compte corporatiu o una convalidació).
+A **Pre-inscripció**, el filtre **Sense matrícula** mostra els sol·licitants que no han rebut mai una proposta de matrícula (per exemple, els importats de GEDAC que no s'han presentat). Seleccioneu-los, obriu el desplegable **Accions** i trieu **Tancar matrícules no confirmades**: s'obre el mateix assistent i s'eliminen (o s'arxiven, si tenen compte corporatiu o una convalidació).
 
 ---
 

@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickListHeaderAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // "Enrollment proposal" (Academic management > Enrollment > Enrollment proposal,
 // ems.action_student_group_enrollment - an ir.actions.server that re-domains
@@ -39,11 +40,7 @@ registry.category("web_tour.tours").add("ems_enrollment_proposal_create", {
             content: "Select the seeded student",
             run: "click",
         },
-        {
-            trigger: ".o_list_view button:contains('Enrollment proposal')",
-            content: "Open the enrollment proposal wizard",
-            run: "click",
-        },
+        ...clickListHeaderAction("action_enrollment_proposal", "Open the enrollment proposal wizard"),
         {
             trigger: ".modal .o_field_widget[name='template_id'] input",
             content: "Search for the seeded template (not auto-selected: the student isn't an applicant with a granted course)",
@@ -98,11 +95,7 @@ registry.category("web_tour.tours").add("ems_enrollment_proposal_graduation", {
             content: "Select the student to mark as graduated",
             run: "click",
         },
-        {
-            trigger: ".o_list_view button:contains('Graduation')",
-            content: "Open the graduation wizard",
-            run: "click",
-        },
+        ...clickListHeaderAction("action_graduation_wizard", "Open the graduation wizard"),
         {
             trigger: ".modal .o_data_cell:contains('Enrollment Proposal Tour Graduate')",
             content: "The wizard's embedded line list rendered with the selected student",

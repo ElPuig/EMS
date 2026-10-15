@@ -288,16 +288,17 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
                    ('.o_group_header.o_group_open .o_group_name', '2', 'text-right'),
                    ('.o_group_header.o_group_open + .o_group_header .o_group_name', '3', 'text-right')],
         )
-        # 05: applicants selected and the Enrollment proposal button.
+        # 05: applicants selected and the ⚙ Actions menu holding Enrollment proposal.
         self._capture(
             applicants_url, '.o_action_manager', 'preinscrpcio-Secretaria-05.png', login=login,
             wait_for='.o_group_header', max_height=360,
             click=['.o_group_header', '.o_group_header.o_group_open + .o_group_header',
                    '.o_data_row .o_list_record_selector input',
-                   '.o_data_row + .o_data_row .o_list_record_selector input'],
+                   '.o_data_row + .o_data_row .o_list_record_selector input',
+                   ".o_list_selection_container .o_ems_actions_toggle"],
             wait_after=['.o_group_header.o_group_open + .o_group_header', '.o_data_row',
                         '.o_data_row.o_data_row_selected', "button[name='action_enrollment_proposal']"],
-            marks=[("button[name='action_enrollment_proposal']", '1', 'top')],
+            marks=[(".o_list_selection_container .o_ems_actions_toggle", '1', 'top')],
         )
         # 04b: the internal continuers, in Enrollment proposals with the GEDAC filter.
         self.env.ref('ems.action_student_group_enrollment').code = (
@@ -366,10 +367,10 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
             wait_for='.o_data_row + .o_data_row', max_height=300,
             click=['.o_data_row .o_list_record_selector input',
                    '.o_data_row + .o_data_row .o_list_record_selector input',
-                   '.o_cp_action_menus button:has(.fa-cog)'],
-            wait_after=['.o_data_row.o_data_row_selected', '.o-dropdown--menu .o-dropdown-item'],
+                   '.o_list_selection_container .o_ems_actions_toggle'],
+            wait_after=['.o_data_row.o_data_row_selected', ".o_ems_actions_menu button[name='action_send_enrollment_proposal']"],
             marks=[('.o_data_row .o_list_record_selector', '1'),
-                   ('.o_cp_action_menus button:has(.fa-cog)', '2', 'top')],
+                   ('.o_list_selection_container .o_ems_actions_toggle', '2', 'top')],
         )
         # 10-11: Re-apply Benefits on a confirmed enrollment, and its confirmation.
         confirmed_url = '%s/%d' % (enrollments_url, confirmed.id)

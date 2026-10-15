@@ -6,8 +6,8 @@ from .common import (create_level_study_group, create_role_employee, create_role
 
 @tagged('post_install', '-at_install')
 class TestEnrollmentCloseWizardTour(HttpCase):
-    """Issue #643: the close-unconfirmed-enrollments wizard from the Matrícules Action menu and
-    from the Pre-inscripció header, driven by a secretary - who closes enrollments - rather than
+    """Issue #643: the close-unconfirmed-enrollments wizard from the "Actions" dropdown of the
+    Matrícules and Pre-inscripció lists, driven by a secretary - who closes enrollments - rather than
     by admin, so the menus, the bindings and the access line up for them."""
 
     @classmethod

@@ -35,7 +35,8 @@
             <field name="name">ems.applicant.list</field>
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
-                <list string="Preinscription" default_order="study_id asc, name asc">
+                <list string="Preinscription" default_order="study_id asc, name asc"
+                      class="o_ems_header_actions">
                     <header>
                         <button name="action_enrollment_proposal"
                                 type="object"

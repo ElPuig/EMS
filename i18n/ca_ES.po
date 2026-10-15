@@ -10683,7 +10683,6 @@ msgstr "Continuistes interns encara matriculats (p. ex. de CFGM a CFGS abans de 
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
-#: model:ir.actions.server,name:ems.action_server_enrollment_send
 msgid "Send Enrollment"
 msgstr "Enviar matrícula"
 
@@ -19196,6 +19195,8 @@ msgid "A strike can't be dated in the future."
 msgstr "No es pot posar un strike amb data futura."
 
 #. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/list_header_actions.xml:0
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
@@ -22909,7 +22910,9 @@ msgstr "Només cancel·lar la matrícula"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0 model:ir.actions.server,name:ems.action_server_enrollment_close model:ir.model,name:ems.model_ems_enrollment_close_wizard model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+#: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0 model:ir.model,name:ems.model_ems_enrollment_close_wizard model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+#: model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment
 msgid "Close unconfirmed enrollments"
 msgstr "Tancar matrícules no confirmades"
 

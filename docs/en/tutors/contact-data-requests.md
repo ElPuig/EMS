@@ -67,7 +67,7 @@ Click the row to compare them side by side, at a large size. Approving the reque
 
 ![The photo on file and the proposed one side by side](../../assets/tutors/dades-contacte-06-foto.png)
 
-To approve several at once, select them in the list and click **Approve**.
+To approve several at once, select them in the list and choose **Actions → Approve**.
 
 ## Returning an answer to the family
 
@@ -78,4 +78,4 @@ The family receives an email with the reason and can send the details again from
 
 ## Sending a reminder
 
-Select the requests in **Pending answer** and click **Send reminder**. The **Reminders** column counts how many have been sent.
+Select the requests in **Pending answer** and choose **Actions → Send reminder**. The **Reminders** column counts how many have been sent.

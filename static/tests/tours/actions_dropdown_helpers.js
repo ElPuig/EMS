@@ -76,3 +76,19 @@ export function noArchiveInCog(content) {
         { trigger: `${cogToggle}.show`, content: "Close the cog menu", run: "click" },
     ];
 }
+
+/**
+ * A list's header button, on a list with the "Actions" dropdown (static/src/js/backend/
+ * list_header_actions.js): open the selection's dropdown and click the entry. Records must
+ * already be selected, as for any header button.
+ */
+export function clickListHeaderAction(name, content) {
+    return [
+        {
+            trigger: ".o_list_selection_container .o_ems_actions_toggle",
+            content: "Open the selection's Actions dropdown",
+            run: "click",
+        },
+        { trigger: `${ACTIONS_MENU} button[name='${name}']`, content, run: "click" },
+    ];
+}

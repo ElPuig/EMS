@@ -93,7 +93,7 @@ Tick the students heading to **the same destination study** and go to [Step 3](#
 
 ## Step 3 — Create the enrollment proposals
 
-With the students selected (whether from the new-students Step 2 or the continuers one), press the **Enrollment proposal (1)** button in the top bar.
+With the students selected (whether from the new-students Step 2 or the continuers one), open the **Actions (1)** dropdown and choose **Enrollment proposal**.
 
 ![Applicant selection and the Enrollment proposal button](../../assets/secretary/preinscrpcio-Secretaria-05.png)
 
@@ -141,7 +141,7 @@ In the list you can check, for each enrollment, the **student**, the **level** a
 
 ## Step 6 — Send the enrollment proposals
 
-Once the enrollments are reviewed, select the ones you want to send by ticking their checkboxes **(1)**, open the **⚙ (gear)** action menu **(2)** and choose **Send enrollment**.
+Once the enrollments are reviewed, select the ones you want to send by ticking their checkboxes **(1)**, open the **Actions** dropdown **(2)** and choose **Send enrollment**.
 
 ![Enrollment selection and the Send enrollment button](../../assets/secretary/preinscrpcio-Secretaria-09.png)
 
@@ -160,7 +160,7 @@ Pressing **Send enrollment** does the following for each selected enrollment:
 When the enrollment period is over, the enrollments still in draft or sent belong to people who never formalised them. Close them all at once:
 
 1. In **Enrollment**, the list shows the unconfirmed enrollments by default. Select the ones to close (or all of them).
-2. Open the **⚙ (gear)** action menu and choose **Close unconfirmed enrollments**.
+2. Open the **Actions** dropdown and choose **Close unconfirmed enrollments**.
 3. The assistant lists every person with the action that will be applied to them:
 
 | Action | Who | What happens |
@@ -178,7 +178,7 @@ A summary shows how many people got each action. A family keeps its portal acces
 
 ### Applicants who never got an enrollment
 
-In **Preinscription**, the **Without enrollment** filter lists the applicants who never got an enrollment proposal (e.g. those imported from GEDAC who never came). Select them and press **Close unconfirmed enrollments** at the top of the list: the same assistant opens, and they are deleted (or archived, if they have a corporate account or a convalidation).
+In **Preinscription**, the **Without enrollment** filter lists the applicants who never got an enrollment proposal (e.g. those imported from GEDAC who never came). Select them, open the **Actions** dropdown and choose **Close unconfirmed enrollments**: the same assistant opens, and they are deleted (or archived, if they have a corporate account or a convalidation).
 
 ---
 

@@ -55,3 +55,24 @@ Rules:
 - `noActions(content)`: nothing applies, so no dropdown is rendered. With nothing else in the header, Odoo also leaves out the whole status bar.
 
 `tests/test_actions_dropdown_tour.py` covers the component itself: as a tutor, which entries a real render offers for one of their students, that no button is left loose in the header, and that a family contact gets no dropdown; as an administrator on an employee with extra hours, that EMS's entries and the native "Deduct Extra Hours" share the one dropdown with nothing loose in the header.
+
+## Lists
+
+A list's header buttons (the ones shown once records are selected) get the same "Actions"
+dropdown, instead of a row of loose buttons next to the selection: same look, same reasons. Odoo's
+own ⚙ menu next to it keeps the actions bound to the model (export, delete, server actions).
+
+- **Opt-in:** `class="o_ems_header_actions"` on the `<list>`; or `'ems_header_actions': 1` in the
+  action's context, for a list view shared with a native app (the enrollments' `sale.order` list is
+  also the Sales app's, which must keep its own buttons loose).
+- Used on Pre-inscripció (`applicants.xml`), Propostes de matrícula (`list_tutor.xml`), the
+  contact data requests list (`request.xml`) and Matrícules (`action_ems_enrollments`).
+- The buttons stay ordinary `<header>` buttons, so they keep `invisible=`, `groups=` and
+  `confirm=`; a `display="always"` button (shown with no selection) stays loose.
+- `static/src/js/backend/list_header_actions.js` + `static/src/xml/backend/list_header_actions.xml`:
+  a `ListController` patch (`emsHeaderActions`, `emsHeaderActionButtons`) and an extension of
+  `web.ListView` that renders `EmsListActionsDropdown` (one `MultiRecordViewButton` per entry, the
+  same component Odoo uses for header buttons) and stops rendering them loose. Small screens are
+  left alone: Odoo already moves header buttons into its cog menu there.
+- Tours: `clickListHeaderAction(name, content)` in `actions_dropdown_helpers.js`.
+

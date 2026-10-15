@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickListHeaderAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Issue #643: closing the enrollments nobody confirmed, from both places it is launched. Driven
 // by a secretary (see test_enrollment_close_wizard_tour.py), who is the one closing enrollments.
@@ -46,20 +47,20 @@ registry.category("web_tour.tours").add("ems_enrollment_close_from_enrollments",
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_control_panel:not(:has(button[name='action_send_enrollment_proposal']))",
-            content: "No loose button in the header: every action is in the Action menu",
+            trigger: ".o_list_selection_container:not(:has(> button[name='action_send_enrollment_proposal']))",
+            content: "No loose button next to the selection: they are in the Actions dropdown",
         },
         {
-            trigger: ".o_cp_action_menus button:has(.fa-cog)",
-            content: "Open the Action menu",
+            trigger: ".o_list_selection_container .o_ems_actions_toggle",
+            content: "Open the Actions dropdown",
             run: "click",
         },
         {
-            trigger: ".o_menu_item:contains('Send Enrollment')",
-            content: "Send Enrollment moved into the Action menu",
+            trigger: ".o_ems_actions_menu button[name='action_send_enrollment_proposal']",
+            content: "Send Enrollment is in it too",
         },
         {
-            trigger: ".o_menu_item:contains('Close unconfirmed enrollments')",
+            trigger: ".o_ems_actions_menu button[name='action_ems_close_unconfirmed']",
             content: "Close the enrollment",
             run: "click",
         },
@@ -101,11 +102,7 @@ registry.category("web_tour.tours").add("ems_enrollment_close_from_applicants", 
             content: "Select the applicant without enrollment",
             run: "click",
         },
-        {
-            trigger: ".o_list_view button[name='action_ems_close_unconfirmed']",
-            content: "Close it from the Pre-inscripció header",
-            run: "click",
-        },
+        ...clickListHeaderAction("action_ems_close_unconfirmed", "Close it from the Actions menu"),
         ...applyWizard("Close Tour Never Offered"),
     ],
 });

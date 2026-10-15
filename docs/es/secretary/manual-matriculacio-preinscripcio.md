@@ -93,7 +93,7 @@ Marcad los alumnos que van **a los mismos estudios de destino** e id al [Paso 3]
 
 ## Paso 3 — Crear las propuestas de matrícula
 
-Con los alumnos seleccionados (vengan del Paso 2 de alumnos nuevos o del de continuadores), pulsad el botón **Propuestas de matrícula (1)** de la barra superior.
+Con los alumnos seleccionados (vengan del Paso 2 de alumnos nuevos o del de continuadores), abrid el desplegable **Acciones (1)** y elegid **Propuestas de matrícula**.
 
 ![Selección de aspirantes y botón Propuestas de matrícula](../../assets/secretary/preinscrpcio-Secretaria-05.png)
 
@@ -141,7 +141,7 @@ En la lista podéis comprobar, para cada matrícula, el **estudiante**, el **niv
 
 ## Paso 6 — Enviar las propuestas de matrícula
 
-Cuando las matrículas estén revisadas, seleccionad las que queráis enviar marcando sus casillas **(1)**, abrid el menú de acciones **⚙ (engranaje)** **(2)** y elegid **Enviar matrícula**.
+Cuando las matrículas estén revisadas, seleccionad las que queráis enviar marcando sus casillas **(1)**, abrid el desplegable **Acciones** **(2)** y elegid **Enviar matrícula**.
 
 ![Selección de matrículas y botón Enviar matrícula](../../assets/secretary/preinscrpcio-Secretaria-09.png)
 
@@ -160,7 +160,7 @@ Al pulsar **Enviar matrícula**, para cada matrícula seleccionada:
 Cuando termina el periodo de matrícula, las matrículas que siguen en borrador o enviadas son de personas que no las han formalizado. Cerradlas todas de una vez:
 
 1. En **Matrícula**, la lista muestra por defecto las matrículas no confirmadas. Seleccionad las que queráis cerrar (o todas).
-2. Abrid el menú de acciones **⚙ (engranaje)** y elegid **Cerrar matrículas no confirmadas**.
+2. Abrid el desplegable **Acciones** y elegid **Cerrar matrículas no confirmadas**.
 3. El asistente muestra cada persona con la acción que se le aplicará:
 
 | Acción | A quién | Qué pasa |
@@ -178,7 +178,7 @@ Aparece un resumen con cuántas personas han recibido cada acción. Una familia 
 
 ### Solicitantes que nunca han tenido matrícula
 
-En **Pre-inscripción**, el filtro **Sin matrícula** muestra los solicitantes que nunca han recibido una propuesta de matrícula (por ejemplo, los importados de GEDAC que no se han presentado). Seleccionadlos y pulsad **Cerrar matrículas no confirmadas** arriba de la lista: se abre el mismo asistente y se eliminan (o se archivan, si tienen cuenta corporativa o una convalidación).
+En **Pre-inscripción**, el filtro **Sin matrícula** muestra los solicitantes que nunca han recibido una propuesta de matrícula (por ejemplo, los importados de GEDAC que no se han presentado). Seleccionadlos, abrid el desplegable **Acciones** y elegid **Cerrar matrículas no confirmadas**: se abre el mismo asistente y se eliminan (o se archivan, si tienen cuenta corporativa o una convalidación).
 
 ---
 

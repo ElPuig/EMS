@@ -397,7 +397,7 @@ relabeled "Enrollments".
 
 | View | File | Notes |
 |------|------|-------|
-| List/Search | `views/academic_management/enrollment/enrollment_list.xml`, `enrollment_search.xml` | The Matricules list; `action_ems_enrollments`. No loose header button: "Send Enrollment" (`action_send_enrollment_proposal`) and "Close unconfirmed enrollments" are in its Action menu (`close_unconfirmed_wizard.xml`, see [close_unconfirmed_wizard.md](close_unconfirmed_wizard.md)). |
+| List/Search | `views/academic_management/enrollment/enrollment_list.xml`, `enrollment_search.xml` | The Matricules list; `action_ems_enrollments`. Header buttons "Send Enrollment" (`action_send_enrollment_proposal`) and "Close unconfirmed enrollments" (see [close_unconfirmed_wizard.md](close_unconfirmed_wizard.md)), shown in the list "Actions" dropdown (`ems_header_actions` in the action context). |
 | Form | `views/academic_management/enrollment/enrollment_form.xml` | Adds all EMS fields and authorization lines. |
 | Menu | `views/academic_management/enrollment/menu.xml` | Under Academic Management. |
 | Contact kanban | `views/community/contact/kanban.xml` | Overrides `action_view_sale_order`, embedding the student's own enrollments. |

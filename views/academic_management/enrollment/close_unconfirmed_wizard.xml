@@ -39,27 +39,5 @@
             </field>
         </record>
 
-        <!-- Matrícules list (Action menu) and enrollment form. -->
-        <record id="action_server_enrollment_close" model="ir.actions.server">
-            <field name="name">Close unconfirmed enrollments</field>
-            <field name="model_id" ref="sale.model_sale_order"/>
-            <field name="binding_model_id" ref="sale.model_sale_order"/>
-            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin'), ref('ems.group_secretary'), ref('ems.group_head_of_studies')])]"/>
-            <field name="state">code</field>
-            <field name="code">action = records.action_ems_close_unconfirmed()</field>
-        </record>
-
-        <!-- "Send Enrollment", moved from a loose header button into the Action menu. List only:
-             the form already offers it as its own "Send by email" button. -->
-        <record id="action_server_enrollment_send" model="ir.actions.server">
-            <field name="name">Send Enrollment</field>
-            <field name="model_id" ref="sale.model_sale_order"/>
-            <field name="binding_model_id" ref="sale.model_sale_order"/>
-            <field name="binding_view_types">list</field>
-            <field name="groups_id" eval="[(6, 0, [ref('ems.group_academic_admin'), ref('ems.group_secretary')])]"/>
-            <field name="state">code</field>
-            <field name="code">action = records.action_send_enrollment_proposal()</field>
-        </record>
-
     </data>
 </odoo>

@@ -642,28 +642,20 @@ class EmsCourseGuardDutyBoard(models.Model):
         return False
 
     @staticmethod
-    def _notice_tuple(notice):
-        """The change a notice is about, as the same tuple the options use."""
-        if notice.absence_change_type in BREAK_CHANGES:
-            return (notice.absence_change_type, notice.absence_change_hour, notice.absence_change_hour_to)
-        return (notice.absence_change_type, notice.absence_change_hour)
-
-    @classmethod
-    def _notice_change(cls, notice):
-        """The change a notice communicates; None for a rectification back to the usual
-        timetable, which communicates that nothing changes."""
-        if not notice or notice.absence_change_type in NORMAL_CHANGE.values():
+    def _notice_change(change):
+        """The change a notice communicates on one side of the day; None for a rectification back
+        to the usual timetable, which communicates that nothing changes."""
+        if not change or change[0] in NORMAL_CHANGE.values():
             return None
-        return cls._notice_tuple(notice)
+        return change
 
     @staticmethod
-    def _notice_side(notice, side):
-        """Whether `notice` is about that side of the day: the start, the end, or the break it
-        overlaps."""
+    def _change_side(change, side):
+        """Whether `change` (one of those a notice tells) is about that side of the day: the start,
+        the end, or the break it overlaps."""
         if not BoardBreakSide.is_break(side):
-            return CHANGE_SIDES[notice.absence_change_type] == side
-        return notice.absence_change_type in BREAK_CHANGES and overlaps(
-            notice.absence_change_hour, notice.absence_change_hour_to, *BoardBreakSide.period(side))
+            return CHANGE_SIDES[change[0]] == side
+        return change[0] in BREAK_CHANGES and overlaps(change[1], change[2], *BoardBreakSide.period(side))
 
     def _board_day_hour(self, day):
         """How far into `day` the centre's clock is, as a float hour: None for a day still to come,
@@ -690,7 +682,8 @@ class EmsCourseGuardDutyBoard(models.Model):
         of each group's day (its start, its end, and each of its level's breaks)
         stands between what its absences allow (`'options'`, see _allowed_absence_changes, and
         `'expected'`, the largest of them) and what its families have been told (`'communicated'`,
-        the latest notice on that side that left the draft state). `'status'`:
+        the change told on that side by the latest notice about it that left the draft state - a
+        notice can tell several sides at once, issue #652). `'status'`:
         - None: nothing to communicate, nothing communicated.
         - 'communicated': the families were told one of the allowed changes - the largest one or
           a smaller one the planner chose, with a guard for the rest: it is their decision, so a
@@ -700,8 +693,8 @@ class EmsCourseGuardDutyBoard(models.Model):
           refused or cancelled, or the timetable changed): a sent notice cannot be undone, so a
           correcting one is proposed, with going back to the usual timetable among its options.
         `'target'` is the option proposed by default, `'draft'` a draft notice already prepared for
-        one of the options, and `'teachers'` the absent teachers whose lessons the change concerns -
-        any of their managers can act on it.
+        one of the options and `'draft_change'` that option, and `'teachers'` the absent teachers
+        whose lessons the change concerns - any of their managers can act on it.
 
         A change whose time has already come (see _change_start) can no longer be communicated, so
         it is never offered, and one the families were told about that has already come is settled:
@@ -710,6 +703,10 @@ class EmsCourseGuardDutyBoard(models.Model):
         blocks_by_group = blocks_by_group or self._get_group_day_blocks(day, groups)
         notices = self.env['ems.notice'].sudo().search([
             ('absence_date', '=', day), ('absence_group_id', 'in', groups.ids)], order='id')
+        # Every change told, oldest notice first: `{group id: [(notice, change)]}`.
+        told = defaultdict(list)
+        for notice in notices:
+            told[notice.absence_group_id.id] += [(notice, change) for change in notice._absence_change_tuples()]
         weekday = str(day.weekday())
         now_hour = self._board_day_hour(day)
         breaks_by_level = {}
@@ -725,13 +722,11 @@ class EmsCourseGuardDutyBoard(models.Model):
                 breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
                     [level], weekday, 0, 24)) if level else []
             allowed = self._allowed_absence_changes(blocks, breaks_by_level[level])
-            group_notices = notices.filtered(lambda notice, group=group: notice.absence_group_id == group)
             states[group.id] = {}
             for side in allowed:
-                side_notices = group_notices.filtered(
-                    lambda notice, side=side: self._notice_side(notice, side))
-                communicated = self._notice_change(
-                    side_notices.filtered(lambda notice: notice.state in COMMUNICATED_NOTICE_STATES)[-1:])
+                side_told = [(notice, change) for notice, change in told[group.id] if self._change_side(change, side)]
+                communicated = self._notice_change(next((
+                    change for notice, change in reversed(side_told) if notice.state in COMMUNICATED_NOTICE_STATES), None))
                 options = [option for option in allowed[side] if not is_past(option)]
                 expected = options[-1] if options else None
                 if not communicated:
@@ -744,9 +739,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                     options = options + [normal] if not is_past(normal) else options
                     status = 'rectification' if options else None
                 target = options[-2] if status == 'rectification' and len(options) > 1 else (options[-1] if options else None)
-                draft = side_notices.filtered(
-                    lambda notice, options=options: notice.state == 'draft' and any(self._same_change(
-                        self._notice_tuple(notice), option) for option in options))[-1:]
+                draft, draft_change = next((
+                    (notice, change) for notice, change in reversed(side_told) if notice.state == 'draft'
+                    and any(self._same_change(change, option) for option in options)), (notices.browse(), None))
                 window = [block for block in blocks if any(
                     self._change_window_contains(other, block['hour_from'], block['hour_to'])
                     for other in (expected, communicated))]
@@ -761,6 +756,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'options': options,
                     'target': target,
                     'draft': draft,
+                    'draft_change': draft_change,
                     'teachers': teachers or self.env['hr.employee'].union(*(block['teachers'] for block in blocks)),
                 }
         return states
@@ -1423,6 +1419,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'expected': state['expected'],
                         'communicated': state['communicated'],
                         'draft': state['draft'],
+                        'draft_change': state['draft_change'],
                         'can_manage': can_manage(state['teachers'], group),
                     })
         for cover in shift_covers:
@@ -1882,6 +1879,10 @@ class EmsCourseGuardDutyBoard(models.Model):
             }
         return labels.get(change_type, _("Usual timetable"))
 
+    def _absence_changes_label(self, changes):
+        """Every change a notice tells (see _absence_change_label), in one line."""
+        return format_list(self.env, [self._absence_change_label(change) for change in changes]) or False
+
     def _board_action_data(self, action):
         """JSON-safe version of one of the day's pending actions (see
         _get_board_absence_management), with the sentence the absences table shows for it."""
@@ -1899,8 +1900,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             data.update(cover_id=cover.id, cover_type=cover.cover_type, notice_id=cover.notice_id.id)
             if action['type'] == 'pending_arrangement':
                 # Shown with the proposals, as a draft to open and send: same box, same button.
-                data.update(draft_id=cover.notice_id.id, options=[],
-                            draft_label=self._absence_change_label(self._notice_tuple(cover.notice_id)))
+                data.update(draft_id=cover.notice_id.id, options=[], draft_label=cover.notice_id.absence_change_label)
                 data['label'] = _("%(group)s at %(time)s (%(teacher)s): the arrangement with %(guard)s only counts "
                                   "once its notice to the families is sent.", **values)
             elif cover.cover_type == 'arrangement':
@@ -1923,10 +1923,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'label': self._absence_change_label(change)}
                    for change in action['options']]
         draft = action['draft']
-        draft_change = self._notice_tuple(draft) if draft else None
         data.update(label=label, options=options, default=action['options'].index(action['target']),
-                    draft_id=draft.id or False,
-                    draft_label=self._absence_change_label(draft_change) if draft_change else False)
+                    draft_id=draft.id or False, draft_label=self._absence_change_label(action['draft_change']))
         return data
 
     def _period_label(self, hour_from, hour_to):

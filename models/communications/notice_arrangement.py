@@ -14,10 +14,12 @@ from ..attendance.absence_coverage import COMMUNICATED_NOTICE_STATES, overlaps
 class EmsNoticeArrangement(models.Model):
     """A notice that tells a group's students that some of their lessons change time on a day
     (issue #649), because an internal arrangement of the guard duty board moved them: a lesson
-    moved into the gap an absence left, or two lessons swapped. One draft per group and day,
+    moved into the gap an absence left, or two lessons swapped. One notice per group and day,
     listing every lesson of the group that changes time then, kept up to date as arrangements are
-    applied or withdrawn, and never sent from here: whoever organises the absences reviews it and
-    sends it from the notice's own form. Unlike the notice to the families about a shorter day
+    applied or withdrawn. Accepting an arrangement on the board sends it at once (issue #652, see
+    ems.absence_cover._board_send_notices); a correction that withdrawing one prepares stays a
+    draft, never sent from here: whoever organises the absences reviews it and sends it from the
+    notice's own form. Unlike the notice to the families about a shorter day
     (notice_absence_change.py), no arrangement waits for it.
 
     'arrangement_lessons' is what the notice tells, so that a change after it was sent can be
@@ -86,7 +88,8 @@ class EmsNoticeArrangement(models.Model):
     @api.model
     def _sync_arrangement_notices(self, pairs):
         """Brings the students' notice of each `(group id, day)` of `pairs` up to date with the
-        arrangements in force (issue #649), and returns the drafts that need sending:
+        arrangements in force (issue #649), and returns the drafts that need sending (accepting an
+        arrangement sends them, see ems.absence_cover._board_send_notices):
         - nothing told yet: a draft listing every lesson that changes time (created, rewritten, or
           deleted when nothing changes any more);
         - a notice already sent, and the lessons no longer as it said: a correction draft listing

@@ -114,6 +114,7 @@ export class GuardDutyBoard extends Component {
         this.actionService = useService("action");
         this.dialog = useService("dialog");
         this.popover = useService("popover");
+        this.notification = useService("notification");
         this.state = useState({
             // Both set in onWillStart, once the server clock is known.
             activeDay: 0,
@@ -574,13 +575,18 @@ export class GuardDutyBoard extends Component {
         this.state.planSelections[plan.key] = toggledPlanSelection(plan, this.planSelection(plan), index, checked);
     }
 
-    // Applies the checked steps of a detected plan. A notice among them opens its draft for the
-    // families straight away: the moves it frees the group from only count once it is sent.
+    // Applies the checked steps of a detected plan (issue #652): the notices they bring, one per
+    // group to its families and one to its students, are sent straight away - checking the step
+    // was the confirmation. One that could not be sent stays a draft and opens, with the reason,
+    // for the planner to review and send: the moves it frees the group from only count once it is.
     async applyPlan(plan, selection) {
         const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [
             this.activeDate, selectedPlanSteps(plan, selection),
         ]);
         if (result.notice_action) {
+            if (result.notice_error) {
+                this.notification.add(result.notice_error, { type: "warning", sticky: true });
+            }
             await this.actionService.doAction(result.notice_action);
             return;
         }

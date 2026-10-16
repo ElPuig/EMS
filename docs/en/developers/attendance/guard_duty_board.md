@@ -544,7 +544,20 @@ never disagree.
 - **Rows** are the stretches between every distinct start and end time of the shift's lines
   (`HOUR_EPSILON`-tolerant), so a 10:25-11:25 lesson spans the 10:25-11:00 and 11:00-11:25
   stretches when another area has a boundary at 11:00. Each row carries its `minutes`; the screen
-  makes a longer stretch a taller row, so the grid reads like a clock.
+  makes a longer stretch a taller row, so the grid reads like a clock. It also carries its own
+  bounds, `hour_from`/`hour_to` (float hours), for the current-time line below.
+- **Current-time line (issue #647):** on both tabs, a dotted red line crosses the whole table at the
+  current time. `nowLinePosition()` (`guard_duty_board.js`) finds the row whose
+  `hour_from`/`hour_to` hold "now" and how far into it (0 to 1); "now" is `serverNow()`, the
+  server's clock in the company's timezone (see [`timezones.md`](../shared/timezones.md)), and the
+  line is only shown when the board's date is today and a row holds it (not on the other shift,
+  before the first block or after the last). `placeNowLine()` then measures that `<tr>` in the DOM
+  (rows have different heights, breaks included) and places one absolutely positioned
+  `.o_guard_board_now_line` (`pointer-events: none`) inside the table's wrapper, which is
+  `position: relative` and scrolls sideways with the table. It runs after every render
+  (`useEffect`), on a window resize (a centred table moves) and once a minute (`setInterval`,
+  cleared on unmount), writing only the line's own style: nothing is re-rendered to move it, and
+  no cell does any work for it. The PDF has no line.
 - **A slot** is either `{'empty': True}`, a block where an item starts (its `rowspan`, its own
   `label` - the item's real time, shown in every block so a cell reads on its own among many
   columns - and `line`, the index of its line in `lines`), or nothing under a block's rowspan.
@@ -916,6 +929,10 @@ dialog - and once per plan in the "Proposals for the absences" box, under its gr
 per step with its checkbox on the left (`GuardArrangementPlan`,
 `static/src/js/backend/guard_arrangement_plan.js`), all checked by default. Unchecking a step
 unchecks those that need it, checking one checks what it needs (`toggledPlanSelection()`).
+In the box, a plan's **Apply the checked steps** button sits on the right
+(`.o_guard_board_plan_actions`), in the same column as the buttons of the proposal rows: every
+action button of the boxes above the table shares one width (`.o_guard_board_action_button`,
+`guard_duty_board.css`), so they line up whatever their label.
 
 #### Applying (`ems.absence_cover.board_apply_plan(day, steps)`)
 

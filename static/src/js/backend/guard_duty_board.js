@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onMounted, onWillStart, onWillUnmount, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { useSetupAction } from "@web/search/action_hook";
@@ -46,6 +46,9 @@ const VIEWS = [
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+// How often the current-time line moves down the grid: once a minute, its own resolution.
+const NOW_LINE_REFRESH_MS = 60 * 1000;
 
 // Mirrors ems.course's own SHIFT_HOURS (models/attendance/guard_duty_board.py): the afternoon
 // shift starts at 15:00, kept in sync by hand since a plain JS constant can't share the Python
@@ -154,6 +157,17 @@ export class GuardDutyBoard extends Component {
         });
         // Coming back through the breadcrumbs hands this back as props.state (see restoreNavigation).
         useSetupAction({ getLocalState: () => this.navigationState });
+
+        // The red line marking the current time (issue #647): placed on the DOM after every
+        // render, on a resize (a centred table moves) and once a minute - never through a
+        // re-render, so the board itself is never redrawn just to move it.
+        this.contentRef = useRef("content");
+        useEffect(() => this.placeNowLine());
+        useExternalListener(window, "resize", () => this.placeNowLine());
+        onMounted(() => {
+            this.nowLineTimer = setInterval(() => this.placeNowLine(), NOW_LINE_REFRESH_MS);
+        });
+        onWillUnmount(() => clearInterval(this.nowLineTimer));
     }
 
     // What the planner is looking at - week and day, shift, view and areas - kept in the URL
@@ -239,6 +253,54 @@ export class GuardDutyBoard extends Component {
     // like a clock.
     rowStyle(row) {
         return `height: ${Math.max(26, Math.round(row.minutes * 1.3))}px`;
+    }
+
+    // Where "now" falls in the grid on screen: the index of its row and how far down that row,
+    // from 0 to 1 - or null when the board shows another day, or a time range that does not
+    // include it (the other shift, before the first block, after the last one). The rows are
+    // consecutive stretches of the shift, so there is no gap between two of them.
+    nowLinePosition() {
+        const board = this.state.board;
+        if (this.state.loading || !board || !board.lines.length) {
+            return null;
+        }
+        const now = serverNow();
+        if (now.toISODate() !== this.activeDate) {
+            return null;
+        }
+        const hour = now.hour + now.minute / 60;
+        const grid = this.state.activeView === "schedule" ? board.schedule_grid : board.absence_grid;
+        const index = grid.rows.findIndex((row) => hour >= row.hour_from && hour < row.hour_to);
+        if (index === -1) {
+            return null;
+        }
+        const row = grid.rows[index];
+        return { index, fraction: (hour - row.hour_from) / (row.hour_to - row.hour_from) };
+    }
+
+    // Draws the line across the whole table at the current time, proportionally inside the row
+    // holding it: the rows have different heights, so it is measured on the row itself. The line
+    // sits in the table's wrapper (positioned), which scrolls sideways with the table.
+    placeNowLine() {
+        const line = this.contentRef.el?.querySelector(".o_guard_board_now_line");
+        if (!line) {
+            return;
+        }
+        const position = this.nowLinePosition();
+        const wrap = line.parentElement;
+        const table = wrap.querySelector(".o_guard_board_timeline");
+        const row = position && table?.tBodies[0]?.rows[position.index];
+        if (!row) {
+            line.style.display = "none";
+            return;
+        }
+        const wrapBox = wrap.getBoundingClientRect();
+        const rowBox = row.getBoundingClientRect();
+        const tableBox = table.getBoundingClientRect();
+        line.style.top = `${rowBox.top - wrapBox.top + wrap.scrollTop + rowBox.height * position.fraction}px`;
+        line.style.left = `${tableBox.left - wrapBox.left + wrap.scrollLeft}px`;
+        line.style.width = `${tableBox.width}px`;
+        line.style.display = "block";
     }
 
     slotAbsences(slot, key) {

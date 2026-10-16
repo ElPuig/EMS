@@ -1,8 +1,47 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { serverNow } from "@ems/js/backend/server_clock";
 
-const { DateTime } = luxon;
+// Issue #647: the current-time line is shown, across the whole table, at the height of "now" inside
+// the row holding it - measured against the row's own "HH:MM-HH:MM" label and box, so a change in
+// how rows are sized cannot turn this into a false pass.
+function checkNowLine() {
+    const line = document.querySelector(".o_guard_board_now_line");
+    if (!line || getComputedStyle(line).display === "none") {
+        throw new Error("The current-time line is not shown");
+    }
+    const wrap = line.parentElement;
+    const table = wrap.querySelector(".o_guard_board_timeline");
+    const now = serverNow();
+    const hour = now.hour + now.minute / 60;
+    const toHour = (text) => {
+        const [hours, minutes] = text.split(":").map(Number);
+        return hours + minutes / 60;
+    };
+    const row = [...table.tBodies[0].rows].find((tr) => {
+        const [from, to] = tr.querySelector(".o_guard_board_time").textContent.trim().split("-").map(toHour);
+        return hour >= from && hour < to;
+    });
+    if (!row) {
+        throw new Error(`No row of the table holds the current time (${now.toFormat("HH:mm")})`);
+    }
+    const [from, to] = row.querySelector(".o_guard_board_time").textContent.trim().split("-").map(toHour);
+    const rowBox = row.getBoundingClientRect();
+    const lineBox = line.getBoundingClientRect();
+    const expected = rowBox.top + rowBox.height * (hour - from) / (to - from);
+    // Within a couple of pixels: the minute can turn between the board placing it and this check.
+    if (Math.abs(lineBox.top + lineBox.height / 2 - expected) > 3) {
+        throw new Error(`The current-time line is at ${lineBox.top}px, expected about ${expected}px`);
+    }
+    const tableBox = table.getBoundingClientRect();
+    if (Math.abs(lineBox.left - tableBox.left) > 1 || Math.abs(lineBox.width - tableBox.width) > 1) {
+        throw new Error("The current-time line does not span the whole table");
+    }
+    if (getComputedStyle(line).pointerEvents !== "none") {
+        throw new Error("The current-time line must let clicks through to the cells under it");
+    }
+}
 
 // Opens the centre-wide guard duty board (Employee Attendances > Guard duty schedule),
 // confirms it defaults to today's own weekday tab and the shift matching the current time (not
@@ -13,7 +52,9 @@ const { DateTime } = luxon;
 // dropdown actually re-fetches, not just keeps showing whatever was already loaded), exercises
 // the level filter (issue #390), the absence information on both the timetable and "Guard duty
 // table" tabs (with the week navigation clearing it once the absence's own week is left), then
-// exercises the per-day "Download PDF" button. Seed data comes from
+// exercises the per-day "Download PDF" button. The clock is moved to 09:30 of a school day
+// (shift_ems_clock), so the red current-time line (issue #647) is checked on both tabs of the day
+// the board opens on, and gone once another week is shown. Seed data comes from
 // TestGuardDutyBoardTour.test_guard_duty_board_tour (tests/test_guard_duty_board_tour.py).
 registry.category("web_tour.tours").add("ems_guard_duty_board", {
     test: true,
@@ -27,14 +68,14 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             // Regression check for a real request (2026-09-01, developer feedback: "cuando entro
             // en la sección... por defecto tendría que estar viendo el que toca") - mirrors
             // getDefaultDayAndShift() in guard_duty_board.js exactly, computed independently here
-            // against the real clock in the company's timezone (luxon's default zone, see
-            // company_timezone_service.js), as the board itself does - never the browser's own
-            // timezone, which is UTC on CI - not a fixed expectation: the board must match, not
-            // just happen to default to Monday.
+            // against the server's clock in the company's timezone (serverNow(), as the board
+            // itself does: the test moves that clock, see shift_ems_clock) - never the browser's
+            // own clock or timezone, which is UTC on CI - not a fixed expectation: the board must
+            // match, not just happen to default to Monday.
             trigger: ".o_guard_board_tabs .nav-link.active",
             content: "The board defaults to today's own weekday tab, not always Monday",
             run: () => {
-                const now = DateTime.now();
+                const now = serverNow();
                 const expectedIndex = now.weekday <= 5 ? now.weekday - 1 : 0;
                 const dayLabels = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
                 const activeLink = document.querySelector(".o_guard_board_tabs .nav-link.active");
@@ -50,7 +91,7 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             trigger: ".o_guard_board_shift_select",
             content: "The board defaults to the shift matching the current time (afternoon from 15:00)",
             run: () => {
-                const now = DateTime.now();
+                const now = serverNow();
                 const expectedShift = now.hour >= 15 ? "afternoon" : "morning";
                 const select = document.querySelector(".o_guard_board_shift_select");
                 if (select.value !== expectedShift) {
@@ -63,9 +104,19 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
             content: "The board opens on the absences table, the one used day to day",
         },
         {
+            trigger: ".o_guard_board_duty_table .o_guard_board_time",
+            content: "Today, at 09:30, a red line marks the current time across the absences table",
+            run: checkNowLine,
+        },
+        {
             trigger: ".o_guard_board_view_tabs .nav-link:contains('Guard duty schedule')",
             content: "Switch to the timetable for the steps below",
             run: "click",
+        },
+        {
+            trigger: ".o_guard_board_table:not(.o_guard_board_duty_table) .o_guard_board_time",
+            content: "...and across the timetable",
+            run: checkNowLine,
         },
         {
             // The rest of this tour exercises fixed Monday/Morning fixture data (seeded by
@@ -322,6 +373,10 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
         {
             trigger: ".o_guard_board_duty_table:not(:has(.o_guard_board_absent:contains('Tour Guard Board Teacher')))",
             content: "Next week the fixture teacher is no longer marked absent",
+        },
+        {
+            trigger: ".o_guard_board_table_wrap:has(.o_guard_board_now_line[style*='display: none'])",
+            content: "...and no current-time line is drawn on a day that is not today",
         },
         {
             trigger: ".o_guard_board_week_nav button:first-child",

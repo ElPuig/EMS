@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from odoo.tests import HttpCase, tagged
 
-from .common import create_level_study, create_role_user, mock_outgoing_email
+from .common import create_level_study, create_role_user, mock_outgoing_email, shift_ems_clock
 
 
 @tagged('post_install', '-at_install')
@@ -24,6 +24,10 @@ class TestGuardDutyBoardTour(HttpCase):
         # 'lang': 'en_US' itself, so no separate force_user_language_to_english() call is needed
         # here the way it would be for a pre-existing account like admin.
         create_role_user(self, 'teacher', 'guard_duty_board_tour_teacher')
+        # 09:30 of a school day (issue #647): the board opens on today's tab and the morning shift,
+        # where the guard below is on duty, so its current-time line must show - whenever the
+        # suite runs, weekends and nights included. Every date below is taken from it.
+        now = shift_ems_clock(self, hour=9.5, weekdays=range(5))
         # To observe this tour in a real browser during development:
         #   self.start_tour("/odoo", "ems_guard_duty_board", login="guard_duty_board_tour_teacher", watch=True)
 
@@ -69,10 +73,12 @@ class TestGuardDutyBoardTour(HttpCase):
         guard_teacher = self.env['hr.employee'].create({'name': 'Tour Guard Board Guard', 'employee_type': 'teacher'})
         guard_calendar = self.env['resource.calendar'].create({'name': 'Tour Guard Board Guard Calendar', 'employee_id': guard_teacher.id})
         guard_teacher.resource_calendar_id = guard_calendar
+        # On Monday, where the fixtures below are, and on today's weekday too, so the board the
+        # tour opens on today has a block holding 09:30.
         guard_calendar.apply_schedule_changes([{
-            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'dayofweek': dayofweek, 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
             'non_teaching': self.env.ref('ems.non_teaching_g').id, 'name': 'Guard',
-        }])
+        } for dayofweek in sorted({'0', str(now.weekday())})])
 
         # A second guard, on 'Guard (WC)' duty specifically (2026-09-11, developer request) - the
         # one guard subtype worth calling out on the board itself since, unlike 'Guard (Break)',
@@ -160,7 +166,7 @@ class TestGuardDutyBoardTour(HttpCase):
         # date.weekday() does here). Whole day explicitly: 'leave_type_justified' does not seed
         # it, and a request that is neither a whole day nor a span of hours is worth zero hours,
         # which hr_holidays itself then refuses to approve.
-        today = date.today()
+        today = now.date()
         monday = today - timedelta(days=today.weekday())
         self.env['hr.leave'].create({
             'employee_id': teacher.id,

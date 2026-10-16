@@ -35,6 +35,8 @@ The two buttons on the right of the toolbar switch between the two ways of readi
 - **Absences table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
 - **Guard duty schedule** — the timetable, with everybody who is away marked on it.
 
+When the board shows today, a **dotted red line** crosses both views at the current time, at its exact height within the time block it falls in (at 16:40, two thirds of the way down the 16:00-17:00 block), so you can see at a glance which classes are on now. It moves down as the time goes by, and is not drawn on another day or outside the shift on screen.
+
 ---
 
 ## Reading the Timetable
@@ -190,7 +192,7 @@ Proposals come in this order: first those where the students lose fewer lessons;
 
 **Nobody's working day gets longer.** A proposal only includes a step if no teacher involved ends up with a longer day (counted from their first period to their last, lessons, guard duties and any other duty alike): whoever would come in earlier must leave earlier, and whoever would leave later must come in later. When a step changes somebody's entry or exit time, an orange line under it says exactly whose and how (*"… leaves at 20:20 instead of 21:20"*).
 
-**Applying a proposal.** Click **Apply the checked steps** under it, or click the class and choose the proposal in the dialog, where the proposals that solve that class come first, above sending a guard. Every step starts checked: uncheck those you do not want. A step that needs another one is unchecked along with it (a move into the gap another one leaves, a notice that only makes sense because of a move), and checking a step checks what it needs.
+**Applying a proposal.** Click **Apply the checked steps** on its right, or click the class and choose the proposal in the dialog, where the proposals that solve that class come first, above sending a guard. Every step starts checked: uncheck those you do not want. A step that needs another one is unchecked along with it (a move into the gap another one leaves, a notice that only makes sense because of a move), and checking a step checks what it needs.
 
 ![Dialog of a class: the proposals that solve it, the first one chosen with its steps checked, above sending a guard and the arrangement described by hand](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 

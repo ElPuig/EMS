@@ -231,6 +231,9 @@ class BoardTimeGrid:
 
         return [{
             'label': self._label(hour_from, hour_to),
+            # Where the screen draws its current-time line (issue #647).
+            'hour_from': hour_from,
+            'hour_to': hour_to,
             # Taller for a longer stretch, so the grid reads like a clock.
             'minutes': round((hour_to - hour_from) * 60),
             'cells': [slot for lanes in columns for slot in cells(lanes, i)],

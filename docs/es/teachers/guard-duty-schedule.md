@@ -35,6 +35,8 @@ Los dos botones de la derecha de la barra de herramientas cambian entre las dos 
 - **Tabla de ausencias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
 - **Horario de guardias** — el horario, con todo el que falta marcado encima.
 
+Cuando el horario muestra el día de hoy, una **línea roja de puntos** cruza las dos vistas a la hora actual, a la altura exacta dentro de la franja horaria en la que cae (a las 16:40, a dos tercios de la franja 16:00-17:00), para que veas de un vistazo qué clases se están dando ahora. Va bajando a medida que pasa el tiempo, y no se dibuja en otro día ni fuera del turno que hay en pantalla.
+
 ---
 
 ## Leer el horario
@@ -190,7 +192,7 @@ Las propuestas aparecen en este orden: primero las que hacen perder menos clases
 
 **La jornada de nadie se alarga.** Una propuesta solo incluye un paso si ningún docente implicado acaba con una jornada más larga (contada desde su primera franja hasta la última, tanto clases como guardias y cualquier otra tarea): quien tenga que entrar antes debe salir antes, y quien tenga que salir más tarde debe entrar más tarde. Cuando un paso cambia la hora de entrada o de salida de alguien, una línea naranja debajo dice exactamente de quién y cómo (*"… sale a las 20:20 en lugar de a las 21:20"*).
 
-**Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados** debajo, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
+**Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados**, a su derecha, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
 
 ![Diálogo de una clase: las propuestas que la resuelven, la primera elegida con sus pasos marcados, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 

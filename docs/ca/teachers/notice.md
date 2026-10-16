@@ -26,6 +26,8 @@ La llista s'obre amb el filtre **"Mostrar tan sols els meus"**, amb els comunica
 
 Quan falta un docent del teu departament, l'horari de guàrdies pot proposar un comunicat que digui a l'alumnat i les famílies d'un grup que poden entrar més tard, sortir abans o no tenir classes. S'obre aquí com a esborrany adreçat a aquell grup, i els seus grups no es poden canviar. Consulta [Organitzar una absència](guard-duty-schedule.md#organitzar-una-absencia).
 
+Quan reorganitzes les classes (un intercanvi o una classe moguda), el quadrant també prepara un esborrany de comunicat només per a l'alumnat del grup, amb les classes que canvien d'hora aquell dia. Ni els seus grups ni els seus destinataris es poden canviar. Consulta [Organitzar una absència](guard-duty-schedule.md#organitzar-una-absencia).
+
 ---
 
 [← Tornar a l'índex principal](index.md)

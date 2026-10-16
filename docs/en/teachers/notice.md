@@ -26,6 +26,8 @@ The list opens with the **"Show only mine"** filter, showing the notices you cre
 
 When a teacher of your department is away, the guard duty schedule can propose a notice telling a group's students and families they can come in later, leave earlier or have no classes. It opens here as a draft addressed to that group; its groups cannot be changed. See [Organising an absence](guard-duty-schedule.md#organising-an-absence).
 
+When you rearrange the lessons instead (a swap or a moved lesson), the board also prepares a draft notice for the group's students only, listing the lessons that change time that day. Its groups and its recipients cannot be changed. See [Rearranging the lessons instead of sending a guard](guard-duty-schedule.md#rearranging-the-lessons-instead-of-sending-a-guard).
+
 ---
 
 [← Back to main index](index.md)

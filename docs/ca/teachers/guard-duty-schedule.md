@@ -35,6 +35,8 @@ Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de
 - **Taula d'absències** — una fila per franja horària: qui falta i què s'ha de cobrir, davant de qui està de guàrdia per cobrir-ho.
 - **Horari de guàrdies** — l'horari, amb tothom qui falta marcat a sobre.
 
+Quan l'horari mostra el dia d'avui, una **línia vermella** travessa les dues vistes a l'hora actual, a l'alçada exacta dins de la franja horària on cau (a les 16:40, a dos terços de la franja 16:00-17:00), perquè vegis d'un cop d'ull quines classes s'estan fent ara. Va baixant a mesura que passa l'estona, i no es dibuixa en un altre dia ni fora del torn que hi ha a la pantalla.
+
 ---
 
 ## Llegir l'horari
@@ -190,7 +192,7 @@ Les propostes surten en aquest ordre: primer les que fan perdre menys classes a 
 
 **La jornada de ningú no s'allarga.** Una proposta només inclou un pas si cap docent implicat acaba amb una jornada més llarga (comptada des de la seva primera franja fins a l'última, tant classes com guàrdies i qualsevol altra tasca): qui hagi d'entrar abans ha de sortir abans, i qui hagi de sortir més tard ha d'entrar més tard. Quan un pas canvia l'hora d'entrada o de sortida d'algú, una línia taronja a sota diu exactament de qui i com (*"… surt a les 20:20 en lloc de les 21:20"*).
 
-**Aplicar una proposta.** Fes clic a **Aplicar els passos marcats** a sota, o fes clic a la classe i tria la proposta al diàleg, on les propostes que resolen aquella classe surten primer, per sobre d'enviar una guàrdia. Tots els passos surten marcats: desmarca els que no vulguis. Un pas que en necessita un altre es desmarca amb ell (una classe moguda al buit que en deixa una altra, un avís que només té sentit per una classe moguda), i marcar un pas marca el que necessita.
+**Aplicar una proposta.** Fes clic a **Aplicar els passos marcats**, a la seva dreta, o fes clic a la classe i tria la proposta al diàleg, on les propostes que resolen aquella classe surten primer, per sobre d'enviar una guàrdia. Tots els passos surten marcats: desmarca els que no vulguis. Un pas que en necessita un altre es desmarca amb ell (una classe moguda al buit que en deixa una altra, un avís que només té sentit per una classe moguda), i marcar un pas marca el que necessita.
 
 ![Diàleg d'una classe: les propostes que la resolen, la primera triada amb els seus passos marcats, per sobre d'enviar una guàrdia i de la reorganització descrita a mà](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 

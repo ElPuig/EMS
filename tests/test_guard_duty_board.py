@@ -922,6 +922,8 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
 
         schedule = grid.schedule()
         self.assertEqual([row['label'] for row in schedule['rows']], ['10:00-10:30', '10:30-11:00'])
+        # The bounds the screen places its current-time line with (issue #647).
+        self.assertEqual([(row['hour_from'], row['hour_to']) for row in schedule['rows']], [(10, 10.5), (10.5, 11)])
         self.assertEqual([(area['id'], area['colspan']) for area in schedule['areas']], [(self.area.id, 1), (self.area2.id, 1)])
         first, second = schedule['rows']
         self.assertEqual(first['cells'][0], {'is_break': True, 'label': '10:00-10:30', 'rowspan': 1})

@@ -63,8 +63,22 @@
    not have that ambiguity: the table's total width is the literal sum of the <col> widths below,
    so the wrapper's overflow-x always has an exact width to scroll against. */
 .o_guard_board_table_wrap {
+    position: relative;
     overflow-x: auto;
     width: 100%;
+}
+
+/* The current time (issue #647): a red line across the whole table, at the height of "now" inside
+   the row holding it. Placed and shown by placeNowLine() in guard_duty_board.js; it never takes a
+   click from the cells under it. */
+.o_guard_board_now_line {
+    display: none;
+    position: absolute;
+    height: 0;
+    border-top: 2px solid #dc3545;
+    margin-top: -1px;
+    pointer-events: none;
+    z-index: 2;
 }
 
 .o_guard_board_table {
@@ -380,8 +394,11 @@
     font-size: 12px;
 }
 
-.o_guard_board_plan_apply {
-    margin-left: 1.5rem;
+/* The button applying a plan's checked steps: on the right, in the same column as the buttons of
+   the proposal rows (issue #647). */
+.o_guard_board_plan_actions {
+    display: flex;
+    justify-content: flex-end;
 }
 
 /* An arrangement that changes a teacher's entry or exit time: said on a line of its own under the
@@ -472,6 +489,15 @@
 
 .o_guard_board_action_option {
     width: auto;
+}
+
+/* Every action button of the boxes above the absences table shares one width, so they line up in
+   one column on the right whatever their label (issue #647). A longer translation wraps inside it
+   rather than widening it. */
+.o_guard_board_action_button {
+    flex: 0 0 auto;
+    width: 13rem;
+    white-space: normal;
 }
 
 /* The info icon left of a struck-out line: why no guard is needed, on hover and on click. */

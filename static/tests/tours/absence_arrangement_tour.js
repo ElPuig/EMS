@@ -55,6 +55,26 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             content: "It is unchecked",
         },
         {
+            // Issue #647: the button sits on the right, in the same column and with the same width
+            // as the buttons of the proposal rows ("Propose notice"...), not under the steps.
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_actions .o_guard_board_plan_apply.o_guard_board_action_button",
+            content: "The apply button is right-aligned, lined up with the other action buttons",
+            run: () => {
+                const box = document.querySelector(".o_guard_board_arrangements");
+                const apply = box.querySelector(".o_guard_board_plan_apply").getBoundingClientRect();
+                const plan = box.querySelector(".o_guard_board_plan_apply").closest(".o_guard_board_plan").getBoundingClientRect();
+                if (Math.abs(apply.right - plan.right) > 1) {
+                    throw new Error(`The apply button ends at ${apply.right}px, its proposal at ${plan.right}px`);
+                }
+                for (const button of box.querySelectorAll(".o_guard_board_action_button")) {
+                    const other = button.getBoundingClientRect();
+                    if (Math.abs(other.right - apply.right) > 1 || Math.abs(other.width - apply.width) > 1) {
+                        throw new Error(`"${button.textContent.trim()}" is not lined up with the apply button`);
+                    }
+                }
+            },
+        },
+        {
             trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
             content: "Apply the checked steps",
             run: "click",

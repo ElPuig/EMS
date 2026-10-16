@@ -953,6 +953,43 @@ Then:
 - Moves without a notice are in effect at once, and their teachers are told
   (`_notify_arrangement()`: one message per moved shared lesson, naming every group).
 - Every cover is checked with `_check_cover_manager()` (below); any failure rolls everything back.
+- Every group whose lessons a move or a swap changes gets a draft notice to its **students** (#649,
+  below). The form that opens is the first families' draft or, without one, the first students'
+  draft (`notice_action`); `board_arrange()` opens the students' draft of a swap too.
+
+#### Telling the students which lessons change time (#649)
+
+A move or a swap changes when the group has a subject, which the families' notice (only about when
+the group starts or finishes) never says. So every swap and every move, in effect or still waiting
+for the families' notice, is told to the group's **students only**, in a draft
+`ems.notice` (`models/communications/notice_arrangement.py`):
+
+- **One per group and day** (`arrangement_group_id`, `arrangement_date`), listing every lesson of
+  the group that changes time that day (`_arrangement_moved_lessons()`: in a move, the teacher's
+  lesson left free, now in the gap; in a swap, that same one plus the absent teacher's lesson, now
+  where the other one was), with its subject (read once from the timetable) and both time spans.
+  `arrangement_lessons` stores what the notice tells: `[subject id, teacher id, usual from, usual
+  to, new from, new to]` per lesson.
+- **Never sent from the board, never waited for.** The arrangement is in effect as before
+  (`is_effective` only follows `notice_id`, the families' notice); `student_notice_id` on each
+  cover (`ondelete='set null'`) only points at the draft, or at the last notice sent, for the record.
+- **Kept up to date** by `_sync_arrangement_notices(pairs)`, called by `board_arrange()`,
+  `board_apply_plan()`, `_board_withdraw()` (a released or replaced arrangement) and when a
+  families' draft is deleted (its waiting moves cascade with it, `ems.notice.unlink()`). Per group
+  and day it compares the lessons that change time now with what the last notice that left the
+  draft state told (`COMMUNICATED_NOTICE_STATES`):
+  - nothing told yet: the draft is created, rewritten when its lessons change (only then, so the
+    planner's own edits survive any other board action) or deleted when nothing changes any more;
+  - already told and still true: no draft (one left over is deleted);
+  - already told and no longer true: a **correction** draft ("Correction: ..."), listing the
+    lessons that change time now and those back at their usual time.
+- **Who**: a new draft belongs to the user who applied or withdrew the arrangement (they review and
+  send it, like the families' one); an existing draft, possibly someone else's, is updated or
+  deleted as superuser, since every caller has already checked the user organises these absences
+  (`_check_cover_manager()`). `_check_arrangement_recipients` keeps it addressed to the group's
+  students (`recipient_type = 'students'`, student lines of that group only), and the form locks its
+  groups and recipients. The board's side logic (`_get_absence_change_states()`,
+  `CHANGE_TYPES`/`CHANGE_SIDES`) never reads these notices: they have no `absence_change_type`.
 
 #### A lesson moved without a notice is a class to cover
 
@@ -1098,7 +1135,9 @@ Department and Seminar chiefs use Communications > Notices limited to the groups
 teaches or manages (see the access table in [notice.md](../communications/notice.md)); a
 timetable-change notice is one of those.
 `_check_absence_change_recipients` keeps it addressed to its own group's students and families,
-and the form locks its groups. `ems.absence_cover` is read-only to every teacher
+and the form locks its groups; `_check_arrangement_recipients` does the same for the notice to the
+students about moved lessons (#649), which the user who applies the arrangement creates and sends
+too. `ems.absence_cover` is read-only to every teacher
 (`ems.access_ems_absence_cover_teacher`): every write goes through the board methods above,
 which check who manages the class and then write with `sudo()`.
 

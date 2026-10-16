@@ -52,16 +52,25 @@
                             <field name="absence_date" class="mx-1"/>
                             (<field name="absence_change_type" class="mx-1"/><field name="absence_change_hour" widget="float_time" class="mx-1" invisible="absence_change_type not in ('late_entry', 'early_leave', 'long_break')"/><span invisible="absence_change_type != 'long_break'">-</span><field name="absence_change_hour_to" widget="float_time" class="mx-1" invisible="absence_change_type != 'long_break'"/>)
                         </div>
+                        <!-- The lessons a guard duty board arrangement moved (issue #649): addressed to
+                             that one group's students only (see _check_arrangement_recipients), so
+                             neither its groups nor its recipients can be changed. -->
+                        <div class="alert alert-info" role="status" invisible="not arrangement_group_id">
+                            <i class="fa fa-exchange me-2" title="Moved lessons"/>
+                            <span>Lessons moved by an arrangement to cover an absence:</span>
+                            <field name="arrangement_group_id" class="fw-bold mx-1"/>
+                            <field name="arrangement_date" class="mx-1"/>
+                        </div>
                         <field name="can_cancel" invisible="True"/>
                         <field name="can_manage" invisible="True"/>
 
                         <group string="Recipients" col="4">
                             <group>
                                 <field name="available_group_ids" invisible="True"/>
-                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft' or absence_change_type" options="{'no_create': True}" domain="[('id', 'in', available_group_ids)]"/>
+                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft' or absence_change_type or arrangement_group_id" options="{'no_create': True}" domain="[('id', 'in', available_group_ids)]"/>
                             </group>
                             <group>
-                                <field name="recipient_type" readonly="state != 'draft'"/>
+                                <field name="recipient_type" readonly="state != 'draft' or arrangement_group_id"/>
                             </group>
                             <group>
                                 <field name="recipient_email_type" readonly="state != 'draft'" invisible="recipient_type == 'families'"/>

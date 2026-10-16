@@ -263,6 +263,16 @@ own group only, and the form shows an information banner and locks its groups. T
 these notices back to know what was communicated: see "Managing absences from the board" in
 [guard_duty_board.md](../attendance/guard_duty_board.md).
 
+**Moved-lesson notices to the students (issue #649).** A notice with `arrangement_date` and
+`arrangement_group_id` set (`models/communications/notice_arrangement.py`) tells a group's
+**students only** (`recipient_type = 'students'`) which of their lessons change time on a day
+because a guard duty board arrangement (a swap or a moved lesson) rearranged them: one per group
+and day, listing each subject's usual and new time span, and `arrangement_lessons` storing what it
+tells. The board creates and keeps it up to date as a draft (or proposes a "Correction:" draft once
+one was sent and the lessons change again); it is sent from this same form like any other notice.
+No arrangement waits for it. `_check_arrangement_recipients` keeps it addressed to that group's
+students, and the form shows an information banner and locks its groups and recipients.
+
 **Department and Seminar chiefs: their department's groups.** Both roles are
 `ems.group_department_chief`, which now sees Communications > Notices. What "their department's
 groups" means is resolved from who teaches, not configured: `ems.group.department_chief_user_ids`

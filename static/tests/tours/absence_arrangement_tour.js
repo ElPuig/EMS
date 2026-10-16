@@ -7,8 +7,9 @@ import { registry } from "@web/core/registry";
 // the group's last lesson into the 9:00 one and has the absent teacher, in from 10:00, teach their
 // 9:00 lesson at 12:00 instead: nobody loses a lesson. The planner keeps all but that last step:
 // both lessons are solved at once, and the lesson left free at 12:00 becomes a class to cover, with
-// the early leave proposed. Seed data comes from
-// TestAbsenceCoverageTour.test_absence_arrangement_tour.
+// the early leave proposed. Applying it opens the draft notice to the group's students about the
+// lessons that change time (issue #649); ems_absence_arrangement_result then checks the board. Seed
+// data comes from TestAbsenceCoverageTour.test_absence_arrangement_tour.
 registry.category("web_tour.tours").add("ems_absence_arrangement", {
     test: true,
     url: "/odoo/action-ems.action_guard_duty_board",
@@ -77,6 +78,39 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
         {
             trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
             content: "Apply the checked steps",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-info:contains('Lessons moved by an arrangement'):contains('TABTG')",
+            content: "The draft notice to the group's students opens: no families' notice is needed",
+        },
+    ],
+});
+
+// Issues #605 and #645: the board once ems_absence_arrangement has applied its steps. Seed data
+// comes from TestAbsenceCoverageTour.test_absence_arrangement_tour.
+registry.category("web_tour.tours").add("ems_absence_arrangement_result", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
             run: "click",
         },
         {

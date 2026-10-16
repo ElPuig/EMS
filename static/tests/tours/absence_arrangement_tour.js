@@ -7,9 +7,10 @@ import { registry } from "@web/core/registry";
 // the group's last lesson into the 9:00 one and has the absent teacher, in from 10:00, teach their
 // 9:00 lesson at 12:00 instead: nobody loses a lesson. The planner keeps all but that last step:
 // both lessons are solved at once, and the lesson left free at 12:00 becomes a class to cover, with
-// the early leave proposed. Applying it opens the draft notice to the group's students about the
-// lessons that change time (issue #649); ems_absence_arrangement_result then checks the board. Seed
-// data comes from TestAbsenceCoverageTour.test_absence_arrangement_tour.
+// the early leave proposed. Applying it sends the notice to the group's students about the lessons
+// that change time (issues #649, #652); the group has no students, so it cannot be sent and opens as
+// a draft to review. ems_absence_arrangement_result then checks the board. Seed data comes from
+// TestAbsenceCoverageTour.test_absence_arrangement_tour.
 registry.category("web_tour.tours").add("ems_absence_arrangement", {
     test: true,
     url: "/odoo/action-ems.action_guard_duty_board",
@@ -126,8 +127,9 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_result", {
 });
 
 // Issues #605 and #645, from the 9:00 lesson's own dialog: the plan that solves it comes first,
-// already chosen with every step checked; applying it opens the notice for the families, which the
-// move into the 9:00 lesson waits for. Seed data comes from
+// already chosen with every step checked; applying it sends the notice for the families (issue
+// #652), which the move into the 9:00 lesson waits for: the group has no students, so it cannot be
+// sent and opens as a draft to review. Seed data comes from
 // TestAbsenceCoverageTour.test_absence_arrangement_dialog_tour.
 registry.category("web_tour.tours").add("ems_absence_arrangement_dialog", {
     test: true,

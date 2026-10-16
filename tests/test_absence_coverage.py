@@ -36,6 +36,11 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         cls.teacher_guard_wc = cls.env['hr.employee'].create({'name': 'TABC WC Guard', 'employee_type': 'teacher'})
         cls.Cover = cls.env['ems.absence_cover']
         cls.Notice = cls.env['ems.notice']
+        # Accepting an arrangement sends its notices (issue #652): never let one reach a real
+        # mail server, whatever this box has configured.
+        mail_patcher = patch('odoo.addons.base.models.ir_mail_server.IrMailServer.send_email', return_value='tabc@example.com')
+        mail_patcher.start()
+        cls.addClassCleanup(mail_patcher.stop)
         # The teachers are notified in their own language: these assertions read English.
         for employee in cls.teacher_a | cls.teacher_b | cls.teacher_c:
             (employee.user_id.partner_id or employee.work_contact_id).lang = 'en_US'
@@ -757,8 +762,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         notice = self.Notice.browse(action['res_id'])
         self.assertEqual(notice.state, 'draft')
         self.assertEqual(notice.group_ids, self.group_a)
-        self.assertEqual((notice.absence_date, notice.absence_change_type, notice.absence_change_hour),
-                         (self.day, 'late_entry', 10.0))
+        self.assertEqual((notice.absence_date, notice._absence_change_tuples()), (self.day, [('late_entry', 10.0)]))
         self.assertIn('Due to the justified absence of the assigned teacher', notice.message)
         self.assertIn('10:00', notice.message)
         self.assertEqual(self._states()['entry']['draft'], notice)
@@ -1069,8 +1073,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
             str(self.day), self.group_a.id, 'long_break', 9.0, 10.5)['res_id'])
 
-        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.absence_change_hour_to),
-                         ('long_break', 9.0, 10.5))
+        self.assertEqual(notice._absence_change_tuples(), [('long_break', 9.0, 10.5)])
         self.assertIn('09:00', notice.message)
         self.assertIn('10:30', notice.message)
         notice.state = 'scheduled'
@@ -1151,7 +1154,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         cover, notice_action = self._apply(self._plans()[0])
 
         notice = self.Notice.browse(notice_action['res_id'])
-        self.assertFalse(notice.absence_change_type, "a swap loses no lesson: there is nothing to tell the families")
+        self.assertFalse(notice.absence_changes, "a swap loses no lesson: there is nothing to tell the families")
         self.assertEqual(notice, cover.student_notice_id, "only its students, about the lessons swapped (issue #649)")
         self.assertEqual((cover.arrangement_type, cover.guard_employee_id), ('swap', self.teacher_b))
         self.assertTrue(cover.is_effective)
@@ -1200,10 +1203,12 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         return plan
 
     def test_a_moved_lesson_counts_once_its_notice_is_sent(self):
+        """The group has no students: its notice cannot be sent when the plan is accepted (issue
+        #652), so it stays a draft and the move waits for it."""
         cover, notice_action = self._apply(self._moved_lesson_plan())
 
         notice = self.Notice.browse(notice_action['res_id'])
-        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('early_leave', 11.0, 'draft'))
+        self.assertEqual((notice._absence_change_tuples(), notice.state), ([('early_leave', 11.0)], 'draft'))
         self.assertEqual(cover.notice_id, notice)
         self.assertFalse(cover.is_effective, "accepting it and telling the families go together")
         self.assertFalse(self._messages(self.teacher_b, 'Timetable arrangement'), "nobody is told before the notice")
@@ -1490,8 +1495,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         ]))
         notices = covers.notice_id
         self.assertEqual(sorted(notices.absence_group_id.ids), sorted(both.ids))
-        self.assertEqual({(notice.absence_change_type, notice.absence_change_hour, notice.state) for notice in notices},
-                         {('early_leave', 12.0, 'draft')})
+        # No students in these groups: the notices cannot be sent (issue #652) and stay drafts.
+        self.assertEqual({(tuple(notice._absence_change_tuples()), notice.state) for notice in notices},
+                         {((('early_leave', 12.0),), 'draft')})
         self.assertIn(notice_action['res_id'], notices.ids)
         self.assertEqual(covers.filtered('notice_id').guard_employee_id, self.teacher_guard,
                          "only the move whose lesson the notice frees the groups from waits for it")
@@ -1513,7 +1519,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         covers, notice_action = self._apply(self._plans()[0], keep=[0, 1, 2])
 
-        self.assertFalse(self.Notice.browse(notice_action['res_id']).absence_change_type, "only the students' notice")
+        self.assertFalse(self.Notice.browse(notice_action['res_id']).absence_changes, "only the students' notice")
         self.assertTrue(all(covers.mapped('is_effective')) and not covers.notice_id)
         self.assertEqual(len(self._messages(self.teacher_guard, 'Timetable arrangement')), 1,
                          "one message for a lesson moved for both groups")
@@ -1604,16 +1610,18 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         return self.Notice.search([('arrangement_group_id', '=', (group or self.group_a).id),
                                    ('arrangement_date', '=', self.day), ('state', '=', 'draft')])
 
-    def test_a_swap_drafts_a_notice_to_the_students_only(self):
+    def test_a_swap_sends_a_notice_to_the_students_only(self):
         student, family = self._student_and_family()
+        self.department_chief.email = 'tabc649.chief@example.com'
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
 
         cover, notice_action = self._apply(self._plans()[0])
 
-        notice = self.Notice.browse(notice_action['res_id'])
+        self.assertFalse(notice_action, "sent at once (issue #652): no draft to open")
+        notice = cover.student_notice_id
         self.assertEqual(cover.arrangement_type, 'swap')
-        self.assertEqual((notice.state, notice.recipient_type, notice.group_ids), ('draft', 'students', self.group_a))
+        self.assertEqual((notice.state, notice.recipient_type, notice.group_ids), ('scheduled', 'students', self.group_a))
         self.assertEqual((notice.arrangement_group_id, notice.arrangement_date), (self.group_a, self.day))
         self.assertEqual(notice.notice_line_ids.partner_id, student)
         self.assertNotIn(family.email, notice.notice_line_ids.mapped('email'))
@@ -1623,7 +1631,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn(f'{self.subject.name}: from 08:00-09:00 to 11:00-12:00', notice.message)
         self.assertTrue(cover.is_effective, "the arrangement does not wait for the students' notice")
         self.assertTrue(self._messages(self.teacher_b, 'Timetable arrangement'))
-        self.assertEqual(self._students_drafts(), notice, "one draft, however many times the group's day is synced")
+        self.assertEqual(self.Notice.search([('arrangement_group_id', '=', self.group_a.id), ('arrangement_date', '=', self.day)]),
+                         notice, "one notice, however many times the group's day is synced")
         with self.assertRaises(ValidationError):
             notice.recipient_type = 'both'
 
@@ -1632,7 +1641,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         families = self.Notice.browse(notice_action['res_id'])
         students = cover.student_notice_id
-        self.assertEqual(families.absence_change_type, 'early_leave')
+        self.assertEqual(families._absence_change_tuples(), [('early_leave', 11.0)])
         self.assertEqual((students.state, students.recipient_type), ('draft', 'students'))
         self.assertIn(f'{self.subject.name}: from 11:00-12:00 to 10:00-11:00', students.message,
                       "the families' notice only says when the group leaves, not that a subject moved")
@@ -1702,24 +1711,144 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn('from 10:00-11:00 to 08:00-09:00', correction.message, "what still changes is repeated")
         self.assertIn(f'{self.subject.name}: 13:00-14:00', correction.message, "the lesson back at its usual time")
 
-    def test_a_department_chief_prepares_and_sends_the_students_notice_of_their_group(self):
+    def test_a_department_chief_sends_the_students_notice_of_their_group_with_the_swap(self):
         student, _family = self._student_and_family()
         self.department_chief.email = 'tabc649.chief@example.com'
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
 
-        _cover, notice_action = self._arrange('swap', self.teacher_b, lesson=(11.0, 12.0))
+        cover, notice_action = self._arrange('swap', self.teacher_b, lesson=(11.0, 12.0))
 
-        notice = self.Notice.with_user(self.department_chief).browse(notice_action['res_id'])
+        self.assertFalse(notice_action, "a swap from the board sends it at once too (issue #652)")
+        notice = cover.student_notice_id.with_user(self.department_chief)
         self.assertEqual(notice.create_uid, self.department_chief)
-        self.assertTrue(notice.can_manage)
+        self.assertEqual(notice.sent_by, self.department_chief)
         self.assertFalse(self.Notice.with_user(self.other_department_chief).search([('id', '=', notice.id)]),
                          "another department's chief does not see it")
-        notice.action_send()
         self.assertEqual(notice.state, 'scheduled')
         self.assertEqual(notice.notice_line_ids.partner_id, student)
         with self.assertRaises(ValidationError):
             notice.group_ids = self.group_a | self.group_b
+
+    # One notice per group, sent as soon as the plan is accepted (issue #652).
+
+    def _can_send(self):
+        """A student with a family to send to, and a sender address, which every real user has."""
+        self._student_and_family()
+        self.department_chief.email = 'tabc652.chief@example.com'
+
+    def test_accepting_a_plan_sends_its_notice_and_the_move_counts_at_once(self):
+        self._can_send()
+
+        cover, notice_action = self._apply(self._moved_lesson_plan())
+
+        self.assertFalse(notice_action, "nothing to open: keeping the step was the confirmation")
+        notice = cover.notice_id
+        self.assertEqual((notice._absence_change_tuples(), notice.state), ([('early_leave', 11.0)], 'scheduled'))
+        self.assertEqual(notice.sent_by, self.department_chief)
+        self.assertTrue(cover.is_effective)
+        self.assertEqual(len(self._messages(self.teacher_b, 'Timetable arrangement')), 1, "told once")
+        self.assertEqual(self._states()['leave']['communicated'], ('early_leave', 11))
+        self.assertNotIn('pending_arrangement', [action['type'] for action in self._actions()])
+        self.assertEqual(cover.student_notice_id.state, 'scheduled', "the students' notice is sent too")
+
+    def _two_sides_day(self):
+        """group_a's Monday with its first lesson (teacher_a) and its last one (teacher_b)
+        without a teacher: it could come in at 9 and leave at 11."""
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        return self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12, approve=False)
+
+    def _apply_notices(self, *changes):
+        result = self.Cover.with_user(self.department_chief).board_apply_plan(str(self.day), [
+            {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': list(change)} for change in changes])
+        return result
+
+    def _families_notices(self):
+        return self.Notice.search([('absence_group_id', '=', self.group_a.id), ('absence_date', '=', self.day)])
+
+    def test_one_notice_tells_every_change_of_the_group(self):
+        self._can_send()
+        self._two_sides_day()
+        proposed = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
+            str(self.day), self.group_a.id, 'late_entry', 9.0)['res_id'])
+
+        result = self._apply_notices(('early_leave', 11.0), ('late_entry', 9.0))
+
+        self.assertFalse(result['notice_action'])
+        notice = self._families_notices()
+        self.assertEqual(len(notice), 1, "one notice for the whole day")
+        self.assertFalse(proposed.exists(), "the draft prepared for one of its changes is replaced by it")
+        self.assertEqual(sorted(notice._absence_change_tuples()), [('early_leave', 11.0), ('late_entry', 9.0)])
+        self.assertEqual(notice.state, 'scheduled')
+        self.assertIn('timetable changes on', notice.subject)
+        start = notice.message.index('will start classes at 09:00')
+        self.assertLess(start, notice.message.index('will finish classes at 11:00'), "from the start of the day to its end")
+        self.assertEqual(notice.absence_change_label, 'Starts at 09:00 and Leaves at 11:00')
+        self.assertFalse(self.Notice.with_user(self.other_department_chief).search([('id', '=', notice.id)]),
+                         "another department's chief does not see it")
+        states = self._states()
+        self.assertEqual((states['entry']['status'], states['entry']['communicated']), ('communicated', ('late_entry', 9)))
+        self.assertEqual((states['leave']['status'], states['leave']['communicated']), ('communicated', ('early_leave', 11)))
+        self.assertEqual(self._row(8, 9)['authorized'], ('late_entry', 9))
+        self.assertEqual(self._row(11, 12, teacher=self.teacher_b)['authorized'], ('early_leave', 11))
+
+    def test_a_side_of_a_notice_with_several_changes_is_rectified_alone(self):
+        self._can_send()
+        leave = self._two_sides_day()
+        self._apply_notices(('late_entry', 9.0), ('early_leave', 11.0))
+
+        leave.action_refuse()
+
+        states = self._states()
+        self.assertEqual(states['entry']['status'], 'communicated', "the start of the day still holds")
+        self.assertEqual((states['leave']['status'], states['leave']['options']), ('rectification', [('normal_leave', 0.0)]))
+        correction = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
+            str(self.day), self.group_a.id, 'normal_leave')['res_id'])
+        self.assertEqual((correction._absence_change_tuples(), correction.state), ([('normal_leave', 0.0)], 'draft'))
+        self.assertTrue(correction.subject.startswith('Correction:'))
+        self.assertEqual(self._states()['leave']['draft'], correction)
+
+    def test_a_notice_that_cannot_be_sent_stays_a_draft_to_review(self):
+        self._can_send()
+
+        def failing(notice):
+            raise UserError("TABC mail server unreachable")
+
+        plan = self._moved_lesson_plan()
+        steps = [step['payload'] for step in self.env['ems.course']._arrangement_plan_data(plan)['steps']]
+        with patch.object(type(self.Notice), 'action_send', failing):
+            result = self.Cover.with_user(self.department_chief).board_apply_plan(str(self.day), steps)
+
+        cover = self.Cover.browse(result['cover_ids'])
+        notice = cover.notice_id
+        self.assertEqual(result['notice_action']['res_id'], notice.id, "the families' notice opens first")
+        self.assertIn('TABC mail server unreachable', result['notice_error'])
+        self.assertEqual((notice.state, cover.student_notice_id.state), ('draft', 'draft'))
+        self.assertFalse(cover.is_effective, "nothing changes until the families are told")
+        self.assertFalse(self._messages(self.teacher_b, 'Timetable arrangement'))
+        pending = [action for action in self._actions() if action['type'] == 'pending_arrangement']
+        self.assertEqual([action['cover'].notice_id for action in pending], [notice], "the board offers to open it")
+
+        notice.with_user(self.department_chief).action_send()
+
+        self.assertTrue(cover.is_effective)
+        self.assertEqual(len(self._messages(self.teacher_b, 'Timetable arrangement')), 1, "told once, when it is sent")
+
+    def test_a_correction_to_the_students_after_a_withdrawal_stays_a_draft(self):
+        self._can_send()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        cover, _notice_action = self._apply(self._plans()[0])
+        sent = cover.student_notice_id
+        self.assertEqual(sent.state, 'scheduled')
+
+        self.Cover.with_user(self.department_chief).board_release(cover.id)
+
+        correction = self._students_drafts()
+        self.assertEqual(len(correction), 1, "nobody accepted anything: it waits to be reviewed")
+        self.assertTrue(correction.subject.startswith('Correction:'))
+        self.assertEqual(sent.state, 'scheduled')
 
     # Partial cover (issue #637): a guard whose duty only overlaps part of a class covers that part.
 

@@ -87,7 +87,7 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertEqual((cover.hour_from, cover.hour_to), (9, 10))
         self.assertEqual(cover.message, 'Exercises on page 12')
         notice = self.env['ems.notice'].search([('absence_group_id', '=', group.id)])
-        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('late_entry', 9.0, 'draft'))
+        self.assertEqual((notice._absence_change_tuples(), notice.state), ([('late_entry', 9.0)], 'draft'))
 
     def test_guard_self_assignment_tour(self):
         """Issue #601, as the guard on duty - a plain teacher, who manages nobody's absences."""
@@ -150,7 +150,8 @@ class TestAbsenceCoverageTour(HttpCase):
                           for cover in covers], [(8, 'swap', swapper, teacher), (9, 'move', mover, teacher)])
         self.assertTrue(all(covers.mapped('is_effective')))
         self.assertFalse(covers.notice_id)
-        # Issue #649: one draft to the group's students about the lessons that change time.
+        # Issue #649: one notice to the group's students about the lessons that change time, left
+        # a draft since the group has no students to send it to (issue #652).
         students = covers.student_notice_id
         self.assertEqual((len(students), students.state, students.recipient_type), (1, 'draft', 'students'))
 
@@ -168,8 +169,9 @@ class TestAbsenceCoverageTour(HttpCase):
         return group, mover, day, plans[0]
 
     def test_absence_arrangement_dialog_tour(self):
-        """Issues #605 and #645: the plan applied from the 9:00 lesson's dialog opens its notice for
-        the families, which the move waits for."""
+        """Issues #605 and #645: the plan applied from the 9:00 lesson's dialog. The group has no
+        students, so its notice for the families cannot be sent at once (issue #652): it opens as a
+        draft to review, and the move waits for it."""
         group, mover, _day, _plan = self._move_fixture()
 
         self.start_tour("/odoo", "ems_absence_arrangement_dialog", login=self.department_chief.login)
@@ -177,7 +179,7 @@ class TestAbsenceCoverageTour(HttpCase):
         cover = self.env['ems.absence_cover'].search([('group_id', '=', group.id)])
         self.assertEqual((cover.hour_from, cover.guard_employee_id), (9, mover))
         notice = cover.notice_id
-        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('early_leave', 11.0, 'draft'))
+        self.assertEqual((notice._absence_change_tuples(), notice.state), ([('early_leave', 11.0)], 'draft'))
         self.assertFalse(cover.is_effective)
 
     def test_absence_arrangement_change_tour(self):

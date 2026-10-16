@@ -217,9 +217,9 @@ El selector de cada propuesta te permite comunicar a las familias menos de lo qu
 
 El mismo día, el cuadrante solo propone cambios que aún no han llegado: a partir de las 09:00 ya no ofrece **Entra a las 09:00** (las familias se enterarían demasiado tarde), y una propuesta o una rectificación cuya hora ya ha pasado desaparece. Si hace rato que tienes el cuadrante abierto, recárgalo para ver las propuestas actuales.
 
-**Proponer comunicado** abre un comunicado en borrador dirigido al alumnado y las familias de ese grupo, con un texto propuesto que puedes cambiar. Envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Si lo dejas en borrador, la próxima vez el botón dice **Abrir borrador**.
+**Enviar comunicado** envía enseguida un comunicado al alumnado y las familias de ese grupo, con el texto que propone el cuadrante: hacer clic ya es la confirmación. Si no se puede enviar (por ejemplo, porque el grupo no tiene a nadie a quien enviarlo), queda como borrador y se abre con un mensaje que explica el motivo: revísalo y envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Mientras queda en borrador, el botón dice **Abrir borrador**.
 
-![Borrador de comunicado propuesto por el cuadrante, con el cambio de horario y el texto propuesto](../../assets/teachers/guard-duty-05-comunicat.png)
+![Comunicado preparado por el cuadrante, con el cambio de horario y el texto propuesto](../../assets/teachers/guard-duty-05-comunicat.png)
 
 Una vez enviado (o programado) el comunicado, esas líneas quedan tachadas con una etiqueta como **Entra a las 10:00**: no hace falta enviar a nadie.
 
@@ -235,7 +235,7 @@ Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí
 
 - **Un docente de guardia que ya no hace falta** (recuadro **Guardias que ya no hacen falta**): haz clic en **Liberar la guardia**. Se le comunica que ya no hace falta que cubra la clase.
 - **Una reorganización que ya no es válida** (mismo recuadro): la clase ya no hay que cubrirla, o uno de los docentes de los que depende ahora está ausente a esa hora. Haz clic en **Quitar la reorganización**; se avisa a los docentes.
-- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el recuadro de propuestas ofrece **Proponer rectificación**, un nuevo comunicado en borrador para el mismo grupo con la situación corregida (otra hora, o volver al horario habitual).
+- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el recuadro de propuestas ofrece **Enviar rectificación**, que envía enseguida al mismo grupo un comunicado nuevo con la situación corregida (otra hora, o volver al horario habitual), igual que **Enviar comunicado**.
 
 ---
 

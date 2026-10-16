@@ -20638,14 +20638,14 @@ msgstr "Treure l'assignació"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose notice"
-msgstr "Proposar comunicat"
+msgid "Send notice"
+msgstr "Enviar comunicat"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose correction"
-msgstr "Proposar rectificació"
+msgid "Send correction"
+msgstr "Enviar rectificació"
 
 #. module: ems
 #. odoo-javascript
@@ -23231,10 +23231,16 @@ msgstr "Canvis d'horari"
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "%(group)s | timetable changes on %(date)s"
-msgstr "%(group)s | el %(date)s canvis d'horari"
+msgstr "%(group)s | canvis d'horari el %(date)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/absence_coverage.py:0
 msgid "The notice could not be sent and stays a draft for you to review: %s"
 msgstr "No s'ha pogut enviar el comunicat i queda com a esborrany perquè el revisis: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Notice sent."
+msgstr "Comunicat enviat."

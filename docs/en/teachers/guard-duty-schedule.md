@@ -217,9 +217,9 @@ The selector next to each proposal lets you tell the families about less than th
 
 On the current day, the board only proposes changes still to come: from 09:00 on, it no longer offers **Starts at 09:00** (the families would find out too late), and a proposal or a correction whose time has passed disappears. If the board has been open for a while, reload it to see the current proposals.
 
-**Propose notice** opens a draft notice addressed to that group's students and families, with a suggested text you can change. Send it from that form as any other notice (the groups of a timetable change notice cannot be changed). If you leave it as a draft, the button reads **Open draft** next time.
+**Send notice** sends a notice to that group's students and families straight away, with the text the board suggests: clicking it is the confirmation. If it cannot be sent (the group has nobody to send it to, for example), it stays as a draft and opens with a message saying why: check it and send it from that form as any other notice (the groups of a timetable change notice cannot be changed). While it stays a draft, the button reads **Open draft**.
 
-![Draft notice proposed by the board, with the timetable change and the suggested text](../../assets/teachers/guard-duty-05-comunicat.png)
+![Notice prepared by the board, with the timetable change and the suggested text](../../assets/teachers/guard-duty-05-comunicat.png)
 
 Once the notice is sent (or scheduled), those lines are struck through with a tag such as **Starts at 10:00**: nobody needs to be sent to them.
 
@@ -235,7 +235,7 @@ If an absence is refused, cancelled or shortened, or a co-teacher turns out to b
 
 - **A guard who is no longer needed** (box **Guards no longer needed**): click **Release guard**. They are told they no longer need to cover the class.
 - **An arrangement that no longer applies** (same box): the class no longer needs covering, or one of the teachers it relies on is now away at that time. Click **Remove arrangement**; the teachers are told.
-- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Propose correction**, a new draft notice for the same group with the corrected situation (a different time, or back to the usual timetable).
+- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Send correction**, which sends the same group a new notice with the corrected situation (a different time, or back to the usual timetable) straight away, like **Send notice**.
 
 ---
 

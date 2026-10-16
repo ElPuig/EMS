@@ -259,10 +259,10 @@ leave earlier, have a longer break or no classes because a teacher is away, or c
 one. `absence_changes` is a JSON list of the changes it tells, at most one per side of the day (a
 notice for an accepted arrangement plan can tell a later entry and an earlier leave at once), and the
 message has one sentence per change; the form shows them in one line (`absence_change_label`). A
-single change proposed from the board (`board_propose_absence_change()`) is created as a draft,
-pre-filled with the group's recipients and a suggested text, and sent from this same form like any
-other notice; the notice of an accepted arrangement plan is sent at once (`action_send()`, through
-`_send_or_keep_draft()`), and only stays a draft to send from this form if sending fails.
+single change or correction sent from the board (`board_send_absence_change()`) and the notice of an
+accepted arrangement plan are created pre-filled with the group's recipients and a suggested text,
+and sent at once (`action_send()`, through `_send_or_keep_draft()`); they only stay a draft to
+review and send from this same form, like any other notice, if sending fails.
 `_check_absence_change_recipients` keeps such a notice addressed to its own group only, and the
 form shows an information banner and locks its groups. The board reads these notices back to know
 what was communicated: see "Managing absences from the board" in

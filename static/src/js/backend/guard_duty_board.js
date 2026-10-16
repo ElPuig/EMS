@@ -381,14 +381,14 @@ export class GuardDutyBoard extends Component {
 
     // Managing absences from the absences table (issues #539, #571, #581). Every action below
     // is checked again on the server (ems.absence_cover.board_assign/board_release,
-    // ems.notice.board_propose_absence_change): the flags the board sends only decide what is
+    // ems.notice.board_send_absence_change): the flags the board sends only decide what is
     // offered, never what is allowed.
 
     get actionLabels() {
         return {
             releasesTitle: _t("Guards no longer needed"),
-            propose: _t("Propose notice"),
-            rectify: _t("Propose correction"),
+            propose: _t("Send notice"),
+            rectify: _t("Send correction"),
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
             removeArrangement: _t("Remove arrangement"),
@@ -583,14 +583,22 @@ export class GuardDutyBoard extends Component {
         const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [
             this.activeDate, selectedPlanSteps(plan, selection),
         ]);
-        if (result.notice_action) {
-            if (result.notice_error) {
-                this.notification.add(result.notice_error, { type: "warning", sticky: true });
-            }
-            await this.actionService.doAction(result.notice_action);
-            return;
+        if (!(await this.openUnsentNotice(result))) {
+            await this.loadBoard();
         }
-        await this.loadBoard();
+    }
+
+    // A board action sends its notices at once (issue #652); one that could not be sent stays a
+    // draft, which opens with the reason for the planner to review and send. Whether it did.
+    async openUnsentNotice(result) {
+        if (!result.notice_action) {
+            return false;
+        }
+        if (result.notice_error) {
+            this.notification.add(result.notice_error, { type: "warning", sticky: true });
+        }
+        await this.actionService.doAction(result.notice_action);
+        return true;
     }
 
     // An arrangement described by hand (issue #605).
@@ -713,11 +721,16 @@ export class GuardDutyBoard extends Component {
             });
             return;
         }
+        // Sent at once (issue #652): clicking the button is the confirmation. A notice that could
+        // not be sent stays a draft and opens, with the reason, for the planner to review.
         const option = action.options[action.default];
-        const notice = await this.orm.call("ems.notice", "board_propose_absence_change", [
+        const result = await this.orm.call("ems.notice", "board_send_absence_change", [
             this.activeDate, action.group_id, option.change_type, option.hour, option.hour_to,
         ]);
-        await this.actionService.doAction(notice);
+        if (!(await this.openUnsentNotice(result))) {
+            this.notification.add(_t("Notice sent."), { type: "success" });
+            await this.loadBoard();
+        }
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,

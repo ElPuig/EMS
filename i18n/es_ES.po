@@ -20639,14 +20639,14 @@ msgstr "Quitar la asignación"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose notice"
-msgstr "Proponer comunicado"
+msgid "Send notice"
+msgstr "Enviar comunicado"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose correction"
-msgstr "Proponer rectificación"
+msgid "Send correction"
+msgstr "Enviar rectificación"
 
 #. module: ems
 #. odoo-javascript
@@ -23234,10 +23234,16 @@ msgstr "Cambios de horario"
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "%(group)s | timetable changes on %(date)s"
-msgstr "%(group)s | el %(date)s cambios de horario"
+msgstr "%(group)s | cambios de horario el %(date)s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/absence_coverage.py:0
 msgid "The notice could not be sent and stays a draft for you to review: %s"
 msgstr "No se ha podido enviar el comunicado y queda como borrador para que lo revises: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Notice sent."
+msgstr "Comunicado enviado."

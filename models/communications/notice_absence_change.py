@@ -128,11 +128,20 @@ class EmsNoticeAbsenceChange(models.Model):
         return subjects[change_type], sentences[change_type]
 
     @api.model
-    def board_propose_absence_change(self, day, group_id, change_type, hour=0.0, hour_to=0.0):
-        """Opens the draft notice for a timetable change the board proposed, creating it if no
-        draft for that exact change exists yet. Never sends anything: the planner reviews the
-        draft and sends it from the notice's own form. The change must be one of the options the
-        group's day currently offers, on whichever side (start, end or a break) it belongs to."""
+    def board_send_absence_change(self, day, group_id, change_type, hour=0.0, hour_to=0.0):
+        """Sends the notice of a timetable change the board proposed, a correction included (issue
+        #652): clicking "Send notice" is the confirmation, as checking a notice step of a plan is.
+        Returns `{'notice_action', 'notice_error'}` as ems.absence_cover._board_send_notices: the
+        draft's form and why, when it could not be sent and stays a draft to review."""
+        notice = self._board_absence_change_draft(day, group_id, change_type, hour, hour_to)
+        return self.env['ems.absence_cover']._board_send_notices(notice)
+
+    @api.model
+    def _board_absence_change_draft(self, day, group_id, change_type, hour=0.0, hour_to=0.0):
+        """The draft notice for a timetable change the board proposed, created if no draft for
+        that exact change exists yet. The change must be one of the options the group's day
+        currently offers, on whichever side (start, end or a break) it belongs to, and the user
+        must organise the absences it concerns."""
         day = fields.Date.to_date(day)
         group = self.env['ems.group'].browse(group_id).exists()
         if not group or change_type not in CHANGE_SIDES:
@@ -152,7 +161,7 @@ class EmsNoticeAbsenceChange(models.Model):
         notice = state['draft'] if course._same_change(state['draft_change'], change) else self.browse()
         if not notice:
             notice = self._create_absence_change_notice([change], group, day, rectification=bool(state['communicated']))
-        return notice._absence_change_form_action()
+        return notice
 
     @api.model
     def _create_absence_change_notice(self, changes, group, day, rectification):

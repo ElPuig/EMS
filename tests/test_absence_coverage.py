@@ -305,8 +305,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             str(self.day), 9, 10, self.teacher_a.id, self.group_a.id, 'manual', note='Joined with another group')['cover_id'])
         # None of the department's own teachers teaches the group: managing it is enough to
         # write to its families.
-        action = self.Notice.with_user(self.other_department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 9.0)
+        action = self.Notice.with_user(self.other_department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 9.0)._absence_change_form_action()
         self.assertEqual(self.Notice.browse(action['res_id']).group_ids, self.group_a)
 
     def test_a_guard_duty_of_a_shared_teacher_is_managed_by_the_departments_named_on_them(self):
@@ -756,8 +756,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
 
-        action = self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 10.0)
+        action = self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 10.0)._absence_change_form_action()
 
         notice = self.Notice.browse(action['res_id'])
         self.assertEqual(notice.state, 'draft')
@@ -766,15 +766,15 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn('Due to the justified absence of the assigned teacher', notice.message)
         self.assertIn('10:00', notice.message)
         self.assertEqual(self._states()['entry']['draft'], notice)
-        again = self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 10.0)
+        again = self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 10.0)._absence_change_form_action()
         self.assertEqual(again['res_id'], notice.id, "the existing draft is reopened, not duplicated")
 
     def test_a_timetable_change_notice_cannot_be_sent_to_other_groups(self):
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
-        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 10.0)['res_id'])
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 10.0)._absence_change_form_action()['res_id'])
 
         with self.assertRaises(ValidationError):
             notice.with_user(self.department_chief).group_ids = self.group_a | self.group_b
@@ -790,8 +790,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
         notice = self.Notice.with_user(self.department_chief).browse(
-            self.Notice.with_user(self.department_chief).board_propose_absence_change(
-                str(self.day), self.group_a.id, 'late_entry', 10.0)['res_id'])
+            self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+                str(self.day), self.group_a.id, 'late_entry', 10.0)._absence_change_form_action()['res_id'])
 
         self.assertIn(student, notice.notice_line_ids.partner_id)
         notice.action_send()
@@ -837,20 +837,20 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
 
         with self.assertRaises(AccessError):
-            self.Notice.with_user(self.other_department_chief).board_propose_absence_change(
-                str(self.day), self.group_a.id, 'late_entry', 10.0)
+            self.Notice.with_user(self.other_department_chief)._board_absence_change_draft(
+                str(self.day), self.group_a.id, 'late_entry', 10.0)._absence_change_form_action()
 
     def test_proposing_something_the_absences_do_not_allow_is_refused(self):
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
 
         with self.assertRaises(UserError):
-            self.Notice.with_user(self.department_chief).board_propose_absence_change(
-                str(self.day), self.group_a.id, 'late_entry', 11.0)
+            self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+                str(self.day), self.group_a.id, 'late_entry', 11.0)._absence_change_form_action()
 
     def _communicate(self, change_type, hour):
-        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, change_type, hour)['res_id'])
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, change_type, hour)._absence_change_form_action()['res_id'])
         # What action_send leaves behind; sending for real needs recipients this group has none of.
         notice.state = 'scheduled'
         return notice
@@ -918,8 +918,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(state['status'], 'rectification')
         self.assertEqual(state['options'], [('late_entry', 9), ('normal_entry', 0.0)])
         self.assertEqual(state['target'], ('late_entry', 9))
-        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 9.0)['res_id'])
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 9.0)._absence_change_form_action()['res_id'])
         self.assertTrue(notice.subject.startswith('Correction'))
 
     def test_a_cancelled_absence_after_the_notice_asks_to_go_back_to_normal(self):
@@ -954,12 +954,13 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             self.assertEqual(state['expected'], ('late_entry', 10))
             self.assertEqual(self._row(8, 9)['proposed'], ('late_entry', 10))
             with self.assertRaises(UserError):
-                self.Notice.with_user(self.department_chief).board_propose_absence_change(
-                    str(self.day), self.group_a.id, 'late_entry', 9.0)
+                self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+                    str(self.day), self.group_a.id, 'late_entry', 9.0)._absence_change_form_action()
         with self._at(10):
             self.assertIsNone(self._states()['entry']['status'])
             self.assertIsNone(self._row(8, 9)['proposed'])
-            self.assertFalse([action for action in self._actions() if action['type'] == 'proposal'])
+            self.assertFalse([action for action in self._actions()
+                              if action['type'] == 'proposal' and action['group'] == self.group_a])
 
     def test_an_early_leave_is_proposed_until_its_time(self):
         self._morning()
@@ -1013,7 +1014,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
 
         notice = self.Notice.browse(self.Notice.with_user(self.department_chief).with_context(lang='ca_ES')
-                                    .board_propose_absence_change(str(self.day), self.group_a.id, 'late_entry', 10.0)['res_id'])
+                                    ._board_absence_change_draft(str(self.day), self.group_a.id, 'late_entry', 10.0)._absence_change_form_action()['res_id'])
         self._assign()
 
         self.assertIn('del docent assignat', notice.message)
@@ -1070,8 +1071,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
     def test_a_communicated_longer_break_strikes_out_its_lessons(self):
         self._morning_with_break()
         self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
-        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'long_break', 9.0, 10.5)['res_id'])
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'long_break', 9.0, 10.5)._absence_change_form_action()['res_id'])
 
         self.assertEqual(notice._absence_change_tuples(), [('long_break', 9.0, 10.5)])
         self.assertIn('09:00', notice.message)
@@ -1086,16 +1087,16 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
     def test_a_cancelled_absence_after_a_longer_break_asks_for_the_usual_break(self):
         self._morning_with_break()
         leave = self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10, approve=False)
-        self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'long_break', 9.0, 10.5)['res_id']).state = 'scheduled'
+        self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'long_break', 9.0, 10.5)._absence_change_form_action()['res_id']).state = 'scheduled'
 
         leave.action_refuse()
 
         state = self._break_state()
         self.assertEqual(state['status'], 'rectification')
         self.assertEqual(state['options'], [('normal_break', 10, 10.5)])
-        notice = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'normal_break', 10.0, 10.5)['res_id'])
+        notice = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'normal_break', 10.0, 10.5)._absence_change_form_action()['res_id'])
         self.assertTrue(notice.subject.startswith('Correction'))
 
     # Internal arrangements (issues #605, #645): the board detects how the teachers of the group
@@ -1770,8 +1771,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
     def test_one_notice_tells_every_change_of_the_group(self):
         self._can_send()
         self._two_sides_day()
-        proposed = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'late_entry', 9.0)['res_id'])
+        proposed = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 9.0)._absence_change_form_action()['res_id'])
 
         result = self._apply_notices(('early_leave', 11.0), ('late_entry', 9.0))
 
@@ -1803,8 +1804,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         states = self._states()
         self.assertEqual(states['entry']['status'], 'communicated', "the start of the day still holds")
         self.assertEqual((states['leave']['status'], states['leave']['options']), ('rectification', [('normal_leave', 0.0)]))
-        correction = self.Notice.browse(self.Notice.with_user(self.department_chief).board_propose_absence_change(
-            str(self.day), self.group_a.id, 'normal_leave')['res_id'])
+        correction = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'normal_leave')._absence_change_form_action()['res_id'])
         self.assertEqual((correction._absence_change_tuples(), correction.state), ([('normal_leave', 0.0)], 'draft'))
         self.assertTrue(correction.subject.startswith('Correction:'))
         self.assertEqual(self._states()['leave']['draft'], correction)
@@ -1849,6 +1850,47 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(len(correction), 1, "nobody accepted anything: it waits to be reviewed")
         self.assertTrue(correction.subject.startswith('Correction:'))
         self.assertEqual(sent.state, 'scheduled')
+
+    def _send_change(self, change_type, hour=0.0):
+        return self.Notice.with_user(self.department_chief).board_send_absence_change(
+            str(self.day), self.group_a.id, change_type, hour)
+
+    def test_send_notice_sends_the_change_at_once(self):
+        self._can_send()
+        self._two_sides_day()
+
+        result = self._send_change('late_entry', 9.0)
+
+        self.assertEqual(result, {'notice_action': False, 'notice_error': False}, "no draft to open")
+        notice = self._families_notices()
+        self.assertEqual((notice._absence_change_tuples(), notice.state), ([('late_entry', 9.0)], 'scheduled'))
+        self.assertEqual(notice.sent_by, self.department_chief)
+        self.assertEqual(self._states()['entry']['status'], 'communicated')
+
+    def test_send_correction_sends_it_at_once_too(self):
+        self._can_send()
+        leave = self._two_sides_day()
+        self._apply_notices(('late_entry', 9.0), ('early_leave', 11.0))
+        leave.action_refuse()
+
+        self.assertFalse(self._send_change('normal_leave')['notice_action'])
+
+        correction = self._families_notices().filtered(lambda notice: notice._absence_change_tuples() == [('normal_leave', 0.0)])
+        self.assertEqual(correction.state, 'scheduled')
+        self.assertTrue(correction.subject.startswith('Correction:'))
+        self.assertEqual(self._states()['leave']['status'], None, "back to the usual timetable, nothing left to tell")
+
+    def test_send_notice_that_cannot_be_sent_opens_its_draft(self):
+        """The group has no students: there is nobody to send it to."""
+        self._two_sides_day()
+
+        result = self._send_change('late_entry', 9.0)
+
+        notice = self._families_notices()
+        self.assertEqual(result['notice_action']['res_id'], notice.id)
+        self.assertTrue(result['notice_error'])
+        self.assertEqual(notice.state, 'draft')
+        self.assertEqual(self._states()['entry']['draft'], notice, "the board offers to open it")
 
     # Partial cover (issue #637): a guard whose duty only overlaps part of a class covers that part.
 

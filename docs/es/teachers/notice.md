@@ -24,7 +24,7 @@ La lista se abre con el filtro **"Mostrar solamente los míos"**, con los comuni
 
 ## Cambios de horario por una ausencia
 
-Cuando falta un docente de tu departamento, el horario de guardias puede proponer un comunicado que diga al alumnado y las familias de un grupo que pueden entrar más tarde, salir antes o no tener clases. Se abre aquí como borrador dirigido a ese grupo, y sus grupos no se pueden cambiar. Cuando aceptas una reorganización de las clases, en cambio, su comunicado a las familias de cada grupo (uno por grupo, con todos los cambios de su día) se envía enseguida, y solo se abre aquí como borrador si no se ha podido enviar. Ver [Organizar una ausencia](guard-duty-schedule.md#organizar-una-ausencia).
+Cuando falta un docente de tu departamento, el horario de guardias puede enviar un comunicado que diga al alumnado y las familias de un grupo que pueden entrar más tarde, salir antes o no tener clases. Tanto si lo envías desde el cuadrante (**Enviar comunicado**) como si aceptas una reorganización de las clases (un comunicado por grupo, con todos los cambios de su día), se envía enseguida, y solo se abre aquí como borrador dirigido a ese grupo si no se ha podido enviar; sus grupos no se pueden cambiar. Ver [Organizar una ausencia](guard-duty-schedule.md#organizar-una-ausencia).
 
 Cuando reorganizas las clases (un intercambio o una clase movida), el cuadrante también envía un comunicado solo al alumnado del grupo, con las clases que cambian de hora ese día; solo se abre aquí como borrador si no se ha podido enviar, o como rectificación para revisar si quitas una reorganización después de haberlo enviado. Ni sus grupos ni sus destinatarios se pueden cambiar. Ver [Organizar una ausencia](guard-duty-schedule.md#organizar-una-ausencia).
 

@@ -660,7 +660,7 @@ flowchart TD
     ROWS --> UI["absences table: colours, strike-through, guard dialog"]
     ACT --> UI
     UI -->|"board_assign / board_release<br/>board_self_assign / board_self_release"| COV
-    UI -->|"board_propose_absence_change -> draft notice form"| NOT
+    UI -->|"board_send_absence_change -> notice sent (draft form if it fails)"| NOT
 ```
 
 ### Keyed by teacher, date, period and group - never by the absence record
@@ -721,7 +721,7 @@ them back. A JSON list rather than a child model, like the students' notice's `a
 their own, and a list needs no access rules of its own to stay in step with the notice's three
 levels of access (a child model would need its own copy of every `rule_notice_*`). The form shows
 them in one line (`absence_change_label`, `_absence_changes_label()`). Notices created before #652
-had one change in three columns of their own; migration `18.0.0.39.0` (`post-migrate.py`) moved
+had one change in three columns of their own; migration `18.0.0.38.1` (`post-migrate.py`) moved
 each one into a one-item list.
 
 Per side, `_get_absence_change_states()` reads every change of the day's notices once, oldest
@@ -743,7 +743,9 @@ Communicating a smaller option than the largest is the planner's decision and is
 about: the lessons beyond it simply stay on the table to be covered. Likewise, an absence that grows
 after the notice keeps the notice valid - the new lesson is one more to cover. Only telling the
 families more than the absences now allow (they shrank, were refused or cancelled, or the timetable
-changed) asks for a correction. `board_propose_absence_change()` accepts any option of the side's
+changed) asks for a correction. `board_send_absence_change()` (**Send notice** / **Send correction**)
+prepares the notice (`_board_absence_change_draft()`) and sends it at once (#652), with the same
+fallback as an accepted plan: one that cannot be sent stays a draft and opens with the reason. It accepts any option of the side's
 current state and refuses anything else. A draft notice for one of the options is reused
 (`'draft'`, the option being `'draft_change'`): the box then offers **Open draft** instead of the
 selector. Rows whose period falls inside the communicated window (`_change_window_contains`)
@@ -758,7 +760,7 @@ can still reach the families in time; with nothing left, the side has no status.
 change whose time has come is settled (`communicated`, no correction proposed): a correction would
 arrive too late. `_board_day_hour()` gives the company-time hour of `day` (None for a day still to
 come, so nothing is dropped; past every lesson for a day already over), and since
-`board_propose_absence_change()` validates against the same states, it refuses an option that went
+`_board_absence_change_draft()` validates against the same states, it refuses an option that went
 past while the board stayed open.
 
 ### Guard assignment
@@ -951,8 +953,8 @@ Then:
   break), never one notice for several groups, so each stays addressed to its own group
   (`_check_absence_change_recipients`). It links (`notice_id`) the moves whose lessons it frees the
   group from: they only count once it is sent (`is_effective`). A draft prepared earlier for those
-  same changes (proposed alone with **Propose notice**, or the draft of a plan that could not be
-  sent) is replaced: what waited for it now waits for the new notice, and it is deleted.
+  same changes (one sent alone with **Send notice** that could not be sent, or the draft of a plan
+  that could not be sent) is replaced: what waited for it now waits for the new notice, and it is deleted.
 - A **swap** is applied as `board_arrange()` applies it (`_board_arrange_cover()`, without the
   students' notice, prepared once below); `board_arrange()` itself only takes swaps and manual
   arrangements.
@@ -1156,7 +1158,7 @@ vocational families work and leaves ESO/BTX blank.
 | Assign / change / release a guard (`board_assign`, `board_release`) | No | Yes |
 | Take a free class themselves / leave one they took (`board_self_assign`, `board_self_release`) | Only a guard on duty then | Same |
 | See and apply detected arrangements, record a manual one, remove one (`board_arrange`, `board_release`) | No | Yes |
-| Propose a timetable change or correction (`board_propose_absence_change`) | No | Yes |
+| Send a timetable change or correction (`board_send_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
 
 Department and Seminar chiefs use Communications > Notices limited to the groups their department

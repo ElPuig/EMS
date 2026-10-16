@@ -17887,7 +17887,6 @@ msgstr "Esta persona ya está en la lista."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__checkin_time model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
-#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour
 msgid "Time"
 msgstr "Hora"
 
@@ -20376,36 +20375,15 @@ msgid "Absence group"
 msgstr "Grupo de la ausencia"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_type
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_label
 msgid "Timetable change"
 msgstr "Cambio de horario"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__late_entry
-msgid "Late entry"
-msgstr "Entrada tarde"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__early_leave
-msgid "Early leave"
-msgstr "Salida anticipada"
-
-#. module: ems
 #. odoo-python
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__no_classes
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "No classes"
 msgstr "Sin clases"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_entry
-msgid "Usual start time"
-msgstr "Hora de entrada habitual"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_leave
-msgid "Usual finish time"
-msgstr "Hora de salida habitual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
@@ -20661,14 +20639,14 @@ msgstr "Quitar la asignación"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose notice"
-msgstr "Proponer comunicado"
+msgid "Send notice"
+msgstr "Enviar comunicado"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose correction"
-msgstr "Proponer rectificación"
+msgid "Send correction"
+msgstr "Enviar rectificación"
 
 #. module: ems
 #. odoo-javascript
@@ -20821,14 +20799,8 @@ msgstr "Patio de %(start)s a %(end)s"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_break
 msgid "Usual break"
 msgstr "Patio habitual"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__long_break
-msgid "Longer break"
-msgstr "Patio alargado"
 
 #. module: ems
 #. odoo-python
@@ -20847,11 +20819,6 @@ msgstr "Debido a la ausencia justificada del docente asignado, el grupo %(group)
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "Group %(group)s will have the usual break, from %(start)s to %(end)s, on %(date)s."
 msgstr "El grupo %(group)s hará el patio habitual, de %(start)s a %(end)s, el día %(date)s."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour_to
-msgid "Until"
-msgstr "Hasta"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_document_return_wizard
@@ -23257,3 +23224,26 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-exchange me-2\" title=\"Clases movidas\"/>\n"
 "                            <span>Clases movidas por una reorganización para cubrir una ausencia:</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_changes
+msgid "Timetable changes"
+msgstr "Cambios de horario"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | timetable changes on %(date)s"
+msgstr "%(group)s | cambios de horario el %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The notice could not be sent and stays a draft for you to review: %s"
+msgstr "No se ha podido enviar el comunicado y queda como borrador para que lo revises: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Notice sent."
+msgstr "Comunicado enviado."

@@ -665,7 +665,7 @@ flowchart TD
     ABS["hr.leave / ems.absence_pending<br/>(same intervals as the board)"] --> BLK["ems.course._get_group_day_blocks(day, groups)<br/>each group's whole day, block by block:<br/>teachers, who is away, covers, empty?"]
     COV["ems.absence_cover (state assigned)"] --> BLK
     BLK --> EXP["_allowed_absence_changes(blocks)<br/>every late_entry / early_leave / no_classes option"]
-    NOT["ems.notice with absence_change_type<br/>(scheduled / sent / failed = communicated)"] --> ST
+    NOT["ems.notice with absence_changes<br/>(scheduled / sent / failed = communicated)"] --> ST
     EXP --> ST["_get_absence_change_states(day, groups)<br/>per side (entry/leave): expected vs communicated<br/>status: proposal / communicated / rectification"]
     ST --> MGT["_get_board_absence_management()<br/>covers + states + day's pending actions"]
     MGT --> ROWS["each absence row: cover, authorized, proposed, can_manage"]
@@ -673,7 +673,7 @@ flowchart TD
     ROWS --> UI["absences table: colours, strike-through, guard dialog"]
     ACT --> UI
     UI -->|"board_assign / board_release<br/>board_self_assign / board_self_release"| COV
-    UI -->|"board_propose_absence_change -> draft notice form"| NOT
+    UI -->|"board_send_absence_change -> notice sent (draft form if it fails)"| NOT
 ```
 
 ### Keyed by teacher, date, period and group - never by the absence record
@@ -681,8 +681,8 @@ flowchart TD
 `ems.absence_cover` (`models/attendance/absence_coverage.py`) stores the absent teacher, the date,
 the period (`hour_from`/`hour_to`, the board row's own bounds), the group, the guard and the
 message; the timetable change lives on the `ems.notice` itself (`absence_date`,
-`absence_group_id`, `absence_change_type`, `absence_change_hour`,
-`models/communications/notice_absence_change.py`). Neither points at an `hr.leave` or an
+`absence_group_id`, `absence_changes`, `models/communications/notice_absence_change.py`). Neither
+points at an `hr.leave` or an
 `ems.absence_pending`. That is what makes an expected absence and the request the teacher files
 afterwards (which takes its place, see [Expected absences](../employees/absence.md#expected-absences))
 behave as one absence: whatever was organised on the expected one still matches the same
@@ -715,7 +715,7 @@ itself extended back over the empty lessons right before it and/or forward over 
 it - as long as a non-empty lesson remains further out on that side. A run of empty lessons that
 reaches the start or the end of the day is a late entry or an early leave instead, never a longer
 break, so "coming in after the break" and "going home at the break" stay what they are. A break
-change carries its span (`absence_change_hour` / `absence_change_hour_to` on the notice); the
+change carries its span (`('long_break', from, to)` in the notice's `absence_changes`); the
 correction back is `('normal_break', from, to)`. A free lesson in the middle of the day that is not
 next to a break is not proposed (developer decision, 2026-10-07): it is covered with a guard.
 
@@ -723,11 +723,27 @@ next to a break is not proposed (developer decision, 2026-10-07): it is covered 
 
 A change belongs to one side of the day: `late_entry`, `no_classes` and `normal_entry` to the
 start, `early_leave` and `normal_leave` to the end (`CHANGE_SIDES`), `long_break` and `normal_break`
-to the break they overlap (`_notice_side()`). Per side,
-`_get_absence_change_states()` compares the allowed options with the latest notice of that side
+to the break they overlap (`_change_side()`).
+
+A notice can tell several changes, at most one per side (#652: an accepted arrangement plan sends
+one notice per group with every change it brings). They are stored on the notice as a JSON list,
+`absence_changes`, each change as the same tuple the options use (`[type, hour]`, or `[type, from,
+to]` for a break), in the order of the day (start, breaks, end); `_absence_change_tuples()` reads
+them back. A JSON list rather than a child model, like the students' notice's `arrangement_lessons`
+(#649): the changes are only ever written with their notice and read with it, never searched on
+their own, and a list needs no access rules of its own to stay in step with the notice's three
+levels of access (a child model would need its own copy of every `rule_notice_*`). The form shows
+them in one line (`absence_change_label`, `_absence_changes_label()`). Notices created before #652
+had one change in three columns of their own; migration `18.0.0.38.1` (`post-migrate.py`) moved
+each one into a one-item list.
+
+Per side, `_get_absence_change_states()` reads every change of the day's notices once, oldest
+notice first, and compares the allowed options with the change on that side of the latest notice
 that left the draft state (`COMMUNICATED_NOTICE_STATES`: a scheduled notice is on its way, a failed
 one reached at least part of its recipients). The `normal_*` types are the correction back to the
-usual timetable, so they communicate "no change".
+usual timetable, so they communicate "no change". A correction is always about one side: a
+rectification of a notice that told several changes is a new notice with one change, the other
+sides keeping what was told.
 
 | Allowed options | Communicated | Status | Options offered |
 |---|---|---|---|
@@ -740,9 +756,12 @@ Communicating a smaller option than the largest is the planner's decision and is
 about: the lessons beyond it simply stay on the table to be covered. Likewise, an absence that grows
 after the notice keeps the notice valid - the new lesson is one more to cover. Only telling the
 families more than the absences now allow (they shrank, were refused or cancelled, or the timetable
-changed) asks for a correction. `board_propose_absence_change()` accepts any option of the side's
+changed) asks for a correction. `board_send_absence_change()` (**Send notice** / **Send correction**)
+prepares the notice (`_board_absence_change_draft()`) and sends it at once (#652), with the same
+fallback as an accepted plan: one that cannot be sent stays a draft and opens with the reason. It accepts any option of the side's
 current state and refuses anything else. A draft notice for one of the options is reused
-(`'draft'`): the box then offers **Open draft** instead of the selector. Rows whose period falls inside the communicated window (`_change_window_contains`)
+(`'draft'`, the option being `'draft_change'`): the box then offers **Open draft** instead of the
+selector. Rows whose period falls inside the communicated window (`_change_window_contains`)
 carry `authorized` and are struck out; rows inside an expected window nobody has communicated yet
 carry `proposed`, shown as a dashed tag.
 
@@ -754,7 +773,7 @@ can still reach the families in time; with nothing left, the side has no status.
 change whose time has come is settled (`communicated`, no correction proposed): a correction would
 arrive too late. `_board_day_hour()` gives the company-time hour of `day` (None for a day still to
 come, so nothing is dropped; past every lesson for a day already over), and since
-`board_propose_absence_change()` validates against the same states, it refuses an option that went
+`_board_absence_change_draft()` validates against the same states, it refuses an option that went
 past while the board stayed open.
 
 ### Guard assignment
@@ -946,23 +965,43 @@ Then:
   'arrangement'`, `arrangement_type = 'move'`) per teacher whose class in the gap it fills
   (`_board_create_move()`): the absent teacher, or the teacher whose lesson an earlier step moved.
   `guard_employee_id` = who moves, `vacated_hour_from/_to` = their lesson.
-- A **notice** creates a draft per group (`_create_absence_change_notice`, or the existing draft
-  for that change) and links to it (`notice_id`) the moves whose lessons it frees the group from:
-  they only count once it is sent (`is_effective`). The first draft opens.
-- A **swap** goes through `board_arrange()`, which now only takes swaps and manual arrangements.
-- Moves without a notice are in effect at once, and their teachers are told
-  (`_notify_arrangement()`: one message per moved shared lesson, naming every group).
+- The **notice** steps become **one notice per group** (#652, `_create_absence_change_notice()`
+  with every change the kept steps bring to that group: a later entry, an earlier leave, a longer
+  break), never one notice for several groups, so each stays addressed to its own group
+  (`_check_absence_change_recipients`). It links (`notice_id`) the moves whose lessons it frees the
+  group from: they only count once it is sent (`is_effective`). A draft prepared earlier for those
+  same changes (one sent alone with **Send notice** that could not be sent, or the draft of a plan
+  that could not be sent) is replaced: what waited for it now waits for the new notice, and it is deleted.
+- A **swap** is applied as `board_arrange()` applies it (`_board_arrange_cover()`, without the
+  students' notice, prepared once below); `board_arrange()` itself only takes swaps and manual
+  arrangements.
 - Every cover is checked with `_check_cover_manager()` (below); any failure rolls everything back.
-- Every group whose lessons a move or a swap changes gets a draft notice to its **students** (#649,
-  below). The form that opens is the first families' draft or, without one, the first students'
-  draft (`notice_action`); `board_arrange()` opens the students' draft of a swap too.
+- **Sent at once** (`_board_send_notices()`, `ems.notice._send_or_keep_draft()`): checking a notice
+  step is the confirmation, so the families' notices are sent right away (`action_send()`, as from
+  the form), and the moves waiting for them are in effect at once. The teachers whose lessons move
+  are told once afterwards, for every move in effect (`_notify_arrangements()`; the notice's own
+  state hook is skipped with the `ems_skip_arrangement_notify` context key, so nobody gets one
+  message per notice or per cover).
+- Every group whose lessons a move or a swap changes gets a notice to its **students** (#649,
+  below), sent at once too.
+- **When a notice cannot be sent** (`action_send()` raises a `UserError`: no recipients, a sender
+  without an email address...), the attempt is rolled back to a savepoint and the notice stays a
+  draft, untouched; so do the moves waiting for it, which the box shows as `pending_arrangement`
+  with **Open draft**. The result's `notice_action` is the form of the first notice left in draft
+  (the families' first) and `notice_error` the reason, which the board shows before opening it.
+  When the planner sends it from the form, the moves take effect and the state hook tells the
+  teachers (once each). Withdrawing one of those moves deletes the draft, and with it every move
+  of the group still waiting for it (`ondelete='cascade'`): none of them was ever in effect, so the
+  plan is simply applied again. Every failure is logged at `INFO`.
+- `board_arrange()` sends the students' notice of a swap the same way, with the same fallback.
 
 #### Telling the students which lessons change time (#649)
 
 A move or a swap changes when the group has a subject, which the families' notice (only about when
 the group starts or finishes) never says. So every swap and every move, in effect or still waiting
-for the families' notice, is told to the group's **students only**, in a draft
-`ems.notice` (`models/communications/notice_arrangement.py`):
+for the families' notice, is told to the group's **students only**, in an
+`ems.notice` of its own (`models/communications/notice_arrangement.py`), separate from the families'
+one since its recipients are different:
 
 - **One per group and day** (`arrangement_group_id`, `arrangement_date`), listing every lesson of
   the group that changes time that day (`_arrangement_moved_lessons()`: in a move, the teacher's
@@ -970,9 +1009,12 @@ for the families' notice, is told to the group's **students only**, in a draft
   where the other one was), with its subject (read once from the timetable) and both time spans.
   `arrangement_lessons` stores what the notice tells: `[subject id, teacher id, usual from, usual
   to, new from, new to]` per lesson.
-- **Never sent from the board, never waited for.** The arrangement is in effect as before
-  (`is_effective` only follows `notice_id`, the families' notice); `student_notice_id` on each
-  cover (`ondelete='set null'`) only points at the draft, or at the last notice sent, for the record.
+- **Sent when the arrangement is accepted, never waited for.** `board_apply_plan()` and
+  `board_arrange()` send the drafts `_sync_arrangement_notices()` returns (#652), with the same
+  fallback as the families' notice: one that cannot be sent stays a draft and opens. The
+  arrangement is in effect regardless (`is_effective` only follows `notice_id`, the families'
+  notice); `student_notice_id` on each cover (`ondelete='set null'`) only points at the draft, or at
+  the last notice sent, for the record.
 - **Kept up to date** by `_sync_arrangement_notices(pairs)`, called by `board_arrange()`,
   `board_apply_plan()`, `_board_withdraw()` (a released or replaced arrangement) and when a
   families' draft is deleted (its waiting moves cascade with it, `ems.notice.unlink()`). Per group
@@ -982,14 +1024,17 @@ for the families' notice, is told to the group's **students only**, in a draft
     planner's own edits survive any other board action) or deleted when nothing changes any more;
   - already told and still true: no draft (one left over is deleted);
   - already told and no longer true: a **correction** draft ("Correction: ..."), listing the
-    lessons that change time now and those back at their usual time.
-- **Who**: a new draft belongs to the user who applied or withdrew the arrangement (they review and
-  send it, like the families' one); an existing draft, possibly someone else's, is updated or
+    lessons that change time now and those back at their usual time. A correction that
+    withdrawing or releasing an arrangement prepares (`_board_withdraw()`, or deleting a families'
+    draft) stays a draft to review: nobody accepted anything new, so nothing is sent on their
+    behalf. Only accepting an arrangement sends.
+- **Who**: a new notice belongs to the user who applied or withdrew the arrangement (they send it,
+  or review and send a correction, like the families' one); an existing draft, possibly someone else's, is updated or
   deleted as superuser, since every caller has already checked the user organises these absences
   (`_check_cover_manager()`). `_check_arrangement_recipients` keeps it addressed to the group's
   students (`recipient_type = 'students'`, student lines of that group only), and the form locks its
   groups and recipients. The board's side logic (`_get_absence_change_states()`,
-  `CHANGE_TYPES`/`CHANGE_SIDES`) never reads these notices: they have no `absence_change_type`.
+  `CHANGE_TYPES`/`CHANGE_SIDES`) never reads these notices: they have no `absence_changes`.
 
 #### A lesson moved without a notice is a class to cover
 
@@ -1022,8 +1067,10 @@ its own notice: the families of each group are told separately.
 - **A move in effect with its notice says both things on its row** (`arrangement_change`, #623).
 - **Nobody believes a busy teacher is free**: `_arrangement_busy()` (struck out of the guard column,
   never a guard candidate, not self-assignable).
-- **Notifications** when it takes effect and when it is withdrawn (`_notify_arrangement()`); for a
-  move, its teacher's whole day with every lesson of theirs moved that day (`_cover_schedule_changes()`).
+- **Notifications** when it takes effect and when it is withdrawn (`_notify_arrangement()`, through
+  `_notify_arrangements()` so that each teacher is told once per lesson of theirs that moves,
+  whatever the number of covers - groups, absent teachers - of that move); for a move, its teacher's
+  whole day with every lesson of theirs moved that day (`_cover_schedule_changes()`).
 - **No longer valid** (`_is_cover_still_needed()`): shown under **Guards no longer needed** with
   **Remove arrangement**.
 
@@ -1128,7 +1175,7 @@ vocational families work and leaves ESO/BTX blank.
 | Assign / change / release a guard (`board_assign`, `board_release`) | No | Yes |
 | Take a free class themselves / leave one they took (`board_self_assign`, `board_self_release`) | Only a guard on duty then | Same |
 | See and apply detected arrangements, record a manual one, remove one (`board_arrange`, `board_release`) | No | Yes |
-| Propose a timetable change or correction (`board_propose_absence_change`) | No | Yes |
+| Send a timetable change or correction (`board_send_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
 
 Department and Seminar chiefs use Communications > Notices limited to the groups their department
@@ -1137,7 +1184,9 @@ timetable-change notice is one of those.
 `_check_absence_change_recipients` keeps it addressed to its own group's students and families,
 and the form locks its groups; `_check_arrangement_recipients` does the same for the notice to the
 students about moved lessons (#649), which the user who applies the arrangement creates and sends
-too. `ems.absence_cover` is read-only to every teacher
+too. Accepting a plan or a swap sends both notices as that user (#652): a department chief sends
+the notices of the groups they manage, and one they may not send (someone else's draft reused,
+say) simply stays a draft. `ems.absence_cover` is read-only to every teacher
 (`ems.access_ems_absence_cover_teacher`): every write goes through the board methods above,
 which check who manages the class and then write with `sudo()`.
 

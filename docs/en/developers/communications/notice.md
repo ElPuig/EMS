@@ -252,15 +252,20 @@ shows as a plain header button, with Send now/Schedule sending as `btn-primary`.
 `@api.depends_context('uid')`: whether the current user may write the record, through
 `_filtered_access('write')`) for anyone who only reads it, so they no longer hit an access error.
 
-**Timetable-change notices (issues #539/#581).** A notice with `absence_date`,
-`absence_group_id`, `absence_change_type` and `absence_change_hour` set
-(`models/communications/notice_absence_change.py`) is one the guard duty board proposed: it tells
-a group's students and families they can come in later, leave earlier or have no classes because
-a teacher is away, or corrects an earlier one. It is created as a draft, pre-filled with the group's
-recipients and a suggested text, by `board_propose_absence_change()`, and sent from this same form
-like any other notice. `_check_absence_change_recipients` keeps such a notice addressed to its
-own group only, and the form shows an information banner and locks its groups. The board reads
-these notices back to know what was communicated: see "Managing absences from the board" in
+**Timetable-change notices (issues #539/#581, #652).** A notice with `absence_date`,
+`absence_group_id` and `absence_changes` set (`models/communications/notice_absence_change.py`) is
+one the guard duty board prepared: it tells a group's students and families they can come in later,
+leave earlier, have a longer break or no classes because a teacher is away, or corrects an earlier
+one. `absence_changes` is a JSON list of the changes it tells, at most one per side of the day (a
+notice for an accepted arrangement plan can tell a later entry and an earlier leave at once), and the
+message has one sentence per change; the form shows them in one line (`absence_change_label`). A
+single change or correction sent from the board (`board_send_absence_change()`) and the notice of an
+accepted arrangement plan are created pre-filled with the group's recipients and a suggested text,
+and sent at once (`action_send()`, through `_send_or_keep_draft()`); they only stay a draft to
+review and send from this same form, like any other notice, if sending fails.
+`_check_absence_change_recipients` keeps such a notice addressed to its own group only, and the
+form shows an information banner and locks its groups. The board reads these notices back to know
+what was communicated: see "Managing absences from the board" in
 [guard_duty_board.md](../attendance/guard_duty_board.md).
 
 **Moved-lesson notices to the students (issue #649).** A notice with `arrangement_date` and
@@ -268,10 +273,17 @@ these notices back to know what was communicated: see "Managing absences from th
 **students only** (`recipient_type = 'students'`) which of their lessons change time on a day
 because a guard duty board arrangement (a swap or a moved lesson) rearranged them: one per group
 and day, listing each subject's usual and new time span, and `arrangement_lessons` storing what it
-tells. The board creates and keeps it up to date as a draft (or proposes a "Correction:" draft once
-one was sent and the lessons change again); it is sent from this same form like any other notice.
-No arrangement waits for it. `_check_arrangement_recipients` keeps it addressed to that group's
-students, and the form shows an information banner and locks its groups and recipients.
+tells. Accepting the arrangement on the board sends it at once (issue #652), with the same fallback
+as the families' one (it stays a draft if it cannot be sent); the board keeps a draft up to date
+and proposes a "Correction:" draft once one was sent and the lessons change again because an
+arrangement was withdrawn, both sent from this same form like any other notice. No arrangement
+waits for it. `_check_arrangement_recipients` keeps it addressed to that group's students, and the
+form shows an information banner and locks its groups and recipients.
+
+**Sending from the board (`_send_or_keep_draft()`, issue #652).** Sends each notice with
+`action_send()` inside a savepoint; one that raises a `UserError` (no recipients, a sender without
+an email address...) is rolled back to its draft state, untouched, and returned with the reason, for
+the board to open it.
 
 **Department and Seminar chiefs: their department's groups.** Both roles are
 `ems.group_department_chief`, which now sees Communications > Notices. What "their department's

@@ -537,6 +537,8 @@ Key rules applied in this project:
 
   **`tests/test_i18n_coverage.py` checks all of this automatically (issue #557):** it fails when a `_("…")` string in EMS's Python code or a `_t("…")` in `static/src` has no `ca_ES`/`es_ES` entry (or its block lacks the `#. odoo-python`/`#. odoo-javascript` marker Odoo needs to load it at runtime), and when a field EMS itself defines has no Catalan/Spanish label in the database. Run it (`./test.sh TestI18nCoverage`, after `./upgrade.sh`) as part of the Close step; its failure message lists exactly what is missing. Selection values, help texts and view strings are not covered by it yet.
 
+  **Catalan and Spanish text must be correct, not just present: check it with LanguageTool (developer, 2026-10-16, issue #650).** Staff and families read it, and errors had already reached them (a deck and its videos said "Vaig a faltar", a castellanisme, for "Faltaré"; a first pass found about 1,180 findings in `docs/ca/` and `ca_ES.po`, being fixed in issue #651). `scripts/i18n/lt_check.py` checks `docs/{ca,es}/**/*.md` (markdown-aware) and `i18n/{ca,es}_ES.po` (`msgstr` only) with the LanguageTool Premium API; `--since <ref>` reports only the lines/entries changed since that ref, `--text "..." --lang ca-ES` checks loose text. Credentials are personal (`~/.claude/languagetool.json`, never in the repo): without them the script says so and exits 0, so a colleague without a key is never blocked, and the pass then happens in the developer's release close review (see "Revisión del cierre" below). **How to apply:** whenever you write or change Catalan or Spanish text (translations, user manuals, the staff newsletter, slides/video text) and a key is available, run the check and fix every real finding before handing the text over; on the developer's machines a Claude Code `PostToolUse` hook does it automatically after each edit and returns the findings. Review each finding, don't apply suggestions blindly: a word that is correct but keeps being flagged (an acronym, a proper noun) goes in `scripts/i18n/lt_ignore.txt`, never a real error. Job titles go in lowercase in running text, as the IEC norm says ("cap d'estudis", "director", "professors"). Details: `docs/en/developers/tooling/languagetool.md`.
+
 ## Documentation structure
 
 There are **two distinct categories** of documentation, for two different audiences — every new feature needs both, they are not alternatives:
@@ -873,6 +875,10 @@ has no visibility into whether it stayed consistent with another feature merged 
   `index.md`.
 - Translations (`i18n/{ca_ES,es_ES}.po`) — verified via a DB read-back (see "All literals must be
   translatable" above), not just `.po` presence.
+- Spelling and grammar of every Catalan/Spanish text changed since the last release tag
+  (`scripts/i18n/lt_check.py --since <last tag>`, see "Catalan and Spanish text must be correct"
+  above): colleagues without a LanguageTool key can't run it on their own branches, so this is
+  where their text gets checked. Fix the real findings.
 - Test coverage: backend `TransactionCase`, feature-specific tours, **and** the 5 role-smoke
   crawler tours (`tests/test_role_smoke_*_tour.py`, see "Per-role smoke tours" above) actually run
   against the fully-integrated branch. This is the moment the per-branch role-tour obligation

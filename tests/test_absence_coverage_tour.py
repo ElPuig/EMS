@@ -150,6 +150,11 @@ class TestAbsenceCoverageTour(HttpCase):
                           for cover in covers], [(8, 'swap', swapper, teacher), (9, 'move', mover, teacher)])
         self.assertTrue(all(covers.mapped('is_effective')))
         self.assertFalse(covers.notice_id)
+        # Issue #649: one draft to the group's students about the lessons that change time.
+        students = covers.student_notice_id
+        self.assertEqual((len(students), students.state, students.recipient_type), (1, 'draft', 'students'))
+
+        self.start_tour("/odoo", "ems_absence_arrangement_result", login=self.department_chief.login)
 
     def _move_fixture(self):
         """The absent teacher is only away 9-10, in the middle of the group's day; the group's

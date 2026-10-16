@@ -103,8 +103,9 @@
              own notices and everyone else's addressed to one of those groups, and edit, send and
              delete only their own and those of the chiefs below them (same chain of command as
              rule_notice_own above); _check_department_chief_groups keeps what they write within
-             those groups. The guard duty board's timetable-change notices (issues #539/#581) are
-             notices like any other here. Head of Studies implies this group, so these rules only
+             those groups. The guard duty board's timetable-change notices (issues #539/#581) and
+             its notices to the students about moved lessons (issue #649) are notices like any
+             other here. Head of Studies implies this group, so these rules only
              ever add to what their own rules above grant. -->
         <record model="ir.rule" id="rule_notice_department_chief_read">
             <field name="name">Notice: department chief reads own and their department's groups' notices</field>

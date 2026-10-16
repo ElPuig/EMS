@@ -1150,3 +1150,20 @@ class ems_employee(models.AbstractModel):
                 return employee
             employee = employee.parent_id
         return self.env["hr.employee"]
+
+    def _find_attendance_approvers(self):
+        """Who corrects this employee's attendance (res.users): the nearest Head or Deputy Head
+        of Studies above them in the chain of command; failing that, whoever manages their area's
+        attendance (attendance_manager_id); failing that, the administrators. Shared by the
+        routing of an attendance correction request (ems.attendance_correction._find_approver)
+        and by the auto-checkout notice asking for a check-out to be corrected (issue #648), so
+        both reach the same person. Never the Department or Seminar Chief ('parent_id'): they
+        can only read their branch's attendance, not correct it."""
+        self.ensure_one()
+        employee = self.sudo()
+        head_of_studies = employee.find_head_of_studies()
+        if head_of_studies:
+            return head_of_studies.user_id
+        if employee.attendance_manager_id:
+            return employee.attendance_manager_id
+        return self.env["res.users"].sudo().search([("groups_id", "=", self.env.ref("ems.group_academic_admin").id)])

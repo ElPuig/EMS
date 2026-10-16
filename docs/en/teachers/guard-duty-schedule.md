@@ -35,7 +35,7 @@ The two buttons on the right of the toolbar switch between the two ways of readi
 - **Absences table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
 - **Guard duty schedule** — the timetable, with everybody who is away marked on it.
 
-When the board shows today, a **red line** crosses both views at the current time, at its exact height within the time block it falls in (at 16:40, two thirds of the way down the 16:00-17:00 block), so you can see at a glance which classes are on now. It moves down as the time goes by, and is not drawn on another day or outside the shift on screen.
+When the board shows today, a **dotted red line** crosses both views at the current time, at its exact height within the time block it falls in (at 16:40, two thirds of the way down the 16:00-17:00 block), so you can see at a glance which classes are on now. It moves down as the time goes by, and is not drawn on another day or outside the shift on screen.
 
 ---
 

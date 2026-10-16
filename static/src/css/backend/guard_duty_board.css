@@ -69,13 +69,13 @@
 }
 
 /* The current time (issue #647): a red line across the whole table, at the height of "now" inside
-   the row holding it. Placed and shown by placeNowLine() in guard_duty_board.js; it never takes a
-   click from the cells under it. */
+   the row holding it - dotted, so the cells it crosses still read well. Placed and shown by
+   placeNowLine() in guard_duty_board.js; it never takes a click from the cells under it. */
 .o_guard_board_now_line {
     display: none;
     position: absolute;
     height: 0;
-    border-top: 2px solid #dc3545;
+    border-top: 2px dotted #dc3545;
     margin-top: -1px;
     pointer-events: none;
     z-index: 2;

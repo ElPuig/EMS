@@ -35,7 +35,7 @@ Els dos botons de la dreta de la barra d'eines canvien entre les dues maneres de
 - **Taula d'absències** — una fila per franja horària: qui falta i què s'ha de cobrir, davant de qui està de guàrdia per cobrir-ho.
 - **Horari de guàrdies** — l'horari, amb tothom qui falta marcat a sobre.
 
-Quan l'horari mostra el dia d'avui, una **línia vermella** travessa les dues vistes a l'hora actual, a l'alçada exacta dins de la franja horària on cau (a les 16:40, a dos terços de la franja 16:00-17:00), perquè vegis d'un cop d'ull quines classes s'estan fent ara. Va baixant a mesura que passa l'estona, i no es dibuixa en un altre dia ni fora del torn que hi ha a la pantalla.
+Quan l'horari mostra el dia d'avui, una **línia vermella de punts** travessa les dues vistes a l'hora actual, a l'alçada exacta dins de la franja horària on cau (a les 16:40, a dos terços de la franja 16:00-17:00), perquè vegis d'un cop d'ull quines classes s'estan fent ara. Va baixant a mesura que passa l'estona, i no es dibuixa en un altre dia ni fora del torn que hi ha a la pantalla.
 
 ---
 

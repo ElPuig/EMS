@@ -546,7 +546,7 @@ never disagree.
   stretches when another area has a boundary at 11:00. Each row carries its `minutes`; the screen
   makes a longer stretch a taller row, so the grid reads like a clock. It also carries its own
   bounds, `hour_from`/`hour_to` (float hours), for the current-time line below.
-- **Current-time line (issue #647):** on both tabs, a red line crosses the whole table at the
+- **Current-time line (issue #647):** on both tabs, a dotted red line crosses the whole table at the
   current time. `nowLinePosition()` (`guard_duty_board.js`) finds the row whose
   `hour_from`/`hour_to` hold "now" and how far into it (0 to 1); "now" is `serverNow()`, the
   server's clock in the company's timezone (see [`timezones.md`](../shared/timezones.md)), and the

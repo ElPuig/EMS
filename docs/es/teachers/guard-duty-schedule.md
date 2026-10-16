@@ -35,7 +35,7 @@ Los dos botones de la derecha de la barra de herramientas cambian entre las dos 
 - **Tabla de ausencias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
 - **Horario de guardias** — el horario, con todo el que falta marcado encima.
 
-Cuando el horario muestra el día de hoy, una **línea roja** cruza las dos vistas a la hora actual, a la altura exacta dentro de la franja horaria en la que cae (a las 16:40, a dos tercios de la franja 16:00-17:00), para que veas de un vistazo qué clases se están dando ahora. Va bajando a medida que pasa el tiempo, y no se dibuja en otro día ni fuera del turno que hay en pantalla.
+Cuando el horario muestra el día de hoy, una **línea roja de puntos** cruza las dos vistas a la hora actual, a la altura exacta dentro de la franja horaria en la que cae (a las 16:40, a dos tercios de la franja 16:00-17:00), para que veas de un vistazo qué clases se están dando ahora. Va bajando a medida que pasa el tiempo, y no se dibuja en otro día ni fuera del turno que hay en pantalla.
 
 ---
 

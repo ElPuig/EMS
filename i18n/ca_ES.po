@@ -17887,7 +17887,6 @@ msgstr "Aquesta persona ja és a la llista."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__checkin_time model_terms:ir.ui.view,arch_db:ems.report_meeting_presence_section
-#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour
 msgid "Time"
 msgstr "Hora"
 
@@ -20375,36 +20374,15 @@ msgid "Absence group"
 msgstr "Grup de l'absència"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_type
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_label
 msgid "Timetable change"
 msgstr "Canvi d'horari"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__late_entry
-msgid "Late entry"
-msgstr "Entrada tard"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__early_leave
-msgid "Early leave"
-msgstr "Sortida abans d'hora"
-
-#. module: ems
 #. odoo-python
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__no_classes
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "No classes"
 msgstr "Sense classes"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_entry
-msgid "Usual start time"
-msgstr "Hora d'entrada habitual"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_leave
-msgid "Usual finish time"
-msgstr "Hora de sortida habitual"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
@@ -20520,12 +20498,14 @@ msgstr "Benvolgudes famílies i alumnat,"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
+#: code:addons/ems/models/communications/notice_arrangement.py:0
 msgid "Correction: %s"
 msgstr "Rectificació: %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
+#: code:addons/ems/models/communications/notice_arrangement.py:0
 msgid "This message corrects the one we sent you earlier about this day."
 msgstr "Aquest missatge rectifica el que us vam enviar abans sobre aquest dia."
 
@@ -20658,14 +20638,14 @@ msgstr "Treure l'assignació"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose notice"
-msgstr "Proposar comunicat"
+msgid "Send notice"
+msgstr "Enviar comunicat"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Propose correction"
-msgstr "Proposar rectificació"
+msgid "Send correction"
+msgstr "Enviar rectificació"
 
 #. module: ems
 #. odoo-javascript
@@ -20818,14 +20798,8 @@ msgstr "Pati de %(start)s a %(end)s"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__normal_break
 msgid "Usual break"
 msgstr "Pati habitual"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_notice__absence_change_type__long_break
-msgid "Longer break"
-msgstr "Pati allargat"
 
 #. module: ems
 #. odoo-python
@@ -20844,11 +20818,6 @@ msgstr "A causa de l'absència justificada del docent assignat, el grup %(group)
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "Group %(group)s will have the usual break, from %(start)s to %(end)s, on %(date)s."
 msgstr "El grup %(group)s farà el pati habitual, de %(start)s a %(end)s, el dia %(date)s."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_change_hour_to
-msgid "Until"
-msgstr "Fins a"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_document_return_wizard
@@ -23181,3 +23150,97 @@ msgstr "Els grups principals de l'alumnat inscrit en aquest grup que no són ent
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 msgid "<strong>Fill main groups from enrolled students</strong>, at the top of the form, adds them."
 msgstr "<strong>Omplir els grups principals des de l'alumnat inscrit</strong>, a dalt de la fitxa, els afegeix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid "A notice about moved lessons can only be sent to the students of %s."
+msgstr "Un comunicat sobre classes mogudes només es pot enviar a l'alumnat de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid "%(group)s | lessons at a different time on %(date)s"
+msgstr "%(group)s | el %(date)s algunes classes canvien d'hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid "Dear students,"
+msgstr "Benvolgut alumnat,"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid "Because a teacher is absent, these lessons of group %(group)s will be at a different time on %(date)s:"
+msgstr "A causa de l'absència d'un docent, aquestes classes del grup %(group)s canviaran d'hora el dia %(date)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid "%(subject)s: from %(usual)s to %(new)s"
+msgstr "%(subject)s: ara %(new)s (hora habitual: %(usual)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid "These lessons of group %(group)s will be at their usual time on %(date)s:"
+msgstr "Aquestes classes del grup %(group)s es faran a la seva hora habitual el dia %(date)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid "%(subject)s: %(time)s"
+msgstr "%(subject)s: %(time)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__arrangement_date
+msgid "Moved lessons day"
+msgstr "Dia de les classes mogudes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__arrangement_group_id
+msgid "Moved lessons group"
+msgstr "Grup de les classes mogudes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__arrangement_lessons
+msgid "Moved lessons"
+msgstr "Classes mogudes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__student_notice_id
+msgid "Notice to the students"
+msgstr "Comunicat a l'alumnat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_notice_form
+msgid ""
+"<i class=\"fa fa-exchange me-2\" title=\"Moved lessons\"/>\n"
+"                            <span>Lessons moved by an arrangement to cover an absence:</span>"
+msgstr ""
+"<i class=\"fa fa-exchange me-2\" title=\"Classes mogudes\"/>\n"
+"                            <span>Classes mogudes en una reorganització per cobrir una absència:</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_notice__absence_changes
+msgid "Timetable changes"
+msgstr "Canvis d'horari"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "%(group)s | timetable changes on %(date)s"
+msgstr "%(group)s | canvis d'horari el %(date)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The notice could not be sent and stays a draft for you to review: %s"
+msgstr "No s'ha pogut enviar el comunicat i queda com a esborrany perquè el revisis: %s"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Notice sent."
+msgstr "Comunicat enviat."

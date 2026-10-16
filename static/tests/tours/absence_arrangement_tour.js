@@ -7,7 +7,9 @@ import { registry } from "@web/core/registry";
 // the group's last lesson into the 9:00 one and has the absent teacher, in from 10:00, teach their
 // 9:00 lesson at 12:00 instead: nobody loses a lesson. The planner keeps all but that last step:
 // both lessons are solved at once, and the lesson left free at 12:00 becomes a class to cover, with
-// the early leave proposed. Seed data comes from
+// the early leave proposed. Applying it sends the notice to the group's students about the lessons
+// that change time (issues #649, #652); the group has no students, so it cannot be sent and opens as
+// a draft to review. ems_absence_arrangement_result then checks the board. Seed data comes from
 // TestAbsenceCoverageTour.test_absence_arrangement_tour.
 registry.category("web_tour.tours").add("ems_absence_arrangement", {
     test: true,
@@ -55,8 +57,61 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             content: "It is unchecked",
         },
         {
+            // Issue #647: the button sits on the right, in the same column and with the same width
+            // as the buttons of the proposal rows ("Propose notice"...), not under the steps.
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_actions .o_guard_board_plan_apply.o_guard_board_action_button",
+            content: "The apply button is right-aligned, lined up with the other action buttons",
+            run: () => {
+                const box = document.querySelector(".o_guard_board_arrangements");
+                const apply = box.querySelector(".o_guard_board_plan_apply").getBoundingClientRect();
+                const plan = box.querySelector(".o_guard_board_plan_apply").closest(".o_guard_board_plan").getBoundingClientRect();
+                if (Math.abs(apply.right - plan.right) > 1) {
+                    throw new Error(`The apply button ends at ${apply.right}px, its proposal at ${plan.right}px`);
+                }
+                for (const button of box.querySelectorAll(".o_guard_board_action_button")) {
+                    const other = button.getBoundingClientRect();
+                    if (Math.abs(other.right - apply.right) > 1 || Math.abs(other.width - apply.width) > 1) {
+                        throw new Error(`"${button.textContent.trim()}" is not lined up with the apply button`);
+                    }
+                }
+            },
+        },
+        {
             trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
             content: "Apply the checked steps",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-info:contains('Lessons moved by an arrangement'):contains('TABTG')",
+            content: "The draft notice to the group's students opens: no families' notice is needed",
+        },
+    ],
+});
+
+// Issues #605 and #645: the board once ems_absence_arrangement has applied its steps. Seed data
+// comes from TestAbsenceCoverageTour.test_absence_arrangement_tour.
+registry.category("web_tour.tours").add("ems_absence_arrangement_result", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
             run: "click",
         },
         {
@@ -92,8 +147,9 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
 });
 
 // Issues #605 and #645, from the 9:00 lesson's own dialog: the plan that solves it comes first,
-// already chosen with every step checked; applying it opens the notice for the families, which the
-// move into the 9:00 lesson waits for. Seed data comes from
+// already chosen with every step checked; applying it sends the notice for the families (issue
+// #652), which the move into the 9:00 lesson waits for: the group has no students, so it cannot be
+// sent and opens as a draft to review. Seed data comes from
 // TestAbsenceCoverageTour.test_absence_arrangement_dialog_tour.
 registry.category("web_tour.tours").add("ems_absence_arrangement_dialog", {
     test: true,

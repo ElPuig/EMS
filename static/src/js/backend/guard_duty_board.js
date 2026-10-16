@@ -1,6 +1,6 @@
 /** @odoo-module **/
 
-import { Component, onWillStart, useState } from "@odoo/owl";
+import { Component, onMounted, onWillStart, onWillUnmount, useEffect, useExternalListener, useRef, useState } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { useSetupAction } from "@web/search/action_hook";
@@ -46,6 +46,9 @@ const VIEWS = [
 ];
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+// How often the current-time line moves down the grid: once a minute, its own resolution.
+const NOW_LINE_REFRESH_MS = 60 * 1000;
 
 // Mirrors ems.course's own SHIFT_HOURS (models/attendance/guard_duty_board.py): the afternoon
 // shift starts at 15:00, kept in sync by hand since a plain JS constant can't share the Python
@@ -114,6 +117,7 @@ export class GuardDutyBoard extends Component {
         this.actionService = useService("action");
         this.dialog = useService("dialog");
         this.popover = useService("popover");
+        this.notification = useService("notification");
         this.state = useState({
             // Both set in onWillStart, once the server clock is known.
             activeDay: 0,
@@ -154,6 +158,17 @@ export class GuardDutyBoard extends Component {
         });
         // Coming back through the breadcrumbs hands this back as props.state (see restoreNavigation).
         useSetupAction({ getLocalState: () => this.navigationState });
+
+        // The red line marking the current time (issue #647): placed on the DOM after every
+        // render, on a resize (a centred table moves) and once a minute - never through a
+        // re-render, so the board itself is never redrawn just to move it.
+        this.contentRef = useRef("content");
+        useEffect(() => this.placeNowLine());
+        useExternalListener(window, "resize", () => this.placeNowLine());
+        onMounted(() => {
+            this.nowLineTimer = setInterval(() => this.placeNowLine(), NOW_LINE_REFRESH_MS);
+        });
+        onWillUnmount(() => clearInterval(this.nowLineTimer));
     }
 
     // What the planner is looking at - week and day, shift, view and areas - kept in the URL
@@ -239,6 +254,54 @@ export class GuardDutyBoard extends Component {
     // like a clock.
     rowStyle(row) {
         return `height: ${Math.max(26, Math.round(row.minutes * 1.3))}px`;
+    }
+
+    // Where "now" falls in the grid on screen: the index of its row and how far down that row,
+    // from 0 to 1 - or null when the board shows another day, or a time range that does not
+    // include it (the other shift, before the first block, after the last one). The rows are
+    // consecutive stretches of the shift, so there is no gap between two of them.
+    nowLinePosition() {
+        const board = this.state.board;
+        if (this.state.loading || !board || !board.lines.length) {
+            return null;
+        }
+        const now = serverNow();
+        if (now.toISODate() !== this.activeDate) {
+            return null;
+        }
+        const hour = now.hour + now.minute / 60;
+        const grid = this.state.activeView === "schedule" ? board.schedule_grid : board.absence_grid;
+        const index = grid.rows.findIndex((row) => hour >= row.hour_from && hour < row.hour_to);
+        if (index === -1) {
+            return null;
+        }
+        const row = grid.rows[index];
+        return { index, fraction: (hour - row.hour_from) / (row.hour_to - row.hour_from) };
+    }
+
+    // Draws the line across the whole table at the current time, proportionally inside the row
+    // holding it: the rows have different heights, so it is measured on the row itself. The line
+    // sits in the table's wrapper (positioned), which scrolls sideways with the table.
+    placeNowLine() {
+        const line = this.contentRef.el?.querySelector(".o_guard_board_now_line");
+        if (!line) {
+            return;
+        }
+        const position = this.nowLinePosition();
+        const wrap = line.parentElement;
+        const table = wrap.querySelector(".o_guard_board_timeline");
+        const row = position && table?.tBodies[0]?.rows[position.index];
+        if (!row) {
+            line.style.display = "none";
+            return;
+        }
+        const wrapBox = wrap.getBoundingClientRect();
+        const rowBox = row.getBoundingClientRect();
+        const tableBox = table.getBoundingClientRect();
+        line.style.top = `${rowBox.top - wrapBox.top + wrap.scrollTop + rowBox.height * position.fraction}px`;
+        line.style.left = `${tableBox.left - wrapBox.left + wrap.scrollLeft}px`;
+        line.style.width = `${tableBox.width}px`;
+        line.style.display = "block";
     }
 
     slotAbsences(slot, key) {
@@ -380,14 +443,14 @@ export class GuardDutyBoard extends Component {
 
     // Managing absences from the absences table (issues #539, #571, #581). Every action below
     // is checked again on the server (ems.absence_cover.board_assign/board_release,
-    // ems.notice.board_propose_absence_change): the flags the board sends only decide what is
+    // ems.notice.board_send_absence_change): the flags the board sends only decide what is
     // offered, never what is allowed.
 
     get actionLabels() {
         return {
             releasesTitle: _t("Guards no longer needed"),
-            propose: _t("Propose notice"),
-            rectify: _t("Propose correction"),
+            propose: _t("Send notice"),
+            rectify: _t("Send correction"),
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
             removeArrangement: _t("Remove arrangement"),
@@ -574,17 +637,30 @@ export class GuardDutyBoard extends Component {
         this.state.planSelections[plan.key] = toggledPlanSelection(plan, this.planSelection(plan), index, checked);
     }
 
-    // Applies the checked steps of a detected plan. A notice among them opens its draft for the
-    // families straight away: the moves it frees the group from only count once it is sent.
+    // Applies the checked steps of a detected plan (issue #652): the notices they bring, one per
+    // group to its families and one to its students, are sent straight away - checking the step
+    // was the confirmation. One that could not be sent stays a draft and opens, with the reason,
+    // for the planner to review and send: the moves it frees the group from only count once it is.
     async applyPlan(plan, selection) {
         const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [
             this.activeDate, selectedPlanSteps(plan, selection),
         ]);
-        if (result.notice_action) {
-            await this.actionService.doAction(result.notice_action);
-            return;
+        if (!(await this.openUnsentNotice(result))) {
+            await this.loadBoard();
         }
-        await this.loadBoard();
+    }
+
+    // A board action sends its notices at once (issue #652); one that could not be sent stays a
+    // draft, which opens with the reason for the planner to review and send. Whether it did.
+    async openUnsentNotice(result) {
+        if (!result.notice_action) {
+            return false;
+        }
+        if (result.notice_error) {
+            this.notification.add(result.notice_error, { type: "warning", sticky: true });
+        }
+        await this.actionService.doAction(result.notice_action);
+        return true;
     }
 
     // An arrangement described by hand (issue #605).
@@ -707,11 +783,16 @@ export class GuardDutyBoard extends Component {
             });
             return;
         }
+        // Sent at once (issue #652): clicking the button is the confirmation. A notice that could
+        // not be sent stays a draft and opens, with the reason, for the planner to review.
         const option = action.options[action.default];
-        const notice = await this.orm.call("ems.notice", "board_propose_absence_change", [
+        const result = await this.orm.call("ems.notice", "board_send_absence_change", [
             this.activeDate, action.group_id, option.change_type, option.hour, option.hour_to,
         ]);
-        await this.actionService.doAction(notice);
+        if (!(await this.openUnsentNotice(result))) {
+            this.notification.add(_t("Notice sent."), { type: "success" });
+            await this.loadBoard();
+        }
     }
 
     // One PDF per day AND per shift — whichever day tab / shift dropdown is currently active,

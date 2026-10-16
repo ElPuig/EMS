@@ -35,6 +35,8 @@ Los dos botones de la derecha de la barra de herramientas cambian entre las dos 
 - **Tabla de ausencias** — una fila por franja horaria: quién falta y qué hay que cubrir, frente a quién está de guardia para cubrirlo.
 - **Horario de guardias** — el horario, con todo el que falta marcado encima.
 
+Cuando el horario muestra el día de hoy, una **línea roja de puntos** cruza las dos vistas a la hora actual, a la altura exacta dentro de la franja horaria en la que cae (a las 16:40, a dos tercios de la franja 16:00-17:00), para que veas de un vistazo qué clases se están dando ahora. Va bajando a medida que pasa el tiempo, y no se dibuja en otro día ni fuera del turno que hay en pantalla.
+
 ---
 
 ## Leer el horario
@@ -190,13 +192,16 @@ Las propuestas aparecen en este orden: primero las que hacen perder menos clases
 
 **La jornada de nadie se alarga.** Una propuesta solo incluye un paso si ningún docente implicado acaba con una jornada más larga (contada desde su primera franja hasta la última, tanto clases como guardias y cualquier otra tarea): quien tenga que entrar antes debe salir antes, y quien tenga que salir más tarde debe entrar más tarde. Cuando un paso cambia la hora de entrada o de salida de alguien, una línea naranja debajo dice exactamente de quién y cómo (*"… sale a las 20:20 en lugar de a las 21:20"*).
 
-**Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados** debajo, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
+**Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados**, a su derecha, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
 
 ![Diálogo de una clase: las propuestas que la resuelven, la primera elegida con sus pasos marcados, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 
 - Un **intercambio**, y una **clase movida** que no depende de ningún aviso, tienen efecto de inmediato: la clase queda tachada con el docente que está con el grupo, y los docentes implicados reciben un mensaje de Odoo con el cambio (y su nueva hora de entrada o de salida, si cambia).
-- Un **aviso** abre directamente su borrador para las familias (uno por grupo). **Las clases movidas que dependen de él solo cuentan cuando se ha enviado**: hasta entonces esas clases no quedan tachadas, y la sección las muestra pendientes del comunicado (**Abrir borrador**). Los docentes reciben el aviso cuando se envía el comunicado. Si borras el borrador, esas clases movidas se descartan. Una vez enviado, la clase muestra las dos etiquetas: quién está con el grupo y, en verde, lo que se ha comunicado a las familias (*"Sale a las 12:25"*).
+- Los **avisos** se envían enseguida: marcar el paso ya es la confirmación, no hay ningún borrador que revisar. Cada grupo recibe **un solo comunicado** para todo el día, con todos los cambios que la propuesta le trae (por ejemplo, que entra más tarde *y* sale antes), de modo que sus familias reciben un solo correo en lugar de uno por cambio. Las clases movidas que dependen del comunicado tienen efecto en cuanto se envía, y es entonces cuando los docentes implicados reciben su mensaje de Odoo. Una vez enviado, la clase muestra las dos etiquetas: quién está con el grupo y, en verde, lo que se ha comunicado a las familias (*"Sale a las 12:25"*).
+- **Si un comunicado no se puede enviar** (por ejemplo, porque el grupo no tiene a nadie a quien enviarlo), queda como borrador y se abre con un mensaje que explica el motivo. Revísalo y envíalo desde ese formulario. Hasta entonces, **las clases movidas que dependen de él no cuentan**: esas clases no quedan tachadas, y la sección del grupo las muestra pendientes del comunicado, con **Abrir borrador** para volver a abrirlo. Los docentes reciben el aviso cuando se envía. Si borras el borrador, esas clases movidas se descartan y puedes volver a aplicar la propuesta.
 - **Si dejas fuera el aviso**, las clases movidas se aplican sin él, y la clase que deja libre una clase movida aparece como una línea más de la tabla, con la etiqueta **Clase pasada a las 15:00**: cúbrela como cualquier otra (con una guardia, otra reorganización o una descrita a mano), o envía el comunicado más tarde desde **Solo avisar a las familias**. La organiza quien organiza la ausencia original.
+
+**Se avisa al alumnado de qué clases cambian de hora.** Un intercambio o una clase movida cambia la hora a la que el grupo tiene una materia, algo que el comunicado a las familias no dice (solo dice cuándo empieza o termina el grupo). Por eso, aplicar uno también envía un comunicado **solo al alumnado del grupo** (nunca a las familias), uno por grupo y día, con todas las clases que cambian de hora ese día: *"Matemáticas: de 11:00-12:00 a 08:00-09:00"*. También se envía enseguida, y si no se puede enviar queda como borrador y se abre para que lo revises y lo envíes (también lo encuentras en **Comunicaciones → Comunicados**); la reorganización no lo espera, ya tiene efecto. Mientras no se envía, el cuadrante mantiene ese borrador al día: aplicar otra reorganización para el mismo grupo y día añade sus clases, y quitar una las quita (o borra el borrador, si no queda ninguna). Si el comunicado ya se había enviado y después quitas una reorganización, un borrador nuevo que empieza por **Rectificación:** lista las clases tal como quedan ahora y las que vuelven a su hora habitual. Esa rectificación no se envía sola: revísala y envíala desde su formulario.
 
 Cuando una reorganización tiene efecto, el **Horario de guardias** muestra quién da realmente cada clase implicada, y un docente que estaba de guardia a una hora en la que ahora da clase aparece tachado en la columna **Guardia** en esa franja: no se le puede enviar a cubrir nada más entonces, y nadie puede coger esa clase por su cuenta.
 
@@ -214,9 +219,9 @@ El selector de cada propuesta te permite comunicar a las familias menos de lo qu
 
 El mismo día, el cuadrante solo propone cambios que aún no han llegado: a partir de las 09:00 ya no ofrece **Entra a las 09:00** (las familias se enterarían demasiado tarde), y una propuesta o una rectificación cuya hora ya ha pasado desaparece. Si hace rato que tienes el cuadrante abierto, recárgalo para ver las propuestas actuales.
 
-**Proponer comunicado** abre un comunicado en borrador dirigido al alumnado y las familias de ese grupo, con un texto propuesto que puedes cambiar. Envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Si lo dejas en borrador, la próxima vez el botón dice **Abrir borrador**.
+**Enviar comunicado** envía enseguida un comunicado al alumnado y las familias de ese grupo, con el texto que propone el cuadrante: hacer clic ya es la confirmación. Si no se puede enviar (por ejemplo, porque el grupo no tiene a nadie a quien enviarlo), queda como borrador y se abre con un mensaje que explica el motivo: revísalo y envíalo desde ese formulario como cualquier otro comunicado (los grupos de un comunicado de cambio de horario no se pueden cambiar). Mientras queda en borrador, el botón dice **Abrir borrador**.
 
-![Borrador de comunicado propuesto por el cuadrante, con el cambio de horario y el texto propuesto](../../assets/teachers/guard-duty-05-comunicat.png)
+![Comunicado preparado por el cuadrante, con el cambio de horario y el texto propuesto](../../assets/teachers/guard-duty-05-comunicat.png)
 
 Una vez enviado (o programado) el comunicado, esas líneas quedan tachadas con una etiqueta como **Entra a las 10:00**: no hace falta enviar a nadie.
 
@@ -232,7 +237,7 @@ Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí
 
 - **Un docente de guardia que ya no hace falta** (recuadro **Guardias que ya no hacen falta**): haz clic en **Liberar la guardia**. Se le comunica que ya no hace falta que cubra la clase.
 - **Una reorganización que ya no es válida** (mismo recuadro): la clase ya no hay que cubrirla, o uno de los docentes de los que depende ahora está ausente a esa hora. Haz clic en **Quitar la reorganización**; se avisa a los docentes.
-- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el recuadro de propuestas ofrece **Proponer rectificación**, un nuevo comunicado en borrador para el mismo grupo con la situación corregida (otra hora, o volver al horario habitual).
+- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el recuadro de propuestas ofrece **Enviar rectificación**, que envía enseguida al mismo grupo un comunicado nuevo con la situación corregida (otra hora, o volver al horario habitual), igual que **Enviar comunicado**.
 
 ---
 

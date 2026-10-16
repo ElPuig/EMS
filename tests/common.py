@@ -205,7 +205,7 @@ class _ShiftedClockMeta(type):
         return issubclass(subclass, cls._real)
 
 
-def shift_ems_clock(case, hour=10.0):
+def shift_ems_clock(case, hour=10.0, weekdays=None):
     """Move the clock to `hour` (company time) of the company's day, so a fixture built around the
     time of day (a slot that must be the current one, a weekday) holds whenever the suite runs,
     late at night or past local midnight included. The clock keeps running from there, so the
@@ -215,7 +215,8 @@ def shift_ems_clock(case, hour=10.0):
 
     The shift goes forward to the next `hour` (today's or tomorrow's), never back: what only the
     real clock dates (PostgreSQL's create_date, cr.now()) then always reads as already past,
-    never as a future the code would refuse.
+    never as a future the code would refuse. `weekdays` (0=Monday) moves it on to the next of those
+    days, for a fixture that needs a school day (the guard duty board has no weekend).
 
     Covers every clock EMS reads: ems.datetime_utils' local now and its server epoch (the web
     client's serverNow() is derived from it, see server_clock.js), and odoo.fields' now/today,
@@ -231,6 +232,8 @@ def shift_ems_clock(case, hour=10.0):
     target = utils.time_float_to_local_datetime(real_now.date(), hour)
     if target < real_now:
         target = utils.time_float_to_local_datetime(real_now.date() + real.timedelta(days=1), hour)
+    while weekdays is not None and target.weekday() not in weekdays:
+        target = utils.time_float_to_local_datetime(target.date() + real.timedelta(days=1), hour)
     delta = target - real_now
 
     def now(tz=None):

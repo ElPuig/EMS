@@ -52,7 +52,7 @@ mock_outgoing_email(cls)
 cls.mail_transport = mock_outgoing_email(cls)
 ```
 
-## `shift_ems_clock(case, hour=10.0)`
+## `shift_ems_clock(case, hour=10.0, weekdays=None)`
 
 For any test whose fixtures depend on the time of day: a slot that must be the current one
 (roll-call "Current" and Guard modes, the strike flow, presence), or a weekday/date that has to
@@ -72,7 +72,9 @@ run from there:
 The shift always goes forward (to today's `hour`, or tomorrow's once it has passed), never back:
 PostgreSQL's own clock (`create_date`, `cr.now()`) can't be moved, so the shifted time must never
 be earlier than it, or code refusing future dates (a strike "can't be dated in the future") would
-reject records stamped by the real clock.
+reject records stamped by the real clock. `weekdays` (a collection of `date.weekday()` numbers,
+0=Monday) moves it further on to the next of those days, for a fixture that needs a school day:
+the guard duty board's tour passes `range(5)`, since the board shows no weekend.
 
 Call it first thing in `setUpClass` (pass `cls`, restored at the end of the class) or in the test
 (pass `self`, restored after it), and take every date and weekday from what it returns:

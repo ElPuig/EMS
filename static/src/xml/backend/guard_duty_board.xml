@@ -145,7 +145,7 @@
                 </div>
             </div>
 
-            <div class="o_guard_board_content">
+            <div class="o_guard_board_content" t-ref="content">
                 <t t-if="state.loading">
                     <div class="o_guard_board_loading text-muted" t-esc="emptyLabels.loading"/>
                 </t>
@@ -154,6 +154,10 @@
 
                     <!-- Tab 1: the timetable itself, with whoever is away marked in place. -->
                     <div t-elif="state.activeView === 'schedule'" class="o_guard_board_table_wrap">
+                        <!-- The current time, across the whole table (issue #647): placed by
+                             placeNowLine() in guard_duty_board.js, hidden when the board shows
+                             another day or a range that does not include it. -->
+                        <div class="o_guard_board_now_line" aria-hidden="true"/>
                         <t t-set="grid" t-value="state.board.schedule_grid"/>
                         <table class="table table-bordered o_guard_board_table o_guard_board_timeline">
                             <colgroup>
@@ -230,6 +234,10 @@
                     <!-- Tab 2: the same shift read the other way round - one row per time block,
                          what has to be covered against who is available to cover it. -->
                     <div t-else="" class="o_guard_board_table_wrap">
+                        <!-- The current time, across the whole table (issue #647): placed by
+                             placeNowLine() in guard_duty_board.js, hidden when the board shows
+                             another day or a range that does not include it. -->
+                        <div class="o_guard_board_now_line" aria-hidden="true"/>
                         <!-- The boxes above the table take the table's own width (issue #645). -->
                         <div class="o_guard_board_duty_block">
                         <!-- Issues #539, #581, #605, #645: everything proposed to organise the day's
@@ -251,10 +259,14 @@
                                     <t t-foreach="section.plans" t-as="action" t-key="action.plan.key">
                                         <GuardArrangementPlan plan="action.plan" selection="planSelection(action.plan)" showGroups="false"
                                                               onToggle="(index, checked) => this.togglePlanStep(action.plan, index, checked)">
-                                            <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_plan_apply"
-                                                    t-att-disabled="!hasSelectedSteps(action.plan)"
-                                                    t-on-click="() => this.applyPlan(action.plan, this.planSelection(action.plan))"
-                                                    t-esc="actionLabels.applyPlan"/>
+                                            <!-- On the right, lined up with the buttons of the
+                                                 proposal rows (issue #647). -->
+                                            <div class="o_guard_board_plan_actions">
+                                                <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button o_guard_board_plan_apply"
+                                                        t-att-disabled="!hasSelectedSteps(action.plan)"
+                                                        t-on-click="() => this.applyPlan(action.plan, this.planSelection(action.plan))"
+                                                        t-esc="actionLabels.applyPlan"/>
+                                            </div>
                                         </GuardArrangementPlan>
                                     </t>
                                     <!-- The timetable change alone: sending the notice strikes those

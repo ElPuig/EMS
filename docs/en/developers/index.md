@@ -139,6 +139,7 @@ Technical reference for developers working on the EMS module.
 | Topic | Description |
 |-------|-------------|
 | [AI agent test notifications when running inside a container](tooling/ai_agent_test_notifications.md) | Why push/desktop notifications from an AI coding agent don't reach you inside an LXC/Incus/Docker container reached via an editor extension, and how to bridge them with a host-side file-drop watcher + a Claude Code hook |
+| [Spelling and grammar check (LanguageTool)](tooling/languagetool.md) | How Catalan and Spanish manuals and translations are checked with LanguageTool: the script, personal credentials, the editing hook and the release close review |
 
 ---
 

@@ -5,7 +5,10 @@ import pytz
 
 from odoo.tests.common import TransactionCase
 
-from .common import make_working_day, mock_outgoing_email
+from .common import (
+    create_head_of_studies_branch, create_role_employee, create_role_user, make_working_day,
+    mock_outgoing_email,
+)
 
 
 class TestEmployeeAutocheckout(TransactionCase):
@@ -187,6 +190,65 @@ class TestEmployeeAutocheckout(TransactionCase):
             # Only a meaningful guard when the employee's own tz actually differs from
             # UTC - otherwise the naive-UTC and localized strings coincide by chance.
             self.assertNotIn(check_in.strftime('%Y-%m-%d %H:%M:%S'), message.body)
+
+    def _fallback_notice_recipients(self):
+        """Closes an attendance through the check_in + 1h fallback (the only auto-checkout that
+        asks for a correction) and returns the partners its notice was addressed to. The slot
+        and the working day are taken from check_in's own date: that is the day the close reads
+        (see test_auto_close_attendance_closes_after_scheduled_hour's NOTE)."""
+        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
+        make_working_day(self, check_in.date())
+        self._add_slot(0.0, 0.02, dayofweek=str(check_in.weekday()))
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': check_in,
+        })
+        self.assertTrue(attendance._auto_close_attendance())
+        return attendance.message_ids.sorted('id')[-1].partner_ids
+
+    def _give_teacher_a_user(self):
+        self.teacher.user_id = create_role_user(self, 'teacher', 'test_autocheckout_648_teacher')
+        return self.teacher.user_id
+
+    def test_fallback_notice_goes_to_the_head_of_studies_not_the_department_chief(self):
+        # Issue #648: the notice asks for the check-out to be corrected, so it goes to whoever
+        # can correct it (the Head of Studies of the employee's branch), never to the
+        # Department/Seminar Chief above them ('parent_id'), who can only read it.
+        teacher_user = self._give_teacher_a_user()
+        create_head_of_studies_branch(self, 'AC648', self.teacher)
+
+        recipients = self._fallback_notice_recipients()
+
+        self.assertIn(teacher_user.partner_id, recipients)
+        self.assertIn(self.head_of_studies.partner_id, recipients)
+        self.assertNotIn(self.department_chief.partner_id, recipients)
+        self.assertNotIn(self.other_head_of_studies.partner_id, recipients)
+
+    def test_fallback_notice_goes_to_the_area_manager_without_a_head_of_studies_above(self):
+        teacher_user = self._give_teacher_a_user()
+        chief = create_role_user(self, 'department_chief', 'test_autocheckout_648_chief')
+        self.teacher.parent_id = create_role_employee(self, chief)
+        area_manager = create_role_user(self, 'head_of_studies', 'test_autocheckout_648_area')
+        self.teacher.sudo().write({'attendance_manager_id': area_manager.id})
+
+        recipients = self._fallback_notice_recipients()
+
+        self.assertEqual(recipients, teacher_user.partner_id | area_manager.partner_id)
+
+    def test_fallback_notice_goes_to_the_administrators_when_nobody_else_can_correct_it(self):
+        teacher_user = self._give_teacher_a_user()
+        chief = create_role_user(self, 'department_chief', 'test_autocheckout_648_chief')
+        self.teacher.parent_id = create_role_employee(self, chief)
+        self.teacher.sudo().write({'attendance_manager_id': False})
+        admins = self.env['res.users'].search([
+            ('groups_id', '=', self.env.ref('ems.group_academic_admin').id),
+        ])
+
+        recipients = self._fallback_notice_recipients()
+
+        self.assertTrue(admins)
+        self.assertIn(teacher_user.partner_id, recipients)
+        self.assertTrue(admins.partner_id <= recipients)
+        self.assertNotIn(chief.partner_id, recipients)
 
     def test_create_auto_closes_stale_open_attendance(self):
         self.env.company.auto_check_out = True

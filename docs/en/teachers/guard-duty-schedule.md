@@ -35,6 +35,8 @@ The two buttons on the right of the toolbar switch between the two ways of readi
 - **Absences table** — one row per time block: who is missing and what has to be covered, against who is on guard duty to cover it.
 - **Guard duty schedule** — the timetable, with everybody who is away marked on it.
 
+When the board shows today, a **dotted red line** crosses both views at the current time, at its exact height within the time block it falls in (at 16:40, two thirds of the way down the 16:00-17:00 block), so you can see at a glance which classes are on now. It moves down as the time goes by, and is not drawn on another day or outside the shift on screen.
+
 ---
 
 ## Reading the Timetable
@@ -190,13 +192,16 @@ Proposals come in this order: first those where the students lose fewer lessons;
 
 **Nobody's working day gets longer.** A proposal only includes a step if no teacher involved ends up with a longer day (counted from their first period to their last, lessons, guard duties and any other duty alike): whoever would come in earlier must leave earlier, and whoever would leave later must come in later. When a step changes somebody's entry or exit time, an orange line under it says exactly whose and how (*"… leaves at 20:20 instead of 21:20"*).
 
-**Applying a proposal.** Click **Apply the checked steps** under it, or click the class and choose the proposal in the dialog, where the proposals that solve that class come first, above sending a guard. Every step starts checked: uncheck those you do not want. A step that needs another one is unchecked along with it (a move into the gap another one leaves, a notice that only makes sense because of a move), and checking a step checks what it needs.
+**Applying a proposal.** Click **Apply the checked steps** on its right, or click the class and choose the proposal in the dialog, where the proposals that solve that class come first, above sending a guard. Every step starts checked: uncheck those you do not want. A step that needs another one is unchecked along with it (a move into the gap another one leaves, a notice that only makes sense because of a move), and checking a step checks what it needs.
 
 ![Dialog of a class: the proposals that solve it, the first one chosen with its steps checked, above sending a guard and the arrangement described by hand](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 
 - A **swap**, and a **moved lesson** that does not depend on a notice, take effect at once: the class is struck out with the teacher who is with the group, and the teachers involved receive an Odoo message with the change (and their new entry or exit time, if it changes).
-- A **notice** opens its draft for the families straight away (one per group). **The moves it frees the group from only count once it is sent**: until then those classes are not struck out, and the section shows them as waiting for their notice (**Open draft**). The teachers are told when the notice is sent. If you delete the draft, those moves are discarded. Once it is sent, the class shows both tags: who is with the group and, in green, what the families were told (*"Leaves at 12:25"*).
+- The **notices** are sent straight away: checking the step is the confirmation, there is no draft to review. Each group gets **one single notice** for the whole day, with every change the proposal brings to it (for example, that it comes in later *and* leaves earlier), so its families receive one email instead of one per change. The moves the notice frees the group from take effect as soon as it is sent, and the teachers involved receive their Odoo message then. Once it is sent, the class shows both tags: who is with the group and, in green, what the families were told (*"Leaves at 12:25"*).
+- **If a notice cannot be sent** (the group has nobody to send it to, for example), it stays as a draft and opens with a message saying why. Check it and send it from that form. Until then, **the moves it frees the group from do not count**: those classes are not struck out, and the group's section shows them as waiting for their notice, with **Open draft** to open it again. The teachers are told when it is sent. If you delete the draft, those moves are discarded and you can apply the proposal again.
 - **If you leave the notice out**, the moves are applied without it, and the lesson a move leaves free appears as one more line of the table, with the tag **Lesson moved to 15:00**: cover it like any other (with a guard, another arrangement or one described by hand), or send the notice later from **Only tell the families**. Whoever organises the original absence organises it too.
+
+**The students are told which lessons change time.** A swap or a moved lesson changes when the group has a subject, which the notice to the families does not say (it only says when the group starts or finishes). So applying one also sends a notice **to the group's students only** (never their families), one per group and day, listing every lesson that changes time that day: *"Mathematics: from 11:00-12:00 to 08:00-09:00"*. It is sent straight away too, and if it cannot be sent it stays as a draft that opens for you to review and send (you also find it in **Communications → Notices**); the arrangement does not wait for it, it is already in effect. Until it is sent, the board keeps that draft up to date: applying another arrangement for the same group and day adds its lessons, and removing one takes them out (or deletes the draft, if nothing is left). If the notice was already sent and you remove an arrangement afterwards, a new draft starting with **Correction:** lists the lessons as they are now and those back at their usual time. That correction is not sent on its own: review it and send it from its form.
 
 Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own.
 
@@ -214,9 +219,9 @@ The selector next to each proposal lets you tell the families about less than th
 
 On the current day, the board only proposes changes still to come: from 09:00 on, it no longer offers **Starts at 09:00** (the families would find out too late), and a proposal or a correction whose time has passed disappears. If the board has been open for a while, reload it to see the current proposals.
 
-**Propose notice** opens a draft notice addressed to that group's students and families, with a suggested text you can change. Send it from that form as any other notice (the groups of a timetable change notice cannot be changed). If you leave it as a draft, the button reads **Open draft** next time.
+**Send notice** sends a notice to that group's students and families straight away, with the text the board suggests: clicking it is the confirmation. If it cannot be sent (the group has nobody to send it to, for example), it stays as a draft and opens with a message saying why: check it and send it from that form as any other notice (the groups of a timetable change notice cannot be changed). While it stays a draft, the button reads **Open draft**.
 
-![Draft notice proposed by the board, with the timetable change and the suggested text](../../assets/teachers/guard-duty-05-comunicat.png)
+![Notice prepared by the board, with the timetable change and the suggested text](../../assets/teachers/guard-duty-05-comunicat.png)
 
 Once the notice is sent (or scheduled), those lines are struck through with a tag such as **Starts at 10:00**: nobody needs to be sent to them.
 
@@ -232,7 +237,7 @@ If an absence is refused, cancelled or shortened, or a co-teacher turns out to b
 
 - **A guard who is no longer needed** (box **Guards no longer needed**): click **Release guard**. They are told they no longer need to cover the class.
 - **An arrangement that no longer applies** (same box): the class no longer needs covering, or one of the teachers it relies on is now away at that time. Click **Remove arrangement**; the teachers are told.
-- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Propose correction**, a new draft notice for the same group with the corrected situation (a different time, or back to the usual timetable).
+- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Send correction**, which sends the same group a new notice with the corrected situation (a different time, or back to the usual timetable) straight away, like **Send notice**.
 
 ---
 

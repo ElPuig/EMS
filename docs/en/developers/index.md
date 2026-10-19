@@ -99,6 +99,7 @@ Technical reference for developers working on the EMS module.
 | Model | Description |
 |-------|-------------|
 | [ems.enrollment_proposal_wizard](enrollment/enrollment_proposal_wizard.md) | Bulk draft enrollments from a student selection, and the secretary-only `allow_other_study` flag that enrolls a current student into a different study |
+| [ems.enrollment_close_wizard](enrollment/close_unconfirmed_wizard.md) | Close the enrollments nobody confirmed: delete applicants who were never students, send ex-students back to alumni/withdrawal, withdraw students without a group, cancel the rest |
 | [Enrollment benefits](enrollment/enrollment_benefits.md) | Fee bonifications/exemptions: draft-order recompute, freeze after confirmation and the secretary re-apply action that regenerates the invoice |
 
 ---
@@ -138,6 +139,7 @@ Technical reference for developers working on the EMS module.
 | Topic | Description |
 |-------|-------------|
 | [AI agent test notifications when running inside a container](tooling/ai_agent_test_notifications.md) | Why push/desktop notifications from an AI coding agent don't reach you inside an LXC/Incus/Docker container reached via an editor extension, and how to bridge them with a host-side file-drop watcher + a Claude Code hook |
+| [Spelling and grammar check (LanguageTool)](tooling/languagetool.md) | How Catalan and Spanish manuals and translations are checked with LanguageTool: the script, personal credentials, the editing hook and the release close review |
 
 ---
 

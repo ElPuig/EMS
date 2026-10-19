@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.AttendanceReportPivot.Buttons" t-inherit="web.PivotView.Buttons" t-inherit-mode="primary">
+        <xpath expr="//button[hasclass('o_pivot_download')]" position="after">
+            <button class="btn btn-secondary fa fa-print o_attendance_report_print" t-on-click="onPrintReportClicked"
+                    data-tooltip="Print attendance report" aria-label="Print attendance report"/>
+        </xpath>
+    </t>
+
+    <t t-name="ems.AttendanceReportGraph.Buttons" t-inherit="web.GraphView.Buttons" t-inherit-mode="primary">
+        <xpath expr="." position="inside">
+            <div class="btn-group" role="toolbar">
+                <button class="btn btn-secondary fa fa-print o_attendance_report_print" t-on-click="onPrintReportClicked"
+                        data-tooltip="Print attendance report" aria-label="Print attendance report"/>
+            </div>
+        </xpath>
+    </t>
+</templates>

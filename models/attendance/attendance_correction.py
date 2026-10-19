@@ -237,17 +237,10 @@ class ems_attendance_correction(models.Model):
         return self.datetime_to_odoo(self.time_float_to_utc_datetime(local_date, time_float))
 
     def _find_approver(self):
-        """Who the request is routed to (the task): the nearest Head of Studies above the
-        employee in the chain of command; failing that, whoever manages their area's attendance;
-        failing that, the administrators. Others may decide on it too - see _check_is_approver."""
+        """Who the request is routed to (the task): see hr.employee._find_attendance_approvers.
+        Others may decide on it too - see _check_is_approver."""
         self.ensure_one()
-        approver_employee = self.employee_id.find_head_of_studies()
-        if approver_employee:
-            return approver_employee.user_id
-        area_manager = self.employee_id.sudo().attendance_manager_id
-        if area_manager:
-            return area_manager
-        return self.env["res.users"].sudo().search([("groups_id", "=", self.env.ref("ems.group_academic_admin").id)])
+        return self.employee_id._find_attendance_approvers()
 
     def _check_is_approver(self):
         """Whether the current user may decide on this request (issue #543): a Head or Deputy

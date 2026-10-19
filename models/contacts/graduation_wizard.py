@@ -167,10 +167,6 @@ class EmsWithdrawalWizard(models.TransientModel):
     def _can_register_exits(self):
         return self.env['res.partner']._ems_user_can_register_exits()
 
-    def _current_course(self):
-        return self.env.company.current_course_id \
-            or self.env['ems.course'].search([('is_current', '=', True)], limit=1)
-
     def _line_vals(self, student):
         pending = self.env['sale.order'].search_count([
             ('partner_id', '=', student.id),
@@ -185,7 +181,6 @@ class EmsWithdrawalWizard(models.TransientModel):
         self.ensure_one()
         if not self._can_register_exits():
             raise UserError(_("Only the secretary, the head of studies or an administrator can register withdrawals."))
-        course = self._current_course()
         done = 0
         revoked = skipped = 0
         issues = []
@@ -193,50 +188,10 @@ class EmsWithdrawalWizard(models.TransientModel):
             student = line.student_id
             if student.contact_type != 'student':
                 continue
-            student.write({
-                'exit_type': 'expulsion' if self.exit_kind == 'expulsion' else 'withdrawal',
-                'exit_course_id': course.id if course else False,
-                'exit_date': self.exit_date,
-                'exit_reason': self.exit_reason,
-            })
-            # Cancel pending (draft/sent) enrolments.
-            orders = self.env['sale.order'].search([
-                ('partner_id', '=', student.id),
-                ('state', 'in', ['draft', 'sent'])])
-            if orders:
-                orders.sudo()._action_cancel()
-            # Freeze the academic history NOW, while the student still has its
-            # group: the transition wizard captures by main_group_id, so without
-            # this a mid-course withdrawal would never get a year record. Sudo:
-            # the generator reads grade/attendance models the secretary cannot.
-            if course:
-                self.env['ems.student.year_record'].sudo().generate_for_students(
-                    student, course)
-            # The history is frozen: delete the operational records (subject enrollments,
-            # grade lines, attendance lines and templates, group delegate). Must run BEFORE
-            # the conversion, which detaches the student from its group.
-            student._ems_clear_operational_records()
-            # Convert to alumni/withdrawal/expelled (clears group/level/study).
-            student._ems_convert_to_ex_student(kind=self.exit_kind)
-            # Revoke portal access (student + families without other enrolled child).
-            summary = student._ems_revoke_student_portal()
-            revoked += len(summary['revoked'])
-            skipped += len(summary['skipped'])
+            summary = student._ems_register_exit(self.exit_kind, self.exit_date, self.exit_reason)
+            revoked += summary['revoked']
+            skipped += summary['skipped']
             issues += summary['issues']
-            # Archive last, mirroring hr.employee (archiving an employee registers
-            # its departure): res.partner.write() refuses to archive a contact
-            # still linked to an active portal user, so this must run after the
-            # revoke above. If that revoke failed (logged in issues instead of
-            # raising, to not abort the whole batch), the student's own portal
-            # user is still active here — skip the archive rather than let that
-            # guard raise and roll back every student already processed.
-            if student._has_active_portal_user():
-                issues.append(_(
-                    "%(student)s: portal access could not be revoked, kept active",
-                    student=student.display_name,
-                ))
-            else:
-                student.write({'active': False})
             done += 1
 
         summary_label = _("expelled") if self.exit_kind == 'expulsion' else _("withdrawn")

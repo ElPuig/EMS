@@ -23,6 +23,15 @@ function selectMany2one(fieldName, searchText) {
     ];
 }
 
+// The by-subject picker is a plain <select> of 'subject [- topic]' labels (issue #633).
+function selectSubject(label) {
+    return {
+        trigger: ".o_form_view .o_field_widget[name='subject_label'] select",
+        content: `Select subject '${label}'`,
+        run: `selectByLabel ${label}`,
+    };
+}
+
 function pickReportType(label) {
     return {
         trigger: `.o_form_view .o_field_widget[name='report_type'] label:contains('${label}')`,
@@ -59,8 +68,8 @@ registry.category("web_tour.tours").add("ems_attendance_report_wizard", {
 
         // --- Switch to by subject (the richest variant: prefilled groups + the detail controls) ---
         pickReportType("By subject"),
-        { trigger: ".o_form_view .o_field_widget[name='subject_id']", content: "By-subject selector now shown" },
-        ...selectMany2one("subject_id", "Attendance Reports Tour Subject"),
+        { trigger: ".o_form_view .o_field_widget[name='subject_label']", content: "By-subject selector now shown" },
+        selectSubject("TART: Attendance Reports Tour Subject - Tour Topic"),
         {
             trigger: ".o_form_view .o_field_widget[name='group_ids'] .o_tag:contains('Attendance Reports Tour Group')",
             content: "group_ids got pre-filled with every group teaching the subject",
@@ -109,13 +118,19 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
         { trigger: ".o_pivot_flip_button, .o_pivot_expand_button", content: "Pivot toolbar loaded" },
         { trigger: ".o_pivot_expand_button", content: "Expand all: Total -> subject", run: "click" },
         {
-            trigger: ".o_pivot_view :contains('Attendance Reports Tour Subject')",
-            content: "Subject row appears",
+            trigger: ".o_pivot_view :contains('Attendance Reports Tour Subject - Tour Topic')",
+            content: "Subject row appears, with the topic of its schedule block (issue #633)",
         },
         { trigger: ".o_pivot_expand_button", content: "Expand all again: subject -> student", run: "click" },
         {
             trigger: ".o_pivot_view :contains('Attendance Reports Tour Student')",
             content: "Nested student row appears under the subject",
+        },
+        // disable_linking: clicking a value cell opens nothing (it used to open the bare lines in a list).
+        { trigger: ".o_pivot_view .o_pivot_cell_value", content: "Click a value cell", run: "click" },
+        {
+            trigger: ".o_pivot_view:not(:has(.o_list_view))",
+            content: "Still on the pivot, no list of lines opened",
         },
         { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
@@ -130,6 +145,16 @@ registry.category("web_tour.tours").add("ems_attendance_report_analysis", {
             run: "click",
         },
         { trigger: ".o_graph_renderer canvas", content: "Graph still renders after switching measure" },
+        { trigger: ".o_graph_view .o_attendance_report_print", content: "The graph has its own print button too" },
+        { trigger: ".o_switch_view.o_pivot", content: "Back to the pivot", run: "click" },
+        {
+            trigger: ".o_pivot_buttons .o_pivot_download + .o_attendance_report_print",
+            content: "Print button right after the download one — click it",
+            run: "click",
+        },
+        { trigger: ".o_form_view .o_field_widget[name='report_type']", content: "The report wizard opened" },
+        { trigger: ".modal .btn-close", content: "Close the wizard", run: "click" },
+        { trigger: "body:not(:has(.modal))", content: "Wizard closed" },
         { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
         {
             trigger: ".o_attendance_report_cog_menu",
@@ -186,8 +211,7 @@ registry.category("web_tour.tours").add("ems_attendance_report_tutor_scope", {
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
 
         // --- By group PDF: the tutored group, although the tutor teaches nothing in it ---
-        { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the Actions cog menu", run: "click" },
-        { trigger: ".o_attendance_report_cog_menu", content: "Open the PDF wizard", run: "click" },
+        { trigger: ".o_attendance_report_print", content: "Open the PDF wizard from the print button", run: "click" },
         { trigger: ".o_form_view .o_field_widget[name='group_id']", content: "By-group selector shown by default" },
         ...selectMany2one("group_id", "Student Scope Tour Group"),
         {
@@ -200,7 +224,7 @@ registry.category("web_tour.tours").add("ems_attendance_report_tutor_scope", {
         // --- By subject PDF (same dialog, which stays open after a download): a subject taught by
         // another teacher in the tutored group ---
         pickReportType("By subject"),
-        ...selectMany2one("subject_id", "Student Scope Tour Subject 2"),
+        selectSubject("TARS2: Student Scope Tour Subject 2"),
         {
             trigger: ".o_form_view .o_field_widget[name='group_ids'] .o_tag:contains('Student Scope Tour Group')",
             content: "group_ids got pre-filled with the tutored group",
@@ -237,5 +261,19 @@ registry.category("web_tour.tours").add("ems_attendance_report_from_student", {
         },
         { trigger: ".o_switch_view.o_graph", content: "Switch to graph", run: "click" },
         { trigger: ".o_graph_renderer canvas", content: "Graph renders a chart" },
+        // The print button opens the wizard on the student filtered on (issue #633).
+        { trigger: ".o_attendance_report_print", content: "Print from the student's screen", run: "click" },
+        {
+            trigger: ".o_form_view .o_field_widget[name='report_type'] input[data-value='student']:checked",
+            content: "By-student report preselected",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_id'] input:value('Student Scope Tour Student')",
+            content: "The student filtered on is preselected",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='from_date'] input:not([value=''])",
+            content: "Dates filled from the student's sessions",
+        },
     ],
 });

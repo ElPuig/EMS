@@ -163,6 +163,27 @@ class ems_department(models.Model):
             department = department.parent_id
         return self.env['hr.employee']
 
+    @api.model
+    def _headed_by(self, users):
+        """The departments these users chief, as Department Chief or Seminar Chief (sudo). Their
+        sub-departments are not included: callers widen with 'child_of' when the scope should
+        cover a whole area (an area's manager is the Head of Studies of that area)."""
+        chiefs = self.env['hr.employee'].sudo().search([('user_id', 'in', users.ids)])
+        if not chiefs:
+            return self.sudo().browse()
+        return self.sudo().search(['|', ('manager_id', 'in', chiefs.ids), ('seminar_chief_id', 'in', chiefs.ids)])
+
+    def _chief_users(self):
+        """The users who chief these departments or one they hang from: each one's Department
+        Chief and Seminar Chief, walking up the parent chain to the area's manager."""
+        users = self.env['res.users']
+        departments, seen = self, self.browse()
+        while departments - seen:
+            seen |= departments
+            users |= departments.manager_id.user_id | departments.seminar_chief_id.user_id
+            departments = departments.parent_id
+        return users
+
     def _top_level_department(self):
         """The is_top_level ancestor of this department (itself, if it already is one), or an
         empty recordset when the chain reaches the root without finding one. Deliberately

@@ -30,7 +30,7 @@ Either way, the secretariat then registers the resolution in Esfera and closes t
 | **Rejected** | Registered, with no module convalidated. |
 | **Cancelled** | The student or the family cancelled it from the portal. |
 
-The state only changes through the actions of each step, in the form's **Actions** menu.
+The state only changes through the actions of each step, at the top of the form (in its **Actions** menu when more than one applies).
 
 ---
 

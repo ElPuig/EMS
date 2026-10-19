@@ -233,20 +233,57 @@ have their own `ir.model.access.csv` rows for `ems.notice`/`ems.notice.line`, al
 | Group | Sees (read) | Creates/edits/deletes |
 |-------|------|------------------------|
 | `group_academic_admin`, `group_director` | Every notice | Every notice |
-| `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Only notices they created |
-| `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Only notices they created |
-| `group_department_chief` (Department/Seminar Chief) | Their own, and every notice addressed to a group their department teaches | Only notices they created, and only to groups their department teaches |
+| `group_head_of_studies` (HOS/DHOS) | Every notice (for supervision) | Notices they created, and those of everyone below them in the chain of command |
+| `group_quality_admin` (Quality coordinator) | Every notice (for supervision) | Notices they created, and those of everyone below them in the chain of command |
+| `group_department_chief` (Department/Seminar Chief) | Their own, their branch's, and every notice addressed to a group their department teaches or manages | Notices they created and those of the chiefs below them; what they write only to groups their department teaches or manages |
 
-**Timetable-change notices (issues #539/#581).** A notice with `absence_date`,
-`absence_group_id`, `absence_change_type` and `absence_change_hour` set
-(`models/communications/notice_absence_change.py`) is one the guard duty board proposed: it tells
-a group's students and families they can come in later, leave earlier or have no classes because
-a teacher is away, or corrects an earlier one. It is created as a draft, pre-filled with the group's
-recipients and a suggested text, by `board_propose_absence_change()`, and sent from this same form
-like any other notice. `_check_absence_change_recipients` keeps such a notice addressed to its
-own group only, and the form shows an information banner and locks its groups. The board reads
-these notices back to know what was communicated: see "Managing absences from the board" in
+**Chain of command (issue #636).** "Their own" in every edit rule also covers the notices of
+everyone below the user in the chain of command: a notice can be edited, sent, cancelled and
+deleted by its creator and by every user in `create_uid.employee_ids.tutor_scope_user_ids` (the
+chiefs above the creator through `hr.employee.parent_id`, and the Director - the same resolution
+tutor-scoped rights use, see "Tutor scope" in
+[role_hierarchy.md](../employees/role_hierarchy.md)). A Deputy Head of Studies can therefore send
+a draft written by a Department Chief of their own branch, but a Head of Studies of another branch,
+or a peer Department Chief, only reads it. Admins and the Director edit every notice anyway.
+
+The form's actions (Send now, Schedule sending, Cancel) live in its "Actions" dropdown
+([actions_dropdown.md](../shared/actions_dropdown.md)); only one of them applies at a time, so it
+shows as a plain header button, with Send now/Schedule sending as `btn-primary`. They are hidden by `can_manage` (non-stored,
+`@api.depends_context('uid')`: whether the current user may write the record, through
+`_filtered_access('write')`) for anyone who only reads it, so they no longer hit an access error.
+
+**Timetable-change notices (issues #539/#581, #652).** A notice with `absence_date`,
+`absence_group_id` and `absence_changes` set (`models/communications/notice_absence_change.py`) is
+one the guard duty board prepared: it tells a group's students and families they can come in later,
+leave earlier, have a longer break or no classes because a teacher is away, or corrects an earlier
+one. `absence_changes` is a JSON list of the changes it tells, at most one per side of the day (a
+notice for an accepted arrangement plan can tell a later entry and an earlier leave at once), and the
+message has one sentence per change; the form shows them in one line (`absence_change_label`). A
+single change or correction sent from the board (`board_send_absence_change()`) and the notice of an
+accepted arrangement plan are created pre-filled with the group's recipients and a suggested text,
+and sent at once (`action_send()`, through `_send_or_keep_draft()`); they only stay a draft to
+review and send from this same form, like any other notice, if sending fails.
+`_check_absence_change_recipients` keeps such a notice addressed to its own group only, and the
+form shows an information banner and locks its groups. The board reads these notices back to know
+what was communicated: see "Managing absences from the board" in
 [guard_duty_board.md](../attendance/guard_duty_board.md).
+
+**Moved-lesson notices to the students (issue #649).** A notice with `arrangement_date` and
+`arrangement_group_id` set (`models/communications/notice_arrangement.py`) tells a group's
+**students only** (`recipient_type = 'students'`) which of their lessons change time on a day
+because a guard duty board arrangement (a swap or a moved lesson) rearranged them: one per group
+and day, listing each subject's usual and new time span, and `arrangement_lessons` storing what it
+tells. Accepting the arrangement on the board sends it at once (issue #652), with the same fallback
+as the families' one (it stays a draft if it cannot be sent); the board keeps a draft up to date
+and proposes a "Correction:" draft once one was sent and the lessons change again because an
+arrangement was withdrawn, both sent from this same form like any other notice. No arrangement
+waits for it. `_check_arrangement_recipients` keeps it addressed to that group's students, and the
+form shows an information banner and locks its groups and recipients.
+
+**Sending from the board (`_send_or_keep_draft()`, issue #652).** Sends each notice with
+`action_send()` inside a savepoint; one that raises a `UserError` (no recipients, a sender without
+an email address...) is rolled back to its draft state, untouched, and returned with the reason, for
+the board to open it.
 
 **Department and Seminar chiefs: their department's groups.** Both roles are
 `ems.group_department_chief`, which now sees Communications > Notices. What "their department's
@@ -254,13 +291,15 @@ groups" means is resolved from who teaches, not configured: `ems.group.departmen
 (`models/communications/notice_department_scope.py`, non-stored, searchable) holds the users who are
 the Department Chief (`hr.department.manager_id`) or Seminar Chief (`seminar_chief_id`) of a
 department - or of an ancestor department - one of whose teachers has an `ems.teaching` for the
-group (kept in step with every teacher's schedule). An ESO/BTX department is by subject, so its
+group (kept in step with every teacher's schedule), or of a department that manages the group
+(`ems.group.managing_department_ids`, issue #622), or of an ancestor of it. An ESO/BTX department is by subject, so its
 chief reaches every group where one of its teachers teaches; a VET department reaches its family's
 groups plus any other group its teachers teach.
 
 - Rules (`security/rules/communications.xml`): `rule_notice_department_chief_read` (read: own, or
   addressed to one of those groups - `group_ids.department_chief_user_ids in user`) and
-  `rule_notice_department_chief_own` (write/create/unlink: own), each with its line variant.
+  `rule_notice_department_chief_own` (write/create/unlink: own and their branch's), each with its
+  line variant. Both also match the notices of the chiefs below them (see "Chain of command").
 - `_check_department_chief_groups` refuses a notice of theirs addressed to any other group, or with
   a recipient line that does not come from one of those groups. The form's Groups field only offers
   `available_group_ids` (every group for anyone else).
@@ -272,7 +311,8 @@ Enforced by `security/rules/communications.xml`: `rule_notice_admin`/`rule_notic
 (`domain_force=[(1,'=',1)]`, full CRUD, groups `group_academic_admin` + `group_director`),
 `rule_notice_read_all`/`rule_notice_line_read_all` (`domain_force=[]`, `perm_read` only, groups
 `group_head_of_studies` + `group_quality_admin`) and `rule_notice_own`/`rule_notice_line_own`
-(`domain_force=[('create_uid','=',user.id)]` — the line variant reads through
+(`domain_force`: `create_uid = user.id` or `create_uid.employee_ids.tutor_scope_user_ids = user.id`, see
+"Chain of command" above — the line variant reads through
 `notice_id.create_uid` instead, since lines have no menu of their own — `perm_write`/
 `perm_create`/`perm_unlink` only, same two groups).
 
@@ -288,8 +328,8 @@ open read access, and `views/communications/notice/search.xml`'s "Show only mine
 `action_communication_list`'s `context: {'search_default_only_mine': 1}` — so a HOS/DHOS or
 Quality coordinator still gets the same comfortable "just mine" default view as before, but
 can remove the filter to supervise everyone else's notices, rather than having no access to
-them at all. Write/create/unlink stay hard-restricted to `create_uid = user.id` either way -
-only *read* visibility changed.
+them at all. Write/create/unlink stay restricted to their own notices (and, since issue #636,
+their branch's) either way - only *read* visibility changed.
 
 **Correction (still 2026-09-05):** the default filter is a single static `context` on
 `action_communication_list` itself — there is only one "Notices" menu/action, shared by every

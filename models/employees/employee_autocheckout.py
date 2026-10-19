@@ -130,10 +130,13 @@ class ems_attendance(models.Model):
         })
 
         if fallback:
+            # Issue #648: the employee and whoever can correct their attendance - the same
+            # people a correction request is routed to -, never the Department or Seminar Chief
+            # ('parent_id'), who can only read it.
             partners = (
-                self.employee_id.user_id.partner_id
-                | self.employee_id.parent_id.user_id.partner_id
-            )
+                self.employee_id.user_id
+                | self.employee_id._find_attendance_approvers()
+            ).partner_id
             self.message_post(
                 body=_(
                     'Automatic check-out could not use the scheduled working hours '

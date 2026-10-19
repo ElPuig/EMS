@@ -43,15 +43,19 @@
                 </xpath>
 
                 <!-- The employee picks the absence type, but they get it wrong often enough
-                     that the manager has to be able to correct it after the fact - which the
-                     native readonly, keyed on the approval state, would prevent.
+                     that the manager has to be able to correct it - while the request is
+                     pending, or refused or cancelled. Not once it is in effect: Odoo refuses any
+                     change that touches the dates of an approved request
+                     (hr.leave._check_date_state), and the type recomputes them, so saving it
+                     only ever raised an error. The way to correct one is to undo the approval
+                     first (hr.leave.action_ems_undo, issue #614).
 
                      Shown as a radio list rather than a dropdown, like the original Google
                      form: several of the nine options are the legal wording the employee is
                      declaring when they choose one, so they have to be readable in full at the
                      moment of choosing. colspan spans the group so the long lines have room. -->
                 <xpath expr="//field[@name='holiday_status_id']" position="attributes">
-                    <attribute name="readonly">state in ['cancel', 'refuse', 'validate', 'validate1'] and not is_absence_manager</attribute>
+                    <attribute name="readonly">state in ['validate', 'validate1'] or (state in ['cancel', 'refuse'] and not is_absence_manager)</attribute>
                     <attribute name="widget">ems_absence_type_radio</attribute>
                 </xpath>
 
@@ -181,35 +185,24 @@
                     <field name="ems_document_state" invisible="not ems_document_state or not (is_absence_manager or is_absence_direction)" widget="badge"
                            decoration-muted="ems_document_state == 'not_required'"
                            decoration-warning="ems_document_state in ('awaiting', 'submitted')"
-                           decoration-success="ems_document_state == 'validated'"/>
+                           decoration-success="ems_document_state == 'validated'"
+                           decoration-info="ems_document_state == 'waived'"/>
+                    <field name="ems_atri_state" invisible="not ems_atri_state or ems_atri_state == 'not_required' or not (is_absence_manager or is_absence_direction)" widget="badge"
+                           decoration-warning="ems_atri_state == 'awaiting'"
+                           decoration-success="ems_atri_state == 'requested'"/>
                     <field name="ems_direction_state" invisible="not id or not (is_absence_manager or is_absence_direction)" readonly="1" widget="badge"
                            decoration-muted="ems_direction_state == 'not_done'"
                            decoration-success="ems_direction_state == 'done'"
                            decoration-danger="ems_direction_state == 'refused'"/>
                 </xpath>
 
-                <!-- Refusing is final for whoever is doing the refusing (Head or Direction) and,
-                     in the ordinary case, for the employee too: 'action_reset_confirm' exists,
-                     but Odoo reserves resetting a *refused* request to the Time Off Manager
-                     group ("Only a Time Off Manager can reset a refused leave",
-                     hr.leave._check_approval_update), which nobody at the centre holds - except
-                     'base.user_admin' itself, deliberately kept out of the revocation as the
-                     one account that has to stay a genuine Time Off Administrator (see
-                     res.users._ems_sync_time_off_groups's 'protected' set). So in practice the
-                     employee has to file the whole request again unless a Time Off
-                     Administrator steps in - and the approver was one stray click away from
-                     causing that, here and from the list and kanban buttons below. Odoo's own
-                     'confirm' attribute, not a wizard: it is the mechanism for exactly this, and
-                     it needs no code at all. The message says this precisely rather than
-                     claiming the button doesn't exist at all - found 2026-09-22 (issue #501):
-                     it does, right there on this same form, for that one account; see also
-                     EmsAbsenceLeave.action_reset_confirm, which also clears a stranded
-                     Direction refusal so a reset genuinely returns the request to a clean
-                     pending state. -->
+                <!-- Refusing opens a dialog first, here and from the list and kanban buttons
+                     below (hr.leave._ems_ask_change_message): it asks for the reason of the
+                     refusal, which reaches the employee alone, and it is what stands between a
+                     stray click - the button sits next to the approval - and a refused request.
+                     A refusal by mistake is taken back with "Undo" (hr.leave.action_ems_undo). -->
                 <xpath expr="//header/button[@name='action_refuse']" position="attributes">
-                    <attribute name="confirm">A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?</attribute>
-                    <attribute name="confirm-title">Refuse this absence request</attribute>
-                    <attribute name="confirm-label">Refuse</attribute>
+                    <attribute name="context">{'ems_ask_change_message': 1}</attribute>
                 </xpath>
 
                 <!-- The Head's first step is an acknowledgement, not a validation, whenever the
@@ -217,21 +210,10 @@
                      (hr.leave.action_approve). Both buttons are Odoo's own approval; only the
                      label says which of the two it is. -->
                 <xpath expr="//header/button[@name='action_approve']" position="attributes">
+                    <attribute name="context">{'ems_ask_change_message': 1}</attribute>
                     <attribute name="string">Validate</attribute>
                     <attribute name="invisible">not can_approve or state != 'confirm' or leave_type_support_document</attribute>
                 </xpath>
-                <xpath expr="//header/button[@name='action_approve']" position="after">
-                    <button string="Received: pending documentation" name="action_approve" type="object"
-                            class="oe_highlight"
-                            invisible="not can_approve or state != 'confirm' or not leave_type_support_document"/>
-                    <field name="is_absence_head" invisible="1"/>
-                    <button string="Validate documentation" name="action_ems_document_validate" type="object"
-                            class="oe_highlight"
-                            invisible="ems_status != 'pending_validation' or not is_absence_head"/>
-                    <button string="Documentation insufficient" name="action_ems_document_insufficient" type="object"
-                            invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"/>
-                </xpath>
-
                 <!-- Why the Head or Direction sent the supporting document back, for the
                      employee to read while they look for a valid one
                      (hr.leave._ems_return_document). -->
@@ -240,6 +222,28 @@
                          invisible="ems_status != 'pending_document' or not ems_document_return_reason">
                         <strong>The supporting document was not sufficient:</strong>
                         <field name="ems_document_return_reason" class="d-block"/>
+                    </div>
+                    <!-- An ATRI absence the Head has validated: the employee's turn. It does not
+                         say the absence is missing in ATRI, only that they have to confirm it
+                         is there before the request goes on to Direction - and when Direction
+                         sent it back, why (hr.leave._ems_return_atri). Issue #619. -->
+                    <div class="alert alert-warning mb-0" role="alert" invisible="ems_status != 'pending_atri'">
+                        <!-- One block each, so every sentence is a plain term to translate. -->
+                        <div class="fw-bold">Confirm that this absence is requested in ATRI.</div>
+                        <div>Your Head has validated it. Before it goes on to Direction, confirm that you have requested it on the ATRI portal: use Actions &gt; I confirm it is requested in ATRI.</div>
+                        <div>
+                            <span>If you have not requested it there yet, do that first:</span>
+                            <a href="https://atriportal.gencat.cat/ATRI-ng/#/meves-sollicituds/permisos-absencies"
+                               class="ms-1" target="_blank" rel="noreferrer">My requests - leave and absences</a><span>.</span>
+                        </div>
+                        <field name="ems_atri_return_reason" class="d-block fw-bold" invisible="not ems_atri_return_reason"/>
+                    </div>
+                    <!-- Why the Head or Direction refused it, for the employee to read on the request
+                         itself (hr.leave.action_refuse). -->
+                    <div class="alert alert-danger mb-0" role="alert"
+                         invisible="state != 'refuse' or not ems_refusal_reason">
+                        <strong>Reason for the refusal:</strong>
+                        <field name="ems_refusal_reason" class="d-block"/>
                     </div>
                 </xpath>
 
@@ -257,17 +261,61 @@
                     <attribute name="js_class">ems_absence_form</attribute>
                 </xpath>
                 <xpath expr="//header/field[@name='state']" position="after">
-                    <button string="Direction: done" name="action_ems_direction_done" type="object"
-                            class="oe_highlight"
-                            invisible="not is_absence_direction or ems_status != 'pending_direction'"/>
-                    <button string="Direction: pending" name="action_ems_direction_reset" type="object"
-                            invisible="not id or not is_absence_direction or state in ('refuse', 'cancel') or ems_direction_state == 'not_done'"/>
-                    <button string="Refuse" name="action_ems_direction_refuse" type="object"
-                            invisible="not id or not is_absence_direction or can_approve or state in ('refuse', 'cancel')"
-                            confirm="A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?"
-                            confirm-title="Refuse this absence request" confirm-label="Refuse"/>
+                    <field name="is_absence_head" invisible="1"/>
+                    <field name="ems_can_undo" invisible="1"/>
+                    <field name="ems_can_mark_atri" invisible="1"/>
+                    <field name="ems_can_waive_document" invisible="1"/>
                     <field name="ems_status" widget="statusbar"
                            statusbar_visible="pending,pending_direction,approved"/>
+                </xpath>
+
+                <!-- Every action on the request in the header's one "Actions" dropdown
+                     (docs/en/developers/shared/actions_dropdown.md), Odoo's own included, in the
+                     order of the circuit: the Head's steps, Direction's, refusing, the employee's
+                     own cancellation and, last, undoing the previous decision. Two steps, because
+                     a position="move" nested in the subtree that adds the div would be copied
+                     verbatim instead of executed.
+
+                     Odoo's "Reset" is hidden for good: "Undo" does what it did (a refused or
+                     cancelled request back to where it stood) for whoever may undo it, where the
+                     reset was the administrator's alone (issue #614). -->
+                <xpath expr="//header" position="inside">
+                    <div name="ems_actions" string="Actions"/>
+                </xpath>
+                <xpath expr="//div[@name='ems_actions']" position="inside">
+                    <xpath expr="//header/button[@name='action_approve']" position="move"/>
+                    <button string="Received: pending documentation" name="action_approve" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not can_approve or state != 'confirm' or not leave_type_support_document"/>
+                    <button string="Validate documentation" name="action_ems_document_validate" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="ems_status != 'pending_validation' or not is_absence_head"/>
+                    <button string="Documentation insufficient" name="action_ems_document_insufficient" type="object"
+                            invisible="not ((ems_status == 'pending_validation' and is_absence_head) or (ems_status == 'pending_direction' and is_absence_direction))"/>
+                    <!-- A document that is not going to arrive and is not needed after all
+                         (hr.leave.action_ems_document_waive, issue #634). -->
+                    <button string="Exempt from supporting document" name="action_ems_document_waive" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not ems_can_waive_document"
+                            confirm="The request goes on without its supporting document, which is recorded as waived, and the employee stops being asked for it. Exempt it?"/>
+                    <xpath expr="//header/button[@name='action_validate']" position="move"/>
+                    <!-- The employee's own step on an ATRI absence their Head has validated, and
+                         Direction sending it back to them when it is not really in ATRI
+                         (issue #619). -->
+                    <button string="I confirm it is requested in ATRI" name="action_ems_atri_requested" type="object"
+                            invisible="not ems_can_mark_atri"/>
+                    <button string="Not in ATRI" name="action_ems_atri_missing" type="object"
+                            invisible="ems_status != 'pending_direction' or not is_absence_direction or not ems_needs_atri"/>
+                    <button string="Direction: done" name="action_ems_direction_done" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not is_absence_direction or ems_status != 'pending_direction'"/>
+                    <xpath expr="//header/button[@name='action_refuse']" position="move"/>
+                    <button string="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
+                            invisible="not id or not is_absence_direction or can_approve or state in ('refuse', 'cancel')"/>
+                    <xpath expr="//header/button[@name='action_cancel']" position="move"/>
+                    <button string="Undo the last decision" name="action_ems_undo" type="object"
+                            invisible="not ems_can_undo"
+                            confirm="The last decision on this absence request is taken back and the request returns to its previous status. The employee is told. Undo it?"
+                            confirm-title="Undo the last decision" confirm-label="Undo"/>
+                </xpath>
+                <xpath expr="//header/button[@name='action_reset_confirm']" position="attributes">
+                    <attribute name="invisible">1</attribute>
                 </xpath>
 
                 <!-- Nothing is filed until the employee says so. Odoo would otherwise keep the
@@ -294,27 +342,21 @@
                     <field name="ems_type_short_name" class="fw-bold"/>
                 </xpath>
 
-                <!-- Same confirmation as the form's own Refuse button, and this is the one
-                     that is really clicked by accident: in the list it is a bare "x" icon at
-                     the end of a row, one column away from Approve.
-
-                     Only 'confirm' here, without the dialog's title and button label: unlike
-                     form and kanban views, a list is validated against a RelaxNG schema
-                     (base/rng/list_view.rng, there is no form_view.rng at all), and its
-                     'button' definition allows 'confirm' but neither 'confirm-title' nor
-                     'confirm-label'. Adding them turns the whole view invalid and the module
-                     upgrade fails. -->
+                <!-- Same dialog as the form's own Refuse button, and this is the one that is
+                     really clicked by accident: in the list it is a bare "x" icon at the end of
+                     a row, one column away from Approve. -->
                 <!-- can_approve keeps Direction from deciding on the Head's behalf (see
                      hr.leave._compute_can_approve). Icons only, their label as the tooltip:
                      sitting between columns instead of at the end of the row, a labelled button
                      gets squeezed into the badge beside it. -->
                 <xpath expr="//button[@name='action_refuse']" position="attributes">
-                    <attribute name="confirm">A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?</attribute>
+                    <attribute name="context">{'ems_ask_change_message': 1}</attribute>
                     <attribute name="invisible">state not in ('confirm', 'validate1') or not can_approve</attribute>
                     <attribute name="string"/>
                     <attribute name="title">Refuse</attribute>
                 </xpath>
                 <xpath expr="//button[@name='action_approve']" position="attributes">
+                    <attribute name="context">{'ems_ask_change_message': 1}</attribute>
                     <attribute name="invisible">state != 'confirm' or not can_approve or leave_type_support_document</attribute>
                     <attribute name="string"/>
                     <attribute name="title">Validate</attribute>
@@ -344,7 +386,7 @@
                     <field name="can_approve" column_invisible="1"/>
                     <field name="ems_status" string="Status" widget="badge" width="190px"
                            decoration-muted="ems_status == 'cancel'"
-                           decoration-warning="ems_status in ('pending', 'pending_document', 'pending_validation', 'pending_direction')"
+                           decoration-warning="ems_status in ('pending', 'pending_document', 'pending_validation', 'pending_atri', 'pending_direction')"
                            decoration-success="ems_status == 'approved'"
                            decoration-danger="ems_status == 'refused'"/>
                     <field name="ems_head_state" widget="badge" width="190px"
@@ -360,10 +402,10 @@
                      validating that document once the employee has attached it. -->
                 <xpath expr="//field[@name='ems_head_state']" position="after">
                     <xpath expr="//button[@name='action_approve']" position="move"/>
-                    <button title="Received: pending documentation" name="action_approve" type="object"
+                    <button title="Received: pending documentation" name="action_approve" type="object" context="{'ems_ask_change_message': 1}"
                             icon="fa-inbox" groups="hr_holidays.group_hr_holidays_responsible"
                             invisible="state != 'confirm' or not can_approve or not leave_type_support_document"/>
-                    <button title="Validate documentation" name="action_ems_document_validate" type="object"
+                    <button title="Validate documentation" name="action_ems_document_validate" type="object" context="{'ems_ask_change_message': 1}"
                             icon="fa-check" groups="hr_holidays.group_hr_holidays_responsible"
                             invisible="ems_status != 'pending_validation' or not is_absence_head"/>
                     <xpath expr="//button[@name='action_validate']" position="move"/>
@@ -374,19 +416,25 @@
                            decoration-muted="ems_direction_state == 'not_done'"
                            decoration-success="ems_direction_state == 'done'"
                            decoration-danger="ems_direction_state == 'refused'"/>
-                    <button title="Direction: done" name="action_ems_direction_done" type="object"
+                    <button title="Direction: done" name="action_ems_direction_done" type="object" context="{'ems_ask_change_message': 1}"
                             icon="fa-check-square-o" groups="ems.group_director"
                             invisible="ems_status != 'pending_direction'"/>
                     <button title="Documentation insufficient" name="action_ems_document_insufficient" type="object"
                             icon="fa-file-o" groups="ems.group_director"
                             invisible="ems_status != 'pending_direction'"/>
-                    <button title="Direction: pending" name="action_ems_direction_reset" type="object"
-                            icon="fa-undo" groups="ems.group_director"
-                            invisible="state in ('refuse', 'cancel') or ems_direction_state == 'not_done'"/>
-                    <button title="Refuse" name="action_ems_direction_refuse" type="object"
+                    <field name="ems_needs_atri" column_invisible="1"/>
+                    <button title="Not in ATRI" name="action_ems_atri_missing" type="object"
+                            icon="fa-reply" groups="ems.group_director"
+                            invisible="ems_status != 'pending_direction' or not ems_needs_atri"/>
+                    <button title="Refuse" name="action_ems_direction_refuse" type="object" context="{'ems_ask_change_message': 1}"
                             icon="fa-times" groups="ems.group_director"
-                            invisible="state in ('refuse', 'cancel') or can_approve"
-                            confirm="A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?"/>
+                            invisible="state in ('refuse', 'cancel') or can_approve"/>
+                    <!-- Last in the row, for whoever may take the last decision back
+                         (hr.leave._ems_can_undo, issue #614). -->
+                    <field name="ems_can_undo" column_invisible="1"/>
+                    <button title="Undo the last decision" name="action_ems_undo" type="object"
+                            icon="fa-undo" invisible="not ems_can_undo"
+                            confirm="The last decision on this absence request is taken back and the request returns to its previous status. The employee is told. Undo it?"/>
                 </xpath>
 
             </field>
@@ -418,10 +466,13 @@
                 <xpath expr="//button[@name='action_ems_document_validate']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
+                <xpath expr="//button[@name='action_ems_atri_missing']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
                 <xpath expr="//button[@icon='fa-inbox']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
-                <xpath expr="//button[@name='action_ems_direction_reset']" position="attributes">
+                <xpath expr="//button[@name='action_ems_undo']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
                 <xpath expr="//button[@name='action_ems_direction_refuse']" position="attributes">
@@ -431,7 +482,7 @@
         </record>
 
         <!-- The kanban is the third screen the same Refuse button appears on (Management > Time
-             Off switches to it), so it gets the same confirmation. Inheriting the base kanban
+             Off switches to it), so it opens the same dialog. Inheriting the base kanban
              covers 'hr_leave_view_kanban_my' too, which is a primary view derived from it. -->
         <record id="hr_leave_view_kanban_ems" model="ir.ui.view">
             <field name="name">hr.leave.view.kanban.ems</field>
@@ -439,9 +490,7 @@
             <field name="inherit_id" ref="hr_holidays.hr_leave_view_kanban"/>
             <field name="arch" type="xml">
                 <xpath expr="//button[@name='action_refuse']" position="attributes">
-                    <attribute name="confirm">A refused absence request cannot be reopened by you or the employee: only a Time Off Administrator can reset it, and the employee normally has to file a new one instead. Refuse it?</attribute>
-                    <attribute name="confirm-title">Refuse this absence request</attribute>
-                    <attribute name="confirm-label">Refuse</attribute>
+                    <attribute name="context">{'ems_ask_change_message': 1}</attribute>
                     <attribute name="t-if">['confirm', 'validate1'].includes(record.state.raw_value) and record.can_approve.raw_value</attribute>
                 </xpath>
                 <!-- Same as the list: Direction does not approve on the Head's behalf, and the
@@ -449,12 +498,12 @@
                      supporting document. -->
                 <xpath expr="//button[@name='action_approve']" position="replace">
                     <button t-if="record.state.raw_value === 'confirm' and record.can_approve.raw_value and !record.leave_type_support_document.raw_value"
-                            name="action_approve" type="object" class="btn btn-link btn-sm ps-0"
+                            name="action_approve" type="object" context="{'ems_ask_change_message': 1}" class="btn btn-link btn-sm ps-0"
                             groups="hr_holidays.group_hr_holidays_responsible">
                         <i class="fa fa-thumbs-up"/> Validate
                     </button>
                     <button t-if="record.state.raw_value === 'confirm' and record.can_approve.raw_value and record.leave_type_support_document.raw_value"
-                            name="action_approve" type="object" class="btn btn-link btn-sm ps-0"
+                            name="action_approve" type="object" context="{'ems_ask_change_message': 1}" class="btn btn-link btn-sm ps-0"
                             groups="hr_holidays.group_hr_holidays_responsible">
                         <i class="fa fa-inbox"/> Received: pending documentation
                     </button>
@@ -551,6 +600,8 @@
                                           ('employee_id.leave_manager_id', '=', uid)]"/>
                     <filter name="ems_my_pending_documents" string="My pending supporting documents"
                             domain="[('employee_id.user_id', '=', uid), ('ems_status', '=', 'pending_document')]"/>
+                    <filter name="ems_my_pending_atri" string="My pending ATRI confirmations"
+                            domain="[('employee_id.user_id', '=', uid), ('ems_status', '=', 'pending_atri')]"/>
                 </xpath>
 
                 <!-- The left panel filters on where a request stands between its two

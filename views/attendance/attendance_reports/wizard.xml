@@ -19,7 +19,7 @@
                             <field name="student_id" required="report_type == 'student'" domain="[('id','in', allowed_student_ids)]" />
                         </group>
                         <group invisible="report_type != 'subject'">
-                            <field name="subject_id" required="report_type == 'subject'" domain="[('id','in', allowed_subject_ids)]" />
+                            <field name="subject_label" required="report_type == 'subject'" />
                         </group>
                         <group>
                             <field name="tutor_ids" widget="many2many_tags" readonly="1" />

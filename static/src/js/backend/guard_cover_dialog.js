@@ -3,25 +3,30 @@
 import { Component, useState } from "@odoo/owl";
 import { Dialog } from "@web/core/dialog/dialog";
 import { _t } from "@web/core/l10n/translation";
+import { GuardArrangementPlan, fullPlanSelection, toggledPlanSelection } from "./guard_arrangement_plan";
 
 // Resolves a class left without its teacher, from a row of the guard duty board's absences table:
-// - With one of the internal arrangements the board detected (issue #605, see
-//   ems.course._get_arrangement_options), offered first, swaps before moved lessons: the students
-//   should lose as few lessons as possible. A moved lesson changes the group's day, so saving it
-//   opens the notice for the families, and it only counts once that notice is sent.
-// - By sending a guard teacher (issue #571). Only the guards on duty in that row are offered (see
-//   ems.course._get_guard_candidates, which the server checks again on save), with a free-text
-//   message for them. Saving notifies the guard; removing an assignment tells them they are no
-//   longer needed.
+// - With one of the internal arrangement plans the board detected that resolve it (issues #605,
+//   #645, see ems.course._get_arrangement_plans), offered first, the best first: the students
+//   should lose as few lessons as possible. The planner may keep only some of its steps. A notice
+//   among them opens for the families, and the moves it frees the group from only count once it
+//   is sent.
+// - By sending a guard teacher (issue #571). Only the guards on duty during the class are offered,
+//   those covering all of it first and then those whose guard duty only overlaps part of it, with
+//   the part each one would cover (issue #637; see ems.course._guard_spans, which the server
+//   checks again on save), and a free-text message for them. Saving notifies the guard; several
+//   can each cover part of the class, and each assignment can be removed on its own, which tells
+//   that guard they are no longer needed.
 // - With an arrangement the board cannot work out (two groups joined for the same subject...),
 //   described by hand so that it is on record, with the teacher involved if there is one.
 export class GuardCoverDialog extends Component {
     static template = "ems.GuardCoverDialog";
-    static components = { Dialog };
+    static components = { Dialog, GuardArrangementPlan };
     static props = {
         row: Object,
         line: Object,
         onAssign: Function,
+        onApplyPlan: Function,
         onArrange: Function,
         loadArrangementCandidates: Function,
         onOpenNotice: { type: Function, optional: true },
@@ -30,15 +35,19 @@ export class GuardCoverDialog extends Component {
     };
 
     setup() {
-        const { cover, arrangement } = this.props.row;
+        const { covers, arrangement } = this.props.row;
         const candidates = this.props.line.guard_candidates;
+        // The guard already covering the whole class, to re-send their message; with a part still
+        // missing, the planner is choosing somebody else, so nobody is preselected.
+        const only = covers.length === 1 && !this.props.row.missing.length ? covers[0] : null;
         this.state = useState({
             mode: this.initialMode(),
-            guardId: cover ? cover.guard_id : candidates.length === 1 ? candidates[0].id : false,
-            message: cover ? cover.message : "",
+            guardId: only ? only.guard_id : !covers.length && candidates.length === 1 ? candidates[0].id : false,
+            message: only ? only.message : "",
             teacherId: arrangement && arrangement.type === "manual" ? arrangement.teacher_id : false,
             note: arrangement && arrangement.type === "manual" ? arrangement.note : "",
             manualCandidates: [],
+            selections: this.props.row.arrangement_plans.map(fullPlanSelection),
             saving: false,
         });
         if (this.state.mode === "manual") {
@@ -47,14 +56,14 @@ export class GuardCoverDialog extends Component {
     }
 
     initialMode() {
-        const { cover, arrangement, arrangement_options: options } = this.props.row;
+        const { covers, arrangement, arrangement_plans: plans } = this.props.row;
         if (arrangement) {
             return arrangement.type === "manual" ? "manual" : "current";
         }
-        if (cover || !options.length) {
+        if (covers.length || !plans.length) {
             return "guard";
         }
-        return "option-0";
+        return "plan-0";
     }
 
     get title() {
@@ -80,26 +89,35 @@ export class GuardCoverDialog extends Component {
             pending: _t("This arrangement is waiting for its notice to the families to be sent."),
             openNotice: _t("Open notice"),
             assign: _t("Assign and notify"),
-            apply: _t("Apply and notify"),
+            apply: _t("Apply the checked steps"),
             arrange: _t("Save arrangement"),
-            release: this.props.row.arrangement ? _t("Remove arrangement") : _t("Remove assignment"),
+            release: _t("Remove arrangement"),
+            assigned: _t("Guards assigned"),
+            removeCover: _t("Remove assignment"),
             cancel: _t("Cancel"),
         };
     }
 
     // How many classes each guard has covered this course (issue #600), so the planner can share
     // the covers out fairly.
+    // A guard whose duty only overlaps part of the class says which part (issue #637).
     candidateLabel(candidate) {
+        if (candidate.partial) {
+            return _t("%(name)s - %(time)s, part of the class (%(count)s covered this course)", {
+                name: candidate.name, time: candidate.label, count: candidate.cover_count,
+            });
+        }
         return _t("%(name)s (%(count)s covered this course)", { name: candidate.name, count: candidate.cover_count });
     }
 
-    noticeLabel(option) {
-        return _t("The families will be told: %s", option.change_label);
+    get selectedPlanIndex() {
+        const mode = this.state.mode;
+        return mode.startsWith("plan-") ? Number(mode.slice(5)) : null;
     }
 
-    get selectedOption() {
-        const mode = this.state.mode;
-        return mode.startsWith("option-") ? this.props.row.arrangement_options[Number(mode.slice(7))] : null;
+    togglePlanStep(planIndex, index, checked) {
+        const plan = this.props.row.arrangement_plans[planIndex];
+        this.state.selections[planIndex] = toggledPlanSelection(plan, this.state.selections[planIndex], index, checked);
     }
 
     get saveLabel() {
@@ -119,7 +137,7 @@ export class GuardCoverDialog extends Component {
         if (this.state.mode === "manual") {
             return Boolean(this.state.note.trim());
         }
-        return true;
+        return this.state.selections[this.selectedPlanIndex].some(Boolean);
     }
 
     async loadManualCandidates() {
@@ -146,13 +164,13 @@ export class GuardCoverDialog extends Component {
     async save() {
         this.state.saving = true;
         try {
-            const option = this.selectedOption;
+            const planIndex = this.selectedPlanIndex;
             if (this.state.mode === "guard") {
                 await this.props.onAssign(this.state.guardId, this.state.message);
-            } else if (option) {
-                await this.props.onArrange(option.type, option.teacher_id, false, option);
+            } else if (planIndex !== null) {
+                await this.props.onApplyPlan(this.props.row.arrangement_plans[planIndex], this.state.selections[planIndex]);
             } else {
-                await this.props.onArrange("manual", this.state.teacherId, this.state.note, null);
+                await this.props.onArrange(this.state.teacherId, this.state.note);
             }
             this.props.close();
         } finally {
@@ -165,10 +183,10 @@ export class GuardCoverDialog extends Component {
         await this.props.onOpenNotice();
     }
 
-    async release() {
+    async release(coverId = false) {
         this.state.saving = true;
         try {
-            await this.props.onRelease();
+            await this.props.onRelease(coverId);
             this.props.close();
         } finally {
             this.state.saving = false;

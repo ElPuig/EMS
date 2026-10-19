@@ -22,13 +22,13 @@ Working in the secretariat does not grant this: everyone else on the team reques
 
 Only your area's requests appear there, in state **Pending** while they await your acknowledgement.
 
-When the absence type requires a supporting document (every type except `Health` and `ATRI`), your side has two steps: **Received: pending documentation** first, and **Validate documentation** once the employee has attached the document (the request comes back to you on its own). If the document is not valid, **Documentation insufficient** returns it to the employee, with the reason you write. For `Health` and `ATRI`, a single **Validate**.
+When the absence type requires a supporting document (every type except `Health` and `ATRI`), your side has two steps: **Received: pending documentation** first, and **Validate documentation** once the employee has attached the document (the request comes back to you on its own). If the document is not valid, **Documentation insufficient** returns it to the employee, with the reason you write. If the document is not going to arrive and is not needed, **Exempt from supporting document** (at the top of the form) lets the request go on without it. For `Health` and `ATRI`, a single **Validate**. An `ATRI` absence then waits for the employee to confirm it is requested in ATRI before it reaches Direction.
 
 ![Absences list, with Approve/Refuse actions on a pending request](../../assets/head_of_studies/hos-absences-list.png)
 
 You have access to the written reason and the supporting document of your own people, and you can adjust **Adds the hours to the monthly report** and **Whole day?**, as well as correcting the absence type.
 
-**Refusing is final**, and it asks for confirmation first: once you refuse a request, neither you nor the employee can put it back to *Pending*, so the employee would have to file a new one. The supporting document, on the other hand, can be attached at any point, on a request that is already received included.
+**Refusing asks for the reason first** (optional, and sent to the employee alone). A decision taken by mistake, a refusal included, is taken back with **Undo the last decision**, from the row in the list or from the top of the form (see [Undoing a decision](../head_of_studies/absences.md#undoing-a-decision)); an approved request also has to be undone before it can be corrected. The supporting document can be attached at any point, on a request that is already received included.
 
 Once you validate it, Direction reviews each absence last, in the **Direction status** column, which you can see but not change. The **Status** column shows where the request stands.
 

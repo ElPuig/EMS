@@ -45,6 +45,26 @@ erDiagram
 
 `@api.constrains('subject_id', 'study_ids')`: rejects a `subject_id` that isn't in `allowed_subject_ids` whenever `study_ids` is non-empty — i.e. the chosen subject must actually be taught in **every** selected study, not just one of them. A reinforcement template (no `study_ids`) is never subject to this.
 
+## Topic: part of the template's identity (issue #633)
+
+A template is identified by its subject **and topic**, groups and teacher set. The topic is the free text of
+the schedule blocks it comes from (`resource.calendar.attendance.topic`, issue #428): a CFGB module taught in
+parts by different teachers (e.g. *Ciències aplicades I*: Physical Education and Maths) gives one template
+per part, and the attendance reports list each part as a subject of its own ("subject - topic").
+
+- The sync keys everything by `_sync_key(subject_id, topic, group_ids)` (`_reconcile_teacher_groups`,
+  `_plan_schedule_sync`); entries carry the block's `topic` (`hr.employee._teaching_entries_from_calendar()`);
+  `topic` is a sync trigger field of the blocks; `_check_unique_teaching_assignment` includes it.
+- `topic` is set when the sync creates the template and is locked afterwards (`_LOCKED_FIELDS`). A changed
+  topic archives the old template (or deletes it if it has no sessions) and creates a new one, so the
+  sessions already taken keep their topic. It is a stored compute with no dependencies, which only ran when
+  the column was created, to fill the templates that already existed from their linked blocks
+  (`ems.attendance_schedule.calendar_attendance_ids`).
+- `find_self_conflicts()` keeps comparing by (subject, groups): a new topic in the same slot is the same
+  class, not a double booking.
+
+See [attendance_reports.md](attendance_reports.md) for how the reports use it.
+
 ## Identity fields and locking
 
 **As of 2026-08-11, the template's identity/logistics fields — `teacher_ids`, `subject_id`,

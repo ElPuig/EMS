@@ -11,26 +11,30 @@
                     </div>
 
                     <header>
-                        <button string="Send now"
-                            name="action_send"
-                            type="object"
-                            class="oe_highlight"
-                            icon="fa-send"
-                            invisible="state != 'draft' or use_schedule"
-                        />
-                        <button string="Schedule"
-                            name="action_send"
-                            type="object"
-                            class="oe_highlight"
-                            icon="fa-clock-o"
-                            invisible="state != 'draft' or not use_schedule"
-                        />
-                        <button string="Cancel"
-                            name="action_cancel"
-                            type="object"
-                            icon="fa-ban"
-                            invisible="not can_cancel"
-                        />
+                        <!-- Only for whoever may edit this notice (can_manage): its creator or
+                             someone above them in the chain of command. Others only read it. -->
+                        <div name="ems_actions" string="Actions">
+                            <button string="Send now"
+                                name="action_send"
+                                type="object"
+                                class="btn-primary"
+                                icon="fa-send"
+                                invisible="state != 'draft' or use_schedule or not can_manage"
+                            />
+                            <button string="Schedule sending"
+                                name="action_send"
+                                type="object"
+                                class="btn-primary"
+                                icon="fa-clock-o"
+                                invisible="state != 'draft' or not use_schedule or not can_manage"
+                            />
+                            <button string="Cancel"
+                                name="action_cancel"
+                                type="object"
+                                icon="fa-ban"
+                                invisible="not can_cancel or not can_manage"
+                            />
+                        </div>
                         <field name="state" widget="statusbar" statusbar_visible="draft,scheduled,sent"/>
                     </header>
 
@@ -39,24 +43,35 @@
                         <field name="active" invisible="True"/>
                         <field name="has_families" invisible="True"/>
                         <!-- A timetable change proposed from the guard duty board's absences table
-                             (issues #539/#581): addressed to that one group only (see
+                             (issues #539/#581), or every change of an arrangement plan at once
+                             (issue #652): addressed to that one group only (see
                              _check_absence_change_recipients), so its groups can't be changed. -->
-                        <div class="alert alert-info" role="status" invisible="not absence_change_type">
+                        <div class="alert alert-info" role="status" invisible="not absence_group_id">
                             <i class="fa fa-calendar-times-o me-2" title="Timetable change"/>
                             <span>Timetable change because of a teacher's absence:</span>
                             <field name="absence_group_id" class="fw-bold mx-1"/>
                             <field name="absence_date" class="mx-1"/>
-                            (<field name="absence_change_type" class="mx-1"/><field name="absence_change_hour" widget="float_time" class="mx-1" invisible="absence_change_type not in ('late_entry', 'early_leave', 'long_break')"/><span invisible="absence_change_type != 'long_break'">-</span><field name="absence_change_hour_to" widget="float_time" class="mx-1" invisible="absence_change_type != 'long_break'"/>)
+                            (<field name="absence_change_label" class="mx-1"/>)
+                        </div>
+                        <!-- The lessons a guard duty board arrangement moved (issue #649): addressed to
+                             that one group's students only (see _check_arrangement_recipients), so
+                             neither its groups nor its recipients can be changed. -->
+                        <div class="alert alert-info" role="status" invisible="not arrangement_group_id">
+                            <i class="fa fa-exchange me-2" title="Moved lessons"/>
+                            <span>Lessons moved by an arrangement to cover an absence:</span>
+                            <field name="arrangement_group_id" class="fw-bold mx-1"/>
+                            <field name="arrangement_date" class="mx-1"/>
                         </div>
                         <field name="can_cancel" invisible="True"/>
+                        <field name="can_manage" invisible="True"/>
 
                         <group string="Recipients" col="4">
                             <group>
                                 <field name="available_group_ids" invisible="True"/>
-                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft' or absence_change_type" options="{'no_create': True}" domain="[('id', 'in', available_group_ids)]"/>
+                                <field name="group_ids" widget="many2many_tags" readonly="state != 'draft' or absence_group_id or arrangement_group_id" options="{'no_create': True}" domain="[('id', 'in', available_group_ids)]"/>
                             </group>
                             <group>
-                                <field name="recipient_type" readonly="state != 'draft'"/>
+                                <field name="recipient_type" readonly="state != 'draft' or arrangement_group_id"/>
                             </group>
                             <group>
                                 <field name="recipient_email_type" readonly="state != 'draft'" invisible="recipient_type == 'families'"/>

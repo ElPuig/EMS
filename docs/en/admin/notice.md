@@ -41,16 +41,19 @@ under **Communications → Notices**.
    > **Since 18.0.0.26.0:** a recipient row's email must be well-formed (`name@domain`) — EMS
    > refuses to save a value that isn't, such as a phone number typed in by mistake.
 8. Either:
-   - Click **Send** to queue the emails immediately, or
-   - Tick **Schedule sending** and pick a date/time, then click **Send** — the notice moves to
-     **Scheduled** and the emails go out at that time.
+   - Click the **Send now** button at the top of the form to queue the emails immediately, or
+   - Tick **Schedule sending**, pick a date/time and click the **Schedule sending** button: the
+     notice moves to **Scheduled** and the emails go out at that time.
+
+   When a form has only one action available, EMS shows it as a button in the header; the
+   **Actions** menu only appears when there is more than one.
 9. The notice's **State** tracks progress: **Draft** → **Scheduled** → **Sent** (or **Failed**
    if every recipient's email failed). Each recipient row shows its own delivery status, with
    any error detail available on failed rows.
 
 ![A draft notice, with its recipient list built automatically from the selected group](../../assets/admin/admin-notice-create-form.png)
 
-A **scheduled** notice (not yet sent) can be **cancelled**, returning it to Draft so you can
+A **scheduled** notice (not yet sent) can be **cancelled** (**Actions → Cancel**), returning it to Draft so you can
 edit and resend it.
 
 If a recipient hits **Reply** on the email they received, it goes straight to whoever actually

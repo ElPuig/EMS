@@ -68,9 +68,11 @@ La casilla **¿Día entero?** decide qué tienes que rellenar:
 
 Márcala si no vienes en todo el día: contarán 7,5 horas aunque ese día solo tuvieras una clase. Déjala sin marcar si vienes y te tienes que ir, o si llegas tarde.
 
+**No venir en todo el día es siempre un día entero**, sea cual sea el tipo de ausencia y lo escribas como lo escribas. Si dejas la casilla sin marcar e indicas unas horas que cubren todo tu horario de ese día (desde el inicio de tu primera clase hasta el final de la última), el formulario la marca por ti y te lo dice: lo que cuenta son esas 7,5 horas, no las horas de tus clases. Vuelve a desmarcarla solo si de verdad vienes ese día (por ejemplo, porque te han cambiado la clase a otra hora).
+
 Para pedir más de un día, márcala y cambia la fecha de fin. Si es un solo día, la fecha de fin ya se pone sola.
 
-`Salud` y `Prueba médica invasiva` se crean con la casilla marcada. Si solo faltaste un rato, desmárcala.
+`Salud` y `Prueba médica invasiva` se crean con la casilla marcada, porque faltar por uno de esos motivos suele ser el día entero. Si viniste y solo faltaste un rato, desmárcala e indica las horas.
 
 ---
 
@@ -90,6 +92,8 @@ En el caso de consulta médica, el justificante debe hacer constar expresamente 
 
 Si tu jefe o Dirección consideran que el justificante no es válido, la solicitud vuelve a **En espera de documentación** y recibes un mensaje con el motivo. El motivo también aparece arriba de la solicitud hasta que adjuntas un justificante nuevo: adjunta uno válido de la misma manera.
 
+Si tu jefe decide que el justificante no hace falta, puede eximirlo: la solicitud continúa hacia Dirección, dejas de recibir recordatorios y recibes un mensaje que te lo dice.
+
 Para borrar uno, haz clic en la cruz del archivo y confirma.
 
 ---
@@ -106,7 +110,9 @@ El botón está desactivado mientras falte algo. Pasa el ratón por encima y te 
 
 Si sales del formulario sin enviarlo, EMS te avisa y te deja descartarlo.
 
-Al enviarla, tu jefe de departamento y, si tu departamento lo tiene, tu jefe de seminario reciben un correo con el tipo de ausencia, las fechas y las horas, pero no el motivo. A partir de entonces son seguidores de la solicitud, así que también reciben todo lo que se escriba en su historial de mensajes.
+Al enviarla, tu jefe de departamento y, si tu departamento lo tiene, tu jefe de seminario reciben un correo con el tipo de ausencia, las fechas y las horas, pero no el motivo, para que puedan organizar las guardias que te cubran. Después solo vuelven a saber de ella si la ausencia no se producirá (rechazada, cancelada o borrada mientras aún estaba pendiente), si vuelve a seguir adelante o si cambian sus fechas o su tipo.
+
+**Mensajes en la solicitud.** Lo que escribas en el historial de mensajes de la solicitud (**Enviar mensaje**) llega a quien la tiene en sus manos y a nadie más: tu jefe (jefe de estudios adjunto, jefe de estudios o secretario/a) hasta que la valida y la pasa a Dirección, y la directora o el director a partir de entonces. Sus respuestas te llegan igual.
 
 ---
 
@@ -121,14 +127,28 @@ En **Ausencias** tienes tu lista. Tu ausencia pasa primero por tu jefe (jefe de 
 | Pendiente | Tu jefe todavía no la ha visto |
 | En espera de documentación | Tu jefe la ha recibido y espera el justificante: adjúntalo a la misma solicitud |
 | Pendiente de validación | Has adjuntado el justificante y tu jefe tiene que validarlo |
+| Pendiente de confirmar ATRI | Solo ausencias ATRI. Tu jefe la ha validado y tienes que confirmar que está solicitada en ATRI (ver más abajo) |
 | Pendiente Dirección | Tu jefe la ha validado, Dirección todavía no la ha revisado |
 | Aprobado | Concedida por ambos |
-| Rechazado | Denegada. Es definitivo: si quieres insistir, hay que hacer una solicitud nueva |
+| Rechazado | Denegada. Si fue un error, tu jefe o Dirección pueden deshacerlo; si no, para insistir hay que hacer una solicitud nueva |
 | Cancelado | Anulada |
 
 El filtro **Mis justificantes pendientes** muestra las solicitudes que esperan un justificante tuyo.
 
+**Ausencias ATRI: confirmar la solicitud.** Una ausencia ATRI se concede en el portal de la Generalitat, no en EMS. Por eso, cuando tu jefe la ha validado, la solicitud se detiene siempre en **Pendiente de confirmar ATRI** antes de pasar a Dirección. No significa que nadie haya visto que falte en ATRI: solo se te pide que confirmes que la has solicitado allí.
+
+- Si ya la has solicitado en ATRI, abre la solicitud y usa **Confirmo que está solicitada en ATRI**, arriba del formulario, en ese mismo momento. Entonces pasa a Dirección.
+- Si no, solicítala primero en el portal (el aviso de lo alto de la solicitud tiene el enlace) y después confirma.
+
+Mientras no esté confirmada, una vez pasada la ausencia recibes un recordatorio cada día, y a los pocos días se avisa a tu jefe. El filtro **Mis confirmaciones de ATRI pendientes** muestra las solicitudes que lo esperan. Si después Dirección comprueba que la ausencia no consta en ATRI, o que la documentación que has aportado allí no es suficiente, devuelve la solicitud a este estado y recibes el motivo, que también se muestra en la solicitud. Lo que falte se resuelve en el portal ATRI, no adjuntando un justificante en EMS; cuando lo hayas hecho, vuelve a confirmarlo.
+
+![Una ausencia ATRI a la espera de la confirmación del docente, con el aviso en lo alto de la solicitud](../../assets/teachers/teachers-absences-atri-confirm.png)
+
 Una vez la recibe tu jefe, la ausencia ya cuenta en el calendario de ausencias y en el cuadrante de guardias, aunque falte el justificante.
+
+Si tu jefe o Dirección corrigen algo de tu solicitud (el tipo de ausencia, las fechas o las horas), recibes un mensaje en la solicitud con lo que se ha cambiado, su nuevo estado y, si la han escrito, su explicación.
+
+Si rechazan tu solicitud y quien la rechaza ha escrito el motivo, lo recibes en un mensaje y se muestra en rojo en lo alto de la solicitud.
 
 
 ---

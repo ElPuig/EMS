@@ -97,7 +97,7 @@ L'auxiliar deixa un **registre amb la llista d'alumnes i el seu grup destí**, d
 
 Tres serrells per resoldre els dies següents:
 
-- **Alumnes sense destí.** Revisa la llista i registra la baixa dels que han marxat de debò. Pots fer-ho d'un en un des de la fitxa de l'alumne, o **de diversos alhora**: selecciona'ls a la llista de *Proposta de matrícula de grup* i fes clic a **Baixa**. El botó només el veuen administració acadèmica i secretaria, perquè registrar una baixa cancel·la matrícules i revoca el portal. Els que es matriculin tard no necessiten res: en confirmar-se la matrícula, se'ls col·loca al grup automàticament.
+- **Alumnes sense destí.** Revisa la llista i registra la baixa dels que han marxat de debò. Pots fer-ho d'un en un des de la fitxa de l'alumne, o **de diversos alhora**: selecciona'ls a la llista de *Proposta de matrícula de grup* i tria **Accions → Baixa**. Aquesta acció només la veuen administració acadèmica, secretaria i el cap d'estudis, perquè registrar una baixa cancel·la matrícules i revoca el portal. Els que es matriculin tard no necessiten res: en confirmar-se la matrícula, se'ls col·loca al grup automàticament.
 - **Alumnes matriculats sense grup** que apareguin després (per exemple, una matrícula confirmada al setembre sense grup): només cal **assignar-los el grup destí a la matrícula**. En fer-ho es col·loquen sols, amb els seus mòduls inclosos.
 - **Matrícules del curs entrant sense confirmar.** No es cancel·len ni es toquen. Qui confirmi al setembre es col·loca sol al seu grup, sense que hagis de tornar a executar res — **sempre que la matrícula tingui grup destí assignat**. Sense grup, confirmar no col·loca ningú.
 

@@ -8,6 +8,7 @@
                     <field name="acronym"/>
                     <field name="name" class="w-50"/>
                     <field name="date" string="Release"/>
+                    <field name="managing_department_id" optional="show"/>
                     <field name="deprecated" class="text-center"/>                          
                      <!-- Hidden but needed to filter or display properly -->                    
                     <field name="code" column_invisible="True"/>  

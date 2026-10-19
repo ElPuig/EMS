@@ -62,6 +62,10 @@ def post_init_hook(env):
     _default_strike_family_notification_kicked_out(env)
     _seed_notice_email_signature_default(env)
     _apply_icu_collation_to_sort_fields(env)
+    # Issue #622: each study starts out managed by the department that gives most of its
+    # groups' classes (the centre's schedules, data/custom); from then on it is set on its form.
+    env['ems.study']._backfill_managing_department()
+    _translate_area_names(env)
 
 
 def _ems_seed_current_course(env):
@@ -199,6 +203,35 @@ def _fix_native_presence_translations(env):
                AND field.name IN ('hr_icon_display', 'hr_presence_state')
                AND selection.value = %s
         """, (Json(translations), value))
+
+
+# The three areas (top-level departments) data/custom/hr.department.csv seeds, by xmlid: the name
+# the CSV gives them and its Catalan and Spanish (issue #637, where they head the guard duty board's
+# columns and filter). Their departments were translated by hand in the app; these never were.
+_AREA_NAMES = {
+    '__import__.department_esobtx': ('ESO / BTX', {'ca_ES': 'ESO / BTX', 'es_ES': 'ESO / BTX'}),
+    '__import__.department_vet': ('VET', {'ca_ES': 'FP', 'es_ES': 'FP'}),
+    '__import__.department_asp': ('ASP', {'ca_ES': 'PAS', 'es_ES': 'PAS'}),
+}
+
+
+def _translate_area_names(env):
+    """A CSV row can't carry translations, and data/custom is frozen after its first load anyway
+    (see CLAUDE.md), so they are written here: only into a name still as the CSV left it, and only
+    for a language nobody has filled in yet - a centre that renamed an area keeps its name. Fresh
+    installs get it here; existing installs via migrations/18.0.0.38.0/post-migrate.py."""
+    for xmlid, (original, translations) in _AREA_NAMES.items():
+        area = env.ref(xmlid, raise_if_not_found=False)
+        if not area:
+            continue
+        env.cr.execute("SELECT name FROM hr_department WHERE id = %s", (area.id,))
+        name = env.cr.fetchone()[0] or {}
+        if name.get('en_US') != original:
+            continue
+        missing = {lang: value for lang, value in translations.items() if lang not in name}
+        if missing:
+            env.cr.execute("UPDATE hr_department SET name = name || %s::jsonb WHERE id = %s", (Json(missing), area.id))
+    env['hr.department'].invalidate_model(['name'])
 
 
 def _apply_icu_collation_to_sort_fields(env):

@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.36.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.38.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -107,11 +107,11 @@
         # Before form.xml: the settings button references this action by XML ID.
         'views/settings/course.xml',
         'views/settings/course_transition_wizard.xml',
+        'views/settings/menu.xml',
         'views/settings/form.xml',
         'views/settings/hr_attendance_form.xml',
         'views/settings/hr_employees_form.xml',
         'views/settings/res_users_form.xml',
-        'views/settings/menu.xml',                                    
         
         'views/community/contact/search.xml', # Should be loaded prior to menu
         'views/community/menu.xml',  
@@ -232,6 +232,7 @@
             'views/planning_grading/grading/em_wizard.xml',
             'views/planning_grading/grading/year_record/grade_review_wizard.xml',
             'views/planning_grading/grading/year_record/external_record_wizard.xml',
+            'views/planning_grading/grading/year_record/title_wizards.xml',
             'views/planning_grading/grading/year_record/list.xml',
             'views/planning_grading/grading/year_record/form.xml',
             'views/planning_grading/grading/year_record/search.xml',
@@ -288,6 +289,7 @@
 
             'views/attendance/absence/leave.xml',
             'views/attendance/absence/document_return_wizard.xml',
+            'views/attendance/absence/change_notice_wizard.xml',
             'views/attendance/absence/public_holiday.xml',
             'views/attendance/absence/menu.xml',
             'views/attendance/absence/monthly_report.xml',
@@ -328,6 +330,7 @@
         'views/academic_management/menu.xml',
             'views/academic_management/enrollment/enrollment_form.xml',
             'views/academic_management/enrollment/enrollment_list.xml',
+            'views/academic_management/enrollment/close_unconfirmed_wizard.xml',
             'views/academic_management/enrollment/list_tutor.xml',
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',
@@ -576,6 +579,10 @@
             'ems/static/src/css/backend/**/*',
             'ems/static/src/js/shared/**/*',
             'ems/static/src/js/backend/**/*',
+        ],
+        # Extensions of the pivot and graph views, which Odoo 18 lazy-loads in their own bundle.
+        'web.assets_backend_lazy': [
+            'ems/static/src/views/**/*',
         ],
         'web.assets_frontend': [
            'ems/static/src/css/frontend/**/*',

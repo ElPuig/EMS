@@ -47,10 +47,10 @@
                     <t t-set="weekdays" t-value="[requested_weekday] if requested_weekday else ['0', '1', '2', '3', '4']"/>
                     <t t-set="requested_shift" t-value="course.env.context.get('guard_duty_shift')"/>
                     <t t-set="shifts" t-value="[requested_shift] if requested_shift else ['morning', 'afternoon']"/>
-                    <!-- Issue #390's level filter: forwarded the same way as
+                    <!-- The area filter (issue #637): forwarded the same way as
                          'guard_duty_weekday'/'guard_duty_shift' above - falsy/absent means "All
-                         levels", the previous, still-default behaviour. -->
-                    <t t-set="requested_level_ids" t-value="course.env.context.get('guard_duty_level_ids')"/>
+                         areas". -->
+                    <t t-set="requested_area_ids" t-value="course.env.context.get('guard_duty_area_ids')"/>
                     <!-- The concrete date that weekday stands for, set from the screen's own date
                          picker. Absences happen on dates, so without one the printed board is the
                          plain timetable it always was - which is also what any other caller that
@@ -138,6 +138,15 @@
                                     .gdb-cover-5 { background-color: #ccfbf1; border-left: 3px solid #0d9488; }
                                     .gdb-cover-6 { background-color: #ffedd5; border-left: 3px solid #ea580c; }
                                     .gdb-cover-7 { background-color: #e0e7ff; border-left: 3px solid #4f46e5; }
+                                    /* Issue #637: one header band per area, each block's own time, and the
+                                       screen's brown accent on every break block. */
+                                    .gdb-area { text-transform: uppercase; font-size: 9px; }
+                                    .gdb-block-time { display: block; font-size: 7px; color: #777; }
+                                    .gdb-break { border-left: 3px solid #8a6240 !important; }
+                                    .gdb-break-label { display: block; font-size: 8px; font-style: italic; }
+                                    .gdb-missing-tag { border-style: dashed; border-color: #b52a37; color: #b52a37; }
+                                    .gdb-cover-partial { border-left-style: dotted !important; border-left-width: 2px !important; }
+                                    .gdb-guard-badge.gdb-cover-partial { border-style: dotted; }
                                 </style>
 
                                 <h1 class="gdb-title">
@@ -152,118 +161,121 @@
                                 </h1>
 
                                 <t t-foreach="shifts" t-as="shift">
-                                    <t t-set="data" t-value="course.get_guard_duty_board_lines(weekday, shift, level_ids=requested_level_ids, day=requested_date)"/>
+                                    <t t-set="data" t-value="course.get_guard_duty_board_lines(weekday, shift, area_ids=requested_area_ids, day=requested_date)"/>
                                     <h2 class="gdb-shift-title">
                                         <t t-if="shift == 'morning'">Morning</t>
                                         <t t-else="">Afternoon</t>
                                     </h2>
+                                    <!-- Both views on the board's real time axis (issue #637): laid out once by
+                                         BoardTimeGrid, the same grid the screen renders - a slot refers
+                                         to its line by index. -->
                                     <t t-if="data['lines'] and requested_view == 'table'">
-                                        <!-- The same tab shown on screen as "Absences table" (issue
-                                             #442): who's actually missing and who's covering for
-                                             them, rather than the plain timetable above - built off
-                                             the very same 'data['lines']' payload, since each line
-                                             already carries its own 'absences' list (see
-                                             get_guard_duty_board_lines()'s own docstring). -->
+                                        <t t-set="grid" t-value="data['absence_grid']"/>
                                         <table class="table table-bordered gdb-table gdb-duty-table">
                                             <colgroup>
                                                 <col class="gdb-col-time"/>
-                                                <col class="gdb-col-absences"/>
-                                                <col class="gdb-col-guard"/>
+                                                <t t-foreach="grid['areas']" t-as="area">
+                                                    <t t-foreach="range(area['colspan'])" t-as="lane">
+                                                        <col class="gdb-col-absences"/>
+                                                    </t>
+                                                </t>
+                                                <t t-foreach="range(grid['lane_count'])" t-as="lane">
+                                                    <col class="gdb-col-guard"/>
+                                                </t>
                                             </colgroup>
                                             <thead>
                                                 <tr>
                                                     <th/>
-                                                    <th>Absences</th>
-                                                    <th>Guard duty</th>
+                                                    <t t-foreach="grid['areas']" t-as="area">
+                                                        <th class="gdb-area" t-att-colspan="area['colspan']" t-esc="area['name']"/>
+                                                    </t>
+                                                    <th t-att-colspan="grid['lane_count']">Guard duty</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <t t-foreach="data['lines']" t-as="line">
+                                                <t t-foreach="grid['rows']" t-as="row">
                                                     <tr>
-                                                        <td class="gdb-time" t-esc="line['time_label']"/>
-                                                        <td>
-                                                            <t t-foreach="line['absences']" t-as="absence">
-                                                                <!-- Struck out and paired with its guard's colour exactly like
-                                                                     the screen (issues #571/#581): a co-teacher, a guard sent, or
-                                                                     a timetable change already told to the families, or an internal
-                                                                     arrangement in effect (#605). -->
-                                                                <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or absence['cover'] or absence['authorized'] or (absence['arrangement'] and absence['arrangement'].is_effective) else '') + (' gdb-cover-%s' % line['guard_colors'].get(absence['cover'].guard_employee_id.id, 0) if absence['cover'] else '')">
-                                                                    <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
-                                                                    <span class="gdb-absence-class">
-                                                                        <t t-esc="absence['label']"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
-                                                                        <span t-if="absence['cover']" class="gdb-absence-tag">→ <t t-esc="absence['cover'].guard_employee_id.name"/></span>
-                                                                        <span t-if="absence['arrangement'] and absence['arrangement'].is_effective" class="gdb-absence-tag">⇄ <t t-esc="absence['arrangement']._arrangement_label()"/></span>
-                                                                        <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>
-                                                                    </span>
-                                                                </div>
-                                                            </t>
-                                                        </td>
-                                                        <td>
-                                                            <t t-foreach="line['guards']" t-as="guard">
-                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '') + (' gdb-guard-busy' if guard.employee_id.id in line['guard_busy'] else '')">
-                                                                    <t t-esc="guard.employee_id.name"/>
-                                                                    <!-- Same 'GWC' code the screen's own get_guard_duty_board_data() checks
-                                                                         (guard_duty_board.py) to set 'is_wc' - the PDF has no such wrapper
-                                                                         since it calls get_guard_duty_board_lines() directly, so it reads
-                                                                         the raw resource.calendar.attendance record here instead (developer
-                                                                         report 2026-09-11: a WC guard printed with no way to tell it apart
-                                                                         from a plain one). -->
-                                                                    <t t-if="guard.non_teaching.code == 'GWC'"> (WC)</t>
-                                                                </span>
-                                                            </t>
-                                                        </td>
+                                                        <td class="gdb-time" t-esc="row['label']"/>
+                                                        <t t-foreach="row['cells']" t-as="slot">
+                                                            <td t-if="slot.get('empty')"/>
+                                                            <t t-elif="'line' not in slot" t-call="ems.report_guard_duty_board_break"/>
+                                                            <td t-else="" t-att-rowspan="slot['rowspan']" class="gdb-absence-cell">
+                                                                <t t-set="line" t-value="data['lines'][slot['line']]"/>
+                                                                <span class="gdb-block-time" t-esc="slot['label']"/>
+                                                                <t t-foreach="slot['absences']" t-as="absence_index">
+                                                                    <t t-call="ems.report_guard_duty_board_absence"/>
+                                                                </t>
+                                                            </td>
+                                                        </t>
+                                                        <t t-foreach="row['guards']" t-as="slot">
+                                                            <td t-if="slot.get('empty')"/>
+                                                            <td t-else="" t-att-rowspan="slot['rowspan']" t-att-class="'gdb-break' if slot['is_break'] else ''">
+                                                                <t t-set="line" t-value="data['lines'][slot['line']]"/>
+                                                                <t t-call="ems.report_guard_duty_board_guards"/>
+                                                                <t t-foreach="slot['posts']" t-as="absence_index">
+                                                                    <t t-call="ems.report_guard_duty_board_absence"/>
+                                                                </t>
+                                                            </td>
+                                                        </t>
                                                     </tr>
                                                 </t>
                                             </tbody>
                                         </table>
                                     </t>
                                     <t t-elif="data['lines']">
+                                        <t t-set="grid" t-value="data['schedule_grid']"/>
                                         <table class="table table-bordered gdb-table">
                                             <colgroup>
                                                 <col class="gdb-col-time"/>
                                                 <t t-foreach="data['groups']" t-as="group">
                                                     <col class="gdb-col-group"/>
                                                 </t>
-                                                <col class="gdb-col-guard"/>
+                                                <t t-foreach="range(grid['lane_count'])" t-as="lane">
+                                                    <col class="gdb-col-guard"/>
+                                                </t>
                                             </colgroup>
                                             <thead>
                                                 <tr>
-                                                    <th/>
+                                                    <th rowspan="2"/>
+                                                    <t t-foreach="grid['areas']" t-as="area">
+                                                        <th class="gdb-area" t-att-colspan="area['colspan']" t-esc="area['name']"/>
+                                                    </t>
+                                                    <th rowspan="2" t-att-colspan="grid['lane_count']">Guard duty</th>
+                                                </tr>
+                                                <tr>
                                                     <t t-foreach="data['groups']" t-as="group">
                                                         <th t-esc="group.name"/>
                                                     </t>
-                                                    <th>Guard duty</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <t t-foreach="data['lines']" t-as="line">
+                                                <t t-foreach="grid['rows']" t-as="row">
                                                     <tr>
-                                                        <td class="gdb-time" t-esc="line['time_label']"/>
-                                                        <t t-foreach="line['cells']" t-as="cell">
-                                                            <td>
-                                                                <t t-if="cell['entries']">
-                                                                    <span class="gdb-cell-subject" t-esc="cell['entries'][:1].subject_id.acronym"/>
-                                                                    <span class="gdb-cell-teacher">
-                                                                        <t t-foreach="cell['teachers']" t-as="teacher">
-                                                                            <span t-att-class="('gdb-absent' if cell['absences'].get(teacher.id) == 'approved' else ('gdb-absent-pending' if cell['absences'].get(teacher.id) else '')) + (' gdb-guard-busy' if teacher in cell['moved'] else '')" t-esc="teacher.name"/><t t-if="not teacher_last">, </t>
-                                                                        </t>
-                                                                    </span>
-                                                                    <!-- Issue #605: who teaches it instead, after an internal arrangement. -->
-                                                                    <span t-if="cell['substitutes']" class="gdb-cell-teacher">⇄ <t t-esc="', '.join(cell['substitutes'].mapped('name'))"/></span>
-                                                                    <span t-if="cell['entries'][:1].space_id" class="gdb-cell-room" t-esc="cell['entries'][:1].space_id.display_name"/>
-                                                                </t>
+                                                        <td class="gdb-time" t-esc="row['label']"/>
+                                                        <t t-foreach="row['cells']" t-as="slot">
+                                                            <td t-if="slot.get('empty')"/>
+                                                            <t t-elif="'line' not in slot" t-call="ems.report_guard_duty_board_break"/>
+                                                            <td t-else="" t-att-rowspan="slot['rowspan']">
+                                                                <t t-set="cell" t-value="data['lines'][slot['line']]['cells'][slot['column']]"/>
+                                                                <span class="gdb-block-time" t-esc="slot['label']"/>
+                                                                <span class="gdb-cell-subject" t-esc="cell['entries'][:1].subject_id.acronym"/>
+                                                                <span class="gdb-cell-teacher">
+                                                                    <t t-foreach="cell['teachers']" t-as="teacher">
+                                                                        <span t-att-class="('gdb-absent' if cell['absences'].get(teacher.id) == 'approved' else ('gdb-absent-pending' if cell['absences'].get(teacher.id) else '')) + (' gdb-guard-busy' if teacher in cell['moved'] else '')" t-esc="teacher.name"/><t t-if="not teacher_last">, </t>
+                                                                    </t>
+                                                                </span>
+                                                                <!-- Issue #605: who teaches it instead, after an internal arrangement. -->
+                                                                <span t-if="cell['substitutes']" class="gdb-cell-teacher">⇄ <t t-esc="', '.join(cell['substitutes'].mapped('name'))"/></span>
+                                                                <span t-if="cell['entries'][:1].space_id" class="gdb-cell-room" t-esc="cell['entries'][:1].space_id.display_name"/>
                                                             </td>
                                                         </t>
-                                                        <td>
-                                                            <t t-foreach="line['guards']" t-as="guard">
-                                                                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-guard-busy' if guard.employee_id.id in line['guard_busy'] else '')">
-                                                                    <t t-esc="guard.employee_id.name"/>
-                                                                    <!-- See the "Absences table" tab above for why this check is repeated
-                                                                         here instead of coming from a shared 'is_wc' flag. -->
-                                                                    <t t-if="guard.non_teaching.code == 'GWC'"> (WC)</t>
-                                                                </span>
-                                                            </t>
-                                                        </td>
+                                                        <t t-foreach="row['guards']" t-as="slot">
+                                                            <td t-if="slot.get('empty')"/>
+                                                            <td t-else="" t-att-rowspan="slot['rowspan']" t-att-class="'gdb-break' if slot['is_break'] else ''">
+                                                                <t t-set="line" t-value="data['lines'][slot['line']]"/>
+                                                                <t t-call="ems.report_guard_duty_board_guards"/>
+                                                            </td>
+                                                        </t>
                                                     </tr>
                                                 </t>
                                             </tbody>
@@ -275,6 +287,52 @@
                         </t>
                     </t>
                 </t>
+            </t>
+        </template>
+        <!-- A break block of a group's or an area's column (issue #637): its own time, "Break". -->
+        <template id="report_guard_duty_board_break">
+            <td t-att-rowspan="slot['rowspan']" class="gdb-break">
+                <div class="gdb-block-time" t-esc="slot['label']"/>
+                <div class="gdb-break-label">Break</div>
+            </td>
+        </template>
+
+        <!-- One absence line, struck out and paired with its guard's colour exactly like the screen
+             (issues #571/#581): a co-teacher, a guard sent, a timetable change already told to the
+             families, or an internal arrangement in effect (#605). Expects 'line' and 'absence_index'. -->
+        <template id="report_guard_duty_board_absence">
+            <t t-set="absence" t-value="line['absences'][absence_index]"/>
+            <!-- Several guards can each cover part of the class (issue #637): struck out only once
+                 nothing is missing. -->
+            <t t-set="covers" t-value="absence['covers']"/>
+            <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or (covers and not absence['missing']) or absence['authorized'] or (absence['arrangement'] and absence['arrangement'].is_effective) else '') + (' gdb-cover-%s' % line['guard_colors'].get(covers[:1].guard_employee_id.id, 0) if covers else '') + (' gdb-cover-partial' if covers and absence['missing'] else '')">
+                <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
+                <span class="gdb-absence-class">
+                    <t t-esc="absence['label']"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>
+                    <t t-foreach="covers" t-as="cover">
+                        <span class="gdb-absence-tag">→ <t t-esc="cover.guard_employee_id.name"/><t t-if="absence['missing'] or len(covers) > 1"> <t t-esc="cover._time_label()"/></t></span>
+                    </t>
+                    <t t-foreach="absence['missing']" t-as="period">
+                        <span class="gdb-absence-tag gdb-missing-tag" t-esc="course._missing_label(period)"/>
+                    </t>
+                    <span t-if="absence['moved_cover']" class="gdb-absence-tag" t-esc="course._moved_label(absence['moved_cover'])"/>
+                    <span t-if="absence['arrangement'] and absence['arrangement'].is_effective" class="gdb-absence-tag">⇄ <t t-esc="absence['arrangement']._arrangement_label()"/></span>
+                    <span t-if="absence['arrangement_change']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['arrangement_change'])"/>
+                    <span t-if="absence['authorized']" class="gdb-absence-tag" t-esc="course._absence_change_label(absence['authorized'])"/>
+                </span>
+            </div>
+        </template>
+
+        <!-- The guards of one block. The PDF reads the raw resource.calendar.attendance rows, so the
+             WC tag checks the same 'GWC' code get_guard_duty_board_data() turns into 'is_wc'. -->
+        <template id="report_guard_duty_board_guards">
+            <span class="gdb-block-time" t-esc="slot['label']"/>
+            <span t-if="slot['is_break']" class="gdb-break-label">Break</span>
+            <t t-foreach="line['guards']" t-as="guard">
+                <span t-att-class="'gdb-guard-badge' + (' gdb-absent' if line['guard_absences'].get(guard.employee_id.id) == 'approved' else (' gdb-absent-pending' if line['guard_absences'].get(guard.employee_id.id) else '')) + (' gdb-cover-%s' % line['guard_colors'][guard.employee_id.id] if guard.employee_id.id in line['guard_colors'] else '') + (' gdb-cover-partial' if guard.employee_id.id in line['partial_guard_ids'] else '') + (' gdb-guard-busy' if guard.employee_id.id in line['guard_busy'] else '')">
+                    <t t-esc="guard.employee_id.name"/>
+                    <t t-if="guard.non_teaching.code == 'GWC'"> (WC)</t>
+                </span>
             </t>
         </template>
     </data>

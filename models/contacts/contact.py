@@ -3,6 +3,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize, format_date
+from odoo.osv import expression
 from ..shared import base
 import re
 from dateutil.relativedelta import relativedelta
@@ -18,6 +19,9 @@ PRIVATE_NOTES_GROUPS = ('ems.group_academic_admin', 'ems.group_orientation', 'em
 # Contact types whose 'email' is a personal address, so it can never be a corporate one (issue
 # #514). Staff work contacts (no contact_type) are left out: their email IS the corporate account.
 PERSONAL_EMAIL_CONTACT_TYPES = ('student', 'family', 'applicant', 'alumni', 'withdrawal', 'expelled')
+# Enrollments that still count: anything but cancelled.
+LIVE_ENROLLMENT_STATES = ['draft', 'sent', 'sale']
+
 
 class EmsStudentBenefit(models.Model):
     _name = 'ems.student.benefit'
@@ -290,6 +294,10 @@ class ResPartner(models.Model):
         search='_search_current_enrollment',
     )
     ems_enrollment_state = fields.Selection(related='ems_current_enrollment_id.state', store=False, string='Enrollment State')
+    # Any enrollment still alive (draft, sent or confirmed), whatever its course: what tells
+    # apart the applicants who never got an offer (Pre-inscripció's "Without enrollment" filter).
+    ems_has_enrollment = fields.Boolean(string='Has enrollment', compute='_compute_ems_has_enrollment',
+                                        search='_search_ems_has_enrollment')
 
     # NOTE: this field is computed when loaded within a form or list
     read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
@@ -341,7 +349,7 @@ class ResPartner(models.Model):
         Course = self.env['ems.course']
         running = Course.search([('is_current', '=', True)], limit=1)
         orders = self.sale_order_ids.filtered(
-            lambda order: order.state in ('draft', 'sent', 'sale'))
+            lambda order: order.state in LIVE_ENROLLMENT_STATES)
         in_force = orders.filtered(lambda order: order.ems_course_id == running)
         if in_force:
             return in_force[0]
@@ -432,6 +440,17 @@ class ResPartner(models.Model):
 
     def _search_current_enrollment(self, operator, value):
         return [('sale_order_ids.name', operator, value)]
+
+    def _compute_ems_has_enrollment(self):
+        for partner in self:
+            partner.ems_has_enrollment = any(
+                order.state in LIVE_ENROLLMENT_STATES for order in partner.sale_order_ids)
+
+    def _search_ems_has_enrollment(self, operator, value):
+        if operator not in ('=', '!='):
+            raise UserError(_("Unsupported search on 'Has enrollment'."))
+        domain = [('sale_order_ids.state', 'in', LIVE_ENROLLMENT_STATES)]
+        return domain if (operator == '=') == bool(value) else ['!'] + domain
 
     def _compute_current_enrollment(self):
         for partner in self:
@@ -561,6 +580,9 @@ class ResPartner(models.Model):
             'context': {'active_ids': students.ids},
         }
 
+    def action_ems_close_unconfirmed(self):
+        return self.env['ems.enrollment_close_wizard'].action_open(self)
+
     def action_withdrawal_wizard(self):
         students = self.filtered(lambda p: p.contact_type == 'student')
         return {
@@ -658,6 +680,13 @@ class ResPartner(models.Model):
         action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
         return action
 
+    def action_title_register_wizard(self):
+        """Register a title obtained by the student in its academic history (issue #635)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_title_register_wizard')
+        action['context'] = {'default_student_id': self.id}
+        return action
+
     def action_suggest_destination_group(self):
         """Fill the destination group on the selected students' next-course
         enrollments that still have none. Students without an enrollment are
@@ -686,10 +715,24 @@ class ResPartner(models.Model):
             },
         }
 
+    def _ems_transition_course(self):
+        """The course a transition status looks at: the one being enrolled into."""
+        return self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
+
     @api.depends('contact_type', 'exit_type', 'sale_order_ids.ems_course_id',
                  'sale_order_ids.state', 'sale_order_ids.ems_group_id')
     def _compute_transition_status(self):
-        next_course = self.env['ems.course'].search([('is_enrollment_default', '=', True)], limit=1)
+        # One read of the next-course enrollments for the whole batch (a list of students), not
+        # one search per row. A partner holds at most one live enrollment per course.
+        next_course = self._ems_transition_course()
+        partner_ids = [partner_id for partner_id in self.ids if isinstance(partner_id, int)]
+        enrollments = {}
+        if next_course and partner_ids:
+            for order in self.env['sale.order'].search([
+                    ('partner_id', 'in', partner_ids),
+                    ('ems_course_id', '=', next_course.id),
+                    ('state', '!=', 'cancel')]):
+                enrollments.setdefault(order.partner_id.id, order)
         for partner in self:
             if partner.contact_type in ('alumni', 'withdrawal', 'expelled'):
                 partner.transition_status = 'former'
@@ -698,10 +741,7 @@ class ResPartner(models.Model):
                 # (once executed it becomes alumni, caught by 'former' above).
                 partner.transition_status = 'graduated'
             else:
-                enrollment = next_course and self.env['sale.order'].search([
-                    ('partner_id', '=', partner.id),
-                    ('ems_course_id', '=', next_course.id),
-                    ('state', '!=', 'cancel')], limit=1)
+                enrollment = enrollments.get(partner.id)
                 if not enrollment:
                     # No next-course enrollment at all.
                     partner.transition_status = 'missing'
@@ -712,13 +752,31 @@ class ResPartner(models.Model):
                     partner.transition_status = 'unplaced'
 
     def _search_transition_status(self, operator, value):
+        """The compute's own rules as a domain, resolved by the database in one query: the
+        Students without destination view filters on this, over every student (issue #643)."""
         if operator not in ('=', '!='):
             raise NotImplementedError(_("Unsupported search on transition_status"))
-        # Only lifecycle contacts can have a transition status.
-        candidates = self.search([('contact_type', 'in', ['student', 'alumni', 'withdrawal', 'expelled'])])
-        matching = candidates.filtered(lambda p: p.transition_status == value)
-        positive = (operator == '=')
-        return [('id', 'in' if positive else 'not in', matching.ids)]
+        domain = self._ems_transition_status_domain(value)
+        return domain if operator == '=' else ['!'] + expression.normalize_domain(domain)
+
+    def _ems_transition_status_domain(self, status):
+        """Lifecycle contacts (students and ex-students) whose transition status is `status`."""
+        if status == 'former':
+            return [('contact_type', 'in', ['alumni', 'withdrawal', 'expelled'])]
+        if status == 'graduated':
+            return [('contact_type', '=', 'student'), ('exit_type', '=', 'graduation')]
+        pending = [('contact_type', '=', 'student'), ('exit_type', '!=', 'graduation')]
+        next_course = self._ems_transition_course()
+        if not next_course:
+            return pending if status == 'missing' else expression.FALSE_DOMAIN
+        live = [('ems_course_id', '=', next_course.id), ('state', '!=', 'cancel')]
+        if status == 'missing':
+            return pending + [('sale_order_ids', 'not any', live)]
+        if status == 'enrolled':
+            return pending + [('sale_order_ids', 'any', live + [('ems_group_id', '!=', False)])]
+        if status == 'unplaced':
+            return pending + [('sale_order_ids', 'any', live + [('ems_group_id', '=', False)])]
+        return expression.FALSE_DOMAIN
 
     def _ems_my_students_domain(self):
         """Domain matching the students of the current user's own groups, shared by the
@@ -1253,6 +1311,81 @@ class ResPartner(models.Model):
             # over the mail template / queue job. Guarded internally by
             # google_ws_enabled and student_email.
             partner.sudo()._gw_schedule_deactivation()
+
+    def _ems_cancel_pending_enrollments(self):
+        """Cancel the draft/sent enrollments of students leaving the centre. A confirmed one
+        is kept: it is what a withdrawal registered by mistake is undone from."""
+        orders = self.env['sale.order'].search([
+            ('partner_id', 'in', self.ids), ('state', 'in', ['draft', 'sent'])])
+        if orders:
+            orders.sudo()._action_cancel()
+
+    def _ems_register_exit(self, kind, exit_date, exit_reason):
+        """Withdraw or expel ('withdrawal'/'expulsion') this student now, as of the current
+        course: what the withdrawal wizard applies to each line, and what
+        ems.enrollment_close_wizard applies to a student who never confirmed (issue #643).
+        Returns _ems_leave_centre()'s summary."""
+        self.ensure_one()
+        course = self.env.company.current_course_id \
+            or self.env['ems.course'].search([('is_current', '=', True)], limit=1)
+        self.write({
+            'exit_type': 'expulsion' if kind == 'expulsion' else 'withdrawal',
+            'exit_course_id': course.id if course else False,
+            'exit_date': exit_date,
+            'exit_reason': exit_reason,
+        })
+        self._ems_cancel_pending_enrollments()
+        # Freeze the academic history NOW, while the student still has its
+        # group: the transition wizard captures by main_group_id, so without
+        # this a mid-course withdrawal would never get a year record. Sudo:
+        # the generator reads grade/attendance models the secretary cannot.
+        if course:
+            self.env['ems.student.year_record'].sudo().generate_for_students(self, course)
+        return self._ems_leave_centre(kind=kind)
+
+    def _ems_return_to_ex_student(self):
+        """Send an applicant who was a student before back to where they were: the reverse of
+        sale.order._ems_offer_to_ex_student(), for an offer they never confirmed (issue #643).
+
+        The offer cleared the exit data; it comes back from the newest academic history record
+        that kept one. Then the usual exit: alumni if they ever graduated, withdrawal otherwise,
+        Google grace period, portal revoked, archived. Returns _ems_leave_centre()'s summary."""
+        self.ensure_one()
+        records = self.year_record_ids.sorted(lambda record: record.course_id.start, reverse=True)
+        record = records.filtered('exit_type')[:1] or records[:1]
+        self.write({
+            'exit_type': record.exit_type or ('graduation' if self.has_graduated else 'withdrawal'),
+            'exit_course_id': record.course_id.id,
+            'exit_date': record.exit_date,
+        })
+        return self._ems_leave_centre()
+
+    def _ems_leave_centre(self, kind=None):
+        """The steps every exit shares once the academic history is frozen: the withdrawal
+        wizard and a title registered for a student with no group (issue #635).
+
+        Deletes the operational records, converts the student (see
+        _ems_convert_to_ex_student() for `kind`), revokes the portal and archives the contact.
+        Returns {'revoked': int, 'skipped': int, 'issues': [str]} for the caller's summary.
+        """
+        self.ensure_one()
+        # Must run BEFORE the conversion, which detaches the student from its group.
+        self._ems_clear_operational_records()
+        self._ems_convert_to_ex_student(kind=kind)
+        # Student + families without another enrolled child.
+        summary = self._ems_revoke_student_portal()
+        issues = list(summary['issues'])
+        # Archive last, mirroring hr.employee (archiving an employee registers its departure):
+        # res.partner.write() refuses to archive a contact still linked to an active portal
+        # user. If the revoke failed (logged in issues instead of raising, so a batch is not
+        # aborted), skip the archive rather than let that guard roll back the whole batch.
+        if self._has_active_portal_user():
+            issues.append(_("%(student)s: portal access could not be revoked, kept active",
+                            student=self.display_name))
+        else:
+            self.write({'active': False})
+        return {'revoked': len(summary['revoked']), 'skipped': len(summary['skipped']),
+                'issues': issues}
 
     def _ems_clear_operational_records(self):
         """Delete the operational records of a student leaving the centre.

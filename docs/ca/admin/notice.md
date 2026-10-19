@@ -43,9 +43,13 @@ troba a **Comunicacions → Comunicats**.
    > (`nom@domini`) — EMS no deixa desar un valor que no ho sigui, com ara un número de telèfon
    > escrit per error.
 8. Feu una de les dues opcions:
-   - Cliqueu **Enviar** per posar els correus a la cua immediatament, o
-   - Marqueu **Programar l'enviament** i trieu una data/hora, i cliqueu **Enviar** — el
-     comunicat passa a **Programat** i els correus surten en aquell moment.
+   - Cliqueu el botó **Enviar ara** de la part superior del formulari per posar els correus a la
+     cua immediatament, o
+   - Marqueu **Programar l'enviament**, trieu una data/hora i cliqueu el botó **Programar
+     enviament**: el comunicat passa a **Programat** i els correus surten en aquell moment.
+
+   Quan un formulari només té una acció disponible, EMS la mostra com un botó a la capçalera; el
+   menú **Accions** només apareix quan n'hi ha més d'una.
 9. L'**Estat** del comunicat segueix el progrés: **Esborrany** → **Programat** → **Enviat** (o
    **Fallit** si l'enviament ha fallat per a tots els destinataris). Cada fila de destinatari
    mostra el seu propi estat d'enviament, amb el detall de l'error disponible a les files
@@ -53,7 +57,7 @@ troba a **Comunicacions → Comunicats**.
 
 ![Un comunicat en esborrany, amb la llista de destinataris generada automàticament a partir del grup seleccionat](../../assets/admin/admin-notice-create-form.png)
 
-Un comunicat **programat** (encara no enviat) es pot **cancel·lar**, tornant-lo a Esborrany
+Un comunicat **programat** (encara no enviat) es pot **cancel·lar** (**Accions → Cancel·la**), tornant-lo a Esborrany
 perquè el pugueu editar i tornar a enviar.
 
 Si un destinatari clica **Respondre** al correu que ha rebut, la resposta arriba directament a

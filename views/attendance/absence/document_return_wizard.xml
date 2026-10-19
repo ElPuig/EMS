@@ -3,20 +3,30 @@
     <data>
 
         <!-- Opened by the "Documentation insufficient" button on an absence
-             (hr.leave.action_ems_document_insufficient): the reason is required, because the
-             employee has to know what to attach instead. -->
+             (hr.leave.action_ems_document_insufficient) and by Direction's "Not in ATRI"
+             (hr.leave.action_ems_atri_missing, kind = 'atri'): the reason is required, because
+             the employee has to know what to do instead. On an ATRI absence, Direction's
+             "Documentation insufficient" opens it with kind = 'atri_document' (issue #627).
+             The dialog's title is the action's. -->
         <record id="view_absence_document_return_wizard_form" model="ir.ui.view">
             <field name="name">ems.absence.document_return_wizard.form</field>
             <field name="model">ems.absence.document_return_wizard</field>
             <field name="arch" type="xml">
                 <form string="Documentation insufficient">
                     <field name="leave_id" invisible="1"/>
+                    <field name="kind" invisible="1"/>
                     <group>
                         <field name="employee_id" readonly="1"/>
                     </group>
-                    <field name="reason" placeholder="What is wrong with the document and what the employee has to attach instead..."/>
-                    <div class="text-muted mt-2">
+                    <field name="reason" placeholder="What is wrong and what the employee has to do instead..."/>
+                    <div class="text-muted mt-2" invisible="kind != 'document'">
                         <i class="fa fa-info-circle me-1"/>The request goes back to the employee, who is told the reason and asked to attach a valid supporting document.
+                    </div>
+                    <div class="text-muted mt-2" invisible="kind != 'atri'">
+                        <i class="fa fa-info-circle me-1"/>The request goes back to the employee, who is told the reason and asked to request the absence in ATRI. It returns to Direction once they confirm it.
+                    </div>
+                    <div class="text-muted mt-2" invisible="kind != 'atri_document'">
+                        <i class="fa fa-info-circle me-1"/>The request goes back to the employee, who is told the reason and asked to complete the documentation in ATRI, not in EMS. It returns to Direction once they confirm it.
                     </div>
                     <footer>
                         <button name="action_return" type="object" string="Send back" class="btn-primary"/>

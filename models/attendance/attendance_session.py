@@ -70,6 +70,7 @@ class EmsAttendanceSessionHeader(models.Model):
         column1="ems_attendance_session_header_id", column2="ems_group_id",
     )
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_schedule_id.attendance_template_id.subject_id", store=True)
+    topic = fields.Char(string="Topic", related="attendance_schedule_id.attendance_template_id.topic", store=True)
     space_id = fields.Many2one(string="Space", comodel_name="ems.space", related="attendance_schedule_id.space_id", store=True)
     template_teacher_ids = fields.Many2many(
         string="Template's teachers", comodel_name="hr.employee", related="attendance_schedule_id.attendance_template_id.teacher_ids",
@@ -675,6 +676,11 @@ class EmsAttendanceSessionLine(models.Model):
         string="Group", comodel_name="ems.group", compute="_compute_student_group_id", store=True, index=True,
     )
     subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject", related="attendance_session_id.subject_id", store=True)
+    topic = fields.Char(string="Topic", related="attendance_session_id.topic", store=True)
+    # What the reports group by and list (issue #633): the subject and, when the schedule splits it
+    # into topics taught apart (a CFGB module's Physical Education, its English...), the topic, each
+    # one a subject of its own there.
+    subject_label = fields.Char(string="Subject (topic)", compute="_compute_subject_label", store=True)
     # Current course = active session (the course transition archives them). Stored on the line so
     # filtering on it never goes through the header's record rules, which only let a teacher read
     # their own sessions: a tutor must still see the other teachers' sessions of their tutees.
@@ -819,6 +825,11 @@ class EmsAttendanceSessionLine(models.Model):
             # hide (issue #469).
             line.display_name = f"{line.attendance_session_id.sudo().display_name} | {line.student_id.display_name}"
 
+    @api.depends('subject_id.acronym', 'subject_id.name', 'topic')
+    def _compute_subject_label(self):
+        for line in self:
+            line.subject_label = line.subject_id._label_with_topic(line.topic) if line.subject_id else False
+
     @api.depends('strike_ids')
     def _compute_strike_count(self):
         for line in self:
@@ -843,23 +854,54 @@ class EmsAttendanceSessionLine(models.Model):
 
     @api.model
     def _get_reports_action(self):
-        """The 'Reports' screen (pivot/graph), scoped to the current user: Head of Studies/Director/
-        Administrator and Secretariat see the whole centre; everyone else (teacher/tutor/department
-        chief) their own teaching plus their tutor scope's students (every subject), with the
-        removable "My subjects" filter on by default. Current course only for everyone: the course
-        transition archives every outgoing session. Opened from the menu
-        (action_attendance_reports_open) and from a student's form (res.partner's
+        """The 'Reports' screen (pivot/graph): the lines of _get_reports_domain(), with the removable
+        "My subjects" filter on by default for whoever doesn't see the whole centre. Opened from the
+        menu (action_attendance_reports_open) and from a student's form (res.partner's
         action_view_attendance_reports)."""
         action = self.env.ref('ems.action_attendance_report_analysis').sudo().read()[0]
-        action['context'] = {'pivot_measures': ['absence_rate', 'strike_count', '__count'], 'graph_measure': 'absence_rate'}
-        # The read domain is a string (how act_window stores it), so it's rebuilt as a list here.
-        action['domain'] = [('session_active', '=', True)]
-        user = self.env.user
-        if not (user.has_group('ems.group_head_of_studies') or user.has_group('ems.group_secretary')
-                or user.has_group('ems.group_secretary_admin')):
-            action['domain'] += [
-                '|', ('template_teacher_ids.user_id', '=', user.id),
-                ('student_id.tutor_id.tutor_scope_user_ids', '=', user.id),
-            ]
+        # active_test forced on: a button's result inherits the context of the screen it is clicked
+        # on, and the students' list turns it off, which made the screen opened from a student's
+        # form count the students removed from the roll-call (archived lines, issue #628).
+        action['context'] = {
+            'pivot_measures': ['absence_rate', 'strike_count', '__count'], 'graph_measure': 'absence_rate',
+            'active_test': True,
+        }
+        action['domain'] = self._get_reports_domain()
+        if not self._user_sees_whole_centre():
             action['context']['search_default_my_subjects'] = 1
         return action
+
+    @api.model
+    def _get_reports_domain(self):
+        """The attendance lines the user may consult, the single source of both the 'Reports' screen
+        and the PDF report wizard (issue #633): the current course's only (the course transition
+        archives every outgoing session) and, unless the user sees the whole centre, escalating by
+        the chain of command, never by role alone:
+        - a teacher: the subjects they teach (the template's teachers; a roll-call taken on guard
+          duty or as a substitute belongs to the template's own teacher, not to them);
+        - a tutor, and above them their Department/Seminar Chief, Head of Studies and the Director:
+          every subject of the tutor's students (tutor_scope_user_ids, issue #483);
+        - a Department/Seminar Chief or a Head of Studies (an area's manager): every student of the
+          studies their department or area manages (ems.study.managing_department_id, issue #622)."""
+        domain = [('session_active', '=', True)]
+        if self._user_sees_whole_centre():
+            return domain
+        managed = self.env['hr.department']._headed_by(self.env.user)
+        managed_groups = self.env['ems.group'].sudo().search(
+            self.env['ems.group']._managed_by_departments_domain(managed)) if managed else self.env['ems.group']
+        return domain + [
+            '|', '|', ('template_teacher_ids.user_id', '=', self.env.uid),
+            ('student_id.tutor_id.tutor_scope_user_ids', '=', self.env.uid),
+            ('student_group_id', 'in', managed_groups.ids),
+        ]
+
+    @api.model
+    def _user_sees_whole_centre(self):
+        """Whether the user consults every student's attendance: the Director (and the administrator
+        above them), Guidance, Coexistence and Secretariat. Not the Head of Studies, although they
+        read every student's file (group_student_data_reader, issue #448): their attendance reports
+        cover their own area (_get_reports_domain())."""
+        user = self.env.user
+        return any(user.has_group(xmlid) for xmlid in (
+            'ems.group_director', 'ems.group_orientation', 'ems.group_coexistence',
+            'ems.group_secretary', 'ems.group_secretary_admin'))

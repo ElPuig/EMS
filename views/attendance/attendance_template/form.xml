@@ -36,6 +36,7 @@
                             </group>
                             <group colspan="4">
                                 <field name="subject_id" readonly="1"/>
+                                <field name="topic" readonly="1" invisible="not topic"/>
                             </group>
 
                             <!-- Row 3: Groups, Start date, End date - 'space_id' removed entirely

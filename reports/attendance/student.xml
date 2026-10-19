@@ -17,17 +17,17 @@
                         <h3>Comments</h3>
                         <t t-set="entries" t-value="main.comments"/>
                         <t t-set="header" t-value="[
-                            {'style' : 'width:10%;', 'value' : 'Date'},
-                            {'style' : 'width:10%;', 'value' : 'Status'},
-                            {'style' : 'width:20%;', 'value' : 'Subject'},
-                            {'style' : 'width:20%;', 'value' : 'Teacher'},
-                            {'style' : '', 'value' : 'Comment'}
+                            {'style' : 'width:10%;', 'label' : 'date'},
+                            {'style' : 'width:10%;', 'label' : 'status'},
+                            {'style' : 'width:20%;', 'label' : 'subject'},
+                            {'style' : 'width:20%;', 'label' : 'teacher'},
+                            {'style' : '', 'label' : 'comment'}
                         ]"/>
                         <!-- Note: 'self' will be an 'attendance_session_line' object and is necessary to run the 'report_eval' method from the 'details_table' template. -->
                         <t t-set="rows" t-value="[
                             {'style' : '', 'value' : 'self.attendance_session_id.date'},
                             {'style' : '', 'value' : 'self.status_id.name'},
-                            {'style' : '', 'value' : 'self.attendance_session_id.subject_id.display_name'},
+                            {'style' : '', 'value' : 'self.subject_label'},
                             {'style' : '', 'value' : 'self.attendance_session_id.session_teacher_id.display_name'},
                             {'style' : '', 'value' : 'self.notes'},
                         ]"/>
@@ -36,7 +36,7 @@
 
                         <h2>Subjects</h2>
                         <t t-foreach="lines" t-as="subject">
-                            <t t-set="section_name" t-value="subject.display_name"/>
+                            <t t-set="section_name" t-value="subject"/>
                             <t t-set="section_data" t-value="lines[subject]"/>
                             <t t-set="section_detail_entries" t-value="detail_entries[subject]"/>
                             <t t-set="section_strikes" t-value="detail_strikes[subject]"/>

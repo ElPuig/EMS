@@ -97,7 +97,7 @@ El asistente deja un **registro con la lista de alumnos y su grupo destino**, de
 
 Tres flecos que resolver en los días siguientes:
 
-- **Alumnos sin destino.** Revisa la lista y registra la baja de los que se han ido de verdad. Puedes hacerlo de uno en uno desde la ficha del alumno, o **de varios a la vez**: selecciónalos en la lista de *Propuesta de matrícula de grupo* y pulsa **Baja**. El botón solo lo ven administración académica y secretaría, porque registrar una baja cancela matrículas y revoca el portal. Los que se matriculen tarde no necesitan nada: al confirmarse su matrícula, se les coloca en su grupo automáticamente.
+- **Alumnos sin destino.** Revisa la lista y registra la baja de los que se han ido de verdad. Puedes hacerlo de uno en uno desde la ficha del alumno, o **de varios a la vez**: selecciónalos en la lista de *Propuesta de matrícula de grupo* y elige **Acciones → Baja**. Esta acción solo la ven administración académica, secretaría y jefatura de estudios, porque registrar una baja cancela matrículas y revoca el portal. Los que se matriculen tarde no necesitan nada: al confirmarse su matrícula, se les coloca en su grupo automáticamente.
 - **Alumnos matriculados sin grupo** que aparezcan después (por ejemplo, una matrícula confirmada en septiembre sin grupo): basta con **asignarles el grupo destino en la matrícula**. Al hacerlo se colocan solos, con sus módulos incluidos.
 - **Matrículas del curso entrante sin confirmar.** No se cancelan ni se tocan. Quien confirme en septiembre se coloca solo en su grupo, sin que tengas que volver a ejecutar nada — **siempre que la matrícula tenga grupo destino asignado**. Sin grupo, confirmar no coloca a nadie.
 

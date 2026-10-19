@@ -10,8 +10,8 @@ from .common import (
 @tagged('post_install', '-at_install')
 class TestAbsenceCoverageTour(HttpCase):
     """Managing absences from the guard duty board's absences table (issues #539, #571, #581),
-    as the absent teacher's Department Chief - the least-privileged role that can manage them
-    (every teacher only reads the board)."""
+    as the Department Chief of the department that manages the group's study (issue #622) - the
+    least-privileged role that can manage them (every teacher only reads the board)."""
 
     @classmethod
     def setUpClass(cls):
@@ -30,9 +30,9 @@ class TestAbsenceCoverageTour(HttpCase):
             'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning', **vals,
         } for hour_from, hour_to in periods])
 
-    def _board_fixture(self, guard=None):
-        """Next Monday: 'Tour Absent Teacher' teaches TABTG 8-11 and is away 8-10, while `guard`
-        (a plain employee unless given) is on guard duty 8-11. Returns (teacher, guard, group)."""
+    def _board_fixture(self, guard=None, away=(8, 10)):
+        """Next Monday: 'Tour Absent Teacher' teaches TABTG 8-11 and is away 8-10 (or `away`), while
+        `guard` (a plain employee unless given) is on guard duty 8-11. Returns (teacher, guard, group)."""
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1997, 'end': 1998})
         level, study = create_level_study(self, 'TABT', level={'name': 'Tour Absence Coverage Level'}, study={
@@ -48,12 +48,15 @@ class TestAbsenceCoverageTour(HttpCase):
         teacher = self.env['hr.employee'].create({'name': 'Tour Absent Teacher', 'employee_type': 'teacher'})
         guard = guard or self.env['hr.employee'].create({'name': 'Tour Cover Guard', 'employee_type': 'teacher'})
         create_head_of_studies_branch(self, 'TABT', teacher)
-        # The chief heads the teacher's real department, as in production: it is what lets them
-        # write to the groups that department teaches.
+        # Issue #622: the teacher is shared - they belong to another department, out of the
+        # chief's chain of command; the chief heads the department that manages the group's
+        # study, which is what lets them organise this class and write to its families.
         chief = teacher.parent_id
         head = chief.parent_id
-        teacher.department_id = self.env['hr.department'].create({'name': 'Tour Absence Department', 'manager_id': chief.id})
-        teacher.parent_id = chief
+        study.managing_department_id = self.env['hr.department'].create({
+            'name': 'Tour Absence Department', 'manager_id': chief.id})
+        teacher.department_id = self.env['hr.department'].create({'name': 'Tour Shared Teacher Department'})
+        teacher.parent_id = self.other_department_chief.employee_ids
         chief.parent_id = head
         self._calendar(teacher, ((8, 9), (9, 10), (10, 11)),
                        subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
@@ -69,7 +72,7 @@ class TestAbsenceCoverageTour(HttpCase):
             'employee_id': teacher.id,
             'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
             'request_date_from': day, 'request_date_to': day,
-            'ems_full_day': False, 'request_hour_from': 8, 'request_hour_to': 10,
+            'ems_full_day': False, 'request_hour_from': away[0], 'request_hour_to': away[1],
             'ems_submitted': True, 'ems_responsible_declaration': True,
         }).action_approve()
         return teacher, guard, group
@@ -84,7 +87,7 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertEqual((cover.hour_from, cover.hour_to), (9, 10))
         self.assertEqual(cover.message, 'Exercises on page 12')
         notice = self.env['ems.notice'].search([('absence_group_id', '=', group.id)])
-        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('late_entry', 9.0, 'draft'))
+        self.assertEqual((notice._absence_change_tuples(), notice.state), ([('late_entry', 9.0)], 'draft'))
 
     def test_guard_self_assignment_tour(self):
         """Issue #601, as the guard on duty - a plain teacher, who manages nobody's absences."""
@@ -102,7 +105,9 @@ class TestAbsenceCoverageTour(HttpCase):
         absences table, and the regular guard on duty is sent to it."""
         teacher, guard, _group = self._board_fixture()
         wc_guard = self.env['hr.employee'].create({
-            'name': 'Tour WC Guard', 'employee_type': 'teacher', 'parent_id': teacher.parent_id.id})
+            'name': 'Tour WC Guard', 'employee_type': 'teacher',
+            # A guard duty has no students: it stays with the guard's own chain of command.
+            'parent_id': self.department_chief.employee_ids.id})
         self._calendar(wc_guard, ((8, 9),), non_teaching=self.env.ref('ems.non_teaching_gwc').id, name='Guard (WC)')
         day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
         self.env['hr.leave'].create({
@@ -118,23 +123,72 @@ class TestAbsenceCoverageTour(HttpCase):
         cover = self.env['ems.absence_cover'].search([('absent_employee_id', '=', wc_guard.id)])
         self.assertEqual((cover.duty_id, cover.guard_employee_id), (self.env.ref('ems.non_teaching_gwc'), guard))
 
-    def test_absence_arrangement_tour(self):
-        """Issue #605, as the Department Chief: the board proposes how the group's teachers could
-        rearrange their lessons. The first empty lesson is solved with a swap from the possible
-        arrangements box; the second, from its dialog, by moving the group's last lesson forward,
-        which opens the notice for the families."""
-        teacher, _guard, group = self._board_fixture()
+    def _arrangement_teacher(self, name, hours, group):
+        teacher = self.env['hr.employee'].create({'name': name, 'employee_type': 'teacher'})
         subject = self.env['ems.subject'].search([('code', '=', 'TABT001')])
-        swapper = self.env['hr.employee'].create({'name': 'Tour Swap Teacher', 'employee_type': 'teacher'})
-        mover = self.env['hr.employee'].create({'name': 'Tour Move Teacher', 'employee_type': 'teacher'})
-        self._calendar(swapper, ((11, 12),), subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
-        self._calendar(mover, ((12, 13),), subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
+        self._calendar(teacher, (hours,), subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
+        return teacher
+
+    def test_absence_arrangement_tour(self):
+        """Issues #605 and #645, as the Department Chief: the board proposes how the group's teachers
+        could rearrange their lessons. All but the last step of the best plan is applied from the
+        possible arrangements box: the lesson left free becomes a class to cover."""
+        teacher, _guard, group = self._board_fixture()
+        swapper = self._arrangement_teacher('Tour Swap Teacher', (11, 12), group)
+        mover = self._arrangement_teacher('Tour Move Teacher', (12, 13), group)
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        plan = self.env['ems.course']._get_arrangement_plans(day, group)[0]
+        # The absent teacher is in from 10:00: they teach their 8:00 lesson at 11 (the swap) and
+        # their 9:00 one at 12 (the move left that hour free). Nobody loses a lesson.
+        self.assertEqual([(step['kind'], step['teacher'], step['target'][0]) for step in plan['steps']],
+                         [('swap', swapper, 8), ('move', mover, 9), ('move', teacher, 12)])
 
         self.start_tour("/odoo", "ems_absence_arrangement", login=self.department_chief.login)
 
-        covers = self.env['ems.absence_cover'].search([('absent_employee_id', '=', teacher.id)], order='hour_from')
-        self.assertEqual([(cover.hour_from, cover.arrangement_type, cover.guard_employee_id) for cover in covers],
-                         [(8, 'swap', swapper), (9, 'move', mover)])
-        self.assertTrue(covers[0].is_effective)
-        notice = covers[1].notice_id
-        self.assertEqual((notice.absence_change_type, notice.absence_change_hour, notice.state), ('early_leave', 12.0, 'draft'))
+        covers = self.env['ems.absence_cover'].search([('group_id', '=', group.id)], order='hour_from')
+        self.assertEqual([(cover.hour_from, cover.arrangement_type, cover.guard_employee_id, cover.absent_employee_id)
+                          for cover in covers], [(8, 'swap', swapper, teacher), (9, 'move', mover, teacher)])
+        self.assertTrue(all(covers.mapped('is_effective')))
+        self.assertFalse(covers.notice_id)
+        # Issue #649: one notice to the group's students about the lessons that change time, left
+        # a draft since the group has no students to send it to (issue #652).
+        students = covers.student_notice_id
+        self.assertEqual((len(students), students.state, students.recipient_type), (1, 'draft', 'students'))
+
+        self.start_tour("/odoo", "ems_absence_arrangement_result", login=self.department_chief.login)
+
+    def _move_fixture(self):
+        """The absent teacher is only away 9-10, in the middle of the group's day; the group's
+        last lesson, at 12, can be moved into it, the group leaving at 11: the one plan."""
+        teacher, _guard, group = self._board_fixture(away=(9, 10))
+        mover = self._arrangement_teacher('Tour Move Teacher', (12, 13), group)
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        plans = self.env['ems.course']._get_arrangement_plans(day, group)
+        self.assertEqual([[(step['kind'], step.get('change') or step['teacher']) for step in plan['steps']] for plan in plans],
+                         [[('move', mover), ('notice', ('early_leave', 11))]])
+        return group, mover, day, plans[0]
+
+    def test_absence_arrangement_dialog_tour(self):
+        """Issues #605 and #645: the plan applied from the 9:00 lesson's dialog. The group has no
+        students, so its notice for the families cannot be sent at once (issue #652): it opens as a
+        draft to review, and the move waits for it."""
+        group, mover, _day, _plan = self._move_fixture()
+
+        self.start_tour("/odoo", "ems_absence_arrangement_dialog", login=self.department_chief.login)
+
+        cover = self.env['ems.absence_cover'].search([('group_id', '=', group.id)])
+        self.assertEqual((cover.hour_from, cover.guard_employee_id), (9, mover))
+        notice = cover.notice_id
+        self.assertEqual((notice._absence_change_tuples(), notice.state), ([('early_leave', 11.0)], 'draft'))
+        self.assertFalse(cover.is_effective)
+
+    def test_absence_arrangement_change_tour(self):
+        """Issue #623: once the families were told, the class a lesson was moved into shows both
+        who teaches it and the timetable change that came with it (the group leaves earlier)."""
+        _group, _mover, day, plan = self._move_fixture()
+        course = self.env['ems.course']
+        result = self.env['ems.absence_cover'].with_user(self.department_chief).board_apply_plan(
+            str(day), [step['payload'] for step in course._arrangement_plan_data(plan)['steps']])
+        self.env['ems.notice'].browse(result['notice_action']['res_id']).state = 'scheduled'
+
+        self.start_tour("/odoo", "ems_absence_arrangement_change", login=self.department_chief.login)

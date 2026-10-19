@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Opened by the decision buttons of an absence (hr.leave._ems_ask_change_message):
+             - when somebody other than the employee changed what they had filed (issue #615):
+               the employee is told what changed along with the decision, and whoever decides
+               may add an explanation;
+             - always when refusing, for the reason of the refusal, which is optional. It is
+               also the confirmation a refusal asks for, so a stray click on the button refuses
+               nothing.
+             Whatever is written reaches the employee alone, not every follower of the request. -->
+        <record id="view_absence_change_notice_wizard_form" model="ir.ui.view">
+            <field name="name">ems.absence.change_notice_wizard.form</field>
+            <field name="model">ems.absence.change_notice_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Changes to the request">
+                    <field name="leave_id" invisible="1"/>
+                    <field name="method" invisible="1"/>
+                    <field name="is_refusal" invisible="1"/>
+                    <field name="has_changes" invisible="1"/>
+                    <div class="alert alert-warning" role="alert" invisible="not is_refusal">
+                        The employee and their department's chiefs are told that the request has been refused. If you wish, write the reason in the box below: it is sent to the employee alone and stays on the request.
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="not has_changes or is_refusal">
+                        Changes have been detected in the original request. If you wish, you can send a message to the requester by writing in the box below; if you leave it blank, the requester will only be informed of the changes made.
+                    </div>
+                    <div class="alert alert-info" role="alert" invisible="not has_changes or not is_refusal">
+                        Changes have been detected in the original request: the requester is informed of them too.
+                    </div>
+                    <group>
+                        <field name="employee_id" readonly="1"/>
+                        <field name="when" readonly="1"/>
+                        <field name="changes" readonly="1" invisible="not has_changes"/>
+                    </group>
+                    <field name="message" placeholder="Write here (optional)..."/>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Continue" class="btn-primary"
+                                invisible="is_refusal"/>
+                        <button name="action_confirm" type="object" string="Refuse" class="btn-danger"
+                                invisible="not is_refusal"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

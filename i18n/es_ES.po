@@ -20541,6 +20541,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__file_name
+#: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__file_name
 msgid "File name"
 msgstr "Nombre del fichero"
 
@@ -23446,11 +23447,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__effect
 msgid "Effect on the student"
 msgstr "Efecto sobre el alumno"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__file_name
-msgid "File name"
-msgstr "Nombre del fichero"
 
 #. module: ems
 #. odoo-python

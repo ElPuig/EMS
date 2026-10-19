@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Staff absences render on Odoo's own Time Off screens, extended by views/time_off/leave.xml.
 // Neither ./upgrade.sh nor the TransactionCase tests open a browser, so this is what actually
@@ -56,14 +57,15 @@ registry.category("web_tour.tours").add("ems_absence_request", {
             trigger: ".o_form_view .o_field_widget[name='ems_direction_state']",
             content: "And Direction's",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_ems_direction_done']))",
-            content: "Direction goes last: nothing to validate before the Head has acted",
-        },
-        {
-            trigger: ".o_form_view .o_form_statusbar:not(:has(button[name='action_approve']))",
-            content: "Nor the Head's buttons: this is not Direction's request to acknowledge",
-        },
+        ...checkActions(
+            {
+                offered: ["action_ems_direction_refuse"],
+                notOffered: ["action_ems_direction_done", "action_approve", "action_ems_undo"],
+            },
+            "Direction goes last: nothing to validate before the Head has acted, nor the "
+                + "Head's own actions (this is not Direction's request to acknowledge), and "
+                + "nothing to undo yet"
+        ),
     ],
 });
 
@@ -214,13 +216,10 @@ registry.category("web_tour.tours").add("ems_absence_justification", {
     ],
 });
 
-// Refusing is final for whoever refuses (Head or Direction) and, ordinarily, for the employee
-// too: Odoo reserves resetting a refused request to its Time Off Manager group, which
-// res.users._ems_sync_time_off_groups leaves nobody at the centre holding except
-// 'base.user_admin' itself (deliberately protected, see EmsAbsenceLeave.action_reset_confirm),
-// so the employee normally has to file the whole request again. Both buttons that cause a
-// refusal are one stray click away from the Approve button beside them, so both are confirmed
-// first - and only a browser can prove a dialog appears.
+// Both ways of refusing are one stray click away from the approval beside them, and the
+// employee and their chiefs are told straight away, so both are confirmed first (a refusal by
+// mistake is then taken back with Undo, see ems_absence_undo) - and only a browser can prove a
+// dialog appears.
 registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
     test: true,
     url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
@@ -233,8 +232,8 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             run: "click",
         },
         {
-            trigger: ".modal:contains('cannot be reopened')",
-            content: "It asks first, and says why it matters",
+            trigger: ".modal div[name='message'] textarea",
+            content: "It asks first, with a box for the reason of the refusal",
         },
         {
             trigger: ".modal-footer button:contains('Cancel')",
@@ -250,21 +249,19 @@ registry.category("web_tour.tours").add("ems_absence_refuse_confirm", {
             content: "Open the same request",
             run: "click",
         },
-        {
-            // '.o_form_statusbar', not 'header': a form's <header> is rendered as that div,
-            // so a literal header selector matches nothing.
-            trigger: ".o_form_view .o_form_statusbar button[name='action_refuse']",
-            content: "The form has the same button, and the same confirmation",
-            run: "click",
-        },
+        ...clickAction("action_refuse", "The form has the same action, and the same dialog"),
         {
             trigger: ".modal:contains('Refuse this absence request')",
-            content: "This one names the decision in its title too, which a list view's schema "
-                + "does not allow",
+            content: "The same dialog, named after the decision",
+        },
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Say why, for the employee alone",
+            run: "edit Tour the exams are that day",
         },
         {
             trigger: ".modal-footer button:contains('Refuse')",
-            content: "Confirm, and the request is refused for good",
+            content: "Confirm, and the request is refused",
             run: "click",
         },
         {
@@ -455,11 +452,7 @@ registry.category("web_tour.tours").add("ems_absence_direction_review", {
             content: "Open the other one",
             run: "click",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_ems_direction_done']",
-            content: "Direction validates it from the header",
-            run: "click",
-        },
+        ...clickAction("action_ems_direction_done", "Direction validates it from the form's Actions"),
         {
             trigger: ".o_list_view:not(:has(.o_data_row:contains('Tour Validated Teacher')))",
             content: "Back on the list, which it has left: nothing left for Direction",
@@ -510,11 +503,7 @@ registry.category("web_tour.tours").add("ems_absence_head_approval", {
             trigger: ".o_form_view .o_attachment:contains('baixa')",
             content: "The document is on the form",
         },
-        {
-            trigger: ".o_form_view .o_form_statusbar button[name='action_ems_document_validate']",
-            content: "Validate it from the header",
-            run: "click",
-        },
+        ...clickAction("action_ems_document_validate", "Validate it from the form's Actions"),
         {
             trigger: ".o_list_view .o_data_row:contains('Tour Submitted Teacher') td[name='ems_status']:contains('Pending Direction')",
             content: "Back on the list, and the request now waits for Direction",
@@ -527,6 +516,274 @@ registry.category("web_tour.tours").add("ems_absence_head_approval", {
         {
             trigger: ".o_kanban_view",
             content: "Kanban loaded",
+        },
+    ],
+});
+
+// The Head decides on a request they corrected: the dialog asking for a message to the
+// requester comes first, and confirming it takes the decision and goes back to the list.
+registry.category("web_tour.tours").add("ems_absence_change_message", {
+    test: true,
+    url: "/odoo/action-hr_holidays.hr_leave_action_holiday_allocation_id",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_type_short_name']",
+            content: "Open the request whose type was corrected",
+            run: "click",
+        },
+        ...clickAction("action_approve", "Validate it from the form's Actions"),
+        {
+            trigger: ".modal div[name='changes'] li",
+            content: "The dialog lists what was changed",
+        },
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Write the message for the requester",
+            run: "edit Tour file it on the portal",
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Confirm the decision",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Corrected Teacher') td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "Back on the list, with the decision taken: corrected into ATRI, it now "
+                + "waits for the employee's confirmation",
+        },
+    ],
+});
+
+// A decision taken by mistake is taken back one step at a time (issue #614): from the form's
+// Actions, where the request stays open to be corrected or decided again, and from its row in
+// the list. No "url": the test opens its own action, which lists the two fixture requests
+// whatever their status.
+registry.category("web_tour.tours").add("ems_absence_undo", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Undone Form Teacher') td[name='ems_status']:contains('Pending Direction')",
+            content: "Open the request the Head validated by mistake",
+            run: "click",
+        },
+        ...checkActions(
+            { offered: ["action_ems_undo"], notOffered: ["action_reset_confirm", "action_approve"] },
+            "Undo is offered, Odoo's own Reset is not"
+        ),
+        ...clickAction("action_ems_undo", "Undo the validation"),
+        {
+            trigger: ".modal:contains('previous status') .modal-footer button.btn-primary",
+            content: "It asks first",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_status'] button.o_arrow_button_current[data-value='pending']",
+            content: "Still on the form, and the request is pending again",
+        },
+        ...checkActions(
+            { offered: ["action_approve"], notOffered: ["action_ems_undo"] },
+            "It can be decided again, and there is nothing left to undo"
+        ),
+        {
+            trigger: ".o_control_panel .o_breadcrumb .o_back_button",
+            content: "Back to the list",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Undone List Teacher') button[name='action_ems_undo']",
+            content: "The other one is undone straight from its row",
+            run: "click",
+        },
+        {
+            trigger: ".modal:contains('previous status') .modal-footer button.btn-primary",
+            content: "Which asks first too",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Undone List Teacher'):has(button[name='action_approve']):not(:has(button[name='action_ems_undo']))",
+            content: "Pending again: the Head's own button is back and Undo is gone",
+        },
+    ],
+});
+
+// A supporting document that is not going to arrive and is not needed after all: the Head
+// lets the request go on without it from the form's Actions (issue #634). No "url": the test
+// opens its own action, which lists the one fixture request.
+registry.category("web_tour.tours").add("ems_absence_waive_document", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Waived Teacher') td[name='ems_status']:contains('Awaiting documentation')",
+            content: "Open the request still awaiting its supporting document",
+            run: "click",
+        },
+        ...checkActions(
+            { offered: ["action_ems_document_waive"], notOffered: ["action_ems_document_validate"] },
+            "The Head can exempt it from its document"
+        ),
+        ...clickAction("action_ems_document_waive", "Exempt it from its supporting document"),
+        {
+            trigger: ".modal:contains('waived') .modal-footer button.btn-primary",
+            content: "It asks first",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_status'] button.o_arrow_button_current[data-value='pending_direction']",
+            content: "The request goes on to Direction",
+        },
+        ...checkActions(
+            { offered: ["action_ems_undo"], notOffered: ["action_ems_document_waive"] },
+            "There is nothing left to exempt, and the decision can be undone"
+        ),
+    ],
+});
+
+// Times that cover the whole timetable of the day are a whole-day absence (issue #613): the
+// form ticks the box itself and says why. No "url": the test opens a new request already dated
+// on a day the fixture teacher has lessons from 09:00 to 11:00.
+registry.category("web_tour.tours").add("ems_absence_whole_timetable", {
+    test: true,
+    steps: () => [
+        {
+            // ATRI, the last option: it does not start as a whole day, so the times are asked.
+            trigger: ".o_form_view .o_field_widget[name='holiday_status_id'] input[type='radio']:last",
+            content: "Pick an absence type that asks for times",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='request_hour_from'] input",
+            content: "Away from the first lesson...",
+            run: "edit 09:00 && press Tab",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='request_hour_to'] input",
+            content: "...to the end of the last one",
+            run: "edit 11:00 && press Tab",
+        },
+        {
+            trigger: ".modal:contains('whole timetable') .modal-footer button",
+            content: "It says the absence is a whole day, and why",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_full_day'] input:checked",
+            content: "And the box is ticked",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_field_widget[name='request_hour_to'] input))",
+            content: "The times are no longer asked for",
+        },
+        {
+            trigger: ".o_form_button_cancel",
+            content: "Nothing is filed: discard it",
+            run: "click",
+        },
+        {
+            // Opened on its own, so discarding leaves the form for the home screen.
+            trigger: "body:not(:has(.o_field_widget[name='ems_full_day']))",
+            content: "Discarded",
+        },
+    ],
+});
+
+// The employee reads why their request was refused on the request itself. No "url": the test
+// opens an action listing the refused fixture request.
+registry.category("web_tour.tours").add("ems_absence_refusal_reason", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='ems_status']:contains('Refused')",
+            content: "Open the refused request",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-danger:contains('Tour the timetable does not allow it')",
+            content: "The reason is shown at the top of the request",
+        },
+    ],
+});
+
+// An ATRI absence the Head has validated waits for the employee to confirm it is requested in
+// ATRI (issue #619): they read it on the request and confirm from its Actions, which hands it
+// to Direction. No "url":
+// the test opens an action listing the fixture request.
+registry.category("web_tour.tours").add("ems_absence_atri_requested", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "Open the request waiting for the confirmation",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-warning a[href*='atriportal.gencat.cat']",
+            content: "The request asks for the confirmation, with the way to the portal",
+        },
+        ...clickAction("action_ems_atri_requested", "Confirm it is requested in ATRI"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='ems_status'] button.o_arrow_button_current[data-value='pending_direction']",
+            content: "It is Direction's now",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.alert-warning a[href*='atriportal.gencat.cat']))",
+            content: "And the notice is gone",
+        },
+    ],
+});
+
+// Direction finds the absence is not in ATRI and sends it back from the row, with the reason.
+registry.category("web_tour.tours").add("ems_absence_atri_missing", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Teacher') button[name='action_ems_atri_missing']",
+            content: "Not in ATRI: send it back from the row",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Say why",
+            run: "edit Tour it is not on the portal",
+        },
+        {
+            trigger: ".modal-footer button[name='action_return']",
+            content: "Send it back to the employee",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Teacher') td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "It waits for the employee again",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Teacher'):not(:has(button[name='action_ems_atri_missing'])):not(:has(button[name='action_ems_direction_done']))",
+            content: "And there is nothing left for Direction to do on it meanwhile",
+        },
+    ],
+});
+
+// Direction finds the documentation of an ATRI absence insufficient: it goes back to the
+// employee's ATRI step, never to the supporting document in EMS (issue #627).
+registry.category("web_tour.tours").add("ems_absence_atri_document_insufficient", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Docs Teacher') button[name='action_ems_document_insufficient']",
+            content: "Documentation insufficient: send it back from the row",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Say why",
+            run: "edit Tour the certificate is missing on the portal",
+        },
+        {
+            trigger: ".modal-footer button[name='action_return']",
+            content: "Send it back to the employee",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Atri Docs Teacher') td[name='ems_status']:contains('Pending ATRI confirmation')",
+            content: "It waits for the employee in ATRI, not for a document in EMS",
         },
     ],
 });

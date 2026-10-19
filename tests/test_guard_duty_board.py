@@ -79,6 +79,12 @@ class GuardDutyBoardCase(TransactionCase):
             study={'name': 'Test Study 2 (Guard Duty Board)', 'date': date.today()},
             group={'course': 1, 'acronym': 'TGDBC', 'space_id': cls.space_b.id, 'shift': 'morning'},
         )
+        # One area per study (issue #637): the board's filter picks areas, the top-level department
+        # above the department that manages each study. Linked to the studies by _set_areas() only
+        # where a test needs it: an unmanaged study is a fixture of its own elsewhere.
+        Department = cls.env['hr.department']
+        cls.area = Department.create({'name': 'Test Area (Guard Duty Board)', 'is_top_level': True, 'top_level_area': 'academic'})
+        cls.area2 = Department.create({'name': 'Test Area 2 (Guard Duty Board)', 'is_top_level': True, 'top_level_area': 'academic'})
         cls.teacher_c = cls.env['hr.employee'].create({'name': 'Test Teacher C (Guard Duty Board, Level 2)', 'employee_type': 'teacher'})
         # A subject of its own, valid for 'study2' only - 'self.subject' is only valid for
         # 'self.study' (see 'ems.attendance_template._check_subject_valid_for_all_studies'), so a
@@ -106,6 +112,10 @@ class GuardDutyBoardCase(TransactionCase):
         })
         teacher.resource_calendar_id = calendar
         return calendar
+
+    def _set_areas(self):
+        self.study.managing_department_id = self.area
+        self.study2.managing_department_id = self.area2
 
     def _monday(self):
         """A Monday inside the current course's window, matching the '0' weekday these fixtures
@@ -521,7 +531,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertNotIn(self.teacher_b.name.encode(), content)
         self.assertNotIn(b'Afternoon', content)
 
-    def test_get_guard_duty_board_lines_level_filter_narrows_teaching_but_shows_any_guard_on_duty(self):
+    def test_get_guard_duty_board_lines_area_filter_narrows_teaching_but_shows_any_guard_on_duty(self):
         """Level filter (issue #390): the filter only ever controls which time blocks (rows) are
         visible, built purely from the selected level's own classes - see
         docs/en/developers/attendance/guard_duty_board.md's own "Level filter" section. Once a row
@@ -533,6 +543,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         guardia y eso es lo que manda". Neither guard below teaches anything this day at all -
         both are relevant purely because their guard duty coincides with a row group_a's own
         class makes visible."""
+        self._set_areas()
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Level Filter)')
         calendar_a.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
@@ -554,7 +565,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
             'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (also no teaching today)',
         }])
 
-        data = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=[self.level.id])
+        data = self.course.get_guard_duty_board_lines('0', 'morning', area_ids=[self.area.id])
 
         self.assertIn(self.group_a, data['groups'])
         self.assertNotIn(self.group_c, data['groups'])
@@ -567,10 +578,11 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertIn(self.group_a.id, cell_by_group)
         self.assertNotIn(self.group_c.id, cell_by_group)
 
-    def test_get_guard_duty_board_lines_level_filter_hides_a_guard_with_no_matching_row_or_break(self):
+    def test_get_guard_duty_board_lines_area_filter_hides_a_guard_with_no_matching_row_or_break(self):
         """A guard whose own slot neither overlaps any row of the filtered level nor falls
         inside that level's own break window simply isn't relevant to this level's view -
         developer decision (2026-09-07): it stays visible under "All levels", just not here."""
+        self._set_areas()
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (No Match)')
         calendar_a.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning',
@@ -584,11 +596,11 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
              'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (unrelated hour)'},
         ])
 
-        data = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=[self.level.id])
+        data = self.course.get_guard_duty_board_lines('0', 'morning', area_ids=[self.area.id])
 
         self.assertNotIn('12:00-13:00', {line['time_label'] for line in data['lines']})
 
-    def test_get_guard_duty_board_lines_selecting_every_level_matches_all_levels(self):
+    def test_get_guard_duty_board_lines_selecting_every_area_matches_all_areas(self):
         """Checking every existing level in the filter dropdown must produce the exact same
         result as checking none at all ("All levels") - developer report (2026-09-07): a guard
         with no teaching entry that day at all (a guard-only shift, real example: Joan Sánchez
@@ -600,15 +612,16 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         meant to mean "show everything", the same as checking none - unlike a real partial
         selection (e.g. the test above), which must keep hiding every row/group of the levels
         left unchecked."""
+        self._set_areas()
         calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Every Level)')
         calendar_guard.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
             'non_teaching': self.non_teaching_guard.id, 'name': 'Guard (no teaching at all today)',
         }])
-        all_level_ids = self.env['ems.level'].search([]).ids
+        all_area_ids = self.course._get_guard_duty_board_area_records().ids
 
         unfiltered = self.course.get_guard_duty_board_lines('0', 'morning')
-        every_level_selected = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=all_level_ids)
+        every_level_selected = self.course.get_guard_duty_board_lines('0', 'morning', area_ids=all_area_ids)
 
         unfiltered_guards = {teacher for line in unfiltered['lines'] for teacher in line['guards'].mapped('employee_id')}
         every_level_guards = {teacher for line in every_level_selected['lines'] for teacher in line['guards'].mapped('employee_id')}
@@ -619,7 +632,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
             {group.id for group in every_level_selected['groups']},
         )
 
-    def test_get_guard_duty_board_lines_level_filter_shows_break_time_guard_as_patio_row(self):
+    def test_get_guard_duty_board_lines_area_filter_shows_break_time_guard_as_patio_row(self):
         """A guard duty scheduled specifically during a level's own break ("Patio") has no
         overlapping class of that level at all - without special handling it would just vanish
         once the level filter restricts rows to teaching-only periods (see "Break ('Patio')
@@ -644,6 +657,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         INTO itself, which would make its own cells non-empty and wrongly suppress 'is_break' (see
         the new safety check in 'get_guard_duty_board_lines' itself). Straddling one real
         boundary without fully covering either side dodges both directions at once."""
+        self._set_areas()
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Patio)')
         calendar_a.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 8.1, 'hour_to': 8.9, 'day_period': 'morning',
@@ -666,7 +680,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         ])
 
         unfiltered = self.course.get_guard_duty_board_lines('0', 'morning')
-        filtered = self.course.get_guard_duty_board_lines('0', 'morning', level_ids=[self.level.id])
+        filtered = self.course.get_guard_duty_board_lines('0', 'morning', area_ids=[self.area.id])
 
         unfiltered_patio = [line for line in unfiltered['lines'] if line['time_label'] == '08:54-09:36']
         self.assertEqual(len(unfiltered_patio), 1)
@@ -707,7 +721,8 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertEqual(len(matching), 1)
         self.assertFalse(matching[0].get('is_break'))
 
-    def test_get_guard_duty_board_data_passes_level_ids_and_is_break(self):
+    def test_get_guard_duty_board_data_passes_area_ids_and_is_break(self):
+        self._set_areas()
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (Data Level Filter)')
         calendar_a.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
@@ -719,7 +734,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
             'subject_id': self.subject2.id, 'group_ids': [self.group_c.id], 'name': 'TGDBC: TGDB2',
         }])
 
-        data = self.env['ems.course'].get_guard_duty_board_data('0', 'morning', level_ids=[self.level.id])
+        data = self.env['ems.course'].get_guard_duty_board_data('0', 'morning', area_ids=[self.area.id])
         json.dumps(data)  # raises TypeError if anything isn't JSON-safe
 
         self.assertIn(self.group_a.id, [group['id'] for group in data['groups']])
@@ -786,16 +801,148 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
             plain_marker_index = content.find(self.teacher_a.name.encode())
             self.assertNotIn(b'(WC)', content[plain_marker_index:plain_marker_index + 200])
 
-    def test_get_guard_duty_board_levels(self):
-        data = self.env['ems.course'].get_guard_duty_board_levels()
+    def test_get_guard_duty_board_areas(self):
+        """Every top-level department that manages some study, itself or through one of its
+        departments - and nothing else (issue #637)."""
+        self._set_areas()
+        child = self.env['hr.department'].create({'name': 'Test Department (Guard Duty Board)', 'parent_id': self.area2.id})
+        self.study2.managing_department_id = child
+        unused = self.env['hr.department'].create({'name': 'Test Unused Area (Guard Duty Board)', 'is_top_level': True, 'top_level_area': 'asp'})
 
-        self.assertIn({'id': self.level.id, 'name': self.level.name}, data)
-        self.assertIn({'id': self.level2.id, 'name': self.level2.name}, data)
+        data = self.env['ems.course'].get_guard_duty_board_areas()
 
-    def test_report_guard_duty_board_scopes_to_levels_via_context(self):
+        self.assertIn({'id': self.area.id, 'name': self.area.name}, data)
+        self.assertIn({'id': self.area2.id, 'name': self.area2.name}, data)
+        self.assertNotIn(unused.id, [area['id'] for area in data])
+
+    def test_uncovered_periods(self):
+        """What is left of a class once some guards cover parts of it (issue #637)."""
+        from odoo.addons.ems.models.attendance.guard_duty_board import _uncovered_periods
+        self.assertEqual(_uncovered_periods((9, 10), []), [(9, 10)])
+        self.assertEqual(_uncovered_periods((9, 10), [(9, 9.5)]), [(9.5, 10)])
+        self.assertEqual(_uncovered_periods((9, 10), [(9.5, 10), (9, 9.25)]), [(9.25, 9.5)])
+        self.assertEqual(_uncovered_periods((9, 10), [(8.5, 9.5), (9.5, 10.5)]), [])
+
+    # --- Areas with different time frameworks (issue #637) -----------------------------------
+    #
+    # Odd minutes (13:05, 13:30, 14:05) keep these periods apart from this dev DB's own real ones.
+
+    def _framework(self, level, periods, breaks=()):
+        framework = self.env['resource.calendar'].create({
+            'name': f'Test Framework {level.name}', 'is_framework': True, 'level_id': level.id,
+            'full_time_required_hours': 24, 'attendance_ids': [(5, 0, 0)],
+        })
+        for hour_from, hour_to in periods:
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': framework.id, 'name': 'Lesson', 'dayofweek': '0',
+                'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning'})
+        for hour_from, hour_to in breaks:
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': framework.id, 'name': 'BR: Break', 'dayofweek': '0', 'hour_from': hour_from,
+                'hour_to': hour_to, 'day_period': 'morning', 'non_teaching': self.non_teaching_break.id})
+        return framework
+
+    def _two_frameworks(self):
+        """'level' teaches 13:05-14:05 straight through, while 'level2' has its break 13:05-13:30, with
+        a guard on it - the 10:00 ESO break against a 10:00-11:00 vocational lesson, in short."""
+        lesson, other_break = (13 + 5 / 60, 14 + 5 / 60), (13 + 5 / 60, 13.5)
+        self._framework(self.level, [lesson])
+        self._framework(self.level2, [], [other_break])
+        self._new_calendar(self.teacher_a, 'Test Calendar A (Two Frameworks)').apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': lesson[0], 'hour_to': lesson[1], 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB',
+        }])
+        self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Two Frameworks)').apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': other_break[0], 'hour_to': other_break[1], 'day_period': 'morning',
+            'non_teaching': self.env.ref('ems.non_teaching_gb').id, 'name': 'Break guard',
+        }])
+
+    def test_get_guard_duty_board_lines_never_folds_one_framework_period_into_another(self):
+        """A period of some framework (here another level's break) is a block of its own: it keeps
+        its row, and its guard is never offered against a lesson that merely spans it."""
+        self._set_areas()
+        self._two_frameworks()
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning')
+
+        lines = {line['time_label']: line for line in data['lines']}
+        self.assertIn(self.teacher_guard, lines['13:05-13:30']['guards'].employee_id)
+        self.assertTrue(lines['13:05-13:30']['is_break'])
+        self.assertNotIn(self.teacher_guard, lines['13:05-14:05']['guards'].employee_id)
+
+    def test_get_guard_duty_board_lines_area_filter_drops_another_areas_break_guard(self):
+        """Filtered to the area whose lesson spans another area's break, that break's guard has no
+        row of its own and must not fold into the lesson's."""
+        self._set_areas()
+        self._two_frameworks()
+
+        data = self.course.get_guard_duty_board_lines('0', 'morning', area_ids=[self.area.id])
+
+        self.assertIn('13:05-14:05', {line['time_label'] for line in data['lines']})
+        self.assertNotIn(self.teacher_guard, self.env['hr.employee'].union(
+            *(line['guards'].employee_id for line in data['lines'])))
+
+    def test_get_guard_duty_board_lines_area_filter_keeps_a_reinforcement_group(self):
+        """A reinforcement group has no level, but it does have an area: its main groups'."""
+        self._set_areas()
+        reinforcement = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TGDBR', 'group_type': 'reinforcement', 'shift': 'morning',
+            'parent_group_ids': [(6, 0, self.group_a.ids)],
+        })
+        self._new_calendar(self.teacher_a, 'Test Calendar A (Reinforcement)').apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'subject_id': self.subject.id, 'group_ids': [reinforcement.id], 'name': 'TGDBR: TGDB',
+        }])
+
+        self.assertIn(reinforcement, self.course.get_guard_duty_board_lines('0', 'morning', area_ids=[self.area.id])['groups'])
+        self.assertNotIn(reinforcement, self.course.get_guard_duty_board_lines('0', 'morning', area_ids=[self.area2.id])['groups'])
+
+    def test_board_time_grid_lays_both_views_on_a_real_time_axis(self):
+        """The grid both views render: rows are the stretches between every start and end, a
+        lesson spans the stretches it lasts, a group's own break is a block of its own with its
+        time, guards whose periods overlap get a lane each, and a fixed guard post left without its
+        teacher is covered from the guard column, never from an area's."""
+        from odoo.addons.ems.models.attendance.guard_duty_board import BoardTimeGrid
+        groups = self.group_a | self.group_c
+        areas = {self.group_a.id: self.area, self.group_c.id: self.area2}
+        empty = {'entries': False}
+        absence = {'group': self.group_c}
+        post = {'group': self.env['ems.group']}
+
+        def line(hour_from, hour_to, cells, guards=False, absences=(), is_break=False):
+            return {'hour_from': hour_from, 'hour_to': hour_to, 'cells': cells, 'guards': guards,
+                    'absences': list(absences), 'is_break': is_break}
+
+        lines = [
+            line(10, 10.5, [empty, empty], guards=True, absences=[post], is_break=True),  # group_a's break
+            line(10, 11, [empty, {'entries': True}], guards=True, absences=[absence]),  # group_c's lesson
+            line(10.5, 11, [{'entries': True}, empty]),  # group_a's lesson
+        ]
+        grid = BoardTimeGrid(lines, groups, areas, {self.group_a.id: [(10, 10.5)]}, self.course._format_report_time)
+
+        schedule = grid.schedule()
+        self.assertEqual([row['label'] for row in schedule['rows']], ['10:00-10:30', '10:30-11:00'])
+        # The bounds the screen places its current-time line with (issue #647).
+        self.assertEqual([(row['hour_from'], row['hour_to']) for row in schedule['rows']], [(10, 10.5), (10.5, 11)])
+        self.assertEqual([(area['id'], area['colspan']) for area in schedule['areas']], [(self.area.id, 1), (self.area2.id, 1)])
+        first, second = schedule['rows']
+        self.assertEqual(first['cells'][0], {'is_break': True, 'label': '10:00-10:30', 'rowspan': 1})
+        self.assertEqual(first['cells'][1], {'column': 1, 'line': 1, 'label': '10:00-11:00', 'rowspan': 2})
+        self.assertEqual(second['cells'], [{'column': 0, 'line': 2, 'label': '10:30-11:00', 'rowspan': 1}])
+        self.assertEqual(schedule['lane_count'], 2)
+
+        absences = grid.absences()
+        first, second = absences['rows']
+        self.assertTrue(first['cells'][0]['is_break'])
+        self.assertEqual(first['cells'][1], {'absences': [0], 'line': 1, 'label': '10:00-11:00', 'rowspan': 2})
+        self.assertEqual(first['guards'][0]['posts'], [0])
+        self.assertEqual(second['cells'], [{'empty': True}])
+
+    def test_report_guard_duty_board_scopes_to_areas_via_context(self):
         """Same pattern as the weekday/shift context-scoping tests above, but for
-        'guard_duty_level_ids': the PDF button also forwards whichever level(s) the dropdown had
-        checked, so printing while filtered to level 1 must not also render level 2's group."""
+        'guard_duty_area_ids': the PDF button also forwards whichever area(s) the dropdown had
+        checked, so printing while filtered to one area must not also render the other's group."""
+        self._set_areas()
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF Level Filter)')
         calendar_a.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
@@ -808,7 +955,7 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         }])
 
         content, _content_type = self.env['ir.actions.report'].with_context(
-            guard_duty_weekday='0', guard_duty_shift='morning', guard_duty_level_ids=[self.level.id]).\
+            guard_duty_weekday='0', guard_duty_shift='morning', guard_duty_area_ids=[self.area.id]).\
             _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
 
         self.assertIn(self.group_a.name.encode(), content)

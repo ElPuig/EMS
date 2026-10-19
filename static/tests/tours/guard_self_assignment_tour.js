@@ -6,8 +6,8 @@ import { registry } from "@web/core/registry";
 // absences table (issue #601): covers the first one, changes their mind and leaves it, then covers
 // the second one. They manage nobody's absences, so the board offers them nothing else. Seed data
 // comes from TestAbsenceCoverageTour.test_guard_self_assignment_tour.
-const firstLesson = "tr:has(.o_guard_board_time:contains('08:00-09:00'))";
-const secondLesson = "tr:has(.o_guard_board_time:contains('09:00-10:00'))";
+const firstLesson = "td:has(.o_guard_board_block_time:contains('08:00-09:00'))";
+const secondLesson = "td:has(.o_guard_board_block_time:contains('09:00-10:00'))";
 
 registry.category("web_tour.tours").add("ems_guard_self_assignment", {
     test: true,

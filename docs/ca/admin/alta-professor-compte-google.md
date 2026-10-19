@@ -73,7 +73,7 @@ En desar la fitxa, si totes les dades requerides hi són (nom i correu privat), 
 - Envia les credencials per correu a l'adreça privada indicada al pas 3 (el missatge també explica com entrar a l'EMS).
 - Desa un PDF amb les credencials a la fitxa del professor, al bloc **Compte de Google** de la pestanya **Recursos Humans**. Només el veuen els rols que gestionen el compte.
 
-No cal prémer res més. Si faltava alguna dada obligatòria, completeu-la i deseu la fitxa: el compte es crea de la mateixa manera. L'opció **Crear compte de Google**, al menú **Accions** de la capçalera de la fitxa, només apareix mentre el professor no té compte corporatiu i no se n'està creant cap (per exemple, si la creació automàtica ha fallat). En prémer-la s'inicia la creació, i en pocs moments el resultat apareix a l'historial de missatges de la fitxa.
+No cal prémer res més. Si faltava alguna dada obligatòria, completeu-la i deseu la fitxa: el compte es crea de la mateixa manera. El botó **Crear compte de Google**, a dalt de la fitxa, només apareix mentre el professor no té compte corporatiu i no se n'està creant cap (per exemple, si la creació automàtica ha fallat). En prémer-la s'inicia la creació, i en pocs moments el resultat apareix a l'historial de missatges de la fitxa.
 
 ---
 

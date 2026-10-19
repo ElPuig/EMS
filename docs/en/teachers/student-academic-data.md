@@ -32,6 +32,7 @@ Holding the **Guidance coordinator** or **Coexistence coordinator** role, you co
 - **Academic history** — as described above.
 - **Daily attendance and justifications** — Student's Attendances.
 - **Attendance issues** — Student's Attendances → Issues.
+- **Attendance reports** — Student's Attendances → Reports, or the **Attendance** button on a student's file: the absence rate of every student in every subject.
 - **Strikes** — Coexistence.
 - **Student file** — Educational Community → Students, including the **Secretary** tab (bonifications, exemptions and enrolment authorizations).
 

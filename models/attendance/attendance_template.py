@@ -46,6 +46,16 @@ class EmsAttendanceTemplate(models.Model):
 	# 'attendance_session_ids' stays 'copy=False' regardless (session history is never duplicated
 	# either way).
 	attendance_schedule_ids = fields.One2many(string="Sessions", comodel_name="ems.attendance_schedule", inverse_name="attendance_template_id", copy=True)
+	# Issue #633: the schedule block's topic (#428), part of the template's identity - a subject split
+	# into topics taught apart (a CFGB module's Physical Education and Maths, its English and
+	# Catalan/Spanish) is a different subject as far as attendance is concerned, and reports keep
+	# them apart. Set by the schedule sync when it creates the template, never changed afterwards:
+	# a changed topic creates a new template, so the sessions already taken keep the topic they were
+	# taken under. The compute only runs once, when the column is created on an existing database,
+	# reading the topic off the blocks already linked to each template; it has no dependencies on
+	# purpose, so it never recomputes later. readonly=False only so that the value create() gets is
+	# kept instead of computed; _LOCKED_FIELDS forbids editing it.
+	topic = fields.Char(string="Topic", compute="_compute_topic", store=True, readonly=False, copy=True)
 
 	# NOTE: this field is computed when loaded within a form or list
 	read_only_user = fields.Boolean(default=lambda self:self._get_read_only_user(), store=False)
@@ -116,7 +126,7 @@ class EmsAttendanceTemplate(models.Model):
 		for template in self:
 			template.attendance_schedule_ids.check_overlap()
 
-	@api.constrains('teacher_ids', 'group_ids', 'subject_id', 'active')
+	@api.constrains('teacher_ids', 'group_ids', 'subject_id', 'topic', 'active')
 	def _check_unique_teaching_assignment(self):
 		"""No two ACTIVE templates may share the exact same (subject_id, teacher_ids-as-set,
 		group_ids-as-set) triple - see plans/calendar_driven_attendance_templates.md, point 2.
@@ -140,9 +150,12 @@ class EmsAttendanceTemplate(models.Model):
 			# NOTE: sudo() - see the identical note on ems.attendance_schedule.find_room_conflicts
 			# (issue #444): whether a duplicate teaching assignment already exists must not depend
 			# on the acting user's own record-rule visibility.
+			# The topic is part of the assignment (issue #633): the same teacher may teach two topics
+			# of one subject to the same group, each its own template.
 			candidates = self.sudo().search([
 				('id', '!=', template.id),
 				('subject_id', '=', template.subject_id.id),
+				('topic', '=', template.topic or False),
 				('active', '=', True),
 			])
 			duplicate = candidates.filtered(
@@ -164,11 +177,22 @@ class EmsAttendanceTemplate(models.Model):
 	def _check_color_format(self):
 		self._check_hex_color('color')
 
-	@api.depends('subject_id', 'group_ids')
+	@api.depends('subject_id', 'topic', 'group_ids')
 	def _compute_display_name(self):
 		for template in self:
 			groups = ", ".join(template.group_ids.mapped('name'))
-			template.display_name = "%s (%s)" % (template.subject_id.display_name, groups)
+			template.display_name = "%s (%s)" % (template.subject_id._label_with_topic(template.topic), groups)
+
+	def _compute_topic(self):
+		for template in self:
+			topics = template.attendance_schedule_ids.calendar_attendance_ids.mapped('topic')
+			template.topic = ", ".join(sorted({topic for topic in topics if topic})) or False
+
+	@api.model
+	def _sync_key(self, subject_id, topic, group_ids):
+		"""A template's identity as far as the schedule sync is concerned: what is taught (subject and
+		topic, issue #633) to which groups. The teacher-set splits it further, later on."""
+		return subject_id, topic or False, tuple(sorted(group_ids))
 
 	# NOTE: every field here except 'color' is an identity/logistics concern that only ever comes
 	# from the teacher's calendar (see plans/calendar_driven_attendance_templates.md, point 3 and
@@ -178,7 +202,7 @@ class EmsAttendanceTemplate(models.Model):
 	# calendar this whole design exists to prevent. 'space_id' was removed from the model entirely
 	# rather than added here - it only ever existed as a default-value source for manually adding a
 	# schedule line, itself no longer possible either (see ems.attendance_schedule's own lock).
-	_LOCKED_FIELDS = {'active', 'teacher_ids', 'subject_id', 'group_ids', 'study_ids', 'start_date', 'end_date'}
+	_LOCKED_FIELDS = {'active', 'teacher_ids', 'subject_id', 'topic', 'group_ids', 'study_ids', 'start_date', 'end_date'}
 
 	def write(self, vals):
 		if (set(vals) & self._LOCKED_FIELDS) and not self.env.context.get(EMS_BYPASS_TEMPLATE_LOCK_KEY):
@@ -578,7 +602,7 @@ class EmsAttendanceTemplate(models.Model):
 			for entry in entries:
 				if not entry.get('group_ids'):
 					continue  # non-teaching entries carry no group, hence no co-teaching to reconcile
-				key = (entry['subject_id'], tuple(sorted(entry['group_ids'])))
+				key = self._sync_key(entry['subject_id'], entry.get('topic'), entry['group_ids'])
 				by_key_submitted.setdefault(key, []).append((teacher, entry))
 
 		# NOTE: also reconcile (subject, group) combos a submitting teacher used to teach but is not
@@ -598,17 +622,17 @@ class EmsAttendanceTemplate(models.Model):
 			('teacher_ids', 'in', list(submitting_teacher_ids)), ('active', '=', True),
 		])
 		for template in touched_templates:
-			key = (template.subject_id.id, tuple(sorted(template.group_ids.ids)))
-			by_key_submitted.setdefault(key, [])
+			by_key_submitted.setdefault(self._sync_key(template.subject_id.id, template.topic, template.group_ids.ids), [])
 
 		merged = []
 		# NOTE: sudo() - every template ever added to this comes from 'existing_templates' below
 		# (also sudo'd, issue #444); a plain non-sudo empty recordset here would silently strip the
 		# sudo() the moment '|=' unions it with one ('|' binds to the LEFT operand's env).
 		vacated = self.env['ems.attendance_template'].sudo()
-		for (subject_id, group_ids), submitted in by_key_submitted.items():
+		for (subject_id, topic, group_ids), submitted in by_key_submitted.items():
 			existing_templates = self.env['ems.attendance_template'].sudo().search([
 				('subject_id', '=', subject_id),
+				('topic', '=', topic),
 				('group_ids', 'in', list(group_ids)),
 				('active', '=', True),
 			]).filtered(lambda template, group_ids=group_ids: set(template.group_ids.ids) == set(group_ids))
@@ -624,6 +648,7 @@ class EmsAttendanceTemplate(models.Model):
 					slot_key = (line.weekday, line.start_time, line.end_time)
 					by_slot.setdefault(slot_key, {'teacher_ids': set(), 'entry': {
 						'subject_id': subject_id,
+						'topic': topic,
 						'group_ids': list(group_ids),
 						'dayofweek': line.weekday,
 						'hour_from': line.start_time,
@@ -815,7 +840,7 @@ class EmsAttendanceTemplate(models.Model):
 
 		grouped_entries = dict()
 		for entry in entries:
-			key = "%s.%s" % (entry["subject_id"], ",".join(str(g) for g in sorted(entry["group_ids"])))
+			key = self._sync_key(entry["subject_id"], entry.get("topic"), entry["group_ids"])
 			grouped_entries.setdefault(key, []).append(entry)
 
 		# NOTE: maps to a RECORDSET, not a single template — the same (subject, group-set, teacher-set)
@@ -847,7 +872,7 @@ class EmsAttendanceTemplate(models.Model):
 		for template in candidates:
 			if set(template.teacher_ids.ids) != set(teachers.ids):
 				continue
-			key = "%s.%s" % (template.subject_id.id, ",".join(str(g) for g in sorted(template.group_ids.ids)))
+			key = self._sync_key(template.subject_id.id, template.topic, template.group_ids.ids)
 			if key not in grouped_entries:
 				continue
 			# NOTE: base recordset built from 'candidates.browse()' (not 'self.env[...]'), so the
@@ -1149,6 +1174,7 @@ class EmsAttendanceTemplate(models.Model):
 				'color': TEMPLATE_COLOR_PALETTE[(color_offset + len(templates)) % len(TEMPLATE_COLOR_PALETTE)],
 				'teacher_ids': [(6, 0, plan['teachers'].ids)],
 				'subject_id': group_entries[0]["subject_id"],
+				'topic': group_entries[0].get("topic") or False,
 				'group_ids': [(6, 0, group_entries[0]["group_ids"])],
 				# NOTE: every involved group's own study, not just the first one's - a template can
 				# cover groups from different studies (co-teaching/"desdoble" across studies).

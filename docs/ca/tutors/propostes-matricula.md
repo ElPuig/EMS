@@ -31,7 +31,7 @@ Al panell esquerre **(1)**, selecciona el grup d'estudiants amb el qual vols tre
 
 A la llista, marca amb la casella de verificació tots els alumnes que han superat el curs i als quals vols proposar la matrícula del curs següent. Els alumnes que ja tenen una matrícula activa apareixen amb el número de matrícula a la columna **Matrícula**.
 
-Un cop feta la selecció, fes clic al botó **Propostes de matrícula** a la barra superior **(2)**.
+Un cop feta la selecció, obre el desplegable **Accions** **(2)** i tria **Propostes de matrícula**.
 
 ![Llista d'alumnes amb selecció i botó Propostes de matrícula](../../assets/tutors/propostes-01-llista-alumnes.png)
 

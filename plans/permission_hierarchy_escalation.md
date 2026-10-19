@@ -1,7 +1,8 @@
 # Escalado de permisos por jerarquía real (no por rol) — plan a futuro
 
-**Estado: parcialmente implementado (2026-09-17).** Los permisos *de tutor* ya escalan por la
-jerarquía (issue #483, ver "Ya implementado" abajo). Lo que queda pendiente es la auditoría de
+**Estado: parcialmente implementado (2026-09-17, ampliado 2026-10-14).** Los permisos *de tutor*
+ya escalan por la jerarquía (issue #483), y los informes de asistencia también, por la cadena del
+tutor y por los estudios gestionados (issue #633). Ver las dos secciones "Ya implementado" abajo. Lo que queda pendiente es la auditoría de
 las reglas planas que no dependen del tutor (paso 1 del alcance) — es un plan de diseño para
 retomar más adelante, no una tarea en curso.
 Si el código de permisos/jerarquía cambia significativamente antes de retomarlo (nuevos campos
@@ -71,6 +72,34 @@ sitios donde hoy se concede acceso por grupo de forma plana.
   así cualquier cambio de organigrama se aplica al instante sin recomputar nada.
 - Cualquier retrofit futuro de una regla que dependa de "el tutor de X" debe reutilizar este
   campo, no crear uno paralelo.
+
+## Ya implementado: informes de asistencia (issue #633, 2026-10-14)
+
+La pantalla **Asistencia → Informes** (pivot/gráfico) y los tres PDF del asistente deciden qué
+líneas ve cada usuario con un único método, `ems.attendance_session_line._get_reports_domain()`
+(detalle en `docs/en/developers/attendance/attendance_reports.md`, sección "Scope: who sees what").
+Es un caso de este plan resuelto de punta a punta, y su patrón sirve para los siguientes:
+
+- **Un único dominio para todas las vistas de un mismo dato.** Antes, la pivot y el asistente
+  decidían cada uno a su manera (plantillas de asistencia frente a `ems.teaching`) y se
+  descuadraban. Un test de paridad (`TestAttendanceReportScopeLadder`) comprueba, perfil a perfil,
+  que las dos pantallas ofrecen y muestran exactamente lo mismo.
+- **Dos vías de escalado, unidas:**
+  1. la cadena del tutor (`tutor_scope_user_ids`, #483): tutor → Jefe de departamento/seminario
+     → JE/JEA → Dirección, por `parent_id`;
+  2. los estudios que gestiona el departamento del usuario (`ems.study.managing_department_id`,
+     #622), con `child_of` para que el JE/JEA, responsable del departamento de área, cubra los
+     departamentos de su área.
+
+  Es el mismo criterio que `ems.course._is_absence_manager` (cuadro de guardias). Helpers
+  reutilizables: `hr.department._headed_by(users)` y `ems.group._managed_by_departments_domain()`.
+- **"Leer todo el centro" no es lo mismo que "decidir con todo el centro".** JE/JEA heredan
+  `group_student_data_reader` (#448) para leer cualquier ficha, pero en los informes de
+  asistencia solo ven su área. Ven todo el centro únicamente los puestos transversales
+  (Orientación, Convivencia, Secretaría) y la Dirección. Al auditar otras reglas (paso 1 del
+  alcance), conviene preguntar en cada una cuál de las dos cosas pide.
+- **Docente: lo suyo, por la plantilla, no por quien pasó lista.** Una lista pasada de guardia es
+  del titular.
 
 ## Problema concreto confirmado
 

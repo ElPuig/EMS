@@ -79,6 +79,8 @@ branch, `res.partner.category` sync) — see the model docstrings and `_ARCHIVED
 identically to `withdrawal` (`'withdrawn'`, no title) — leaving school by force is not a "full"
 or "partial" pass either way, same reasoning as a voluntary withdrawal.
 
+**Shared exit steps:** the part of the cascade after the history freeze lives in `res.partner._ems_leave_centre(kind)` (clear operational records, convert, revoke the portal, archive), and the cancellation of draft/sent enrollments in `res.partner._ems_cancel_pending_enrollments()`. The withdrawal wizard calls both around the history freeze; a title registered for an active student with no group calls them too, to let that student leave as a graduate (see [Titles obtained](../grades/year_record.md#titles-obtained-issue-635)).
+
 **Order matters and is deliberate** — each step depends on state the previous one has not yet destroyed:
 1. **History freeze before cleanup**: the transition wizard captures history by `main_group_id`, so freezing must happen while the student is still attached to their group — a mid-course withdrawal that skipped this step would never get a year record at all.
 2. **Cleanup before conversion**: `_ems_clear_operational_records()` (documented in [`contact.md`](contact.md)) needs the student still linked to their group/subjects to know what to delete; `_ems_convert_to_ex_student()` immediately after detaches them.

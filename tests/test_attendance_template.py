@@ -1616,12 +1616,63 @@ class TestEmployeeSyncScheduleFromCalendar(TransactionCase):
             'name': 'Test Teacher (Employee Sync Schedule From Calendar)', 'employee_type': 'teacher',
         })
 
-    def _add_calendar_block(self, hour_from=9, hour_to=10, dayofweek='0'):
+    def _add_calendar_block(self, hour_from=9, hour_to=10, dayofweek='0', topic=False):
         return self.env['resource.calendar.attendance'].create({
             'calendar_id': self.teacher.resource_calendar_id.id, 'name': 'Test block',
             'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
             'group_ids': [self.group.id], 'subject_id': self.subject.id, 'space_id': self.space.id,
+            'topic': topic,
         })
+
+    def _templates(self, active_test=True):
+        return self.env['ems.attendance_template'].with_context(active_test=active_test).search([
+            ('teacher_ids', 'in', self.teacher.id), ('subject_id', '=', self.subject.id),
+        ])
+
+    # --- The schedule's topic is part of the template's identity (issue #633) ---------------
+
+    def test_two_topics_of_one_subject_make_two_templates(self):
+        # A CFGB module split by topic (e.g. Physical Education and Maths within 'Applied sciences'),
+        # here even taught by the same teacher to the same group.
+        self._add_calendar_block(9, 10, topic='Educació física')
+        self._add_calendar_block(10, 11, topic='Matemàtiques')
+        self.teacher._ems_sync_schedule_from_calendar()
+        templates = self._templates()
+        self.assertEqual(sorted(templates.mapped('topic')), ['Educació física', 'Matemàtiques'])
+        self.assertTrue(all(len(template.attendance_schedule_ids) == 1 for template in templates))
+        self.assertIn(' - Educació física', templates.filtered(lambda t: t.topic == 'Educació física').display_name)
+
+    def test_without_topic_nothing_changes(self):
+        self._add_calendar_block()
+        self.teacher._ems_sync_schedule_from_calendar()
+        template = self._templates()
+        self.assertEqual(len(template), 1)
+        self.assertFalse(template.topic)
+
+    def test_changing_the_topic_keeps_the_sessions_already_taken_under_the_old_one(self):
+        block = self._add_calendar_block(topic='Anglès')
+        self.teacher._ems_sync_schedule_from_calendar()
+        old_template = self._templates()
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': old_template.attendance_schedule_ids.id, 'date': date.today(),
+            'mode': 'manual', 'session_teacher_id': self.teacher.id,
+        })
+        student = self.env['res.partner'].create({
+            'name': 'Test Student (Employee Sync Schedule From Calendar)', 'contact_type': 'student',
+            'student_id': next_student_id(), 'main_group_id': self.group.id,
+        })
+        line = self.env['ems.attendance_session_line'].create({
+            'attendance_session_id': session.id, 'student_id': student.id,
+            'status_id': self.env.ref('ems.attendance_status_attended').id,
+        })
+        self.assertEqual(line.subject_label, f'{self.subject.display_name} - Anglès')
+
+        # The block's write itself triggers the sync ('topic' is a sync trigger field).
+        block.topic = 'Català'
+        self.assertEqual(self._templates().topic, 'Català')
+        self.assertFalse(old_template.active)
+        self.assertEqual(old_template.topic, 'Anglès')
+        self.assertEqual(line.subject_label, f'{self.subject.display_name} - Anglès')
 
     def test_syncs_a_fresh_template_and_line_from_the_calendar(self):
         self._add_calendar_block()

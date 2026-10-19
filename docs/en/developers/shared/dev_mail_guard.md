@@ -75,6 +75,12 @@ flowchart TD
 A blocked email raises `MailDeliveryException`, so a queued `mail.mail` ends in **Delivery
 failed** with the reason, and nothing reaches the SMTP server.
 
+**An email that does leave says where it comes from.** The same step prefixes its subject with
+`[DEV]` (`_ems_mark_dev_subject()`, once: a subject already marked is left alone). The
+developer's redirect inbox and the allowlisted shared ones (the staff account) also receive
+production's own emails, and a request notification from a development machine looked exactly
+like a real one.
+
 Production and CI never set `ems_server_role`, so nothing changes there. Tests that mock
 `IrMailServer.send_email` (see CLAUDE.md, "Email safety in tests") never reach
 `_prepare_email_message`, so the guard does not interfere with them; `tests/test_dev_mail_guard.py`

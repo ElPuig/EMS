@@ -68,9 +68,11 @@ The **Whole day?** checkbox decides what you fill in:
 
 Tick it if you are not coming in at all: it counts 7.5 hours even if you only had one lesson that day. Leave it unticked if you come in and have to leave, or arrive late.
 
+**Not coming in at all is always a whole day**, whatever the type of absence and however you write it. If you leave the box unticked and give times that cover your whole timetable for that day (from the start of your first lesson to the end of the last one), the form ticks it for you and tells you so: those 7.5 hours are what is counted, not the hours of your lessons. Untick it again only if you really do come in that day (for example, because your lesson has been moved to another time).
+
 To request more than one day, tick it and change the end date. For a single day the end date fills itself in.
 
-`Health` and `Invasive medical test` open with the box ticked. If you were only away for part of the day, untick it.
+`Health` and `Invasive medical test` open with the box ticked, because being away for one of those reasons normally means the whole day. If you did come in and were only away for part of the day, untick it and give the times.
 
 ---
 
@@ -90,6 +92,8 @@ For a medical appointment, the document must expressly state the patient's first
 
 If your Head or Direction find the document is not valid, the request goes back to **Awaiting documentation** and you receive a message with the reason. The reason is also shown at the top of the request until you attach a new document: attach a valid one the same way.
 
+If your Head decides the document is not needed, they can waive it: the request goes on to Direction, you stop receiving reminders and you get a message telling you so.
+
 To remove one, click the cross on the file and confirm.
 
 ---
@@ -106,7 +110,9 @@ The button stays disabled while something is missing. Hover over it and it will 
 
 If you leave the form without sending it, EMS tells you and lets you discard it.
 
-When you send it, your department chief and, if your department has one, your seminar chief receive an email with the absence type, the dates and the hours, but not the reason. They follow the request from then on, so they also receive anything written in its message history.
+When you send it, your Department Chief and, if your department has one, your Seminar Chief receive an email with the absence type, the dates and the hours, but not the reason, so they can arrange the guard duty that covers you. After that they only hear about it again if the absence will not take place (refused, cancelled, or deleted while still pending), goes ahead again, or its dates or type change.
+
+**Messages on the request.** What you write in the request's message history (**Send message**) reaches whoever has the request in hand, and nobody else: your Head (Deputy Head of Studies, Head of Studies or Secretary) until they validate it and pass it on to Direction, and the Director from then on. Their answers reach you the same way.
 
 ---
 
@@ -121,14 +127,28 @@ When you send it, your department chief and, if your department has one, your se
 | Pending | Your Head has not seen it yet |
 | Awaiting documentation | Your Head has received it and it is waiting for your supporting document: attach it to the same request |
 | Pending validation | You have attached the document and your Head has to validate it |
+| Pending ATRI confirmation | Only ATRI absences. Your Head has validated it and you have to confirm it is requested in ATRI (see below) |
 | Pending Direction | Your Head has validated it, Direction has not reviewed it yet |
 | Approved | Granted by both |
-| Refused | Denied. This is final: to insist, file a new request |
+| Refused | Denied. If it was a mistake, your Head or Direction can undo it; otherwise, to insist, file a new request |
 | Cancelled | Withdrawn |
 
 The **My pending supporting documents** filter lists the requests waiting for a document from you.
 
+**ATRI absences: confirming the request.** An ATRI absence is granted on the Generalitat's portal, not in EMS. So once your Head has validated it, the request always stops at **Pending ATRI confirmation** before it is passed on to Direction. It does not mean anybody has found it missing in ATRI: it only asks you to confirm that you have requested it there.
+
+- If you have already requested it in ATRI, open the request and use **I confirm it is requested in ATRI**, at the top of the form, straight away. It then goes on to Direction.
+- If you have not, request it on the portal first (the notice at the top of the request has the link) and then confirm.
+
+While it is not confirmed, once the absence is over you receive a reminder every day, and your Head is told after a few days. The **My pending ATRI confirmations** filter lists the requests waiting for it. If Direction then finds the absence is not in ATRI, or that the documentation you provided there is not sufficient, it sends the request back to this status and you receive the reason, which is also shown on the request. Whatever is missing is solved on the ATRI portal, not by attaching a supporting document in EMS; once done, confirm it again.
+
+![An ATRI absence waiting for the employee's confirmation, with the notice at the top of the request](../../assets/teachers/teachers-absences-atri-confirm.png)
+
 Once your Head receives it, the absence already counts in the absence calendar and the guard duty board, even while the document is still missing.
+
+If your Head or Direction corrects something in your request (the absence type, the dates or the times), you receive a message on the request with what was changed, its new status and, when they have written one, their explanation.
+
+If your request is refused and whoever refused it wrote the reason, you receive it in a message and it is shown in red at the top of the request.
 
 ---
 

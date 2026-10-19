@@ -1,8 +1,8 @@
-from odoo.exceptions import RedirectWarning, ValidationError
+from odoo.exceptions import AccessError, RedirectWarning, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools.safe_eval import safe_eval
 
-from .common import create_level_study_group, next_student_id
+from .common import create_level_study_group, create_role_user, next_student_id
 
 
 class TestGroup(TransactionCase):
@@ -361,3 +361,45 @@ class TestGroup(TransactionCase):
         group = self.env['ems.group'].new({'group_type': 'main'})
         group._compute_name()
         self.assertFalse(group.name)
+
+    # Main groups of a reinforcement group filled from its enrolled students (issue #645 follow-up).
+
+    def _reinforcement_with_students(self):
+        """A reinforcement group with two enrolled students of test_group and one of another main
+        group, and an archived student of a third one."""
+        other = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'A', 'level_id': self.test_level.id, 'study_id': self.test_study.id})
+        third = self.env['ems.group'].create({
+            'course': 2, 'acronym': 'B', 'level_id': self.test_level.id, 'study_id': self.test_study.id})
+        group = self.env['ems.group'].create({'group_type': 'reinforcement', 'name': 'REF-PARENTS'})
+        subject = self._enrollment_subject('PAR')
+        students = (self._main_student('Parents Student 1') | self._main_student('Parents Student 2')
+                    | self._main_student('Parents Student 3', other))
+        archived = self._main_student('Parents Student 4', third)
+        for student in students | archived:
+            self.env['ems.enrollment'].create({'student_id': student.id, 'group_id': group.id, 'subject_id': subject.id})
+        archived.active = False
+        group.invalidate_recordset()
+        return group, other, third
+
+    def test_a_reinforcement_group_lists_its_students_main_groups_not_set(self):
+        group, other, _third = self._reinforcement_with_students()
+
+        self.assertEqual(group.missing_parent_group_ids, self.test_group | other,
+                         "an archived student's main group is not one to add")
+        group.parent_group_ids = self.test_group
+        self.assertEqual(group.missing_parent_group_ids, other)
+        self.assertFalse(self.test_group.missing_parent_group_ids, "a main group has no main groups")
+
+    def test_filling_the_main_groups_adds_those_of_its_students_and_keeps_the_rest(self):
+        group, other, third = self._reinforcement_with_students()
+        group.parent_group_ids = third
+        chief = create_role_user(self, 'department_chief', 'test_parents_chief')
+        with self.assertRaises(AccessError):
+            group.with_user(self.teacher_user).action_fill_parent_groups()
+
+        group.with_user(chief).action_fill_parent_groups()
+
+        self.assertEqual(group.parent_group_ids, self.test_group | other | third,
+                         "a main group set by hand (its students not enrolled yet, say) stays")
+        self.assertFalse(group.missing_parent_group_ids)

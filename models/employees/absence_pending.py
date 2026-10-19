@@ -30,7 +30,7 @@ class EmsAbsencePending(models.Model):
     employee_id = fields.Many2one(
         string="Teacher", comodel_name="hr.employee", required=True, tracking=True,
         domain=lambda self: self._domain_employee_id(),
-        help="Only the teachers below you in the hierarchy or teaching in your area.")
+        help="Only the teachers below you in the hierarchy, teaching in your area, teaching a group your department manages or also managed by your department.")
     date_from = fields.Datetime(
         string="From", required=True, tracking=True,
         default=lambda self: self._default_local_hour(DEFAULT_HOUR_FROM))
@@ -51,13 +51,18 @@ class EmsAbsencePending(models.Model):
         """The same reach as the record rules: every teacher for a technical administrator
         (rule_absence_pending_system), otherwise the user's own branch of the hierarchy or the
         teachers of the departments they head or lead as Seminar Chief, and of those under the areas
-        they manage (rule_absence_pending_hierarchy, issue #569)."""
+        they manage (rule_absence_pending_hierarchy, issue #569), or whoever teaches a group one
+        of those departments manages or is also managed by one of them (issue #622)."""
         domain = [('employee_type', '=', 'teacher')]
         if self.env.user.has_group('base.group_system'):
             return domain
         employees = self.env.user.employee_ids
         departments = employees.headed_department_ids | employees.seminar_department_ids
-        return domain + ['|', ('id', 'child_of', employees.ids), ('department_id', 'child_of', departments.ids)]
+        return domain + [
+            '|', '|', '|', '|', ('id', 'child_of', employees.ids), ('department_id', 'child_of', departments.ids),
+            ('managing_department_ids', 'child_of', departments.ids),
+            ('teaching_ids.group_id.study_id.managing_department_id', 'child_of', departments.ids),
+            ('teaching_ids.group_id.parent_group_ids.study_id.managing_department_id', 'child_of', departments.ids)]
 
     def _default_local_hour(self, hour):
         return self.datetime_to_odoo(self.time_float_to_utc_datetime(self.get_local_today(), hour))

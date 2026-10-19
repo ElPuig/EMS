@@ -1,3 +1,6 @@
+from unittest.mock import patch
+
+from odoo.addons.ems.models.settings.settings import LATEST_VERSION_RETRY_TIMEOUT
 from odoo.tests.common import HttpCase, tagged
 
 from .common import force_user_language_to_english
@@ -12,6 +15,15 @@ class TestSettingsTour(HttpCase):
         # The tour toggles this checkbox once and checks it ends up checked - start from a
         # known, deterministic state rather than assuming this dev DB's current value.
         cls.env.company.google_ws_enabled = False
+        # GitHub "doesn't answer" in time when the page opens and does on "Check again", which
+        # waits longer: the tour sees both states without any real network call.
+        release = {'version': '99.0.0.0.0', 'url': 'https://github.com/ElPuig/EMS/releases/tag/v99.0.0.0.0'}
+        patcher = patch.object(
+            type(cls.env['res.config.settings']), '_fetch_latest_ems_release',
+            side_effect=lambda timeout: release if timeout == LATEST_VERSION_RETRY_TIMEOUT else None,
+        )
+        patcher.start()
+        cls.addClassCleanup(patcher.stop)
 
     def test_settings_edit_tour(self):
         # The tour picks a month by its English label.

@@ -205,7 +205,7 @@ class _ShiftedClockMeta(type):
         return issubclass(subclass, cls._real)
 
 
-def shift_ems_clock(case, hour=10.0):
+def shift_ems_clock(case, hour=10.0, weekdays=None):
     """Move the clock to `hour` (company time) of the company's day, so a fixture built around the
     time of day (a slot that must be the current one, a weekday) holds whenever the suite runs,
     late at night or past local midnight included. The clock keeps running from there, so the
@@ -215,7 +215,8 @@ def shift_ems_clock(case, hour=10.0):
 
     The shift goes forward to the next `hour` (today's or tomorrow's), never back: what only the
     real clock dates (PostgreSQL's create_date, cr.now()) then always reads as already past,
-    never as a future the code would refuse.
+    never as a future the code would refuse. `weekdays` (0=Monday) moves it on to the next of those
+    days, for a fixture that needs a school day (the guard duty board has no weekend).
 
     Covers every clock EMS reads: ems.datetime_utils' local now and its server epoch (the web
     client's serverNow() is derived from it, see server_clock.js), and odoo.fields' now/today,
@@ -231,6 +232,8 @@ def shift_ems_clock(case, hour=10.0):
     target = utils.time_float_to_local_datetime(real_now.date(), hour)
     if target < real_now:
         target = utils.time_float_to_local_datetime(real_now.date() + real.timedelta(days=1), hour)
+    while weekdays is not None and target.weekday() not in weekdays:
+        target = utils.time_float_to_local_datetime(target.date() + real.timedelta(days=1), hour)
     delta = target - real_now
 
     def now(tz=None):
@@ -255,6 +258,20 @@ def shift_ems_clock(case, hour=10.0):
         patcher.start()
         add_cleanup(patcher.stop)
     return target
+
+
+def make_working_day(case, day):
+    """Removes the public holidays around `day` (in the test's own rolled-back transaction), for
+    a fixture built on the real "today" that needs it to be a day the centre works: on a public
+    holiday nothing is expected of anybody, whatever timetable the fixture gives them, so such a
+    suite failed whenever it ran on one (found on 2026-10-12). A day either side goes too: the
+    holiday is stored in UTC and `day` is read in more than one timezone across the suite."""
+    from datetime import datetime, time, timedelta
+    case.env['resource.calendar.leaves'].sudo().search([
+        ('resource_id', '=', False),
+        ('date_from', '<=', datetime.combine(day + timedelta(days=1), time.max)),
+        ('date_to', '>=', datetime.combine(day - timedelta(days=1), time.min)),
+    ]).unlink()
 
 
 def cancel_google_account_creation(record):

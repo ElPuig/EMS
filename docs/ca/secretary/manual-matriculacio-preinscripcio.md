@@ -26,9 +26,10 @@ A partir del Pas 3 el circuit és el mateix per a tots dos.
 5. [Pas 4 — Donar accés al portal a l'alumnat i les famílies](#pas-4--donar-accés-al-portal-a-lalumnat-i-les-famílies)
 6. [Pas 5 — Revisar les matrícules generades](#pas-5--revisar-les-matrícules-generades)
 7. [Pas 6 — Enviar les propostes de matrícula](#pas-6--enviar-les-propostes-de-matrícula)
-8. [Canvis d'estudis que no vénen de GEDAC](#canvis-destudis-que-no-vénen-de-gedac)
-9. [Bonificacions i exempcions aprovades després de confirmar](#bonificacions-i-exempcions-aprovades-després-de-confirmar)
-10. [Preguntes freqüents](#preguntes-freqüents)
+8. [Pas 7 — Tancar les matrícules que ningú ha confirmat](#pas-7--tancar-les-matrícules-que-ningú-ha-confirmat)
+9. [Canvis d'estudis que no vénen de GEDAC](#canvis-destudis-que-no-vénen-de-gedac)
+10. [Bonificacions i exempcions aprovades després de confirmar](#bonificacions-i-exempcions-aprovades-després-de-confirmar)
+11. [Preguntes freqüents](#preguntes-freqüents)
 
 ---
 
@@ -92,7 +93,7 @@ Marqueu els alumnes que van **als mateixos estudis de destí** i aneu al [Pas 3]
 
 ## Pas 3 — Crear les propostes de matrícula
 
-Amb els alumnes seleccionats (vinguin del Pas 2 d'alumnes nous o del de continuadors), premeu el botó **Propostes de matrícula (1)** de la barra superior.
+Amb els alumnes seleccionats (vinguin del Pas 2 d'alumnes nous o del de continuadors), obriu el desplegable **Accions (1)** i trieu **Propostes de matrícula**.
 
 ![Selecció d'aspirants i botó Propostes de matrícula](../../assets/secretary/preinscrpcio-Secretaria-05.png)
 
@@ -140,7 +141,7 @@ A la llista podeu comprovar, per a cada matrícula, l'**estudiant**, el **nivell
 
 ## Pas 6 — Enviar les propostes de matrícula
 
-Quan les matrícules estiguin revisades, seleccioneu-ne les que vulgueu enviar marcant-ne les caselles **(1)**. A dalt apareixerà el botó **Enviar matrícula (2)**; premeu-lo.
+Quan les matrícules estiguin revisades, seleccioneu-ne les que vulgueu enviar marcant-ne les caselles **(1)**, obriu el desplegable **Accions** **(2)** i trieu **Enviar matrícula**.
 
 ![Selecció de matrícules i botó Enviar matrícula](../../assets/secretary/preinscrpcio-Secretaria-09.png)
 
@@ -151,6 +152,33 @@ En prémer **Enviar matrícula**, per a cada matrícula seleccionada:
 * Si l'alumne havia deixat el centre en un curs anterior (una baixa o un graduat), torna a ser **sol·licitant** i es desarxiva, de manera que ja se li pot donar accés al portal i confirmar ell mateix la matrícula. Un alumne expulsat no es readmet.
 
 > A partir d'aquí, les famílies reben el correu i poden **confirmar la matrícula** des del portal seguint la guia [Guia per confirmar la proposta de matrícula](../families/manual-confirmacio-matricula.md).
+
+---
+
+## Pas 7 — Tancar les matrícules que ningú ha confirmat
+
+Quan s'acaba el període de matrícula, les matrícules que encara són en esborrany o enviades són de persones que no les han formalitzat. Tanqueu-les totes de cop:
+
+1. A **Matrícula**, la llista mostra per defecte les matrícules no confirmades. Seleccioneu les que voleu tancar (o totes).
+2. Obriu el desplegable **Accions** i trieu **Tancar matrícules no confirmades**.
+3. L'assistent comença amb un resum (quantes persones i matrícules hi ha, i quantes persones reben cada acció i què vol dir), i a sota mostra cada persona amb l'acció que se li aplicarà:
+
+| Acció | A qui | Què passa |
+|---|---|---|
+| **Eliminar la persona** | Sol·licitants que no han estat mai alumnes del centre | S'elimina la persona, amb el seu usuari del portal, les matrícules, les autoritzacions i els documents pujats. |
+| **Arxivar** | Sol·licitants que no han estat mai alumnes però ja tenen compte corporatiu o una convalidació | Es cancel·la la matrícula, es revoca l'accés al portal i s'arxiva el contacte. |
+| **Tornar a graduat/da o baixa** | Sol·licitants que ja havien estudiat al centre | Es cancel·la la matrícula i tornen a graduat/da (si van obtenir el títol) o a baixa, amb les seves dades de sortida anteriors. Reben l'avís habitual que el compte corporatiu se suspendrà en acabar el període de gràcia. |
+| **Donar de baixa** | Alumnat sense grup | El mateix que l'assistent de baixa, amb la **Data de sortida** i el **Motiu de sortida** que es mostren a dalt de l'assistent. |
+| **Només cancel·lar la matrícula** | Alumnat amb grup o amb la matrícula d'aquest curs confirmada, graduats, baixes i expulsats | Només es cancel·la la matrícula. |
+| **Revisar a mà (pagament)** | Persones amb alguna matrícula amb un pagament o una factura | No es toca res: reviseu-les una per una. |
+
+4. Premeu **Aplicar** i confirmeu. Les eliminacions no es poden desfer. Un curs sencer pot trigar uns minuts: la pantalla queda bloquejada amb un missatge fins que acaba.
+
+En acabar, l'assistent mostra quantes persones han rebut cada acció i les incidències, i descarrega un registre CSV amb què ha passat amb cada persona (es pot tornar a descarregar des de la mateixa pantalla). Una família manté l'accés al portal mentre tingui un altre fill matriculat. Les famílies no reben cap correu, i l'alumnat només l'avís del compte corporatiu esmentat a dalt.
+
+### Sol·licitants que no han tingut mai matrícula
+
+A **Pre-inscripció**, el filtre **Sense matrícula** mostra els sol·licitants que no han rebut mai una proposta de matrícula (per exemple, els importats de GEDAC que no s'han presentat). Seleccioneu-los, obriu el desplegable **Accions** i trieu **Tancar matrícules no confirmades**: s'obre el mateix assistent i s'eliminen (o s'arxiven, si tenen compte corporatiu o una convalidació).
 
 ---
 

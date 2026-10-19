@@ -114,6 +114,17 @@ class ems_employee_base(models.AbstractModel):
     tutorship_ids = fields.One2many(string="Tutorships", comodel_name="ems.group", inverse_name="tutor_id")
     headed_department_ids = fields.One2many(string="Departments Headed", comodel_name="hr.department", inverse_name="manager_id")
     seminar_department_ids = fields.One2many(string="Seminars Led", comodel_name="hr.department", inverse_name="seminar_chief_id")
+    # Issue #622: a teacher who in practice works for another department or area than the one
+    # they belong to (e.g. an ESO/BTX language teacher assigned to the vocational families).
+    # Manual relation for the same reason as 'role_ids' above.
+    managing_department_ids = fields.Many2many(
+        string="Also managed by the departments", comodel_name="hr.department",
+        relation="hr_employee_managing_department_rel", column1="hr_employee_public_id", column2="hr_department_id",
+        help="The chiefs of these departments, and whoever is above them, can also organise this employee's "
+             "guards and absences (covering their classes and guard duties, entering an expected absence), "
+             "besides the Manager above and their own chain of command. For someone who in practice works for "
+             "another department or area than the one they belong to. It does not change who approves their "
+             "absences.")
     directed_company_ids = fields.One2many(string="Companies Directed", comodel_name="res.company", inverse_name="director_id")
 
     # The presence dot (issue #575) must not depend on who is looking. Its state is a non-stored
@@ -303,6 +314,8 @@ class ems_employee_base(models.AbstractModel):
         self.ensure_one()
         return [{
             'subject_id': attendance.subject_id.id,
+            # Part of the attendance template's identity (issue #633), not of ems.teaching's.
+            'topic': attendance.topic or False,
             'group_ids': attendance.group_ids.ids,
             'dayofweek': attendance.dayofweek,
             'hour_from': attendance.hour_from,
@@ -1137,3 +1150,20 @@ class ems_employee(models.AbstractModel):
                 return employee
             employee = employee.parent_id
         return self.env["hr.employee"]
+
+    def _find_attendance_approvers(self):
+        """Who corrects this employee's attendance (res.users): the nearest Head or Deputy Head
+        of Studies above them in the chain of command; failing that, whoever manages their area's
+        attendance (attendance_manager_id); failing that, the administrators. Shared by the
+        routing of an attendance correction request (ems.attendance_correction._find_approver)
+        and by the auto-checkout notice asking for a check-out to be corrected (issue #648), so
+        both reach the same person. Never the Department or Seminar Chief ('parent_id'): they
+        can only read their branch's attendance, not correct it."""
+        self.ensure_one()
+        employee = self.sudo()
+        head_of_studies = employee.find_head_of_studies()
+        if head_of_studies:
+            return head_of_studies.user_id
+        if employee.attendance_manager_id:
+            return employee.attendance_manager_id
+        return self.env["res.users"].sudo().search([("groups_id", "=", self.env.ref("ems.group_academic_admin").id)])

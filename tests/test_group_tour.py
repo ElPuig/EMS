@@ -1,6 +1,6 @@
 from odoo.tests import tagged, HttpCase
 
-from .common import force_user_language_to_english, next_student_id
+from .common import create_level_study, create_role_user, force_user_language_to_english, next_student_id
 
 
 @tagged('post_install', '-at_install')
@@ -54,3 +54,26 @@ class TestGroupTour(HttpCase):
             'student_id': student_decline.id, 'group_id': decline_group.id, 'subject_id': subject.id,
         })
         self.start_tour("/odoo", "ems_group_archive_confirmation", login="admin")
+
+
+@tagged('post_install', '-at_install')
+class TestGroupFillParentGroupsTour(HttpCase):
+    """A reinforcement group's main groups filled from its enrolled students, as the Department
+    Chief: the least-privileged role that can edit a group."""
+
+    def test_group_fill_parent_groups_tour(self):
+        chief = create_role_user(self, 'department_chief', 'test_tour_fill_parents_chief')
+        level, study = create_level_study(self, 'TFPG', level={'name': 'Tour Fill Parents Level'})
+        main_groups = self.env['ems.group'].create([
+            {'course': 2, 'acronym': acronym, 'level_id': level.id, 'study_id': study.id} for acronym in ('X', 'Y')])
+        group = self.env['ems.group'].create({'group_type': 'reinforcement', 'name': 'Tour Fill Parents'})
+        subject = self.env['ems.subject'].create({'code': 'TFPG001', 'acronym': 'TFPG', 'name': 'Tour Fill Parents Subject'})
+        for main_group in main_groups:
+            student = self.env['res.partner'].create({
+                'name': f'Tour Fill Parents Student {main_group.acronym}', 'contact_type': 'student',
+                'student_id': next_student_id(), 'main_group_id': main_group.id})
+            self.env['ems.enrollment'].create({'student_id': student.id, 'group_id': group.id, 'subject_id': subject.id})
+
+        self.start_tour("/odoo", "ems_group_fill_parent_groups", login=chief.login)
+
+        self.assertEqual(group.parent_group_ids, main_groups)

@@ -46,9 +46,10 @@ class TestAttendanceReportsTour(HttpCase):
         self.env['ems.enrollment'].create({
             'student_id': student.id, 'group_id': group.id, 'subject_id': subject.id,
         })
+        # A topic, as the schedule sync sets it (issue #633): the reports list it with the subject.
         template = self.env['ems.attendance_template'].create({
             'teacher_ids': [(6, 0, [admin_employee.id])], 'study_ids': [(6, 0, [study.id])],
-            'subject_id': subject.id, 'group_ids': [(6, 0, [group.id])],
+            'subject_id': subject.id, 'topic': 'Tour Topic', 'group_ids': [(6, 0, [group.id])],
             'start_date': date(2020, 1, 1), 'end_date': date(2030, 12, 31),
         })
         schedule = self.env['ems.attendance_schedule'].create({

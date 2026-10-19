@@ -26,7 +26,9 @@ class TestEmployeePresenceTour(HttpCase):
         return employee
 
     def test_employee_presence_tour(self):
-        shift_ems_clock(self)
+        # A school day: on a weekend the leave below would fall outside the working time Odoo counts
+        # for it and its approval would be refused.
+        shift_ems_clock(self, weekdays=range(5))
         mock_outgoing_email(self)
         self.env.company.hr_presence_control_attendance = True
         _disable_login_presence_control(self.env)

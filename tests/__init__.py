@@ -16,6 +16,7 @@ from . import test_enrollment_slot_tour
 from . import test_enrollment_subject_group
 from . import test_enrollment_subject_group_tour
 from . import test_enrollment_benefit
+from . import test_enrollment_close_wizard
 from . import test_enrollment_template
 from . import test_enrollment_placement
 from . import test_exit_management
@@ -172,6 +173,7 @@ from . import test_enrollment_line
 from . import test_enrollment_tour
 from . import test_enrollment_placement_tour
 from . import test_enrollment_proposal_tour
+from . import test_enrollment_close_wizard_tour
 from . import test_applicant_tour
 from . import test_no_destination_tour
 from . import test_year_record_tour
@@ -203,6 +205,7 @@ from . import test_strike_reason
 from . import test_minute
 from . import test_notice
 from . import test_notice_tour
+from . import test_notice_hierarchy_tour
 from . import test_limesurvey_api
 from . import test_limesurvey_orchestration
 from . import test_limesurvey_header
@@ -254,3 +257,5 @@ from . import test_dev_mail_guard
 from . import test_employee_presence_tour
 from . import test_student_chatter_replies
 from . import test_mail_reply_to
+from . import test_title_registration
+from . import test_title_registration_tour

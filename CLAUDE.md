@@ -153,6 +153,22 @@ newsletter). A refused email ends in "Delivery failed" with the reason. Details:
 `docs/en/developers/shared/dev_mail_guard.md`. If a send you expected fails on a dev machine with
 "Email blocked", that's the guard: add the address to the allowlist only if the developer says so.
 
+## Naming roles: never "chiefs"/"heads"/"jefes" on its own (developer, 2026-10-14)
+
+Always name the exact role, in chat, plans, docs, code comments and changelog alike. A bare
+"chiefs", "heads" or "jefes" mixes up two different levels of the hierarchy and has already caused
+misunderstandings (*"Es importante que distingas SIEMPRE entre jefes de departamento y jefes de
+estudio"*):
+- **Department level:** Department Chief (jefe de departamento) and Seminar Chief (jefe de
+  seminario), both `ems.group_department_chief`; the employee's `parent_id`.
+- **Studies/management level:** Head of Studies (jefe de estudios, **JE**) and Deputy Head of
+  Studies (jefe de estudios adjunto, **JEA**), both `ems.group_head_of_studies`; the Director
+  (directora/director) above them; the Secretary where it acts as an Area Manager.
+
+When the code itself uses a generic word (e.g. `hr.leave`'s "Head" = whoever approves the absence,
+the employee's Area Manager: JE, JEA or Secretary; its "chiefs" = Department/Seminar Chief), say
+which concrete roles it means instead of repeating the generic word.
+
 ## Module structure
 
 ```
@@ -320,10 +336,11 @@ standing default; it only applies for the exact stretch the developer scoped it 
   approach and verify it empirically (run the actual tests, check the actual behavior) rather than
   guessing blind or stalling on it. If it doesn't hold up, try a different approach and re-verify —
   iterate until it's actually right, not just until something compiles.
-- Git commits (never destructive operations) are allowed as checkpoints during the session, as an
-  explicit, scoped exception to "the user manages commits himself" — useful for marking a clean,
-  verified state before continuing into the next piece of work. **`git push`/`git pull` remain
-  forbidden even in this mode, with no exception** — regardless of how confident the state is.
+- Git commits (never destructive operations) are allowed as checkpoints during the session —
+  useful for marking a clean, verified state before continuing into the next piece of work. **The
+  mode grants no push of its own**: pushing follows "Pushing outside the release routine" below,
+  exactly as with the mode off (so the release branch during "Prepara la release", yes; anything
+  those rules don't cover, no).
 - Every other standing rule in this file (testing conventions, migration rules, i18n, notification
   policy, etc.) still applies unchanged — this mode only changes who resolves an
   otherwise-blocking judgment call, not what's safe to do.
@@ -363,6 +380,11 @@ have been asked live, not optional. State plainly which mode-scoped tasks got fi
 - Navigate to the target via `url: "/odoo/action-ems.<action_id>"` — do not chain menu-click steps.
 - Verify data in the list view after save, not via `input[value=...]` (OWL does not sync the HTML attribute).
 - Register in `__manifest__.py` under `web.assets_tests`.
+- A tour that saves a form must end by waiting for `.o_form_view .o_form_saved`, never
+  `.o_form_view:not(.o_form_dirty)`: Odoo puts `o_form_dirty`/`o_form_saved` on the inner
+  `.o_form_renderer`, so the second selector always matches and the tour can end while the save is
+  still running ("Tour finished with an open form view in edition mode", a red that only shows
+  under load; it stopped the 36.2 release on CI, 2026-10-13).
 - Python side: `@tagged('post_install', '-at_install')`, `self.start_tour("/odoo", "tour_name", login="admin")`.
 - To watch a tour run in a real browser during development: add `watch=True` to `start_tour`.
 
@@ -501,12 +523,21 @@ Key rules applied in this project:
 - **Full-scenario exploration before implementing — never assume, ask when ambiguous.** Before writing or relaxing any validation/constraint/guard, grep and read *every* real write path for the field(s) it touches (every wizard, compute/onchange method, direct ORM call, view `required`/`readonly` attribute) — not just the one test or scenario currently in front of you. Don't guess whether a state that conflicts with a new check is a "legitimate real case" or merely a test fixture bypassing what the real UI/ORM would otherwise enforce — verify it by tracing the actual code paths, every one of them, before deciding which side (the new check, or the conflicting test/code) is wrong. If, after that exploration, genuine ambiguity remains — however small — ask the developer rather than picking a side. Found the hard way (2026-07-30): a new `sale.order` constraint broke an existing test, and the first fix relaxed the constraint on the unverified assumption that the test reflected a real production scenario; only the developer's follow-up question ("¿tiene sentido que esto ocurra? ¿se me escapa algo?") prompted the full write-path audit that should have happened *before* proposing that fix — which then showed the assumption was wrong (no real path can produce that state) and the test's fixture needed fixing instead, not the constraint. A relaxed-on-assumption constraint can silently end up less protective than intended, which is exactly the class of mistake this rule exists to prevent.
 - **Permission/approval escalation must follow the real management hierarchy, not blanket role membership.** When a lower-level role can do something, whoever is above that *specific* person in the org chart should be able to do it too — but scoped to their own branch of the hierarchy, not every holder of the higher role centre-wide. Concretely (2026-09-17, issue #480 follow-up): if a Tutor can act on something of theirs, their own Department Chief/Seminar Chief (peers at the same rung — both map to `ems.group_department_chief`, either one having it is enough), their own Head of Studies/Deputy Head of Studies (found by walking `hr.employee.parent_id` up from that specific Tutor — both roles map to the same `ems.group_head_of_studies`, exactly like Department Chief/Seminar Chief), and Director should be able to act on it too — but a *different* Department Chief (someone else's department) or any other holder of `group_head_of_studies` who isn't actually this Tutor's resolved approver in the chain must **not** automatically get it just by holding that role. **For tutor-scoped rights this is already implemented (issue #483):** `hr.employee.tutor_scope_user_ids` (the tutor plus every chief above them through `parent_id`, plus the Director; non-stored, searchable) and `ems.base.user_acts_as_tutor(tutor)` — every tutor-scoped `ir.rule` and Python check matches on those, so any new one must too, never on `tutor_id.user_id` (see "Tutor scope" in `docs/en/developers/employees/role_hierarchy.md`). `hr.employee.find_head_of_studies()` (`models/employees/employee.py`) is the older, narrower precedent — it walks the same `parent_id` chain for approval routing. The gap: most `ir.rule`s in this codebase instead grant access via flat group membership plus `domain_force=[]` (e.g. `rule_attendance_correction_hos`, `security/rules/attendance.xml` — any Head of Studies/Deputy can act on *any* employee's request, not just their own chain), which is a shortcut, not a hierarchy resolution. **How to apply:** when designing a *new* permission/approval-routing rule, resolve the actual hierarchical relationship (reusing `tutor_scope_user_ids` or its non-stored + searchable pattern, generalizing `find_head_of_studies()`'s pattern, or a stored+computed field on `hr.employee` analogous to the existing `attendance_manager_id`/`leave_manager_id`) rather than reaching for a flat role-based `ir.rule` with `domain_force=[]` out of convenience — even though several existing rules currently do exactly that. Retrofitting those existing flat rules is tracked separately as future work (`plans/permission_hierarchy_escalation.md` + memory) — auditing and fixing all of them is not something every unrelated change needs to do opportunistically; some may turn out to be intentionally global (e.g. per this file's own "Full-scenario exploration" rule above, verify rather than assume either way, and ask the developer when genuinely ambiguous).
 - **The administrator is always at the top of the permission pyramid, above Direction (developer, 2026-10-07).** Whatever a permission check resolves from the hierarchy, the administrator (`base.group_system` / `ems.group_academic_admin`) must be able to do it too: they are not a teacher and appear nowhere in the `hr.employee` `parent_id` chain, so a hierarchy-resolved check (e.g. `tutor_scope_user_ids`) never includes them by itself - add them explicitly, and test it. First applied to managing absences from the guard duty board (`ems.course._is_absence_manager`, issue #571).
+- **Efficiency first: runtime speed for the users, then memory and resources for the sysadmin (developer, 2026-10-15).** *"No nos podemos permitir caídas de rendimiento de este tipo. Cuando propongas una solución, debes plantearte cómo hacerla lo más eficiente posible en tiempo de ejecución (así nos ganamos a los usuarios) y después eficiente en memoria o consumo de recursos (así nos ganamos al administrador de sistemas)."* Found on the guard duty board (issue #637): its RPC took 14-17s on the dev service, because each cell filtered every lesson of the centre (rows x groups x lessons, ~200k lambda calls) and read employee names one by one (every small fetch paying `hr.employee`'s per-read field access check); fixed by indexing once, batching the reads and filtering in the search domain, ~10x faster. **How to apply:**
+  - Applies to **all new code** from now on, and always within the "Odoo way" (see below): first the ORM's own tools (search domains, `read_group`/`_read_group`, prefetching, stored and indexed computed fields, `ormcache` for data that rarely changes), never a custom mechanism where Odoo already has one. Existing code is reviewed in the pending audit (`plans/performance_audit.md`, issue #641), not opportunistically.
+  - Design for it from the start and say so in the proposal (time first, then memory), don't wait for a complaint.
+  - Filter in the search domain (SQL), not with `filtered()` over a whole-centre search. Never `filtered()`/`search()` inside a loop over the same data: index once (a dict keyed by what the loop looks up) and look it up.
+  - Read a field of many records in one batch (`records.mapped('field')` on the whole set, or keep the prefetch with `with_prefetch()` when building recordsets by `browse(ids)`): a read per record is a query per record.
+  - Don't recompute the same structure several times in one request: compute it once and pass it down.
+  - Measure on this box's real data before handing a screen or RPC over (`odoo shell` + `cProfile`, cold: `env.invalidate_all()` first; or the werkzeug duration column of `/var/log/odoo/odoo-server.log`) and report the numbers. The dev service runs under `debugpy`, which makes Python ~10x slower than production: a number from the service log is not production's, `odoo shell` is closer.
 - Resulting code must be clean, simple, non-redundant, and well-refactored.
 - **All literals must be translatable:** wrap every user-facing string for translation (`_("...")` in Python, `_t("...")` in JS/OWL) so it can be picked up by the i18n files, with English as the default/source language. Wrapping is only step one — it makes a string *translatable*, it does not translate it. Every new feature must also add the actual Catalan/Spanish entries to `i18n/ca_ES.po` and `i18n/es_ES.po` before it's considered done (see the "Close" step of the Development workflow below). To find what's missing: export current terms with `odoo -d ems --i18n-export=<path>.po -l ca_ES --modules=ems --stop-after-init` (repeat for `es_ES`), diff msgids against the checked-in `.po` files, and append translated blocks for the new ones only (don't regenerate/replace the whole file — order doesn't matter to gettext, and the files may already carry unrelated pre-existing gaps that aren't your task's responsibility). Run as the `odoo` user with a path it can write to (not a sandboxed/restricted directory). Do not insert decorative section-header comments between po entries — a comment block with no following `msgid` breaks Odoo's po parser on load.
 
   **A msgid diff alone is not enough — it misses reused labels.** Odoo's po loader binds a block's `msgstr` to the *exact* `#:` reference lines in that block (`model:ir.model.fields,field_description:ems.field_<model>__<field>`, `model:res.groups,name:ems.<xmlid>`, `model:ir.ui.menu,name:ems.<xmlid>`, `model:mail.template,subject/body_html/name:ems.<xmlid>`, etc.) — never by matching msgid text alone. So when a new field/record's label happens to be a common word already translated for a *different* field (`Teacher`, `Name`, `Active`, `Manager`, `Administrator`, `Configuration`, `Sequence`...), a msgid-only diff reports nothing missing — the text isn't new — yet the new field still renders untranslated, because its own `#:` reference was never added to that existing block. For every new field/model/group/menu/template introduced by the feature: search the checked-in `.po` for its exact label text first; if a block already exists, add your new record's `#:` reference to it (same `msgstr`, no translation work needed) instead of assuming it's already covered; only create a brand-new block if the text itself doesn't exist anywhere yet. **Verify, don't just trust the diff:** after `./upgrade.sh`, spot-check a sample of the new fields/records directly in the DB, e.g. `psql -c "SELECT field_description FROM ir_model_fields WHERE model='<model>' AND name='<field>';"` (or the equivalent column for `ir.model.name`, `ir.ui.menu.name`, `res.groups.name`, `mail.template.name`/`subject`/`body_html`, etc.), and confirm the jsonb value actually has `ca_ES`/`es_ES` keys, not just `en_US`. A `.po` entry existing is necessary but not sufficient — only a DB read proves the reference actually matched.
 
   **`tests/test_i18n_coverage.py` checks all of this automatically (issue #557):** it fails when a `_("…")` string in EMS's Python code or a `_t("…")` in `static/src` has no `ca_ES`/`es_ES` entry (or its block lacks the `#. odoo-python`/`#. odoo-javascript` marker Odoo needs to load it at runtime), and when a field EMS itself defines has no Catalan/Spanish label in the database. Run it (`./test.sh TestI18nCoverage`, after `./upgrade.sh`) as part of the Close step; its failure message lists exactly what is missing. Selection values, help texts and view strings are not covered by it yet.
+
+  **Catalan and Spanish text must be correct, not just present: check it with LanguageTool (developer, 2026-10-16, issue #650).** Staff and families read it, and errors had already reached them (a deck and its videos said "Vaig a faltar", a castellanisme, for "Faltaré"; a first pass found about 1,180 findings in `docs/ca/` and `ca_ES.po`, being fixed in issue #651). `scripts/i18n/lt_check.py` checks `docs/{ca,es}/**/*.md` (markdown-aware) and `i18n/{ca,es}_ES.po` (`msgstr` only) with the LanguageTool Premium API; `--since <ref>` reports only the lines/entries changed since that ref, `--text "..." --lang ca-ES` checks loose text. Credentials are personal (`~/.claude/languagetool.json`, never in the repo): without them the script says so and exits 0, so a colleague without a key is never blocked, and the pass then happens in the developer's release close review (see "Revisión del cierre" below). **How to apply:** whenever you write or change Catalan or Spanish text (translations, user manuals, the staff newsletter, slides/video text) and a key is available, run the check and fix every real finding before handing the text over; on the developer's machines a Claude Code `PostToolUse` hook does it automatically after each edit and returns the findings. Review each finding, don't apply suggestions blindly: a word that is correct but keeps being flagged (an acronym, a proper noun) goes in `scripts/i18n/lt_ignore.txt`, never a real error. Job titles go in lowercase in running text, as the IEC norm says ("cap d'estudis", "director", "professors"). Details: `docs/en/developers/tooling/languagetool.md`.
 
 ## Documentation structure
 
@@ -871,6 +902,10 @@ has no visibility into whether it stayed consistent with another feature merged 
   `index.md`.
 - Translations (`i18n/{ca_ES,es_ES}.po`) — verified via a DB read-back (see "All literals must be
   translatable" above), not just `.po` presence.
+- Spelling and grammar of every Catalan/Spanish text changed since the last release tag
+  (`scripts/i18n/lt_check.py --since <last tag>`, see "Catalan and Spanish text must be correct"
+  above): colleagues without a LanguageTool key can't run it on their own branches, so this is
+  where their text gets checked. Fix the real findings.
 - Test coverage: backend `TransactionCase`, feature-specific tours, **and** the 5 role-smoke
   crawler tours (`tests/test_role_smoke_*_tour.py`, see "Per-role smoke tours" above) actually run
   against the fully-integrated branch. This is the moment the per-branch role-tour obligation
@@ -911,6 +946,15 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
    same-version `pre/post-migrate.py` bodies into one file). Commit each merge before starting the
    next one — this routine is an explicit exception to the developer managing commits themselves.
    If a conflict is still ambiguous after reviewing both sides, stop and ask.
+
+   **`i18n/*.po` conflicts are expected here and keep both sides (2026-10-13).** Every branch
+   appends its new entries at the end of both `.po` files, so two branches adding translations
+   always conflict there. Keep both sides' blocks, never pick one. Check the result block by
+   block: git treats the lines the two sides share (`#. module: ems`, `#. odoo-python`, a
+   `#: code:addons/ems/...` reference to the same file) as common context, so a block can come out
+   of the merge without its own `#:` reference, which Odoo then never loads. Afterwards parse both
+   files with `polib` and confirm every entry of every merged branch is still there with its
+   references.
 
    **Move each issue's card on the board as you go** (added 2026-09-26): right after committing
    an issue's merge, move it from "📦 Ready to merge" to **"⚙️ Merge in progress"**; if its branch
@@ -989,6 +1033,9 @@ circunstancia."* The loop:
   exit; no polling by hand). Green means every check except `changelog-clean`/`verify` (the
   "Require changelog clean" workflow, red by design until `/changelog-clean`) and `deploy-check`
   (manual).
+- Read the run's real conclusion before the next step (`gh run view <run-id> --json conclusion`):
+  a background command ending in something else (an `echo`, a pipe) reports that command's exit
+  code, not the run's. On 2026-10-13 `/changelog-clean` was posted on a red run that way.
 - Only the run of the newest pushed head counts; stop watching any earlier one as soon as a new
   push lands. Every push starts a new run of this workflow, a docs-only one included (never
   skipped, so the required check can't hang on "pending"), and older runs are not cancelled (no
@@ -1003,8 +1050,22 @@ circunstancia."* The loop:
 - Stop and ask instead of pushing another attempt when the fix is a judgment call rather than a
   correction (changing a feature's behavior, relaxing a validation to make a test pass), when the
   failure is outside the code (GitHub infrastructure, an external service), or after ~3 red cycles.
-- Outside this routine the agent never pushes, unless the developer explicitly grants it for that
-  specific case.
+
+**Pushing outside the release routine (developer, 2026-10-06, replacing "never pushes outside this
+routine"):** *"puedes hacer push de las ramas que hayas creado tú o si te pido que resuelvas o
+gestiones tú una issue"*. So the agent may push, without asking each time:
+- a branch it created itself, and
+- the branch of an issue the developer asked it to resolve or manage (this is what "completa la
+  issue" / "cierra la issue" relies on to push the issue branch before moving its card to "Ready
+  to merge").
+
+Anything else (a colleague's branch, a branch the developer is working on by hand) needs the
+developer's explicit go-ahead for that case. The limits are the same as in the routine: a plain
+fast-forward with the credential helper on that one command
+(`git -c credential.helper='!gh auth git-credential' push origin <branch>`), never `--force`,
+never `main`, and stop and ask if the remote has commits the local branch lacks. Local commits of
+finished, verified work need no permission (developer, 2026-10-04), never on `main` and never
+amending or rewriting one already pushed.
 
 **Hard limits, no exceptions:**
 - **`main` and the repository itself are read-only** (developer's rule, 2026-09-27: *"Nunca jamás
@@ -1210,8 +1271,42 @@ replaced because one email per release was too frequent for staff). When asked:
    merged --json number,title,body,mergeCommit`), which is where the changelog survives after
    `changelog/` is deleted before merge. Write **one** email for the whole period, grouped by
    topic rather than by version.
-4. Send it (mechanism below). Once the shell output confirms `state=sent`, update the memory marker
-   to the newest tag included, with the send date.
+4. Show the draft in chat and wait for the developer's OK (unless they asked to send it straight
+   away), then send it (mechanism below). Once the shell output confirms `state=sent`, update the
+   memory marker to the newest tag included, with the send date.
+
+**Content: light, written for rank-and-file teachers (developer, 2026-09-28 to 2026-10-14).** Most
+readers are basic users, not Heads of Studies, secretary or admin, and a long list buries the few
+things they need (a first draft covering every topic was "demasiado largo", the second cut too
+much; the third was approved). Structure that works:
+1. A short intro with a two-part list: **"Per a tot el professorat"** (only what every teacher
+   uses: check-in/fitxatges, meeting attendance, the Documentation menu) and **"Només per a cicles
+   formatius"** (everything else). Outside CCFF, EMS is only used for check-in: staff absences and
+   the guard duty board are CCFF-only too, since ESO/BTX still use the old system, and an ESO/BTX
+   Head of Studies shouldn't get questions they can't answer.
+2. Right after that list, before the first `<h2>`, a callout box presenting EMS with the "Què és
+   EMS?" video on the shared Drive
+   (<https://drive.google.com/file/d/1yRnv_r2r6n1Iz-MA_4B67AAHodlDH3Hw/view?usp=sharing>, as a
+   button link: a Drive video can't be embedded in an email).
+3. One `<h2>` per section with only **concrete features a teacher uses**, 2-3 bullets per topic and
+   one manual link (the teacher-facing one, not the HOS/secretary/admin manuals).
+4. **"Altres canvis rellevants"** (its own `<h2>`, after both sections, no audience split): fixes
+   of things that were annoying to users (duplicate emails for one event, replies landing in the
+   general mailbox, a character that couldn't be typed, two screens showing the same thing
+   differently).
+5. Closing: the docs index link, plus "if you want the full list of changes (in English)" linking
+   each GitHub release of the period (`https://github.com/ElPuig/EMS/releases/tag/<tag>`; the repo
+   is public).
+
+Leave out small form/field changes (copy buttons, label tweaks), workflows only approvers or
+managers use (Actions dropdown, undoing a decision, convalidation states, imports, schedules) and
+internal changes. Everything reads as one package: never mark items as "Nou:", even when the
+email covers several releases. When the developer supplies the wording for an item, use it
+verbatim. Extra material with no image file (e.g. several Drive videos) goes in the body as a
+card block in the house colors (a table with number, duration, title, audience and a "▶ Veure"
+button per video), linking each Drive file individually (the folder isn't public, the files are
+shared by link). The `[DEV]` subject prefix a dev machine adds doesn't matter: the developer
+removes it when forwarding.
 
 **Recipient is always the fixed address above, never one read from the database** — same
 principle as this file's "Email safety in tests": an address must be explicit and
@@ -1268,3 +1363,45 @@ session's own scratchpad directory tree (each level is `700`, owned by the sessi
 `odoo shell` fails with `PermissionError` trying to open it directly. Copy the HTML body to a
 world-readable path under `/tmp/` first (`chmod 644`), point the script at that copy, and delete
 the temporary copy again once the send confirms `state=sent` in the shell's own output.
+
+## Slide decks and videos about EMS: house style (2026-10-08)
+
+Any slide deck or video about EMS for the centre's staff follows Institut Puig Castellar's house
+style. The canonical source is the deck "EMS: funcionalitats per col·lectiu"
+(<https://claude.ai/artifact/9E6uxBwmNzdFjjhUAqo4gL>); read its slide HTML to copy the exact
+markup instead of rebuilding it from this description.
+
+- **Format and language:** a claude.ai Slides artifact (it exports to .pptx/PDF), not a .pptx
+  file. Catalan.
+- **Colors:** burgundy `#970A2C` (primary: header band, icons, accent text), dark `#5C0000`,
+  bright `#B31438`; orange `#EF902A` (stripes, borders, arrows; as text on a light background use
+  `#A8520C`), light orange `#FFCF9E` (eyebrows and accents on burgundy), `#FDEEDC` (icon circles,
+  callouts); backgrounds `#F5F5F5` and `#F1EDEE`; white cards with border `#E3DDDE` and a soft
+  shadow; headings `#2F2F2F`, body `#4A4A48`, text on burgundy `#FFFFFF`/`#F0D7DD`.
+- **Fonts:** Rubik (headings) and Public Sans (body), from Google Fonts.
+- **Layout:** cover, closing and section dividers on a
+  `linear-gradient(135deg, #5C0000 0%, #970A2C 62%, #B31438 100%)` with an orange top stripe and
+  the logo in a white rounded box; content slides with a burgundy top band (orange bottom border)
+  holding an uppercase eyebrow and the title. The closing slide links the manuals as pills
+  (`https://docs.ems.elpuig.xeill.net/ca/<path>.html`), carries a QR to the docs index and signs
+  "Equip EMS · Projecte de Qualitat i Millora Contínua".
+- **Screenshots** only with fictitious data: `docs/assets/` or the `ChromeBrowser` mechanism (see
+  "Screenshots must never expose real personal data" above).
+
+**Videos:**
+- No voice-over: they must be understood on mute, so the on-screen text is complete. One short
+  video (2-4 minutes) per self-contained block.
+- MP4, 1920x1080, H.264 video with **MP3 audio** (the developer's VSCode player plays no sound
+  with AAC or Opus and rejects WebM).
+- Elements build in progressively, with a thin orange progress bar along the bottom edge for the
+  whole video.
+- When one deck yields several videos, each starts the same way (cover, the index of all blocks,
+  the same index with this video's block highlighted in burgundy) and goes straight into the
+  content, skipping the block's own title slide. The deck keeps its title slides for live
+  presenting.
+- **Music:** soft background music by a human author who can be credited on a final slide, never
+  AI-generated (the point is to give artists visibility). Creative Commons, preferably CC BY 4.0
+  or CC0; avoid ND. Cheerful but relaxed (it is a workplace), neither epic nor melancholic. A
+  different track and a different author for each video.
+- The rendering pipeline is not in this repo: on the developer's desktop box it lives in
+  `/root/ems-slides-video/` (never keep it only under `/tmp`, which is wiped on reboot).

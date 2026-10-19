@@ -33,6 +33,7 @@ Navega a: **Comunitat Educativa → Grups**
    - **Delegat**: un alumne representant (només seleccionable un cop el grup té alumnes).
    - **Sotsdelegat**: l'alumne que substitueix el delegat. Es tria entre els mateixos alumnes i no pot ser el delegat.
    - **Torn**, **Aula de referència**, **ID extern** (codi Esfera/SAGA) segons calgui.
+   - **Gestionat pels departaments** (només lectura, visible quan n'hi ha): el departament indicat als estudis del grup o, en un grup de reforç, als estudis dels seus grups principals. Els seus caps també poden organitzar les absències de les classes del grup. Es canvia des de la fitxa dels estudis (consulta [Estudis](curriculum-studies.md)).
 4. Fes clic a **Desa**.
 
 ![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat i sotsdelegat, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
@@ -49,6 +50,7 @@ Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per 
 2. Canvia **Tipus de grup** a **Reforç**. Nivell, Estudi, Tutor, Delegat i Sotsdelegat desapareixen — no apliquen.
 3. Omple un **Nom** directament (p. ex., `REF-MATES`).
 4. Si el grup és un desdoblament, un grup flexible o una optativa, indica a **Grups principals** els grups dels quals ve el seu alumnat (p. ex., `ESO1A` per a un desdoblament de 1A, o tots els grups de 1r per a una optativa de 1r). Les seves classes apareixeran també a l'horari de cadascun d'aquests grups.
+   Quan ja hi ha alumnat inscrit, si part d'ell ve de grups principals que no hi són, un avís groc a dalt de la fitxa ho indica, i el botó **Omplir els grups principals des de l'alumnat inscrit**, a dalt de la fitxa, els afegeix (mai no en treu cap, perquè un grup principal es pot indicar abans que el seu alumnat s'hi inscrigui).
 5. Fes clic a **Desa**.
 6. Afegeix alumnes de la mateixa manera que a qualsevol altre grup: des de la fitxa del propi alumne (o el procés de matrícula), matricula'l en una assignatura amb aquest grup de reforç com a **Grup** — poden venir de qualsevol grup/estudi principal. Apareixeran a la pestanya **Inscrit** d'aquest grup.
 

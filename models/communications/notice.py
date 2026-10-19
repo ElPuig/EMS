@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_normalize
+
+_logger = logging.getLogger(__name__)
 
 class EmsNotice(models.Model):
     _name = "ems.notice"
@@ -61,6 +65,14 @@ class EmsNotice(models.Model):
         compute="_compute_can_cancel",
         store=False,
     )
+    # Whether the current user may edit, send or cancel this notice: its creator, or someone above
+    # them in the chain of command (security/rules/communications.xml). Hides the form's actions
+    # from everyone else, who may still read it (e.g. another Head of Studies, for supervision).
+    can_manage = fields.Boolean(
+        string="Can manage",
+        compute="_compute_can_manage",
+        store=False,
+    )
 
     @api.depends('notice_line_ids')
     def _compute_recipient_count(self):
@@ -83,6 +95,14 @@ class EmsNotice(models.Model):
                 line.notification_id and line.notification_id.state in RUNNING
                 for line in notice.notice_line_ids
             )
+
+    @api.depends_context('uid')
+    def _compute_can_manage(self):
+        # A record still being created carries a NewId, which the rule check skips: a new notice
+        # is always the user's own.
+        writable = self._filtered_access('write')
+        for notice in self:
+            notice.can_manage = notice in writable
 
     def _compute_display_name(self):
         for notice in self:
@@ -190,6 +210,23 @@ class EmsNotice(models.Model):
         self.write({'state': 'scheduled', 'sent_by': self.env.uid})
         self.chatter(_("Notice scheduled. %d email(s) enqueued.") % len(lines_to_send))
         return True
+
+    def _send_or_keep_draft(self):
+        """Sends each of these draft notices as action_send does, for the guard duty board, where
+        accepting an arrangement is the confirmation (issue #652): nobody reviews the notice first.
+        One that cannot be sent (no recipients, a sender without an email address...) stays a
+        draft, untouched, for the planner to review and send from its own form. Returns
+        `(drafts, error)`: the notices still in draft, and the reason the first of them failed."""
+        drafts, error = self.browse(), False
+        for notice in self:
+            try:
+                with self.env.cr.savepoint():
+                    notice.action_send()
+            except UserError as exception:
+                _logger.info("Notice %s left in draft: %s", notice.id, exception)
+                drafts |= notice
+                error = error or str(exception)
+        return drafts, error
 
     def _check_and_finalize(self, just_succeeded_line=None):
         """Update state once all jobs reach a terminal state.

@@ -45,11 +45,16 @@
              odoo/addons/base/models/ir_rule.py's _compute_domain - this is the fix for a real
              bug found while first implementing this access model, see
              docs/en/developers/communications/notice.md). -->
+        <!-- "Own" also covers the notices of everyone below them in the chain of command
+             (hr.employee.tutor_scope_user_ids of the creator: every chief above them through
+             parent_id, and the Director), so a Head of Studies/Deputy can review and send a
+             draft written by a Department Chief of their own branch (issue #636), never one from
+             another branch. -->
         <record model="ir.rule" id="rule_notice_own">
-            <field name="name">Notice: user edits own</field>
+            <field name="name">Notice: user edits own and their branch's</field>
             <field name="model_id" ref="ems.model_ems_notice"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_quality_admin')])]"/>
-            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('create_uid.employee_ids.tutor_scope_user_ids', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
@@ -82,10 +87,10 @@
         </record>
 
         <record model="ir.rule" id="rule_notice_line_own">
-            <field name="name">Notice line: user edits own (via parent notice)</field>
+            <field name="name">Notice line: user edits own and their branch's (via parent notice)</field>
             <field name="model_id" ref="ems.model_ems_notice_line"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_quality_admin')])]"/>
-            <field name="domain_force">[('notice_id.create_uid', '=', user.id)]</field>
+            <field name="domain_force">['|', ('notice_id.create_uid', '=', user.id), ('notice_id.create_uid.employee_ids.tutor_scope_user_ids', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
@@ -96,15 +101,17 @@
              their department teaches (ems.group.department_chief_user_ids: a teacher of their
              department, or of one of its sub-departments, teaches the group). They read their
              own notices and everyone else's addressed to one of those groups, and edit, send and
-             delete only their own; _check_department_chief_groups keeps what they write within
-             those groups. The guard duty board's timetable-change notices (issues #539/#581) are
-             notices like any other here. Head of Studies implies this group, so these rules only
+             delete only their own and those of the chiefs below them (same chain of command as
+             rule_notice_own above); _check_department_chief_groups keeps what they write within
+             those groups. The guard duty board's timetable-change notices (issues #539/#581) and
+             its notices to the students about moved lessons (issue #649) are notices like any
+             other here. Head of Studies implies this group, so these rules only
              ever add to what their own rules above grant. -->
         <record model="ir.rule" id="rule_notice_department_chief_read">
             <field name="name">Notice: department chief reads own and their department's groups' notices</field>
             <field name="model_id" ref="ems.model_ems_notice"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
-            <field name="domain_force">['|', ('create_uid', '=', user.id), ('group_ids.department_chief_user_ids', 'in', user.id)]</field>
+            <field name="domain_force">['|', '|', ('create_uid', '=', user.id), ('create_uid.employee_ids.tutor_scope_user_ids', '=', user.id), ('group_ids.department_chief_user_ids', 'in', user.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -112,10 +119,10 @@
         </record>
 
         <record model="ir.rule" id="rule_notice_department_chief_own">
-            <field name="name">Notice: department chief edits own</field>
+            <field name="name">Notice: department chief edits own and their branch's</field>
             <field name="model_id" ref="ems.model_ems_notice"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
-            <field name="domain_force">[('create_uid', '=', user.id)]</field>
+            <field name="domain_force">['|', ('create_uid', '=', user.id), ('create_uid.employee_ids.tutor_scope_user_ids', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
@@ -126,7 +133,7 @@
             <field name="name">Notice line: department chief reads own and their department's groups' notices</field>
             <field name="model_id" ref="ems.model_ems_notice_line"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
-            <field name="domain_force">['|', ('notice_id.create_uid', '=', user.id), ('notice_id.group_ids.department_chief_user_ids', 'in', user.id)]</field>
+            <field name="domain_force">['|', '|', ('notice_id.create_uid', '=', user.id), ('notice_id.create_uid.employee_ids.tutor_scope_user_ids', '=', user.id), ('notice_id.group_ids.department_chief_user_ids', 'in', user.id)]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
@@ -134,10 +141,10 @@
         </record>
 
         <record model="ir.rule" id="rule_notice_line_department_chief_own">
-            <field name="name">Notice line: department chief edits own (via parent notice)</field>
+            <field name="name">Notice line: department chief edits own and their branch's (via parent notice)</field>
             <field name="model_id" ref="ems.model_ems_notice_line"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
-            <field name="domain_force">[('notice_id.create_uid', '=', user.id)]</field>
+            <field name="domain_force">['|', ('notice_id.create_uid', '=', user.id), ('notice_id.create_uid.employee_ids.tutor_scope_user_ids', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>

@@ -10,6 +10,7 @@
                     <field name="template_teacher_ids" string="Holder" widget="many2many_avatar_employee" width="250px" />
                     <field name="group_ids" widget="many2many_tags" width="125px"/>
                     <field name="subject_id"/>
+                    <field name="topic" optional="show"/>
                     <field name="weekday" width="125px"/>
                     <field name="start_time" widget="float_time" width="125px"/>
                     <field name="end_time" widget="float_time" width="125px"/>

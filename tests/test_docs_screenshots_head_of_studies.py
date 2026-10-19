@@ -106,8 +106,9 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         })
 
         # --- Attendance correction ---
+        # Below the Head of Studies: they only see the requests of their own branch (issue #543).
         cls.correction_employee = cls.env['hr.employee'].create({
-            'name': '0000 Anna Exemple', 'employee_type': 'teacher',
+            'name': '0000 Anna Exemple', 'employee_type': 'teacher', 'parent_id': cls.hos_employee.id,
         })
         cls.attendance = cls.env['hr.attendance'].create({
             'employee_id': cls.correction_employee.id,
@@ -268,6 +269,44 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             max_height=520,
         )
 
+    def test_capture_absence_change_message(self):
+        """The dialog a decision opens on a request the Head corrected (issue #615): the
+        employee had picked "Health" and it is an ATRI absence."""
+        leave = self.env['hr.leave'].create({
+            'employee_id': self.other_employee.id, 'holiday_status_id': self.leave_type_health.id,
+            'request_date_from': datetime(2027, 4, 5).date(), 'request_date_to': datetime(2027, 4, 5).date(),
+            'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        leave.write({'holiday_status_id': self.env.ref('ems.leave_type_atri').id, 'ems_full_day': True})
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències', 'res_model': 'hr.leave', 'view_mode': 'list,form',
+            'domain': [('id', '=', leave.id)],
+        })
+        self._capture(
+            '/odoo/action-%d/%d' % (action.id, leave.id),
+            '.modal-content', 'hos-absences-change-message.png',
+            login='doc_shot_hos', wait_for=".o_form_statusbar .o_ems_actions_toggle",
+            # Validate is an entry of the form's Actions dropdown, which has to be opened first.
+            click=[".o_form_statusbar .o_ems_actions_toggle",
+                   ".o_ems_actions_menu button[name='action_approve']"],
+            wait_after=[".o_ems_actions_menu button[name='action_approve']",
+                        ".modal div[name='changes'] li"],
+        )
+
+    def test_capture_absence_refuse(self):
+        """The dialog every Refuse button opens, with the box for the reason."""
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències', 'res_model': 'hr.leave', 'view_mode': 'list,form',
+            'domain': [('id', '=', self.leave_pending.id)],
+        })
+        self._capture(
+            '/odoo/action-%d' % action.id,
+            '.modal-content', 'hos-absences-refuse.png',
+            login='doc_shot_hos', wait_for=".o_data_row button[name='action_refuse']",
+            click=".o_data_row button[name='action_refuse']",
+            wait_after=".modal div[name='message'] textarea",
+        )
+
     def test_capture_head_of_studies_screenshots(self):
         self._capture(
             '/odoo/action-%d' % self.absence_action.id,
@@ -324,14 +363,12 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
         )
         self._capture(
             '/odoo/action-ems.action_employee_kanban/%d' % self.new_teacher.id,
-            # The form's Actions dropdown, open. Its menu is an overlay outside the form, hence
-            # the body; beyond_viewport=False because the dropdown closes when Chrome resizes the
-            # page.
+            # Create Google account is the only action that applies, so it is a plain header
+            # button rather than an Actions dropdown.
             'body', 'hos-staff-management-create-account.png',
-            login='doc_shot_hos', wait_for='.o_form_statusbar .o_ems_actions_toggle',
-            click='.o_form_statusbar .o_ems_actions_toggle',
-            wait_after='.o_ems_actions_menu button[name="action_create_google_account"]',
-            max_height=420, beyond_viewport=False,
+            login='doc_shot_hos',
+            wait_for='.o_form_statusbar button[name="action_create_google_account"]',
+            max_height=420,
         )
         self._capture(
             '/odoo/action-ems.action_strike_list/%d' % self.strike.id,

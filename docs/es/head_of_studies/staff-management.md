@@ -78,7 +78,7 @@ El Jefe de departamento y el Jefe de seminario de un docente también pueden ver
 
 Al guardar la ficha de un profesor nuevo con el nombre y el correo personal, la cuenta corporativa se crea automáticamente en unos momentos: no hace falta pulsar nada.
 
-Las acciones que gestionan la cuenta corporativa están en el menú **Acciones** de la barra superior de la ficha. Cuáles aparecen depende del estado de la cuenta:
+Las acciones que gestionan la cuenta corporativa están arriba de la ficha, agrupadas en el menú **Acciones** cuando hay más de una. Cuáles aparecen depende del estado de la cuenta:
 
 | Botón | Cuándo aparece | Qué hace |
 |-------|----------------|----------|
@@ -88,7 +88,7 @@ Las acciones que gestionan la cuenta corporativa están en el menú **Acciones**
 | **Reactivar cuenta de Google** | La cuenta está suspendida | La vuelve a activar |
 | **Restablecer contraseña de Google** | La cuenta existe y no está suspendida | Asigna a la cuenta una contraseña temporal nueva, que hay que cambiar en el primer inicio de sesión, y entrega credenciales nuevas (ver más abajo). Para quien ha olvidado la contraseña |
 
-![Menú Acciones con Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
+![El botón Crear cuenta de Google en una ficha de profesorado sin cuenta todavía](../../assets/head_of_studies/hos-staff-management-create-account.png)
 
 Cuando la cuenta se crea, o se restablece su contraseña, las credenciales viajan por dos vías: se guarda un PDF en la ficha, en el bloque **Cuenta de Google** de la pestaña **Recursos humanos**, y se envía un correo con la contraseña a la dirección personal. La ficha solo conserva el último PDF, y solo lo ven los roles que gestionan la cuenta. Si la cuenta no se puede crear porque faltan datos obligatorios, se publica una nota en el historial de mensajes de la ficha indicando exactamente qué campos faltan.
 

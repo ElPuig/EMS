@@ -259,6 +259,11 @@ contact record and family contacts, not just read. Reported directly by the deve
 as a Head of Studies, the student's personal-data block was hidden entirely, and deleting a family
 contact raised an `AccessError` naming `res.partner.relation`.
 
+**Not the attendance reports.** The attendance reports screen and its PDFs (issue #633) do not follow
+this centre-wide read: they escalate by the chain of command, and a Head of Studies / Deputy sees the
+students of the studies of their own area (and of the tutors below them), the Director the whole centre.
+See [Attendance reports](../attendance/attendance_reports.md#scope-who-sees-what).
+
 Three independent gaps, found by tracing every layer the "Add contact" flow and the student form
 actually go through - fixing only one would have left the other two failing:
 

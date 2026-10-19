@@ -7,20 +7,24 @@
             <field name="inherit_id" ref="sale.view_order_tree"/>
             <field name="arch" type="xml">
 
-                <!-- Enrollment lists: replace the native "Create Invoices" bulk
-                     action with a one-click "Send Enrollment" (email the
-                     proposal + mark the drafts as sent). Scoped by the
-                     ems_enrollment context flag so native Sales lists keep
-                     their "Create Invoices" button untouched. -->
+                <!-- Enrollment lists: replace the native "Create Invoices" bulk action with
+                     "Send Enrollment" (email the proposal + mark the drafts as sent) and "Close
+                     unconfirmed enrollments". Scoped by the ems_enrollment context flag so native
+                     Sales lists keep their "Create Invoices" button untouched; the same action
+                     context (ems_header_actions) puts them in the "Actions" dropdown. -->
                 <xpath expr="//header/button[@type='action']" position="attributes">
                     <attribute name="invisible">context.get('ems_enrollment')</attribute>
                 </xpath>
                 <xpath expr="//header" position="inside">
                     <button name="action_send_enrollment_proposal" type="object"
-                            string="Send Enrollment" class="btn-primary"
+                            string="Send Enrollment"
                             invisible="not context.get('ems_enrollment')"
                             confirm="Email the enrollment proposal to the selected enrollments and mark the drafts as sent?"
                             groups="ems.group_academic_admin,ems.group_secretary"/>
+                    <button name="action_ems_close_unconfirmed" type="object"
+                            string="Close unconfirmed enrollments"
+                            invisible="not context.get('ems_enrollment')"
+                            groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                 </xpath>
 
                 <xpath expr="//field[@name='partner_id']" position="attributes">

@@ -3,6 +3,13 @@
 from odoo import api, fields, models
 
 
+# What registering a title does to the student (issue #635), shared by the title wizards.
+TITLE_EFFECTS = [
+    ('graduate', 'Leaves the centre as a graduate'),
+    ('alumni', 'Withdrawal becomes alumni'),
+    ('title', 'Title only'),
+]
+
 # The year record is a frozen COPY of the grades subsystem output — never recalculated
 # here. The single source of truth for grade computation is ems.grade_subject_line /
 # ems.grade_outcome_line; this model copies their values (and the planning weights in
@@ -94,6 +101,76 @@ class EmsStudentYearRecord(models.Model):
             record.display_name = \
                 f"{record.student_id.display_name or ''} ({record.course_id.name or ''})"
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        records = super().create(vals_list)
+        records.filtered('title_obtained')._ems_register_title()
+        return records
+
+    def write(self, vals):
+        newly_titled = self.filtered(lambda record: not record.title_obtained) \
+            if vals.get('title_obtained') else self.browse()
+        result = super().write(vals)
+        newly_titled._ems_register_title()
+        return result
+
+    # --- titles (issue #635) ---
+
+    def _ems_title_effect(self):
+        """What registering this record's title does to the student (see TITLE_EFFECTS)."""
+        self.ensure_one()
+        student = self.student_id
+        if student.contact_type == 'withdrawal':
+            return 'alumni'
+        if student.contact_type == 'student' and student.active and not student.main_group_id:
+            return 'graduate'
+        return 'title'
+
+    def _ems_register_title(self):
+        """Carry a title marked on the history over to the student, whoever marks it: by hand
+        on the record, from the student form or with the title import.
+
+        The student is marked as graduated (has_graduated, permanent). A withdrawal becomes
+        alumni, keeping its exit data. An active student with no group (not studying here any
+        more) leaves the centre as a graduate of the record's course, with the same steps as a
+        withdrawal. A student still in a group only gets the mark. Unticking the title undoes
+        nothing: has_graduated is permanent.
+
+        Skipped with the 'ems_skip_title_effects' context: the generator (the title comes from
+        a graduation the transition or the withdrawal are already processing) and the callers
+        that run this method themselves to get its summary.
+        Returns {'graduated': int, 'alumni': int, 'revoked': int, 'skipped': int, 'issues': [str]}.
+        """
+        summary = {'graduated': 0, 'alumni': 0, 'revoked': 0, 'skipped': 0, 'issues': []}
+        if self.env.context.get('ems_skip_title_effects'):
+            return summary
+        today = self.env['ems.datetime_utils'].get_local_today()
+        for record in self:
+            student = record.student_id
+            record_vals = {} if record.academic_result else {'academic_result': 'full'}
+            if not student.has_graduated:
+                student.write({'has_graduated': True})
+            effect = record._ems_title_effect()
+            if effect == 'alumni':
+                student.write({'contact_type': 'alumni'})
+                summary['alumni'] += 1
+            elif effect == 'graduate':
+                student.write({
+                    'exit_type': 'graduation',
+                    'exit_course_id': record.course_id.id,
+                    'exit_date': today,
+                })
+                record_vals.update(exit_type='graduation', exit_date=today)
+                student._ems_cancel_pending_enrollments()
+                leave = student._ems_leave_centre()
+                summary['graduated'] += 1
+                summary['revoked'] += leave['revoked']
+                summary['skipped'] += leave['skipped']
+                summary['issues'] += leave['issues']
+            if record_vals:
+                record.write(record_vals)
+        return summary
+
     # --- generation (called by the withdrawal wizard and the transition wizard) ---
 
     @api.model
@@ -149,6 +226,9 @@ class EmsStudentYearRecord(models.Model):
         # Issue #492.
         student = student.sudo()
         group = (group or student.main_group_id).sudo()
+        # The title it may write comes from a graduation already being processed: no effects
+        # on the student (see _ems_register_title()).
+        generating = self.with_context(ems_skip_title_effects=True)
         # A record already frozen is never rewritten from an empty group. Once the
         # transition has run, the student has no main_group_id (step 4b detached it) and
         # its live grade lines are gone (step 8 deleted them, precisely because this
@@ -156,7 +236,7 @@ class EmsStudentYearRecord(models.Model):
         # trace of the year with blanks. It is not hypothetical: the withdrawal wizard
         # regenerates on every exit, and the manual tells the operator to register the
         # leavers AFTER applying the transition.
-        existing = self.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
+        existing = generating.search([('student_id', '=', student.id), ('course_id', '=', course.id)])
         # A course taken at another centre (issue #585) is not this centre's to regenerate:
         # nothing here holds its grades but the record itself.
         if existing and (existing.is_external or not group):
@@ -195,7 +275,7 @@ class EmsStudentYearRecord(models.Model):
             record.subject_record_ids.unlink()
             record.write(vals)
         else:
-            record = self.create(vals)
+            record = generating.create(vals)
         return record
 
     @api.model
@@ -207,7 +287,10 @@ class EmsStudentYearRecord(models.Model):
             attended = len([line for line in lines if line.status_id.category == 'assistance'])
             return round(100.0 * attended / len(lines), 2) if lines else 0.0
 
-        lines = self.env['ems.attendance_session_line'].search([('student_id', '=', student.id)])
+        # active_test forced on: the exit wizards run from the students' list, which turns it off,
+        # and a session the student was removed from the roll-call of never counts (issue #628).
+        lines = self.env['ems.attendance_session_line'].with_context(active_test=True).search(
+            [('student_id', '=', student.id)])
         by_subject = {}
         for line in lines:
             by_subject.setdefault(line.attendance_session_id.subject_id, []).append(line)

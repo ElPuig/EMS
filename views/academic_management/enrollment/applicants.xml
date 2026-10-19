@@ -14,6 +14,9 @@
                     <filter name="afternoon" string="Afternoon" domain="[('preinscription_shift', '=', 'afternoon')]"/>
                     <separator/>
                     <filter name="nee" string="NEE" domain="[('special_needs', '!=', False)]"/>
+                    <separator/>
+                    <filter name="without_enrollment" string="Without enrollment"
+                            domain="[('ems_has_enrollment', '=', False)]"/>
                     <group expand="0" string="Group by">
                         <filter name="groupby_study" string="Study" context="{'group_by': 'study_id'}"/>
                         <filter name="groupby_shift" string="Shift" context="{'group_by': 'preinscription_shift'}"/>
@@ -32,11 +35,16 @@
             <field name="name">ems.applicant.list</field>
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
-                <list string="Preinscription" default_order="study_id asc, name asc">
+                <list string="Preinscription" default_order="study_id asc, name asc"
+                      class="o_ems_header_actions">
                     <header>
                         <button name="action_enrollment_proposal"
                                 type="object"
                                 string="Enrollment proposal"/>
+                        <button name="action_ems_close_unconfirmed"
+                                type="object"
+                                string="Close unconfirmed enrollments"
+                                groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                     </header>
                     <field name="name" string="Applicant"/>
                     <field name="study_id"/>

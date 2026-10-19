@@ -7,12 +7,14 @@ from unittest.mock import patch
 from lxml import etree
 
 from odoo import Command
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools.safe_eval import safe_eval
 
 from ..models.employees.absence import TIME_OFF_GROUP_XMLIDS
 from .common import create_role_employee, create_role_user, mock_outgoing_email
+
+ATRI_OVERDUE = 'ems.mail_activity_absence_atri_overdue'
 
 # The nine absence types seeded by data/cat/hr.leave.type.csv, with the native flags each one
 # needs: (xmlid, requires a supporting document).
@@ -632,12 +634,15 @@ class TestAbsenceRequest(TransactionCase):
         return attachment
 
     def _validated_by_head(self, leave):
-        """Walks a request through the Head's whole side, whatever its type."""
+        """Walks a request through the Head's whole side, whatever its type, and through the
+        employee's own steps on the way, up to Direction."""
         leave.action_approve()
         if leave.ems_status == 'pending_document':
             self._attach(leave)
         if leave.ems_status == 'pending_validation':
             leave.action_ems_document_validate()
+        if leave.ems_status == 'pending_atri':
+            leave.action_ems_atri_requested()
         return leave
 
     def test_a_new_request_is_pending_for_both(self):
@@ -670,10 +675,11 @@ class TestAbsenceRequest(TransactionCase):
         self.assertEqual(leave.ems_status, 'pending_validation')
 
     def test_a_type_without_a_document_goes_straight_to_direction(self):
-        for leave_type in (self.type_health, self.type_atri):
+        # Not ATRI, which needs no document either: it waits for the employee's confirmation
+        # first (see the ATRI tests further down).
+        for leave_type in (self.type_health,):
             with self.subTest(leave_type=leave_type.ems_short_name):
-                leave = self._create_leave(leave_type, self._monday() + timedelta(
-                    days=7 * (leave_type == self.type_atri)), ems_full_day=True)
+                leave = self._create_leave(leave_type, self._monday(), ems_full_day=True)
 
                 leave.action_approve()
 
@@ -823,6 +829,79 @@ class TestAbsenceRequest(TransactionCase):
         with self.assertRaises(AccessError):
             leave.with_user(owner).action_ems_document_insufficient()
 
+    # --- Waiving the supporting document (issue #634) ---------------------------------------
+
+    def _awaiting_document(self, week=0):
+        leave = self._create_leave(self.type_sick_leave, self._monday() + timedelta(weeks=week),
+                                   ems_full_day=True)
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_document')
+        return leave
+
+    def test_waiving_the_document_sends_the_request_on_to_direction(self):
+        """Recorded as waived, never as validated: nobody checked a document that never came.
+        The employee stops being asked for it and is told."""
+        self._direction()
+        owner = self._employee_user('Test Absence Waived', 'absence_waived@absence.test')
+        leave = self._awaiting_document()
+
+        leave.action_ems_document_waive()
+
+        self.assertEqual(leave.ems_document_state, 'waived')
+        self.assertEqual(leave.ems_head_state, 'approved')
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        upload = self.env.ref('ems.mail_activity_absence_document_upload')
+        self.assertFalse(leave.activity_ids.filtered(lambda activity: activity.activity_type_id == upload),
+                         "the employee's to-do is closed")
+        message = leave.message_ids.sorted('id')[-1]
+        self.assertIn(owner.partner_id, message.partner_ids, 'the employee is told')
+        leave.action_ems_direction_done()
+        self.assertEqual(leave.ems_status, 'approved', 'and Direction decides on it as usual')
+
+    def test_only_a_request_awaiting_its_document_can_be_waived(self):
+        pending = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        submitted = self._awaiting_document(week=1)
+        self._attach(submitted)
+
+        for leave in (pending, submitted):
+            with self.subTest(status=leave.ems_status), self.assertRaises(UserError):
+                leave.action_ems_document_waive()
+            self.assertFalse(leave.ems_can_waive_document)
+
+    def test_who_can_waive_a_document(self):
+        """The Head, Direction above them and the administrator above everyone - not the
+        employee, nor any other teacher."""
+        direction = self._direction()
+        head = create_role_user(self, 'head_of_studies', 'absence_waive_hos@absence.test',
+                                email='absence_waive_hos@example.com')
+        admin = create_role_user(self, 'academic_admin', 'absence_waive_admin@absence.test',
+                                 email='absence_waive_admin@example.com')
+        teacher = create_role_user(self, 'teacher', 'absence_waive_teacher@absence.test')
+        owner = self._employee_user('Test Absence Waiver Owner', 'absence_waive_owner@absence.test')
+
+        leave = self._awaiting_document()
+        self.assertFalse(leave.with_user(owner).ems_can_waive_document)
+        for user in (owner, teacher):
+            with self.subTest(user=user.login), self.assertRaises(AccessError):
+                leave.with_user(user).action_ems_document_waive()
+        for week, user in enumerate((head, direction, admin), start=1):
+            leave = self._awaiting_document(week=week)
+            with self.subTest(user=user.login):
+                self.assertTrue(leave.with_user(user).ems_can_waive_document)
+                leave.with_user(user).action_ems_document_waive()
+                self.assertEqual(leave.ems_document_state, 'waived')
+
+    def test_undoing_a_waiver_waits_for_the_document_again(self):
+        """With the reason it had been sent back for, if any, shown to the employee again."""
+        leave = self._awaiting_document()
+        self._attach(leave)
+        self._return_document(leave, "Test the stamp is missing")
+        leave.action_ems_document_waive()
+
+        self.assertEqual(self._undo_statuses(leave, 1), ['pending_document'])
+        self.assertEqual(leave.ems_document_state, 'awaiting')
+        self.assertEqual(leave.ems_document_return_reason, "Test the stamp is missing")
+
     def test_a_head_refusal_refuses_the_request(self):
         leave = self._create_leave(self.type_justified, self._monday())
 
@@ -892,15 +971,15 @@ class TestAbsenceRequest(TransactionCase):
 
         leave.action_ems_direction_done()
         self.assertEqual(leave.ems_direction_state, 'done')
-        leave.action_ems_direction_reset()
+        leave.action_ems_undo()
         self.assertEqual(leave.ems_direction_state, 'not_done')
 
     def test_only_direction_uses_the_direction_buttons(self):
         head = create_role_user(self, 'head_of_studies', 'absence_hos_buttons@absence.test')
         leave = self._validated_by_head(self._create_leave(self.type_justified, self._monday(), ems_full_day=True))
 
-        for action in ('action_ems_direction_done', 'action_ems_direction_reset',
-                       'action_ems_direction_refuse', 'action_ems_document_insufficient'):
+        for action in ('action_ems_direction_done', 'action_ems_direction_refuse',
+                       'action_ems_document_insufficient'):
             with self.subTest(action=action), self.assertRaises(AccessError):
                 getattr(leave.with_user(head), action)()
         self.assertEqual(leave.ems_status, 'pending_direction')
@@ -928,15 +1007,22 @@ class TestAbsenceRequest(TransactionCase):
         self.assertTrue(leave.with_user(head).can_approve)
         self.assertTrue(leave.with_user(head).is_absence_head)
 
-    def test_direction_is_told_when_the_head_approves(self):
+    def test_direction_is_told_when_the_request_reaches_it(self):
+        """Not at the Head's acknowledgement while a document is still due: when the Head has
+        validated it and it is Direction's to review (issue #632)."""
         direction = self._direction()
-        leave = self._create_leave(self.type_atri, self._monday(), ems_full_day=True)
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
 
         leave.action_approve()
+        self.assertNotIn(direction.partner_id, leave.message_partner_ids)
+        self._attach(leave)
+        leave.action_ems_document_validate()
 
         self.assertIn(direction.partner_id, leave.message_partner_ids)
-        self.assertIn('Pending Direction', leave.message_ids.sorted('id')[-1].body,
-                      'the summary says what is still missing')
+        email = self._emails_to(leave, direction)
+        self.assertEqual(len(email), 1, "the summary, not Odoo's own activity email on top")
+        self.assertIn('Pending Direction', email.body, 'the summary says what is still missing')
+        self.assertIn('now in your hands', email.body)
 
     def test_direction_is_not_told_of_a_refusal(self):
         direction = self._direction()
@@ -948,21 +1034,33 @@ class TestAbsenceRequest(TransactionCase):
 
     def test_direction_is_not_told_of_its_own_approval(self):
         """As the approver it already follows the request - hr_holidays subscribes whoever
-        approves - so there is nobody extra to tell."""
+        approves - and moving it on to itself tells it nothing it does not know."""
         direction = self._direction()
         self.employee.leave_manager_id = direction.id
-        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True)
+        before = self._emails_to(leave, direction)
 
-        self.assertFalse(leave.with_user(direction)._ems_direction_partners())
+        leave.with_user(direction).action_approve()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertIn(direction.partner_id, leave.message_partner_ids)
+        self.assertEqual(self._emails_to(leave, direction), before)
 
     def test_direction_is_not_told_of_its_own_absence(self):
-        self._direction()
-        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True,
+        """Nobody reviews it as Direction then: the Head keeps it throughout."""
+        direction = self._direction()
+        head = create_role_user(self, 'head_of_studies', 'absence_own_direction_head@absence.test')
+        self.env.company.director_id.leave_manager_id = head.id
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True,
                                    employee_id=self.env.company.director_id.id)
 
         leave.action_approve()
 
-        self.assertFalse(leave._ems_direction_partners())
+        self.assertEqual(leave._ems_stage_users(), head)
+        self.assertIn(head.partner_id, leave.message_partner_ids)
+        self.assertFalse(leave.message_ids.filtered(
+            lambda message: direction.partner_id in message.partner_ids
+            and 'now in your hands' in message.body), 'told as the employee, not as Direction')
 
     # --- Who is waiting on what ---------------------------------------------------------------
 
@@ -1084,14 +1182,18 @@ class TestAbsenceRequest(TransactionCase):
         self.employee.leave_manager_id = head.id
         leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
         leave.action_approve()
-        told = lambda: leave.message_ids.filtered(lambda m: head.partner_id in m.partner_ids)
+        told = lambda: leave.message_ids.filtered(
+            lambda m: head.partner_id in m.partner_ids and 'still not' in m.body)
 
         self._run_reminders_on(leave.request_date_to + timedelta(days=2))
         self.assertFalse(told())
+        emailed_before = self._emails_to(leave, head)
         self._run_reminders_on(leave.request_date_to + timedelta(days=3))
         self._run_reminders_on(leave.request_date_to + timedelta(days=4))
         self.assertEqual(len(told()), 1)
         self.assertEqual(self._activity_users(leave, 'ems.mail_activity_absence_document_overdue'), head)
+        self.assertEqual(self._emails_to(leave, head) - emailed_before, told(),
+                         "the note is the Head's only email: the activity sends none")
         self.assertNotIn(owner.partner_id, told().partner_ids)
 
     def test_the_reminder_days_come_from_the_settings(self):
@@ -1312,46 +1414,236 @@ class TestAbsenceRequest(TransactionCase):
         self.assertFalse(self.env['mail.activity.type']._ems_fix_approval_activity_names(),
                          'and it is idempotent')
 
-    # --- Refusing is final --------------------------------------------------------------------
+    # --- Refusing asks first ------------------------------------------------------------------
 
-    def test_refusing_a_request_asks_for_a_confirmation(self):
-        """Nobody at the centre can undo it: Odoo reserves resetting a refused request to the
-        Time Off Administrator group (hr.leave._check_approval_update), which
-        res.users._ems_sync_time_off_groups deliberately leaves nobody holding. The employee has
-        to file the whole request again, so the one stray click that causes that is confirmed
-        first - on all three screens the button appears on."""
+    def test_refusing_a_request_asks_first_on_every_screen(self):
+        """Every Refuse button opens the dialog that asks for the reason - which is also what
+        stands between a stray click and a refused request - on all three screens."""
         for xmlid, view_type in (('hr_holidays.hr_leave_view_form', 'form'),
                                  ('hr_holidays.hr_leave_view_tree', 'list'),
                                  ('hr_holidays.hr_leave_view_kanban', 'kanban')):
             arch = self._arch(xmlid, view_type)
 
-            buttons = arch.xpath("//button[@name='action_refuse']")
+            buttons = arch.xpath("//button[@name='action_refuse' or @name='action_ems_direction_refuse']")
             self.assertTrue(buttons, xmlid)
             for button in buttons:
-                self.assertTrue(button.get('confirm'), f'{xmlid} ({view_type})')
+                self.assertIn('ems_ask_change_message', button.get('context') or '', f'{xmlid} ({view_type})')
 
-    def test_refusing_is_not_reversible_at_the_centre(self):
-        """What the confirmation is warning about, asserted rather than assumed: this is the
-        rule the wording of the dialog rests on."""
-        leave = self._create_leave(self.type_justified, self._monday())
+    # --- Undoing the last decision (issue #614) ---------------------------------------------
+
+    def _undo_statuses(self, leave, steps):
+        seen = []
+        for _step in range(steps):
+            leave.action_ems_undo()
+            seen.append(leave.ems_status)
+        return seen
+
+    def test_undo_walks_back_one_decision_at_a_time(self):
+        self._direction()
+        leave = self._validated_by_head(self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True))
+        leave.action_ems_direction_done()
+        self.assertEqual(leave.ems_status, 'approved')
+
+        self.assertEqual(self._undo_statuses(leave, 3), ['pending_direction', 'pending_validation', 'pending'])
+        self.assertEqual(leave.state, 'confirm')
+        with self.assertRaises(UserError):
+            leave.action_ems_undo()
+
+    def test_undoing_the_only_step_of_a_type_without_document_goes_back_to_pending(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+
+        self.assertEqual(self._undo_statuses(leave, 1), ['pending'])
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_direction', 'and it can be decided again')
+
+    def test_undoing_the_acknowledgement_takes_the_absence_out_of_the_calendar(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        calendar_leaves = self.env['resource.calendar.leaves'].search
+        leave.action_approve()
+        self.assertTrue(calendar_leaves([('holiday_id', '=', leave.id)]))
+
+        leave.action_ems_undo()
+
+        self.assertFalse(calendar_leaves([('holiday_id', '=', leave.id)]))
+        self.assertFalse(leave.first_approver_id)
+
+    def test_undoing_a_refusal_returns_the_request_to_where_it_stood(self):
+        direction = self._direction()
+        pending = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        awaiting = self._create_leave(self.type_sick_leave, self._monday() + timedelta(days=7), ems_full_day=True)
+        awaiting.action_approve()
+        approved = self._validated_by_head(
+            self._create_leave(self.type_atri, self._monday() + timedelta(days=14), ems_full_day=True))
+        approved.action_ems_direction_done()
+        (pending | awaiting).action_refuse()
+        approved.with_user(direction).action_ems_direction_refuse()
+        self.assertEqual((pending | awaiting | approved).mapped('ems_status'), ['refused'] * 3)
+
+        (pending | awaiting | approved).action_ems_undo()
+
+        self.assertEqual(pending.ems_status, 'pending')
+        self.assertEqual(awaiting.ems_status, 'pending_document')
+        self.assertEqual(awaiting.state, 'validate', 'in effect again')
+        self.assertEqual(approved.ems_status, 'approved')
+        self.assertEqual(approved.ems_head_state, 'approved')
+
+    def test_undoing_a_refusal_forgets_its_reason(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave.with_context(ems_change_message="Test refused by mistake").action_refuse()
+        self.assertTrue(leave.ems_refusal_reason)
+
+        leave.action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending')
+        self.assertFalse(leave.ems_refusal_reason)
+
+    def test_undoing_a_request_refused_before_this_existed_reopens_it(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        leave.action_approve()
         leave.action_refuse()
-        approver = self.env['res.users'].with_context(no_reset_password=True).create({
-            'name': 'Test Absence Approver', 'login': 'absence_approver@absence.test',
-            'groups_id': [Command.link(self.env.ref('base.group_user').id),
-                          Command.link(self.env.ref('hr_holidays.group_hr_holidays_user').id)],
-        })
+        leave.sudo().ems_decision_before = False
 
-        self.assertEqual(leave.state, 'refuse')
-        self.assertFalse(leave.with_user(approver).can_reset,
-                         'not even an officer gets the Reset button on a refused request')
-        with self.assertRaises(Exception):
-            leave.with_user(approver).action_reset_confirm()
+        leave.action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending')
+        self.assertFalse(leave.ems_document_state)
+
+    def test_undoing_a_cancellation_returns_the_request_to_where_it_stood(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+        leave._force_cancel("Test cancelled by mistake")
+        self.assertEqual(leave.ems_status, 'cancel')
+
+        leave.action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
+    def test_undoing_a_document_sent_back_returns_it_to_validation(self):
+        direction = self._direction()
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        self._attach(leave)
+        self._return_document(leave)
+        self.assertEqual(leave.ems_status, 'pending_document')
+
+        leave.action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending_validation')
+        self.assertFalse(leave.ems_document_return_reason)
+
+        leave.action_ems_document_validate()
+        self._return_document(leave.with_user(direction), "Test wrong dates")
+        head = create_role_user(self, 'head_of_studies', 'absence_undo_return@absence.test',
+                                email='absence_undo_return@example.com')
+        with self.assertRaises(AccessError):
+            leave.with_user(head).action_ems_undo()
+        leave.with_user(direction).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending_direction', "Direction's send-back is Direction's to undo")
+
+    def test_a_new_document_makes_the_send_back_final(self):
+        """Once the employee has answered it, undoing follows the sequence: the Head's
+        acknowledgement is the last decision left."""
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        self._attach(leave)
+        self._return_document(leave)
+        self._attach(leave, name='justificant2.pdf')
+
+        self.assertEqual(self._undo_statuses(leave, 1), ['pending'])
+
+    def test_who_can_undo_follows_who_decided(self):
+        """The Head their own decisions, Direction the Head's and its own, the administrator
+        all of them - and nobody else."""
+        direction = self._direction()
+        head = create_role_user(self, 'head_of_studies', 'absence_undo_hos@absence.test',
+                                email='absence_undo_hos@example.com')
+        admin = create_role_user(self, 'academic_admin', 'absence_undo_admin@absence.test',
+                                email='absence_undo_admin@example.com')
+        teacher = create_role_user(self, 'teacher', 'absence_undo_teacher@absence.test')
+        leave = self._create_leave(self.type_health, self._monday())
+        self.assertFalse(leave.with_user(head).ems_can_undo, 'nothing decided yet')
+        leave.with_user(head).action_approve()
+
+        self.assertTrue(leave.with_user(head).ems_can_undo)
+        self.assertTrue(leave.with_user(direction).ems_can_undo)
+        self.assertTrue(leave.with_user(admin).ems_can_undo)
+        with self.assertRaises(AccessError):
+            leave.with_user(teacher).action_ems_undo()
+
+        leave.with_user(direction).action_ems_direction_done()
+        self.assertFalse(leave.with_user(head).ems_can_undo, "Direction's decision is not the Head's to undo")
+        with self.assertRaises(AccessError):
+            leave.with_user(head).action_ems_undo()
+        self.assertTrue(leave.with_user(admin).ems_can_undo, 'the administrator is above Direction')
+        leave.with_user(admin).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        leave.with_user(head).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending')
+
+    def test_a_head_does_not_undo_a_decision_on_their_own_absence(self):
+        head = create_role_user(self, 'head_of_studies', 'absence_undo_own@absence.test')
+        self.employee.user_id = head.id
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+
+        self.assertFalse(leave.with_user(head).ems_can_undo)
+
+    def test_undoing_tells_the_employee(self):
+        """The summary when the absence goes in or out of effect, a note with the new status
+        otherwise: the employee's, either way."""
+        self._direction()
+        owner = self._employee_user('Test Absence Undone', 'absence_undone@absence.test')
+        leave = self._create_leave(self.type_health, self._monday())
+        leave.action_approve()
+        leave.action_ems_direction_done()
+
+        leave.action_ems_undo()
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("Pending Direction", str(note.body))
+
+        leave.action_ems_undo()
+        summary = leave.message_ids.filtered(
+            lambda message: message.partner_ids == owner.partner_id).sorted('id')[-1]
+        self.assertNotEqual(summary, note)
+        self.assertIn(self.employee.display_name, str(summary.body))
+        self.assertIn("Pending", str(summary.body))
+
+    def test_every_action_of_the_form_is_in_its_actions_dropdown(self):
+        """Odoo's own buttons included; its Reset is the one left out, hidden for good, since
+        Undo replaces it."""
+        arch = self._arch('hr_holidays.hr_leave_view_form', 'form')
+
+        loose = arch.xpath("//header/button")
+        self.assertEqual([button.get('name') for button in loose], ['action_reset_confirm'])
+        self.assertIn(loose[0].get('invisible'), ('1', 'True'))
+        names = arch.xpath("//header/div[@name='ems_actions']/button/@name")
+        for name in ('action_approve', 'action_refuse', 'action_cancel', 'action_ems_undo',
+                     'action_ems_document_validate', 'action_ems_direction_done'):
+            self.assertIn(name, names)
+        self.assertFalse(arch.xpath("//button[@name='action_ems_direction_reset']"))
+
+    def test_an_approved_request_is_corrected_by_undoing_it_first(self):
+        """Odoo refuses any change that touches the dates of a request in effect, and the type
+        recomputes them: the way to correct one is to take the approval back."""
+        leave = self._create_leave(self.type_justified, self._monday(), hour_from=9, hour_to=11)
+        leave.action_approve()
+        with self.assertRaises(ValidationError):
+            leave.holiday_status_id = self.type_training
+            leave.flush_recordset()
+
+        leave.action_ems_undo()
+        leave.holiday_status_id = self.type_training
+        leave.action_approve()
+
+        self.assertEqual(leave.holiday_status_id, self.type_training)
+        self.assertEqual(leave.ems_status, 'pending_document')
 
     # --- Who gets told ---------------------------------------------------------------------
 
-    def test_the_department_chief_is_informed_when_an_absence_is_approved(self):
-        """The Google form asked for the department only to look up who to copy. EMS knows the
-        employee's own chief, so the question went away and the answer is derived."""
+    def test_the_department_chief_is_not_told_of_the_approval(self):
+        """The Department Chief arranges the cover once the absence is filed; who approves it,
+        and when, is not theirs to follow (issue #632)."""
         department = self.env['hr.department'].create({'name': 'Test Department (Notify)'})
         chief = self.env['hr.employee'].create({
             'name': 'Test Chief (Notify)', 'employee_type': 'teacher',
@@ -1362,11 +1654,16 @@ class TestAbsenceRequest(TransactionCase):
         })
         department.manager_id = chief.id
         self.employee.department_id = department.id
+        # Its chief would approve it too, with no area above it: someone else does.
+        self.employee.leave_manager_id = create_role_user(
+            self, 'head_of_studies', 'notify_chief_head@absence.test').id
         leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        before = self._emails_to(leave, chief.user_id)
 
         leave.action_approve()
 
-        self.assertIn(chief.user_id.partner_id, leave.message_partner_ids)
+        self.assertNotIn(chief.user_id.partner_id, leave.message_partner_ids)
+        self.assertEqual(self._emails_to(leave, chief.user_id), before)
 
     def test_the_outcome_message_carries_the_details(self):
         """"Status: Pending → Approved" tells a department chief nothing they can act on."""
@@ -1441,26 +1738,100 @@ class TestAbsenceRequest(TransactionCase):
         })
 
         self.assertEqual(leave.state, 'confirm')
-        self.assertLessEqual(chiefs, leave.message_partner_ids, 'they follow the request from now on')
-        summary = leave.message_ids.filtered(lambda message: chiefs <= message.partner_ids)
-        self.assertEqual(len(summary), 1)
-        self.assertIn(self.employee.display_name, summary.body)
-        self.assertIn(self.type_justified.name, summary.body)
-        self.assertNotIn('private matter', summary.body)
+        approver = leave._ems_head_users().partner_id
+        self.assertFalse((chiefs - approver) & leave.message_partner_ids,
+                         'told, not following it, unless they approve it too (issue #632)')
+        # One each: with no area above this department its chief is also the approver, whose
+        # summary is the one asking for the approval.
+        for chief in chiefs:
+            summary = leave.message_ids.filtered(lambda message: chief in message.partner_ids)
+            self.assertEqual(len(summary), 1)
+            self.assertIn(self.employee.display_name, summary.body)
+            self.assertIn(self.type_justified.name, summary.body)
+            self.assertNotIn('private matter', summary.body)
 
-    def test_the_request_summary_goes_to_the_chiefs_alone(self):
-        """The approver already has the approval activity and the employee filed it themselves."""
+    def _emails_to(self, leave, user):
+        """The messages about the request this user was emailed."""
+        # Searched, not 'message_ids': that leaves out the emails of assigned activities.
+        return self.env['mail.message'].search([
+            ('model', '=', 'hr.leave'), ('res_id', '=', leave.id),
+            ('notification_ids', 'any', [('res_partner_id', '=', user.partner_id.id),
+                                         ('notification_type', '=', 'email')]),
+        ])
+
+    def test_a_request_emails_the_chiefs_and_the_approver_once_each(self):
+        """Each gets the summary in a note of their own (the approver's asks for the approval),
+        and the employee, who filed it, none."""
         department = self._chiefed_department('Alone')
-        self.employee.leave_manager_id = create_role_user(
-            self, 'head_of_studies', 'absence_alone_head@absence.test').id
+        chief = department.manager_id.user_id
+        owner = self._employee_user('Test Absence Alone', 'absence_alone@absence.test')
+        head = create_role_user(self, 'head_of_studies', 'absence_alone_head@absence.test')
+        self.employee.leave_manager_id = head.id
 
         leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
 
-        summary = leave.message_ids.filtered(lambda message: message.partner_ids)
-        self.assertEqual(summary.partner_ids, department.manager_id.user_id.partner_id)
-        self.assertEqual(summary.subtype_id, self.env.ref('mail.mt_note'))
+        for_chief, for_head = self._emails_to(leave, chief), self._emails_to(leave, head)
+        self.assertEqual(len(for_chief), 1)
+        self.assertEqual(len(for_head), 1)
+        self.assertEqual(for_chief.partner_ids, chief.partner_id)
+        self.assertEqual(for_head.partner_ids, head.partner_id)
+        self.assertEqual((for_chief | for_head).subtype_id, self.env.ref('mail.mt_note'))
+        self.assertNotIn('waiting for your approval', for_chief.body)
+        self.assertFalse(self._emails_to(leave, owner))
 
-    def test_the_seminar_chief_is_informed_of_the_outcome_too(self):
+    def test_the_approver_is_emailed_what_has_to_be_covered(self):
+        """Odoo's own email for the approval activity only says a document was assigned: the
+        approver gets the dates and the hours instead, to arrange the cover (issue #625)."""
+        head = create_role_user(self, 'head_of_studies', 'absence_covered_head@absence.test')
+        self.employee.leave_manager_id = head.id
+
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True,
+                                   name='A private matter nobody else should read')
+
+        self.assertEqual(self._activity_users(leave, 'hr_holidays.mail_act_leave_approval'), head)
+        email = self._emails_to(leave, head)
+        self.assertEqual(len(email), 1, "not Odoo's own on top")
+        self.assertIn(self.employee.display_name, email.body)
+        self.assertIn(self.type_justified.name, email.body)
+        self.assertIn(leave._ems_when(), email.body)
+        self.assertIn('7.50', email.body)
+        self.assertIn('waiting for your approval', email.body)
+        self.assertNotIn('private matter', email.body)
+
+    def test_an_approver_who_is_also_the_chief_gets_one_email(self):
+        department = self._chiefed_department('Both')
+        chief = department.manager_id.user_id
+        self.employee.leave_manager_id = chief.id
+
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self.assertIn(chief.partner_id, leave.message_partner_ids)
+        email = self._emails_to(leave, chief)
+        self.assertEqual(len(email), 1)
+        self.assertIn('waiting for your approval', email.body)
+
+    def test_an_approval_emails_the_employee_once(self):
+        """The summary, and not Odoo's "Status: Pending → Approved" as a second email."""
+        owner = self._employee_user('Test Absence Once', 'absence_once@absence.test')
+        # No supporting document, so no upload activity emailed alongside.
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True)
+        # Field tracking is written at commit time, which a test never reaches, and not at
+        # all for a record created in the same transaction.
+        self.env.cr.precommit.run()
+        before = self._emails_to(leave, owner)
+
+        leave.action_approve()
+        self.env.cr.precommit.run()
+
+        outcome = self._emails_to(leave, owner) - before
+        self.assertEqual(len(outcome), 1)
+        self.assertIn(self.employee.display_name, outcome.body)
+        tracking = leave.message_ids.filtered(
+            lambda message: 'state' in message.tracking_value_ids.field_id.mapped('name'))
+        self.assertEqual(tracking.subtype_id, self.env.ref('mail.mt_note'),
+                         'still on the request, as a note')
+
+    def test_the_seminar_chief_is_informed_too(self):
         department = self._chiefed_department('Outcome', seminar=True)
         leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
 
@@ -1474,6 +1845,273 @@ class TestAbsenceRequest(TransactionCase):
         leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
 
         self.assertEqual(leave._ems_notify_partners(), department.manager_id.user_id.partner_id)
+
+    # --- Whose hands the request is in (issue #632) -----------------------------------------
+
+    def _stage_fixture(self, label):
+        """An employee with a user, a Department Chief and a Seminar Chief, a Head and a
+        Director, each with a user of their own: everybody the request can reach."""
+        department = self._chiefed_department(label, seminar=True)
+        slug = label.lower().replace(' ', '_')
+        owner = self._employee_user(f'Test Absence {label}', f'absence_{slug}@absence.test')
+        owner.email = f'absence_{slug}@example.com'
+        head = create_role_user(self, 'head_of_studies', f'absence_{slug}_head@absence.test',
+                                email=f'absence_{slug}_head@example.com')
+        self.employee.leave_manager_id = head.id
+        direction = self._direction()
+        chiefs = (department.manager_id | department.seminar_chief_id).user_id
+        return owner, head, direction, chiefs
+
+    def _comment(self, leave, user, body):
+        """What "Send message" on the request's chatter does."""
+        return leave.with_user(user).message_post(
+            body=body, message_type='comment', subtype_xmlid='mail.mt_comment')
+
+    def _recipients(self, message):
+        return message.notification_ids.res_partner_id
+
+    def test_the_conversation_follows_the_stage(self):
+        """The employee and whoever has the request in hand, nobody else: the Head until they
+        pass it on to Direction, the Director from then on."""
+        owner, head, direction, chiefs = self._stage_fixture('Stage')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        expected = lambda user: (owner | user).partner_id
+
+        self.assertEqual(leave.message_partner_ids, expected(head))
+        leave.with_user(head).action_approve()
+        self.assertEqual(leave.ems_status, 'pending_document')
+        self.assertEqual(leave.message_partner_ids, expected(head))
+        self._attach(leave, owner)
+        self.assertEqual(leave.message_partner_ids, expected(head))
+
+        leave.with_user(head).action_ems_document_validate()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertEqual(leave.message_partner_ids, expected(direction))
+        leave.with_user(direction).action_ems_direction_done()
+        self.assertEqual(leave.ems_status, 'approved')
+        self.assertEqual(leave.message_partner_ids, expected(direction))
+
+    def test_a_message_on_the_request_reaches_only_the_other_side(self):
+        owner, head, direction, chiefs = self._stage_fixture('Talk')
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True)
+
+        question = self._comment(leave, head, 'Test can you bring the certificate?')
+        answer = self._comment(leave, owner, 'Test yes, tomorrow')
+
+        self.assertEqual(self._recipients(question), owner.partner_id)
+        self.assertEqual(self._recipients(answer), head.partner_id)
+
+        leave.with_user(head).action_approve()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        later = self._comment(leave, owner, 'Test a question for Direction')
+        self.assertEqual(self._recipients(later), direction.partner_id)
+
+    def test_whoever_chose_to_follow_it_stays(self):
+        """Only the Head and the Director change hands: anybody else following the request, or
+        who wrote on it, keeps receiving it."""
+        owner, head, direction, chiefs = self._stage_fixture('Kept')
+        colleague = create_role_user(self, 'teacher', 'absence_kept_colleague@absence.test')
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True)
+        leave.message_subscribe(partner_ids=colleague.partner_id.ids)
+
+        leave.with_user(head).action_approve()
+
+        self.assertIn(colleague.partner_id, leave.message_partner_ids)
+
+    def test_a_document_direction_sends_back_returns_to_the_head(self):
+        """The new document is the Head's to validate again, so the request is theirs again,
+        and they are told."""
+        owner, head, direction, chiefs = self._stage_fixture('Bounce')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.with_user(head).action_approve()
+        self._attach(leave, owner)
+        leave.with_user(head).action_ems_document_validate()
+        before = self._emails_to(leave, head)
+
+        self._return_document(leave.with_user(direction))
+
+        self.assertEqual(leave.ems_status, 'pending_document')
+        self.assertEqual(leave._ems_stage_users(), head)
+        self.assertIn(head.partner_id, leave.message_partner_ids)
+        self.assertNotIn(direction.partner_id, leave.message_partner_ids)
+        told = self._emails_to(leave, head) - before
+        self.assertEqual(len(told), 1)
+        self.assertIn('now in your hands', told.body)
+
+    def test_an_atri_absence_waits_with_the_head_until_it_reaches_direction(self):
+        owner, head, direction, chiefs = self._stage_fixture('Atri Head')
+        leave = self._atri_leave()
+
+        leave.with_user(head).action_approve()
+
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        self.assertEqual(leave._ems_stage_users(), head)
+        self.assertNotIn(direction.partner_id, leave.message_partner_ids)
+        leave.with_user(owner).action_ems_atri_requested()
+        self.assertEqual(leave._ems_stage_users(), direction)
+
+    def test_an_atri_absence_direction_sends_back_stays_with_direction(self):
+        """It is settled on the ATRI portal and comes straight back to Direction: the Head is
+        not involved again."""
+        owner, head, direction, chiefs = self._stage_fixture('Atri Back')
+        leave = self._atri_leave()
+        leave.with_user(head).action_approve()
+        leave.with_user(owner).action_ems_atri_requested()
+
+        self._not_in_atri(leave.with_user(direction))
+
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        self.assertEqual(leave._ems_stage_users(), direction)
+        self.assertIn(direction.partner_id, leave.message_partner_ids)
+        self.assertNotIn(head.partner_id, leave.message_partner_ids)
+
+        # The escalation goes to whoever has it, too.
+        self._run_reminders_on(leave.request_date_to + timedelta(days=4))
+        report = leave.message_ids.filtered(lambda m: 'still not confirmed' in m.body)
+        self.assertEqual(report.partner_ids, direction.partner_id)
+        self.assertEqual(self._activity_users(leave, ATRI_OVERDUE), direction)
+
+    def test_undoing_direction_hands_it_back_to_the_head(self):
+        owner, head, direction, chiefs = self._stage_fixture('Undo Stage')
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True)
+        leave.with_user(head).action_approve()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        before = self._emails_to(leave, head)
+
+        leave.with_user(direction).action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending')
+        self.assertIn(head.partner_id, leave.message_partner_ids)
+        self.assertNotIn(direction.partner_id, leave.message_partner_ids)
+        told = self._emails_to(leave, head) - before
+        self.assertEqual(len(told), 1, "the approval's own email says it, nothing on top")
+        self.assertIn('waiting for your approval', told.body)
+
+    def test_waiving_the_document_hands_it_to_direction(self):
+        """Waiving (issue #634) passes it on like validating does (issue #632): the Director
+        follows it and is told, and undoing the waiver gives it back to the Head."""
+        owner, head, direction, chiefs = self._stage_fixture('Waive Stage')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.with_user(head).action_approve()
+        self.assertEqual(leave.ems_status, 'pending_document')
+
+        leave.with_user(head).action_ems_document_waive()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertEqual(leave.message_partner_ids, (owner | direction).partner_id)
+        self.assertTrue(leave.message_ids.filtered(
+            lambda message: direction.partner_id in message.partner_ids
+            and 'It is now in your hands' in message.body))
+
+        leave.with_user(head).action_ems_undo()
+
+        self.assertEqual(leave.ems_status, 'pending_document')
+        self.assertEqual(leave.message_partner_ids, (owner | head).partner_id)
+
+    # --- What the Department Chief and the Seminar Chief hear afterwards ----------------------
+
+    def _department_notes(self, leave, chiefs):
+        return leave.message_ids.filtered(lambda message: chiefs.partner_id <= message.partner_ids)
+
+    def test_the_department_is_told_when_the_absence_will_not_take_place(self):
+        owner, head, direction, chiefs = self._stage_fixture('Refused Cover')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        announced = self._department_notes(leave, chiefs)
+
+        leave.with_user(head).with_context(ems_change_message='Test not this week').action_refuse()
+
+        told = self._department_notes(leave, chiefs) - announced
+        self.assertEqual(len(told), 1)
+        self.assertIn('will not take place', told.body)
+        self.assertNotIn('not this week', told.body, "the reason is the employee's alone")
+        self.assertEqual(told.subtype_id, self.env.ref('mail.mt_note'))
+
+        leave.with_user(head).action_ems_undo()
+
+        reopened = self._department_notes(leave, chiefs) - announced - told
+        self.assertEqual(len(reopened), 1)
+        self.assertIn('going ahead again', reopened.body)
+
+    def test_the_department_is_told_of_a_cancellation(self):
+        owner, head, direction, chiefs = self._stage_fixture('Cancelled Cover')
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True)
+        announced = self._department_notes(leave, chiefs)
+
+        leave._force_cancel('Test no longer needed')
+
+        told = self._department_notes(leave, chiefs) - announced
+        self.assertEqual(len(told), 1)
+        self.assertIn('cancelled', told.body)
+
+    def test_the_department_is_told_when_the_dates_or_the_type_change(self):
+        owner, head, direction, chiefs = self._stage_fixture('Moved Cover')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        announced = self._department_notes(leave, chiefs)
+        next_day = leave.request_date_from + timedelta(days=1)
+
+        leave.with_user(head).write({'request_date_from': next_day, 'request_date_to': next_day})
+
+        told = self._department_notes(leave, chiefs) - announced
+        self.assertEqual(len(told), 1)
+        self.assertIn('have changed', told.body)
+        self.assertIn(leave._ems_when(), told.body)
+
+        leave.with_user(head).write({'holiday_status_id': self.type_health.id})
+        self.assertEqual(len(self._department_notes(leave, chiefs) - announced), 2)
+
+        leave.with_user(head).write({'request_date_from': next_day, 'name': 'Test same dates'})
+        self.assertEqual(len(self._department_notes(leave, chiefs) - announced), 2,
+                         'nothing that changes the cover, nothing to tell')
+
+    def test_the_department_hears_nothing_else(self):
+        """Approvals, the document, Direction's review: none of it is theirs."""
+        owner, head, direction, chiefs = self._stage_fixture('Quiet Cover')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        announced = self._department_notes(leave, chiefs)
+
+        leave.with_user(head).action_approve()
+        self._attach(leave, owner)
+        leave.with_user(head).action_ems_document_validate()
+        leave.with_user(direction).action_ems_direction_done()
+
+        self.assertEqual(self._department_notes(leave, chiefs), announced)
+        for chief in chiefs:
+            self.assertEqual(len(self._emails_to(leave, chief)), 1, 'the announcement alone')
+
+    def test_the_department_is_told_when_a_pending_request_is_withdrawn(self):
+        owner, head, direction, chiefs = self._stage_fixture('Withdrawn Cover')
+        # Odoo only lets a request be deleted before it starts.
+        day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=7)
+        leave = self._create_leave(self.type_justified, day - timedelta(days=day.weekday()),
+                                   ems_full_day=True)
+        when = leave._ems_when()
+
+        leave.unlink()
+
+        told = self.env['mail.message'].search([
+            ('partner_ids', 'in', chiefs.partner_id.ids), ('body', 'ilike', 'will not take place')])
+        self.assertEqual(len(told), 1)
+        self.assertEqual(told.partner_ids, chiefs.partner_id)
+        self.assertIn(when, told.body)
+
+    def test_resetting_the_followers_of_an_older_request(self):
+        """What the upgrade does to requests filed before issue #632, which the Department
+        Chief, the Seminar Chief and the Director followed from the start."""
+        owner, head, direction, chiefs = self._stage_fixture('Legacy')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.message_subscribe(partner_ids=(chiefs | direction).partner_id.ids)
+        refused = self._create_leave(self.type_justified, self._monday() + timedelta(days=7),
+                                     ems_full_day=True)
+        refused.action_refuse()
+        refused.message_subscribe(partner_ids=(chiefs | direction).partner_id.ids)
+
+        (leave | refused)._ems_reset_followers()
+
+        self.assertEqual(leave.message_partner_ids, (owner | head).partner_id)
+        self.assertFalse(chiefs.partner_id & refused.message_partner_ids)
+        self.assertIn(direction.partner_id, refused.message_partner_ids,
+                      'a closed request keeps whoever had it')
 
     # --- Per-employee report ---------------------------------------------------------------
 
@@ -1554,3 +2192,525 @@ class TestAbsenceRequest(TransactionCase):
         self.assertGreater(leaves[-1].ems_health_hours_used, allowance)
         self.assertTrue(leaves[-1].ems_health_allowance_exceeded, 'the excess is flagged')
         self.assertTrue(all(leave.id for leave in leaves), 'and never blocked')
+
+    # --- Times covering the whole timetable are a whole day (issue #613) ---------------------
+
+    def _add_slots(self, day, *slots):
+        """Gives self.employee these (start, end) lessons on day's weekday."""
+        calendar = self.employee.resource_calendar_id
+        calendar.flexible_hours = False
+        for hour_from, hour_to in slots:
+            self.env['resource.calendar.attendance'].create({
+                'calendar_id': calendar.id, 'name': 'Test Lesson', 'dayofweek': str(day.weekday()),
+                'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
+            })
+
+    def _timed_leave(self, day, hour_from, hour_to, user=None, **overrides):
+        """A request giving times and saying nothing about "Whole day?", as one filed from
+        outside the form does."""
+        return self.env['hr.leave'].with_user(user or self.env.user).create({
+            'employee_id': self.employee.id, 'holiday_status_id': self.type_justified.id,
+            'request_date_from': day, 'request_date_to': day,
+            'request_hour_from': hour_from, 'request_hour_to': hour_to,
+            'ems_submitted': True, 'ems_responsible_declaration': True, **overrides,
+        })
+
+    def test_times_covering_the_whole_timetable_are_filed_as_a_whole_day(self):
+        """Not coming in at all is a whole day, even when the employee wrote it as the hours of
+        their only lessons: it counts the full working day, not those hours."""
+        monday = self._monday()
+        # The next day, not the next week: a week later can be a public holiday, when nothing
+        # is expected of anybody and no times cover anything.
+        for day in (monday, monday + timedelta(days=1)):
+            self._add_slots(day, (9.0, 11.0), (12.0, 13.0))
+
+        exact = self._timed_leave(monday, 9, 13)
+        wider = self._timed_leave(monday + timedelta(days=1), 8, 14.5)
+
+        for leave in (exact, wider):
+            self.assertTrue(leave.ems_full_day)
+            self.assertEqual(leave.number_of_hours, self.full_day_hours)
+
+    def test_times_leaving_part_of_the_timetable_stay_partial(self):
+        monday = self._monday()
+        for day in (monday, monday + timedelta(days=1)):
+            self._add_slots(day, (9.0, 11.0), (12.0, 13.0))
+
+        left_early = self._timed_leave(monday, 11, 13)
+        came_late = self._timed_leave(monday + timedelta(days=1), 9, 12)
+
+        self.assertFalse(left_early.ems_full_day)
+        self.assertEqual(left_early.number_of_hours, 2.0)
+        self.assertFalse(came_late.ems_full_day)
+        self.assertEqual(came_late.number_of_hours, 3.0)
+
+    def test_a_day_without_lessons_is_never_made_a_whole_day(self):
+        monday = self._monday()
+        self._add_slots(monday + timedelta(days=1), (9.0, 11.0))
+
+        leave = self._timed_leave(monday, 9, 11)
+
+        self.assertFalse(leave.ems_full_day, 'nothing to compare the times with on a Monday')
+
+    def test_whole_day_is_proposed_not_imposed(self):
+        """The requester's own answer stands: the lesson may only have been moved, which is
+        what the guard duty board arranges for a teacher away at the time of their one lesson."""
+        monday = self._monday()
+        self._add_slots(monday, (9.0, 11.0))
+
+        leave = self._timed_leave(monday, 9, 11, ems_full_day=False)
+
+        self.assertFalse(leave.ems_full_day)
+        self.assertEqual(leave.number_of_hours, 2.0)
+
+    def test_the_form_ticks_whole_day_and_says_why(self):
+        monday = self._monday()
+        self._add_slots(monday, (9.0, 11.0))
+        leave = self.env['hr.leave'].new({
+            'employee_id': self.employee.id, 'holiday_status_id': self.type_justified.id,
+            'request_date_from': monday, 'request_date_to': monday,
+            'ems_full_day': False, 'request_hour_from': 10.0, 'request_hour_to': 11.0,
+        })
+        self.assertIsNone(leave._onchange_ems_whole_timetable(), 'still in for the first hour')
+
+        leave.request_hour_from = 9.0
+        result = leave._onchange_ems_whole_timetable()
+
+        self.assertTrue(leave.ems_full_day)
+        self.assertIn('warning', result)
+        self.assertNotIn(
+            '_onchange_ems_whole_timetable',
+            [method.__name__ for method in leave._onchange_methods['ems_full_day']],
+            'unticking the box afterwards is not answered by ticking it again')
+
+    def test_a_teacher_filing_their_own_request_gets_the_same_rule(self):
+        """Read with the teacher's own rights: the timetable is looked up for them."""
+        owner = self._employee_user('Test Absence Whole Day', 'absence_whole_day@absence.test')
+        monday = self._monday()
+        self._add_slots(monday, (9.0, 11.0))
+
+        leave = self._timed_leave(monday, 9, 11, user=owner)
+
+        self.assertTrue(leave.ems_full_day)
+
+    # --- Corrections to what the employee filed (issue #615) --------------------------------
+
+    def _change_dialog(self, leave, method='action_approve', message=False):
+        """The dialog a decision button opens on a corrected request, filled in."""
+        action = getattr(leave.with_context(ems_ask_change_message=1), method)()
+        self.assertEqual(action['res_model'], 'ems.absence.change_notice_wizard')
+        return self.env[action['res_model']].with_context(action['context']).create({'message': message})
+
+    def _partial_health_leave(self):
+        """Two hours of a morning: a request whose dates stay as they are when its type is
+        corrected, whatever the new type's own "whole day" default."""
+        return self._create_leave(self.type_health, self._monday(), hour_from=9, hour_to=11)
+
+    def _last_note(self, leave):
+        return leave.message_ids.sorted('id')[-1]
+
+    def test_a_decision_on_a_corrected_request_asks_for_a_message_first(self):
+        """The Head changes the type the employee picked and explains why with the decision:
+        the employee alone is told what changed, where the request stands and the message."""
+        owner = self._employee_user('Test Absence Corrected', 'absence_corrected@absence.test')
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        wizard = self._change_dialog(leave, message="Test file it on the portal too")
+        self.assertEqual(leave.state, 'confirm', 'nothing is decided until the dialog is confirmed')
+        self.assertIn(self.type_health.ems_short_name, str(wizard.changes))
+        wizard.action_confirm()
+
+        # Now an ATRI absence: validated, it waits for the employee's confirmation.
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id, 'the requester, not every follower')
+        self.assertEqual(note.subtype_id, self.env.ref('mail.mt_note'))
+        body = str(note.body)
+        self.assertIn(self.type_health.ems_short_name, body)
+        self.assertIn(self.type_atri.ems_short_name, body)
+        self.assertIn("file it on the portal too", body)
+        self.assertIn("Pending ATRI confirmation", body)
+        self.assertFalse(leave.ems_original_request, 'told once')
+
+    def test_a_blank_message_sends_the_changes_alone(self):
+        owner = self._employee_user('Test Absence Unexplained', 'absence_unexplained@absence.test')
+        leave = self._create_leave(self.type_health, self._monday())
+        tuesday = self._monday() + timedelta(days=1)
+        leave.write({'request_date_from': tuesday, 'request_date_to': tuesday})
+
+        self._change_dialog(leave).action_confirm()
+
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("Dates:", str(note.body))
+        self.assertNotIn("Message from", str(note.body))
+
+    def test_a_decision_taken_from_code_reports_the_changes_without_asking(self):
+        owner = self._employee_user('Test Absence Batch', 'absence_batch@absence.test')
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        leave.action_approve()
+
+        self.assertEqual(leave.state, 'validate')
+        self.assertEqual(self._last_note(leave).partner_ids, owner.partner_id)
+
+    def test_an_untouched_request_is_decided_without_a_dialog(self):
+        leave = self._create_leave(self.type_health, self._monday())
+        messages = len(leave.message_ids)
+
+        leave.with_context(ems_ask_change_message=1).action_approve()
+
+        self.assertEqual(leave.state, 'validate')
+        new = leave.message_ids.sorted('id')[messages:]
+        self.assertTrue(new)
+        self.assertFalse([body for body in new.mapped('body') if 'Changes made' in str(body)],
+                         'only the summaries, no notice of changes')
+
+    def test_the_employees_own_edits_are_not_corrections(self):
+        owner = self._employee_user('Test Absence Self Editor', 'absence_self_editor@absence.test')
+        leave = self._partial_health_leave()
+
+        leave.with_user(owner).write({'holiday_status_id': self.type_atri.id})
+
+        self.assertFalse(leave.ems_original_request)
+
+    def test_a_correction_that_is_undone_is_not_reported(self):
+        leave = self._create_leave(self.type_justified, self._monday(), hour_from=9, hour_to=11)
+        leave.holiday_status_id = self.type_training
+        leave.holiday_status_id = self.type_justified
+
+        leave.with_context(ems_ask_change_message=1).action_approve()
+
+        self.assertEqual(leave.state, 'validate', 'no dialog: nothing differs any more')
+        self.assertFalse(leave.ems_original_request)
+
+    def test_a_correction_on_a_closed_request_is_reported_when_saved(self):
+        """No decision is left to carry it, so the employee is told straight away."""
+        owner = self._employee_user('Test Absence Late Fix', 'absence_late_fix@absence.test')
+        leave = self._partial_health_leave()
+        leave.action_refuse()
+
+        leave.holiday_status_id = self.type_atri
+
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn(self.type_atri.ems_short_name, str(note.body))
+        self.assertIn("Refused", str(note.body))
+        self.assertFalse(leave.ems_original_request)
+
+    def test_direction_explains_a_correction_when_refusing(self):
+        direction = self._direction()
+        owner = self._employee_user('Test Absence Refused Fix', 'absence_refused_fix@absence.test')
+        leave = self._partial_health_leave()
+        leave.with_user(direction).write({'holiday_status_id': self.type_atri.id})
+
+        self._change_dialog(leave.with_user(direction), 'action_ems_direction_refuse',
+                            "Test not on the portal").with_user(direction).action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertEqual(leave.ems_direction_state, 'refused')
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("not on the portal", str(note.body))
+
+    def test_the_dialog_only_takes_decisions(self):
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+        wizard = self._change_dialog(leave)
+        wizard.method = 'unlink'
+
+        with self.assertRaises(UserError):
+            wizard.action_confirm()
+
+    # --- The reason for a refusal -------------------------------------------------------------
+
+    def test_refusing_from_a_button_asks_for_the_reason(self):
+        """Always, corrected or not: the dialog is the confirmation too. The reason reaches the
+        employee alone and stays on the request."""
+        owner = self._employee_user('Test Absence Refused', 'absence_refused@absence.test')
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        wizard = self._change_dialog(leave, 'action_refuse', "Test the exams are that day")
+        self.assertTrue(wizard.is_refusal)
+        self.assertFalse(wizard.has_changes)
+        self.assertEqual(leave.state, 'confirm', 'nothing is refused until the dialog is confirmed')
+        wizard.action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertEqual(leave.ems_refusal_reason, "Test the exams are that day")
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id, 'the requester, not every follower')
+        self.assertIn("the exams are that day", str(note.body))
+        self.assertNotIn("Changes made", str(note.body))
+
+    def test_the_reason_is_optional(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        messages = len(leave.message_ids)
+
+        self._change_dialog(leave, 'action_refuse').action_confirm()
+
+        self.assertEqual(leave.ems_status, 'refused')
+        self.assertFalse(leave.ems_refusal_reason)
+        self.assertEqual(len(leave.message_ids), messages + 1, 'only the outcome summary')
+
+    def test_refusing_a_corrected_request_is_one_dialog_for_both(self):
+        owner = self._employee_user('Test Absence Refused Both', 'absence_refused_both@absence.test')
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        wizard = self._change_dialog(leave, 'action_refuse', "Test wrong type and not allowed")
+        self.assertTrue(wizard.is_refusal and wizard.has_changes)
+        wizard.action_confirm()
+
+        body = str(self._last_note(leave).body)
+        self.assertEqual(self._last_note(leave).partner_ids, owner.partner_id)
+        self.assertIn(self.type_atri.ems_short_name, body)
+        self.assertIn("wrong type and not allowed", body)
+        self.assertEqual(leave.ems_refusal_reason, "Test wrong type and not allowed")
+
+    def test_the_summary_for_the_chiefs_leaves_the_reason_out(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        self._change_dialog(leave, 'action_refuse', "Test private reason").action_confirm()
+
+        summary = leave.message_ids.filtered(
+            lambda message: 'Absence request of' in str(message.body))
+        self.assertTrue(summary)
+        self.assertNotIn("private reason", "".join(str(body) for body in summary.mapped('body')))
+
+    def test_refusing_from_code_asks_nothing(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+
+        leave.action_refuse()
+
+        self.assertEqual(leave.state, 'refuse')
+        self.assertFalse(leave.ems_refusal_reason)
+
+    def test_reopening_a_refused_request_forgets_the_reason(self):
+        leave = self._create_leave(self.type_justified, self._monday(), ems_full_day=True)
+        self._change_dialog(leave, 'action_refuse', "Test not this week").action_confirm()
+
+        leave.action_reset_confirm()
+
+        self.assertFalse(leave.ems_refusal_reason)
+
+    # --- ATRI absences wait for the employee's confirmation (issue #619) ---------------------
+
+    def _atri_leave(self, **overrides):
+        return self._create_leave(self.type_atri, self._monday(), ems_full_day=True, **overrides)
+
+    def _not_in_atri(self, leave, reason="Test it is not on the portal"):
+        """Through Direction's button and its dialog."""
+        action = leave.action_ems_atri_missing()
+        self.assertEqual(action['context']['default_kind'], 'atri')
+        self.env[action['res_model']].with_user(leave.env.user).with_context(action['context']).create(
+            {'reason': reason}).action_return()
+
+    def test_a_validated_atri_absence_always_waits_for_the_employees_confirmation(self):
+        """The Head goes first, because employees pick ATRI for what is not and the other way
+        round. Then it is in effect, but before Direction reviews it the employee confirms it
+        is requested on the portal - always: nothing at filing time lets them skip it."""
+        self._direction()
+        owner = self._employee_user('Test Absence Atri', 'absence_atri@absence.test')
+        leave = self._atri_leave()
+        self.assertEqual(leave.ems_status, 'pending', "the Head's first, like any other request")
+        self.assertFalse(leave.with_user(owner).ems_can_mark_atri, 'nothing to confirm before that')
+
+        leave.action_approve()
+
+        self.assertEqual(leave.state, 'validate', 'in effect, like any acknowledged absence')
+        self.assertEqual(leave.ems_atri_state, 'awaiting')
+        self.assertEqual(leave.ems_head_state, 'approved')
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        self.assertEqual(self._activity_users(leave, 'ems.mail_activity_absence_atri_request'), owner)
+        self.assertFalse(self._activity_users(leave, 'ems.mail_activity_absence_direction_review'))
+        with self.assertRaises(UserError):
+            leave.action_ems_direction_done()
+
+    def test_other_absence_types_never_wait_for_atri(self):
+        leave = self._create_leave(self.type_health, self._monday())
+
+        leave.action_approve()
+
+        self.assertEqual(leave.ems_atri_state, 'not_required')
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
+    def test_a_type_corrected_into_atri_waits_too(self):
+        leave = self._partial_health_leave()
+        leave.holiday_status_id = self.type_atri
+
+        leave.action_approve()
+
+        self.assertEqual(leave.ems_status, 'pending_atri')
+
+    def test_the_employee_confirms_and_it_reaches_direction(self):
+        direction = self._direction()
+        owner = self._employee_user('Test Absence Atri Done', 'absence_atri_done@absence.test')
+        leave = self._atri_leave()
+        leave.action_approve()
+        self.assertTrue(leave.with_user(owner).ems_can_mark_atri)
+
+        leave.with_user(owner).action_ems_atri_requested()
+
+        self.assertEqual(leave.ems_atri_state, 'requested')
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertFalse(self._activity_users(leave, 'ems.mail_activity_absence_atri_request'))
+        self.assertEqual(self._activity_users(leave, 'ems.mail_activity_absence_direction_review'), direction)
+
+    def test_nobody_else_confirms_and_the_status_is_never_written_by_hand(self):
+        owner = self._employee_user('Test Absence Atri Guarded', 'absence_atri_guarded@absence.test')
+        stranger = create_role_user(self, 'teacher', 'absence_atri_stranger@absence.test')
+        head = create_role_user(self, 'head_of_studies', 'absence_atri_head@absence.test',
+                                email='absence_atri_head@example.com')
+        sneaked = self.env['hr.leave'].with_user(owner).create({
+            'employee_id': self.employee.id, 'holiday_status_id': self.type_atri.id,
+            'request_date_from': self._monday() + timedelta(days=1),
+            'request_date_to': self._monday() + timedelta(days=1), 'ems_full_day': True,
+            'ems_submitted': True, 'ems_responsible_declaration': True, 'ems_atri_state': 'requested',
+        })
+        self.assertFalse(sneaked.sudo().ems_atri_state, 'not something to file a request with')
+        leave = self._atri_leave()
+        leave.action_approve()
+
+        self.assertFalse(leave.with_user(stranger).sudo(False).ems_can_mark_atri)
+        with self.assertRaises(AccessError):
+            leave.with_user(owner).write({'ems_atri_state': 'requested'})
+        with self.assertRaises(AccessError):
+            leave.with_user(head).write({'ems_atri_state': 'requested'})
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        leave.with_user(head).action_ems_atri_requested()
+        self.assertEqual(leave.ems_status, 'pending_direction', 'the Head may confirm it on their behalf')
+
+    def test_direction_sends_it_back_as_not_in_atri(self):
+        """What Direction finds when reviewing it: the employee is told why, it waits for their
+        confirmation again and the reminders start over."""
+        direction = self._direction()
+        head = create_role_user(self, 'head_of_studies', 'absence_atri_back_head@absence.test',
+                                email='absence_atri_back_head@example.com')
+        owner = self._employee_user('Test Absence Atri Back', 'absence_atri_back@absence.test')
+        leave = self._validated_by_head(self._atri_leave())
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        leave.sudo().write({'ems_atri_reminder_date': self._monday(), 'ems_atri_escalated': True})
+        with self.assertRaises(AccessError):
+            leave.with_user(head).action_ems_atri_missing()
+
+        self._not_in_atri(leave.with_user(direction), "Test the dates on the portal differ")
+
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        self.assertEqual(leave.ems_atri_return_reason, "Test the dates on the portal differ")
+        self.assertFalse(leave.ems_atri_reminder_date)
+        self.assertFalse(leave.ems_atri_escalated)
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("dates on the portal differ", str(note.body))
+        activity = leave.activity_ids.filtered(
+            lambda activity: activity.activity_type_id == self.env.ref('ems.mail_activity_absence_atri_request'))
+        self.assertIn("dates on the portal differ", str(activity.note), "the employee's to-do says why too")
+
+        leave.with_user(owner).action_ems_atri_requested()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertFalse(leave.ems_atri_return_reason, 'answered')
+
+    def test_insufficient_documentation_of_an_atri_absence_goes_back_to_atri(self):
+        """An ATRI absence is justified on the portal, so Direction's "Documentation
+        insufficient" sends it to the employee's ATRI step and back to Direction - never to
+        "Awaiting documentation", which is the Head's and asks for a file in EMS (issue #627)."""
+        direction = self._direction()
+        owner = self._employee_user('Test Absence Atri Docs', 'absence_atri_docs@absence.test')
+        leave = self._validated_by_head(self._atri_leave())
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        document_state = leave.ems_document_state
+
+        action = leave.with_user(direction).action_ems_document_insufficient()
+        self.assertEqual(action['context']['default_kind'], 'atri_document')
+        self.env[action['res_model']].with_user(direction).with_context(action['context']).create(
+            {'reason': "Test the certificate is missing on the portal"}).action_return()
+
+        self.assertEqual(leave.ems_status, 'pending_atri')
+        self.assertEqual(leave.ems_document_state, document_state, 'nothing is asked for in EMS')
+        self.assertEqual(leave.ems_atri_return_reason, "Test the certificate is missing on the portal")
+        note = self._last_note(leave)
+        self.assertEqual(note.partner_ids, owner.partner_id)
+        self.assertIn("documentation of your absence", str(note.body))
+        self.assertIn("certificate is missing on the portal", str(note.body))
+
+        leave.with_user(owner).action_ems_atri_requested()
+        self.assertEqual(leave.ems_status, 'pending_direction', 'straight back to Direction')
+
+    def test_an_atri_absence_is_never_sent_back_for_a_document_in_ems(self):
+        direction = self._direction()
+        leave = self._validated_by_head(self._atri_leave())
+
+        with self.assertRaises(UserError):
+            leave.with_user(direction)._ems_return_document("Test attach it here")
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
+    def test_only_an_atri_absence_under_direction_is_sent_back_as_not_in_atri(self):
+        self._direction()
+        health = self._create_leave(self.type_health, self._monday())
+        health.action_approve()
+        waiting = self._create_leave(self.type_atri, self._monday() + timedelta(days=1), ems_full_day=True)
+        waiting.action_approve()
+
+        for leave in (health, waiting):
+            with self.assertRaises(UserError):
+                leave.action_ems_atri_missing()
+
+    def test_the_employee_is_reminded_to_confirm_it(self):
+        """Like the supporting document: every day once the absence is over, and the Head is
+        told once a few days later."""
+        owner = self._employee_user('Test Absence Atri Reminded', 'absence_atri_reminded@absence.test')
+        head = create_role_user(self, 'head_of_studies', 'absence_atri_reminded_head@absence.test')
+        self.employee.leave_manager_id = head.id
+        leave = self._atri_leave()
+        leave.action_approve()
+        last_day = leave.request_date_to
+        reminders = lambda: leave.message_ids.filtered(
+            lambda m: owner.partner_id in m.partner_ids and 'Reminder' in m.body)
+        told = lambda: leave.message_ids.filtered(
+            lambda m: head.partner_id in m.partner_ids and 'still not' in m.body)
+
+        self._run_reminders_on(last_day)
+        self.assertFalse(reminders(), 'not while the absence is still going on')
+        self._run_reminders_on(last_day + timedelta(days=1))
+        self._run_reminders_on(last_day + timedelta(days=1))
+        self.assertEqual(len(reminders()), 1, 'once a day')
+        self.assertIn("ATRI", str(reminders().body))
+        self.assertFalse(told())
+        self._run_reminders_on(last_day + timedelta(days=3))
+        self._run_reminders_on(last_day + timedelta(days=4))
+        self.assertEqual(len(reminders()), 3)
+        self.assertEqual(len(told()), 1, 'the Head once')
+        self.assertEqual(self._activity_users(leave, 'ems.mail_activity_absence_atri_overdue'), head)
+
+        leave.with_user(owner).action_ems_atri_requested()
+        self._run_reminders_on(last_day + timedelta(days=5))
+        self.assertEqual(len(reminders()), 3, 'nothing once it is confirmed')
+        self.assertFalse(self._activity_users(leave, 'ems.mail_activity_absence_atri_overdue'))
+
+    def test_undoing_around_the_atri_step(self):
+        direction = self._direction()
+        head = create_role_user(self, 'head_of_studies', 'absence_atri_undo_head@absence.test',
+                                email='absence_atri_undo_head@example.com')
+        leave = self._atri_leave()
+        leave.action_approve()
+
+        leave.with_user(head).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending', "the Head's validation is what there was to undo")
+
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_atri', 'never confirmed, so it waits again')
+        leave.action_ems_atri_requested()
+        self.assertEqual(self._undo_statuses(leave, 1), ['pending'])
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_direction', 'already confirmed: not asked twice')
+
+        self._not_in_atri(leave.with_user(direction))
+        self.assertFalse(leave.with_user(head).ems_can_undo, "sent back by Direction: not the Head's to undo")
+        leave.with_user(direction).action_ems_undo()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertEqual(leave.ems_atri_state, 'requested')
+        self.assertFalse(leave.ems_atri_return_reason)

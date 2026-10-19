@@ -39,6 +39,17 @@ class EmsGroup(models.Model):
 			"if its schedule has no tutorship, the classroom where it spends the most teaching hours. "
 			"It can also be set by hand: the group's classes still in the old classroom move to the new one.")
 
+	# Issue #622: whose students these are - its study's department or, for a reinforcement group
+	# (which has no study), those of its main groups' studies. Their chiefs organise the absences
+	# of this group's classes (see ems.course._is_absence_manager). Not stored: always follows
+	# the studies.
+	managing_department_ids = fields.Many2many(
+		string="Managed by the departments", comodel_name="hr.department",
+		compute="_compute_managing_department_ids", compute_sudo=True,
+		help="The departments whose chiefs can organise the absences of this group's classes, besides each absent "
+			"teacher's own chain of command: the one set on its study or, for a reinforcement group, on the studies "
+			"of its main groups.")
+
 	# Issue #611: a split or optative class is a group of its own ('ESO1A G1', 'Francès (1r ESO)'), so
 	# without this link the main group's schedule has a hole wherever its students are split. A
 	# reinforcement group can belong to several main groups (an optative mixes a whole course).
@@ -48,6 +59,12 @@ class EmsGroup(models.Model):
 			"schedule of each of them.")
 	subgroup_ids = fields.Many2many(string="Subgroups", comodel_name="ems.group", relation="ems_group_parent_rel",
 		column1="parent_id", column2="subgroup_id")
+	# The main groups are set by hand: a split or an optative of a level whose enrolment is not done
+	# in EMS has no enrolled student to read them from, and a group's schedule is planned before
+	# anybody enrols. When students are enrolled, this says which of their main groups are missing.
+	missing_parent_group_ids = fields.Many2many(string="Main groups of its students not set",
+		comodel_name="ems.group", compute="_compute_missing_parent_group_ids",
+		help="The main groups of this group's enrolled students that are not among its main groups.")
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
@@ -122,6 +139,16 @@ class EmsGroup(models.Model):
 		for group in self:
 			group.enrolled_student_ids = self.env["ems.enrollment"].search([("group_id", "=", group.id)]).mapped("student_id") or False
 
+	@api.depends("group_type", "parent_group_ids")
+	def _compute_missing_parent_group_ids(self):
+		for group in self:
+			if group.group_type != "reinforcement":
+				group.missing_parent_group_ids = False
+				continue
+			main_groups = group.enrolled_student_ids.filtered("active").main_group_id.filtered(
+				lambda main: main.group_type == "main")
+			group.missing_parent_group_ids = main_groups - group.parent_group_ids
+
 	def _compute_enrollment_ids(self):
 		# NOTE: deliberately a compute WITH side effects (delete + recreate ems.enrollment_view
 		# rows) rather than a pure read — the only way found to expose "enrollment_view_ids
@@ -160,6 +187,29 @@ class EmsGroup(models.Model):
 				('group_ids', '=', group.id),
 				('space_pending_group_sync', '=', True),
 			])
+
+	@api.depends("study_id.managing_department_id", "parent_group_ids.study_id.managing_department_id")
+	def _compute_managing_department_ids(self):
+		for group in self:
+			group.managing_department_ids = (group.study_id | group.parent_group_ids.study_id).managing_department_id
+
+	@api.model
+	def _managed_by_departments_domain(self, departments):
+		"""Domain of the groups these departments, or one of their sub-departments, manage (issue
+		#622): through the group's study or, for a reinforcement group, its main groups' studies -
+		the same reading as managing_department_ids, which is not searchable."""
+		return ['|', ('study_id.managing_department_id', 'child_of', departments.ids),
+				('parent_group_ids.study_id.managing_department_id', 'child_of', departments.ids)]
+
+	def _absence_manager_users(self):
+		"""The users who organise the absences of this group's classes (issue #622): the chiefs
+		of the departments that manage it, whoever heads a department or area they hang from,
+		and the Director. Empty when no department manages the group."""
+		self.ensure_one()
+		departments = self.sudo().managing_department_ids
+		if not departments:
+			return self.env['res.users']
+		return departments._chief_users() | self.env.company.sudo().director_id.user_id
 
 	def _compute_can_edit_schedule(self):
 		can_edit = self.env.user.has_group('ems.group_department_chief')
@@ -331,6 +381,14 @@ class EmsGroup(models.Model):
 			"type": "ir.actions.client",
 			"tag": "soft_reload",
 		}
+
+	def action_fill_parent_groups(self):
+		"""Adds to a reinforcement group's main groups those of its enrolled students that are
+		missing (see missing_parent_group_ids). Never removes one: a main group set by hand may have
+		no student enrolled yet. As the user: whoever cannot edit the group cannot do this either."""
+		for group in self.filtered(lambda group: group.group_type == "reinforcement" and group.missing_parent_group_ids):
+			group.parent_group_ids |= group.missing_parent_group_ids
+		return True
 
 	def action_open_classroom_change_wizard(self):
 		"""Opens 'ems.group_classroom_change_wizard' for this group's pending classroom conflicts

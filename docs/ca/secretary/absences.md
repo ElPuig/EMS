@@ -22,13 +22,13 @@ Pertànyer a secretaria no dona aquest permís: la resta de l'equip demana les s
 
 Hi surten només les sol·licituds de la teva àrea, en estat **Pendent** mentre esperen que les donis per rebudes.
 
-Quan el tipus d'absència exigeix justificant (tots menys `Salut` i `ATRI`), la teva part té dos passos: primer **Rebuda: pendent de documentació**, i **Validar documentació** quan la persona ha adjuntat el justificant (la sol·licitud et torna sola). Si el justificant no és vàlid, **Documentació insuficient** el torna a la persona, amb el motiu que hi escriguis. Per a `Salut` i `ATRI`, un sol **Validar**.
+Quan el tipus d'absència exigeix justificant (tots menys `Salut` i `ATRI`), la teva part té dos passos: primer **Rebuda: pendent de documentació**, i **Validar documentació** quan la persona ha adjuntat el justificant (la sol·licitud et torna sola). Si el justificant no és vàlid, **Documentació insuficient** el torna a la persona, amb el motiu que hi escriguis. Si el justificant no arribarà i no cal, **Eximir del justificant** (a dalt del formulari) deixa continuar la sol·licitud sense ell. Per a `Salut` i `ATRI`, un sol **Validar**. Una absència `ATRI` espera després que la persona confirmi que està sol·licitada a ATRI abans d'arribar a Direcció.
 
 ![Llista d'absències, amb les accions Aprovar/Rebutjar en una sol·licitud pendent](../../assets/head_of_studies/hos-absences-list.png)
 
 Tens accés al motiu escrit i al justificant de la teva gent, i pots ajustar els camps **Suma les hores a l'informe mensual** i **Dia sencer?**, a més de corregir el tipus d'absència.
 
-**Rebutjar és definitiu**, i demana confirmació abans: un cop rebutges una sol·licitud, ni tu ni la persona la podeu tornar a *Pendent*, així que hauria de fer-ne una de nova. El justificant, en canvi, es pot adjuntar en qualsevol moment, també en una sol·licitud ja rebuda.
+**Rebutjar demana abans el motiu** (opcional, i s'envia només a la persona). Una decisió presa per error, també un rebuig, es desfà amb **Desfés l'última decisió**, des de la fila del llistat o des de dalt del formulari (vegeu [Desfer una decisió](../head_of_studies/absences.md#desfer-una-decisió)); una sol·licitud aprovada també cal desfer-la abans de poder corregir-la. El justificant es pot adjuntar en qualsevol moment, també en una sol·licitud ja rebuda.
 
 Un cop la valides, Direcció revisa cada absència en últim lloc, a la columna **Estat Direcció**, que veus però no pots modificar. La columna **Estat** mostra en quin punt és la sol·licitud.
 

@@ -30,6 +30,22 @@ class TestDevMailGuard(TransactionCase):
             'sender@example.com', email_to, 'Subject', 'Body', email_cc=email_cc, email_bcc=email_bcc)
         return self.mail_server._prepare_email_message(message, None)[1]
 
+    def _prepared_subject(self, subject='Sol·licitud d\'absència'):
+        message = self.mail_server.build_email('sender@example.com', [REDIRECT], subject, 'Body')
+        return self.mail_server._prepare_email_message(message, None)[2]['Subject']
+
+    def test_a_development_email_says_so_in_its_subject(self):
+        """The developer's inbox and the shared allowlisted ones receive production's emails
+        too: the subject is what tells the two apart."""
+        self._server_role('dev')
+        self.assertEqual(self._prepared_subject(), "[DEV] Sol·licitud d'absència")
+        self.assertEqual(self._prepared_subject('[DEV] Already marked'), '[DEV] Already marked',
+                         'never twice')
+
+    def test_a_production_email_keeps_its_subject(self):
+        self._server_role(False)
+        self.assertEqual(self._prepared_subject(), "Sol·licitud d'absència")
+
     def test_production_machine_is_untouched(self):
         """No role in odoo.conf (production, CI): whatever the database says, nothing changes."""
         self._server_role(False)

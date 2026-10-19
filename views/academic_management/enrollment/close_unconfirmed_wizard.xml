@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="view_enrollment_close_wizard_form" model="ir.ui.view">
+            <field name="name">ems.enrollment_close_wizard.form</field>
+            <field name="model">ems.enrollment_close_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Close unconfirmed enrollments" js_class="ems_enrollment_close_wizard_form">
+                    <sheet>
+                        <div class="alert alert-warning" role="alert" invisible="result_html">
+                            Each person gets the action shown below as soon as you confirm. Deletions cannot
+                            be undone.
+                        </div>
+                        <field name="preview_html" nolabel="1" invisible="result_html"/>
+                        <group invisible="not has_withdrawals or result_html">
+                            <field name="exit_date"/>
+                            <field name="exit_reason"/>
+                        </group>
+                        <field name="has_withdrawals" invisible="1"/>
+                        <group invisible="not result_html">
+                            <field name="result_html" nolabel="1" colspan="2"/>
+                            <field name="log_file" widget="auto_download_binary" filename="log_file_name"
+                                   string="Download the log (CSV)"/>
+                            <field name="log_file_name" invisible="1"/>
+                        </group>
+                        <field name="line_ids" nolabel="1" invisible="result_html">
+                            <list create="0" delete="0" editable="bottom"
+                                  decoration-danger="action == 'delete'"
+                                  decoration-warning="action == 'review'">
+                                <field name="partner_id" readonly="1" force_save="1"/>
+                                <field name="contact_type" readonly="1"/>
+                                <field name="order_ids" widget="many2many_tags" readonly="1" force_save="1"/>
+                                <field name="action" readonly="1" force_save="1"/>
+                            </list>
+                        </field>
+                    </sheet>
+                    <footer>
+                        <button name="action_apply" type="object" string="Apply" class="btn-danger"
+                                invisible="result_html"
+                                confirm="This applies the action of every person listed, deletions included, and cannot be undone. Continue?"/>
+                        <button special="cancel" string="Close"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+    </data>
+</odoo>

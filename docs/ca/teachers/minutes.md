@@ -8,6 +8,14 @@ Les actes es redacten a **Reunions → Actes i registres**. La pantalla s'obre a
 que heu redactat, les de reunions on consteu com a assistent i les que esperen el vostre vistiplau, del
 curs actual. Traient una faceta de la barra de cerca veieu més.
 
+Si sou cap de departament o de seminari, o cap d'estudis o cap d'estudis adjunt, també veieu les actes dels
+departaments i grups que depenen de vosaltres.
+
+Només qui redacta una acta i qui li ha de donar el vistiplau la poden modificar; si qui l'ha d'aprovar no hi
+és, la poden aprovar en lloc seu els seus superiors (cap de departament, cap d'estudis o cap d'estudis
+adjunt, director). Qualsevol altra acta que
+veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **només en lectura**, sense accions.
+
 ---
 
 ## Redactar una acta

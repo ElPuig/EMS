@@ -8,6 +8,14 @@ Las actas se redactan en **Reuniones → Actas y registros**. La pantalla se abr
 las que habéis redactado, las de reuniones donde constáis como asistente y las que esperan vuestro visto
 bueno, del curso actual. Quitando una faceta de la barra de búsqueda veis más.
 
+Si sois jefe de departamento o de seminario, o jefe de estudios o jefe de estudios adjunto, también veis las
+actas de los departamentos y grupos que dependen de vosotros.
+
+Solo quien redacta un acta y quien debe darle el visto bueno pueden modificarla; si quien debe aprobarla no
+está, pueden aprobarla en su lugar sus superiores (jefe de departamento, jefe de estudios o jefe de
+estudios adjunto, director). Cualquier otra acta que
+veáis (la de una reunión a la que asististeis, la de vuestro departamento) se abre **solo en lectura**, sin acciones.
+
 ---
 
 ## Redactar un acta

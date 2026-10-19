@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data noupdate="0">
-        <!-- Minutes. Rules of different groups are ORed, so the teaching staff gets a narrow rule and
-             the roles that oversee the whole centre get a permissive one of their own; without the
-             latter, the narrow domain would apply to them too. -->
+        <!-- Minutes. Rules of different groups are ORed, so the staff gets a narrow rule and the roles
+             that review the whole system get a permissive one of their own; without the latter, the
+             narrow domain would apply to them too. The narrow rule follows the chain of command, not
+             the post: a department's minutes reach its chiefs, the Head or Deputy Head of Studies
+             it hangs from and the Director (tutor_scope_user_ids of its Department or Seminar
+             Chief), a teaching team's the chain of its group's tutor - never every holder of those
+             posts. The secretariat gets the same narrow rule: a user in none of a model's rule
+             groups would see every record. -->
         <record model="ir.rule" id="rule_minute_teacher">
-            <field name="name">Minutes: the teaching staff sees the ones of their own scopes</field>
+            <field name="name">Minutes: the staff sees the ones of their own scopes and chain of command</field>
             <field name="model_id" ref="ems.model_ems_minute"/>
-            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">['|', '|', '|', '|', '|', '|',
-                ('approver_employee_id.user_id', '=', user.id),
+            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|',
+                ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
+                ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
+                ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                ('approver_scope_user_ids', '=', user.id),
                 ('is_centre', '=', True),
                 ('redactor_employee_id.user_id', '=', user.id),
                 ('attendee_ids.user_id', '=', user.id),
@@ -23,26 +31,29 @@
         </record>
 
         <!-- Writing is narrower than reading, and never on an approved minute: a correction after
-             approval is a new version, not an edit. -->
+             approval is a new version, not an edit. Whoever approves it writes it, and so does their
+             chain of command (approver_scope_user_ids), which stands in when they are away. -->
         <record model="ir.rule" id="rule_minute_teacher_write">
-            <field name="name">Minutes: the teaching staff writes its own, while not approved</field>
+            <field name="name">Minutes: the staff writes its own, while not approved</field>
             <field name="model_id" ref="ems.model_ems_minute"/>
-            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="False"/>
             <field name="domain_force">[('state', '!=', 'approved'), '|', '|', '|',
-                ('approver_employee_id.user_id', '=', user.id),
+                ('approver_scope_user_ids', '=', user.id),
                 ('redactor_employee_id.user_id', '=', user.id),
                 ('approver_role_id.employee_ids.user_id', '=', user.id),
                 ('redactor_employee_id', '=', False)]</field>
         </record>
 
         <record model="ir.rule" id="rule_minute_oversight">
-            <field name="name">Minutes: the roles that oversee the centre see them all</field>
+            <field name="name">Minutes: the quality committee, quality coordination and the administrator see them all</field>
             <field name="model_id" ref="ems.model_ems_minute"/>
-            <field name="groups" eval="[(4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_director')), (4, ref('ems.group_quality')), (4, ref('ems.group_quality_admin')), (4, ref('ems.group_academic_admin'))]"/>
+            <!-- (6, ...) so an upgrade also takes out the posts that used to be here (secretariat,
+                 head of studies, director), which now go by the chain of command. -->
+            <field name="groups" eval="[(6, 0, [ref('ems.group_quality'), ref('ems.group_quality_admin'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 

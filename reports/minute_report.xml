@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
+        <!-- The company's A4, with the body starting closer to the letterhead: the default top
+             margin leaves a band of blank paper between the header and a minute's title (the
+             header itself is about 36 mm tall), and with half as much again of side margin, about
+             14 mm instead of 9, so a text-heavy minute does not run edge to edge. -->
+        <record id="paperformat_minute" model="report.paperformat">
+            <field name="name">A4 (minutes)</field>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">42</field>
+            <field name="margin_bottom">32</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">40</field>
+            <field name="dpi">90</field>
+            <field name="css_margins" eval="True"/>
+        </record>
+
         <record model="ir.actions.report" id="action_report_minute">
             <field name="name">Minute</field>
             <field name="model">ems.minute</field>
@@ -11,6 +29,7 @@
             <field name="binding_type">report</field>
             <field name="binding_view_types">list,form</field>
             <field name="print_report_name">object.code or 'minute'</field>
+            <field name="paperformat_id" ref="ems.paperformat_minute"/>
         </record>
 
         <template id="report_minute">
@@ -18,22 +37,41 @@
                 <t t-foreach="docs" t-as="doc">
                     <t t-call="web.external_layout">
                         <div class="page o_ems_minute">
-                            <!-- A minute is read on paper and filed: small type, tight tables, and
-                                 nothing wider than the sheet whatever was pasted into its texts. -->
+                            <!-- A minute is read on paper and filed: compact, but airy enough to read,
+                                 nothing wider than the sheet whatever was pasted into its texts, and no
+                                 table split across two pages. The brand colour is the company's own,
+                                 the one the layout already gives table headers. -->
+                            <t t-set="brand" t-value="doc.env.company.primary_color or '#a51d2d'"/>
                             <style>
-                                .o_ems_minute { font-size: 9.5pt; line-height: 1.3; }
-                                .o_ems_minute h2 { font-size: 14pt; margin: 0 0 2pt 0; }
-                                .o_ems_minute h4 { font-size: 10.5pt; font-weight: bold; margin: 11pt 0 4pt 0; padding-bottom: 2pt; border-bottom: 1px solid #999; }
-                                .o_ems_minute h5 { font-size: 9.5pt; font-weight: bold; margin: 7pt 0 2pt 0; }
-                                .o_ems_minute p { margin: 0 0 4pt 0; }
-                                .o_ems_minute ol, .o_ems_minute ul { margin: 0 0 4pt 0; padding-left: 16pt; }
-                                .o_ems_minute table { width: 100% !important; max-width: 100% !important; border-collapse: collapse; margin: 3pt 0 6pt 0; font-size: 8.5pt; }
+                                /* The layout's address block and document title are empty for a minute:
+                                   without them the minute starts right under the letterhead. */
+                                .o_report_layout_bubble > table.o_ignore_layout_styling { display: none; }
+                                .o_ems_minute { font-size: 9.5pt; line-height: 1.45; text-align: justify; }
+                                .o_ems_minute h2 { font-size: 15pt; margin: 0 0 2pt 0; text-align: left; }
+                                .o_ems_minute h4 { font-size: 12pt; font-weight: bold; text-decoration: underline; margin: 16pt 0 6pt 0; text-align: left; page-break-after: avoid; }
+                                .o_ems_minute h5 { font-size: 10.5pt; font-weight: bold; margin: 11pt 0 3pt 0; text-align: left; page-break-after: avoid; }
+                                .o_ems_minute p { margin: 0 0 5pt 0; }
+                                .o_ems_minute ol, .o_ems_minute ul { margin: 0 0 5pt 0; padding-left: 16pt; }
+                                .o_ems_minute li { margin-bottom: 1.5pt; }
+                                .o_ems_minute .o_ems_minute_keep { page-break-inside: avoid; }
+                                .o_ems_minute table { width: 100% !important; max-width: 100% !important; border-collapse: collapse; margin: 4pt 0 8pt 0; font-size: 8.5pt; text-align: left; page-break-inside: avoid; }
                                 .o_ems_minute table tr { height: auto !important; page-break-inside: avoid; }
-                                .o_ems_minute table td, .o_ems_minute table th { width: auto !important; height: auto !important; padding: 1.5pt 4pt !important; border: 1px solid #bbb; vertical-align: top; word-wrap: break-word; }
-                                .o_ems_minute table td p, .o_ems_minute table th p { margin: 0 !important; line-height: 1.25 !important; }
-                                .o_ems_minute table.o_ems_minute_facts td, .o_ems_minute table.o_ems_minute_facts th { border: none; padding: 1pt 8pt 1pt 0 !important; }
-                                .o_ems_minute table.o_ems_minute_facts th { white-space: nowrap; color: #555; font-weight: normal; width: 1% !important; }
-                                .o_ems_minute table.o_ems_minute_signatures td { border: none; width: 50% !important; padding-top: 14pt !important; }
+                                .o_ems_minute table td, .o_ems_minute table th { width: auto !important; height: auto !important; padding: 4pt 7pt !important; border: 1px solid #bbb; vertical-align: top; word-wrap: break-word; }
+                                .o_ems_minute table td p, .o_ems_minute table th p { margin: 0 !important; line-height: 1.3 !important; }
+                                .o_ems_minute table.o_ems_minute_facts { margin: 6pt 0 4pt 0; font-size: 9pt; }
+                                .o_ems_minute table.o_ems_minute_facts td, .o_ems_minute table.o_ems_minute_facts th { padding: 5pt 8pt !important; vertical-align: middle; }
+                                /* Title cells in the brand colour, faded: a white veil over it. */
+                                .o_ems_minute table.o_ems_minute_facts th {
+                                    white-space: nowrap; width: 1% !important; font-weight: bold; color: <t t-out="brand"/>;
+                                    background-color: <t t-out="brand"/>;
+                                    background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
+                                    background-image: linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
+                                }
+                                .o_ems_minute table.o_ems_minute_signatures { margin-top: 18pt; }
+                                .o_ems_minute table.o_ems_minute_signatures th { width: 50% !important; }
+                                .o_ems_minute table.o_ems_minute_signatures td { width: 50% !important; padding: 8pt !important; }
+                                /* Room under each name for the stamp, the same whether it is there yet or not. */
+                                .o_ems_minute .o_ems_minute_stamp_room { min-height: 72pt; padding-top: 4pt; }
                                 .o_ems_minute a { word-wrap: break-word; word-break: break-all; }
                                 .o_ems_minute img { max-width: 100% !important; height: auto !important; }
                                 .o_ems_minute .o_ems_minute_draft { border: 1px solid #b00; color: #b00; font-weight: bold; padding: 2pt 6pt; margin-bottom: 6pt; display: inline-block; }
@@ -44,18 +82,19 @@
                             <h2 t-out="doc.name"/>
                             <p class="o_ems_minute_muted" t-out="doc.code"/>
 
+                            <!-- Three columns, two rows: when, how, where. An evidence record is no
+                                 meeting, so it has no nature or modality column. -->
+                            <t t-set="is_meeting" t-value="doc.type_kind != 'record'"/>
                             <table class="o_ems_minute_facts">
                                 <tr>
                                     <th>Date</th><td t-out="doc.date" t-options="{'widget': 'date'}"/>
-                                    <th>Time</th><td t-out="doc.time or ''"/>
-                                </tr>
-                                <tr t-if="doc.type_kind != 'record'">
-                                    <th>Nature</th><td t-out="dict(doc._fields['nature']._description_selection(doc.env)).get(doc.nature)"/>
-                                    <th>Modality</th><td t-out="dict(doc._fields['modality']._description_selection(doc.env)).get(doc.modality)"/>
+                                    <t t-if="is_meeting"><th>Nature</th><td t-out="dict(doc._fields['nature']._description_selection(doc.env)).get(doc.nature)"/></t>
+                                    <th>Scope</th><td t-out="doc.scope_name"/>
                                 </tr>
                                 <tr>
+                                    <th>Time</th><td t-out="doc.time or ''"/>
+                                    <t t-if="is_meeting"><th>Modality</th><td t-out="dict(doc._fields['modality']._description_selection(doc.env)).get(doc.modality)"/></t>
                                     <th>Place</th><td t-out="doc.place_name"/>
-                                    <th>Scope</th><td t-out="doc.scope_name"/>
                                 </tr>
                             </table>
 
@@ -196,22 +235,40 @@
                                 </ul>
                             </t>
 
+                            <!-- Under each name, the stamp EMS puts once that side has signed (see
+                                 ems.report_validation_stamp): who sent it for approval and when, who
+                                 approved it and when. Until then the same room is left blank, so a
+                                 draft printed for review keeps the layout of the approved minute. -->
                             <table class="o_ems_minute_signatures">
-                                <tr>
-                                    <td>
-                                        <strong>Written by</strong><br/>
-                                        <span t-out="doc.redactor_employee_id.name or ''"/>
-                                    </td>
-                                    <td>
-                                        <strong>Approved by</strong><br/>
-                                        <span t-out="doc.approver_employee_id.name or doc.approver_role_id.name or ''"/><br/>
-                                        <!-- The real evidence: who approved it in EMS and when. A pasted
-                                             signature image is decoration on top of this. -->
-                                        <span t-if="doc.approval_date" class="o_ems_minute_muted">
-                                            Approved in EMS on <span t-out="doc.approval_date" t-options="{'widget': 'date'}"/>
-                                        </span>
-                                    </td>
-                                </tr>
+                                <thead><tr><th>Minute written by</th><th>Approved by</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div t-out="doc.redactor_employee_id.name or ''"/>
+                                            <div class="o_ems_minute_stamp_room">
+                                                <t t-if="doc.submission_date" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Sent for approval in EMS</t>
+                                                    <t t-set="stamp_by_label">Signed by:</t>
+                                                    <t t-set="stamp_by" t-value="doc.submitted_by_id.name"/>
+                                                    <t t-set="stamp_date" t-value="doc.submission_date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.code"/>
+                                                </t>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div t-out="doc.approver_employee_id.name or doc.approver_role_id.name or ''"/>
+                                            <div class="o_ems_minute_stamp_room">
+                                                <t t-if="doc.approval_date" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Approved in EMS</t>
+                                                    <t t-set="stamp_by_label">Signed by:</t>
+                                                    <t t-set="stamp_by" t-value="doc.approver_employee_id.name"/>
+                                                    <t t-set="stamp_date" t-value="doc.approval_date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.code"/>
+                                                </t>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
                             </table>
 
                             <p class="o_ems_minute_muted" style="margin-top: 10pt; font-size: 8pt;" t-if="doc.template_document_id">

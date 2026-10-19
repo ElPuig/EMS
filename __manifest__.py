@@ -76,6 +76,7 @@
 
         'views/menu.xml',
         'views/quality/menu.xml',
+        'reports/shared/report_validation_stamp.xml',
         'reports/minute_report.xml',
         'views/minutes_agreements/minute/call_email.xml',
         'views/minutes_agreements/menu.xml',
@@ -473,6 +474,7 @@
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
         'data/cat/ems.workgroup.csv',
+        'data/main/sync_quality_committee.xml',
         'data/cat/hr.job.csv',
         'data/cat/hr.leave.type.csv',
         'data/cat/product.template-generic.csv',

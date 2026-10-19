@@ -52,7 +52,23 @@ The same agreements and actions screen now appears in the staff menu with "mine"
 
 ## Minutes are restricted to the scopes each role belongs to:
 
-Record rules replace what was previously unrestricted write access: the teaching staff sees the minutes of its own departments, workgroups, groups and staff meetings, plus any it attended or has to approve, and writes only what is not approved yet. The secretariat, head of studies, management and quality coordination see them all.
+Record rules replace what was previously unrestricted write access: the staff sees the minutes of its own departments, workgroups, groups and staff meetings, plus any it attended or has to approve, and writes only what is not approved yet. Above that, minutes follow the chain of command, not the post: a department's minutes reach its chiefs, the Head or Deputy Head of Studies it hangs from (the Deputy Head of Studies for VET sees the VET departments, the Head of Studies the ESO/BTX ones) and the Director, and a teaching team's the chain of its group's tutor. The secretariat goes by its own scopes too. Only the quality committee, quality coordination and the administrator see every minute.
+
+## The Quality menu belongs to the quality committee:
+
+The Quality menu is now seen by the quality committee, quality coordination and management, instead of quality coordination, management, the head of studies and the secretariat (who keep minutes and agreements in the Meetings menu). The committee's access is the existing Quality "Manager" group, renamed "Committee member" (its old description, "identical to Manager", no longer held). It can still be given by hand from the user form, and the catalogue's "Quality Comission" workgroup now feeds it: joining the workgroup gives it, leaving takes it away (except to quality coordination or to someone who had it by hand), and every install and upgrade adds the members the workgroup already has.
+
+## Only whoever gives the approval approves a minute, and every change of state asks first:
+
+The Approve action used to be offered to anybody who could edit the minute, its writer included, and the approver was then overwritten by whoever clicked. Now only the person named to approve it, anybody above them in the chain of command (who stands in when they are away, and can edit the minute to do so), or, with nobody named, a holder of the approver post, and the administrator can approve: the button is hidden from everybody else and the server refuses it before anything is written. Every change of state (start the meeting, send for approval, approve, go back) asks for confirmation; approving says it cannot be undone. Approving also failed for anybody but an administrator: the minute is approved before its PDF is attached, and an approved minute can no longer be written; the PDF is now attached with elevated rights once the approval has been checked.
+
+## A more readable minute PDF:
+
+The minute's PDF starts right under the letterhead (a paper format of its own with a smaller top margin and side margins half as wide again, instead of the company's, and without the layout's empty address block), with its header as a three-column table (date and time, nature and modality, scope and place) whose title cells carry the company colour faded. The text is justified, section titles are larger and underlined, the titles of the items discussed are larger, both with more room above them, no table is split across two pages, and the signatures are a table with a header row like the agreements. Under each name the signature cell leaves room for a validation stamp, the same one the convalidation resolutions print (now a shared template): "Sent for approval in EMS" under the writer and "Approved in EMS" under the approver, each with who did it, when and the minute's code. Sending for approval now records who did it and when for that purpose.
+
+## A minute opens read-only for whoever may only read it:
+
+An attendee or a department colleague used to get the minute's fields as editable and only found out on saving ("doesn't have 'write' access"). The form now asks whether the user may write that minute (`can_edit`, shared with the quality structure's forms through a new `ems.quality.can.edit` mixin) and opens it read-only when not, with no header action and no attendance kiosk buttons; the autosave skips it. Covered by a backend test and a new tour logged in as an attendee teacher.
 
 ## The seeded quality data is in Catalan, not English:
 

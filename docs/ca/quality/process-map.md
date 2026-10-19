@@ -7,8 +7,8 @@
 **Qualitat → Documentació → Mapa de processos** mostra el mapa de processos del centre, el document de Google on hi ha
 dibuixada l'estructura de la documentació de qualitat.
 
-**Qui hi té accés:** tothom qui té el menú Qualitat (coordinació de qualitat, direcció, cap d'estudis i
-secretaria). Només la coordinació de qualitat i la direcció el poden canviar.
+**Qui hi té accés:** tothom qui té el menú Qualitat (la comissió de qualitat, la coordinació de qualitat i
+la direcció). Només la coordinació de qualitat i la direcció el poden canviar.
 
 ---
 

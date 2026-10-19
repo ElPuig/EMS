@@ -55,8 +55,10 @@ class EmsSignedRecord(models.AbstractModel):
                 raise UserError(_("This record is already approved."))
             record._ems_check_can_approve()
             record.state = 'approved'
-            record._ems_render_pdf()
-            record._ems_upload_to_drive()
+            # With sudo: the approval has been checked, and an approved record can no longer be
+            # written by whoever approved it - which attaching its PDF to it requires.
+            record.sudo()._ems_render_pdf()
+            record.sudo()._ems_upload_to_drive()
 
     def _ems_check_can_approve(self):
         """Hook for the concrete model to refuse approval. Nothing here by default."""

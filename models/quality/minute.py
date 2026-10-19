@@ -26,7 +26,7 @@ _LEGACY_TYPE_BY_SCOPE = {
 class EmsMinute(models.Model):
     _name = "ems.minute"
     _description = "Minute: a meeting minute or an evidence record, written, approved and filed."
-    _inherit = ['ems.signed.record', 'mail.thread', 'mail.activity.mixin']
+    _inherit = ['ems.signed.record', 'ems.quality.can.edit', 'mail.thread', 'mail.activity.mixin']
     _order = "date desc, id desc"
     _sql_constraints = [
         ('unique_code', 'unique (code)', "Another minute already uses this code."),
@@ -178,6 +178,17 @@ class EmsMinute(models.Model):
         help="The people who answer for the scope that meets: they come first when choosing who approves the minute.",
     )
     approval_date = fields.Date(string="Approved on", readonly=True, copy=False)
+    # Who sent it for approval and when, for the stamp under the writer's name in the PDF: the
+    # writer's side of the signature, as approval_date and approver_employee_id are the approver's.
+    submission_date = fields.Date(string="Sent for approval on", readonly=True, copy=False)
+    submitted_by_id = fields.Many2one(string="Sent for approval by", comodel_name="res.users", readonly=True, copy=False)
+    can_approve = fields.Boolean(string="Can approve", compute="_compute_can_approve", help="Whether the current user is the one who approves this minute.")
+    # Whoever may stand in for the person named to approve it: that person and their chain of
+    # command (hr.employee.tutor_scope_user_ids: every chief above them, the Director). Searchable
+    # for the record rules; not stored, so it always follows the current hierarchy.
+    approver_scope_user_ids = fields.Many2many(
+        string="Who can approve it", comodel_name="res.users",
+        compute="_compute_approver_scope_user_ids", search="_search_approver_scope_user_ids")
 
     # Sections that carry a table of their own.
     member_line_ids = fields.One2many(string="Team members", comodel_name="ems.minute.member.line", inverse_name="minute_id")
@@ -555,6 +566,38 @@ class EmsMinute(models.Model):
         for minute in self:
             minute.approver_candidate_ids = minute._ems_approver_candidates()
 
+    @api.depends('approver_employee_id')
+    def _compute_approver_scope_user_ids(self):
+        Employee = self.env['hr.employee'].sudo().with_context(active_test=False)
+        for minute in self:
+            minute.approver_scope_user_ids = Employee.browse(minute.approver_employee_id.id).tutor_scope_user_ids
+
+    def _search_approver_scope_user_ids(self, operator, value):
+        if operator not in ('=', 'in'):
+            raise NotImplementedError(_("Unsupported search on approver_scope_user_ids"))
+        approvers = self.env['hr.employee'].sudo().with_context(active_test=False).search([('tutor_scope_user_ids', operator, value)])
+        return [('approver_employee_id', 'in', approvers.ids)]
+
+    @api.depends('approver_employee_id', 'approver_role_id')
+    @api.depends_context('uid')
+    def _compute_can_approve(self):
+        for minute in self:
+            minute.can_approve = minute._ems_user_may_approve()
+
+    def _ems_user_may_approve(self):
+        """Who gives the approval: the person named to give it or anybody above them in the chain
+        of command (when they are away, their Department Chief, Head or Deputy Head of Studies or
+        the Director stands in), or, while nobody is named, whoever holds the post the minute
+        names; above them all, the administrator. Never whoever wrote the minute just for having
+        written it, nor anybody who can merely edit it."""
+        self.ensure_one()
+        user = self.env.user
+        if self.env.su or user.has_group('ems.group_academic_admin'):
+            return True
+        if self.approver_employee_id:
+            return user in self.approver_scope_user_ids
+        return user in self.approver_role_id.sudo().employee_ids.user_id
+
     def _ems_google_calendar_url(self):
         """A link that opens Google Calendar with this meeting filled in, for each person to add
         it to their own calendar: its start and end (in UTC, which is what the link takes), the
@@ -711,7 +754,14 @@ class EmsMinute(models.Model):
         for minute in self:
             if minute.state != 'to_approve':
                 raise UserError(_("Only a minute waiting for approval can go back to the meeting."))
-            minute.state = 'meeting'
+            minute.write({'state': 'meeting', 'submission_date': False, 'submitted_by_id': False})
+
+    def action_back_to_draft(self):
+        """Back to draft takes back the sending for approval too: the minute is no longer what
+        was sent."""
+        result = super().action_back_to_draft()
+        self.write({'submission_date': False, 'submitted_by_id': False})
+        return result
 
     def action_submit(self):
         self._ems_sync_attendance()
@@ -719,7 +769,9 @@ class EmsMinute(models.Model):
         for minute in held:
             minute._ems_compose_development()
             minute.state = 'to_approve'
-        return super(EmsMinute, self - held).action_submit()
+        result = super(EmsMinute, self - held).action_submit()
+        self.write({'submission_date': fields.Date.context_today(self), 'submitted_by_id': self.env.uid})
+        return result
 
     def _ems_compose_development(self):
         """Put the development of the session together from what was written on each item to
@@ -747,6 +799,10 @@ class EmsMinute(models.Model):
         """Record who approved it, on top of what the shared machinery does."""
         employee = self.env['hr.employee.public'].search([('user_id', '=', self.env.uid)], limit=1)
         for minute in self:
+            # Before anything is written: the check below names who was meant to approve it.
+            if not minute._ems_user_may_approve():
+                raise UserError(_("Only %s can approve this minute.",
+                                  minute.approver_employee_id.name or minute.approver_role_id.name or _("the person who approves it")))
             # Who actually approves it, when that is somebody other than the person it was meant for.
             if employee:
                 minute.approver_employee_id = employee

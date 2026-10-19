@@ -37,6 +37,12 @@ ACCESS_MATRIX = {
     'ems.title_import_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.title_register_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.workgroup': {'teacher': 'r', 'secretary': 'r'},
+    # The quality committee reads the documentary structure and works on the actions (issue #497);
+    # minutes and actions also carry record rules, tested in test_quality_minute_rules.
+    'ems.quality.process': {'teacher': '', 'quality': 'r'},
+    'ems.quality.procedure': {'teacher': '', 'quality': 'r'},
+    'ems.quality.document': {'teacher': 'r', 'quality': 'r'},
+    'ems.quality.followup': {'teacher': 'rwc', 'quality': 'rwc'},
     'resource.calendar': {'teacher': 'r'},
     'resource.calendar.attendance': {'teacher': 'r'},
 }

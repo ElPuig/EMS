@@ -34,12 +34,27 @@ export class EmsMinuteFormController extends FormController {
         onWillUnmount(() => browser.clearInterval(timer));
     }
 
+    // Whoever may only read the minute (an attendee, a department colleague) gets it as plain
+    // reading, not fields that the save would then refuse. Decided per record, on every load, since
+    // the pager moves between minutes this user may and may not write.
+    get modelParams() {
+        const params = super.modelParams;
+        params.hooks.onRootLoaded = () => {
+            const record = this.model.root;
+            const mode = record.isNew || record.data.can_edit ? "edit" : "readonly";
+            if (this.canEdit && record.config.mode !== mode) {
+                record._switchMode(mode);
+            }
+        };
+        return params;
+    }
+
     async autosave() {
         const record = this.model.root;
         const now = Date.now();
         // Not a minute that was never saved (saving it issues its code: that is the writer's
         // call), not while a dialog is open, and not while the writer is at it.
-        if (this.autosaving || record.isNew || now - this.lastInput < IDLE || now - this.lastAutosave < BETWEEN_SAVES
+        if (this.autosaving || record.isNew || !record.isInEdition || now - this.lastInput < IDLE || now - this.lastAutosave < BETWEEN_SAVES
                 || document.querySelector(".modal.show, .o_dialog")) {
             return;
         }

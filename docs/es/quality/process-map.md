@@ -7,8 +7,8 @@
 **Calidad → Documentación → Mapa de procesos** muestra el mapa de procesos del centro, el documento de Google donde está
 dibujada la estructura de la documentación de calidad.
 
-**Quién tiene acceso:** todo el que tiene el menú Calidad (coordinación de calidad, dirección, jefatura de
-estudios y secretaría). Solo la coordinación de calidad y la dirección lo pueden cambiar.
+**Quién tiene acceso:** todo el que tiene el menú Calidad (la comisión de calidad, la coordinación de calidad
+y la dirección). Solo la coordinación de calidad y la dirección lo pueden cambiar.
 
 ---
 

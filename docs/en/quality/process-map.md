@@ -7,8 +7,8 @@
 **Quality → Documentation → Process map** shows the centre's process map, the Google document where the structure of the
 quality documentation is drawn.
 
-**Who has access:** everyone with the Quality menu (quality coordination, management, head of studies and
-secretariat). Only quality coordination and management can change it.
+**Who has access:** everyone with the Quality menu (the quality committee, quality coordination and
+management). Only quality coordination and management can change it.
 
 ---
 

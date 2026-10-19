@@ -404,6 +404,18 @@ class TestQualityMinute(TransactionCase):
         minute.action_back_to_meeting()
         self.assertEqual(minute.state, 'meeting')
 
+    def test_sending_for_approval_is_recorded_for_the_writers_stamp(self):
+        """Who sent it and when is the writer's stamp in the PDF; going back to the meeting takes
+        it back, since what is sent next is another text."""
+        minute = self._minute().with_user(self.user)
+        minute.action_start_meeting()
+        minute.action_submit()
+        self.assertEqual(minute.submitted_by_id, self.user)
+        self.assertTrue(minute.submission_date)
+        minute.action_back_to_meeting()
+        self.assertFalse(minute.submission_date)
+        self.assertFalse(minute.submitted_by_id)
+
     def test_the_draft_can_be_read_as_a_pdf_before_it_is_approved(self):
         minute = self._minute(agenda_ids=[(0, 0, {'sequence': 10, 'name': 'Only item', 'notes': '<p>Said about it.</p>'})]).with_user(self.user)
         minute.action_start_meeting()

@@ -8,6 +8,13 @@ Minutes are written in **Meetings → Minutes and records**. The screen opens on
 ones you wrote, the ones of meetings you attended and the ones awaiting your approval, for the current
 year. Removing a facet in the search bar shows more.
 
+If you are a Department or Seminar Chief, or Head or Deputy Head of Studies, you also see the minutes of the
+departments and groups that hang from you.
+
+Only whoever writes a minute and whoever approves it can change it; if whoever approves it is away, their
+chiefs (Department Chief, Head or Deputy Head of Studies, Director) can approve it in their place. Any other minute you can see (one of
+a meeting you attended, one of your department) opens **read-only**, with no actions.
+
 ---
 
 ## Writing a minute

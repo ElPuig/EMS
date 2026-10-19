@@ -23,3 +23,19 @@ class TestQualityMinuteTour(HttpCase):
 
     def test_write_a_minute_tour(self):
         self.start_tour("/odoo", "ems_minute_write", login="minute.tour@example.com")
+
+    def test_attendee_reads_a_minute_tour(self):
+        """A teacher who attended a meeting of another department opens its minute: they may read
+        it but not write it, so the form opens read-only, with no action that would change it."""
+        reader = create_role_user(self, 'teacher', 'minute.reader@example.com', name='Minute Tour Reader')
+        reader_employee = create_role_employee(self, reader)
+        writer = self.env['hr.employee.public'].browse(self.user.employee_id.id)
+        minute = self.env['ems.minute'].create({
+            'type_id': self.env.ref('__import__.minute_type_dep').id,
+            'department_id': self.department.id,
+            'attendee_ids': [(6, 0, [reader_employee.id])],
+            'redactor_employee_id': writer.id,
+            'approver_employee_id': writer.id,
+        })
+        minute.action_start_meeting()
+        self.start_tour(f"/odoo/action-ems.action_minute/{minute.id}", "ems_minute_read_only", login="minute.reader@example.com")

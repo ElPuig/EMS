@@ -1565,7 +1565,7 @@ msgid "Administrator"
 msgstr "Administrador/a"
 
 #. module: ems
-#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
+#: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
 #: model:ir.model.fields,field_description:ems.field_hr_department__manager_id
 #: model:res.groups,name:ems.group_secretary
 msgid "Manager"
@@ -2404,6 +2404,8 @@ msgstr "Pot cancel·lar-se"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_minute__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_quality_can_edit__can_edit
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_edit_mode__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_procedure__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_process__can_edit
 msgid "Can edit"
 msgstr "Pot editar"
@@ -19074,12 +19076,12 @@ msgid "The student, course, study, grounds, where the studies were passed and ap
 msgstr "L'alumne, el curs, l'estudi, el motiu, on es van superar els estudis i les observacions del sol·licitant no es poden modificar un cop presentada la sol·licitud."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model_terms:ir.ui.view,arch_db:ems.report_validation_stamp
 msgid "Date:"
 msgstr "Data:"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model_terms:ir.ui.view,arch_db:ems.report_validation_stamp
 msgid "Reference:"
 msgstr "Referència:"
 
@@ -20301,10 +20303,6 @@ msgstr "Ubicació de la feina"
 msgid "Student domain"
 msgstr "Domini de l'alumne"
 
-#. module: ems
-#: model:res.groups,comment:ems.group_quality
-msgid "Access rights for the Quality team (EMS Surveys section)."
-msgstr "Permisos d'accés per a l'equip de qualitat (secció d'enquestes de l'EMS)."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_quality_action
@@ -20632,11 +20630,6 @@ msgstr "Quan estarà finalitzada"
 msgid "Written by"
 msgstr "Escrit per"
 
-#. module: ems
-#: model:res.groups,comment:ems.group_quality_admin
-msgid ""
-"Access rights for the Quality coordinator. Currently identical to Manager."
-msgstr "Permisos d'accés per al coordinador o coordinadora de qualitat. Ara mateix idèntics als de Gestor."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_quality_followup
@@ -20849,6 +20842,8 @@ msgstr ""
 "per veure'l."
 
 #. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_can_edit__can_edit
 #: model:ir.model.fields,help:ems.field_ems_quality_document__can_edit
 #: model:ir.model.fields,help:ems.field_ems_quality_edit_mode__can_edit
 #: model:ir.model.fields,help:ems.field_ems_quality_procedure__can_edit
@@ -24274,10 +24269,6 @@ msgstr "Identificador del fitxer al Drive"
 msgid "<strong>Approved by</strong><br/>"
 msgstr "<strong>Vistiplau</strong><br/>"
 
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "<strong>Written by</strong><br/>"
-msgstr "<strong>Redacció de l'acta</strong><br/>"
 
 #. module: ems
 #. odoo-python
@@ -24374,6 +24365,7 @@ msgstr "Aprovació de l'acta anterior"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__approver_employee_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__approver_role_id
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
 msgid "Approved by"
 msgstr "Vistiplau"
 
@@ -24382,10 +24374,6 @@ msgstr "Vistiplau"
 msgid "Approved by (post)"
 msgstr "Vistiplau (càrrec)"
 
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_minute
-msgid "Approved in EMS on"
-msgstr "Aprovat a l'EMS el"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_minute__previous_approved__with_changes
@@ -25285,3 +25273,116 @@ msgstr "Qui sol donar el vistiplau"
 #: model:ir.model.fields,help:ems.field_ems_minute__approver_candidate_ids
 msgid "The people who answer for the scope that meets: they come first when choosing who approves the minute."
 msgstr "Les persones responsables de l'àmbit que es reuneix: surten primeres en triar qui dona el vistiplau a l'acta."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_can_edit
+msgid "Quality write access: whether the current user may write the record."
+msgstr "Accés d'escriptura de qualitat: si l'usuari actual pot modificar el registre."
+
+#. module: ems
+#: model:res.groups,name:ems.group_quality
+msgid "Committee member"
+msgstr "Membre de la comissió"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_quality
+msgid "Access rights for the quality committee: the Quality menu and the Surveys section."
+msgstr "Permisos d'accés per a la comissió de qualitat: el menú Qualitat i la secció d'enquestes."
+
+#. module: ems
+#: model:res.groups,comment:ems.group_quality_admin
+msgid "Access rights for the Quality coordinator: those of a committee member, plus maintaining the quality structure, its links and the minute catalogue."
+msgstr "Permisos d'accés per al coordinador o coordinadora de qualitat: els d'un membre de la comissió, i a més el manteniment de l'estructura de qualitat, els seus enllaços i el catàleg d'actes."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__can_approve
+msgid "Can approve"
+msgstr "Pot aprovar"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute__can_approve
+msgid "Whether the current user is the one who approves this minute."
+msgstr "Si l'usuari actual és qui ha d'aprovar aquesta acta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Only %s can approve this minute."
+msgstr "Només %s pot aprovar aquesta acta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "the person who approves it"
+msgstr "la persona que l'ha d'aprovar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The meeting starts and its minute opens for writing. Start it?"
+msgstr "La reunió comença i se n'obre l'acta per redactar-la. La comenceu?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The meeting goes back to being prepared. Go back?"
+msgstr "La reunió torna a la preparació. Hi torneu?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The minute is sent to whoever approves it, and can no longer be written until it comes back. Send it?"
+msgstr "L'acta s'envia a qui l'ha d'aprovar i ja no es pot redactar fins que torni. L'envieu?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Once approved, the minute can no longer be changed and its PDF is filed. Approve it?"
+msgstr "Un cop aprovada, l'acta ja no es pot modificar i se n'arxiva el PDF. L'aproveu?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The minute goes back to the meeting to be corrected. Go back?"
+msgstr "L'acta torna a la reunió per corregir-la. Hi torneu?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The record goes back to draft to be corrected. Go back?"
+msgstr "El registre torna a esborrany per corregir-lo. Hi torneu?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__approver_scope_user_ids
+msgid "Who can approve it"
+msgstr "Qui la pot aprovar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Unsupported search on approver_scope_user_ids"
+msgstr "Cerca no admesa sobre approver_scope_user_ids"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Minute written by"
+msgstr "Redacció de l'acta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Sent for approval in EMS"
+msgstr "Enviada a aprovar a l'EMS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Approved in EMS"
+msgstr "Aprovada a l'EMS"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_minute
+msgid "Signed by:"
+msgstr "Signat per:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__submission_date
+msgid "Sent for approval on"
+msgstr "Enviada a aprovar el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__submitted_by_id
+msgid "Sent for approval by"
+msgstr "Enviada a aprovar per"

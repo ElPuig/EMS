@@ -9,20 +9,31 @@
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_send_call" string="Send the call" type="object"
-                                    invisible="state == 'approved' or type_kind == 'record' or call_sent_datetime"
+                                    invisible="not can_edit or state == 'approved' or type_kind == 'record' or call_sent_datetime"
                                     confirm="The call will be emailed to everybody convened, with the date, time and place of the meeting and its agenda. Send it?"/>
                             <button name="action_send_call" string="Send the call again" type="object"
-                                    invisible="state == 'approved' or type_kind == 'record' or not call_sent_datetime"
+                                    invisible="not can_edit or state == 'approved' or type_kind == 'record' or not call_sent_datetime"
                                     confirm="Everybody convened will receive the call again, as an update of the one already sent. Send it?"/>
-                            <button name="action_start_meeting" string="Start the meeting" type="object" invisible="state != 'draft' or type_kind == 'record'"/>
-                            <button name="action_back_to_draft" string="Back to preparing the meeting" type="object" invisible="state != 'meeting'"/>
+                            <!-- Every change of state asks first: a click in the wrong place must not move a
+                                 minute on, and approving cannot be undone. -->
+                            <button name="action_start_meeting" string="Start the meeting" type="object" invisible="not can_edit or state != 'draft' or type_kind == 'record'"
+                                    confirm="The meeting starts and its minute opens for writing. Start it?"/>
+                            <button name="action_back_to_draft" string="Back to preparing the meeting" type="object" invisible="not can_edit or state != 'meeting'"
+                                    confirm="The meeting goes back to being prepared. Go back?"/>
                             <button name="action_submit" string="Send for approval" type="object"
-                                    invisible="state != 'meeting' and (state != 'draft' or type_kind != 'record')"/>
-                            <button name="action_approve" string="Approve" type="object" invisible="state != 'to_approve'"/>
-                            <button name="action_back_to_meeting" string="Back to the meeting" type="object" invisible="state != 'to_approve' or type_kind == 'record'"/>
-                            <button name="action_back_to_draft" string="Back to draft" type="object" invisible="state != 'to_approve' or type_kind != 'record'"/>
+                                    invisible="not can_edit or state != 'meeting' and (state != 'draft' or type_kind != 'record')"
+                                    confirm="The minute is sent to whoever approves it, and can no longer be written until it comes back. Send it?"/>
+                            <!-- Only for whoever gives the approval (can_approve), not for whoever can edit. -->
+                            <button name="action_approve" string="Approve" type="object" invisible="not can_approve or state != 'to_approve'"
+                                    confirm="Once approved, the minute can no longer be changed and its PDF is filed. Approve it?"/>
+                            <button name="action_back_to_meeting" string="Back to the meeting" type="object" invisible="not can_edit or state != 'to_approve' or type_kind == 'record'"
+                                    confirm="The minute goes back to the meeting to be corrected. Go back?"/>
+                            <button name="action_back_to_draft" string="Back to draft" type="object" invisible="not can_edit or state != 'to_approve' or type_kind != 'record'"
+                                    confirm="The record goes back to draft to be corrected. Go back?"/>
                         </div>
                         <field name="call_sent_datetime" invisible="1"/>
+                        <field name="can_edit" invisible="1"/>
+                        <field name="can_approve" invisible="1"/>
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -79,9 +90,9 @@
                                     <span invisible="not presence_id or presence_state == 'closed'">The lists below fill in by themselves from the tags passed at the kiosk.</span>
                                     <span invisible="presence_state != 'closed'">Attendance is closed: these are the people who passed their tag.</span>
                                     <button name="action_open_attendance_kiosk" string="Open the kiosk" type="object" class="btn-primary"
-                                            invisible="not presence_id or presence_state == 'closed' or state == 'approved'"/>
+                                            invisible="not can_edit or not presence_id or presence_state == 'closed' or state == 'approved'"/>
                                     <button name="action_close_attendance" string="Close attendance" type="object" class="btn-secondary"
-                                            invisible="presence_state != 'open' or state == 'approved'"
+                                            invisible="not can_edit or presence_state != 'open' or state == 'approved'"
                                             confirm="Whoever has not passed the tag will be recorded as absent. Close attendance?"/>
                                 </div>
                                 <group>
@@ -160,9 +171,9 @@
                                     <span invisible="not presence_id or presence_state == 'closed'">The lists below fill in by themselves from the tags passed at the kiosk.</span>
                                     <span invisible="presence_state != 'closed'">Attendance is closed: these are the people who passed their tag.</span>
                                     <button name="action_open_attendance_kiosk" string="Open the kiosk" type="object" class="btn-primary"
-                                            invisible="not presence_id or presence_state == 'closed' or state == 'approved'"/>
+                                            invisible="not can_edit or not presence_id or presence_state == 'closed' or state == 'approved'"/>
                                     <button name="action_close_attendance" string="Close attendance" type="object" class="btn-secondary"
-                                            invisible="presence_state != 'open' or state == 'approved'"
+                                            invisible="not can_edit or presence_state != 'open' or state == 'approved'"
                                             confirm="Whoever has not passed the tag will be recorded as absent. Close attendance?"/>
                                 </div>
                                 <group>

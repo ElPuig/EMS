@@ -84,6 +84,11 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             "While it is prepared, a meeting offers to send its call and to start"),
         ...clickAction("action_start_meeting", "Start the meeting"),
         {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm the change of state",
+            run: "click",
+        },
+        {
             // The type lays the minute out: its text sections are there, each with its own box
             // (the section names are the centre's own data, the same in every language).
             trigger: ".o_ems_text_block_title:contains('Precs i preguntes')",
@@ -165,8 +170,38 @@ registry.category("web_tour.tours").add("ems_minute_write", {
         },
         ...clickAction("action_submit", "Send it for approval"),
         {
+            trigger: ".o_dialog .modal-footer .btn-primary",
+            content: "Confirm the change of state",
+            run: "click",
+        },
+        {
             trigger: ".o_statusbar_status .o_arrow_button_current",
             content: "The state moved on",
+        },
+    ],
+});
+
+// A teacher who only attended the meeting opens its minute: the form is plain reading - nothing to
+// type into, no line to add, no action that would change it - instead of fields the save refuses.
+registry.category("web_tour.tours").add("ems_minute_read_only", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_form_renderer.o_form_readonly .o_field_widget[name='attendee_ids']",
+            content: "The minute opens read-only",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_form_editable)):not(:has([contenteditable='true'])):not(:has(.o_field_x2many_list_row_add))",
+            content: "Nothing can be typed in or added",
+        },
+        {
+            trigger: ".o_form_view:not(:has(.o_form_status_indicator_buttons:not(.invisible)))",
+            content: "No save button",
+        },
+        {
+            // Neither the Actions dropdown nor a lone header button (see actions_dropdown_helpers).
+            trigger: ".o_form_view .o_form_statusbar:not(:has(.o_ems_actions_toggle)):not(:has(button[name^='action_']))",
+            content: "No action that would change the minute",
         },
     ],
 });

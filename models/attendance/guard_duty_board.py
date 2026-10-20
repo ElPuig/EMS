@@ -1960,7 +1960,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             values['change'] = self._absence_change_label(action['expected'], proposed=True)
             label = _("%(group)s: %(change)s.", **values)
         else:
-            values['change'] = self._absence_change_label(action['expected'])
+            # Nothing allowed any more: the usual timetable, always the last option then.
+            values['change'] = self._absence_change_label(action['expected'] or action['options'][-1])
             values['told'] = self._absence_change_label(action['communicated'])
             label = _("%(group)s: the families were told \"%(told)s\", which no longer matches the absences "
                       "(now: %(change)s).", **values)

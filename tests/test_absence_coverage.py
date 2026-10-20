@@ -1925,6 +1925,18 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(notice.sent_by, self.department_chief)
         self.assertEqual(self._states()['entry']['status'], 'communicated')
 
+    def test_a_correction_with_nothing_allowed_any_more_says_the_usual_timetable(self):
+        self._can_send()
+        leave = self._two_sides_day()
+        self._apply_notices(('early_leave', 11.0))
+        leave.action_refuse()
+
+        action = next(action for action in self._actions() if action['type'] == 'rectification')
+        label = self.env['ems.course']._board_action_data(action)['label']
+
+        self.assertIn('(now: Usual timetable)', label)
+        self.assertNotIn('False', label)
+
     def test_send_correction_sends_it_at_once_too(self):
         self._can_send()
         leave = self._two_sides_day()

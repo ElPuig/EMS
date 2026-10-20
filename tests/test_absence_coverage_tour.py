@@ -4,6 +4,7 @@ from odoo.tests import HttpCase, tagged
 
 from .common import (
     create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, mock_outgoing_email,
+    next_student_id,
 )
 
 
@@ -192,3 +193,28 @@ class TestAbsenceCoverageTour(HttpCase):
         self.env['ems.notice'].browse(result['notice_action']['res_id']).state = 'scheduled'
 
         self.start_tour("/odoo", "ems_absence_arrangement_change", login=self.department_chief.login)
+
+    def test_change_proposal_tour(self):
+        """Issue #659, as the Department Chief: the families were told the group starts at 10:00;
+        from the struck-out row, the chief changes it to 9:00 (a guard will cover the 9:00
+        lesson), and one correction goes out."""
+        teacher, _guard, group = self._board_fixture()
+        student = self.env['res.partner'].create({
+            'name': 'Tour 659 Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': group.id, 'email': 'tour659.student@example.com'})
+        family = self.env['res.partner'].create({
+            'name': 'Tour 659 Family', 'contact_type': 'family', 'email': 'tour659.family@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': student.id})
+        self.department_chief.email = 'tour659.chief@example.com'
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        Notice = self.env['ems.notice'].with_user(self.department_chief)
+        Notice.board_send_absence_change(str(day), group.id, 'late_entry', 10.0)
+
+        self.start_tour("/odoo", "ems_change_proposal", login=self.department_chief.login)
+
+        notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
+        self.assertEqual(len(notices), 2, "the notice and one correction")
+        self.assertEqual((notices[-1]._absence_change_tuples(), notices[-1].state), ([('late_entry', 9.0)], 'scheduled'))
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))

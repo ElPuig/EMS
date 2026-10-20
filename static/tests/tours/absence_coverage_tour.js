@@ -175,3 +175,60 @@ function assertBoardOnNextMonday() {
         throw new Error("Expected the absences table to be the active view");
     }
 }
+
+// Issue #659: the families were told group TABTG starts at 10:00 next Monday. From the struck-out
+// 8:00 row, its Department Chief changes it to 9:00 with one correction; the 9:00 lesson then needs
+// a guard again. Seed data comes from TestAbsenceCoverageTour.test_change_proposal_tour.
+registry.category("web_tour.tours").add("ems_change_proposal", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck:contains('Starts at 10:00') .o_guard_board_change_proposal",
+            content: "The struck-out row offers to change what the families were told",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_change_proposal_dialog:contains('Starts at 10:00')",
+            content: "The dialog says what was told",
+        },
+        {
+            trigger: ".o_guard_change_proposal_dialog .form-check:contains('Starts at 09:00') .o_guard_change_proposal_option",
+            content: "Start at 9:00 instead",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_change_proposal_send:enabled",
+            content: "Send one correction",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck:contains('Starts at 09:00')",
+            content: "The first lesson is now struck out by the new start time",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
+            content: "The second lesson needs a guard again",
+        },
+    ],
+});

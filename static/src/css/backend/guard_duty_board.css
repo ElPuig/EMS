@@ -556,3 +556,12 @@
     border-color: #b52a37;
     color: #b52a37;
 }
+
+/* Issue #659: changing what the families were told, from the struck-out row itself. Sized like the
+   row's tags, so the row never grows onto a second line. */
+.o_guard_board_change_proposal {
+    margin-left: 6px;
+    font-size: 0.85em;
+    line-height: inherit;
+    vertical-align: baseline;
+}

@@ -8,6 +8,7 @@ import { _t } from "@web/core/l10n/translation";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
+import { GuardChangeProposalDialog } from "./guard_change_proposal_dialog";
 import { GuardCoverDialog } from "./guard_cover_dialog";
 import { GuardArrangementPlan, fullPlanSelection, selectedPlanSteps, toggledPlanSelection } from "./guard_arrangement_plan";
 
@@ -454,6 +455,7 @@ export class GuardDutyBoard extends Component {
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
             removeArrangement: _t("Remove arrangement"),
+            changeProposal: _t("Change proposal"),
             arrangementsTitle: _t("Proposals for the absences"),
             arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
             noticeOnly: _t("Only tell the families"),
@@ -567,6 +569,9 @@ export class GuardDutyBoard extends Component {
         } else if (absence.arrangement && this.isAssignable(absence)) {
             props.actionLabel = _t("Change or remove the arrangement");
             props.onAction = () => this.openCoverDialog(line, absence);
+        } else if (absence.authorized && absence.change_side && absence.can_manage) {
+            props.actionLabel = this.actionLabels.changeProposal;
+            props.onAction = () => this.openChangeProposalDialog(absence);
         } else if (absence.self_cover_id) {
             props.actionLabel = _t("Stop covering this class");
             props.onAction = () => this.confirmSelfRelease(absence);
@@ -728,6 +733,25 @@ export class GuardDutyBoard extends Component {
             onRelease: async (coverId) => {
                 await this.orm.call("ems.absence_cover", "board_release", [coverId || absence.arrangement.id]);
                 await this.loadBoard();
+            },
+        });
+    }
+
+    // Issue #659: changes what the families were told for a struck-out row, with one correction
+    // sent at once (choosing and confirming in the dialog is the confirmation, as "Send notice").
+    openChangeProposalDialog(absence) {
+        this.dialog.add(GuardChangeProposalDialog, {
+            loadOptions: () => this.orm.call("ems.course", "get_change_proposal_options", [
+                this.activeDate, absence.group_id, absence.change_side,
+            ]),
+            onSend: async (option) => {
+                const result = await this.orm.call("ems.notice", "board_send_absence_change", [
+                    this.activeDate, absence.group_id, option.change_type, option.hour, option.hour_to,
+                ]);
+                if (!(await this.openUnsentNotice(result))) {
+                    this.notification.add(_t("Correction sent."), { type: "success" });
+                    await this.loadBoard();
+                }
             },
         });
     }

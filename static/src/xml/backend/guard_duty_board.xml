@@ -41,6 +41,12 @@
                   class="o_guard_board_absence_tag o_guard_board_authorized_tag o_guard_board_arrangement_change_tag"
                   t-esc="absence.arrangement.change"/>
             <span t-if="absence.authorized" class="o_guard_board_absence_tag o_guard_board_authorized_tag" t-esc="absence.authorized"/>
+            <!-- Issue #659: what the families were told can still be changed, with one correction. -->
+            <button t-if="absence.authorized and absence.change_side and absence.can_manage" type="button"
+                    class="btn btn-sm btn-link p-0 o_guard_board_change_proposal"
+                    t-on-click.stop="() => this.openChangeProposalDialog(absence)">
+                <i class="fa fa-pencil-square-o me-1"/><t t-esc="actionLabels.changeProposal"/>
+            </button>
             <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
             <!-- Issue #645: a lesson an arrangement moved elsewhere leaves the group without anybody. -->
             <span t-if="absence.moved" class="o_guard_board_absence_tag o_guard_board_moved_tag">
@@ -415,6 +421,33 @@
 
     <!-- Issue #571: send a guard teacher to one class of the absences table; issue #605: or
          resolve it with an internal arrangement, detected by the board or described by hand. -->
+    <!-- Issue #659: a timetable change already told, changed with one correction. -->
+    <t t-name="ems.GuardChangeProposalDialog">
+        <Dialog title="labels.title" size="'md'">
+            <div class="o_guard_change_proposal_dialog">
+                <p>
+                    <strong t-esc="labels.told"/>: <t t-esc="state.data.told"/>
+                    <span class="text-muted"> - <t t-esc="state.data.group"/></span>
+                </p>
+                <div class="fw-bold mb-1" t-esc="labels.change"/>
+                <t t-foreach="state.data.options" t-as="option" t-key="option_index">
+                    <div class="form-check">
+                        <input class="form-check-input o_guard_change_proposal_option" type="radio" name="o_guard_change_proposal_option"
+                               t-att-id="'o_guard_change_proposal_option_' + option_index"
+                               t-att-checked="state.choice === option_index" t-on-change="() => this.choose(option_index)"/>
+                        <label class="form-check-label" t-att-for="'o_guard_change_proposal_option_' + option_index" t-esc="option.label"/>
+                    </div>
+                </t>
+                <p class="text-muted mt-3 mb-0" t-esc="labels.help"/>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary o_guard_change_proposal_send" t-att-disabled="state.saving"
+                        t-on-click="() => this.send()" t-esc="labels.send"/>
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()" t-esc="labels.cancel"/>
+            </t>
+        </Dialog>
+    </t>
+
     <t t-name="ems.GuardCoverDialog">
         <Dialog title="title" size="'md'">
             <div class="o_guard_cover_dialog">

@@ -2053,3 +2053,93 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertEqual(colors[self.teacher_guard.id], colors[self.teacher_guard_2.id])
         self.assertNotEqual(colors[self.teacher_c.id], colors[self.teacher_guard.id])
+
+    # Changing a timetable change already communicated (issue #659)
+
+    def _change_options(self, side):
+        return self.env['ems.course'].with_user(self.department_chief).get_change_proposal_options(
+            str(self.day), self.group_a.id, side)
+
+    def _change_to(self, change_type, hour=0.0, hour_to=0.0, user=None):
+        return self.Notice.with_user(user or self.department_chief).board_send_absence_change(
+            str(self.day), self.group_a.id, change_type, hour, hour_to)
+
+    def test_a_communicated_longer_break_can_go_back_to_the_usual_break(self):
+        """The absence has not changed, but whoever organises it changed their mind: one correction
+        to the families, and the lessons need a guard again."""
+        self._can_send()
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._apply_notices(('long_break', 9.0, 10.5))
+        side = next(side for side in self._states() if side.startswith('break@'))
+
+        self.assertEqual(self._break_state()['change_options'], [('normal_break', 10, 10.5)])
+        self.assertEqual(self._row(9, 10)['change_side'], side)
+        data = self._change_options(side)
+        self.assertEqual(data['told'], 'Break from 09:00 to 10:30')
+        self.assertEqual([option['label'] for option in data['options']], ['Usual break'])
+
+        self.assertFalse(self._change_to('normal_break', 10.0, 10.5)['notice_action'])
+
+        notices = self._families_notices().sorted('id')
+        self.assertEqual(len(notices), 2, "one correction, nothing else")
+        self.assertEqual((notices[-1]._absence_change_tuples(), notices[-1].state), ([('normal_break', 10.0, 10.5)], 'scheduled'))
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+        self.assertIsNone(self._row(9, 10)['authorized'])
+        self.assertTrue(self._assign(hour_from=9, hour_to=10))
+
+    def test_a_communicated_early_leave_can_be_changed_to_another_hour(self):
+        self._can_send()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=11)
+        self._absence(self.teacher_b, self.day)
+        self._apply_notices(('early_leave', 10.0))
+
+        self.assertEqual(self._states()['leave']['change_options'], [('early_leave', 11), ('normal_leave', 0.0)])
+
+        self._change_to('early_leave', 11.0)
+
+        correction = self._families_notices().sorted('id')[-1]
+        self.assertEqual(correction._absence_change_tuples(), [('early_leave', 11.0)])
+        self.assertTrue(correction.subject.startswith('Correction:'))
+        self.assertEqual(self._states()['leave']['communicated'], ('early_leave', 11))
+        self.assertIsNone(self._row(10, 11)['authorized'])
+        self.assertEqual(self._row(11, 12, teacher=self.teacher_b)['authorized'], ('early_leave', 11))
+
+    def test_changing_one_side_of_a_notice_leaves_the_others_as_told(self):
+        self._can_send()
+        self._two_sides_day()
+        self._apply_notices(('late_entry', 9.0), ('early_leave', 11.0))
+
+        self._change_to('normal_entry')
+
+        correction = self._families_notices().sorted('id')[-1]
+        self.assertEqual(correction._absence_change_tuples(), [('normal_entry', 0.0)])
+        states = self._states()
+        self.assertEqual(states['entry']['status'], 'proposal', "the first lesson needs a guard or a new proposal")
+        self.assertEqual((states['leave']['status'], states['leave']['communicated']), ('communicated', ('early_leave', 11)))
+
+    def test_a_change_whose_time_has_come_can_no_longer_be_changed(self):
+        self._can_send()
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._apply_notices(('long_break', 9.0, 10.5))
+
+        with self._at(9.5):
+            self.assertEqual(self._break_state()['change_options'], [])
+            self.assertFalse(self._row(9, 10)['change_side'])
+            with self.assertRaises(UserError):
+                self._change_to('normal_break', 10.0, 10.5)
+
+    def test_only_whoever_organises_the_absence_can_change_what_was_told(self):
+        self._can_send()
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._apply_notices(('long_break', 9.0, 10.5))
+        side = next(side for side in self._states() if side.startswith('break@'))
+
+        with self.assertRaises(AccessError):
+            self.env['ems.course'].with_user(self.other_department_chief).get_change_proposal_options(
+                str(self.day), self.group_a.id, side)
+        with self.assertRaises(AccessError):
+            self._change_to('normal_break', 10.0, 10.5, user=self.other_department_chief)

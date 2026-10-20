@@ -180,8 +180,10 @@ class EmsNoticeAbsenceChange(models.Model):
             requested = (change_type, hour, hour_to)
         else:
             requested = (change_type, hour if change_type in ('late_entry', 'early_leave') else 0.0)
+        # A change already told can still be changed for another one, as a correction (issue #659).
         state, change = next(((state, option) for state in course._get_absence_change_states(day, group)[group.id].values()
-                              for option in state['options'] if course._same_change(option, requested)), (None, None))
+                              for option in state['options'] + state['change_options']
+                              if course._same_change(option, requested)), (None, None))
         if not change:
             raise UserError(_("The absences of this group have changed since the board was loaded. Reload the board."))
         if not any(course._is_absence_manager(teacher, group) for teacher in state['teachers']):

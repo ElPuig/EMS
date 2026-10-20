@@ -65,7 +65,8 @@
                minute and whoever added the agreement to it; the creator of an action from no minute.
              - The responsible people, the holders of the responsible post and the chain of command
                above those people (responsible_scope_user_ids, built on tutor_scope_user_ids): they
-               report its progress (the follow-up, which drives its state) but do not change it.
+               report its progress (the follow-up, which drives its state) and edit its description
+               (how to carry it out), but do not change what was agreed.
              - The people involved: they read it and its follow-up and are told of its progress.
              Reading also reaches whoever reads a minute of the same scope (its department, workgroup
              or group, a staff meeting; the minute's attendees, writer and approver). The follow-up
@@ -109,6 +110,22 @@
                 ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
                 '&amp;', ('minute_id', '=', False), ('create_uid', '=', user.id),
                 '&amp;', ('minute_id', 'any', [('state', '!=', 'approved')]), '|', '|', '|', ('minute_id.approver_scope_user_ids', '=', user.id), ('minute_id.redactor_employee_id.user_id', '=', user.id), ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+        </record>
+
+        <!-- The responsible people, the holders of the responsible post and their chain of command
+             may write the agreement too, but only its description (how to carry it out): write()
+             refuses any other field to whoever the content rule above does not match. -->
+        <record model="ir.rule" id="rule_quality_action_progress_write">
+            <field name="name">Actions: the responsible people and their chain of command edit the description</field>
+            <field name="model_id" ref="ems.model_ems_quality_action"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary')])]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">['|',
+                ('responsible_scope_user_ids', '=', user.id),
+                ('responsible_role_id.employee_ids.user_id', '=', user.id)]</field>
         </record>
 
         <record model="ir.rule" id="rule_quality_followup_teacher">

@@ -1,8 +1,15 @@
 # -*- coding: utf-8 -*-
 
 from odoo import _, api, fields, models
+from odoo.exceptions import AccessError
+from odoo.tools.safe_eval import safe_eval
 
 from .common import QUALITY_STATE_CLOSED, QUALITY_STATES, scope_code
+
+
+# What the responsible people may write on an agreement whose content they do not manage: the
+# description, which explains how to carry it out. Its progress goes in follow-up entries.
+PROGRESS_FIELDS = {'description'}
 
 
 class EmsQualityAction(models.Model):
@@ -98,6 +105,9 @@ class EmsQualityAction(models.Model):
         help="Derived from the latest follow-up entry: to move it forward, add one.",
     )
     is_late = fields.Boolean(string="Overdue", compute="_compute_is_late", store=True)
+    can_manage_content = fields.Boolean(
+        string="Can manage the content", compute="_compute_can_manage_content",
+        help="Whether the current user may change what was agreed, and not only its description and follow-up.")
     can_follow_up = fields.Boolean(string="Can follow it up", compute="_compute_can_follow_up", help="Whether the current user may add follow-up entries.")
     active = fields.Boolean(string="Active", default=True)
 
@@ -132,6 +142,12 @@ class EmsQualityAction(models.Model):
             raise NotImplementedError(_("Unsupported search on responsible_scope_user_ids"))
         responsibles = self.env['hr.employee'].sudo().with_context(active_test=False).search([('tutor_scope_user_ids', operator, value)])
         return [('responsible_employee_ids', 'in', responsibles.ids)]
+
+    @api.depends_context('uid')
+    def _compute_can_manage_content(self):
+        managed = self._ems_content_managed()
+        for action in self:
+            action.can_manage_content = not action.id or action in managed
 
     @api.depends('responsible_employee_ids', 'responsible_role_id')
     @api.depends_context('uid')
@@ -204,10 +220,31 @@ class EmsQualityAction(models.Model):
         return actions
 
     def write(self, vals):
+        if not self.env.su and set(vals) - PROGRESS_FIELDS and self - self._ems_content_managed():
+            raise AccessError(_("Only whoever manages this agreement may change what was agreed: its responsible people "
+                                "edit its description and report its progress in the follow-up."))
         result = super().write(vals)
         if {'responsible_employee_ids', 'involved_employee_ids'} & set(vals):
             self._ems_subscribe_people()
         return result
+
+    def _ems_content_managed(self):
+        """The agreements in self whose content the current user may change. The responsible people
+        get write access through a rule of their own (rule_quality_action_progress_write), for the
+        description only; the content goes by rule_quality_action_teacher_write, evaluated here
+        rather than repeated, and by the groups that oversee them all."""
+        user = self.env.user
+        if self.env.su or not self:
+            return self
+        content_rule = self.env.ref('ems.rule_quality_action_teacher_write').sudo()
+        oversight = self.env.ref('ems.rule_quality_action_oversight').sudo().groups
+        if user.groups_id & oversight or not user.groups_id & content_rule.groups:
+            # Overseers manage them all; a user in none of the rules' groups is not narrowed by them.
+            return self
+        domain = safe_eval(content_rule.domain_force, content_rule._eval_context())
+        # Only saved agreements: one being created is checked by the create rule itself.
+        saved = self.filtered('id')
+        return self.sudo().search([('id', 'in', saved.ids)] + domain).with_env(self.env)
 
     def _ems_subscribe_people(self):
         """The responsible people and the people involved follow the agreement, so its progress

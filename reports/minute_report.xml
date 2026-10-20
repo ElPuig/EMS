@@ -203,7 +203,11 @@
                                         <tr t-foreach="doc.agreement_ids" t-as="agreement">
                                             <t t-set="people" t-value="agreement.responsible_employee_ids"/>
                                             <td style="white-space: nowrap;" t-out="agreement.code"/>
-                                            <td t-out="agreement.name"/>
+                                            <td>
+                                                <span t-out="agreement.name"/>
+                                                <!-- How to carry it out: as it reads when the PDF is made (on approval). -->
+                                                <div t-if="not is_html_empty(agreement.description)" t-out="agreement.description" style="font-size: 0.9em;"/>
+                                            </td>
                                             <td>
                                                 <span t-out="agreement.responsible_role_id.name or ''"/><span t-if="agreement.responsible_role_id and people">, </span>
                                                 <!-- A whole department is said as a number, as on screen. -->

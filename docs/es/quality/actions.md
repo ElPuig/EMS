@@ -31,7 +31,8 @@ Un acuerdo distingue tres maneras de estar en él:
   acta no está aprobada, quien la redacta o la valida. Una acción que no sale de ningún acta, también
   quien la creó.
 - **Las personas responsables** y quien ocupa el **cargo responsable**: llevan su avance. Le añaden
-  entradas de seguimiento con **Acciones → Añadir seguimiento**, pero no cambian su contenido. Su
+  entradas de seguimiento con **Acciones → Añadir seguimiento** y escriben su **descripción** (cómo
+  llevarlo a cabo: enlaces, instrucciones), pero no cambian lo que se acordó. Su
   cadena de mando también puede hacerlo en su lugar. Puede ser responsable cualquier persona, tenga
   cargo o no.
 - **Las personas implicadas**: las que tienen que hacer algo por el acuerdo (por ejemplo, todo el

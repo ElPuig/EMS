@@ -81,15 +81,23 @@ class TestQualityActionRules(TransactionCase):
         })
 
     def _writes(self, user):
+        self.assertTrue(self.action.with_user(user).can_manage_content)
         self.action.with_user(user).write({'resources': f'Checked by {user.name}'})
         self._follows_up(user)
 
     def _only_follows_up(self, user):
+        """Progress, not content: a follow-up entry and the description, which explains how to
+        carry the agreement out; never what was agreed."""
         self._follows_up(user)
-        self.assertTrue(self.action.with_user(user).can_follow_up)
-        self.assertFalse(self.action.with_user(user).can_edit)
+        action = self.action.with_user(user)
+        self.assertTrue(action.can_follow_up)
+        self.assertTrue(action.can_edit, "the form opens for editing, for the description")
+        self.assertFalse(action.can_manage_content)
+        action.write({'description': f'<p>How to do it, by {user.name}</p>'})
         with self.assertRaises(AccessError):
-            self.action.with_user(user).write({'name': 'What the meeting did not agree'})
+            action.write({'name': 'What the meeting did not agree'})
+        with self.assertRaises(AccessError):
+            action.write({'description': '<p>And the deadline</p>', 'deadline_text': 'Whenever'})
 
     def test_a_department_member_reads_it_but_does_not_write_it(self):
         self.assertTrue(self._reads(self.teacher_a, self.action))
@@ -122,8 +130,9 @@ class TestQualityActionRules(TransactionCase):
         self.assertTrue(self._reads(self.teacher_d, self.action))
         self.assertTrue(self._reads(self.teacher_d, self.followup))
         self.assertFalse(self.action.with_user(self.teacher_d).can_follow_up)
+        self.assertFalse(self.action.with_user(self.teacher_d).can_edit)
         with self.assertRaises(AccessError):
-            self.action.with_user(self.teacher_d).write({'resources': 'Not mine to change'})
+            self.action.with_user(self.teacher_d).write({'description': '<p>Not mine to explain</p>'})
         with self.assertRaises(AccessError):
             self._follows_up(self.teacher_d)
         self.assertIn(self.teacher_d.partner_id, self.action.message_partner_ids)

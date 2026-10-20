@@ -41,7 +41,8 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
    A la pestanya **Contingut**, ompliu cada secció que el tipus d'acta demana. Les
    marcades com a obligatòries s'han d'omplir abans de poder aprovar l'acta.
 7. A **Acords**, afegiu els acords: què s'acorda, qui se'n fa responsable (qui en porta l'avanç), qui hi està implicat (qui
-   ha de fer alguna cosa, sense gestionar-lo) i per quan. El codi de cada
+   ha de fer alguna cosa, sense gestionar-lo) i per quan. La **descripció** de l'acord (com s'ha de dur a
+   terme) l'escriuen els responsables al formulari de l'acord; a l'acta es veu i surt al PDF. El codi de cada
    acord s'assigna sol.
 8. Deseu. El **codi** de l'acta, que heu vist formar-se a dalt del formulari a mesura que informàveu el
    tipus, l'àmbit i la data, queda assignat.

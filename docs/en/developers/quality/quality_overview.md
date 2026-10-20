@@ -290,9 +290,14 @@ approved.
   creator of an action from no minute.
 - **Responsible people** (`responsible_employee_ids`), the holders of `responsible_role_id` and everybody
   above those people (`responsible_scope_user_ids`, non-stored and searchable, built on
-  `tutor_scope_user_ids` like the minute's `approver_scope_user_ids`) only create follow-up entries, which
-  drive the state. The form shows them the agreement read-only, with *Actions → Add follow-up*
-  (`action_add_followup`, a dialog on `view_quality_followup_form`) gated by `can_follow_up`.
+  `tutor_scope_user_ids` like the minute's `approver_scope_user_ids`) create follow-up entries, which drive
+  the state, and write the `description` (how to carry it out), nothing else: their own write rule
+  (`rule_quality_action_progress_write`) lets them write the record and `write()` refuses any field outside
+  `PROGRESS_FIELDS` to whoever `_ems_content_managed()` leaves out (it evaluates the content rule
+  `rule_quality_action_teacher_write` itself rather than repeating it in Python). The form locks every other
+  field with `can_manage_content`, and *Actions → Add follow-up* (`action_add_followup`, a dialog on
+  `view_quality_followup_form`) is gated by `can_follow_up`. The minute's agreement cards show the
+  description read-only, and the minute's PDF prints it under each agreement.
 - **People involved** (`involved_employee_ids`) only read it and its follow-up.
 
 Reading also reaches whoever reads a minute of the same scope (its department, workgroup or group, a staff

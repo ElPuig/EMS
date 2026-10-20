@@ -245,7 +245,7 @@
                             <div class="o_ems_minute_block" name="block_agreements">
                                 <h3>Agreements</h3>
                                 <field name="agreement_ids" readonly="state == 'approved'" widget="ems_record_cards" context="{'default_type': 'agreement', 'default_course_id': course_id, 'default_department_id': department_id, 'default_workgroup_id': workgroup_id, 'default_group_id': group_id, 'default_is_centre': is_centre}"
-                                       options="{'header_fields': ['code', 'deadline_date', 'deadline_text', 'responsible_role_id', 'responsible_employee_ids', 'involved_employee_ids', 'state'], 'body_fields': ['name'], 'can_add': true, 'can_delete': true}">
+                                       options="{'header_fields': ['code', 'deadline_date', 'deadline_text', 'responsible_role_id', 'responsible_employee_ids', 'involved_employee_ids', 'state'], 'body_fields': ['name', 'description'], 'can_add': true, 'can_delete': true}">
                                     <list>
                                         <field name="code" readonly="1"/>
                                         <field name="deadline_date" string="Deadline"/>
@@ -255,6 +255,8 @@
                                         <field name="involved_employee_ids" string="People involved" widget="many2many_tags" options="{'no_create': True}" placeholder="People"/>
                                         <field name="state" readonly="1"/>
                                         <field name="name" string="Content of the agreement" widget="text" placeholder="What is agreed"/>
+                                        <!-- Read-only here: the responsible people keep it in the agreement's own form. -->
+                                        <field name="description" readonly="1"/>
                                     </list>
                                 </field>
                             </div>

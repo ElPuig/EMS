@@ -25457,3 +25457,19 @@ msgstr "Los que me implican"
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_followup_form
 msgid "Discard"
 msgstr "Descartar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__can_manage_content
+msgid "Can manage the content"
+msgstr "Puede gestionar su contenido"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__can_manage_content
+msgid "Whether the current user may change what was agreed, and not only its description and follow-up."
+msgstr "Si el usuario actual puede cambiar lo que se acordó, y no solo la descripción y el seguimiento."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/action.py:0
+msgid "Only whoever manages this agreement may change what was agreed: its responsible people edit its description and report its progress in the follow-up."
+msgstr "Solo quien gestiona este acuerdo puede cambiar lo que se acordó: las personas responsables editan su descripción y explican su avance en el seguimiento."

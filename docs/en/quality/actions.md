@@ -30,7 +30,8 @@ An agreement tells apart three ways of being in it:
   or Seminar Chief, Head or Deputy Head of Studies, Director) and, while the minute is not approved,
   whoever writes or approves it. An action that comes from no minute, also whoever created it.
 - **The responsible people** and whoever holds the **responsible post**: they carry its progress.
-  They add follow-up entries with **Actions → Add follow-up**, but do not change its content. Their
+  They add follow-up entries with **Actions → Add follow-up** and write its **description** (how to
+  carry it out: links, instructions), but do not change what was agreed. Their
   chain of command may also do it in their place. Anyone can be responsible, with or without a post.
 - **The people involved**: those who have to do something about the agreement (for instance, the whole
   department updates its syllabuses). They can read it, with its follow-up, and are notified every

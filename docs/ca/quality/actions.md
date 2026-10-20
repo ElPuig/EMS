@@ -30,7 +30,8 @@ Un acord distingeix tres maneres d'estar-hi:
   departament o de seminari, cap d'estudis o cap d'estudis adjunt, director) i, mentre l'acta no està
   aprovada, qui la redacta o la valida. Una acció que no surt de cap acta, també qui la va crear.
 - **Les persones responsables** i qui ocupa el **càrrec responsable**: en porten l'avanç. Hi afegeixen
-  entrades de seguiment amb **Accions → Afegeix seguiment**, però no en canvien el contingut. La seva
+  entrades de seguiment amb **Accions → Afegeix seguiment** i n'escriuen la **descripció** (com s'ha
+  de dur a terme: enllaços, instruccions), però no canvien el que es va acordar. La seva
   cadena de comandament també ho pot fer en el seu lloc. Pot ser responsable qualsevol persona, tingui
   càrrec o no.
 - **Les persones implicades**: les que han de fer alguna cosa per l'acord (per exemple, tot el

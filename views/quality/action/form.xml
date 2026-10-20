@@ -5,7 +5,9 @@
             <field name="name">ems.quality.action.form</field>
             <field name="model">ems.quality.action</field>
             <field name="arch" type="xml">
-                <!-- Read-only for whoever may only read it (ems_can_edit_form, from can_edit). -->
+                <!-- Read-only for whoever may only read it (ems_can_edit_form, from can_edit). The
+                     responsible people may write it, but only its description: every other field
+                     follows can_manage_content, which write() enforces. -->
                 <form js_class="ems_can_edit_form">
                     <header>
                         <div name="ems_actions" string="Actions">
@@ -21,34 +23,35 @@
                         <widget name="web_ribbon" title="Overdue" bg_color="text-bg-danger" invisible="not is_late"/>
                         <div class="oe_title">
                             <h2><field name="code" readonly="1"/></h2>
-                            <h1><field name="name" placeholder="What was agreed, or the action to take"/></h1>
+                            <h1><field name="name" readonly="id and not can_manage_content" placeholder="What was agreed, or the action to take"/></h1>
                         </div>
                         <group>
                             <group string="Responsibility">
-                                <field name="type"/>
-                                <field name="responsible_role_id"/>
-                                <field name="responsible_employee_ids" widget="many2many_tags"/>
-                                <field name="involved_employee_ids" widget="many2many_tags"/>
-                                <field name="resources"/>
+                                <field name="type" readonly="id and not can_manage_content"/>
+                                <field name="responsible_role_id" readonly="id and not can_manage_content"/>
+                                <field name="responsible_employee_ids" readonly="id and not can_manage_content" widget="many2many_tags"/>
+                                <field name="involved_employee_ids" readonly="id and not can_manage_content" widget="many2many_tags"/>
+                                <field name="resources" readonly="id and not can_manage_content"/>
                             </group>
                             <group string="Deadline">
-                                <field name="deadline_date"/>
-                                <field name="deadline_text" placeholder="By the final meeting of the year"/>
-                                <field name="course_id"/>
+                                <field name="deadline_date" readonly="id and not can_manage_content"/>
+                                <field name="deadline_text" readonly="id and not can_manage_content" placeholder="By the final meeting of the year"/>
+                                <field name="course_id" readonly="id and not can_manage_content"/>
                                 <field name="minute_id" readonly="1"/>
                                 <field name="is_late" invisible="1"/>
                                 <field name="can_edit" invisible="1"/>
                                 <field name="can_follow_up" invisible="1"/>
+                                <field name="can_manage_content" invisible="1"/>
                             </group>
                         </group>
                         <group string="Scope">
                             <group>
-                                <field name="department_id"/>
-                                <field name="workgroup_id"/>
+                                <field name="department_id" readonly="id and not can_manage_content"/>
+                                <field name="workgroup_id" readonly="id and not can_manage_content"/>
                             </group>
                             <group>
-                                <field name="group_id"/>
-                                <field name="is_centre"/>
+                                <field name="group_id" readonly="id and not can_manage_content"/>
+                                <field name="is_centre" readonly="id and not can_manage_content"/>
                             </group>
                         </group>
                         <notebook>
@@ -56,7 +59,7 @@
                                 <field name="description" placeholder="What has to be done, and why"/>
                             </page>
                             <page string="Follow-up" name="followup">
-                                <field name="followup_ids">
+                                <field name="followup_ids" readonly="id and not can_manage_content">
                                     <list editable="bottom" default_order="date desc">
                                         <field name="date"/>
                                         <field name="state"/>
@@ -67,8 +70,8 @@
                             </page>
                             <page string="Closure" name="closure">
                                 <group>
-                                    <field name="completion_criteria" placeholder="When will it be finished"/>
-                                    <field name="efficacy_criteria" placeholder="How will efficacy be measured"/>
+                                    <field name="completion_criteria" readonly="id and not can_manage_content" placeholder="When will it be finished"/>
+                                    <field name="efficacy_criteria" readonly="id and not can_manage_content" placeholder="How will efficacy be measured"/>
                                 </group>
                             </page>
                         </notebook>

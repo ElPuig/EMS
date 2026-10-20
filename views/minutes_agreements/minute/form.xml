@@ -102,6 +102,20 @@
                                     <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                </group>
+                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none). -->
+                                <separator string="People from outside EMS"/>
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <field name="email" widget="email"/>
+                                        <field name="organisation" placeholder="A student's mother, another school..."/>
+                                        <field name="attended"/>
+                                    </list>
+                                </field>
+                                <group>
                                     <field name="attendee_count"/>
                                 </group>
                             </page>
@@ -183,6 +197,20 @@
                                     <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                </group>
+                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none). -->
+                                <separator string="People from outside EMS"/>
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <field name="email" widget="email"/>
+                                        <field name="organisation" placeholder="A student's mother, another school..."/>
+                                        <field name="attended"/>
+                                    </list>
+                                </field>
+                                <group>
                                     <field name="attendee_count"/>
                                 </group>
                             

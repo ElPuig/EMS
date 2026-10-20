@@ -99,12 +99,16 @@
                             </table>
 
                             <t t-if="doc.type_kind != 'record'">
+                                <!-- People from outside EMS go with the rest, by name and organisation; their
+                                     email is kept in the minute, never printed. -->
+                                <t t-set="guests_in" t-value="doc.guest_ids.filtered('attended')"/>
+                                <t t-set="guests_out" t-value="doc.guest_ids - guests_in"/>
                                 <h4>Attendees</h4>
-                                <p t-out="', '.join(doc.attendee_ids.mapped('name'))"/>
-                                <t t-if="doc.absentee_ids">
+                                <p t-out="', '.join(doc.attendee_ids.mapped('name') + guests_in.mapped('display_name'))"/>
+                                <t t-if="doc.absentee_ids or guests_out">
                                     <h4>Absentees</h4>
                                     <p>
-                                        <span t-out="', '.join(doc.absentee_ids.mapped('name'))"/>
+                                        <span t-out="', '.join(doc.absentee_ids.mapped('name') + guests_out.mapped('display_name'))"/>
                                         <span t-if="doc.absence_notes"> (<span t-out="doc.absence_notes"/>)</span>
                                     </p>
                                 </t>

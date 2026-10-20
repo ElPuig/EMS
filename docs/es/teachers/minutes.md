@@ -11,7 +11,8 @@ bueno, del curso actual. Quitando una faceta de la barra de búsqueda veis más.
 Si sois jefe de departamento o de seminario, o jefe de estudios o jefe de estudios adjunto, también veis las
 actas de los departamentos y grupos que dependen de vosotros.
 
-Solo quien redacta un acta y quien debe darle el visto bueno pueden modificarla; si quien debe aprobarla no
+Solo quien redacta un acta y quien debe darle el visto bueno pueden modificarla, y también sus superiores
+(por ejemplo, el jefe de seminario de quien la redacta); si quien debe aprobarla no
 está, pueden aprobarla en su lugar sus superiores (jefe de departamento, jefe de estudios o jefe de
 estudios adjunto, director). Cualquier otra acta que
 veáis (la de una reunión a la que asististeis, la de vuestro departamento) se abre **solo en lectura**, sin acciones.
@@ -38,6 +39,11 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
      Si alguien se ha dejado el tag o no le ha funcionado, **Acciones → Corregir la asistencia** abre la
      sesión: si ya está cerrada, **Reabrir**, marcadlo a mano (presente, o justificado con la nota) y
      volved a cerrarla. Las listas del acta se actualizan solas. Se puede hacer hasta que el acta esté aprobada.
+
+   Si a la reunión viene alguien de fuera de EMS (la familia de un alumno, un profesor de otro instituto...),
+   añadidlo en **Personas externas a EMS**: nombre, apellidos, correo y, si hace falta, la entidad o la relación.
+   Desmarcad **Presente** si estaba invitado pero no vino. Sale en el acta con el nombre y la entidad;
+   el correo no se imprime y no recibe la convocatoria.
 6. En la pestaña **Puntos a tratar**, añadid los temas propios de la reunión. El **orden del día** no se
    escribe: se forma solo debajo, con la aprobación del acta anterior (si la hay), el seguimiento de los
    acuerdos (si quedan abiertos), vuestros puntos y los ruegos y preguntas.

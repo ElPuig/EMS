@@ -2972,6 +2972,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3033,6 +3034,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3374,6 +3376,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3623,6 +3626,7 @@ msgstr "Sistema de gestió educativa"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__email model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__email model:ir.model.fields,field_description:ems.field_ems_notice_line__email model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__recipient_email model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_email model:ir.model.fields,field_description:ems.field_res_partner_relation_all__other_partner_email model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form_student_emails
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__email
 msgid "Email"
 msgstr "Correu electrònic"
 
@@ -4107,6 +4111,7 @@ msgstr "Primer pagament"
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 #: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_firstname
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__student_firstname
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__name
 msgid "First name"
 msgstr "Nom"
 
@@ -4665,6 +4670,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__id
 msgid "ID"
 msgstr "ID"
 
@@ -5165,6 +5171,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5226,6 +5233,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5605,6 +5613,7 @@ msgstr "Beca ministeri"
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model:ir.actions.report,name:ems.action_report_minute model:ir.model.fields,field_description:ems.field_ems_minute_agenda__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_member_line__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__minute_id model:ir.model.fields,field_description:ems.field_ems_minute_section_value__minute_id model:ir.model.fields,field_description:ems.field_ems_quality_action__minute_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__minute_id
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__minute_id
 msgid "Minute"
 msgstr "Acta"
 
@@ -7379,6 +7388,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__sequence model:ir.model.fields,field_description:ems.field_ems_minute_member_line__sequence model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__sequence model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__sequence model:ir.model.fields,field_description:ems.field_ems_minute_section_value__sequence model:ir.model.fields,field_description:ems.field_ems_minute_type__sequence model:ir.model.fields,field_description:ems.field_ems_minute_type_section__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -8182,6 +8192,7 @@ msgstr "El NUSS ha de tenir exactament 12 dígits numèrics."
 #: code:addons/ems/models/communications/limesurvey.py:0
 #: code:addons/ems/models/communications/notice.py:0
 #: code:addons/ems/models/settings/company.py:0
+#: code:addons/ems/models/quality/minute_line.py:0
 msgid "%(email)s is not a valid email address."
 msgstr "%(email)s no és una adreça de correu vàlida."
 
@@ -18251,6 +18262,7 @@ msgstr "Persones"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__present_count model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence_line__state__present model_terms:ir.ui.view,arch_db:ems.report_meeting_presence
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__attended
 msgid "Present"
 msgstr "Present"
 
@@ -25497,3 +25509,54 @@ msgstr "Corregeix l'assistència"
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Mark by hand whoever left their tag at home or had it fail, or justify an absence."
 msgstr "Marqueu a mà qui s'ha deixat el tag o a qui no li ha funcionat, o justifiqueu una absència."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "A student's mother, another school..."
+msgstr "La mare d'un alumne, un altre institut..."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__redactor_scope_user_ids
+msgid "Chain of command of whoever writes it"
+msgstr "Cadena de comandament de qui la redacta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__organisation
+msgid "Organisation or relationship"
+msgstr "Entitat o relació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__guest_ids
+msgid "People from outside"
+msgstr "Persones externes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "People from outside EMS"
+msgstr "Persones externes a l'EMS"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_minute_guest
+msgid "Person from outside EMS at a meeting."
+msgstr "Persona externa a l'EMS en una reunió."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__surname
+msgid "Surname"
+msgstr "Cognoms"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Unsupported search on redactor_scope_user_ids"
+msgstr "Cerca no admesa sobre redactor_scope_user_ids"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_guest__attended
+msgid "Untick it for somebody who was invited but did not come."
+msgstr "Desmarqueu-ho per a qui va ser convidat però no hi va venir."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_guest__organisation
+msgid "Who they are for the meeting: a student's mother, another school, a company..."
+msgstr "Qui és per a la reunió: la mare d'un alumne, un altre institut, una empresa..."

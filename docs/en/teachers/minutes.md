@@ -11,7 +11,8 @@ year. Removing a facet in the search bar shows more.
 If you are a Department or Seminar Chief, or Head or Deputy Head of Studies, you also see the minutes of the
 departments and groups that hang from you.
 
-Only whoever writes a minute and whoever approves it can change it; if whoever approves it is away, their
+Only whoever writes a minute and whoever approves it can change it, and so can their chiefs (for instance
+the Seminar Chief of whoever writes it); if whoever approves it is away, their
 chiefs (Department Chief, Head or Deputy Head of Studies, Director) can approve it in their place. Any other minute you can see (one of
 a meeting you attended, one of your department) opens **read-only**, with no actions.
 
@@ -39,6 +40,11 @@ a meeting you attended, one of your department) opens **read-only**, with no act
      left their tag at home or it failed, **Actions → Correct the attendance** opens the session: if it
      is already closed, **Reopen** it, mark them by hand (present, or justified with a note) and close it
      again. The minute's lists update by themselves. It can be done until the minute is approved.
+
+   If somebody from outside EMS comes to the meeting (a student's family, a teacher from another school...),
+   add them under **People from outside EMS**: first name, surname, email and, if useful, their organisation
+   or relationship. Untick **Present** for somebody who was invited but did not come. The minute names
+   them with their organisation; their email is not printed and they do not get the call.
 6. In the **Items to discuss** tab, add the meeting's own topics. The **agenda** is not typed in: it is
    put together below, with the approval of the previous minute (when there is one), the follow-up of the
    agreements (when some are still open), your items and any other business.

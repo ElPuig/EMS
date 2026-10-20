@@ -170,9 +170,12 @@ stateDiagram-v2
 | Send for approval | `action_submit` | whoever can write it | NFC attendance copied into the lists; the development composed from the items |
 | Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; irreversible |
 
-"Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer, the person named to
-approve it and their chain of command, and the holders of its approver post, while it is not approved,
-plus quality coordination and the administrator. Approving is narrower (`_ems_user_may_approve`): the
+"Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
+command (`redactor_scope_user_ids`: a Seminar Chief above the teacher who writes it edits it even when a
+Department Chief above both approves it), the person named to approve it and their chain of command, and
+the holders of its approver post, while it is not approved, plus quality coordination and the
+administrator. The rules that depend on "whoever can write the minute" (its agreements, their follow-up, its
+NFC attendance session) use the same two chains. Approving is narrower (`_ems_user_may_approve`): the
 person named in **Approved by** or anybody above them in the chain of command, who stands in when they are
 away (`approver_scope_user_ids`, non-stored and searchable: that employee's `tutor_scope_user_ids`, so
 their Department or Seminar Chief, Head or Deputy Head of Studies and the Director, never a chief of
@@ -190,6 +193,15 @@ approver; until then the same room is left blank. The stamp is the shared QWeb t
 `ems.report_validation_stamp` (`reports/shared/report_validation_stamp.xml`), the same one the
 convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
 signature (issue #530).
+
+**People from outside EMS** (`ems.minute.guest`, the minute's `guest_ids`): a student's family, a teacher
+from another school, a speaker. No employee record and no account: first name, surname, an optional email
+(validated with `email_normalize`), an optional organisation or relationship, and *Present* (ticked by
+default; unticked for somebody invited who did not come). They are written by hand whatever the attendance
+mode (they have no tag), count in `attendee_count` when present, and the PDF lists them with the attendees
+or the absentees by name and organisation. Their email is kept in the minute only: it is never printed and
+the call (`action_send_call`) does not include them, since it goes out as a single message with every
+recipient in view. Access is the same as the minute's other line models (ACL, no rule of their own).
 
 ## `ems.quality.action` — agreements and improvement actions
 

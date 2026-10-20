@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from odoo import _, api, fields, models
+from odoo.exceptions import ValidationError
+from odoo.tools import email_normalize
 
 
 class EmsMinuteAgenda(models.Model):
@@ -44,6 +46,35 @@ class EmsMinuteSectionValue(models.Model):
         for value in self:
             line = value.minute_id.type_id.section_ids.filtered(lambda item: item.section_id == value.section_id)[:1]
             value.required = bool(line.required)
+
+
+class EmsMinuteGuest(models.Model):
+    """Somebody from outside EMS at the meeting (a student's family, a teacher from another school,
+    a speaker): no employee record, so the minute keeps their name, surname and email itself."""
+
+    _name = "ems.minute.guest"
+    _description = "Person from outside EMS at a meeting."
+    _order = "minute_id, sequence, id"
+
+    minute_id = fields.Many2one(string="Minute", comodel_name="ems.minute", required=True, ondelete='cascade', index=True)
+    sequence = fields.Integer(string="Sequence", default=10)
+    name = fields.Char(string="First name", required=True)
+    surname = fields.Char(string="Surname", required=True)
+    email = fields.Char(string="Email")
+    organisation = fields.Char(string="Organisation or relationship", help="Who they are for the meeting: a student's mother, another school, a company...")
+    attended = fields.Boolean(string="Present", default=True, help="Untick it for somebody who was invited but did not come.")
+
+    @api.depends('name', 'surname', 'organisation')
+    def _compute_display_name(self):
+        for guest in self:
+            full_name = f"{guest.name or ''} {guest.surname or ''}".strip()
+            guest.display_name = f"{full_name} ({guest.organisation})" if guest.organisation else full_name
+
+    @api.constrains('email')
+    def _check_email(self):
+        for guest in self:
+            if guest.email and not email_normalize(guest.email):
+                raise ValidationError(_("%(email)s is not a valid email address.", email=guest.email))
 
 
 class EmsMinutePendingTopic(models.Model):

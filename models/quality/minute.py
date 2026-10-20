@@ -108,6 +108,9 @@ class EmsMinute(models.Model):
         column2="employee_id",
     )
     absence_notes = fields.Char(string="About the absences", help="For example, which of them were justified.")
+    # People from outside EMS (a student's family, a teacher from another school): no tag and no
+    # employee record, so they are written down by hand whatever the attendance mode.
+    guest_ids = fields.One2many(string="People from outside", comodel_name="ems.minute.guest", inverse_name="minute_id")
     attendee_count = fields.Integer(string="Number of attendees", compute="_compute_attendee_count")
     attendance_mode = fields.Selection(
         string="Attendance",
@@ -188,7 +191,13 @@ class EmsMinute(models.Model):
     # for the record rules; not stored, so it always follows the current hierarchy.
     approver_scope_user_ids = fields.Many2many(
         string="Who can approve it", comodel_name="res.users",
-        compute="_compute_approver_scope_user_ids", search="_search_approver_scope_user_ids")
+        compute="_compute_approver_scope_user_ids", search="_search_approver_scope_user_ids", compute_sudo=True)
+    # Whoever writes the minute and everybody above them in the chain of command (their Seminar or
+    # Department Chief, Head or Deputy Head of Studies, the Director): they may write it too.
+    # compute_sudo, as above: Odoo checks record rules in memory, which computes these fields.
+    redactor_scope_user_ids = fields.Many2many(
+        string="Chain of command of whoever writes it", comodel_name="res.users",
+        compute="_compute_redactor_scope_user_ids", search="_search_redactor_scope_user_ids", compute_sudo=True)
 
     # Sections that carry a table of their own.
     member_line_ids = fields.One2many(string="Team members", comodel_name="ems.minute.member.line", inverse_name="minute_id")
@@ -265,10 +274,10 @@ class EmsMinute(models.Model):
             # A hybrid meeting has both a room and somewhere to connect to.
             minute.place_name = " - ".join(filter(None, [minute.space_id.display_name, minute.place_text]))
 
-    @api.depends('attendee_ids')
+    @api.depends('attendee_ids', 'guest_ids.attended')
     def _compute_attendee_count(self):
         for minute in self:
-            minute.attendee_count = len(minute.attendee_ids)
+            minute.attendee_count = len(minute.attendee_ids) + len(minute.guest_ids.filtered('attended'))
 
     @api.depends('type_id')
     def _compute_legacy_type(self):
@@ -577,6 +586,18 @@ class EmsMinute(models.Model):
             raise NotImplementedError(_("Unsupported search on approver_scope_user_ids"))
         approvers = self.env['hr.employee'].sudo().with_context(active_test=False).search([('tutor_scope_user_ids', operator, value)])
         return [('approver_employee_id', 'in', approvers.ids)]
+
+    @api.depends('redactor_employee_id')
+    def _compute_redactor_scope_user_ids(self):
+        Employee = self.env['hr.employee'].sudo().with_context(active_test=False)
+        for minute in self:
+            minute.redactor_scope_user_ids = Employee.browse(minute.redactor_employee_id.id).tutor_scope_user_ids
+
+    def _search_redactor_scope_user_ids(self, operator, value):
+        if operator not in ('=', 'in'):
+            raise NotImplementedError(_("Unsupported search on redactor_scope_user_ids"))
+        redactors = self.env['hr.employee'].sudo().with_context(active_test=False).search([('tutor_scope_user_ids', operator, value)])
+        return [('redactor_employee_id', 'in', redactors.ids)]
 
     @api.depends('approver_employee_id', 'approver_role_id')
     @api.depends_context('uid')

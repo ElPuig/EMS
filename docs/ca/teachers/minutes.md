@@ -11,7 +11,8 @@ curs actual. Traient una faceta de la barra de cerca veieu més.
 Si sou cap de departament o de seminari, o cap d'estudis o cap d'estudis adjunt, també veieu les actes dels
 departaments i grups que depenen de vosaltres.
 
-Només qui redacta una acta i qui li ha de donar el vistiplau la poden modificar; si qui l'ha d'aprovar no hi
+Només qui redacta una acta i qui li ha de donar el vistiplau la poden modificar, i també els seus superiors
+(per exemple, el cap de seminari de qui la redacta); si qui l'ha d'aprovar no hi
 és, la poden aprovar en lloc seu els seus superiors (cap de departament, cap d'estudis o cap d'estudis
 adjunt, director). Qualsevol altra acta que
 veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **només en lectura**, sense accions.
@@ -38,6 +39,11 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
      s'ha deixat el tag o no li ha funcionat, **Accions → Corregeix l'assistència** obre la sessió: si ja
      està tancada, **Reobrir**, marqueu-lo a mà (present, o justificat amb la nota) i torneu a tancar-la.
      Les llistes de l'acta s'actualitzen soles. Es pot fer fins que l'acta estigui aprovada.
+
+   Si a la reunió hi ve algú de fora de l'EMS (la família d'un alumne, un professor d'un altre institut...),
+   afegiu-lo a **Persones externes a l'EMS**: nom, cognoms, correu i, si cal, l'entitat o la relació.
+   Desmarqueu **Present** si estava convidat però no hi va venir. Surt a l'acta amb el nom i l'entitat;
+   el correu no s'imprimeix i no rep la convocatòria.
 6. A la pestanya **Punts a tractar**, afegiu els temes propis de la reunió. L'**ordre del dia** no s'escriu:
    es forma sol a sota, amb l'aprovació de l'acta anterior (si n'hi ha), el seguiment dels acords (si en
    queden d'oberts), els vostres punts i els precs i preguntes.

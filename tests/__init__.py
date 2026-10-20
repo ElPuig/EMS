@@ -260,5 +260,6 @@ from . import test_mail_reply_to
 from . import test_quality_minute
 from . import test_quality_minute_tour
 from . import test_quality_minute_rules
+from . import test_quality_minute_guest
 from . import test_title_registration
 from . import test_title_registration_tour

@@ -94,6 +94,22 @@ class TestQualityMinuteRules(MinuteRulesFixtures, TransactionCase):
         self.assertEqual(minute.state, 'approved')
         self.assertEqual(minute.approver_employee_id, public_b)
 
+    def test_the_chain_of_command_of_whoever_writes_it_edits_it(self):
+        """A Seminar Chief above the teacher who writes the minute edits it too, even when somebody
+        else (a Department Chief above that Seminar Chief) approves it; a chief from another branch
+        does not."""
+        public_a = self.env['hr.employee.public'].browse(self.employee_a.id)
+        public_b = self.env['hr.employee.public'].browse(self.employee_b.id)
+        seminar_chief = create_role_user(self, 'department_chief', 'rules.writer.chief@example.com', name='Rules Writer Chief')
+        self.employee_a.parent_id = create_role_employee(self, seminar_chief)
+        other_chief = create_role_user(self, 'department_chief', 'rules.writer.other@example.com', name='Rules Writer Other')
+        create_role_employee(self, other_chief)
+        minute = self._minute(self.dep_a, redactor_employee_id=public_a.id, approver_employee_id=public_b.id)
+        self.assertTrue(minute.with_user(seminar_chief).can_edit)
+        minute.with_user(seminar_chief).write({'abstract': 'Completed by the seminar chief'})
+        with self.assertRaises(AccessError):
+            minute.with_user(other_chief).write({'abstract': 'Not my branch'})
+
     def test_the_chain_of_command_of_whoever_approves_it_stands_in(self):
         """When the person named to approve it is away, whoever is above them approves it instead
         (and may write it to do so); a chief from another branch may not."""

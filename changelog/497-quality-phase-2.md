@@ -58,6 +58,14 @@ Record rules replace what was previously unrestricted write access: the staff se
 
 The Quality menu is now seen by the quality committee, quality coordination and management, instead of quality coordination, management, the head of studies and the secretariat (who keep minutes and agreements in the Meetings menu). The committee's access is the existing Quality "Manager" group, renamed "Committee member" (its old description, "identical to Manager", no longer held). It can still be given by hand from the user form, and the catalogue's "Quality Comission" workgroup now feeds it: joining the workgroup gives it, leaving takes it away (except to quality coordination or to someone who had it by hand), and every install and upgrade adds the members the workgroup already has.
 
+## People from outside EMS in a minute:
+
+A minute can now record people who are not in EMS (a student's family, a teacher from another school, a speaker) with first name, surname, an optional email and their organisation or relationship, and whether they came. They are written by hand whatever the attendance mode, count as attendees, and appear in the minute's PDF by name and organisation; their email is never printed and they do not receive the call, which goes out as a single message with every recipient in view.
+
+## The chain of command of whoever writes a minute can edit it:
+
+A Seminar Chief above the teacher who wrote a minute could not edit it when a Department Chief above both was the approver, because only the approver's chain of command was taken into account. Now the chain above the writer can edit it too, and the same applies to the minute's agreements, their follow-up and its NFC attendance session.
+
 ## NFC attendance can be corrected by hand from the minute:
 
 Whoever runs a meeting can now fix its NFC attendance when a tag was left at home or failed: the minute's Actions > Correct the attendance opens the attendance session, where people are marked present (by hand) or justified, reopening it first if it was already closed. The minute's lists update at once, without closing the session again. It is available while the minute is not approved, to whoever may write it (writer, approver and their chain of command), who also find these sessions under Meetings > Attendance. Head of Studies, the secretariat and the administrator keep every session as before.

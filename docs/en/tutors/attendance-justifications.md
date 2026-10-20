@@ -27,6 +27,8 @@ You can justify one student, several, or whole groups at once (for example, for 
 5. If you want, attach the document in the **Attached files** tab (every student gets their own copy) and add a comment in **Notes**.
 6. Click **Justify**. EMS creates one justification per student: their absences within the period become **Justified Miss**, whichever teacher recorded them, and their severe delays become **Minor Delay**. A message tells you how many students were justified and which ones were skipped.
 
+![The Justify absences assistant on a whole group](../../assets/tutors/justificants-02-nou.png)
+
 Each justification lists, in its **Affected sessions** tab, the sessions within the period where the student had an absence or a severe delay.
 
 In the roll-call, the justified lines show a shield and can no longer be changed by the teacher. Their note says who justified them ("Absence justified by: ..." or "Severe delay justified by: ...").

@@ -495,6 +495,7 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
 
         wizard = self._wizard(self.tutor_user, student_ids=[(6, 0, (self.student | mate).ids)])
         self.assertEqual(wizard.overlap_student_ids, self.student)
+        self.assertEqual(wizard.target_student_ids, mate)
         result = wizard.action_justify()
 
         self.assertEqual(self.env['ems.attendance_justification'].search([('student_id', '=', self.student.id)]), existing)

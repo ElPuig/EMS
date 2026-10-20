@@ -37,7 +37,7 @@ justification still shows its own form, to edit or delete it.
 | `mode` | "Students" (pick them by hand, any number) or "Groups" (every active student whose main group is one of the picked groups). |
 | `start_date` / `end_date`, `teacher_id`, `notes`, `attachment_ids` | Copied to every justification created. Each one gets its own copy of the files (same content, the filestore keeps it once), so each file follows the access rights of the justification it belongs to. |
 | `allowed_student_ids` / `allowed_group_ids` | What the pickers offer, from the justifying teacher (`teacher_id`): an administrator, everything; anyone else, the students (and main groups) of the groups they act as tutor of (`tutor_scope_user_ids`), the same rule as the form's own `allowed_student_ids`. |
-| `target_student_ids` | Preview: the students the selection resolves to. |
+| `target_student_ids` | Preview: the students the selection resolves to that will really be justified (without the skipped ones below). |
 | `overlap_student_ids` | Preview: those already holding a justification overlapping the period. They are **skipped**, not an error, and the closing notification names them. |
 
 ```mermaid

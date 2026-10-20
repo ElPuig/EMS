@@ -212,6 +212,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'name': 'Justificants', 'res_model': 'ems.attendance_justification',
             'view_mode': 'list,form', 'domain': [('student_id', 'in', cls.students.ids)],
         })
+        # The list's "New" opens this assistant (issue #656); shot on its own action, as a dialog.
+        cls.justification_wizard_action = cls.env.ref('ems.action_attendance_justification_wizard')
 
     @classmethod
     def _setup_google_credentials(cls):
@@ -291,8 +293,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             wait_for='.o_list_renderer .o_data_row',
         )
         self._capture(
-            '/odoo/action-%d/new' % self.justification_action.id,
-            '.o_form_sheet', 'justificants-02-nou.png',
+            '/odoo/action-%d' % self.justification_wizard_action.id,
+            '.modal-content', 'justificants-02-nou.png',
             login='doc_shot_tutor',
             tour='ems_doc_shot_tutor_justification',
         )

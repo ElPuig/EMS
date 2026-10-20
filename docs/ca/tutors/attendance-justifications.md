@@ -27,6 +27,8 @@ Pots justificar un alumne, diversos o grups sencers alhora (per exemple, per a u
 5. Si vols, adjunta el document a la pestanya **Fitxers adjunts** (cada alumne en rep una còpia) i afegeix un comentari a **Notes**.
 6. Clica **Justifica**. EMS crea un justificant per a cada alumne: les seves faltes del període passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**. Un missatge t'indica quants alumnes s'han justificat i quins s'han omès.
 
+![L'assistent Justifica faltes sobre un grup sencer](../../assets/tutors/justificants-02-nou.png)
+
 Cada justificant mostra, a la pestanya **Sessions afectades**, les sessions del període en què l'alumne tenia una falta o un retard greu.
 
 Al passi de llista, les línies justificades mostren un escut i el docent ja no les pot canviar. La seva nota indica qui les ha justificat ("Falta justificada per: ..." o "Retard greu justificat per: ...").

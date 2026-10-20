@@ -62,15 +62,16 @@ class EmsAttendanceJustificationWizard(models.TransientModel):
             wizard.student_domain = str(student_domain)
             wizard.group_domain = str(group_domain)
 
-    @api.depends('mode', 'student_ids', 'group_ids')
-    def _compute_target_student_ids(self):
-        for wizard in self:
-            wizard.target_student_ids = wizard._resolve_students()
-
-    @api.depends('target_student_ids', 'start_date', 'end_date')
+    @api.depends('mode', 'student_ids', 'group_ids', 'start_date', 'end_date')
     def _compute_overlap_student_ids(self):
         for wizard in self:
-            wizard.overlap_student_ids = wizard._overlapping_students(wizard.target_student_ids._origin)
+            wizard.overlap_student_ids = wizard._overlapping_students(wizard._resolve_students())
+
+    @api.depends('mode', 'student_ids', 'group_ids', 'overlap_student_ids')
+    def _compute_target_student_ids(self):
+        # Only who will really be justified: the students skipped for an overlap are listed apart.
+        for wizard in self:
+            wizard.target_student_ids = wizard._resolve_students() - wizard.overlap_student_ids._origin
 
     @api.model
     def default_get(self, fields_list):

@@ -27,6 +27,8 @@ Puedes justificar a un alumno, a varios o a grupos enteros a la vez (por ejemplo
 5. Si quieres, adjunta el documento en la pestaña **Archivos adjuntos** (cada alumno recibe su propia copia) y añade un comentario en **Notas**.
 6. Pulsa **Justificar**. EMS crea un justificante para cada alumno: sus faltas del período pasan a **Falta justificada**, sea cual sea el docente que las puso, y sus retrasos graves a **Retraso leve**. Un mensaje te indica cuántos alumnos se han justificado y cuáles se han omitido.
 
+![El asistente Justificar faltas sobre un grupo entero](../../assets/tutors/justificants-02-nou.png)
+
 Cada justificante muestra, en la pestaña **Sesiones afectadas**, las sesiones del período en las que el alumno tenía una falta o un retraso grave.
 
 En el pase de lista, las líneas justificadas muestran un escudo y el docente ya no puede cambiarlas. Su nota indica quién las ha justificado ("Falta justificada por: ..." o "Retraso grave justificado por: ...").

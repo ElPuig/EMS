@@ -232,3 +232,52 @@ registry.category("web_tour.tours").add("ems_change_proposal", {
         },
     ],
 });
+
+// Issue #659: the same notice changed for an internal arrangement - a swap planned as if the
+// families had not been told anything, its correction among its steps. Seed data comes from
+// TestAbsenceCoverageTour.test_change_proposal_plan_tour.
+registry.category("web_tour.tours").add("ems_change_proposal_plan", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck .o_guard_board_change_proposal",
+            content: "Change what the families were told",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_change_proposal_plan:has(.fa-exchange):has(.fa-exclamation-triangle) .o_guard_change_proposal_plan_radio",
+            content: "A swap, with its correction to the families among its steps",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_change_proposal_send:enabled",
+            content: "Apply it and send one correction",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck:has(.o_guard_board_arrangement_tag:contains('Tour Swap Teacher'))",
+            content: "The first lesson is now the swap's",
+        },
+    ],
+});

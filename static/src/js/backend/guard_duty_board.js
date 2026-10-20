@@ -646,10 +646,11 @@ export class GuardDutyBoard extends Component {
     // group to its families and one to its students, are sent straight away - checking the step
     // was the confirmation. One that could not be sent stays a draft and opens, with the reason,
     // for the planner to review and send: the moves it frees the group from only count once it is.
-    async applyPlan(plan, selection) {
+    // `reopen`: the side of a group's day whose notice the plan corrects (issue #659).
+    async applyPlan(plan, selection, reopen = false) {
         const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [
             this.activeDate, selectedPlanSteps(plan, selection),
-        ]);
+        ], { reopen });
         if (!(await this.openUnsentNotice(result))) {
             await this.loadBoard();
         }
@@ -753,6 +754,7 @@ export class GuardDutyBoard extends Component {
                     await this.loadBoard();
                 }
             },
+            onApplyPlan: (plan, selection, reopen) => this.applyPlan(plan, selection, reopen),
         });
     }
 

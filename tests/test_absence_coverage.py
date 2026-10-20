@@ -1126,9 +1126,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
     @staticmethod
     def _plan_summary(plan):
-        """Each step as `(kind, teacher, lesson start, gap start, groups)`, a notice as
-        `('notice', change, groups)`."""
-        return [('notice', step['change'], step['groups']) if step['kind'] == 'notice'
+        """Each step as `(kind, teacher, lesson start, gap start, groups)`, a notice (or a
+        correction) as `('notice', change, groups)`."""
+        return [(step['kind'], step['change'], step['groups']) if step['kind'] in ('notice', 'correction')
                 else (step['kind'], step['teacher'], step['lesson'][0], step['target'][0], step['groups'])
                 for step in plan['steps']]
 
@@ -2155,3 +2155,101 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
                 str(self.day), self.group_a.id, side)
         with self.assertRaises(AccessError):
             self._change_to('normal_break', 10.0, 10.5, user=self.other_department_chief)
+
+    @staticmethod
+    def _corrections(plan):
+        return [(step['change'], step['groups']) for step in plan['steps'] if step['kind'] == 'correction']
+
+    def test_a_plan_carries_the_correction_its_group_still_needs(self):
+        """The families were told the group starts at 9:00, and that absence was refused; a new
+        one leaves the group's last lesson free. The plan that tells them it leaves earlier
+        corrects the start too: one correction, not a notice and a correction apart."""
+        self._can_send()
+        self._morning()
+        refused = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9, approve=False)
+        self._apply_notices(('late_entry', 9.0))
+        refused.action_refuse()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+
+        plan = self._plans()[0]
+
+        self.assertEqual(self._plan_summary(plan)[:2], [
+            ('move', self.teacher_b, 11, 10, self.group_a), ('notice', ('early_leave', 11), self.group_a)])
+        self.assertEqual(self._corrections(plan), [(('normal_entry', 0.0), self.group_a)])
+        label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][-1]['label']
+        self.assertEqual(label, f'Correction to the families of {self.group_a.name}: Usual timetable.')
+
+        self._apply(plan)
+
+        correction = self._families_notices().sorted('id')[-1]
+        self.assertEqual(len(self._families_notices()), 2, "the first notice and one correction")
+        self.assertEqual(sorted(correction._absence_change_tuples()), [('early_leave', 11.0), ('normal_entry', 0.0)])
+        self.assertTrue(correction.subject.startswith('Correction:'))
+        self.assertIsNone(self._states()['entry']['status'], "nothing left to correct")
+
+    def test_a_plan_without_a_notice_to_the_group_carries_no_correction(self):
+        """Nothing goes to those families anyway: the correction box stays the way to send it."""
+        self._can_send()
+        self._morning()
+        refused = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9, approve=False)
+        self._apply_notices(('late_entry', 9.0))
+        refused.action_refuse()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=11)
+
+        for plan in self._plans():
+            if not any(step['kind'] == 'notice' for step in plan['steps']):
+                self.assertFalse(self._corrections(plan))
+
+    def _told_late_entry(self):
+        """teacher_a away 8-9 and the families told the group starts at 9:00."""
+        self._can_send()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._apply_notices(('late_entry', 9.0))
+
+    def test_a_change_proposal_offers_arrangements_that_correct_what_was_told(self):
+        """Instead of coming in at 9:00, teacher_b swaps their 11:00 lesson with teacher_a: the
+        families are told, in one correction, that the group starts at the usual time."""
+        self._told_late_entry()
+
+        data = self._change_options('entry')
+
+        swap = next(plan for plan in data['plans'] if plan['steps'][0]['kind'] == 'swap')
+        self.assertEqual([step['kind'] for step in swap['steps']], ['swap', 'correction'])
+        self.assertEqual(swap['steps'][-1]['payload']['change'], ['normal_entry', 0.0])
+        self.assertEqual(data['reopen'], [self.group_a.id, 'entry'])
+
+        result = self.Cover.with_user(self.department_chief).board_apply_plan(
+            str(self.day), [step['payload'] for step in swap['steps']], reopen=data['reopen'])
+
+        self.assertEqual(self.Cover.browse(result['cover_ids']).arrangement_type, 'swap')
+        notices = self._families_notices().sorted('id')
+        self.assertEqual(len(notices), 2, "the first notice and one correction")
+        self.assertEqual(notices[-1]._absence_change_tuples(), [('normal_entry', 0.0)])
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+        self.assertIsNone(self._states()['entry']['status'])
+
+    def test_a_change_proposal_arrangement_with_its_own_notice_sends_one_correction(self):
+        """teacher_b moves their 11:00 lesson to 8:00: the group starts at the usual time and
+        leaves at 11:00, both in the same correction."""
+        self._told_late_entry()
+
+        data = self._change_options('entry')
+        plan = next(plan for plan in data['plans'] if [step['kind'] for step in plan['steps']] == ['move', 'notice', 'correction'])
+        self.Cover.with_user(self.department_chief).board_apply_plan(
+            str(self.day), [step['payload'] for step in plan['steps']], reopen=data['reopen'])
+
+        notices = self._families_notices().sorted('id')
+        self.assertEqual(len(notices), 2)
+        self.assertEqual(sorted(notices[-1]._absence_change_tuples()), [('early_leave', 11.0), ('normal_entry', 0.0)])
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+
+    def test_a_side_already_told_is_not_changed_by_a_plan_without_reopening_it(self):
+        self._told_late_entry()
+
+        with self.assertRaises(UserError):
+            self.Cover.with_user(self.department_chief).board_apply_plan(str(self.day), [
+                {'kind': 'move', 'teacher_id': self.teacher_b.id, 'absent_id': False, 'lesson': [11, 12],
+                 'target': [8, 9], 'group_ids': self.group_a.ids},
+                {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': ['early_leave', 11.0]},
+                {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': ['normal_entry', 0.0]}])

@@ -396,7 +396,7 @@
                                    t-att-checked="props.selection[step_index]" t-att-disabled="props.disabled"
                                    t-on-change="(ev) => props.onToggle(step_index, ev.target.checked)"/>
                             <label class="form-check-label" t-att-for="props.plan.key + '-' + step_index">
-                                <i t-att-class="step.kind === 'notice' ? 'fa fa-envelope-o me-1' : step.kind === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
+                                <i t-att-class="step.kind === 'notice' ? 'fa fa-envelope-o me-1' : step.kind === 'correction' ? 'fa fa-exclamation-triangle me-1' : step.kind === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
                                 <t t-esc="step.label"/>
                             </label>
                             <t t-foreach="step.schedule_changes" t-as="change" t-key="change_index">
@@ -434,14 +434,28 @@
                     <div class="form-check">
                         <input class="form-check-input o_guard_change_proposal_option" type="radio" name="o_guard_change_proposal_option"
                                t-att-id="'o_guard_change_proposal_option_' + option_index"
-                               t-att-checked="state.choice === option_index" t-on-change="() => this.choose(option_index)"/>
+                               t-att-checked="state.choice === 'change-' + option_index" t-on-change="() => this.choose('change-' + option_index)"/>
                         <label class="form-check-label" t-att-for="'o_guard_change_proposal_option_' + option_index" t-esc="option.label"/>
                     </div>
+                </t>
+                <!-- Or an internal arrangement of the group's day, its correction among its steps. -->
+                <t t-if="state.data.plans.length">
+                    <div class="fw-bold mt-3 mb-1" t-esc="labels.plans"/>
+                    <t t-foreach="state.data.plans" t-as="plan" t-key="plan.key">
+                        <div class="form-check o_guard_change_proposal_plan">
+                            <input class="form-check-input o_guard_change_proposal_plan_radio" type="radio" name="o_guard_change_proposal_option"
+                                   t-att-id="'o_guard_change_proposal_plan_' + plan_index"
+                                   t-att-checked="state.choice === 'plan-' + plan_index" t-on-change="() => this.choose('plan-' + plan_index)"/>
+                            <GuardArrangementPlan plan="plan" selection="state.selections[plan_index]" showGroups="false"
+                                                  disabled="state.choice !== 'plan-' + plan_index"
+                                                  onToggle="(index, checked) => this.togglePlanStep(plan_index, index, checked)"/>
+                        </div>
+                    </t>
                 </t>
                 <p class="text-muted mt-3 mb-0" t-esc="labels.help"/>
             </div>
             <t t-set-slot="footer">
-                <button class="btn btn-primary o_guard_change_proposal_send" t-att-disabled="state.saving"
+                <button class="btn btn-primary o_guard_change_proposal_send" t-att-disabled="!canSend"
                         t-on-click="() => this.send()" t-esc="labels.send"/>
                 <button class="btn btn-secondary" t-on-click="() => this.props.close()" t-esc="labels.cancel"/>
             </t>

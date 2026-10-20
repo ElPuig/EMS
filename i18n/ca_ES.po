@@ -25469,3 +25469,18 @@ msgstr "Si l'usuari actual pot canviar el que es va acordar, i no només la desc
 #: code:addons/ems/models/quality/action.py:0
 msgid "Only whoever manages this agreement may change what was agreed: its responsible people edit its description and report its progress in the follow-up."
 msgstr "Només qui gestiona aquest acord pot canviar el que es va acordar: les persones responsables n'editen la descripció i n'expliquen l'avanç al seguiment."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_responsible
+msgid "Is responsible"
+msgstr "N'és responsable"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__is_responsible
+msgid "Whether the current user answers for the agreement: one of its responsible people, a holder of the responsible post, somebody above them in the chain of command, or the administrator."
+msgstr "Si l'usuari actual respon de l'acord: una de les persones responsables, qui ocupa el càrrec responsable, algú per sobre seu a la cadena de comandament o l'administrador."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "How to carry it out: links, instructions"
+msgstr "Com s'ha de dur a terme: enllaços, instruccions"

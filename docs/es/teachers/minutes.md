@@ -41,8 +41,9 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
    En la pestaña **Contenido**, rellenad cada sección que el tipo de acta pide.
    Las marcadas como obligatorias hay que rellenarlas antes de poder aprobar el acta.
 7. En **Acuerdos**, añadid los acuerdos: qué se acuerda, quién se hace responsable (quien lleva su avance), quién está implicado
-   (quien tiene que hacer algo, sin gestionarlo) y para cuándo. La **descripción** del acuerdo (cómo
-   llevarlo a cabo) la escriben los responsables en el formulario del acuerdo; en el acta se ve y sale en el PDF. El
+   (quien tiene que hacer algo, sin gestionarlo) y para cuándo. En la **descripción** explicad cómo
+   llevarlo a cabo (enlaces, instrucciones); sale en el PDF. Una vez aprobada el acta, la mantienen los
+   responsables desde el formulario del acuerdo. El
    código de cada acuerdo se asigna solo.
 8. Guardad. El **código** del acta, que habéis visto formarse en la parte superior del formulario a medida
    que informabais el tipo, el ámbito y la fecha, queda asignado.

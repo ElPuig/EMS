@@ -82,6 +82,9 @@ class TestQualityActionRules(TransactionCase):
 
     def _writes(self, user):
         self.assertTrue(self.action.with_user(user).can_manage_content)
+        if user in (self.chief_a, self.hos):
+            self.assertFalse(self.action.with_user(user).is_responsible,
+                             "managing the content is not answering for it: the form keeps the description for the responsible")
         self.action.with_user(user).write({'resources': f'Checked by {user.name}'})
         self._follows_up(user)
 
@@ -93,6 +96,7 @@ class TestQualityActionRules(TransactionCase):
         self.assertTrue(action.can_follow_up)
         self.assertTrue(action.can_edit, "the form opens for editing, for the description")
         self.assertFalse(action.can_manage_content)
+        self.assertTrue(action.is_responsible, "the agreement's form lets them edit its description")
         action.write({'description': f'<p>How to do it, by {user.name}</p>'})
         with self.assertRaises(AccessError):
             action.write({'name': 'What the meeting did not agree'})
@@ -176,7 +180,10 @@ class TestQualityActionRules(TransactionCase):
             'name': 'Share the rubric', 'minute_id': minute.id,
             'responsible_employee_ids': [(6, 0, [self.teacher_b_employee.id])],
         })
-        agreement.with_user(self.teacher_c).write({'deadline_text': 'Before the first assessment'})
+        agreement.with_user(self.teacher_c).write({'deadline_text': 'Before the first assessment',
+                                                    'description': '<p>The rubric is in the shared folder.</p>'})
+        self.assertFalse(agreement.with_user(self.teacher_c).is_responsible,
+                         "the minute's writer edits the description from the minute, not as its responsible")
         minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
         minute.action_submit()
         minute.action_approve()

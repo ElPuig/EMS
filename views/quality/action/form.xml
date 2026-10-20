@@ -42,6 +42,7 @@
                                 <field name="can_edit" invisible="1"/>
                                 <field name="can_follow_up" invisible="1"/>
                                 <field name="can_manage_content" invisible="1"/>
+                                <field name="is_responsible" invisible="1"/>
                             </group>
                         </group>
                         <group string="Scope">
@@ -56,7 +57,8 @@
                         </group>
                         <notebook>
                             <page string="Description" name="description">
-                                <field name="description" placeholder="What has to be done, and why"/>
+                                <!-- Here only for whoever answers for it; the minute's writers edit it in the minute. -->
+                                <field name="description" placeholder="What has to be done, and why" readonly="id and not is_responsible"/>
                             </page>
                             <page string="Follow-up" name="followup">
                                 <field name="followup_ids" readonly="id and not can_manage_content">

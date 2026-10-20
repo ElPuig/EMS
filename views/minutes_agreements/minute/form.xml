@@ -255,8 +255,8 @@
                                         <field name="involved_employee_ids" string="People involved" widget="many2many_tags" options="{'no_create': True}" placeholder="People"/>
                                         <field name="state" readonly="1"/>
                                         <field name="name" string="Content of the agreement" widget="text" placeholder="What is agreed"/>
-                                        <!-- Read-only here: the responsible people keep it in the agreement's own form. -->
-                                        <field name="description" readonly="1"/>
+                                        <!-- Written here by whoever writes the minute; afterwards, by the responsible people in the agreement's form. -->
+                                        <field name="description" placeholder="How to carry it out: links, instructions"/>
                                     </list>
                                 </field>
                             </div>

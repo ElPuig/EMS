@@ -296,8 +296,10 @@ approved.
   `PROGRESS_FIELDS` to whoever `_ems_content_managed()` leaves out (it evaluates the content rule
   `rule_quality_action_teacher_write` itself rather than repeating it in Python). The form locks every other
   field with `can_manage_content`, and *Actions → Add follow-up* (`action_add_followup`, a dialog on
-  `view_quality_followup_form`) is gated by `can_follow_up`. The minute's agreement cards show the
-  description read-only, and the minute's PDF prints it under each agreement.
+  `view_quality_followup_form`) is gated by `can_follow_up`. In the agreement's form the description
+  itself is editable only for `is_responsible` (the responsible people, the post's holders, their chain and the
+  administrator); the minute's writers edit it from the minute's agreement cards instead, and the minute's PDF
+  prints it under each agreement.
 - **People involved** (`involved_employee_ids`) only read it and its follow-up.
 
 Reading also reaches whoever reads a minute of the same scope (its department, workgroup or group, a staff

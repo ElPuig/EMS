@@ -108,6 +108,10 @@ class EmsQualityAction(models.Model):
     can_manage_content = fields.Boolean(
         string="Can manage the content", compute="_compute_can_manage_content",
         help="Whether the current user may change what was agreed, and not only its description and follow-up.")
+    is_responsible = fields.Boolean(
+        string="Is responsible", compute="_compute_is_responsible",
+        help="Whether the current user answers for the agreement: one of its responsible people, a holder of the "
+             "responsible post, somebody above them in the chain of command, or the administrator.")
     can_follow_up = fields.Boolean(string="Can follow it up", compute="_compute_can_follow_up", help="Whether the current user may add follow-up entries.")
     active = fields.Boolean(string="Active", default=True)
 
@@ -151,13 +155,22 @@ class EmsQualityAction(models.Model):
 
     @api.depends('responsible_employee_ids', 'responsible_role_id')
     @api.depends_context('uid')
-    def _compute_can_follow_up(self):
-        """Whoever manages the content, and the responsible people, the holders of the responsible
-        post and their chain of command: the same split as the follow-up's record rules."""
+    def _compute_is_responsible(self):
+        """The agreement's form keeps its description for them; the minute's writers edit it from
+        the minute instead."""
         user = self.env.user
+        is_admin = user.has_group('ems.group_academic_admin')
         for action in self:
-            action.can_follow_up = (action.can_edit or user in action.responsible_scope_user_ids
-                                    or user in action.responsible_role_id.sudo().employee_ids.user_id)
+            action.is_responsible = (is_admin or user in action.responsible_scope_user_ids
+                                     or user in action.responsible_role_id.sudo().employee_ids.user_id)
+
+    @api.depends('responsible_employee_ids', 'responsible_role_id')
+    @api.depends_context('uid')
+    def _compute_can_follow_up(self):
+        """Whoever manages the content and whoever answers for the agreement: the same split as
+        the follow-up's record rules."""
+        for action in self:
+            action.can_follow_up = action.can_edit or action.is_responsible
 
     @api.depends('deadline_date', 'state')
     def _compute_is_late(self):

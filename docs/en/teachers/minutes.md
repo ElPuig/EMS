@@ -42,9 +42,9 @@ a meeting you attended, one of your department) opens **read-only**, with no act
    In the **Content** tab, fill in each section the type asks for. The ones marked as
    required have to be filled in before the minute can be approved.
 7. In **Agreements**, add what was agreed: the commitment, who is responsible (who carries its progress), who is involved
-   (who has to do something, without managing it) and by when. The agreement's **description** (how to
-   carry it out) is written by its responsible people in the agreement's form; the minute shows it and so
-   does its PDF. Each
+   (who has to do something, without managing it) and by when. Use the **description** to explain how to
+   carry it out (links, instructions); the PDF prints it. Once the minute is approved, the responsible people
+   keep it up to date from the agreement's form. Each
    agreement's code is issued automatically.
 8. Save. The minute's **code**, which you saw build up at the top of the form as you filled in the type,
    the scope and the date, is now issued.

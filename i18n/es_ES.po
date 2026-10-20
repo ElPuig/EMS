@@ -25473,3 +25473,18 @@ msgstr "Si el usuario actual puede cambiar lo que se acordó, y no solo la descr
 #: code:addons/ems/models/quality/action.py:0
 msgid "Only whoever manages this agreement may change what was agreed: its responsible people edit its description and report its progress in the follow-up."
 msgstr "Solo quien gestiona este acuerdo puede cambiar lo que se acordó: las personas responsables editan su descripción y explican su avance en el seguimiento."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_responsible
+msgid "Is responsible"
+msgstr "Es responsable"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__is_responsible
+msgid "Whether the current user answers for the agreement: one of its responsible people, a holder of the responsible post, somebody above them in the chain of command, or the administrator."
+msgstr "Si el usuario actual responde del acuerdo: una de las personas responsables, quien ocupa el cargo responsable, alguien por encima en la cadena de mando o el administrador."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "How to carry it out: links, instructions"
+msgstr "Cómo llevarlo a cabo: enlaces, instrucciones"

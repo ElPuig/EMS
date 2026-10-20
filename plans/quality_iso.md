@@ -823,21 +823,9 @@ v18.0.0.38.1. Nothing is in flight.
 
 ### 12.3. To do
 
-1. **Message to Fer about surveys** (his code): `group_quality` grants the Surveys menu and create/write on
-   `ems.limesurvey_*` but has no record rule in `security/rules/communications.xml`, so a user who is only
-   a committee member sees and edits every survey (more than quality coordination, which reads all and
-   edits its own). Proposed: give it the same two rules as `group_quality_admin`. The draft was given to the
-   developer in chat; until Fer answers, committee members have that access.
-   Draft, in Spanish as sent to the developer:
-   > Hola Fer. En la rama 497 (calidad) hemos unificado la comisión de calidad con el grupo de permisos
-   > "Qualitat: Gestor/a" (`ems.group_quality`), que pasa a llamarse "Membre de la comissió": sus usuarios
-   > son los miembros del grup de treball "Quality Comission" (y se puede seguir dando a mano desde la ficha
-   > del usuario). Esto toca las encuestas: `group_quality` da el menú Comunicacions > Enquestes y permisos
-   > de crear y editar en `ems.limesurvey_*`, pero no tiene ninguna regla en
-   > `security/rules/communications.xml`, así que un usuario que sea solo Membre ve y edita todas las
-   > encuestas del centro (más que el Administrador/a de qualitat, que las ve todas pero solo edita las
-   > suyas). Propuesta: darle las mismas dos reglas que el Administrador/a (ver todas, editar las suyas).
-   > ¿Te parece bien, o prefieres otro criterio (p. ej. que la comisión no tenga acceso a encuestas)?
+1. ~~Message to Fer about surveys~~: done 2026-10-20. Fer agreed that committee members read every survey
+   and edit only their own, with the administrator in full control; the read-all/edit-own rules in
+   `security/rules/communications.xml` moved from `group_quality_admin` to `group_quality` (which it implies).
 2. **Agreements' record rules** (`rule_quality_action_oversight`) are still flat by post; align them with
    the minutes' chain of command if the developer agrees.
 3. **Stored title in the writer's language**: `ems.minute.name`/`scope_name` are stored computes, so they are

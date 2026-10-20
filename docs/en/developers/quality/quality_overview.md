@@ -289,7 +289,8 @@ posts. Reuse the `tutor_scope_user_ids` / `find_head_of_studies()` patterns rath
 The *Quality* root menu is restricted to the quality committee (`ems.group_quality`, "Committee member"),
 quality coordination (`ems.group_quality_admin`, which implies it) and management (`ems.group_director`);
 the head of studies and the secretariat reach minutes and agreements from the *Meetings* menu. The same
-committee group opens the Surveys section (LimeSurvey). Only quality coordination maintains the structure
+committee group opens the Surveys section (LimeSurvey), where each member reads every survey but
+only edits the ones they created (`security/rules/communications.xml`). Only quality coordination maintains the structure
 and loads its links.
 
 A committee member is given the group either by hand (the *Quality* selector of the user form) or by

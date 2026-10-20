@@ -23271,3 +23271,45 @@ msgstr "Comunicado enviado a %(group)s: %(subject)s"
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "As tutor, here is a copy of the notice sent about group %(group)s:"
 msgstr "Como tutor o tutora, aquí tienes una copia del comunicado enviado sobre el grupo %(group)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Correction to the families of %(groups)s: %(change)s."
+msgstr "Rectificación a las familias de %(groups)s: %(change)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Change proposal"
+msgstr "Cambiar la propuesta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "The families were told"
+msgstr "Se comunicó a las familias"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Change it for"
+msgstr "Cambiarlo por"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Or rearrange the lessons"
+msgstr "O bien reorganizar las clases"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "One correction will be sent to the students and families of %s."
+msgstr "Se enviará una sola rectificación al alumnado y las familias de %s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Correction sent."
+msgstr "Rectificación enviada."

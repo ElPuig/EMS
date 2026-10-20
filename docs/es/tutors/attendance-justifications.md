@@ -14,15 +14,22 @@ Salvo que el centro lo permita en su configuración, una justificación es la ú
 
 ## Registrar un justificante
 
-1. Ve a **Asistencia de los estudiantes → Justificaciones** y pulsa **Nuevo**.
-2. En **Alumno**, elige al alumno. Solo aparecen los alumnos de tu grupo.
-3. En **Período**, indica la fecha y la hora de inicio y de fin.
-4. La pestaña **Sesiones afectadas** muestra las sesiones del período en las que el alumno tiene una falta o un retraso grave, de todos los docentes.
-5. Pulsa **Guardar**. Las faltas de la lista pasan a **Falta justificada**, y los retrasos graves a **Retraso leve**.
+Puedes justificar a un alumno, a varios o a grupos enteros a la vez (por ejemplo, para una salida de un grupo).
+
+1. Ve a **Asistencia de los estudiantes → Justificaciones** y pulsa **Nuevo**. Se abre la ventana **Justificar faltas**.
+2. En **Período**, indica la fecha y la hora de inicio y de fin.
+3. En **Modo**, elige cómo seleccionarlos:
+    - **Estudiantes**: elige uno o más alumnos en **Estudiantes**.
+    - **Grupos**: elige uno o más grupos en **Grupos**. Se justifica a todos los alumnos de esos grupos.
+
+    Solo aparecen tus grupos y sus alumnos.
+4. La pestaña **Alumnos por justificar** muestra a quién se justificará. Si alguno ya tiene un justificante que se solapa con el período, un aviso amarillo lo indica: se omitirá.
+5. Si quieres, adjunta el documento en la pestaña **Archivos adjuntos** (cada alumno recibe su propia copia) y añade un comentario en **Notas**.
+6. Pulsa **Justificar**. EMS crea un justificante para cada alumno: sus faltas del período pasan a **Falta justificada**, sea cual sea el docente que las puso, y sus retrasos graves a **Retraso leve**. Un mensaje te indica cuántos alumnos se han justificado y cuáles se han omitido.
+
+Cada justificante muestra, en la pestaña **Sesiones afectadas**, las sesiones del período en las que el alumno tenía una falta o un retraso grave.
 
 En el pase de lista, las líneas justificadas muestran un escudo y el docente ya no puede cambiarlas. Su nota indica quién las ha justificado ("Falta justificada por: ..." o "Retraso grave justificado por: ...").
-
-![Justificante nuevo con las sesiones afectadas](../../assets/tutors/justificants-02-nou.png)
 
 Un alumno no puede tener dos justificantes con períodos que se solapen.
 
@@ -33,6 +40,8 @@ El período puede incluir días futuros (por ejemplo, un ingreso hospitalario pr
 ---
 
 ## Adjuntar el documento
+
+También puedes adjuntar ficheros a un justificante después de crearlo:
 
 1. Abre el justificante desde la lista de **Justificaciones**.
 2. En la pestaña **Archivos adjuntos**, pulsa el botón **Archivos adjuntos** y elige el fichero (por ejemplo, el informe médico). Puedes elegir varios a la vez; cada uno se llama como su fichero.

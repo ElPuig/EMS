@@ -14,17 +14,24 @@ Llevat que el centre ho permeti a la seva configuració, una justificació és l
 
 ## Registrar un justificant
 
-1. Ves a **Assistència dels estudiants → Justificants** i clica **Nou**.
-2. A **Estudiant**, tria l'alumne. Només hi surten els alumnes del teu grup.
-3. A **Període**, indica la data i l'hora d'inici i de fi.
-4. La pestanya **Sessions afectades** mostra les sessions del període en què l'alumne té una falta o un retard greu, de tots els docents.
-5. Clica **Desar**. Les faltes de la llista passen a **Falta justificada**, i els retards greus a **Retard lleu**.
+Pots justificar un alumne, diversos o grups sencers alhora (per exemple, per a una sortida d'un grup).
+
+1. Ves a **Assistència dels estudiants → Justificants** i clica **Nou**. S'obre la finestra **Justifica faltes**.
+2. A **Període**, indica la data i l'hora d'inici i de fi.
+3. A **Mode**, tria com els selecciones:
+    - **Estudiants**: tria un o més alumnes a **Estudiants**.
+    - **Grups**: tria un o més grups a **Grups**. Es justifiquen tots els alumnes d'aquests grups.
+
+    Només hi surten els teus grups i els seus alumnes.
+4. La pestanya **Alumnes per justificar** mostra qui es justificarà. Si algun ja té un justificant que se superposa amb el període, un avís groc l'indica: se l'ometrà.
+5. Si vols, adjunta el document a la pestanya **Fitxers adjunts** (cada alumne en rep una còpia) i afegeix un comentari a **Notes**.
+6. Clica **Justifica**. EMS crea un justificant per a cada alumne: les seves faltes del període passen a **Falta justificada**, sigui quin sigui el docent que les va posar, i els seus retards greus a **Retard lleu**. Un missatge t'indica quants alumnes s'han justificat i quins s'han omès.
+
+Cada justificant mostra, a la pestanya **Sessions afectades**, les sessions del període en què l'alumne tenia una falta o un retard greu.
 
 Al passi de llista, les línies justificades mostren un escut i el docent ja no les pot canviar. La seva nota indica qui les ha justificat ("Falta justificada per: ..." o "Retard greu justificat per: ...").
 
-![Justificant nou amb les sessions afectades](../../assets/tutors/justificants-02-nou.png)
-
-Un alumne no pot tenir dos justificants amb períodes que se solapin.
+Un alumne no pot tenir dos justificants amb períodes que se superposin.
 
 ### Dies que encara no han arribat
 
@@ -33,6 +40,8 @@ El període pot incloure dies futurs (per exemple, un ingrés hospitalari previs
 ---
 
 ## Adjuntar el document
+
+També pots adjuntar fitxers a un justificant després de crear-lo:
 
 1. Obre el justificant des de la llista de **Justificants**.
 2. A la pestanya **Fitxers adjunts**, clica el botó **Fitxers adjunts** i tria el fitxer (per exemple, l'informe mèdic). En pots triar diversos alhora; cadascun es diu com el seu fitxer.

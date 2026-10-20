@@ -245,6 +245,7 @@
 
             'views/attendance/attendance_schedule/form.xml',
 
+            'views/attendance/attendance_justification/wizard.xml',
             'views/attendance/attendance_justification/menu.xml',
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',

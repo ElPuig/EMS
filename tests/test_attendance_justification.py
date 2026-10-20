@@ -445,3 +445,100 @@ class TestAttendanceJustificationPermissionsAndSync(TransactionCase):
 
         justification.with_user(self.tutor_user).write({'attachment_ids': [(3, attachment.id)]})
         self.assertFalse(attachment.exists())
+
+    # Issue #656: the assistant justifies several students, or whole groups, at once.
+
+    def _wizard(self, user, **vals):
+        return self.env['ems.attendance_justification_wizard'].with_user(user).create({
+            'teacher_id': self.tutor_employee.id, **self._today_range(), **vals,
+        })
+
+    def _group_mate_with_miss(self):
+        """A second student of the tutor's group, with a miss in a session taught by another
+        teacher (whose header the tutor cannot read)."""
+        mate = self.env['res.partner'].create({
+            'name': 'Test Group Mate (Attendance Justification Wizard)', 'contact_type': 'student',
+            'student_id': next_student_id(), 'main_group_id': self.group.id,
+        })
+        schedule = self._other_teacher_schedule()
+        schedule.student_ids = [(6, 0, [mate.id])]
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': schedule.id, 'date': self.today,
+            'mode': 'scheduled', 'session_teacher_id': self.other_teacher.id,
+        })
+        line = session.attendance_session_line_ids.filtered(lambda l: l.student_id == mate)
+        line.status_id = self.env.ref('ems.attendance_status_miss')
+        return mate, line
+
+    def test_wizard_groups_mode_justifies_every_student_of_the_group(self):
+        own_line = self._line()
+        own_line.status_id = self.env.ref('ems.attendance_status_miss')
+        mate, mate_line = self._group_mate_with_miss()
+
+        wizard = self._wizard(self.tutor_user, mode='groups', group_ids=[(6, 0, [self.group.id])])
+        self.assertEqual(wizard.target_student_ids, self.student | mate)
+        wizard.action_justify()
+
+        justifications = self.env['ems.attendance_justification'].search([('student_id', 'in', (self.student | mate).ids)])
+        self.assertEqual(justifications.student_id, self.student | mate)
+        self.assertEqual(justifications.teacher_id, self.tutor_employee)
+        justified = self.env.ref('ems.attendance_status_justified')
+        self.assertEqual(own_line.status_id, justified)
+        self.assertEqual(mate_line.status_id, justified)
+        self.assertEqual(mate_line.attendance_justification_id.student_id, mate)
+
+    def test_wizard_skips_students_with_an_overlapping_justification(self):
+        mate, mate_line = self._group_mate_with_miss()
+        existing = self.env['ems.attendance_justification'].create({
+            'teacher_id': self.tutor_employee.id, 'student_id': self.student.id, **self._today_range(),
+        })
+
+        wizard = self._wizard(self.tutor_user, student_ids=[(6, 0, (self.student | mate).ids)])
+        self.assertEqual(wizard.overlap_student_ids, self.student)
+        result = wizard.action_justify()
+
+        self.assertEqual(self.env['ems.attendance_justification'].search([('student_id', '=', self.student.id)]), existing)
+        self.assertEqual(mate_line.status_id, self.env.ref('ems.attendance_status_justified'))
+        self.assertEqual(result['params']['type'], 'warning')
+        self.assertIn(self.student.name, result['params']['message'])
+
+    def test_wizard_refuses_students_outside_tutor_scope(self):
+        stranger = self.env['res.partner'].create({
+            'name': 'Test Stranger (Attendance Justification Wizard)', 'contact_type': 'student',
+            'student_id': next_student_id(),
+        })
+        wizard = self._wizard(self.tutor_user, student_ids=[(6, 0, stranger.ids)])
+        with self.assertRaises(UserError):
+            wizard.action_justify()
+
+    def test_wizard_non_tutor_cannot_open(self):
+        with self.assertRaises(UserError):
+            self.env['ems.attendance_justification_wizard'].with_user(self.other_teacher_user).default_get(['mode'])
+
+    def test_wizard_domains_offer_only_the_tutor_scope(self):
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TAJ2', 'level_id': self.level.id, 'study_id': self.study.id,
+            'tutor_id': self.other_teacher.id,
+        })
+        wizard = self._wizard(self.tutor_user)
+        groups = self.env['ems.group'].search(ast.literal_eval(wizard.group_domain))
+        self.assertIn(self.group, groups)
+        self.assertNotIn(other_group, groups)
+        students = self.env['res.partner'].search(ast.literal_eval(wizard.student_domain))
+        self.assertIn(self.student, students)
+
+    def test_wizard_gives_each_justification_its_own_attachment_copy(self):
+        mate, __ = self._group_mate_with_miss()
+        wizard = self._wizard(self.tutor_user, mode='groups', group_ids=[(6, 0, [self.group.id])], attachment_ids=[(0, 0, {
+            'name': 'Excursion.txt', 'raw': b'excursion', 'res_model': 'ems.attendance_justification_wizard',
+        })])
+        original = wizard.attachment_ids
+        wizard.action_justify()
+
+        justifications = self.env['ems.attendance_justification'].search([('student_id', 'in', (self.student | mate).ids)])
+        self.assertEqual(len(justifications), 2)
+        for justification in justifications:
+            self.assertEqual(justification.attachment_ids.mapped('name'), ['Excursion.txt'])
+            self.assertEqual(justification.attachment_ids.res_id, justification.id)
+        self.assertNotEqual(justifications[0].attachment_ids, justifications[1].attachment_ids)
+        self.assertFalse(original.exists())

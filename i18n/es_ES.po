@@ -20569,12 +20569,14 @@ msgstr "Responsabilidad"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__responsible_employee_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__responsible_employee_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Responsible people"
 msgstr "Personas responsables"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__responsible_role_id
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Responsible post"
 msgstr "Cargo responsable"
 
@@ -25450,10 +25452,6 @@ msgstr "Explique cómo avanza el acuerdo: la entrada fija su estado y llega a su
 msgid "Where I am involved"
 msgstr "Los que me implican"
 
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "Involved"
-msgstr "Implicadas"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_followup_form

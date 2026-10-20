@@ -250,9 +250,9 @@
                                         <field name="code" readonly="1"/>
                                         <field name="deadline_date" string="Deadline"/>
                                         <field name="deadline_text" string="or" placeholder="When, in words"/>
-                                        <field name="responsible_role_id" string="Responsible" options="{'no_create': True, 'no_open': True}" placeholder="Post"/>
-                                        <field name="responsible_employee_ids" string=" " widget="many2many_tags" options="{'no_create': True}" placeholder="People"/>
-                                        <field name="involved_employee_ids" string="Involved" widget="many2many_tags" options="{'no_create': True}" placeholder="People involved"/>
+                                        <field name="responsible_role_id" string="Responsible post" options="{'no_create': True, 'no_open': True}" placeholder="Post"/>
+                                        <field name="responsible_employee_ids" string="Responsible people" widget="many2many_tags" options="{'no_create': True}" placeholder="People"/>
+                                        <field name="involved_employee_ids" string="People involved" widget="many2many_tags" options="{'no_create': True}" placeholder="People"/>
                                         <field name="state" readonly="1"/>
                                         <field name="name" string="Content of the agreement" widget="text" placeholder="What is agreed"/>
                                     </list>

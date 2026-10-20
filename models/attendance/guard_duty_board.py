@@ -1895,7 +1895,10 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'schedule_grid': data['schedule_grid'], 'absence_grid': data['absence_grid'],
                 # Only whoever may act on them sees the day's pending decisions: to everybody else
                 # they are noise, and the struck-out rows already say what was decided.
-                'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']]}
+                'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']],
+                # Whether anybody can still act on this day (from today on): the board then explains
+                # every line still to be covered, also to whoever cannot cover it.
+                'editable': editable}
 
     def _arrangement_plan_data(self, plan):
         """JSON-safe version of a detected arrangement plan (see _get_arrangement_plans): its

@@ -475,6 +475,7 @@ export class GuardDutyBoard extends Component {
             o_guard_board_absence_covered: absence.covered,
             o_guard_board_absence_struck: !absence.covered && Boolean(this.isFullyCovered(absence) || absence.authorized || this.isArranged(absence)),
             o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || Boolean(absence.self_cover_id),
+            o_guard_board_absence_not_on_guard: Boolean(this.notOnGuardReason(absence)),
         };
         if (absence.covers.length) {
             classes[`o_guard_board_cover_${absence.covers[0].color}`] = true;
@@ -514,9 +515,19 @@ export class GuardDutyBoard extends Component {
                 : _t("Click to send a guard teacher to this class");
         }
         if (!absence.can_self_assign) {
-            return false;
+            return this.notOnGuardReason(absence);
         }
         return absence.duty_id ? _t("Click to cover this guard duty yourself") : _t("Click to cover this class yourself");
+    }
+
+    // Issue #659: a line still to be covered that the current user can do nothing about, because
+    // they are not on guard duty then, says so too - every line answers the pointer, not only some.
+    notOnGuardReason(absence) {
+        if (!this.state.board.editable || absence.self_label || absence.can_self_assign || absence.self_cover_id
+                || absence.arrangement || this.struckReason(absence) || this.isAssignable(absence)) {
+            return false;
+        }
+        return _t("You cannot cover this teacher: you are not on guard duty at this time.");
     }
 
     // Why a line is struck out, for everyone (not only whoever can organise the absence): shown by
@@ -553,7 +564,11 @@ export class GuardDutyBoard extends Component {
     onAbsenceClick(ev, line, absence) {
         const reason = this.struckReason(absence);
         if (!reason) {
-            if (absence.arrangement && absence.can_manage) {
+            const notOnGuard = this.notOnGuardReason(absence);
+            if (notOnGuard) {
+                const anchor = ev.currentTarget.querySelector(".o_guard_board_absence_info") || ev.currentTarget;
+                this.popover.add(anchor, GuardBoardReasonPopover, { reason: notOnGuard });
+            } else if (absence.arrangement && absence.can_manage) {
                 // Waiting for its notice: the planner either sends it or changes their mind.
                 this.openCoverDialog(line, absence);
             } else if (this.isAssignable(absence)) {

@@ -258,3 +258,12 @@ class TestAbsenceCoverageTour(HttpCase):
         notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
         self.assertEqual(len(notices), 2, "the notice and one correction")
         self.assertEqual(notices[-1]._absence_change_tuples(), [('normal_entry', 0.0)])
+
+    def test_not_on_guard_tour(self):
+        """Issue #659, as a plain teacher who is not on guard duty: a class still to be covered
+        answers the pointer too, saying why they cannot cover it."""
+        user = create_role_user(self, 'teacher', 'test_tour_not_on_guard', name='Tour Not On Guard')
+        create_role_employee(self, user, name='Tour Not On Guard')
+        self._board_fixture()
+
+        self.start_tour("/odoo", "ems_not_on_guard", login=user.login)

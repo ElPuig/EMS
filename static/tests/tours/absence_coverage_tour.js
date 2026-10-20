@@ -330,3 +330,42 @@ registry.category("web_tour.tours").add("ems_corrections_box", {
         },
     ],
 });
+
+// Issue #659: a teacher who is not on guard duty sees every class still to be covered answer the
+// pointer, saying why they cannot cover it. Seed data comes from
+// TestAbsenceCoverageTour.test_not_on_guard_tour.
+registry.category("web_tour.tours").add("ems_not_on_guard", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_not_on_guard[data-tooltip*='not on guard duty']:contains('Tour Absent Teacher')",
+            content: "The class answers the pointer and says why it cannot be covered",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_reason_popover:contains('not on guard duty')",
+            content: "Clicking it says the same",
+        },
+    ],
+});

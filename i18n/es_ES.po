@@ -23325,3 +23325,9 @@ msgstr "Corrección de ausencias previamente asignadas"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."
 msgstr "A las familias de estos grupos se les comunicó algo que ya no coincide con las ausencias: envíales una rectificación lo antes posible. Cada propuesta ya la incluye, en un solo correo por grupo; para enviar solo la rectificación, desmarca el resto de pasos."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "You cannot cover this teacher: you are not on guard duty at this time."
+msgstr "No puedes cubrir a este docente porque a esta hora no estás de guardia."

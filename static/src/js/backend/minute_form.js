@@ -3,8 +3,8 @@
 import { onMounted, onWillUnmount, useExternalListener } from "@odoo/owl";
 import { browser } from "@web/core/browser/browser";
 import { registry } from "@web/core/registry";
-import { FormController } from "@web/views/form/form_controller";
 import { formView } from "@web/views/form/form_view";
+import { EmsCanEditFormController } from "./can_edit_form";
 
 // How often the form looks whether there is something to save, how long the writer must have
 // been still for it to save (so it never cuts in between two keystrokes), and the least time
@@ -16,7 +16,7 @@ const BETWEEN_SAVES = 12000;
 // A minute is written live, during the meeting, often on a laptop on its battery. Odoo saves a
 // form when the user leaves it, not while they stay on it writing - an hour of meeting would
 // hang on one click. This form saves by itself, in the pauses of whoever is writing.
-export class EmsMinuteFormController extends FormController {
+export class EmsMinuteFormController extends EmsCanEditFormController {
     setup() {
         super.setup();
         this.lastInput = 0;
@@ -32,21 +32,6 @@ export class EmsMinuteFormController extends FormController {
             timer = browser.setInterval(() => this.autosave(), TICK);
         });
         onWillUnmount(() => browser.clearInterval(timer));
-    }
-
-    // Whoever may only read the minute (an attendee, a department colleague) gets it as plain
-    // reading, not fields that the save would then refuse. Decided per record, on every load, since
-    // the pager moves between minutes this user may and may not write.
-    get modelParams() {
-        const params = super.modelParams;
-        params.hooks.onRootLoaded = () => {
-            const record = this.model.root;
-            const mode = record.isNew || record.data.can_edit ? "edit" : "readonly";
-            if (this.canEdit && record.config.mode !== mode) {
-                record._switchMode(mode);
-            }
-        };
-        return params;
     }
 
     async autosave() {

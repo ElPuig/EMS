@@ -5,7 +5,8 @@
             <field name="name">ems.quality.action.form</field>
             <field name="model">ems.quality.action</field>
             <field name="arch" type="xml">
-                <form>
+                <!-- Read-only for whoever may only read it (ems_can_edit_form, from can_edit). -->
+                <form js_class="ems_can_edit_form">
                     <header>
                         <!-- Readonly on purpose: the state is derived from the follow-up entries, so
                              moving this forward means adding one and saying why. -->
@@ -30,6 +31,7 @@
                                 <field name="course_id"/>
                                 <field name="minute_id" readonly="1"/>
                                 <field name="is_late" invisible="1"/>
+                                <field name="can_edit" invisible="1"/>
                             </group>
                         </group>
                         <group string="Scope">

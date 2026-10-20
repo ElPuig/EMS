@@ -21,6 +21,22 @@ o las de cursos anteriores.
 Otros filtros útiles: **Vencidas** (pasadas de plazo y todavía abiertas), y por tipo: acuerdos de
 reunión, acciones de mejora, o correctivas y preventivas.
 
+## Quién ve y quién modifica un acuerdo
+
+- **Lo ve**: quien puede leer el acta de la que sale o de su ámbito (el departamento, el grupo de
+  trabajo, el grupo, todo el centro si es de claustro; quien asistió, quien la redacta y quien la
+  valida), las personas responsables, quien ocupa el cargo responsable y, por encima de todos ellos,
+  su cadena de mando: jefe de departamento o de seminario, jefe de estudios o jefe de estudios adjunto
+  y director.
+- **Lo modifica y le añade seguimiento**: las personas responsables y su cadena de mando, quien ocupa
+  el cargo responsable y la cadena del departamento o del tutor del grupo. Mientras el acta no está
+  aprobada, también quien la redacta o la valida. Una acción que no sale de ningún acta, también quien
+  la creó.
+- La **comisión de calidad**, la **coordinación de calidad** y el **administrador** los ven y
+  modifican todos.
+
+Si abre un acuerdo que solo puede leer, se abre en modo de solo lectura.
+
 ## Crear un acuerdo
 
 1. Botón **Nuevo**.

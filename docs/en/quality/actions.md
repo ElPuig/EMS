@@ -21,6 +21,21 @@ items, or earlier years.
 Other useful facets: **Overdue** (past their deadline and still open), and by type: meeting agreements,
 improvement actions, or corrective and preventive ones.
 
+## Who sees and who changes an agreement
+
+- **Sees it**: whoever can read the minute it comes from or its scope (the department, the workgroup,
+  the group, the whole centre for a staff meeting; those who attended, who writes it and who approves
+  it), the responsible people, whoever holds the responsible post and, above all of them, their chain
+  of command: Department or Seminar Chief, Head or Deputy Head of Studies and Director.
+- **Changes it and adds follow-up**: the responsible people and their chain of command, whoever holds
+  the responsible post and the chain of the department or of the group's tutor. While the minute is
+  not approved, also whoever writes or approves it. An action that comes from no minute, also whoever
+  created it.
+- The **quality committee**, **quality coordination** and the **administrator** see and change them
+  all.
+
+An agreement you may only read opens in read-only mode.
+
 ## Creating an agreement
 
 1. **New**.

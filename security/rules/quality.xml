@@ -57,23 +57,113 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
-        <!-- Agreements and actions. A teacher sees what is theirs and what belongs to a minute they
-             took part in; they do not see another department's action plan. -->
+        <!-- Agreements and actions follow the chain of command, like minutes (see above), instead of
+             the posts: the secretariat, every Head of Studies, the Director and every Department
+             Chief used to see and edit them all. Read: whoever reads the minute of the same scope
+             (its department, workgroup or group, the staff meeting; its attendees, writer and
+             approver), the responsible people and their chain (responsible_scope_user_ids, built on
+             tutor_scope_user_ids), the holders of the responsible post, and whoever created an
+             action that came from no minute. Write: the responsible people and their chain, the
+             holders of the responsible post and the chain of the department or the group's tutor;
+             while its minute is not approved, whoever writes or approves the minute and whoever
+             added the agreement to it; the creator of an action from no minute. The follow-up goes
+             with its action (same domains through action_id). -->
         <record model="ir.rule" id="rule_quality_action_teacher">
-            <field name="name">Actions: the teaching staff sees its own and those of its minutes</field>
+            <field name="name">Actions: the staff sees those of its scopes, its minutes and its chain of command</field>
             <field name="model_id" ref="ems.model_ems_quality_action"/>
-            <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-            <field name="domain_force">['|', '|', '|',
-                ('responsible_employee_ids.user_id', '=', user.id),
+            <field name="groups" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+                ('responsible_scope_user_ids', '=', user.id),
                 ('responsible_role_id.employee_ids.user_id', '=', user.id),
+                ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
+                ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
+                ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                ('is_centre', '=', True),
+                ('department_id.member_ids.user_id', '=', user.id),
+                ('workgroup_id.employee_ids.user_id', '=', user.id),
                 ('minute_id.attendee_ids.user_id', '=', user.id),
-                ('create_uid', '=', user.id)]</field>
+                ('minute_id.redactor_employee_id.user_id', '=', user.id),
+                ('minute_id.approver_scope_user_ids', '=', user.id),
+                ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id),
+                '&amp;', ('minute_id', '=', False), ('create_uid', '=', user.id)]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_quality_action_teacher_write">
+            <field name="name">Actions: the responsible people, their chain of command and the minute writers edit them</field>
+            <field name="model_id" ref="ems.model_ems_quality_action"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary')])]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">['|', '|', '|', '|', '|', '|',
+                ('responsible_scope_user_ids', '=', user.id),
+                ('responsible_role_id.employee_ids.user_id', '=', user.id),
+                ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
+                ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
+                ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                '&amp;', ('minute_id', '=', False), ('create_uid', '=', user.id),
+                '&amp;', ('minute_id', 'any', [('state', '!=', 'approved')]), '|', '|', '|', ('minute_id.approver_scope_user_ids', '=', user.id), ('minute_id.redactor_employee_id.user_id', '=', user.id), ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id), ('create_uid', '=', user.id)]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_quality_followup_teacher">
+            <field name="name">Follow-up: the staff sees that of the actions it may read</field>
+            <field name="model_id" ref="ems.model_ems_quality_followup"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary')])]"/>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+            <field name="domain_force">[('action_id', 'any', ['|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+                    ('responsible_scope_user_ids', '=', user.id),
+                    ('responsible_role_id.employee_ids.user_id', '=', user.id),
+                    ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
+                    ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
+                    ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                    ('is_centre', '=', True),
+                    ('department_id.member_ids.user_id', '=', user.id),
+                    ('workgroup_id.employee_ids.user_id', '=', user.id),
+                    ('minute_id.attendee_ids.user_id', '=', user.id),
+                    ('minute_id.redactor_employee_id.user_id', '=', user.id),
+                    ('minute_id.approver_scope_user_ids', '=', user.id),
+                    ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id),
+                    '&amp;', ('minute_id', '=', False), ('create_uid', '=', user.id)])]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_quality_followup_teacher_write">
+            <field name="name">Follow-up: whoever may edit the action follows it up</field>
+            <field name="model_id" ref="ems.model_ems_quality_followup"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary')])]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">[('action_id', 'any', ['|', '|', '|', '|', '|', '|',
+                    ('responsible_scope_user_ids', '=', user.id),
+                    ('responsible_role_id.employee_ids.user_id', '=', user.id),
+                    ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
+                    ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
+                    ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
+                    '&amp;', ('minute_id', '=', False), ('create_uid', '=', user.id),
+                    '&amp;', ('minute_id', 'any', [('state', '!=', 'approved')]), '|', '|', '|', ('minute_id.approver_scope_user_ids', '=', user.id), ('minute_id.redactor_employee_id.user_id', '=', user.id), ('minute_id.approver_role_id.employee_ids.user_id', '=', user.id), ('create_uid', '=', user.id)])]</field>
         </record>
 
         <record model="ir.rule" id="rule_quality_action_oversight">
-            <field name="name">Actions: the roles that oversee the centre see them all</field>
+            <field name="name">Actions: the quality committee, quality coordination and the administrator see them all</field>
             <field name="model_id" ref="ems.model_ems_quality_action"/>
-            <field name="groups" eval="[(4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_director')), (4, ref('ems.group_quality')), (4, ref('ems.group_quality_admin')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_department_chief'))]"/>
+            <!-- (6, ...) so an upgrade also takes out the posts that used to be here. -->
+            <field name="groups" eval="[(6, 0, [ref('ems.group_quality'), ref('ems.group_quality_admin'), ref('ems.group_academic_admin')])]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_quality_followup_oversight">
+            <field name="name">Follow-up: the quality committee, quality coordination and the administrator see it all</field>
+            <field name="model_id" ref="ems.model_ems_quality_followup"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_quality'), ref('ems.group_quality_admin'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
     </data>

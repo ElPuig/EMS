@@ -21,6 +21,21 @@ les de cursos anteriors.
 Altres filtres útils: **Vençudes** (passades de termini i encara obertes), i per tipus: acords de
 reunió, accions de millora, o correctives i preventives.
 
+## Qui veu i qui modifica un acord
+
+- **El veu**: qui pot llegir l'acta de la qual surt o del seu àmbit (el departament, el grup de treball,
+  el grup, tot el centre si és de claustre; qui hi va assistir, qui la redacta i qui la valida), les
+  persones responsables, qui ocupa el càrrec responsable i, per sobre de tots ells, la seva cadena de
+  comandament: cap de departament o de seminari, cap d'estudis o cap d'estudis adjunt i director.
+- **El modifica i hi afegeix seguiment**: les persones responsables i la seva cadena de comandament,
+  qui ocupa el càrrec responsable i la cadena del departament o del tutor del grup. Mentre l'acta no
+  està aprovada, també qui la redacta o la valida. Una acció que no surt de cap acta, també qui la va
+  crear.
+- La **comissió de qualitat**, la **coordinació de qualitat** i l'**administrador** els veuen i
+  modifiquen tots.
+
+Si obriu un acord que només podeu llegir, s'obre en mode de només lectura.
+
 ## Crear un acord
 
 1. Botó **Nou**.

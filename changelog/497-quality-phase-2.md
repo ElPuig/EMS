@@ -58,6 +58,10 @@ Record rules replace what was previously unrestricted write access: the staff se
 
 The Quality menu is now seen by the quality committee, quality coordination and management, instead of quality coordination, management, the head of studies and the secretariat (who keep minutes and agreements in the Meetings menu). The committee's access is the existing Quality "Manager" group, renamed "Committee member" (its old description, "identical to Manager", no longer held). It can still be given by hand from the user form, and the catalogue's "Quality Comission" workgroup now feeds it: joining the workgroup gives it, leaving takes it away (except to quality coordination or to someone who had it by hand), and every install and upgrade adds the members the workgroup already has.
 
+## Agreements and their follow-up follow the chain of command:
+
+Agreements and improvement actions were seen and edited centre-wide by the secretariat, every Head of Studies, the Director and every Department Chief, and any teacher could read the follow-up of any agreement. Now they go by the same chain of command as minutes: readers of the minute or its scope, the responsible people, the holders of the responsible post and everybody above them read them; the responsible people and their chain, the chain of the department or the group's tutor and, while the minute is not approved, whoever writes or approves it, edit them and add follow-up. The quality committee, quality coordination and the administrator manage them all. An agreement opens read-only for whoever may only read it, with the same form behaviour as minutes.
+
 ## Committee members read every survey but edit only their own:
 
 A committee member used to see and edit every survey of the centre, since the Committee member group had no record rule on the survey models. It now gets the same two rules quality coordination had (read every survey, create/edit/delete only the ones they created); coordination keeps them through its implied group and the administrator keeps full control. Agreed with the author of the survey integration.

@@ -2405,6 +2405,7 @@ msgstr "Puede cancelarse"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__can_edit
 #: model:ir.model.fields,field_description:ems.field_ems_minute__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__can_edit
 #: model:ir.model.fields,field_description:ems.field_ems_quality_can_edit__can_edit
 #: model:ir.model.fields,field_description:ems.field_ems_quality_document__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_edit_mode__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_procedure__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_process__can_edit
 msgid "Can edit"
@@ -25390,3 +25391,14 @@ msgstr "Enviada a aprobar el"
 #: model:ir.model.fields,field_description:ems.field_ems_minute__submitted_by_id
 msgid "Sent for approval by"
 msgstr "Enviada a aprobar por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__responsible_scope_user_ids
+msgid "Responsible chain of command"
+msgstr "Cadena de mando de los responsables"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/action.py:0
+msgid "Unsupported search on responsible_scope_user_ids"
+msgstr "Búsqueda no admitida sobre responsible_scope_user_ids"

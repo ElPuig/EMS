@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import api, fields, models
+from odoo import _, api, fields, models
 
 from .common import QUALITY_STATE_CLOSED, QUALITY_STATES, scope_code
 
@@ -8,7 +8,7 @@ from .common import QUALITY_STATE_CLOSED, QUALITY_STATES, scope_code
 class EmsQualityAction(models.Model):
     _name = "ems.quality.action"
     _description = "Quality action: a meeting agreement or an improvement action, which are the same thing."
-    _inherit = ['mail.thread', 'mail.activity.mixin']
+    _inherit = ['ems.quality.can.edit', 'mail.thread', 'mail.activity.mixin']
     _order = "deadline_date, id desc"
     _sql_constraints = [
         ('unique_code', 'unique (code)', "Another action already uses this code."),
@@ -44,6 +44,11 @@ class EmsQualityAction(models.Model):
         column1="action_id",
         column2="employee_id",
     )
+    # The responsible people and everybody above them in the chain of command (their Department
+    # or Seminar Chief, Head or Deputy Head of Studies, the Director): what the record rules match.
+    responsible_scope_user_ids = fields.Many2many(
+        string="Responsible chain of command", comodel_name="res.users",
+        compute="_compute_responsible_scope_user_ids", search="_search_responsible_scope_user_ids")
     deadline_date = fields.Date(string="Deadline", tracking=True)
     # Real deadlines are often prose ("by the final meeting of the year"), so both are kept: the
     # date is what the overdue filter uses, the text is what the minute actually said.
@@ -102,6 +107,18 @@ class EmsQualityAction(models.Model):
                 action.state = 'analysed'
             else:
                 action.state = 'new'
+
+    @api.depends('responsible_employee_ids')
+    def _compute_responsible_scope_user_ids(self):
+        Employee = self.env['hr.employee'].sudo().with_context(active_test=False)
+        for action in self:
+            action.responsible_scope_user_ids = Employee.browse(action.responsible_employee_ids.ids).tutor_scope_user_ids
+
+    def _search_responsible_scope_user_ids(self, operator, value):
+        if operator not in ('=', 'in'):
+            raise NotImplementedError(_("Unsupported search on responsible_scope_user_ids"))
+        responsibles = self.env['hr.employee'].sudo().with_context(active_test=False).search([('tutor_scope_user_ids', operator, value)])
+        return [('responsible_employee_ids', 'in', responsibles.ids)]
 
     @api.depends('deadline_date', 'state')
     def _compute_is_late(self):

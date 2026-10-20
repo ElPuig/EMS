@@ -826,8 +826,8 @@ v18.0.0.38.1. Nothing is in flight.
 1. ~~Message to Fer about surveys~~: done 2026-10-20. Fer agreed that committee members read every survey
    and edit only their own, with the administrator in full control; the read-all/edit-own rules in
    `security/rules/communications.xml` moved from `group_quality_admin` to `group_quality` (which it implies).
-2. **Agreements' record rules** (`rule_quality_action_oversight`) are still flat by post; align them with
-   the minutes' chain of command if the developer agrees.
+2. ~~Agreements' record rules~~: done 2026-10-20, they follow the chain of command like the minutes'
+   (see `docs/en/developers/quality/quality_overview.md`, Access control); the follow-up now has rules too.
 3. **Stored title in the writer's language**: `ems.minute.name`/`scope_name` are stored computes, so they are
    saved in the language of whoever triggers the recompute (a Spanish-language teacher would store
    "Informática"). Proposed fix: compute them in the centre's language (`_ems_centre_lang()`), as the PDF

@@ -749,7 +749,7 @@ sides keeping what was told.
 |---|---|---|---|
 | none | none | - | - |
 | some | none | `proposal` | every allowed option, the largest by default |
-| any | one of the allowed options | `communicated` | - (its rows struck out) |
+| any | one of the allowed options | `communicated` | - (its rows struck out); `change_options` until its time comes (#659, below) |
 | any | anything else | `rectification` | every allowed option and `normal_<side>`, the largest allowed (or normal) by default |
 
 Communicating a smaller option than the largest is the planner's decision and is never nagged
@@ -775,6 +775,46 @@ arrive too late. `_board_day_hour()` gives the company-time hour of `day` (None 
 come, so nothing is dropped; past every lesson for a day already over), and since
 `_board_absence_change_draft()` validates against the same states, it refuses an option that went
 past while the board stayed open.
+
+### Changing a communicated change (issue #659)
+
+A communicated change still allowed is the planner's decision, but they may change their mind (a
+guard turns out to be free, they would rather rearrange the lessons than lengthen the break). Until
+its time comes, its state carries `change_options`: every allowed option except the one told, and
+`normal_<side>` last. Every row it strikes out carries `change_side` (the side's key) when there is
+something to change it for, and the board shows a **Change proposal** button on it to whoever can
+manage the row (also offered from the row's reason popover). It opens `GuardChangeProposalDialog`
+(`static/src/js/backend/guard_change_proposal_dialog.js`), fed by
+`ems.course.get_change_proposal_options(day, group_id, side)` (same manager and past-day checks as
+every board action), which returns:
+
+- `options`: the `change_options`, sent like any other option by `board_send_absence_change()`
+  (`_board_absence_change_draft()` accepts `options + change_options`). The notice is a correction
+  (`rectification=True`, "Correction:"), since something was communicated on that side.
+- `plans`: the arrangement plans of the group's day **as if nothing had been told on that side**,
+  only those with a move or a swap of the group, and `reopen` (`[group id, side]`), which the dialog
+  passes back to `board_apply_plan(..., reopen=...)`.
+
+"As if nothing had been told" is the `ems_reopen_side` context key (`_reopened_side()`): the
+planner builds that side's `communicated` as None, so its lessons are gaps it can fill and its
+notices can change; `_get_needed_absence_block()` ignores that side's window, so a swap can be
+applied to a lesson the families were told the students skip; `board_apply_plan(reopen=...)`
+re-enters itself with the key set. The states themselves are never reopened: what the families
+were told is still what they were told until the correction goes out.
+
+**Corrections are steps of a plan** (`_add_plan_corrections()`, kind `correction`, after every
+other step, no dependencies):
+
+- In every plan of a set of groups, one per side of each of its groups in `rectification` (the
+  side's `target`), so that the plan and the correction go out in one notice per group, and a
+  planner who only wants the correction unchecks the rest.
+- In a reopened plan, the group being changed always gets one: a notice of the plan on that side
+  becomes the correction (dropped if it repeats what was told; split off its group when the
+  notice is for several groups), and without one the correction is `normal_<side>`.
+
+`board_apply_plan()` gathers notices and corrections per group, looks each change up in the
+group's `options + change_options` (refusing it when it is in neither), and creates one notice per
+group, a correction when any of its changes is on a side already told.
 
 ### Guard assignment
 
@@ -873,7 +913,10 @@ themselves: one a planner sent them to is the planner's to release. The planner 
 or release a self-assigned guard as any other. The board sends `can_self_assign` (the user is a
 candidate in the row and their part is free and editable), `self_label` (that part) and
 `self_cover_id` (the cover they took themselves, to leave it) per absence row; a
-manager's own dialog takes precedence when both apply.
+manager's own dialog takes precedence when both apply. A row still to be covered that the user can
+do nothing about on an editable day (the board's `editable`), because they have no guard duty
+there (`self_label` empty), answers the pointer too, saying so (`notOnGuardReason()`, #659): every
+row of the table reacts the same way.
 
 ### Internal arrangements (#605, #645)
 
@@ -965,7 +1008,7 @@ Then:
   'arrangement'`, `arrangement_type = 'move'`) per teacher whose class in the gap it fills
   (`_board_create_move()`): the absent teacher, or the teacher whose lesson an earlier step moved.
   `guard_employee_id` = who moves, `vacated_hour_from/_to` = their lesson.
-- The **notice** steps become **one notice per group** (#652, `_create_absence_change_notice()`
+- The **notice** and **correction** steps (#659, see above) become **one notice per group** (#652, `_create_absence_change_notice()`
   with every change the kept steps bring to that group: a later entry, an earlier leave, a longer
   break), never one notice for several groups, so each stays addressed to its own group
   (`_check_absence_change_recipients`). It links (`notice_id`) the moves whose lessons it frees the
@@ -1090,11 +1133,17 @@ teacher they are noise, and the struck-out rows already say what was decided):
 - **Proposals for the absences** (`o_guard_board_arrangements`): one section per group together
   with the groups sharing lessons with it that day (`_board_action_sections()`, the action's
   `section_key`/`section_title`; the same sets of groups the arrangement plans work on). In each
-  section: first what is waiting (`pending_arrangement`, an arrangement waiting for its notice, and
-  `rectification`, a notice to correct), then the arrangement plans (`arrangement_plan`,
-  "Proposal 1:", "Proposal 2:"...) and last, numbered after them, **Only tell the families**: the
-  `proposal` of each group and side, with a selector of its options (sending the notice strikes
-  those lessons off, so no guard has to cover them; a shorter change leaves the rest to a guard).
+  section: first what is waiting (`pending_arrangement`, an arrangement waiting for its notice),
+  then the arrangement plans (`arrangement_plan`, "Proposal 1:", "Proposal 2:"...) and last,
+  numbered after them, **Only tell the families**: the `proposal` of each group and side, with a
+  selector of its options (sending the notice strikes those lessons off, so no guard has to cover
+  them; a shorter change leaves the rest to a guard).
+- **Corrections to absences already organised** (`o_guard_board_corrections`, red, above the
+  proposals; #659): the sections with a `rectification`, the same template
+  (`ems.GuardBoardProposalsBox`). Their plans carry the corrections as steps (see "Changing a
+  communicated change"), and their **Only tell the families** lists the proposals and the
+  corrections as checked steps (`ems.GuardBoardNoticeStep`) applied together by
+  `board_apply_plan()`, one notice per group.
 - **Guards no longer needed** (an `obsolete_cover` for every guard of the shift whose class
   `_get_needed_absence_block()` no longer finds: the absence was refused, cancelled or shrunk, the
   families were told the students stay at home, or a co-teacher is now in).

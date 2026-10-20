@@ -115,6 +115,8 @@ Si estás de guardia en una franja, no hace falta que esperes a que alguien te e
 
 La clase queda tachada con tu nombre al lado, igual que cuando te envían. Nadie recibe ningún mensaje: el propio cuadrante muestra quién cubre qué. Si tu guardia solo coincide con una parte de la clase, coges esa parte (el diálogo te indica cuál), y otra persona puede cubrir el resto. Solo se puede coger una clase, o tu parte, que todavía no tiene ningún docente de guardia, y solo en una franja en la que estás de guardia ordinaria (no en una guardia de WC o de patio, ni mientras tú mismo estás ausente). Lo mismo vale para la línea de una guardia de WC o de patio cuyo docente falta: también puedes cogerla tú mismo.
 
+Las líneas que no puedes coger porque a esa hora no estás de guardia también muestran la mano, con la indicación **No puedes cubrir a este docente porque a esta hora no estás de guardia** (y lo mismo al hacer clic), para que sepas por qué no puedes cogerlas.
+
 Si cambias de idea, vuelve a hacer clic en la línea y después en **Deja de cubrir esta clase**: la clase vuelve a quedarse sin guardia. Solo puedes hacerlo con una clase que te has cogido tú; si alguien te ha enviado, pídele que lo cambie. Quien organiza la ausencia siempre puede cambiar o quitar a un docente de guardia que se haya cogido una clase por su cuenta.
 
 ## Introducir una ausencia prevista
@@ -176,7 +178,9 @@ Cuando falta el docente de una guardia de WC o de patio, su guardia aparece como
 
 A menudo no hace falta ninguna guardia, porque los docentes pueden reorganizar sus clases de ese día. El cuadrante lo calcula para cada clase que todavía no tiene a nadie y lo propone en el recuadro **Propuestas para las ausencias**, encima de la tabla (solo lo ve quien puede organizar la ausencia); esas líneas muestran además una etiqueta como **3 reorganizaciones posibles**.
 
-El recuadro tiene una sección por grupo, encabezada con su nombre. Los grupos que comparten una clase ese día (dos grupos que dan clase juntos) comparten sección, porque reorganizar una clase compartida cambia el día de ambos. En cada sección aparece primero lo que está pendiente (una reorganización que espera su comunicado, un comunicado por rectificar), después las propuestas, numeradas a partir de la mejor, y al final **Solo avisar a las familias** (ver [Entrada tarde, salida anticipada o sin clases](#entrada-tarde-salida-anticipada-o-sin-clases)).
+El recuadro tiene una sección por grupo, encabezada con su nombre. Los grupos que comparten una clase ese día (dos grupos que dan clase juntos) comparten sección, porque reorganizar una clase compartida cambia el día de ambos. En cada sección aparece primero lo que está pendiente (una reorganización que espera su comunicado), después las propuestas, numeradas a partir de la mejor, y al final **Solo avisar a las familias** (ver [Entrada tarde, salida anticipada o sin clases](#entrada-tarde-salida-anticipada-o-sin-clases)).
+
+Un grupo a cuyas familias hay que rectificar algo no aparece en este recuadro, sino en uno rojo, encima: **Corrección de ausencias previamente asignadas** (ver **Cuando la ausencia cambia después**).
 
 ![Recuadro de propuestas para las ausencias: la sección de dos grupos, con tres propuestas numeradas, cada una con una lista de pasos con su casilla y, en naranja, las horas de entrada y salida que cambian, y al final la opción de solo avisar a las familias](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
@@ -233,13 +237,29 @@ Cuando las clases sin docente están justo antes y/o justo después de un patio 
 
 Nunca se confunde con entrar o salir: si las clases vacías llegan al inicio del día, es una entrada tarde (por ejemplo, entrar después del patio, a las 18:20); si llegan al final, una salida anticipada (por ejemplo, irse a casa a la hora del patio, a las 18:00).
 
+### Cambiar una propuesta ya enviada
+
+Un comunicado ya enviado no se puede deshacer, pero sí se puede cambiar mientras no haya llegado su hora: por ejemplo, si se avisó de que el grupo entra a las 10:00 y al final hay un docente de guardia para la primera hora, o si preferís reorganizar las clases en lugar de alargar el patio.
+
+1. En la **Tabla de ausencias**, en la línea tachada por el comunicado, haz clic en **Cambiar la propuesta** (junto a la etiqueta verde con lo que se comunicó). Solo lo ve quien organiza la ausencia.
+2. Elige por qué quieres cambiarlo:
+   - **Cambiarlo por**: otro cambio que permiten las ausencias (entrar a otra hora, un patio más corto...) o el **Horario habitual**, que es la opción marcada por defecto.
+   - **O bien reorganizar las clases**: las reorganizaciones posibles del día del grupo, calculadas como si no se hubiera comunicado nada, con sus pasos marcados (puedes desmarcar alguno). Cada una incluye el paso de rectificación a las familias.
+3. Haz clic en **Enviar rectificación**.
+
+Sea cual sea la opción, las familias y el alumnado del grupo reciben **un solo comunicado de rectificación** con la nueva situación, nunca una anulación y un comunicado nuevo por separado. Las clases que vuelven a darse dejan de estar tachadas y puedes cubrirlas con un docente de guardia como siempre.
+
+![Diálogo Cambiar la propuesta: lo que se comunicó, los otros cambios posibles y dos reorganizaciones, cada una con su paso de rectificación](../../assets/teachers/guard-duty-09-canviar-proposta.png)
+
 ### Cuando la ausencia cambia después
 
 Si una ausencia se rechaza, se anula o se acorta, o resulta que otro docente sí está, lo que se había organizado puede dejar de hacer falta. Nada se deshace automáticamente: los recuadros de encima de la tabla te lo indican, y tú decides.
 
 - **Un docente de guardia que ya no hace falta** (recuadro **Guardias que ya no hacen falta**): haz clic en **Liberar la guardia**. Se le comunica que ya no hace falta que cubra la clase.
 - **Una reorganización que ya no es válida** (mismo recuadro): la clase ya no hay que cubrirla, o uno de los docentes de los que depende ahora está ausente a esa hora. Haz clic en **Quitar la reorganización**; se avisa a los docentes.
-- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el recuadro de propuestas ofrece **Enviar rectificación**, que envía enseguida al mismo grupo un comunicado nuevo con la situación corregida (otra hora, o volver al horario habitual), igual que **Enviar comunicado**.
+- **Un comunicado que ya no coincide** (se comunicó más de lo que ahora permiten las ausencias): un comunicado ya enviado no se puede deshacer, así que el grupo pasa al recuadro rojo **Corrección de ausencias previamente asignadas**, encima del de propuestas, porque es urgente. Todas las propuestas del grupo incluyen ahí el paso de rectificación, y también **Solo avisar a las familias**, donde los avisos y las rectificaciones son pasos con casilla. Lo que apliques sale en **un solo comunicado por grupo**: por ejemplo, que sale a las 11:00 y entra a la hora habitual. Para enviar solo la rectificación, desmarca el resto de pasos.
+
+![Recuadro rojo de correcciones: una propuesta con su paso de rectificación y, al final, solo avisar a las familias](../../assets/teachers/guard-duty-10-correccions.png)
 
 ---
 

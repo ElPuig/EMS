@@ -23247,3 +23247,27 @@ msgstr "No se ha podido enviar el comunicado y queda como borrador para que lo r
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Notice sent."
 msgstr "Comunicado enviado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Notice cancelled: %(subject)s"
+msgstr "Comunicado cancelado: %(subject)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "This notice about group %(group)s has been cancelled:"
+msgstr "Se ha cancelado este comunicado sobre el grupo %(group)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Notice sent to %(group)s: %(subject)s"
+msgstr "Comunicado enviado a %(group)s: %(subject)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "As tutor, here is a copy of the notice sent about group %(group)s:"
+msgstr "Como tutor o tutora, aquí tienes una copia del comunicado enviado sobre el grupo %(group)s:"

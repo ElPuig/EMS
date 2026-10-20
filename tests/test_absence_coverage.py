@@ -1851,6 +1851,64 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(correction.subject.startswith('Correction:'))
         self.assertEqual(sent.state, 'scheduled')
 
+    # The group's tutor gets a copy of every notice that moves its classes (issue #658).
+
+    def _tutor(self, group=None):
+        tutor = create_role_employee(self, create_role_user(self, 'teacher', 'test_tutor_tabc658'),
+                                     name='TABC 658 Tutor')
+        (group or self.group_a).tutor_id = tutor
+        return tutor
+
+    def _tutor_messages(self, tutor):
+        return self.env['mail.message'].search([('model', '=', 'ems.notice'), ('partner_ids', 'in', tutor.user_id.partner_id.ids)])
+
+    def test_the_tutor_gets_a_copy_of_the_students_notice(self):
+        self._can_send()
+        tutor = self._tutor()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        cover, _notice_action = self._apply(self._plans()[0])
+
+        notice = cover.student_notice_id
+        message = self._tutor_messages(tutor)
+        self.assertEqual(len(message), 1)
+        self.assertEqual(message.res_id, notice.id)
+        self.assertIn(notice.subject, message.subject)
+        self.assertIn(f'{self.subject.name}: from 11:00-12:00 to 08:00-09:00', message.body)
+
+    def test_the_tutor_gets_a_copy_of_the_families_notice_once_sent(self):
+        self._can_send()
+        tutor = self._tutor()
+        self._two_sides_day()
+        draft = self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 9.0)
+
+        self.assertFalse(self._tutor_messages(tutor), "a draft tells nobody")
+
+        self._apply_notices(('early_leave', 11.0), ('late_entry', 9.0))
+
+        notice = self._families_notices()
+        message = self._tutor_messages(tutor)
+        self.assertEqual((len(message), message.res_id), (1, notice.id))
+        self.assertIn('will finish classes at 11:00', message.body)
+        self.assertFalse(draft.exists())
+
+    def test_the_main_groups_tutors_get_a_copy_for_a_reinforcement_group(self):
+        tutor_a, tutor_b = self._tutor(), create_role_employee(
+            self, create_role_user(self, 'teacher', 'test_tutor_b_tabc658'), name='TABC 658 Tutor B')
+        self.group_b.tutor_id = tutor_b
+        reinforcement = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'TABC 658 Reinforcement',
+            'parent_group_ids': [(6, 0, (self.group_a | self.group_b).ids)]})
+        notice = self.Notice._create_arrangement_notice(reinforcement, self.day, {
+            'subject': 'TABC 658 moved lessons', 'message': '<p>TABC 658</p>', 'arrangement_lessons': []})
+
+        notice.state = 'scheduled'
+
+        self.assertEqual(len(self._tutor_messages(tutor_a)), 1)
+        self.assertEqual(len(self._tutor_messages(tutor_b)), 1)
+
     def _send_change(self, change_type, hour=0.0):
         return self.Notice.with_user(self.department_chief).board_send_absence_change(
             str(self.day), self.group_a.id, change_type, hour)

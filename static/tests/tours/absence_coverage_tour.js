@@ -281,3 +281,52 @@ registry.category("web_tour.tours").add("ems_change_proposal_plan", {
         },
     ],
 });
+
+// Issue #659: a group whose families were told something that no longer matches the absences is
+// in the red corrections box, its correction a step of every proposal; "Only tell the families",
+// the new early leave unchecked, sends the correction alone. Seed data comes from
+// TestAbsenceCoverageTour.test_corrections_box_tour.
+registry.category("web_tour.tours").add("ems_corrections_box", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_corrections .o_guard_board_section:contains('TABTG') .o_guard_board_notice_step.o_guard_board_action_rectification",
+            content: "The group is in the corrections box, its correction a step",
+        },
+        {
+            trigger: ".o_guard_board_corrections .o_guard_board_notice_step.o_guard_board_action_proposal:contains('Could leave') .o_guard_board_plan_check",
+            content: "Uncheck the new early leave: only the correction goes out",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_corrections .o_guard_board_notices_apply:enabled",
+            content: "Apply the checked steps",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_arrangements:not(.o_guard_board_corrections) .o_guard_board_section:contains('TABTG')",
+            content: "Nothing to correct any more: the group is back with the other proposals",
+        },
+    ],
+});

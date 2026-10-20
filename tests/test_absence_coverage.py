@@ -2187,8 +2187,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(correction.subject.startswith('Correction:'))
         self.assertIsNone(self._states()['entry']['status'], "nothing left to correct")
 
-    def test_a_plan_without_a_notice_to_the_group_carries_no_correction(self):
-        """Nothing goes to those families anyway: the correction box stays the way to send it."""
+    def test_every_plan_of_the_group_carries_its_correction(self):
+        """Even one that tells its families nothing else: the correction has to go out anyway, and
+        whoever only wants it unchecks the rest."""
         self._can_send()
         self._morning()
         refused = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9, approve=False)
@@ -2196,9 +2197,29 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         refused.action_refuse()
         self._absence(self.teacher_a, self.day, hour_from=10, hour_to=11)
 
-        for plan in self._plans():
-            if not any(step['kind'] == 'notice' for step in plan['steps']):
-                self.assertFalse(self._corrections(plan))
+        plans = self._plans()
+        self.assertTrue(plans)
+        for plan in plans:
+            self.assertEqual(self._corrections(plan), [(('normal_entry', 0.0), self.group_a)])
+
+    def test_the_correction_alone_and_a_notice_go_in_one_email(self):
+        """Only telling the families (the last proposal of a group with a correction pending):
+        the steps checked are applied together, one notice per group."""
+        self._can_send()
+        self._morning()
+        refused = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9, approve=False)
+        self._apply_notices(('late_entry', 9.0))
+        refused.action_refuse()
+        self._absence(self.teacher_b, self.day)
+
+        self.Cover.with_user(self.department_chief).board_apply_plan(str(self.day), [
+            {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': ['early_leave', 11.0]},
+            {'kind': 'correction', 'group_ids': self.group_a.ids, 'change': ['normal_entry', 0.0]}])
+
+        correction = self._families_notices().sorted('id')[-1]
+        self.assertEqual(len(self._families_notices()), 2)
+        self.assertEqual(sorted(correction._absence_change_tuples()), [('early_leave', 11.0), ('normal_entry', 0.0)])
+        self.assertTrue(correction.subject.startswith('Correction:'))
 
     def _told_late_entry(self):
         """teacher_a away 8-9 and the families told the group starts at 9:00."""

@@ -565,3 +565,17 @@
     line-height: inherit;
     vertical-align: baseline;
 }
+
+/* Issue #659: what the families were told and no longer matches the absences - urgent, in red
+   rather than the proposals' orange. */
+.o_guard_board_actions.o_guard_board_corrections {
+    border-color: #d9534f;
+    background-color: #fdf3f3;
+}
+
+/* "Only tell the families" with a correction pending: its rows are steps with a checkbox, applied
+   together like an arrangement plan's. */
+.o_guard_board_notice_step .o_guard_board_plan_check {
+    float: none;
+    margin: 0 6px 0 0;
+}

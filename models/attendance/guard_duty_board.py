@@ -1017,11 +1017,12 @@ class EmsCourseGuardDutyBoard(models.Model):
         return (reopen[0], reopen[1]) if reopen else None
 
     def _add_plan_corrections(self, plan, states):
-        """Adds to `plan` a 'correction' step for each side of the day of a group its notices tell
-        something to, whose families were told something that has to be corrected (issue #659):
-        the plan then sends one correction per group, never a notice and a correction apart.
+        """Adds to `plan` a 'correction' step for each side of the day of one of its groups whose
+        families were told something that has to be corrected (issue #659): the plan then sends one
+        correction per group, never a notice and a correction apart, and whoever only wants the
+        correction unchecks the rest.
         - A side whose communicated change no longer matches the absences: its correction, as
-          the correction box proposes it.
+          the correction alone would propose it.
         - The side being changed (see _reopened_side): its group always gets a correction. A
           notice of the plan on that side becomes it (dropped if it repeats what was told), and
           without one the correction puts that side back to the usual timetable.
@@ -1048,10 +1049,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     del steps[index]
                     for other in steps:
                         other['depends'] = [need - (need > index) for need in other['depends'] if need != index]
-        told_groups = Group.union(*(step['groups'] for step in steps if step['kind'] == 'notice'))
-        if reopen:
-            told_groups |= Group.browse(reopen[0])
-        for group in told_groups.sorted('name'):
+        for group in plan['groups'].sorted('name'):
             for side, state in states[group.id].items():
                 if state['status'] == 'rectification':
                     change = state['target']
@@ -1228,7 +1226,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         """JSON-safe version of one timetable change the planner can choose, as the board's
         selectors and ems.notice.board_send_absence_change take it."""
         return {'change_type': change[0], 'hour': change[1], 'hour_to': change[2] if len(change) > 2 else 0.0,
-                'label': self._absence_change_label(change)}
+                'change': list(change), 'label': self._absence_change_label(change)}
 
     def get_guard_duty_board_lines(self, weekday, shift, area_ids=None, day=None):
         """Board rows for one weekday + shift: the group columns actually taught in that slot

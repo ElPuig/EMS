@@ -139,6 +139,7 @@ export class GuardDutyBoard extends Component {
             // Which steps of each detected plan are checked (issue #645), by plan key: all of
             // them until the planner unchecks some. Forgotten on every reload.
             planSelections: {},
+            noticeSelections: {},
         });
         onWillStart(async () => {
             const [course, areas] = await Promise.all([
@@ -420,6 +421,7 @@ export class GuardDutyBoard extends Component {
     async loadBoard() {
         this.state.loading = true;
         this.state.planSelections = {};
+        this.state.noticeSelections = {};
         this.state.board = await this.orm.call(
             "ems.course",
             "get_guard_duty_board_data",
@@ -459,6 +461,8 @@ export class GuardDutyBoard extends Component {
             arrangementsTitle: _t("Proposals for the absences"),
             arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
             noticeOnly: _t("Only tell the families"),
+            correctionsTitle: _t("Corrections to absences already organised"),
+            correctionsHelp: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."),
             applyPlan: _t("Apply the checked steps"),
         };
     }
@@ -597,8 +601,10 @@ export class GuardDutyBoard extends Component {
     }
 
     // Issues #539, #605, #645: the day's proposals, one section per group (with the groups sharing
-    // lessons with it): what is waiting (an arrangement waiting for its notice, a correction), the
-    // arrangement plans, the best first, and the timetable changes alone.
+    // lessons with it): what is waiting (an arrangement waiting for its notice), the arrangement
+    // plans, the best first, and the timetable changes alone. A section with a correction pending
+    // is 'urgent' (issue #659): the correction is a step of every one of its proposals, the last
+    // one ("Only tell the families") included.
     get proposalSections() {
         const sections = new Map();
         for (const action of this.state.board.actions) {
@@ -606,13 +612,16 @@ export class GuardDutyBoard extends Component {
                 continue;
             }
             if (!sections.has(action.section_key)) {
-                sections.set(action.section_key, { key: action.section_key, title: action.section_title, waiting: [], plans: [], notices: [] });
+                sections.set(action.section_key, {
+                    key: action.section_key, title: action.section_title, waiting: [], plans: [], notices: [], urgent: false,
+                });
             }
             const section = sections.get(action.section_key);
             if (action.type === "arrangement_plan") {
                 section.plans.push(action);
-            } else if (action.type === "proposal") {
+            } else if (action.type === "proposal" || action.type === "rectification") {
                 section.notices.push(action);
+                section.urgent ||= action.type === "rectification";
             } else {
                 section.waiting.push(action);
             }
@@ -648,12 +657,33 @@ export class GuardDutyBoard extends Component {
     // for the planner to review and send: the moves it frees the group from only count once it is.
     // `reopen`: the side of a group's day whose notice the plan corrects (issue #659).
     async applyPlan(plan, selection, reopen = false) {
-        const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [
-            this.activeDate, selectedPlanSteps(plan, selection),
-        ], { reopen });
+        await this.applySteps(selectedPlanSteps(plan, selection), reopen);
+    }
+
+    async applySteps(steps, reopen = false) {
+        const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [this.activeDate, steps], { reopen });
         if (!(await this.openUnsentNotice(result))) {
             await this.loadBoard();
         }
+    }
+
+    // Issue #659: "Only tell the families" of a section with a correction pending, its rows as
+    // steps (all checked until the planner unchecks some): the checked ones go out together, one
+    // notice per group, a correction when it carries one.
+    isNoticeChecked(section, index) {
+        return this.state.noticeSelections[`${section.key}:${index}`] !== false;
+    }
+
+    toggleNotice(section, index, checked) {
+        this.state.noticeSelections[`${section.key}:${index}`] = checked;
+    }
+
+    async applyNotices(section) {
+        await this.applySteps(section.notices.filter((action, index) => this.isNoticeChecked(section, index)).map((action) => ({
+            kind: action.type === "rectification" ? "correction" : "notice",
+            group_ids: [action.group_id],
+            change: action.options[action.default].change,
+        })));
     }
 
     // A board action sends its notices at once (issue #652); one that could not be sent stays a

@@ -23310,3 +23310,15 @@ msgstr "S'enviarà una sola rectificació a l'alumnat i les famílies de %s."
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Correction sent."
 msgstr "Rectificació enviada."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Corrections to absences already organised"
+msgstr "Correcció d'absències prèviament assignades"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."
+msgstr "A les famílies d'aquests grups se'ls va comunicar alguna cosa que ja no coincideix amb les absències: envia'ls una rectificació com més aviat millor. Cada proposta ja la inclou, en un sol correu per grup; per enviar només la rectificació, desmarca la resta de passos."

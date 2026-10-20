@@ -238,3 +238,23 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertEqual(len(notices), 2, "the notice and one correction")
         self.assertTrue(notices[-1].subject.startswith('Correction:'))
         self.assertTrue(self.env['ems.absence_cover'].search([('group_id', '=', group.id), ('arrangement_type', '=', 'swap')]))
+
+    def test_corrections_box_tour(self):
+        """Issue #659: the families were told the group starts at 10:00, and the absence then moved
+        to 10-11. The group goes in the red corrections box; only telling the families, the chief
+        unchecks the new early leave and sends the correction alone."""
+        group = self._told_late_entry()
+        leave = self.env['hr.leave'].search([('employee_id.name', '=', 'Tour Absent Teacher')])
+        day = leave.request_date_from
+        leave.action_refuse()
+        self.env['hr.leave'].create({
+            'employee_id': leave.employee_id.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day, 'request_date_to': day, 'ems_full_day': False,
+            'request_hour_from': 10, 'request_hour_to': 11, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+
+        self.start_tour("/odoo", "ems_corrections_box", login=self.department_chief.login)
+
+        notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
+        self.assertEqual(len(notices), 2, "the notice and one correction")
+        self.assertEqual(notices[-1]._absence_change_tuples(), [('normal_entry', 0.0)])

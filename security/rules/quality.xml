@@ -185,5 +185,38 @@
             <field name="groups" eval="[(6, 0, [ref('ems.group_quality'), ref('ems.group_quality_admin'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
+        <!-- Meeting attendance (the NFC session of a minute). The teaching staff reach only the
+             sessions of the minutes they may write (whoever writes or approves the minute, and the
+             chain of command of whoever approves it), and only until the minute is approved: that is
+             how a tag left at home is corrected by hand, from the minute's "Correct the attendance".
+             Head of Studies, the secretariat and the administrator keep every session, as before
+             (Head of Studies implies the teacher group, so it needs a rule of its own). -->
+        <record model="ir.rule" id="rule_meeting_presence_minute_writer">
+            <field name="name">Meeting attendance: whoever writes its minute corrects it, until it is approved</field>
+            <field name="model_id" ref="ems.model_ems_meeting_presence"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_teacher')])]"/>
+            <field name="domain_force">[('minute_ids', 'any', [('state', '!=', 'approved'), '|', '|', ('redactor_employee_id.user_id', '=', user.id), ('approver_scope_user_ids', '=', user.id), ('approver_role_id.employee_ids.user_id', '=', user.id)])]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_meeting_presence_line_minute_writer">
+            <field name="name">Meeting attendance line: whoever writes its minute corrects it, until it is approved</field>
+            <field name="model_id" ref="ems.model_ems_meeting_presence_line"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_teacher')])]"/>
+            <field name="domain_force">[('presence_id.minute_ids', 'any', [('state', '!=', 'approved'), '|', '|', ('redactor_employee_id.user_id', '=', user.id), ('approver_scope_user_ids', '=', user.id), ('approver_role_id.employee_ids.user_id', '=', user.id)])]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_meeting_presence_oversight">
+            <field name="name">Meeting attendance: Head of Studies, the secretariat and the administrator see them all</field>
+            <field name="model_id" ref="ems.model_ems_meeting_presence"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_secretary'), ref('ems.group_academic_admin')])]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="rule_meeting_presence_line_oversight">
+            <field name="name">Meeting attendance line: Head of Studies, the secretariat and the administrator see them all</field>
+            <field name="model_id" ref="ems.model_ems_meeting_presence_line"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_secretary'), ref('ems.group_academic_admin')])]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
     </data>
 </odoo>

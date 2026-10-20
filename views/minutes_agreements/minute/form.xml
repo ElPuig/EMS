@@ -20,6 +20,9 @@
                                     confirm="The meeting starts and its minute opens for writing. Start it?"/>
                             <button name="action_back_to_draft" string="Back to preparing the meeting" type="object" invisible="not can_edit or state != 'meeting'"
                                     confirm="The meeting goes back to being prepared. Go back?"/>
+                            <button name="action_correct_attendance" string="Correct the attendance" type="object"
+                                    invisible="not can_edit or not presence_id or attendance_mode != 'nfc' or state == 'approved' or type_kind == 'record'"
+                                    help="Mark by hand whoever left their tag at home or had it fail, or justify an absence."/>
                             <button name="action_submit" string="Send for approval" type="object"
                                     invisible="not can_edit or state != 'meeting' and (state != 'draft' or type_kind != 'record')"
                                     confirm="The minute is sent to whoever approves it, and can no longer be written until it comes back. Send it?"/>

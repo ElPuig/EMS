@@ -34,7 +34,10 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
      grup). Només cal moure a **Persones que hi manquen** qui no hi hagi vingut.
    - **Amb el tag NFC:** indiqueu la **durada** i deseu l'acta. A la pestanya **Assistència**, **Obre el
      quiosc** obre la pantalla on cada persona passa el seu tag; **Tanca l'assistència** acaba la recollida
-     i omple les dues llistes: qui ha passat el tag hi ha assistit, la resta consta com a absent.
+     i omple les dues llistes: qui ha passat el tag hi ha assistit, la resta consta com a absent. Si algú
+     s'ha deixat el tag o no li ha funcionat, **Accions → Corregeix l'assistència** obre la sessió: si ja
+     està tancada, **Reobrir**, marqueu-lo a mà (present, o justificat amb la nota) i torneu a tancar-la.
+     Les llistes de l'acta s'actualitzen soles. Es pot fer fins que l'acta estigui aprovada.
 6. A la pestanya **Punts a tractar**, afegiu els temes propis de la reunió. L'**ordre del dia** no s'escriu:
    es forma sol a sota, amb l'aprovació de l'acta anterior (si n'hi ha), el seguiment dels acords (si en
    queden d'oberts), els vostres punts i els precs i preguntes.

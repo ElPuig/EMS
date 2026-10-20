@@ -7,9 +7,8 @@ from odoo.tests.common import TransactionCase
 from .common import create_role_employee, create_role_user
 
 
-class TestQualityMinuteRules(TransactionCase):
-    """Without record rules every teacher could read and write every minute, which is the gap these
-    rules close. Worth testing because access rights alone say nothing about *which* records."""
+class MinuteRulesFixtures:
+    """Two teachers, each in a department of their own, and a way to make a minute."""
 
     @classmethod
     def setUpClass(cls):
@@ -30,6 +29,11 @@ class TestQualityMinuteRules(TransactionCase):
                 'date': fields.Date.context_today(self.env['ems.minute'])}
         vals.update(overrides)
         return self.env['ems.minute'].create(vals)
+
+
+class TestQualityMinuteRules(MinuteRulesFixtures, TransactionCase):
+    """Without record rules every teacher could read and write every minute, which is the gap these
+    rules close. Worth testing because access rights alone say nothing about *which* records."""
 
     def test_a_teacher_reads_their_own_department_minute(self):
         minute = self._minute(self.dep_a)
@@ -171,3 +175,44 @@ class TestQualityMinuteRules(TransactionCase):
         })
         found = self.env['ems.quality.action'].with_user(self.user_a).search([('id', '=', action.id)])
         self.assertIn(action, found, "an action is visible to whoever has to do it, wherever it came from")
+
+
+class TestQualityMinuteAttendanceCorrection(MinuteRulesFixtures, TransactionCase):
+    """A tag left at home or a broken one: whoever runs the meeting corrects its NFC attendance by
+    hand, from the minute, while it is not approved. Head of Studies, the secretariat and the
+    administrator keep every session from Meetings > Attendance."""
+
+    def _nfc_minute(self):
+        public_a = self.env['hr.employee.public'].browse(self.employee_a.id)
+        public_b = self.env['hr.employee.public'].browse(self.employee_b.id)
+        return self._minute(
+            self.dep_a, attendance_mode='nfc', start_datetime=fields.Datetime.now(), duration=1.0,
+            redactor_employee_id=public_a.id, attendee_ids=[(6, 0, (public_a | public_b).ids)])
+
+    def test_whoever_writes_the_minute_corrects_its_attendance(self):
+        minute = self._nfc_minute()
+        action = minute.with_user(self.user_a).action_correct_attendance()
+        self.assertEqual((action['res_model'], action['res_id']), ('ems.meeting.presence', minute.presence_id.id))
+        line = minute.presence_id.line_ids.filtered(lambda item: item.employee_id.id == self.employee_b.id)
+        line.with_user(self.user_a).write({'state': 'present'})
+        self.assertEqual(line.method, 'manual')
+        self.assertIn(self.employee_b.id, minute.attendee_ids.ids, "the minute's lists follow the correction at once")
+
+    def test_an_attendee_who_does_not_write_it_cannot_correct_it(self):
+        minute = self._nfc_minute()
+        found = self.env['ems.meeting.presence'].with_user(self.user_b).search([('id', '=', minute.presence_id.id)])
+        self.assertFalse(found)
+
+    def test_an_approved_minute_freezes_its_attendance(self):
+        minute = self._nfc_minute()
+        minute.section_value_ids.filtered(lambda value: value.required).content = "<p>Discussed.</p>"
+        minute.action_submit()
+        minute.action_approve()
+        line = minute.presence_id.line_ids[:1]
+        with self.assertRaises(AccessError):
+            line.with_user(self.user_a).write({'state': 'absent'})
+
+    def test_head_of_studies_keeps_every_session(self):
+        minute = self._nfc_minute()
+        hos = create_role_user(self, 'head_of_studies', 'rules.attendance.hos@example.com', name='Rules Attendance HoS')
+        self.assertTrue(self.env['ems.meeting.presence'].with_user(hos).search([('id', '=', minute.presence_id.id)]))

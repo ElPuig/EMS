@@ -5615,6 +5615,7 @@ msgstr "Acta: Define un acta de reunión (reunión departamental, reunión de gr
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_minute_tree
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__minute_ids
 msgid "Minutes"
 msgstr "Actas"
 
@@ -25488,3 +25489,15 @@ msgstr "Si el usuario actual responde del acuerdo: una de las personas responsab
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "How to carry it out: links, instructions"
 msgstr "Cómo llevarlo a cabo: enlaces, instrucciones"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Correct the attendance"
+msgstr "Corregir la asistencia"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Mark by hand whoever left their tag at home or had it fail, or justify an absence."
+msgstr "Marque a mano a quien se ha dejado el tag o a quien no le ha funcionado, o justifique una ausencia."

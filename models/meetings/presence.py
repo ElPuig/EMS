@@ -147,6 +147,9 @@ class EmsMeetingPresence(models.Model):
         help="The language of the kiosk page. Whoever passes the tag is anonymous, so the page cannot follow their own language.",
     )
     line_ids = fields.One2many(string="People", comodel_name="ems.meeting.presence.line", inverse_name="presence_id")
+    # The minute that asked for this session, if any: whoever may write it may correct its
+    # attendance by hand (security/rules/quality.xml), and a correction updates its lists.
+    minute_ids = fields.One2many(string="Minutes", comodel_name="ems.minute", inverse_name="presence_id")
 
     convened_count = fields.Integer(string="Convened", compute="_compute_counts")
     present_count = fields.Integer(string="Present", compute="_compute_counts")

@@ -733,6 +733,23 @@ class EmsMinute(models.Model):
             presence.action_open()
         return {'type': 'ir.actions.act_url', 'url': presence.kiosk_url, 'target': 'new'}
 
+    def action_correct_attendance(self):
+        """The attendance session itself, to correct it by hand while the minute is not approved:
+        someone who left their tag at home, a broken tag, an absence to justify."""
+        self.ensure_one()
+        self.check_access('write')
+        if not self.presence_id:
+            raise UserError(_("This minute does not take attendance with the NFC tag."))
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Correct the attendance"),
+            'res_model': 'ems.meeting.presence',
+            'res_id': self.presence_id.id,
+            'view_mode': 'form',
+            'views': [(False, 'form')],
+            'target': 'current',
+        }
+
     def action_close_attendance(self):
         """Stop taking attendance: whoever has not passed the tag by now was absent."""
         self.ensure_one()

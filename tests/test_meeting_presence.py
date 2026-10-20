@@ -527,6 +527,9 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
     # -- access --------------------------------------------------------------------------
 
     def test_the_roles_that_convene_can_manage_sessions_and_a_teacher_cannot(self):
+        """A teacher only reaches the sessions of the minutes they write, to correct them by hand
+        (see TestQualityMinuteAttendanceCorrection): none of the others, and they create none."""
+        sessions = self.env['ems.meeting.presence']
         for role in ('head_of_studies', 'director', 'secretary', 'academic_admin'):
             user = create_role_user(self, role, f'test_presence_{role}')
             session = self.env['ems.meeting.presence'].with_user(user).create({
@@ -534,9 +537,9 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
             })
             session.action_open()
             self.assertEqual(session.state, 'open', role)
+            sessions |= session
         teacher = create_role_user(self, 'teacher', 'test_presence_teacher')
-        with self.assertRaises(AccessError):
-            self.env['ems.meeting.presence'].with_user(teacher).search([])
+        self.assertFalse(self.env['ems.meeting.presence'].with_user(teacher).search([('id', 'in', sessions.ids)]))
         with self.assertRaises(AccessError):
             self.env['ems.meeting.presence'].with_user(teacher).create({'name': 'Nope', 'scope': 'manual'})
 

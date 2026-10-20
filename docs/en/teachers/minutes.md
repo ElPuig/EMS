@@ -35,7 +35,10 @@ a meeting you attended, one of your department) opens **read-only**, with no act
      did not come to **Absentees**.
    - **With the NFC tag:** set the **duration** and save the minute. In the **Attendance** tab, **Open
      the kiosk** opens the screen where each person passes their tag; **Close attendance** ends it and
-     fills both lists: whoever passed the tag attended, everybody else is recorded as absent.
+     fills both lists: whoever passed the tag attended, everybody else is recorded as absent. If someone
+     left their tag at home or it failed, **Actions → Correct the attendance** opens the session: if it
+     is already closed, **Reopen** it, mark them by hand (present, or justified with a note) and close it
+     again. The minute's lists update by themselves. It can be done until the minute is approved.
 6. In the **Items to discuss** tab, add the meeting's own topics. The **agenda** is not typed in: it is
    put together below, with the approval of the previous minute (when there is one), the follow-up of the
    agreements (when some are still open), your items and any other business.

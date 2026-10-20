@@ -35,6 +35,9 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
    - **Con el tag NFC:** indicad la **duración** y guardad el acta. En la pestaña **Asistencia**, **Abrir
      el quiosco** abre la pantalla donde cada persona pasa su tag; **Cerrar la asistencia** termina la
      recogida y rellena las dos listas: quien ha pasado el tag ha asistido, el resto consta como ausente.
+     Si alguien se ha dejado el tag o no le ha funcionado, **Acciones → Corregir la asistencia** abre la
+     sesión: si ya está cerrada, **Reabrir**, marcadlo a mano (presente, o justificado con la nota) y
+     volved a cerrarla. Las listas del acta se actualizan solas. Se puede hacer hasta que el acta esté aprobada.
 6. En la pestaña **Puntos a tratar**, añadid los temas propios de la reunión. El **orden del día** no se
    escribe: se forma solo debajo, con la aprobación del acta anterior (si la hay), el seguimiento de los
    acuerdos (si quedan abiertos), vuestros puntos y los ruegos y preguntas.

@@ -141,11 +141,12 @@ sequenceDiagram
 | Director, Head of Studies (`ems.group_head_of_studies`) | Full |
 | Secretary (`ems.group_secretary`) | Full |
 | Academic administrator (`ems.group_academic_admin`) | Full |
-| Teacher and the rest | None: they only pass their tag |
+| Teacher (`ems.group_teacher`) | Read and write (lines: also create) the sessions of the minutes they may write, until the minute is approved; no new sessions |
+| The rest | None: they only pass their tag |
 
 The convener and managers of a meeting get no backend rights from those fields: they only decide who can open the kiosk from the meetings page.
 
-There are no record rules: the sessions are centre-wide by nature (a staff meeting has no branch of the hierarchy to be scoped to), and the roles above are the ones that convene one. The quality administrator is deliberately left out for now: that role cannot read the courses, rooms, departments or workgroups a session points at (it implies neither `ems.group_teacher` nor `ems.group_secretary`), so opening a session would fail on them. It joins when the quality work's minutes land (issue #497), which brings its own quality groups. The *Meetings* root menu and its *Attendance* entry are visible to the same groups.
+The roles above that convene sessions see them all (`rule_meeting_presence_oversight`, also needed because Head of Studies implies the teacher group). A teacher reaches a session only through its minute (`ems.meeting.presence.minute_ids`, the inverse of `ems.minute.presence_id`): `rule_meeting_presence_minute_writer` and its line twin match the minutes still not approved whose writer, approver (or their chain of command, `approver_scope_user_ids`) or approving post they are, in `security/rules/quality.xml`. That is how a tag left at home is corrected by hand: the minute's *Actions → Correct the attendance* (`action_correct_attendance`) opens the session's form, and the *Attendance* menu lists the same sessions for them. The quality administrator is deliberately left out for now: that role cannot read the courses, rooms, departments or workgroups a session points at (it implies neither `ems.group_teacher` nor `ems.group_secretary`), so opening a session would fail on them. It joins when the quality work's minutes land (issue #497), which brings its own quality groups. The *Meetings* root menu and its *Attendance* entry are visible to the same groups.
 
 ---
 
@@ -153,10 +154,10 @@ There are no record rules: the sessions are centre-wide by nature (a staff meeti
 
 A session can be created on its own (Head of Studies, secretariat) or **by a minute**: whoever sets a minute up chooses, in the form, whether attendance is written by hand or taken with the NFC tag (`ems.minute.attendance_mode`). With the tag, saving the minute creates its session (`ems.minute.presence_id`, `_ems_sync_presence()`):
 
-- **With sudo.** A teacher has no access to `ems.meeting.presence`, yet writes minutes. The session of a minute is created for them, with the writer as `convener_id`, so the meetings page opens its kiosk with their own tag and the minute's *Open the kiosk* button does the same from the form.
+- **With sudo.** A teacher writes minutes but only reaches a session through one of them (see Access control). The session of a minute is created for them, with the writer as `convener_id`, so the meetings page opens its kiosk with their own tag and the minute's *Open the kiosk* button does the same from the form.
 - **One convened list, the minute's.** The session's lines are the attendees the minute preloaded from its scope, not a second list worked out by the session's own scope rules.
 - **The session follows the minute while it is a draft** (start, duration, room, name), and is deleted if the minute goes back to a hand-written list before anybody opened it. Once opened it is left alone.
-- **The result goes back to the minute** (`ems.minute._ems_sync_attendance()`): lines `present` become `attendee_ids`, every other line `absentee_ids`, and justified absences are written to `absence_notes` with their reason. It runs when the session is closed, from the minute's *Close attendance* button or from the session's own screen, and again when the minute is sent for approval. An approved minute is never touched.
+- **The result goes back to the minute** (`ems.minute._ems_sync_attendance()`): lines `present` become `attendee_ids`, every other line `absentee_ids`, and justified absences are written to `absence_notes` with their reason. It runs when the session is closed, from the minute's *Close attendance* button or from the session's own screen, when a line is changed by hand (`ems.meeting.presence.line._ems_sync_minutes()`, so a correction reaches the minute without closing the session again), and again when the minute is sent for approval. An approved minute is never touched.
 
 Still to do, in `plans/meeting_presence_minute_integration.md`: a single implementation of the scope rules, and the quality roles as session managers.
 

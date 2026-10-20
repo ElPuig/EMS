@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from unittest.mock import patch
+
 from odoo import fields
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
@@ -8,13 +10,19 @@ from .common import create_role_employee, create_role_user
 
 
 class TestQualityActionRules(TransactionCase):
-    """Agreements and actions follow the chain of command, as minutes do: whoever answers for one
-    and everybody above them in the hierarchy, plus the chain of the department or group it
-    belongs to - never every holder of a post centre-wide. The follow-up goes with its action."""
+    """Agreements and actions follow the chain of command, as minutes do, never every holder of a
+    post centre-wide. Three ways of being in one: whoever manages its content (the chain of the
+    department or group it belongs to, the minute's writer and approver while it is not approved),
+    the responsible people, who report its progress (the follow-up), and the people involved, who
+    only read it and hear of its progress."""
 
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # A follow-up notifies the agreement's followers: no real email may leave a test.
+        mail_patcher = patch('odoo.addons.base.models.ir_mail_server.IrMailServer.send_email')
+        mail_patcher.start()
+        cls.addClassCleanup(mail_patcher.stop)
         cls.type = cls.env.ref('__import__.minute_type_dep')
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)
         cls.dep_a = cls.env['hr.department'].create({'name': 'Action Rules Department A'})
@@ -48,6 +56,9 @@ class TestQualityActionRules(TransactionCase):
         cls.secretary = create_role_user(cls, 'secretary', 'arules.secretary@example.com', name='ARules Secretary')
         create_role_employee(cls, cls.secretary, employee_type='asp')
 
+        cls.teacher_d = create_role_user(cls, 'teacher', 'arules.teacher.d@example.com', name='ARules Involved Teacher')
+        cls.teacher_d_employee = create_role_employee(cls, cls.teacher_d, department_id=cls.dep_c.id)
+
         cls.committee = create_role_user(cls, 'quality', 'arules.committee@example.com', name='ARules Committee')
         cls.admin = create_role_user(cls, 'academic_admin', 'arules.admin@example.com', name='ARules Admin')
 
@@ -55,6 +66,7 @@ class TestQualityActionRules(TransactionCase):
             'name': 'Review the practical assessment criteria', 'department_id': cls.dep_a.id,
             'course_id': cls.course.id,
             'responsible_employee_ids': [(6, 0, [cls.teacher_b_employee.id])],
+            'involved_employee_ids': [(6, 0, [cls.teacher_d_employee.id])],
         })
         cls.followup = cls.env['ems.quality.followup'].create({
             'action_id': cls.action.id, 'description': 'Draft criteria shared.',
@@ -63,11 +75,21 @@ class TestQualityActionRules(TransactionCase):
     def _reads(self, user, record):
         return bool(record.with_user(user).search([('id', '=', record.id)]))
 
-    def _writes(self, user):
-        self.action.with_user(user).write({'resources': f'Checked by {user.name}'})
-        self.env['ems.quality.followup'].with_user(user).create({
+    def _follows_up(self, user):
+        return self.env['ems.quality.followup'].with_user(user).create({
             'action_id': self.action.id, 'description': f'Follow-up by {user.name}',
         })
+
+    def _writes(self, user):
+        self.action.with_user(user).write({'resources': f'Checked by {user.name}'})
+        self._follows_up(user)
+
+    def _only_follows_up(self, user):
+        self._follows_up(user)
+        self.assertTrue(self.action.with_user(user).can_follow_up)
+        self.assertFalse(self.action.with_user(user).can_edit)
+        with self.assertRaises(AccessError):
+            self.action.with_user(user).write({'name': 'What the meeting did not agree'})
 
     def test_a_department_member_reads_it_but_does_not_write_it(self):
         self.assertTrue(self._reads(self.teacher_a, self.action))
@@ -83,11 +105,33 @@ class TestQualityActionRules(TransactionCase):
         self.assertFalse(self._reads(self.teacher_c, self.action))
         self.assertFalse(self._reads(self.teacher_c, self.followup))
 
-    def test_the_responsible_person_writes_it_and_follows_it_up(self):
-        self._writes(self.teacher_b)
+    def test_the_responsible_person_follows_it_up_but_does_not_change_it(self):
+        self._only_follows_up(self.teacher_b)
 
-    def test_the_chain_of_command_of_the_responsible_person_writes_it(self):
-        self._writes(self.chief_b)
+    def test_the_chain_of_command_of_the_responsible_person_follows_it_up(self):
+        self._only_follows_up(self.chief_b)
+
+    def test_the_holders_of_the_responsible_post_follow_it_up(self):
+        role = self.env['ems.role'].create({'name': 'ARules Responsible Post', 'employee_type': 'teacher',
+                                            'employee_ids': [(6, 0, [self.teacher_d_employee.id])]})
+        self.action.responsible_role_id = role
+        self._only_follows_up(self.teacher_d)
+
+    def test_the_people_involved_read_it_and_hear_of_its_progress(self):
+        """They are the ones who have to do something about it, not the ones who manage it."""
+        self.assertTrue(self._reads(self.teacher_d, self.action))
+        self.assertTrue(self._reads(self.teacher_d, self.followup))
+        self.assertFalse(self.action.with_user(self.teacher_d).can_follow_up)
+        with self.assertRaises(AccessError):
+            self.action.with_user(self.teacher_d).write({'resources': 'Not mine to change'})
+        with self.assertRaises(AccessError):
+            self._follows_up(self.teacher_d)
+        self.assertIn(self.teacher_d.partner_id, self.action.message_partner_ids)
+        self.assertIn(self.teacher_b.partner_id, self.action.message_partner_ids)
+        self._follows_up(self.teacher_b)
+        message = self.action.message_ids.filtered(lambda message: 'Follow-up by ARules Teacher B' in (message.body or ''))
+        self.assertTrue(message, "adding a follow-up entry tells the agreement's followers")
+        self.assertIn(self.teacher_d.partner_id, message.notified_partner_ids)
 
     def test_the_chain_of_command_of_the_department_writes_it(self):
         self.assertIn(self.hos, self.chief_a_employee.tutor_scope_user_ids)
@@ -130,7 +174,9 @@ class TestQualityActionRules(TransactionCase):
         self.assertTrue(self._reads(self.teacher_c, agreement), "an attendee still reads what was agreed")
         with self.assertRaises(AccessError):
             agreement.with_user(self.teacher_c).write({'deadline_text': 'Changed after approval'})
-        agreement.with_user(self.teacher_b).write({'deadline_text': 'Moved by the responsible person'})
+        self.env['ems.quality.followup'].with_user(self.teacher_b).create({
+            'action_id': agreement.id, 'description': 'Rubric shared with the department',
+        })
 
     def test_whoever_creates_an_action_outside_a_minute_keeps_writing_it(self):
         action = self.env['ems.quality.action'].with_user(self.teacher_c).create({

@@ -7110,6 +7110,7 @@ msgstr "Dissabte"
 #. module: ems
 #. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_followup_form
 msgid "Save"
 msgstr "Desar"
 
@@ -19638,6 +19639,7 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -20849,6 +20851,7 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_quality_edit_mode__can_edit
 #: model:ir.model.fields,help:ems.field_ems_quality_procedure__can_edit
 #: model:ir.model.fields,help:ems.field_ems_quality_process__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_action__can_edit
 msgid "Whether the current user may write this record."
 msgstr "Si l'usuari actual pot modificar aquest registre."
 
@@ -25398,3 +25401,57 @@ msgstr "Cadena de comandament dels responsables"
 #: code:addons/ems/models/quality/action.py:0
 msgid "Unsupported search on responsible_scope_user_ids"
 msgstr "Cerca no admesa sobre responsible_scope_user_ids"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__involved_employee_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "People involved"
+msgstr "Persones implicades"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__involved_employee_ids
+msgid "They read the agreement and its follow-up and are told of its progress, but do not manage it."
+msgstr "Llegeixen l'acord i el seu seguiment i se'ls avisa de com avança, però no el gestionen."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__can_follow_up
+msgid "Can follow it up"
+msgstr "Pot fer-ne el seguiment"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__can_follow_up
+msgid "Whether the current user may add follow-up entries."
+msgstr "Si l'usuari actual pot afegir entrades de seguiment."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/action.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "Add follow-up"
+msgstr "Afegeix seguiment"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/followup.py:0
+msgid "Follow-up (%(state)s): %(description)s"
+msgstr "Seguiment (%(state)s): %(description)s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "Tell how the agreement is progressing: the entry sets its state and reaches its followers."
+msgstr "Expliqueu com avança l'acord: l'entrada en fixa l'estat i arriba als seus seguidors."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Where I am involved"
+msgstr "Els que m'impliquen"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Involved"
+msgstr "Implicades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_followup_form
+msgid "Discard"
+msgstr "Descarta"

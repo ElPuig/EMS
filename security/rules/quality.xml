@@ -57,17 +57,19 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
 
-        <!-- Agreements and actions follow the chain of command, like minutes (see above), instead of
-             the posts: the secretariat, every Head of Studies, the Director and every Department
-             Chief used to see and edit them all. Read: whoever reads the minute of the same scope
-             (its department, workgroup or group, the staff meeting; its attendees, writer and
-             approver), the responsible people and their chain (responsible_scope_user_ids, built on
-             tutor_scope_user_ids), the holders of the responsible post, and whoever created an
-             action that came from no minute. Write: the responsible people and their chain, the
-             holders of the responsible post and the chain of the department or the group's tutor;
-             while its minute is not approved, whoever writes or approves the minute and whoever
-             added the agreement to it; the creator of an action from no minute. The follow-up goes
-             with its action (same domains through action_id). -->
+        <!-- Agreements and actions follow the chain of command, like minutes (see above), never
+             every holder of a post. Three ways of being in one:
+             - Whoever manages its content (what was agreed, its scope, responsible and involved
+               people, deadline): the chain of the department's Department or Seminar Chief and of
+               the group's tutor; while its minute is not approved, whoever writes or approves the
+               minute and whoever added the agreement to it; the creator of an action from no minute.
+             - The responsible people, the holders of the responsible post and the chain of command
+               above those people (responsible_scope_user_ids, built on tutor_scope_user_ids): they
+               report its progress (the follow-up, which drives its state) but do not change it.
+             - The people involved: they read it and its follow-up and are told of its progress.
+             Reading also reaches whoever reads a minute of the same scope (its department, workgroup
+             or group, a staff meeting; the minute's attendees, writer and approver). The follow-up
+             goes by the same domains through action_id. -->
         <record model="ir.rule" id="rule_quality_action_teacher">
             <field name="name">Actions: the staff sees those of its scopes, its minutes and its chain of command</field>
             <field name="model_id" ref="ems.model_ems_quality_action"/>
@@ -76,9 +78,10 @@
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+            <field name="domain_force">['|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
                 ('responsible_scope_user_ids', '=', user.id),
                 ('responsible_role_id.employee_ids.user_id', '=', user.id),
+                ('involved_employee_ids.user_id', '=', user.id),
                 ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
                 ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
                 ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
@@ -93,16 +96,14 @@
         </record>
 
         <record model="ir.rule" id="rule_quality_action_teacher_write">
-            <field name="name">Actions: the responsible people, their chain of command and the minute writers edit them</field>
+            <field name="name">Actions: whoever manages the content edits it</field>
             <field name="model_id" ref="ems.model_ems_quality_action"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary')])]"/>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="True"/>
-            <field name="domain_force">['|', '|', '|', '|', '|', '|',
-                ('responsible_scope_user_ids', '=', user.id),
-                ('responsible_role_id.employee_ids.user_id', '=', user.id),
+            <field name="domain_force">['|', '|', '|', '|',
                 ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
                 ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
                 ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
@@ -118,9 +119,10 @@
             <field name="perm_write" eval="False"/>
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
-            <field name="domain_force">[('action_id', 'any', ['|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
+            <field name="domain_force">[('action_id', 'any', ['|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|', '|',
                     ('responsible_scope_user_ids', '=', user.id),
                     ('responsible_role_id.employee_ids.user_id', '=', user.id),
+                    ('involved_employee_ids.user_id', '=', user.id),
                     ('department_id.manager_id.tutor_scope_user_ids', '=', user.id),
                     ('department_id.seminar_chief_id.tutor_scope_user_ids', '=', user.id),
                     ('group_id.tutor_id.tutor_scope_user_ids', '=', user.id),
@@ -135,7 +137,7 @@
         </record>
 
         <record model="ir.rule" id="rule_quality_followup_teacher_write">
-            <field name="name">Follow-up: whoever may edit the action follows it up</field>
+            <field name="name">Follow-up: the content managers, the responsible people and their chain of command report progress</field>
             <field name="model_id" ref="ems.model_ems_quality_followup"/>
             <field name="groups" eval="[(6, 0, [ref('ems.group_teacher'), ref('ems.group_secretary')])]"/>
             <field name="perm_read" eval="False"/>

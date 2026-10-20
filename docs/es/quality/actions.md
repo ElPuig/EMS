@@ -23,19 +23,25 @@ reunión, acciones de mejora, o correctivas y preventivas.
 
 ## Quién ve y quién modifica un acuerdo
 
-- **Lo ve**: quien puede leer el acta de la que sale o de su ámbito (el departamento, el grupo de
-  trabajo, el grupo, todo el centro si es de claustro; quien asistió, quien la redacta y quien la
-  valida), las personas responsables, quien ocupa el cargo responsable y, por encima de todos ellos,
-  su cadena de mando: jefe de departamento o de seminario, jefe de estudios o jefe de estudios adjunto
-  y director.
-- **Lo modifica y le añade seguimiento**: las personas responsables y su cadena de mando, quien ocupa
-  el cargo responsable y la cadena del departamento o del tutor del grupo. Mientras el acta no está
-  aprobada, también quien la redacta o la valida. Una acción que no sale de ningún acta, también quien
-  la creó.
-- La **comisión de calidad**, la **coordinación de calidad** y el **administrador** los ven y
-  modifican todos.
+Un acuerdo distingue tres maneras de estar en él:
 
-Si abre un acuerdo que solo puede leer, se abre en modo de solo lectura.
+- **Quien gestiona su contenido** (qué se acordó, el ámbito, los responsables, las personas
+  implicadas, el plazo): la cadena de mando del departamento o del tutor del grupo (jefe de
+  departamento o de seminario, jefe de estudios o jefe de estudios adjunto, director) y, mientras el
+  acta no está aprobada, quien la redacta o la valida. Una acción que no sale de ningún acta, también
+  quien la creó.
+- **Las personas responsables** y quien ocupa el **cargo responsable**: llevan su avance. Le añaden
+  entradas de seguimiento con **Acciones → Añadir seguimiento**, pero no cambian su contenido. Su
+  cadena de mando también puede hacerlo en su lugar. Puede ser responsable cualquier persona, tenga
+  cargo o no.
+- **Las personas implicadas**: las que tienen que hacer algo por el acuerdo (por ejemplo, todo el
+  departamento actualiza las programaciones). Pueden leerlo, con su seguimiento, y reciben un aviso
+  cada vez que se le añade una entrada.
+
+También pueden leerlo quienes pueden leer el acta de la que sale o las de su ámbito. La **comisión de
+calidad**, la **coordinación de calidad** y el **administrador** los ven y modifican todos.
+
+Si abre un acuerdo que no puede modificar, se abre en modo de solo lectura.
 
 ## Crear un acuerdo
 

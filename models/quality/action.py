@@ -44,11 +44,23 @@ class EmsQualityAction(models.Model):
         column1="action_id",
         column2="employee_id",
     )
+    # Whoever has to do something about it (a whole department updating its syllabuses) without
+    # managing it: they read it and its follow-up, and hear of its progress as followers.
+    involved_employee_ids = fields.Many2many(
+        string="People involved",
+        comodel_name="hr.employee.public",
+        relation="ems_quality_action_involved_employee_rel",
+        column1="action_id",
+        column2="employee_id",
+        help="They read the agreement and its follow-up and are told of its progress, but do not manage it.",
+    )
     # The responsible people and everybody above them in the chain of command (their Department
     # or Seminar Chief, Head or Deputy Head of Studies, the Director): what the record rules match.
+    # compute_sudo: Odoo checks record rules in memory (filtered_domain), which computes this very
+    # field; computed as the user, its own read of the record would hit that check half-computed.
     responsible_scope_user_ids = fields.Many2many(
         string="Responsible chain of command", comodel_name="res.users",
-        compute="_compute_responsible_scope_user_ids", search="_search_responsible_scope_user_ids")
+        compute="_compute_responsible_scope_user_ids", search="_search_responsible_scope_user_ids", compute_sudo=True)
     deadline_date = fields.Date(string="Deadline", tracking=True)
     # Real deadlines are often prose ("by the final meeting of the year"), so both are kept: the
     # date is what the overdue filter uses, the text is what the minute actually said.
@@ -74,7 +86,7 @@ class EmsQualityAction(models.Model):
     department_id = fields.Many2one(string="Department", comodel_name="hr.department", tracking=True)
     workgroup_id = fields.Many2one(string="Workgroup", comodel_name="ems.workgroup", tracking=True)
     group_id = fields.Many2one(string="Group", comodel_name="ems.group", tracking=True)
-    is_centre = fields.Boolean(string="Centre-wide", help="For agreements of a staff meeting or of the management review, which hang off no department.")
+    is_centre = fields.Boolean(string="Centre-wide", tracking=True, help="For agreements of a staff meeting or of the management review, which hang off no department.")
     scope_name = fields.Char(string="Scope", compute="_compute_scope_name", store=True)
     followup_ids = fields.One2many(string="Follow-up", comodel_name="ems.quality.followup", inverse_name="action_id")
     state = fields.Selection(
@@ -86,6 +98,7 @@ class EmsQualityAction(models.Model):
         help="Derived from the latest follow-up entry: to move it forward, add one.",
     )
     is_late = fields.Boolean(string="Overdue", compute="_compute_is_late", store=True)
+    can_follow_up = fields.Boolean(string="Can follow it up", compute="_compute_can_follow_up", help="Whether the current user may add follow-up entries.")
     active = fields.Boolean(string="Active", default=True)
 
     @api.depends('department_id', 'workgroup_id', 'group_id', 'is_centre')
@@ -120,6 +133,16 @@ class EmsQualityAction(models.Model):
         responsibles = self.env['hr.employee'].sudo().with_context(active_test=False).search([('tutor_scope_user_ids', operator, value)])
         return [('responsible_employee_ids', 'in', responsibles.ids)]
 
+    @api.depends('responsible_employee_ids', 'responsible_role_id')
+    @api.depends_context('uid')
+    def _compute_can_follow_up(self):
+        """Whoever manages the content, and the responsible people, the holders of the responsible
+        post and their chain of command: the same split as the follow-up's record rules."""
+        user = self.env.user
+        for action in self:
+            action.can_follow_up = (action.can_edit or user in action.responsible_scope_user_ids
+                                    or user in action.responsible_role_id.sudo().employee_ids.user_id)
+
     @api.depends('deadline_date', 'state')
     def _compute_is_late(self):
         today = fields.Date.context_today(self)
@@ -132,6 +155,17 @@ class EmsQualityAction(models.Model):
         Department Chief and its Seminar Chief, when it has one."""
         department = self.env['hr.department'].sudo().browse(department.id if department else False)
         return self.env['hr.employee.public'].browse((department.manager_id | department.seminar_chief_id).ids)
+
+    @api.onchange('is_centre')
+    def _onchange_is_centre(self):
+        """One scope at a time: a centre-wide agreement belongs to no department, group or workgroup."""
+        if self.is_centre:
+            self.department_id = self.workgroup_id = self.group_id = False
+
+    @api.onchange('department_id', 'workgroup_id', 'group_id')
+    def _onchange_scope_unit(self):
+        if self.department_id or self.workgroup_id or self.group_id:
+            self.is_centre = False
 
     @api.model
     def default_get(self, fields_list):
@@ -165,7 +199,37 @@ class EmsQualityAction(models.Model):
                     vals['responsible_employee_ids'] = [(6, 0, chiefs.ids)]
             if not vals.get('code'):
                 vals['code'] = self.new(vals)._next_code()
-        return super().create(vals_list)
+        actions = super().create(vals_list)
+        actions._ems_subscribe_people()
+        return actions
+
+    def write(self, vals):
+        result = super().write(vals)
+        if {'responsible_employee_ids', 'involved_employee_ids'} & set(vals):
+            self._ems_subscribe_people()
+        return result
+
+    def _ems_subscribe_people(self):
+        """The responsible people and the people involved follow the agreement, so its progress
+        reaches them. With sudo: subscribing somebody else is not what the record rules decide."""
+        for action in self.sudo():
+            partners = (action.responsible_employee_ids | action.involved_employee_ids).user_id.partner_id
+            if partners:
+                action.message_subscribe(partner_ids=partners.ids)
+
+    def action_add_followup(self):
+        """A follow-up entry in a dialog: the responsible people report progress from here, on an
+        agreement whose content they may only read."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Add follow-up"),
+            'res_model': 'ems.quality.followup',
+            'view_mode': 'form',
+            'views': [(self.env.ref('ems.view_quality_followup_form').id, 'form')],
+            'target': 'new',
+            'context': {'default_action_id': self.id},
+        }
 
     def _latest_followup(self):
         """The most recent follow-up entry, by date and then by creation order.

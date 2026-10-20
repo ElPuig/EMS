@@ -23,18 +23,23 @@ improvement actions, or corrective and preventive ones.
 
 ## Who sees and who changes an agreement
 
-- **Sees it**: whoever can read the minute it comes from or its scope (the department, the workgroup,
-  the group, the whole centre for a staff meeting; those who attended, who writes it and who approves
-  it), the responsible people, whoever holds the responsible post and, above all of them, their chain
-  of command: Department or Seminar Chief, Head or Deputy Head of Studies and Director.
-- **Changes it and adds follow-up**: the responsible people and their chain of command, whoever holds
-  the responsible post and the chain of the department or of the group's tutor. While the minute is
-  not approved, also whoever writes or approves it. An action that comes from no minute, also whoever
-  created it.
-- The **quality committee**, **quality coordination** and the **administrator** see and change them
-  all.
+An agreement tells apart three ways of being in it:
 
-An agreement you may only read opens in read-only mode.
+- **Whoever manages its content** (what was agreed, its scope, the responsible people, the people
+  involved, the deadline): the chain of command of the department or of the group's tutor (Department
+  or Seminar Chief, Head or Deputy Head of Studies, Director) and, while the minute is not approved,
+  whoever writes or approves it. An action that comes from no minute, also whoever created it.
+- **The responsible people** and whoever holds the **responsible post**: they carry its progress.
+  They add follow-up entries with **Actions → Add follow-up**, but do not change its content. Their
+  chain of command may also do it in their place. Anyone can be responsible, with or without a post.
+- **The people involved**: those who have to do something about the agreement (for instance, the whole
+  department updates its syllabuses). They can read it, with its follow-up, and are notified every
+  time an entry is added.
+
+Whoever can read the minute it comes from, or those of its scope, can read it too. The **quality
+committee**, **quality coordination** and the **administrator** see and change them all.
+
+An agreement you may not change opens in read-only mode.
 
 ## Creating an agreement
 

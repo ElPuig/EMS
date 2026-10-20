@@ -828,6 +828,8 @@ v18.0.0.38.1. Nothing is in flight.
    `security/rules/communications.xml` moved from `group_quality_admin` to `group_quality` (which it implies).
 2. ~~Agreements' record rules~~: done 2026-10-20, they follow the chain of command like the minutes'
    (see `docs/en/developers/quality/quality_overview.md`, Access control); the follow-up now has rules too.
+   Split decided with the developer the same day: content managers, responsible people (progress only, via
+   follow-up entries) and the new *People involved* (read and notified only); the deadline is content.
 3. **Stored title in the writer's language**: `ems.minute.name`/`scope_name` are stored computes, so they are
    saved in the language of whoever triggers the recompute (a Spanish-language teacher would store
    "Informática"). Proposed fix: compute them in the centre's language (`_ems_centre_lang()`), as the PDF

@@ -8,6 +8,11 @@
                 <!-- Read-only for whoever may only read it (ems_can_edit_form, from can_edit). -->
                 <form js_class="ems_can_edit_form">
                     <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_add_followup" type="object" string="Add follow-up"
+                                    invisible="not can_follow_up"
+                                    help="Tell how the agreement is progressing: the entry sets its state and reaches its followers."/>
+                        </div>
                         <!-- Readonly on purpose: the state is derived from the follow-up entries, so
                              moving this forward means adding one and saying why. -->
                         <field name="state" widget="statusbar" readonly="1"/>
@@ -23,6 +28,7 @@
                                 <field name="type"/>
                                 <field name="responsible_role_id"/>
                                 <field name="responsible_employee_ids" widget="many2many_tags"/>
+                                <field name="involved_employee_ids" widget="many2many_tags"/>
                                 <field name="resources"/>
                             </group>
                             <group string="Deadline">
@@ -32,6 +38,7 @@
                                 <field name="minute_id" readonly="1"/>
                                 <field name="is_late" invisible="1"/>
                                 <field name="can_edit" invisible="1"/>
+                                <field name="can_follow_up" invisible="1"/>
                             </group>
                         </group>
                         <group string="Scope">

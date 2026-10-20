@@ -267,8 +267,8 @@ workgroup).
 | `ems.quality.process` | — | R | R | R | R+W | R | R+W |
 | `ems.quality.procedure` | — | R | R | R | R+W | R | R+W |
 | `ems.quality.document` | R | R+W | R | R | R+W | R | R+W |
-| `ems.quality.action` | R own scopes, W own | R own scopes, W their line | R+W their line | R own scopes | R+W all | R+W all | R+W their line |
-| `ems.quality.followup` | as its action | as its action | as its action | as its action | R+W all | R+W all | as its action |
+| `ems.quality.action` | R own scopes, W content of their actions out of a minute | R own scopes, W content in their line | R+W content in their line | R own scopes | R+W all | R+W all | R+W content in their line |
+| `ems.quality.followup` | R as its action, W when responsible | R as its action, W when responsible or in their line | R as its action, W in their line | R as its action | R+W all | R+W all | R as its action, W in their line |
 | `ems.minute` | R own scopes, W own | R+W own, R their departments | R their line | R own scopes, W own | R all, W | R all | R their line |
 
 `ems.minute` (`security/rules/quality.xml`): "own scopes" are the minutes of the user's departments,
@@ -282,16 +282,27 @@ administrator see every minute. Writing stays with whoever writes or approves th
 approved.
 
 `ems.quality.action` and `ems.quality.followup` (same file; the follow-up uses its action's domains through
-`action_id`) go by the same chain of command. Read: whoever reads a minute of the same scope (its
-department, workgroup or group, a staff meeting; the minute's attendees, writer and approver), the
-responsible people and everybody above them (`responsible_scope_user_ids`, non-stored and searchable, built
-on `tutor_scope_user_ids` like the minute's `approver_scope_user_ids`), the holders of the responsible post,
-and the creator of an action that comes from no minute. Write: the responsible people and their chain, the
-holders of the responsible post, the chain of the department's Department or Seminar Chief and of the
-group's tutor; while its minute is not approved, whoever writes or approves the minute and whoever added the
-agreement to it; the creator of an action from no minute. The committee, quality coordination and the
-administrator see and write them all. The form uses `ems_can_edit_form` (`static/src/js/backend/can_edit_form.js`,
-also the base of the minute's form controller) to open read-only for whoever may only read the record.
+`action_id`) go by the same chain of command, with three ways of being in an agreement:
+
+- **Content managers** write the action itself (what was agreed, scope, responsible and involved people,
+  deadline): the chain of the department's Department or Seminar Chief and of the group's tutor; while its
+  minute is not approved, whoever writes or approves the minute and whoever added the agreement to it; the
+  creator of an action from no minute.
+- **Responsible people** (`responsible_employee_ids`), the holders of `responsible_role_id` and everybody
+  above those people (`responsible_scope_user_ids`, non-stored and searchable, built on
+  `tutor_scope_user_ids` like the minute's `approver_scope_user_ids`) only create follow-up entries, which
+  drive the state. The form shows them the agreement read-only, with *Actions → Add follow-up*
+  (`action_add_followup`, a dialog on `view_quality_followup_form`) gated by `can_follow_up`.
+- **People involved** (`involved_employee_ids`) only read it and its follow-up.
+
+Reading also reaches whoever reads a minute of the same scope (its department, workgroup or group, a staff
+meeting; the minute's attendees, writer and approver). The committee, quality coordination and the
+administrator see and write them all. Responsible and involved people are subscribed as followers
+(`_ems_subscribe_people`, sudo) and every follow-up entry is posted to the agreement as a comment
+(`ems.quality.followup._ems_notify_followers`), which is how they hear of its progress. The scope is one at a
+time: `is_centre` empties department, group and workgroup in the form, and the other way round. The form uses
+`ems_can_edit_form` (`static/src/js/backend/can_edit_form.js`, also the base of the minute's form controller)
+to open read-only for whoever may not write it.
 
 Escalation follows the **real hierarchy**, not flat group membership: a department head sees their own
 department's scope, and above them their own head of studies and management — not every holder of those

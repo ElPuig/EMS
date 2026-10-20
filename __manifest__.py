@@ -97,6 +97,7 @@
             'views/quality/document/form.xml',
             'views/quality/document/search.xml',
             'views/quality/document/menu.xml',
+            'views/quality/followup/form.xml',
             'views/quality/action/list.xml',
             'views/quality/action/form.xml',
             'views/quality/action/search.xml',

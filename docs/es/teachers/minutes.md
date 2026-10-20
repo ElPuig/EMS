@@ -40,7 +40,8 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
    acuerdos (si quedan abiertos), vuestros puntos y los ruegos y preguntas.
    En la pestaña **Contenido**, rellenad cada sección que el tipo de acta pide.
    Las marcadas como obligatorias hay que rellenarlas antes de poder aprobar el acta.
-7. En **Acuerdos**, añadid los acuerdos: qué se acuerda, quién se hace responsable y para cuándo. El
+7. En **Acuerdos**, añadid los acuerdos: qué se acuerda, quién se hace responsable (quien lleva su avance), quién está implicado
+   (quien tiene que hacer algo, sin gestionarlo) y para cuándo. El
    código de cada acuerdo se asigna solo.
 8. Guardad. El **código** del acta, que habéis visto formarse en la parte superior del formulario a medida
    que informabais el tipo, el ámbito y la fecha, queda asignado.

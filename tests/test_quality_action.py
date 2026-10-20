@@ -3,7 +3,7 @@
 from datetime import timedelta
 
 from odoo import fields
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import Form, TransactionCase
 
 from .common import create_role_employee, create_role_user
 
@@ -128,3 +128,13 @@ class TestQualityAction(TransactionCase):
         named = self._action(department_id=self.department.id, responsible_employee_ids=[(6, 0, [seminar.id])])
         self.assertEqual(named.responsible_employee_ids.ids, [seminar.id], "whoever was named stays as named")
         self.assertFalse(self._action(department_id=self.other_department.id).responsible_employee_ids)
+
+    def test_one_scope_at_a_time(self):
+        """Marking it centre-wide empties the department, and choosing a department unmarks it."""
+        form = Form(self.env['ems.quality.action'])
+        form.name = 'Scope agreement'
+        form.department_id = self.department
+        form.is_centre = True
+        self.assertFalse(form.department_id)
+        form.department_id = self.department
+        self.assertFalse(form.is_centre)

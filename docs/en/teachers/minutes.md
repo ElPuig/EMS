@@ -41,7 +41,8 @@ a meeting you attended, one of your department) opens **read-only**, with no act
    agreements (when some are still open), your items and any other business.
    In the **Content** tab, fill in each section the type asks for. The ones marked as
    required have to be filled in before the minute can be approved.
-7. In **Agreements**, add what was agreed: the commitment, who is responsible and by when. Each
+7. In **Agreements**, add what was agreed: the commitment, who is responsible (who carries its progress), who is involved
+   (who has to do something, without managing it) and by when. Each
    agreement's code is issued automatically.
 8. Save. The minute's **code**, which you saw build up at the top of the form as you filled in the type,
    the scope and the date, is now issued.

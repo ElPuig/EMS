@@ -7,7 +7,7 @@ from .common import create_role_user
 @tagged('post_install', '-at_install')
 class TestEnrollmentHeadOfStudiesTour(HttpCase):
     """Issue #654: the Head of Studies reads every screen of Academic management > Enrollment
-    and its Configuration section."""
+    and its Configuration section, and opens the convalidation reasons they maintain."""
 
     @classmethod
     def setUpClass(cls):
@@ -22,7 +22,8 @@ class TestEnrollmentHeadOfStudiesTour(HttpCase):
     def test_other_lists_tour(self):
         for action in ('ems.action_ems_applicants', 'ems.action_students_no_destination',
                        'ems.action_ems_enrollment_items', 'ems.action_ems_enrollment_template',
-                       'ems.action_task_assignment'):
+                       'ems.action_task_assignment', 'ems.action_convalidation_info_reason_list',
+                       'ems.action_convalidation_rejection_reason_list'):
             with self.subTest(action=action):
                 self.start_tour(f"/odoo/action-{action}", "ems_enrollment_head_of_studies_list",
                                 login=self.head_of_studies.login)

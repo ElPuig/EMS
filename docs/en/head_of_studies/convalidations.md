@@ -90,7 +90,7 @@ On each line of the **Subjects** tab, use the buttons on the right:
 | ↺ (Back to pending) | Undoes the line's decision. |
 
 - **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for it: with **Mode** set to **With grade** (the default), write the grade, 5 by default or the one the previous studies hold (from 5 to 10). Choose **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat**, the grades as **CV**, and it does not count towards the average. Until you send the proposal, you can still change the **Grade** and **Without grade** columns on the line.
-- **Reason for refusal:** when you click ✖, a dialog asks for the **Reason**, with the most usual one already selected, and optional **Details**. Both appear on the resolution. They can still be changed on the line until you send the proposal. The list of reasons is maintained by the EMS administrator (see [Convalidation settings](../admin/convalidation-settings.md)).
+- **Reason for refusal:** when you click ✖, a dialog asks for the **Reason**, with the most usual one already selected, and optional **Details**. Both appear on the resolution. They can still be changed on the line until you send the proposal. You maintain the list of reasons yourself, together with the EMS administrator, from **Academic management > Configuration > Convalidations** (see [Convalidation settings](../admin/convalidation-settings.md)).
 
 ![Convalidating a module: its grade](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -112,7 +112,7 @@ The request moves to **Pending documentation** until the documentation arrives:
 
 Meanwhile you can still decide the modules, but you cannot send the proposal or file the request with the Ministry. The **Documentation requested** tab shows the date, the reason and the details of the last request.
 
-Documentation can be requested while the request is **Pending**, **Pending documentation** or **In process at the Ministry**. The list of reasons is maintained by the EMS administrator (see [Convalidation settings](../admin/convalidation-settings.md)).
+Documentation can be requested while the request is **Pending**, **Pending documentation** or **In process at the Ministry**. You maintain the list of reasons yourself, together with the EMS administrator, from **Academic management > Configuration > Convalidations** (see [Convalidation settings](../admin/convalidation-settings.md)).
 
 ---
 

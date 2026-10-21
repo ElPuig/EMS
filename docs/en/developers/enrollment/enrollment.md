@@ -124,6 +124,10 @@ Assignment), centre-wide and read only:
 - The buttons that write from those lists ("Enrollment proposal" on Preinscription, "Suggest
   destination group" on Students without destination) carry `groups` for the academic admin and the
   secretary only. "Close unconfirmed enrollments" already included the Head of Studies.
+- Preinscription offers no New or Delete to anyone but the academic admin and the secretary:
+  `res.partner.get_view()` sets `create="0" delete="0"` on `view_applicant_list` per user, the way
+  Odoo's own `_postprocess_access_rights()` does, because the Heads of Studies' contact ACL is full
+  (they manage contacts elsewhere) and an inherited view can't carry `groups_id` in Odoo 18.
 - `TestEnrollmentHeadOfStudiesAccess` and `TestEnrollmentHeadOfStudiesTour` cover it.
 
 ## Tutor-blocking guards

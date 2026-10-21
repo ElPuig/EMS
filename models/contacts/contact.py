@@ -7,6 +7,7 @@ from odoo.osv import expression
 from ..shared import base
 import re
 from dateutil.relativedelta import relativedelta
+from lxml import etree
 from markupsafe import Markup
 
 # The only fields guidance (Orientació) may write on a student or applicant it could not edit
@@ -965,6 +966,23 @@ class ResPartner(models.Model):
                     "The Student ID (IDALU) of %(name)s cannot be removed.", name=partner.display_name))
             if partner.contact_type not in STUDENT_LIFECYCLE_TYPES:
                 partner._ems_raise_student_id_required(partner.display_name)
+
+    @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        """Academic management > Enrollment > Preinscription is read only for whoever is not
+        secretary or academic admin (issue #654): the Heads of Studies manage contacts elsewhere,
+        so the ACL alone would still offer New and Delete there. Done per user here, like Odoo's
+        own _postprocess_access_rights(), since the cached view is shared by every group and an
+        inherited view can't carry groups."""
+        result = super().get_view(view_id, view_type, **options)
+        applicants = self.env.ref('ems.view_applicant_list', raise_if_not_found=False)
+        if applicants and result['id'] == applicants.id and not any(
+                self.env.user.has_group(xmlid) for xmlid in ('ems.group_academic_admin', 'ems.group_secretary')):
+            node = etree.fromstring(result['arch'])
+            node.set('create', '0')
+            node.set('delete', '0')
+            result['arch'] = etree.tostring(node, encoding='unicode')
+        return result
 
     @api.model_create_multi
     def create(self, values):

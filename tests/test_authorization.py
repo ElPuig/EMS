@@ -474,16 +474,16 @@ class TestAuthorizationMenus(TransactionCase):
         return self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()
 
     def test_head_of_studies_gets_authorizations_and_enrollment_in_configuration(self):
-        # Enrollment too since the Heads of Studies read the enrollment set-up (issue #654);
-        # Convalidations stays with the academic administration.
+        # Enrollment and Convalidations too (issue #654): they read the enrollment set-up and
+        # maintain the convalidation reasons.
         visible = self._visible(create_role_user(self, 'head_of_studies', 'test_auth_menu_hos'))
         for xmlid in ('ems.menu_ems_configuration', 'ems.menu_ems_configuration_authorizations',
                       'ems.menu_ems_authorization_forms', 'ems.menu_ems_configuration_enrollment',
                       'ems.menu_ems_enrollment_items', 'ems.menu_ems_enrollment_templates',
-                      'ems.menu_ems_task_assignment'):
+                      'ems.menu_ems_task_assignment', 'ems.menu_ems_configuration_convalidations',
+                      'ems.menu_ems_convalidation_info_reasons', 'ems.menu_ems_convalidation_rejection_reasons'):
             with self.subTest(menu=xmlid):
                 self.assertIn(self.env.ref(xmlid).id, visible)
-        self.assertNotIn(self.env.ref('ems.menu_ems_configuration_convalidations').id, visible)
 
     def test_secretary_keeps_the_whole_configuration(self):
         visible = self._visible(create_role_user(self, 'secretary', 'test_auth_menu_secretary'))

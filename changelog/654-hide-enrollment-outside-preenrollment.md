@@ -25,7 +25,11 @@
 
 ## Head of Studies reads the whole Enrollment menu (issue #654):
 
-- Head of Studies/Deputy Head of Studies and the Director now reach every screen of Academic management > Enrollment (Enrollments, Preinscription, Students without destination) and of Configuration > Enrollment (Enrollment Items, Enrollment Templates, Task Assignment), for the whole centre and read only: a new read rule on enrollments and their lines; the rest was already readable. The "Enrollment proposal" and "Suggest destination group" buttons of those lists stay with the secretary's office and the academic administration. Department/Seminar Chiefs are unchanged.
+- Head of Studies/Deputy Head of Studies and the Director now reach every screen of Academic management > Enrollment (Enrollments, Preinscription, Students without destination) and of Configuration > Enrollment (Enrollment Items, Enrollment Templates, Task Assignment), for the whole centre and read only: a new read rule on enrollments and their lines; the rest was already readable. The "Enrollment proposal" and "Suggest destination group" buttons of those lists stay with the secretary's office and the academic administration. Department/Seminar Chiefs are unchanged. Preinscription offers New and Delete only to the secretary's office and the academic administration, even though the Heads of Studies manage contacts elsewhere.
+
+## Head of Studies maintains the convalidation reasons (issue #654):
+
+- Head of Studies/Deputy Head of Studies and the Director now reach Academic management > Configuration > Convalidations and create, edit and archive the documentation request and refusal reasons they pick from; deleting stays with the academic administration.
 
 # Internal changes
 

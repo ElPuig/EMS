@@ -1,3 +1,5 @@
+from lxml import etree
+
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
@@ -74,3 +76,33 @@ class TestEnrollmentHeadOfStudiesAccess(TransactionCase):
             with self.subTest(menu=xmlid):
                 self.assertIn(self.env.ref(xmlid).id, hos_visible)
                 self.assertNotIn(self.env.ref(xmlid).id, chief_visible)
+
+    def test_preinscription_list_offers_create_and_delete_only_to_the_secretary(self):
+        view = self.env.ref('ems.view_applicant_list')
+        secretary = create_role_user(self, 'secretary', 'test_secretary_preinscription_list')
+
+        def list_root(user):
+            arch = self.env['res.partner'].with_user(user).get_views([(view.id, 'list')])['views']['list']['arch']
+            return etree.fromstring(arch)
+
+        hos_list = list_root(self.head_of_studies)
+        self.assertEqual((hos_list.get('create'), hos_list.get('delete')), ('0', '0'))
+        secretary_list = list_root(secretary)
+        self.assertNotIn(secretary_list.get('create'), ('0', 'false', 'False'))
+        self.assertNotIn(secretary_list.get('delete'), ('0', 'false', 'False'))
+
+
+class TestConvalidationReasonsHeadOfStudies(TransactionCase):
+    """Issue #654: Head of Studies/Deputy Head of Studies and the Director maintain the
+    convalidation reasons they pick from, and archive rather than delete them."""
+
+    def test_head_of_studies_creates_edits_and_archives_reasons(self):
+        head_of_studies = create_role_user(self, 'head_of_studies', 'test_hos_convalidation_reasons')
+        for model in ('ems.convalidation.info_reason', 'ems.convalidation.rejection_reason'):
+            with self.subTest(model=model):
+                reason = self.env[model].with_user(head_of_studies).create({'name': f'HSR {model}'})
+                reason.write({'name': f'HSR {model} renamed'})
+                reason.action_archive()
+                self.assertFalse(reason.active)
+                with self.assertRaises(AccessError):
+                    reason.unlink()

@@ -103,9 +103,14 @@
                                     <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                 </group>
-                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none). -->
-                                <separator string="People from outside EMS"/>
-                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1">
+                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none).
+                                     Only a switch until somebody is added, so the block stays short. -->
+                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state == 'approved'">
+                                    <field name="show_guests" widget="boolean_toggle" nolabel="1"/>
+                                    <label for="show_guests" class="mb-0"/>
+                                </div>
+                                <separator string="People from outside EMS" invisible="not show_guests and not guest_ids"/>
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1" invisible="not show_guests and not guest_ids">
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
@@ -113,6 +118,7 @@
                                         <field name="email" widget="email"/>
                                         <field name="organisation" placeholder="A student's mother, another school..."/>
                                         <field name="attended"/>
+                                        <field name="send_call" readonly="not email"/>
                                     </list>
                                 </field>
                                 <group>
@@ -198,9 +204,14 @@
                                     <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                     <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
                                 </group>
-                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none). -->
-                                <separator string="People from outside EMS"/>
-                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1">
+                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none).
+                                     Only a switch until somebody is added, so the block stays short. -->
+                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state == 'approved'">
+                                    <field name="show_guests" widget="boolean_toggle" nolabel="1"/>
+                                    <label for="show_guests" class="mb-0"/>
+                                </div>
+                                <separator string="People from outside EMS" invisible="not show_guests and not guest_ids"/>
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1" invisible="not show_guests and not guest_ids">
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
@@ -208,6 +219,7 @@
                                         <field name="email" widget="email"/>
                                         <field name="organisation" placeholder="A student's mother, another school..."/>
                                         <field name="attended"/>
+                                        <field name="send_call" readonly="not email"/>
                                     </list>
                                 </field>
                                 <group>

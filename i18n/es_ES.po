@@ -25564,3 +25564,25 @@ msgstr "Desmárquelo para quien fue invitado pero no vino."
 #: model:ir.model.fields,help:ems.field_ems_minute_guest__organisation
 msgid "Who they are for the meeting: a student's mother, another school, a company..."
 msgstr "Quién es para la reunión: la madre de un alumno, otro instituto, una empresa..."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__show_guests
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "Add people from outside EMS"
+msgstr "Añadir personas externas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_guest__send_call
+msgid "Send them the call"
+msgstr "Enviarle la convocatoria"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_guest__send_call
+msgid "They get the call by email, in a message of their own: never together with the staff's, so nobody sees anybody else's address."
+msgstr "Recibe la convocatoria por correo, en un mensaje solo para ella: nunca junto con la del profesorado, para que nadie vea la dirección de nadie más."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute_line.py:0
+msgid "%(name)s has no email to send the call to."
+msgstr "%(name)s no tiene ningún correo para enviarle la convocatoria."

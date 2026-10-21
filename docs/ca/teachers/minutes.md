@@ -41,9 +41,10 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
      Les llistes de l'acta s'actualitzen soles. Es pot fer fins que l'acta estigui aprovada.
 
    Si a la reunió hi ve algú de fora de l'EMS (la família d'un alumne, un professor d'un altre institut...),
-   afegiu-lo a **Persones externes a l'EMS**: nom, cognoms, correu i, si cal, l'entitat o la relació.
+   activeu **Afegeix persones externes** i afegiu-lo a la taula que apareix: nom, cognoms, correu i, si cal, l'entitat o la relació.
    Desmarqueu **Present** si estava convidat però no hi va venir. Surt a l'acta amb el nom i l'entitat;
-   el correu no s'imprimeix i no rep la convocatòria.
+   el correu no s'imprimeix. Marqueu **Envia-li la convocatòria** si voleu que la rebi: li arriba en un
+   correu només per a ella, mai juntament amb el del professorat.
 6. A la pestanya **Punts a tractar**, afegiu els temes propis de la reunió. L'**ordre del dia** no s'escriu:
    es forma sol a sota, amb l'aprovació de l'acta anterior (si n'hi ha), el seguiment dels acords (si en
    queden d'oberts), els vostres punts i els precs i preguntes.

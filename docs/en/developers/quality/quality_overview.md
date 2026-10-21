@@ -199,9 +199,12 @@ from another school, a speaker. No employee record and no account: first name, s
 (validated with `email_normalize`), an optional organisation or relationship, and *Present* (ticked by
 default; unticked for somebody invited who did not come). They are written by hand whatever the attendance
 mode (they have no tag), count in `attendee_count` when present, and the PDF lists them with the attendees
-or the absentees by name and organisation. Their email is kept in the minute only: it is never printed and
-the call (`action_send_call`) does not include them, since it goes out as a single message with every
-recipient in view. Access is the same as the minute's other line models (ACL, no rule of their own).
+or the absentees by name and organisation. Their email is never printed. The call (`action_send_call`) goes
+to the staff as a single message with every recipient in view, so a guest is only sent it when *Send them
+the call* (`send_call`, which needs an email) is ticked, and then in a message of their own
+(`_ems_call_mail`), without the backend link to the previous minute, which they could not open; they count
+in `call_recipient_count`. Access is the same as the minute's other line models (ACL, no rule of their own). The form keeps the table hidden behind a switch (`show_guests`, non-stored, computed from
+`guest_ids` and editable) until somebody is added, so the attendance block stays short.
 
 ## `ems.quality.action` — agreements and improvement actions
 

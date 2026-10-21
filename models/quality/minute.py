@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import timedelta
+from email.utils import formataddr
 from urllib.parse import urlencode
 
 from markupsafe import Markup
@@ -111,6 +112,9 @@ class EmsMinute(models.Model):
     # People from outside EMS (a student's family, a teacher from another school): no tag and no
     # employee record, so they are written down by hand whatever the attendance mode.
     guest_ids = fields.One2many(string="People from outside", comodel_name="ems.minute.guest", inverse_name="minute_id")
+    # The guests' table only takes room when it is used: ticked by hand to start adding people, and
+    # on by itself for a minute that already has some. Never stored.
+    show_guests = fields.Boolean(string="Add people from outside EMS", compute="_compute_show_guests", readonly=False)
     attendee_count = fields.Integer(string="Number of attendees", compute="_compute_attendee_count")
     attendance_mode = fields.Selection(
         string="Attendance",
@@ -273,6 +277,11 @@ class EmsMinute(models.Model):
             # The room as the centre names it everywhere else, with its code: "Stallman (0.01)".
             # A hybrid meeting has both a room and somewhere to connect to.
             minute.place_name = " - ".join(filter(None, [minute.space_id.display_name, minute.place_text]))
+
+    @api.depends('guest_ids')
+    def _compute_show_guests(self):
+        for minute in self:
+            minute.show_guests = bool(minute.guest_ids)
 
     @api.depends('attendee_ids', 'guest_ids.attended')
     def _compute_attendee_count(self):
@@ -543,6 +552,18 @@ class EmsMinute(models.Model):
             'convener_name': self._ems_convener().name,
         }
 
+    def _ems_call_mail(self, subject, values, email_to):
+        return self.env['mail.mail'].sudo().create({
+            'subject': subject,
+            'body_html': self.env['ir.qweb']._render('ems.minute_call_email', values, minimal_qcontext=True),
+            'email_from': self.env.user.email_formatted or self.env.company.email_formatted,
+            'reply_to': self.env.user.email_formatted or self.env.company.email_formatted,
+            'email_to': email_to,
+            'model': self._name,
+            'res_id': self.id,
+            'auto_delete': False,
+        })
+
     def _ems_convener(self):
         """Who calls the meeting: whoever is to approve its minute, which by default is the person
         answering for the scope that meets (the department's chief for a department minute), not
@@ -652,27 +673,28 @@ class EmsMinute(models.Model):
         if not self.start_datetime:
             raise UserError(_("Set the date and time of the meeting before sending its call."))
         recipients = self.attendee_ids.filtered('work_email')
-        if not recipients:
+        guests = self.guest_ids.filtered(lambda guest: guest.send_call and guest.email)
+        if not recipients and not guests:
             raise UserError(_("There is nobody to send the call to: none of the people convened has an email address."))
         values = self._ems_call_values()
         subject = (_("Updated call: %s", self.name) if values['is_update'] else _("Call: %s", self.name))
-        mail = self.env['mail.mail'].sudo().create({
-            'subject': f"{subject} ({values['date_label']}, {self.time})",
-            'body_html': self.env['ir.qweb']._render('ems.minute_call_email', values, minimal_qcontext=True),
-            'email_from': self.env.user.email_formatted or self.env.company.email_formatted,
-            'reply_to': self.env.user.email_formatted or self.env.company.email_formatted,
-            'email_to': ", ".join(recipients.mapped('work_email')),
-            'model': self._name,
-            'res_id': self.id,
-            'auto_delete': False,
-        })
-        mail.send()
-        self.write({'call_sent_datetime': fields.Datetime.now(), 'call_recipient_count': len(recipients)})
-        self.message_post(body=_("Call sent to %s people.", len(recipients)))
+        subject = f"{subject} ({values['date_label']}, {self.time})"
+        mails = self.env['mail.mail'].sudo()
+        if recipients:
+            mails |= self._ems_call_mail(subject, values, ", ".join(recipients.mapped('work_email')))
+        # People from outside EMS get it one by one: the staff's message shows every address, and
+        # theirs leaves out the link to the previous minute, which they cannot open.
+        for guest in guests:
+            mails |= self._ems_call_mail(subject, {**values, 'previous_url': False},
+                                         formataddr((f"{guest.name} {guest.surname}", guest.email)))
+        mails.send()
+        count = len(recipients) + len(guests)
+        self.write({'call_sent_datetime': fields.Datetime.now(), 'call_recipient_count': count})
+        self.message_post(body=_("Call sent to %s people.", count))
         return {
             'type': 'ir.actions.client',
             'tag': 'display_notification',
-            'params': {'type': 'success', 'message': _("The call has been sent to %s people.", len(recipients)),
+            'params': {'type': 'success', 'message': _("The call has been sent to %s people.", count),
                        'next': {'type': 'ir.actions.act_window_close'}},
         }
 

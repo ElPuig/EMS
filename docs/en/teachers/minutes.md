@@ -42,9 +42,10 @@ a meeting you attended, one of your department) opens **read-only**, with no act
      again. The minute's lists update by themselves. It can be done until the minute is approved.
 
    If somebody from outside EMS comes to the meeting (a student's family, a teacher from another school...),
-   add them under **People from outside EMS**: first name, surname, email and, if useful, their organisation
+   switch on **Add people from outside EMS** and add them to the table that appears: first name, surname, email and, if useful, their organisation
    or relationship. Untick **Present** for somebody who was invited but did not come. The minute names
-   them with their organisation; their email is not printed and they do not get the call.
+   them with their organisation; their email is not printed. Tick **Send them the call** for them to get
+   it: it reaches them in a message of their own, never together with the staff's.
 6. In the **Items to discuss** tab, add the meeting's own topics. The **agenda** is not typed in: it is
    put together below, with the approval of the previous minute (when there is one), the follow-up of the
    agreements (when some are still open), your items and any other business.

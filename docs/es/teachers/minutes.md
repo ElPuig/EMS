@@ -41,9 +41,10 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
      volved a cerrarla. Las listas del acta se actualizan solas. Se puede hacer hasta que el acta esté aprobada.
 
    Si a la reunión viene alguien de fuera de EMS (la familia de un alumno, un profesor de otro instituto...),
-   añadidlo en **Personas externas a EMS**: nombre, apellidos, correo y, si hace falta, la entidad o la relación.
+   activad **Añadir personas externas** y añadidlo en la tabla que aparece: nombre, apellidos, correo y, si hace falta, la entidad o la relación.
    Desmarcad **Presente** si estaba invitado pero no vino. Sale en el acta con el nombre y la entidad;
-   el correo no se imprime y no recibe la convocatoria.
+   el correo no se imprime. Marcad **Enviarle la convocatoria** si queréis que la reciba: le llega en un
+   correo solo para ella, nunca junto con el del profesorado.
 6. En la pestaña **Puntos a tratar**, añadid los temas propios de la reunión. El **orden del día** no se
    escribe: se forma solo debajo, con la aprobación del acta anterior (si la hay), el seguimiento de los
    acuerdos (si quedan abiertos), vuestros puntos y los ruegos y preguntas.

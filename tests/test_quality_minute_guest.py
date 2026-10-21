@@ -60,3 +60,29 @@ class TestQualityMinuteGuest(MinuteRulesFixtures, TransactionCase):
         self.assertTrue(sent)
         self.assertNotIn('marta.guest@example.com', sent.email_to)
         self.assertEqual(minute.call_recipient_count, 1)
+
+    def test_the_guests_table_shows_only_when_used(self):
+        minute = self._minute(self.dep_a)
+        self.assertFalse(minute.show_guests, "a minute with nobody from outside keeps the block short")
+        self.assertTrue(self._minute_with_guests().show_guests)
+
+    def test_a_guest_can_get_the_call_in_a_message_of_their_own(self):
+        self.employee_a.work_email = 'rules.a.work@example.com'
+        minute = self._minute_with_guests()
+        minute.start_datetime = fields.Datetime.now()
+        minute.guest_ids.filtered(lambda item: item.name == 'Marta').send_call = True
+        minute.with_user(self.user_a).action_send_call()
+        mails = self.env['mail.mail'].search([('model', '=', 'ems.minute'), ('res_id', '=', minute.id)])
+        staff = mails.filtered(lambda mail: 'rules.a.work@example.com' in mail.email_to)
+        guest = mails.filtered(lambda mail: 'marta.guest@example.com' in mail.email_to)
+        self.assertEqual(len(staff), 1)
+        self.assertNotIn('marta.guest@example.com', staff.email_to)
+        self.assertEqual(len(guest), 1)
+        self.assertNotIn('rules.a.work@example.com', guest.email_to)
+        self.assertNotIn('/odoo/action-ems.action_minute', guest.body_html, "no link they cannot open")
+        self.assertEqual(minute.call_recipient_count, 2)
+
+    def test_the_call_needs_an_email_to_be_sent(self):
+        minute = self._minute(self.dep_a)
+        with self.assertRaises(ValidationError):
+            minute.write({'guest_ids': [(0, 0, {'name': 'Jordi', 'surname': 'No Mail', 'send_call': True})]})

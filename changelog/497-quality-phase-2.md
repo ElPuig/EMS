@@ -60,7 +60,7 @@ The Quality menu is now seen by the quality committee, quality coordination and 
 
 ## People from outside EMS in a minute:
 
-A minute can now record people who are not in EMS (a student's family, a teacher from another school, a speaker) with first name, surname, an optional email and their organisation or relationship, and whether they came. They are written by hand whatever the attendance mode, count as attendees, and appear in the minute's PDF by name and organisation; their email is never printed and they do not receive the call, which goes out as a single message with every recipient in view.
+A minute can now record people who are not in EMS (a student's family, a teacher from another school, a speaker) with first name, surname, an optional email and their organisation or relationship, and whether they came. They are written by hand whatever the attendance mode, count as attendees, and appear in the minute's PDF by name and organisation; their email is never printed. Each one can be chosen to receive the meeting's call, which then reaches them in a message of their own (the staff's call shows every recipient), without the link to the previous minute they could not open. The list stays hidden behind an "Add people from outside EMS" switch until somebody is added.
 
 ## The chain of command of whoever writes a minute can edit it:
 

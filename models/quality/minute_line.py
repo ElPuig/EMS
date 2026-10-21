@@ -63,6 +63,10 @@ class EmsMinuteGuest(models.Model):
     email = fields.Char(string="Email")
     organisation = fields.Char(string="Organisation or relationship", help="Who they are for the meeting: a student's mother, another school, a company...")
     attended = fields.Boolean(string="Present", default=True, help="Untick it for somebody who was invited but did not come.")
+    send_call = fields.Boolean(
+        string="Send them the call",
+        help="They get the call by email, in a message of their own: never together with the staff's, so nobody "
+             "sees anybody else's address.")
 
     @api.depends('name', 'surname', 'organisation')
     def _compute_display_name(self):
@@ -75,6 +79,12 @@ class EmsMinuteGuest(models.Model):
         for guest in self:
             if guest.email and not email_normalize(guest.email):
                 raise ValidationError(_("%(email)s is not a valid email address.", email=guest.email))
+
+    @api.constrains('send_call', 'email')
+    def _check_send_call_email(self):
+        for guest in self:
+            if guest.send_call and not guest.email:
+                raise ValidationError(_("%(name)s has no email to send the call to.", name=guest.display_name))
 
 
 class EmsMinutePendingTopic(models.Model):

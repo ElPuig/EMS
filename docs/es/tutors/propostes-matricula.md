@@ -25,6 +25,8 @@ Esta guía explica cómo, después de la junta de la 3ª evaluación, el tutor p
 
 > Este menú solo está disponible durante el **periodo de preinscripción**, que el administrador fija cada año (por defecto, del 1 de mayo al 31 de julio). Fuera de este periodo, Matrícula no aparece en Gestión académica.
 
+La lista muestra el alumnado de tus grupos. Si eres jefe de departamento o de seminario, también aparece el de los tutores de tu departamento.
+
 ---
 
 ## Paso 1 — Seleccionar los alumnos aprobados

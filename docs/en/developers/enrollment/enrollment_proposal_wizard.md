@@ -134,7 +134,7 @@ Without this the "With GEDAC assignment" filter would accumulate every past year
         domain="[('preinscription_study_id', '!=', False)]"/>
 ```
 
-No dedicated view, action or menu: the proposals list already lists every student **and** already carries the `action_enrollment_proposal` button, so the secretary sees and enrolls them in the same place. (The Educational Community list has no such button, which is why it was not chosen.) Being opt-in, the filter never alters the default view, and a tutor activating it still only sees its own students (the server action's domain).
+No dedicated view, action or menu: the proposals list already lists every student **and** already carries the `action_enrollment_proposal` button, so the secretary sees and enrolls them in the same place. (The Educational Community list has no such button, which is why it was not chosen.) Being opt-in, the filter never alters the default view, and a tutor activating it still only sees the students they act as tutor of (the server action's domain: `tutor_id.tutor_scope_user_ids`, so a Department/Seminar Chief also sees those of the tutors below them, issue #654).
 
 ---
 

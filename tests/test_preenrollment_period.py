@@ -4,7 +4,10 @@ from unittest.mock import patch
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import close_yearly_period, create_role_user, open_yearly_period, set_yearly_period
+from .common import (
+    close_yearly_period, create_head_of_studies_branch, create_level_study_group, create_role_employee,
+    create_role_user, next_student_id, open_yearly_period, set_yearly_period,
+)
 
 
 class TestPreenrollmentPeriod(TransactionCase):
@@ -117,3 +120,44 @@ class TestPreenrollmentPeriod(TransactionCase):
         opening = self.company._ems_yearly_period_next_change('preenrollment')
         self.assertTrue(Trigger.search_count([
             ('cron_id', '=', cron.id), ('call_at', '=', opening + timedelta(minutes=1))]))
+
+
+class TestEnrollmentProposalScope(TransactionCase):
+    """Issue #654: the enrollment proposals list follows the chain of command like every other
+    tutor-scoped screen (hr.employee.tutor_scope_user_ids, issue #483): a tutor sees their own
+    group's students, the Department/Seminar Chief above them those too, another chief none."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        open_yearly_period(cls.env, 'preenrollment')
+        cls.tutor_user = create_role_user(cls, 'tutor', 'test_proposal_scope_tutor')
+        tutor = create_role_employee(cls, cls.tutor_user)
+        create_head_of_studies_branch(cls, 'EPS', tutor)
+        __, __, group = create_level_study_group(cls, 'EPS', group={'tutor_id': tutor.id})
+        __, __, other_group = create_level_study_group(cls, 'EPO')
+        Partner = cls.env['res.partner']
+        cls.student = Partner.create({
+            'name': 'EPS Tutored Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': group.id,
+        })
+        cls.other_student = Partner.create({
+            'name': 'EPS Other Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': other_group.id,
+        })
+        cls.action = cls.env.ref('ems.action_student_group_enrollment')
+
+    def _listed(self, user):
+        domain = self.action.with_user(user).run()['domain']
+        return self.env['res.partner'].with_user(user).search(
+            domain + [('id', 'in', (self.student | self.other_student).ids)])
+
+    def test_tutor_sees_their_own_group(self):
+        self.assertEqual(self._listed(self.tutor_user), self.student)
+
+    def test_department_chief_sees_their_tutors_students(self):
+        self.assertEqual(self._listed(self.department_chief), self.student)
+
+    def test_another_department_chief_sees_none(self):
+        self.assertFalse(self._listed(self.other_department_chief))
+

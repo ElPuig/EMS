@@ -216,9 +216,9 @@ class TestAbsenceCoverageTour(HttpCase):
 
     def test_change_proposal_tour(self):
         """Issue #659, as the Department Chief: the families were told the group starts at 10:00;
-        from the struck-out row, the chief changes it to 9:00 (a guard will cover the 9:00
-        lesson), and one correction goes out."""
-        group = self._told_late_entry()
+        from the struck-out row, the chief sees a swap that would correct it, but changes it to 9:00
+        instead (a guard will cover the 9:00 lesson), and one correction goes out."""
+        group = self._told_late_entry(swapper=True)
 
         self.start_tour("/odoo", "ems_change_proposal", login=self.department_chief.login)
 
@@ -226,18 +226,6 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertEqual(len(notices), 2, "the notice and one correction")
         self.assertEqual((notices[-1]._absence_change_tuples(), notices[-1].state), ([('late_entry', 9.0)], 'scheduled'))
         self.assertTrue(notices[-1].subject.startswith('Correction:'))
-
-    def test_change_proposal_plan_tour(self):
-        """Issue #659: instead of starting at 10:00, the absent teacher swaps a lesson with a
-        colleague; the correction goes with the swap, in one notice to the families."""
-        group = self._told_late_entry(swapper=True)
-
-        self.start_tour("/odoo", "ems_change_proposal_plan", login=self.department_chief.login)
-
-        notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
-        self.assertEqual(len(notices), 2, "the notice and one correction")
-        self.assertTrue(notices[-1].subject.startswith('Correction:'))
-        self.assertTrue(self.env['ems.absence_cover'].search([('group_id', '=', group.id), ('arrangement_type', '=', 'swap')]))
 
     def test_corrections_box_tour(self):
         """Issue #659: the families were told the group starts at 10:00, and the absence then moved

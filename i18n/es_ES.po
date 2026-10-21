@@ -20636,15 +20636,10 @@ msgstr "Asignar y avisar"
 msgid "Remove assignment"
 msgstr "Quitar la asignación"
 
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Send notice"
-msgstr "Enviar comunicado"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
 msgid "Send correction"
 msgstr "Enviar rectificación"
 

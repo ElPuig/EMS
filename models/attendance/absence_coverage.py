@@ -548,7 +548,7 @@ class EmsAbsenceCover(models.Model):
         if any(groups - linked for *_head, groups, _absent in moves) \
                 or any(groups - linked for groups, _change in notices + corrections):
             raise UserError(_("This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."))
-        planner = course._arrangement_planner(context, linked)
+        planner, _states = course._arrangement_planner(context, linked)
         planned = [(kind, teacher.id, lesson, target, frozenset(groups.ids), *([absent.id] if kind == 'swap' else []))
                    for kind, teacher, lesson, target, groups, absent in moves]
         if planner.check(planned, [(group.id, change) for groups, change in notices for group in groups]):
@@ -579,8 +579,7 @@ class EmsAbsenceCover(models.Model):
             for change in changes:
                 # A side already told is changed as a correction (issue #659): a stale one, or one
                 # whoever organises it changes their mind about.
-                state = next((state for state in states if any(
-                    course._same_change(change, option) for option in state['options'] + state['change_options'])), None)
+                state, _option = course._find_change_state(states, change)
                 if not state:
                     raise UserError(_("This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."))
                 rectification = rectification or bool(state['communicated'])

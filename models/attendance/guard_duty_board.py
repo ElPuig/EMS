@@ -628,6 +628,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         return (change[0] == other[0] and len(change) == len(other)
                 and all(abs(value - other_value) < HOUR_EPSILON for value, other_value in zip(change[1:], other[1:])))
 
+    @classmethod
+    def _find_change_state(cls, states, change):
+        """`(state, option)`: the state among `states` (one group's sides, see
+        _get_absence_change_states) offering `change` - to propose or correct it, or to change
+        what was told (issue #659) - and that option; `(None, None)` when no side offers it."""
+        return next(((state, option) for state in states for option in state['options'] + state['change_options']
+                     if cls._same_change(option, change)), (None, None))
+
     @staticmethod
     def _change_window_contains(change, hour_from, hour_to):
         """Whether a period falls inside the part of the day `change` frees the group from."""
@@ -1003,11 +1011,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         groups = self._linked_groups(context, group).sorted('name')
         key = tuple(sorted(groups.ids))
         if key not in context['plans']:
-            plans = [self._arrangement_plan_records(raw, groups, number) for number, raw
-                     in enumerate(self._arrangement_planner(context, groups).plans(), start=1)]
-            for plan in plans:
-                self._add_plan_corrections(plan, context['change_states'])
-            context['plans'][key] = plans
+            planner, states = self._arrangement_planner(context, groups)
+            context['plans'][key] = [self._arrangement_plan_records(raw, groups, number, states) for number, raw
+                                     in enumerate(planner.plans(), start=1)]
         return context['plans'][key]
 
     def _reopened_side(self):
@@ -1016,60 +1022,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         reopen = self.env.context.get('ems_reopen_side')
         return (reopen[0], reopen[1]) if reopen else None
 
-    def _add_plan_corrections(self, plan, states):
-        """Adds to `plan` a 'correction' step for each side of the day of one of its groups whose
-        families were told something that has to be corrected (issue #659): the plan then sends one
-        correction per group, never a notice and a correction apart, and whoever only wants the
-        correction unchecks the rest.
-        - A side whose communicated change no longer matches the absences: its correction, as
-          the correction alone would propose it.
-        - The side being changed (see _reopened_side): its group always gets a correction. A
-          notice of the plan on that side becomes it (dropped if it repeats what was told), and
-          without one the correction puts that side back to the usual timetable.
-        Each `{'kind': 'correction', 'groups', 'change', 'depends'}`, after every other step."""
-        steps = plan['steps']
-        reopen = self._reopened_side()
-        Group = self.env['ems.group']
-        if reopen:
-            group, side = Group.browse(reopen[0]), reopen[1]
-            told = states[group.id][side]['communicated']
-            for index in reversed(range(len(steps))):
-                step = steps[index]
-                if step['kind'] != 'notice' or group not in step['groups'] or not self._change_side(step['change'], side):
-                    continue
-                repeated = self._same_change(step['change'], told)
-                if step['groups'] != group:
-                    step['groups'] -= group
-                    if not repeated:
-                        steps.append({'kind': 'correction', 'groups': group, 'change': step['change'],
-                                      'depends': list(step['depends'])})
-                elif not repeated:
-                    step['kind'] = 'correction'
-                else:
-                    del steps[index]
-                    for other in steps:
-                        other['depends'] = [need - (need > index) for need in other['depends'] if need != index]
-        for group in plan['groups'].sorted('name'):
-            for side, state in states[group.id].items():
-                if state['status'] == 'rectification':
-                    change = state['target']
-                elif reopen == (group.id, side) and state['change_options'] and not any(
-                        step['kind'] == 'correction' and group in step['groups'] and self._change_side(step['change'], side)
-                        for step in steps):
-                    change = state['change_options'][-1]  # the usual timetable
-                else:
-                    continue
-                steps.append({'kind': 'correction', 'groups': group, 'change': change, 'depends': []})
-
     def _arrangement_planner(self, context, groups):
-        """An ArrangementPlanner over the day of `groups` (a set of linked groups, see
-        _linked_groups), fed with what `context` already read."""
+        """`(planner, states)`: an ArrangementPlanner over the day of `groups` (a set of linked
+        groups, see _linked_groups), fed with what `context` already read, and the groups'
+        timetable-change states it was built from (see _get_absence_change_states)."""
         day = context['day']
         covers = context['covers']
         blocks_by_group = self._get_group_day_blocks(day, groups)
         states = self._get_absence_change_states(day, groups, blocks_by_group)
-        # Kept for the corrections the plans carry (see _add_plan_corrections).
-        context.setdefault('change_states', {}).update(states)
         reopen = self._reopened_side()
         weekday = str(day.weekday())
         # An arrangement still waiting for its notice is decided: its class is not a gap to fill.
@@ -1116,12 +1076,20 @@ class EmsCourseGuardDutyBoard(models.Model):
                     context, covers, employees[teacher_id], hour_from, hour_to)
             return free_cache[teacher_id, hour_from, hour_to]
 
-        return ArrangementPlanner(self, blocks, breaks, communicated, self._board_day_hour(day), teachers, free, swaps)
+        return ArrangementPlanner(self, blocks, breaks, communicated, self._board_day_hour(day), teachers, free, swaps), states
 
-    def _arrangement_plan_records(self, raw, groups, number):
+    def _arrangement_plan_records(self, raw, groups, number, states):
         """A plan from ArrangementPlanner as records, its steps in the order they are shown and
         applied: by time, a step never before one it needs. A teacher's entry/exit change goes with
-        their last step, and one notice step tells the same change to every group it applies to."""
+        their last step, and one notice step tells the same change to every group it applies to.
+
+        The plan also corrects what the families of its groups were told (issue #659), so that each
+        group gets one email and whoever only wants the correction unchecks the rest: 'correction'
+        steps, after every other one, for each side of `states` (the groups' timetable-change
+        states) whose communicated change no longer matches the absences (its correction as the
+        correction alone would propose it), and for the side being changed (see _reopened_side):
+        a notice of the plan on that side becomes its correction - or is dropped, if it repeats what
+        was told - and without one the correction puts that side back to the usual timetable."""
         Employee, Group = self.env['hr.employee'], self.env['ems.group']
         items = []
         for index, step in enumerate(raw['steps']):
@@ -1130,17 +1098,33 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'groups': Group.browse(sorted(step[4])), 'absent': Employee.browse(step[5]) if step[0] == 'swap' else Employee,
                 'needs': set(raw['depends'][index]), 'time': step[3][0], 'source': index,
             })
+        reopen = self._reopened_side()
         notices = {}
-        for (group_id, _side, change), depends in zip(raw['notices'], raw['notice_depends']):
-            notice = notices.setdefault(change, {'kind': 'notice', 'groups': Group, 'change': change, 'needs': set(),
-                                                 'time': 0.0 if change[0] == 'no_classes' else change[1], 'source': None})
+
+        def tell(kind, group_id, change, depends=()):
+            notice = notices.setdefault((kind, change), {'kind': kind, 'groups': Group, 'change': change, 'needs': set(),
+                                                         'time': 0.0 if change[0] == 'no_classes' else change[1], 'source': None})
             notice['groups'] |= Group.browse(group_id)
             notice['needs'] |= set(depends)
+
+        for (group_id, side, change), depends in zip(raw['notices'], raw['notice_depends']):
+            if reopen != (group_id, side):
+                tell('notice', group_id, change, depends)
+            elif not self._same_change(change, states[group_id][side]['communicated']):
+                tell('correction', group_id, change, depends)
+        for group in groups:
+            for side, state in states[group.id].items():
+                if state['status'] == 'rectification':
+                    tell('correction', group.id, state['target'])
+                elif reopen == (group.id, side) and state['change_options'] and not any(
+                        notice_group == group.id and notice_side == side for notice_group, notice_side, _change in raw['notices']):
+                    tell('correction', group.id, state['change_options'][-1])  # the usual timetable
         items += notices.values()
         ordered, placed, done = [], set(), set()
         while len(ordered) < len(items):
             item = min((item for item in items if id(item) not in done and item['needs'] <= placed),
-                       key=lambda item: (item['time'], item['kind'] == 'notice', item['groups'].mapped('name'), item['source'] or 0))
+                       key=lambda item: (item['kind'] == 'correction', item['time'], item['kind'] == 'notice',
+                                         item['groups'].mapped('name'), item['source'] or 0))
             ordered.append(item)
             done.add(id(item))
             if item['source'] is not None:
@@ -1148,7 +1132,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         position = {item['source']: index for index, item in enumerate(ordered) if item['source'] is not None}
         last = {}
         for index, item in enumerate(ordered):
-            if item['kind'] != 'notice':
+            if item['kind'] in ('move', 'swap'):
                 last[item['teacher'].id] = index
                 if item['kind'] == 'swap':
                     last[item['absent'].id] = index
@@ -1156,7 +1140,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         for index, item in enumerate(ordered):
             step = {key: value for key, value in item.items() if key not in ('needs', 'time', 'source')}
             step['depends'] = sorted(position[need] for need in item['needs'])
-            if item['kind'] != 'notice':
+            if item['kind'] in ('move', 'swap'):
                 owners = [item['teacher'].id] + ([item['absent'].id] if item['kind'] == 'swap' else [])
                 step['shifts'] = [(Employee.browse(owner), *change) for owner in owners if last.get(owner, index) == index
                                   for change in raw['shifts'].get(owner) or ()]

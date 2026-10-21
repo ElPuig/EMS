@@ -851,11 +851,43 @@ whether Spec/Red start from a blank file or a diff:
 4. **Refactor — O:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes for *this* model. Also check for **cross-cutting duplication** while you're here — the same shape of code (or test fixture/mock boilerplate) hand-written in more than one file is worth extracting into a shared helper (`ems.base` for production code, `tests/common.py` for test utilities) rather than left copy-pasted; this is exactly how the same escaping bug got independently found and fixed five times before `EmsBase.build_html_list` existed. Don't go looking for unrelated duplication elsewhere in the codebase on every change — but if this change's own work reveals an existing duplicate, fold the extraction into this same cycle instead of deferring it.
 5. **Normalize — N:** Apply the Odoo v18 coding guidelines from the "Coding standards" section above — model attribute order, alphabetical imports, f-strings, loop variable naming, translatable literals, no shadowed builtins. Run `pylint --disable=all --enable=redefined-builtin` on the files you touched (see "Coding standards" above for the full command) — cheap, and this exact bug class (`list`, `type`, `datetime`, `bytes`/`hash` shadowing builtins) has recurred often enough to be worth a mechanical check rather than relying on reading alone.
 6. **Gate:** `./upgrade.sh` and `./test.sh TestClassName` after each Red-Green-Refactor-Normalize cycle (see "The full test suite is slow" above — don't reach for the unscoped `./test.sh` here).
-7. **Close — D:** For every role identified in the Spec step, fill in (or update) the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every change with a user-facing effect, not an optional extra to be requested separately; skipping it because the change "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the manual if it's new. Add the new/changed strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. The full, unscoped `./test.sh` is not part of Close on a development branch: CI runs it before merge (see "Never run the full, unscoped `./test.sh` on a development branch" above). Then deliver the PR changelog summary described below — it's part of Close, not a separate ask.
+7. **Close — D:** For every role identified in the Spec step, fill in (or update) the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every change with a user-facing effect, not an optional extra to be requested separately; skipping it because the change "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the manual if it's new. Add the new/changed strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. The full, unscoped `./test.sh` is not part of Close on a development branch: CI runs it before merge (see "Never run the full, unscoped `./test.sh` on a development branch" above). Then deliver the PR changelog summary described below — it's part of Close, not a separate ask. Before handing the issue over (Ready to merge), run the quality audit in "Quality audit when closing" below.
 
    **Defer the full user-doc pass — and especially screenshots — while the feature is still under active design iteration in the same conversation (developer feedback 2026-08-10):** found while doing exactly this on the working-schedules import wizard — several small, still-evolving design tweaks in a row (a screen's position, its name, its own technical `state` key, then per-screen intro text) each triggered their own full Close step, rewriting the same admin-manual prose repeatedly for what was really one feature the developer hadn't yet confirmed as final. Screenshots are the expensive part to redo (capture, crop, verify no personal data leaked, re-crop); prose is cheaper but still wasted effort when the next message changes the same paragraph again. **How to apply:** keep the Spec-time *stub* current every cycle (already the rule above, and cheap either way), and keep the developer-facing English dev doc (`docs/en/developers/...`) current every cycle too (plain text, no screenshots, and it's the running record of *why*, needed to explain each iteration's own reasoning while it's still fresh) — but hold off writing the *full* three-language user-doc content and any screenshots until the developer actually confirms the feature has reached its final shape (a clear signal like "ya está", or simply moving on to unrelated work without more tweaks), then do one real Close pass covering everything that changed since the stub. If a change is genuinely a one-shot (no back-and-forth expected), there's no "still iterating" state to wait out — do the full Close immediately as before. When unsure whether more iteration is coming, ask rather than guessing which side to default to.
 
    **Track every deferred Close-step obligation proactively once it's been deferred — don't rely on being reminded (developer feedback 2026-08-11):** deferring the screenshot/full-doc pass above (or, on a release branch, the full unscoped `./test.sh` gate) to "later, once confirmed," is fine — but once deferred, it must stay tracked as a live, explicit item (e.g. via the `TodoWrite` tool) for the rest of the session, not just left as prose inside this file or a memory/plan file to be re-discovered later. Real incident: after finishing a feature (a new wizard screen, tested and working), the developer asked "¿qué nos queda de este trabajo?" — the answer covered an unrelated plan-file audit but omitted that the full test gate had never been run and the screenshot-inclusive doc close was still outstanding, both already known to be deferred. The developer had to point out both themselves: *"te has olvidado de lo que quedaba pendiente... que esto no vuelva a pasar, por favor. Si te pregunto que queda pendiente, deberías saberlo si esto ya se ha hecho o no."* **How to apply:** the moment a Close-step item is deliberately deferred, add it to the todo list right then, not after the fact. When asked "what's left/pending" in any phrasing, check that tracked state first, before answering from memory/plan files alone — the answer should reflect what you already know is outstanding, not require the developer to notice a gap you already knew about.
+
+## Quality audit when closing (developer, 2026-10-21)
+
+Closing work is not only docs, translations and green tests: the code and the tests it leaves behind
+must be clean. Every close runs this audit over everything the work changed: closing an issue
+("completa/cierra la issue", the Close step above) and the "revisión del cierre" of a release PR
+(below), whether or not the developer asks for it. Found the hard way on issue #659: after several
+design iterations the code had piled up a convoluted post-processing step (which also hid a real bug),
+duplicated logic on server and client, two UIs for the same thing, redundant tests and no tests for the
+most complex branch, and only an audit the developer happened to ask for caught it (*"Si no te lo llego
+a pedir, estaríamos metiendo código sucio en el proyecto"*).
+
+**What it looks at, in the changed code (and what it touches directly):**
+- Refactoring: duplicated logic (server and client), code that grew convoluted through iterations
+  and can be restructured, two paths or two UIs doing the same job, leftovers (unused labels, methods,
+  translations, stale comments and docstrings).
+- Runtime efficiency, per "Efficiency first" above: measured on this box's real data (`odoo shell`,
+  cold, read-only and rolled back), with the numbers reported.
+- Tests: redundant or overlapping ones (same code path, same assertion), and **missing** ones,
+  especially where the code is most complex.
+
+**Order (developer, 2026-10-21): coverage first, then clean, then the tests themselves.** *"Con la
+cobertura de pruebas garantizamos que el refactoring, limpieza, optimizaciones, etc. no rompe nada. Y
+después haríamos la mejora sobre las propias pruebas."*
+1. Add the missing tests for what is about to be touched and run them against the current code
+   (a new test failing there is a bug found, report it).
+2. Refactor, simplify and optimize, with those tests as the safety net.
+3. Then improve the tests: remove or merge the redundant ones.
+
+**Reporting:** say what was found and what was changed, with numbers. A finding that changes what
+users see, or a judgment call, is asked before applying (e.g. #659's "two UIs for 'Only tell the
+families'"). When the developer asks for the audit alone ("sin hacer cambios"), report and wait.
 
 ## "Revisión del cierre" — pre-production close review across merged branches (2026-09-15)
 
@@ -867,7 +899,8 @@ branch's own session already did on its own branch in isolation: a "revisión de
 second, holistic pass across *everything that landed together*, since one feature's own Close step
 has no visibility into whether it stayed consistent with another feature merged alongside it.
 
-**Covers, across every branch merged since the last release tag:**
+**Covers, across every branch merged since the last release tag** (plus the quality audit in "Quality
+audit when closing" above, over everything integrated):
 - Technical documentation (`docs/en/developers/`) — actually reflects current behavior (see
   "Documentation describes current behavior, not history" above), not stale from an earlier
   design iteration that shipped differently than first drafted.

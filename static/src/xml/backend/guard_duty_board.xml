@@ -58,22 +58,13 @@
         </div>
     </t>
 
-    <!-- One of the day's pending actions that is not an arrangement plan: a timetable change to
-         propose (with the selector of how much of it to tell the families), a correction, or an
-         arrangement or a change waiting for its draft notice. Expects 'action'. -->
+    <!-- An arrangement waiting for its notice to the families, whose draft opens from here.
+         Expects 'action'. -->
     <t t-name="ems.GuardBoardActionRow">
         <div class="o_guard_board_action" t-att-class="'o_guard_board_action_' + action.type">
             <i t-att-class="actionIcon(action)"/>
             <span class="o_guard_board_action_label" t-esc="action.label"/>
-            <t t-if="action.draft_id">
-                <span class="o_guard_board_absence_tag" t-esc="action.draft_label"/>
-            </t>
-            <select t-elif="action.options.length" class="form-select form-select-sm o_guard_board_action_option"
-                    t-on-change="(ev) => this.onActionOptionChange(action, ev)">
-                <t t-foreach="action.options" t-as="option" t-key="option_index">
-                    <option t-att-value="option_index" t-att-selected="option_index === action.default" t-esc="option.label"/>
-                </t>
-            </select>
+            <span t-if="action.draft_id" class="o_guard_board_absence_tag" t-esc="action.draft_label"/>
             <button type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button"
                     t-on-click="() => this.onAction(action)" t-esc="actionButtonLabel(action)"/>
         </div>
@@ -109,16 +100,14 @@
                     </t>
                     <!-- The timetable change alone: sending the notice strikes those
                          lessons off the table. The planner may choose a shorter change
-                         and send a guard to the rest. -->
+                         and send a guard to the rest. Its changes and corrections (issue
+                         #659) are steps to check and apply together: one email per group. -->
                     <div t-if="section.notices.length" class="o_guard_board_plan o_guard_board_notice_plan">
                         <div class="o_guard_board_plan_title">
                             <strong t-esc="noticePlanTitle(section)"/>
                             <span class="ms-1" t-esc="actionLabels.noticeOnly"/>
                         </div>
-                        <!-- With a correction pending (issue #659), the notices and the
-                             corrections are steps to check and apply together: one
-                             email per group. -->
-                        <div t-if="section.urgent" class="o_guard_board_plan_steps">
+                        <div class="o_guard_board_plan_steps">
                             <t t-foreach="section.notices" t-as="action" t-key="action_index">
                                 <t t-call="ems.GuardBoardNoticeStep"/>
                             </t>
@@ -129,11 +118,6 @@
                                         t-esc="actionLabels.applyPlan"/>
                             </div>
                         </div>
-                        <div t-else="" class="o_guard_board_plan_steps">
-                            <t t-foreach="section.notices" t-as="action" t-key="action_index">
-                                <t t-call="ems.GuardBoardActionRow"/>
-                            </t>
-                        </div>
                     </div>
                 </div>
             </t>
@@ -141,7 +125,8 @@
     </t>
 
     <!-- Issue #659: a timetable change or a correction as a step of "Only tell the families", with
-         its checkbox and the selector of how much of it to tell. Expects 'section' and 'action'. -->
+         its checkbox, the selector of how much of it to tell and, when a notice for it could not
+         be sent, its draft to open. Expects 'section' and 'action'. -->
     <t t-name="ems.GuardBoardNoticeStep">
         <div class="o_guard_board_action o_guard_board_notice_step" t-att-class="'o_guard_board_action_' + action.type">
             <input type="checkbox" class="form-check-input o_guard_board_plan_check"
@@ -156,6 +141,8 @@
                     <option t-att-value="option_index" t-att-selected="option_index === action.default" t-esc="option.label"/>
                 </t>
             </select>
+            <button t-if="action.draft_id" type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button o_guard_board_open_draft"
+                    t-on-click="() => this.openNotice(action.draft_id)" t-esc="actionLabels.openDraft"/>
         </div>
     </t>
 

@@ -452,8 +452,6 @@ export class GuardDutyBoard extends Component {
     get actionLabels() {
         return {
             releasesTitle: _t("Guards no longer needed"),
-            propose: _t("Send notice"),
-            rectify: _t("Send correction"),
             openDraft: _t("Open draft"),
             release: _t("Release guard"),
             removeArrangement: _t("Remove arrangement"),
@@ -618,8 +616,8 @@ export class GuardDutyBoard extends Component {
     // Issues #539, #605, #645: the day's proposals, one section per group (with the groups sharing
     // lessons with it): what is waiting (an arrangement waiting for its notice), the arrangement
     // plans, the best first, and the timetable changes alone. A section with a correction pending
-    // is 'urgent' (issue #659): the correction is a step of every one of its proposals, the last
-    // one ("Only tell the families") included.
+    // is 'urgent' (issue #659), shown in a box of its own: the correction is a step of every one of
+    // its proposals, the last one ("Only tell the families") included.
     get proposalSections() {
         const sections = new Map();
         for (const action of this.state.board.actions) {
@@ -682,9 +680,9 @@ export class GuardDutyBoard extends Component {
         }
     }
 
-    // Issue #659: "Only tell the families" of a section with a correction pending, its rows as
-    // steps (all checked until the planner unchecks some): the checked ones go out together, one
-    // notice per group, a correction when it carries one.
+    // "Only tell the families", its rows as steps (issue #659; all checked until the planner
+    // unchecks some): the checked ones go out together, one notice per group, a correction when
+    // it carries one.
     isNoticeChecked(section, index) {
         return this.state.noticeSelections[`${section.key}:${index}`] !== false;
     }
@@ -746,10 +744,7 @@ export class GuardDutyBoard extends Component {
         if (action.type === "obsolete_cover") {
             return action.cover_type === "arrangement" ? this.actionLabels.removeArrangement : this.actionLabels.release;
         }
-        if (action.draft_id) {
-            return this.actionLabels.openDraft;
-        }
-        return action.type === "rectification" ? this.actionLabels.rectify : this.actionLabels.propose;
+        return this.actionLabels.openDraft;
     }
 
     openCoverDialog(line, absence) {
@@ -769,13 +764,8 @@ export class GuardDutyBoard extends Component {
             loadArrangementCandidates: () => this.orm.call("ems.course", "get_arrangement_candidates", classArgs),
             onApplyPlan: (plan, selection) => this.applyPlan(plan, selection),
             onArrange: (teacherId, note) => this.applyManualArrangement(line, absence.teacher_id, absence.group_id, teacherId, note),
-            onOpenNotice: absence.arrangement && absence.arrangement.pending ? () => this.actionService.doAction({
-                type: "ir.actions.act_window",
-                res_model: "ems.notice",
-                res_id: absence.arrangement.notice_id,
-                views: [[false, "form"]],
-                target: "current",
-            }) : undefined,
+            onOpenNotice: absence.arrangement && absence.arrangement.pending
+                ? () => this.openNotice(absence.arrangement.notice_id) : undefined,
             onRelease: async (coverId) => {
                 await this.orm.call("ems.absence_cover", "board_release", [coverId || absence.arrangement.id]);
                 await this.loadBoard();
@@ -784,21 +774,13 @@ export class GuardDutyBoard extends Component {
     }
 
     // Issue #659: changes what the families were told for a struck-out row, with one correction
-    // sent at once (choosing and confirming in the dialog is the confirmation, as "Send notice").
+    // sent at once: choosing it in the dialog is the confirmation.
     openChangeProposalDialog(absence) {
         this.dialog.add(GuardChangeProposalDialog, {
             loadOptions: () => this.orm.call("ems.course", "get_change_proposal_options", [
                 this.activeDate, absence.group_id, absence.change_side,
             ]),
-            onSend: async (option) => {
-                const result = await this.orm.call("ems.notice", "board_send_absence_change", [
-                    this.activeDate, absence.group_id, option.change_type, option.hour, option.hour_to,
-                ]);
-                if (!(await this.openUnsentNotice(result))) {
-                    this.notification.add(_t("Correction sent."), { type: "success" });
-                    await this.loadBoard();
-                }
-            },
+            onSend: (option) => this.sendChange(absence.group_id, option),
             onApplyPlan: (plan, selection, reopen) => this.applyPlan(plan, selection, reopen),
         });
     }
@@ -835,33 +817,36 @@ export class GuardDutyBoard extends Component {
         });
     }
 
-    // Proposing (or rectifying) a timetable change opens its draft notice - created on the spot
-    // the first time - for the planner to review and send from the notice's own form; releasing a
-    // guard that is no longer needed notifies them straight away.
+    // Releasing a guard that is no longer needed notifies them straight away; an arrangement
+    // waiting for its notice opens that draft.
     async onAction(action) {
         if (action.type === "obsolete_cover") {
             await this.orm.call("ems.absence_cover", "board_release", [action.cover_id]);
             await this.loadBoard();
             return;
         }
-        if (action.draft_id) {
-            await this.actionService.doAction({
-                type: "ir.actions.act_window",
-                res_model: "ems.notice",
-                res_id: action.draft_id,
-                views: [[false, "form"]],
-                target: "current",
-            });
-            return;
-        }
-        // Sent at once (issue #652): clicking the button is the confirmation. A notice that could
-        // not be sent stays a draft and opens, with the reason, for the planner to review.
-        const option = action.options[action.default];
+        await this.openNotice(action.draft_id);
+    }
+
+    async openNotice(noticeId) {
+        await this.actionService.doAction({
+            type: "ir.actions.act_window",
+            res_model: "ems.notice",
+            res_id: noticeId,
+            views: [[false, "form"]],
+            target: "current",
+        });
+    }
+
+    // Sends one timetable change (or its correction) to a group's families at once (issue #652):
+    // choosing it was the confirmation. A notice that could not be sent stays a draft and opens,
+    // with the reason, for the planner to review.
+    async sendChange(groupId, option) {
         const result = await this.orm.call("ems.notice", "board_send_absence_change", [
-            this.activeDate, action.group_id, option.change_type, option.hour, option.hour_to,
+            this.activeDate, groupId, option.change_type, option.hour, option.hour_to,
         ]);
         if (!(await this.openUnsentNotice(result))) {
-            this.notification.add(_t("Notice sent."), { type: "success" });
+            this.notification.add(_t("Correction sent."), { type: "success" });
             await this.loadBoard();
         }
     }

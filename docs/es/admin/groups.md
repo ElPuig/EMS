@@ -33,6 +33,7 @@ Navega a: **Comunidad Educativa → Grupos**
    - **Delegado**: un alumno representante (solo seleccionable una vez el grupo tiene alumnos).
    - **Subdelegado**: el alumno que sustituye al delegado. Se elige entre los mismos alumnos y no puede ser el delegado.
    - **Turno**, **Aula de referencia**, **ID externo** (código Esfera/SAGA) según se necesite.
+   - **Se une con**: en una mitad de un grupo desdoblado, la otra mitad (p. ej., `AIF2B` en `AIF2A`). Cuando falta un docente, el horario de guardias puede proponer entonces que el docente que da la misma materia a las dos mitades les dé clase a la vez. Indícalo en una mitad y la otra también lo tendrá. Déjalo vacío en los grupos que solo comparten algunas clases sin ser mitades (p. ej., `DAM2A` y `DAM2B`).
    - **Gestionado por los departamentos** (solo lectura, visible cuando hay alguno): el departamento indicado en los estudios del grupo o, en un grupo de refuerzo, en los estudios de sus grupos principales. Sus jefes también pueden organizar las ausencias de las clases del grupo. Se cambia desde la ficha de los estudios (ver [Estudios](curriculum-studies.md)).
 4. Haz clic en **Guardar**.
 

@@ -33,6 +33,7 @@ Navega a: **Comunitat Educativa → Grups**
    - **Delegat**: un alumne representant (només seleccionable un cop el grup té alumnes).
    - **Sotsdelegat**: l'alumne que substitueix el delegat. Es tria entre els mateixos alumnes i no pot ser el delegat.
    - **Torn**, **Aula de referència**, **ID extern** (codi Esfera/SAGA) segons calgui.
+   - **S'uneix amb**: en una meitat d'un grup desdoblat, l'altra meitat (p. ex., `AIF2B` a `AIF2A`). Quan falta un docent, l'horari de guàrdies pot proposar llavors que el docent que fa la mateixa matèria a les dues meitats els faci classe alhora. Indica-ho en una meitat i l'altra també ho tindrà. Deixa'l buit en els grups que només comparteixen algunes classes sense ser meitats (p. ex., `DAM2A` i `DAM2B`).
    - **Gestionat pels departaments** (només lectura, visible quan n'hi ha): el departament indicat als estudis del grup o, en un grup de reforç, als estudis dels seus grups principals. Els seus caps també poden organitzar les absències de les classes del grup. Es canvia des de la fitxa dels estudis (consulta [Estudis](curriculum-studies.md)).
 4. Fes clic a **Desa**.
 

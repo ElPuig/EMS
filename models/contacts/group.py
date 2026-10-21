@@ -65,6 +65,14 @@ class EmsGroup(models.Model):
 	missing_parent_group_ids = fields.Many2many(string="Main groups of its students not set",
 		comodel_name="ems.group", compute="_compute_missing_parent_group_ids",
 		help="The main groups of this group's enrolled students that are not among its main groups.")
+	# Issue #676: the other halves of the same split group, which the guard duty board may teach
+	# together (issue #660). Set by hand: sharing a lesson is not enough (DAM2A and DAM2B share some
+	# without being halves). Always mutual, see _mirror_joinable_groups.
+	joinable_group_ids = fields.Many2many(string="Joins with", comodel_name="ems.group", relation="ems_group_joinable_rel",
+		column1="group_id", column2="joinable_id", domain="[('id', '!=', id)]",
+		help="The other halves of the same split group. When a teacher is away, the guard duty board can propose "
+			"that a teacher who teaches them the same subject teaches both halves together. Setting it on one half "
+			"sets it on the other too.")
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
@@ -266,7 +274,19 @@ class EmsGroup(models.Model):
 			groups = super().create(vals_list)
 			self._raise_if_archived_duplicate(groups)
 		self._sync_tutor_role(groups.mapped('tutor_id'))
+		groups.filtered('joinable_group_ids')._mirror_joinable_groups({})
 		return groups
+
+	def _mirror_joinable_groups(self, before):
+		"""Keep 'Joins with' mutual (issue #676): every group added to (removed from) a group's
+		halves gets (loses) that group too. `before`: `{group id: its previous halves}`."""
+		Group = self.env['ems.group']
+		for group in self:
+			previous = before.get(group.id, Group)
+			for half in group.joinable_group_ids - previous:
+				half.with_context(ems_skip_joinable_mirror=True).write({'joinable_group_ids': [(4, group.id)]})
+			for half in previous - group.joinable_group_ids:
+				half.with_context(ems_skip_joinable_mirror=True).write({'joinable_group_ids': [(3, group.id)]})
 
 	def _archive_confirmation_message(self):
 		# Archiving is always allowed (it never removes/unenrolls anyone) - this only builds the
@@ -338,10 +358,14 @@ class EmsGroup(models.Model):
 		# actually changed and what to move away from (see _propagate_classroom_change below).
 		old_space_by_group = {group.id: group.space_id for group in self} if 'space_id' in vals else {}
 		name_affecting = vals.keys() & {"name", "course", "acronym", "study_id", "group_type", "external_id"}
+		mirror = 'joinable_group_ids' in vals and not self.env.context.get('ems_skip_joinable_mirror')
+		old_halves = {group.id: group.joinable_group_ids for group in self} if mirror else {}
 		with self.env.cr.savepoint():
 			res = super(EmsGroup, self).write(vals)
 			if name_affecting:
 				self._raise_if_archived_duplicate(self)
+		if mirror:
+			self._mirror_joinable_groups(old_halves)
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:

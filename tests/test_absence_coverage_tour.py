@@ -169,7 +169,7 @@ class TestAbsenceCoverageTour(HttpCase):
 
     def test_join_split_groups_tour(self):
         """Issue #660, as the Department Chief: TABTG and TABTH are the two halves of a split group
-        (they share a lesson on Tuesdays). Next Monday the absent teacher has TABTH at 9, in the
+        (their forms say so, issue #676). Next Monday the absent teacher has TABTH at 9, in the
         middle of its day, and TABTG at 12, its last lesson; 'Tour Join Teacher' teaches both the
         same subject, TABTG at 9 and TABTH at 12. The board proposes joining TABTH to TABTG's 9:00
         lesson: both halves leave at 12 and nobody needs a guard."""
@@ -194,8 +194,8 @@ class TestAbsenceCoverageTour(HttpCase):
             ('0', 8, 9, lesson(half_b, filler_b)), ('0', 9, 10, {'non_teaching': wc.id, 'name': 'WC'}),
             ('0', 10, 11, lesson(half_a, filler_a)), ('0', 11, 12, lesson(half_a, filler_a))])
         third = self.env['hr.employee'].create({'name': 'Tour Third Teacher', 'employee_type': 'teacher'})
-        self._rows(third, 'Tour Third Teacher', [('0', 10, 11, lesson(half_b, filler_b)), ('0', 11, 12, lesson(half_b, filler_b)),
-                                                 ('1', 8, 9, lesson(half_a | half_b, filler_a))])
+        self._rows(third, 'Tour Third Teacher', [('0', 10, 11, lesson(half_b, filler_b)), ('0', 11, 12, lesson(half_b, filler_b))])
+        half_a.joinable_group_ids = half_b
         day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
         plans = [[(step['kind'], step.get('change') or step['teacher']) for step in plan['steps']]
                  for plan in self.env['ems.course']._get_arrangement_plans(day, half_b)]

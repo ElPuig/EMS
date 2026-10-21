@@ -23374,3 +23374,21 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Together with"
 msgstr "Junto con"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__joinable_group_ids
+msgid "Joins with"
+msgstr "Se une con"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
+msgid ""
+"The other halves of the same split group. When a teacher is away, the guard "
+"duty board can propose that a teacher who teaches them the same subject "
+"teaches both halves together. Setting it on one half sets it on the other "
+"too."
+msgstr ""
+"Las otras mitades del mismo grupo desdoblado. Cuando falta un docente, el "
+"horario de guardias puede proponer que un docente que les da la misma "
+"materia dé clase a las dos mitades a la vez. Si se indica en una mitad, la "
+"otra también lo tiene."

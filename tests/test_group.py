@@ -403,3 +403,17 @@ class TestGroup(TransactionCase):
         self.assertEqual(group.parent_group_ids, self.test_group | other | third,
                          "a main group set by hand (its students not enrolled yet, say) stays")
         self.assertFalse(group.missing_parent_group_ids)
+
+    def test_joins_with_is_mutual(self):
+        """Issue #676: setting a group's other halves on one of them sets it on the others, on
+        create and on write, and removing one removes it from both."""
+        half_b, half_c = self.env['ems.group'].create([{'group_type': 'reinforcement', 'name': f'Test Half {half}'}
+                                                       for half in 'BC'])
+        self.test_group.joinable_group_ids = half_b | half_c
+
+        self.assertEqual((half_b.joinable_group_ids, half_c.joinable_group_ids), (self.test_group, self.test_group))
+        half_b.joinable_group_ids = False
+        self.assertEqual(self.test_group.joinable_group_ids, half_c)
+        new = self.env['ems.group'].create({'group_type': 'reinforcement', 'name': 'Test Half D',
+                                            'joinable_group_ids': [(6, 0, half_c.ids)]})
+        self.assertEqual(half_c.joinable_group_ids, self.test_group | new)

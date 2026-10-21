@@ -23,6 +23,8 @@ This guide explains how, after the 3rd evaluation meeting, the tutor can generat
 
 **Academic Management → Enrollment → Enrollment Proposals**
 
+> This menu is only available during the **pre-enrollment period**, which the administrator sets every year (by default, from 1 May to 31 July). Outside it, Enrollment does not appear in Academic Management.
+
 ---
 
 ## Step 1 — Select Approved Students

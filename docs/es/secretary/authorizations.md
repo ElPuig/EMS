@@ -20,7 +20,7 @@ Esta guía explica cómo crear formularios de autorización, enviarlos al alumna
 
 ## Crear un formulario de autorización
 
-Id a **Gestión académica > Autorizaciones > Configuración > Formularios de autorización** y haced clic en **Nuevo**.
+Id a **Gestión académica > Configuración > Formularios de autorización** y haced clic en **Nuevo**.
 
 ![Formulario de autorización](../../assets/secretary/authorizations-template-form.png)
 
@@ -44,7 +44,7 @@ Haced clic en **Guardar**.
 
 ## Enviar autorizaciones al alumnado
 
-Id a **Gestión académica > Autorizaciones > Enviar autorizaciones**. También podéis abrir el asistente desde:
+Id a **Gestión académica > Autorizaciones** y haced clic en **Nuevo**. También podéis abrir el asistente desde:
 
 - la lista de alumnos: seleccionad los alumnos, abrid el menú del engranaje ⚙ y elegid **Enviar autorizaciones**;
 - la ficha de un solo alumno: el menú **Acciones** de la cabecera;
@@ -81,7 +81,7 @@ El alumno y la familia responden desde **Matrícula y autorizaciones** en el por
 
 ## Seguimiento de las respuestas
 
-Id a **Gestión académica > Autorizaciones > Seguimiento**. La lista se abre con el curso académico actual.
+Id a **Gestión académica > Autorizaciones**. La lista se abre con el curso académico actual.
 
 ![Lista de seguimiento](../../assets/secretary/authorizations-list.png)
 
@@ -92,7 +92,7 @@ Id a **Gestión académica > Autorizaciones > Seguimiento**. La lista se abre co
 
 ## Responder en nombre de una familia
 
-Cuando una familia entrega el formulario firmado en papel, abrid la autorización desde **Seguimiento**, indicad el **Estado** y adjuntad el documento escaneado en el campo **Documento**. El estado no se puede cambiar sin adjuntarlo.
+Cuando una familia entrega el formulario firmado en papel, abrid la autorización desde la lista de **Autorizaciones**, indicad el **Estado** y adjuntad el documento escaneado en el campo **Documento**. El estado no se puede cambiar sin adjuntarlo.
 
 ---
 

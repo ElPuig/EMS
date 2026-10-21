@@ -412,6 +412,7 @@
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
         'data/main/ir.cron-task_digest.csv',
+        'data/main/ir.cron-preenrollment_period.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',

@@ -20,7 +20,7 @@ This guide explains how to create authorization forms, send them to students dur
 
 ## Creating an authorization form
 
-Go to **Academic management > Authorizations > Configuration > Authorization Forms** and click **New**.
+Go to **Academic management > Configuration > Authorization Forms** and click **New**.
 
 ![Authorization form](../../assets/secretary/authorizations-template-form.png)
 
@@ -44,7 +44,7 @@ Click **Save**.
 
 ## Sending authorizations to students
 
-Go to **Academic management > Authorizations > Send Authorizations**. You can also open the assistant from:
+Go to **Academic management > Authorizations** and click **New**. You can also open the assistant from:
 
 - the students list: select the students, then use the gear menu ⚙ and choose **Send authorizations**;
 - a single student's own form: the **Actions** menu in its header;
@@ -81,7 +81,7 @@ The student and the family answer from **Enrollment and authorizations** on the 
 
 ## Following up the answers
 
-Go to **Academic management > Authorizations > Responses**. The list opens on the current academic year.
+Go to **Academic management > Authorizations**. The list opens on the current academic year.
 
 ![Responses list](../../assets/secretary/authorizations-list.png)
 
@@ -92,7 +92,7 @@ Go to **Academic management > Authorizations > Responses**. The list opens on th
 
 ## Answering on a family's behalf
 
-When a family hands in the signed form on paper, open the authorization from **Responses**, set the **Status** and attach the scanned document in the **Document** field. The status cannot be changed without attaching it.
+When a family hands in the signed form on paper, open the authorization from the **Authorizations** list, set the **Status** and attach the scanned document in the **Document** field. The status cannot be changed without attaching it.
 
 ---
 

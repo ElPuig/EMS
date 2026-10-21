@@ -419,13 +419,18 @@ relation table: the family↔student link goes through
 traversal would be a subquery-rights hazard. It is pinned by a real
 `with_user(portal_user).search([])` test rather than trusted.
 
-Everything lives under its own submenu, Academic Management → Authorizations
-(`views/academic_management/authorizations/menu.xml`): Send Authorizations and Responses
-first, then a Configuration child holding Authorization Forms, which the navbar renders as
-a section header inside the same dropdown. The whole submenu is gated to academic admin,
-secretary and head of studies, so the head of studies reaches the forms without being given
-the enrollment Configuration menu. `menu_ems_authorization_forms` kept its xmlid (it exists
-on released databases); only its parent and defining file changed, so no migration.
+Academic Management → Authorizations (`menu_ems_authorization_root`,
+`views/academic_management/authorizations/menu.xml`) is a single entry, like the other
+sections (issue #654): it opens the responses list (`action_ems_authorizations_follow_up`),
+whose header **New** button (`create="false"` stays, an authorization is never made by hand)
+opens the Send Authorizations assistant, for the same groups as the assistant's own
+`_check_rights`. Authorization Forms (`menu_ems_authorization_forms`) sits in Academic
+Management → Configuration, for academic admin, secretary and head of studies. The head of
+studies reaches nothing else there: `menu_ems_configuration` lists `group_head_of_studies` and
+every other entry of that folder names its own groups. `menu_ems_authorization_forms` kept its
+xmlid (it exists on released databases), so no migration; the submenus it replaced
+(`menu_ems_authorization_send`, `menu_ems_authorizations`, `menu_ems_authorization_config`) are
+removed by the upgrade itself.
 
 ## Migration notes (18.0.0.25.0)
 

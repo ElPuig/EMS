@@ -210,10 +210,12 @@ A yearly window, with no year, stored on `res.company` and edited in Settings â†
 | `convalidation_start_day`, `convalidation_start_month`, `convalidation_start_time` | 1, October, 08:00 | Opening. `month` is a Selection `'1'`..`'12'`; `time` a float hour (`float_time`). |
 | `convalidation_end_day`, `convalidation_end_month`, `convalidation_end_time` | 31, March, 23:59 | Closing. The closing minute is still inside the period. |
 
-- **Local time:** compared in the company partner's time zone (`_ems_convalidation_datetime_utils()`), whoever is asking.
-- **Across the new year:** `_ems_convalidation_period_keys()` turns both ends into `(month, day, minute)` tuples. When the opening comes before the closing in the calendar the period is that stretch; otherwise it runs from the opening to the end of the year and from 1 January to the closing, as the default does.
+The arithmetic is shared with the [pre-enrollment period](../enrollment/enrollment_proposal_wizard.md#availability-the-pre-enrollment-period): generic `res.company` helpers take the fields' prefix (`'convalidation'`, `'preenrollment'`), and the convalidation ones below are thin wrappers.
+
+- **Local time:** compared in the company partner's time zone (`_ems_company_datetime_utils()`), whoever is asking.
+- **Across the new year:** `_ems_yearly_period_keys(prefix)` turns both ends into `(month, day, minute)` tuples. When the opening comes before the closing in the calendar the period is that stretch; otherwise it runs from the opening to the end of the year and from 1 January to the closing, as the default does.
 - **`_ems_convalidation_period_open(now=None)`** decides; **`_ems_convalidation_period_next_change(now=None)`** returns the next opening (while closed) or the coming closing (while open) as naive UTC, which the portal renders in the reader's time zone. Both take `now` as naive UTC, so tests can fix it.
-- **`_check_convalidation_period`:** each day must exist in its month in a non-leap year (no 29 February, so the period is the same every year), times must be within 00:00-23:59, and the two ends must differ.
+- **`_check_convalidation_period`** (through `_ems_check_yearly_period(prefix, period)`): each day must exist in its month in a non-leap year (no 29 February, so the period is the same every year), times must be within 00:00-23:59, and the two ends must differ.
 - **Staff are not limited:** nothing in `ems.convalidation` itself checks the period. The secretariat can register, and every role can process, requests at any time.
 
 - `_ems_portal_study(student)`: the study of the student's non-cancelled `sale.order` for the enrollment course, else `main_group_id.study_id`. The result is kept only if its level allows convalidations.

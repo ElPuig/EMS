@@ -23,6 +23,8 @@ Aquesta guia explica com, després de la junta de la 3a avaluació, el tutor pot
 
 **Gestió acadèmica → Matrícula → Propostes de matrícula**
 
+> Aquest menú només està disponible durant el **període de preinscripció**, que l'administrador fixa cada any (per defecte, de l'1 de maig al 31 de juliol). Fora d'aquest període, Matrícula no apareix a Gestió acadèmica.
+
 ---
 
 ## Pas 1 — Seleccionar els alumnes aprovats

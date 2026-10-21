@@ -20,7 +20,7 @@ Aquesta guia explica com crear formularis d'autorització, enviar-los a l'alumna
 
 ## Crear un formulari d'autorització
 
-Aneu a **Gestió acadèmica > Autoritzacions > Configuració > Formularis d'autorització** i feu clic a **Nou**.
+Aneu a **Gestió acadèmica > Configuració > Formularis d'autorització** i feu clic a **Nou**.
 
 ![Formulari d'autorització](../../assets/secretary/authorizations-template-form.png)
 
@@ -44,7 +44,7 @@ Feu clic a **Desar**.
 
 ## Enviar autoritzacions a l'alumnat
 
-Aneu a **Gestió acadèmica > Autoritzacions > Enviar autoritzacions**. També podeu obrir l'assistent des de:
+Aneu a **Gestió acadèmica > Autoritzacions** i feu clic a **Nou**. També podeu obrir l'assistent des de:
 
 - la llista d'alumnes: seleccioneu els alumnes, obriu el menú de l'engranatge ⚙ i trieu **Enviar autoritzacions**;
 - la fitxa d'un sol alumne: el menú **Accions** de la capçalera;
@@ -81,7 +81,7 @@ L'alumne i la família responen des de **Matrícula i autoritzacions** al portal
 
 ## Seguiment de les respostes
 
-Aneu a **Gestió acadèmica > Autoritzacions > Seguiment**. La llista s'obre amb el curs acadèmic actual.
+Aneu a **Gestió acadèmica > Autoritzacions**. La llista s'obre amb el curs acadèmic actual.
 
 ![Llista de seguiment](../../assets/secretary/authorizations-list.png)
 
@@ -92,7 +92,7 @@ Aneu a **Gestió acadèmica > Autoritzacions > Seguiment**. La llista s'obre amb
 
 ## Respondre en nom d'una família
 
-Quan una família lliura el formulari signat en paper, obriu l'autorització des de **Seguiment**, indiqueu l'**Estat** i adjunteu el document escanejat al camp **Document**. L'estat no es pot canviar sense adjuntar-lo.
+Quan una família lliura el formulari signat en paper, obriu l'autorització des de la llista d'**Autoritzacions**, indiqueu l'**Estat** i adjunteu el document escanejat al camp **Document**. L'estat no es pot canviar sense adjuntar-lo.
 
 ---
 

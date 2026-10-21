@@ -1709,6 +1709,7 @@ msgstr "Carrega"
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 #: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list
 msgid "New"
 msgstr "Nou"
 
@@ -16516,34 +16517,6 @@ msgid "September"
 msgstr "Setembre"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period must open and close at different moments."
-msgstr ""
-"El període de sol·licitud de convalidacions s'ha d'obrir i tancar en moments"
-" diferents."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period uses a day that does not exist: %(day)s "
-"%(month)s."
-msgstr ""
-"El període de sol·licitud de convalidacions fa servir un dia que no "
-"existeix: %(day)s %(month)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period's times must be between 00:00 and 23:59."
-msgstr ""
-"Les hores del període de sol·licitud de convalidacions han de ser entre les "
-"00:00 i les 23:59."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_search
 msgid "Show only current course"
 msgstr "Mostrar tan sols el curs actual"
@@ -23244,3 +23217,90 @@ msgstr "No s'ha pogut enviar el comunicat i queda com a esborrany perquè el rev
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Notice sent."
 msgstr "Comunicat enviat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "convalidation request period"
+msgstr "període de sol·licitud de convalidacions"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "pre-enrollment period"
+msgstr "període de preinscripció"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The %(period)s uses a day that does not exist: %(day)s %(month)s."
+msgstr "El %(period)s fa servir un dia que no existeix: %(day)s %(month)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The times of the %(period)s must be between 00:00 and 23:59."
+msgstr "Les hores del %(period)s han de ser entre les 00:00 i les 23:59."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The %(period)s must open and close at different moments."
+msgstr "El %(period)s s'ha d'obrir i tancar en moments diferents."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "Enrollment proposals are only available during the pre-enrollment period. It opens on %(date)s."
+msgstr "Les propostes de matrícula només estan disponibles durant el període de preinscripció. S'obre el %(date)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Pre-enrollment period"
+msgstr "Període de preinscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Every year, tutors, department and seminar chiefs, guidance and coexistence only see Academic management > Enrollment between these two moments, in the centre's local time. Academic administration, the secretary's office, the Heads of Studies and the Director always see it."
+msgstr "Cada any, els tutors, els caps de departament i de seminari, orientació i convivència només veuen Gestió acadèmica > Matrícula entre aquests dos moments, en hora local del centre. L'administració acadèmica, la secretaria, els caps d'estudis i el director la veuen sempre."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_preenrollment_period_ir_actions_server
+msgid "EMS: Pre-enrollment period opening and closing"
+msgstr "EMS: Obertura i tancament del període de preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_day
+msgid "Preenrollment Start Day"
+msgstr "Dia d'obertura de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_month
+msgid "Preenrollment Start Month"
+msgstr "Mes d'obertura de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_time
+msgid "Preenrollment Start Time"
+msgstr "Hora d'obertura de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_day
+msgid "Preenrollment End Day"
+msgstr "Dia de tancament de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_month
+msgid "Preenrollment End Month"
+msgstr "Mes de tancament de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_time
+msgid "Preenrollment End Time"
+msgstr "Hora de tancament de la preinscripció"

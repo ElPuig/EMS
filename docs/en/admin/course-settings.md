@@ -50,4 +50,15 @@ If the year you need is not listed, type it in either selector and use **Create 
 
 ---
 
+## Pre-enrollment period
+
+Tutors only use **Academic management → Enrollment → Enrollment proposal** during pre-enrollment, so outside the **Pre-enrollment period** it is hidden from them. It is hidden as well from department and seminar chiefs, guidance and coexistence, who already have all of a student's information on the student's file. The academic administration, the secretary's office, the heads of studies, the deputy heads of studies and the director always see it.
+
+1. In **Pre-enrollment period**, set the day, month and time it **Opens** and **Closes**, in the centre's local time. There is no year: the same dates repeat every year.
+2. Save. The menu appears and disappears on its own at those moments.
+
+By default it runs from 1 May at 08:00 to 31 July at 23:59. A tutor who opens the proposals from a saved link outside the period gets a message saying when it opens again.
+
+---
+
 [← Back to Administrator index](index.md)

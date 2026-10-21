@@ -4,7 +4,7 @@ from odoo.tests.common import HttpCase, tagged
 
 from .common import (
     create_level_study_group, create_role_employee, create_role_user, create_student_academic_file,
-    mock_outgoing_email,
+    mock_outgoing_email, open_yearly_period,
 )
 
 
@@ -18,6 +18,8 @@ class TestStudentDataReaderTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # The guidance tour opens the Students screen, theirs only during it (issue #654).
+        open_yearly_period(cls.env, 'preenrollment')
         # Signing an authorization can notify - see CLAUDE.md's "Email safety in tests".
         mock_outgoing_email(cls)
 

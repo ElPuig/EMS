@@ -4,7 +4,7 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group, next_student_id
+from .common import create_level_study, create_level_study_group, create_role_user, next_student_id
 
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
@@ -464,3 +464,32 @@ class TestAuthorizationStandalone(TransactionCase):
         with self.assertRaises(Exception):
             self._standalone()
             self.env.flush_all()
+
+
+class TestAuthorizationMenus(TransactionCase):
+    """Issue #654 - Authorizations is a single entry of Academic management, and its catalogue
+    sits in Academic management > Configuration, where the Heads of Studies reach nothing else."""
+
+    def _visible(self, user):
+        return self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()
+
+    def test_head_of_studies_only_gets_the_forms_in_configuration(self):
+        visible = self._visible(create_role_user(self, 'head_of_studies', 'test_auth_menu_hos'))
+        self.assertIn(self.env.ref('ems.menu_ems_configuration').id, visible)
+        self.assertIn(self.env.ref('ems.menu_ems_authorization_forms').id, visible)
+        for xmlid in ('ems.menu_ems_enrollment_items', 'ems.menu_ems_enrollment_templates'):
+            with self.subTest(menu=xmlid):
+                self.assertNotIn(self.env.ref(xmlid).id, visible)
+
+    def test_secretary_keeps_the_whole_configuration(self):
+        visible = self._visible(create_role_user(self, 'secretary', 'test_auth_menu_secretary'))
+        for xmlid in ('ems.menu_ems_authorization_forms', 'ems.menu_ems_enrollment_items',
+                      'ems.menu_ems_enrollment_templates'):
+            with self.subTest(menu=xmlid):
+                self.assertIn(self.env.ref(xmlid).id, visible)
+
+    def test_tutor_gets_authorizations_but_not_the_forms(self):
+        visible = self._visible(create_role_user(self, 'tutor', 'test_auth_menu_tutor'))
+        self.assertIn(self.env.ref('ems.menu_ems_authorization_root').id, visible)
+        self.assertNotIn(self.env.ref('ems.menu_ems_authorization_forms').id, visible)
+        self.assertNotIn(self.env.ref('ems.menu_ems_configuration').id, visible)

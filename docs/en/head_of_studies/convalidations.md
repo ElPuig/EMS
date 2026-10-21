@@ -75,11 +75,11 @@ Open the request from the list. The form shows:
 - **Studies passed** (prior studies only): at this centre or at another centre or university. A request from the portal for studies passed elsewhere, or on any other grounds, always comes with supporting documents; only studies passed here may come without them.
 - Under the student's name, the notice **Holds a title obtained at this centre** when the academic history records a title obtained here.
 - **Subjects** tab: one line for each module requested.
-- **Academic history** tab (Head of Studies, Deputy, Director and administrator only): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades.
+- **Academic history** tab (Head of Studies, Deputy, Director, secretariat and administrator): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades.
 - **Supporting documents** tab: the attached files.
 - **Applicant's comments** tab: what the student or the family wrote.
 - **Documentation requested** tab: the last documentation you asked for, if any.
-- **Resolution** tab: comments for the student, sent with the resolution.
+- **Resolution** tab: how the request was resolved, as each step happens (proposal date and who sent it, date filed with the Ministry, resolution date and who issued it, the resolution PDF, registration date and who registered it), and the comments for the student, which the resolution PDF and the resolution email include. The comments can be changed until the Director issues the resolution; from then on they are fixed, so the PDF, the email and the portal always say the same.
 
 ![Convalidation request form](../../assets/head_of_studies/convalidations-form.png)
 
@@ -133,7 +133,7 @@ Both options are in the form's **Actions** menu.
 
 ![Proposal pending the Director](../../assets/head_of_studies/convalidations-director.png)
 
-- **Resolve:** issues the official resolution as proposed. The resolution PDF is generated and the request moves to **Pending the secretariat**. The PDF appears in the form's **Resolution** field: click the file name to open it.
+- **Resolve:** issues the official resolution as proposed. The resolution PDF is generated and the request moves to **Pending the secretariat**. The PDF appears in the **Resolution** field of the **Resolution** tab: click the file name to open it. If you want to add comments for the student, write them in that tab before resolving: they are printed on the PDF and cannot be changed afterwards.
 - **Return to the Head of Studies:** write the reason and click **Return**. The request goes back to **Pending**, with the reason in a yellow notice at the top of the form, and the Head of Studies gets the task again. The student does not see the reason. When the Head of Studies sends the proposal again, the notice disappears.
 
 ### The resolution PDF
@@ -156,7 +156,7 @@ The grounds-of-law and appeal texts, and signing by delegation, are configured i
 1. File the request with the Ministry.
 2. In **Actions**, choose **In process at the Ministry** and confirm. The request stays in your hands: the student can no longer cancel it, but you can still ask them for documentation.
 3. When the Ministry's answer arrives, decide each module as it resolved, with the reason for the rejected ones.
-4. If you have the Ministry's resolution, upload it to the **Ministry resolution** field. It is optional.
+4. If you have the Ministry's resolution, upload it to the **Ministry resolution** field, on the **Resolution** tab. It is optional.
 5. In **Actions**, choose **Ministry resolution received**.
 
 The request moves straight to **Pending the secretariat**, without going through the Director. If you uploaded the Ministry's resolution, that is the one the student receives.

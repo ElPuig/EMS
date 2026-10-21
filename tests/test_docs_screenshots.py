@@ -457,7 +457,10 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '.o_form_view', 'convalidations-ministry.png',
             login='doc_shot_hos',
             wait_for=".o_form_statusbar .o_ems_actions_toggle",
-            max_height=420,
+            # Issue #657: where the Ministry's resolution is attached.
+            click=".o_notebook .nav-link[name='resolution']",
+            wait_after=".o_field_widget[name='ministry_resolution']",
+            max_height=520,
         )
         self._capture(
             '/odoo/action-ems.action_convalidation/%d' % proposed.id,
@@ -478,7 +481,10 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_secretary',
             # Its only action, so a plain header button rather than an Actions dropdown.
             wait_for=".o_form_statusbar button[name='action_complete']",
-            max_height=420,
+            # Issue #657: where the resolution PDF is.
+            click=".o_notebook .nav-link[name='resolution']",
+            wait_after=".o_field_widget[name='resolution_pdf_link'] a",
+            max_height=560,
         )
 
         # The portal (goes to docs/assets/families/): the resolved request, completed; a new one

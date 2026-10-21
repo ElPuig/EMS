@@ -14,7 +14,7 @@ Registra a l'Esfera les convalidacions ja resoltes i tanca-les a l'EMS, perquè 
 
 Una sol·licitud arriba a secretaria quan ja està resolta i passa a l'estat **Pendent de secretaria**. Hi pot arribar per dos camins:
 
-- **Resolta pel centre:** Direcció n'ha emès la resolució oficial. El PDF de la resolució és al camp **Resolució** del formulari.
+- **Resolta pel centre:** Direcció n'ha emès la resolució oficial. El PDF de la resolució és al camp **Resolució** de la pestanya **Resolució** del formulari.
 - **Resolta pel Ministeri:** Cap d'Estudis hi ha registrat el resultat del Ministeri. Si l'ha pujat, la resolució del Ministeri també és al camp **Resolució**.
 
 Cada sol·licitud resolta apareix a la safata d'activitats (🕒) de tot el personal de secretaria. Quan algú la registra, la tasca desapareix de la safata de tothom.
@@ -32,9 +32,11 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 ## Registrar una resolució
 
 1. Obre la sol·licitud.
-2. Fes clic al nom del fitxer del camp **Resolució** per obrir el PDF en una pestanya nova, i comprova a la pestanya **Assignatures** quins mòduls estan convalidats i amb quina nota.
+2. A la pestanya **Resolució**, fes clic al nom del fitxer del camp **Resolució** per obrir el PDF en una pestanya nova, i comprova a la pestanya **Assignatures** quins mòduls estan convalidats i amb quina nota.
 3. Registra la resolució a l'Esfera.
 4. Fes clic a **Registrada a Esfera**, a dalt del formulari, i confirma.
+
+La pestanya **Històric acadèmic** mostra l'històric de l'alumne al centre, una línia per curs, el mateix que mostra la seva fitxa.
 
 ![Sol·licitud pendent de secretaria](../../assets/secretary/convalidations-secretary.png)
 

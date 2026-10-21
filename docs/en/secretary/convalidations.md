@@ -14,7 +14,7 @@ Register resolved convalidations in Esfera and close them in EMS, so the student
 
 A request reaches the secretariat once it is resolved, in the **Pending the secretariat** state. It can arrive by two routes:
 
-- **Resolved by the centre:** the Director has issued the official resolution. The resolution PDF is in the form's **Resolution** field.
+- **Resolved by the centre:** the Director has issued the official resolution. The resolution PDF is in the **Resolution** field of the form's **Resolution** tab.
 - **Resolved by the Ministry:** the Head of Studies has recorded the Ministry's outcome. If they uploaded it, the Ministry's resolution is in the **Resolution** field too.
 
 Each resolved request appears in the activity tray (🕒) of all secretariat staff. When someone registers it, the task disappears from everyone's tray.
@@ -32,9 +32,11 @@ To see a student's requests, open their record and click the **Convalidations** 
 ## Registering a resolution
 
 1. Open the request.
-2. Click the file name in the **Resolution** field to open the PDF in a new tab, and check on the **Subjects** tab which modules are convalidated and with which grade.
+2. On the **Resolution** tab, click the file name in the **Resolution** field to open the PDF in a new tab, and check on the **Subjects** tab which modules are convalidated and with which grade.
 3. Register the resolution in Esfera.
 4. Click **Registered in Esfera**, at the top of the form, and confirm.
+
+The **Academic history** tab shows the student's history at the centre, one line per course, the same one their form shows.
 
 ![Request pending the secretariat](../../assets/secretary/convalidations-secretary.png)
 

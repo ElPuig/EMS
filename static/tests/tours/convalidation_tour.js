@@ -140,8 +140,19 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
             content: "The request waits for the Ministry",
         },
         {
+            // Issue #657: on the Resolution tab, with the rest of the circuit's outcome.
+            trigger: ".o_form_view .o_notebook .nav-link[name='resolution']",
+            content: "Open the resolution tab",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='ministry_resolution']",
             content: "The Ministry's resolution can be attached",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='subjects']",
+            content: "Back to the subjects",
+            run: "click",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_reject']",
@@ -234,6 +245,17 @@ registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
             trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
             content: "It is waiting for the Director",
         },
+        {
+            // Issue #657: the Director can still add comments before resolving...
+            trigger: ".o_form_view .o_notebook .nav-link[name='resolution']",
+            content: "Open the resolution tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='resolution_notes'] textarea",
+            content: "Write a comment for the student",
+            run: "edit Bring the original certificate",
+        },
         ...clickAction("action_resolve", "Resolve it"),
         {
             trigger: ".modal footer button.btn-primary",
@@ -245,8 +267,18 @@ registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
             content: "The request goes on to the secretariat",
         },
         {
+            trigger: ".o_form_view .o_notebook .nav-link[name='resolution']",
+            content: "Back on the resolution tab",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='resolution_pdf_link'] a[href^='/web/content/'][target='_blank']",
             content: "with the resolution PDF",
+        },
+        {
+            // ...which the PDF prints, so they no longer change.
+            trigger: ".o_form_view .o_field_widget[name='resolution_notes'].o_readonly_modifier:contains('Bring the original certificate'):not(:has(textarea))",
+            content: "The resolution comments are frozen",
         },
     ],
 });
@@ -300,9 +332,14 @@ registry.category("web_tour.tours").add("ems_convalidation_complete", {
             content: "It is waiting for the secretariat",
         },
         {
-            // Issue #657: the academic history tab is the Head of Studies' only.
-            trigger: ".o_form_view .o_notebook:not(:has(.nav-link[name='academic_history']))",
-            content: "The secretariat does not get the academic history tab",
+            // Issue #657: the secretariat, who keeps the academic history, sees it too.
+            trigger: ".o_form_view .o_notebook .nav-link[name='academic_history']",
+            content: "Open the student's academic history",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_year_record_ids'] .o_data_row td[name='study_name']:contains('Previous Study (Convalidation)')",
+            content: "What the student studied before is listed",
         },
         ...clickAction("action_complete", "Complete it"),
         {

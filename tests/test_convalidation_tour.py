@@ -90,6 +90,7 @@ class TestConvalidationTour(HttpCase):
         self.start_tour("/odoo", "ems_convalidation_director_resolves", login=self.director.login)
         self.assertEqual(self.request.state, 'in_progress')
         self.assertTrue(self.request.resolution_pdf_id)
+        self.assertEqual(self.request.resolution_notes, 'Bring the original certificate')
 
     def test_director_returns(self):
         self._propose()

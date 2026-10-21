@@ -40,21 +40,26 @@ class ArrangementPlanner:
       whose lesson went elsewhere, and whether somebody already covers it.
     - `breaks`: `{group id: [(hour_from, hour_to)]}`, its level's breaks that day.
     - `communicated`: `{group id: {side: change}}`, what the families were already told per side.
-    - `teachers`: `{teacher id: {'lessons': [((hour_from, hour_to), frozenset(group ids))],
+    - `teachers`: `{teacher id: {'lessons': [((hour_from, hour_to), frozenset(group ids), subject id)],
       'periods': [(hour_from, hour_to)], 'vacated': [(hour_from, hour_to)]}}`: their lessons with
       these groups, every period of their day, and their lessons another arrangement already moved.
     - `free(teacher id, hour_from, hour_to)`: whether they can be with a group then.
     - `swaps`: the lesson swaps the timetable allows (see ems.course._get_arrangement_options),
       as steps: they combine with moves like any other step.
+    - `partners`: `{group id: frozenset(group ids)}`, the other halves of a split group (issue
+      #660): groups sharing some lesson in the weekly timetable.
 
-    A step is a hashable tuple: `('move', teacher id, lesson, target, group ids)` or
-    `('swap', teacher id, lesson, target, group ids, absent teacher id)`, periods as
-    `(hour_from, hour_to)`."""
+    A step is a hashable tuple: `('move', teacher id, lesson, target, group ids)`,
+    `('swap', teacher id, lesson, target, group ids, absent teacher id)` or
+    `('join', teacher id, lesson, target, group ids, joined group ids)`, periods as
+    `(hour_from, hour_to)`. A join (issue #660) is a move whose target is not a free hour of the
+    teacher but one where they teach the same subject to the other half of the group: both halves
+    are taught together then, and the lesson it leaves is a gap like a move's."""
 
     MAX_MOVES = 4
     BEAM = 30
 
-    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, free, swaps=()):
+    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, free, swaps=(), partners=None):
         self.course = course
         self.blocks = blocks
         self.breaks = breaks
@@ -63,6 +68,7 @@ class ArrangementPlanner:
         self.teachers = teachers
         self.free = free
         self.swaps = list(swaps)
+        self.partners = partners or {}
 
     # The state a sequence of steps leaves the groups' day in.
 
@@ -170,7 +176,7 @@ class ArrangementPlanner:
 
     def _keeps_days(self, steps, step):
         shifts = self._shifts([*steps, step])
-        return all(shifts.get(teacher_id) is not None for teacher_id in (step[1], *step[5:]))
+        return all(shifts.get(teacher_id) is not None for teacher_id in (step[1], *(step[5:] if step[0] == 'swap' else ())))
 
     def _steps(self, steps, day):
         holes = defaultdict(set)
@@ -195,7 +201,7 @@ class ArrangementPlanner:
                 if any(other == teacher_id and overlaps(*period, *target) for other, period in taken) \
                         or not self.free(teacher_id, *target):
                     continue
-                for lesson, lesson_groups in teacher['lessons']:
+                for lesson, lesson_groups, _subject in teacher['lessons']:
                     # Every group of the lesson must have the gap: a shared lesson moves for all
                     # of them, and none may end up with a lesson where it already had one.
                     if overlaps(*lesson, *target) or not lesson_groups <= group_ids or (teacher_id, lesson) in vacated \
@@ -204,6 +210,35 @@ class ArrangementPlanner:
                     step = ('move', teacher_id, lesson, target, lesson_groups)
                     if self._keeps_days(steps, step):
                         yield step
+        yield from self._join_steps(steps, day, holes, taken, vacated)
+
+    def _join_steps(self, steps, day, holes, taken, vacated):
+        """The joins (issue #660) into the gaps of `holes`: a teacher who, in a gap of a group, is
+        teaching the same subject to another half of it (a partner, see `partners`) brings that
+        group's lesson of the subject from another hour of theirs, so both halves are taught
+        together. The teacher must really be with the other half then (not away, not moved)."""
+        if not self.partners:
+            return
+        for target, group_ids in sorted(holes.items()):
+            for teacher_id in sorted(self.teachers):
+                if any(other == teacher_id and overlaps(*period, *target) for other, period in taken):
+                    continue
+                teacher = self.teachers[teacher_id]
+                for joint, joint_groups, subject in teacher['lessons']:
+                    if not subject or not overlaps(*joint, *target) or not all(
+                            any(teacher_id in block['taught'] for block in day.get(group_id, ())
+                                if overlaps(block['hour_from'], block['hour_to'], *target))
+                            for group_id in joint_groups):
+                        continue
+                    for lesson, lesson_groups, lesson_subject in teacher['lessons']:
+                        if lesson_subject != subject or overlaps(*lesson, *target) or not lesson_groups <= group_ids \
+                                or lesson_groups & joint_groups or (teacher_id, lesson) in vacated \
+                                or any(overlaps(*lesson, *other) for other in teacher['vacated']) \
+                                or not all(self.partners.get(group_id, frozenset()) & joint_groups for group_id in lesson_groups):
+                            continue
+                        step = ('join', teacher_id, lesson, target, lesson_groups, joint_groups)
+                        if self._keeps_days(steps, step):
+                            yield step
 
     # Search.
 
@@ -256,7 +291,7 @@ class ArrangementPlanner:
         for index, step in enumerate(steps):
             depends.append(sorted({other for other, (group_id, period) in created
                                    if group_id in step[4] and overlaps(*period, *step[3])}))
-            if step[0] == 'move':
+            if step[0] in ('move', 'join'):
                 created += [(index, (group_id, step[2])) for group_id in step[4]]
         notice_depends = [sorted({other for other, (group_id, period) in created if group_id == notice_group
                                   and self.course._change_window_contains(change, *period)})

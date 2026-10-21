@@ -280,6 +280,10 @@
                                                 <span t-if="cell.substitutes.length" class="o_guard_board_cell_teacher o_guard_board_cell_substitute">
                                                     <i class="fa fa-exchange me-1"/><t t-esc="cell.substitutes.join(', ')"/>
                                                 </span>
+                                                <!-- Issue #660: the other half of a split group taught together with it then. -->
+                                                <span t-if="cell.joined.length" class="o_guard_board_cell_teacher o_guard_board_cell_joined">
+                                                    <i class="fa fa-compress me-1"/>Together with <t t-esc="cell.joined.join(', ')"/>
+                                                </span>
                                                 <span t-if="cell.room" class="o_guard_board_cell_room" t-esc="cell.room"/>
                                             </td>
                                         </t>

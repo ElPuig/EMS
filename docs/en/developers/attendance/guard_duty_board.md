@@ -936,6 +936,7 @@ chains of steps that can be applied whole or in part. What it cannot work out is
 |---|---|---|
 | `swap` | Another teacher B of the group, free now, teaches now; the absent teacher A teaches B's lesson with the group later that day | No |
 | `move` | A teacher B, free now, brings one of their lessons with the group into the gap; the lesson they leave is a new gap, which another step can fill | Only when the last gap is left free (start or end of the day, or next to a break) |
+| `join` (#660) | A teacher teaching the same subject to the other half of a split group then brings their lesson with this half from another hour: both halves are taught together, in the other half's room; the lesson left is a new gap, as in a move | As in a move |
 | notice | The families are told the group comes in later, leaves earlier or has a longer break | It is the notice |
 | `manual` | Anything else, described by hand (two groups joined for the same subject, a teacher of another group...), with the teacher involved if any | No |
 
@@ -989,6 +990,40 @@ groups, ~0.3 s for both shifts of the whole board.
 step they need), one notice step per change told to every group it applies to, and each teacher's
 entry/exit changes on their last step. `_arrangement_plan_data()` is its JSON: "Proposal N:", one
 sentence per step, `depends` (indexes) and the `payload` the server needs to apply it.
+
+#### Joining the two halves of a split group (#660)
+
+A **join** is a move whose target is not a free hour of the teacher but one where they are already
+teaching the **same subject** to the other half of a split group: that half is joined to it, and the
+lesson the teacher had with it at another hour is left free, exactly as a moved lesson leaves it
+(a notice can then free the group from it: typically both halves leave an hour earlier, each told by
+its own notice when its own day changes; the half that only receives the other one is told nothing).
+
+- **Halves** (`ems.course._split_partners(context)`): two groups sharing some lesson in the **weekly**
+  timetable (any day: nothing to configure, the timetable says it), restricted to those a teacher
+  teaches the same subject at different hours on the board's day. Read once per board load, lazily
+  (only when plans are computed). `_linked_groups()` links them too, so both halves are planned
+  together and `board_apply_plan()` accepts them.
+- **Planner** (`ArrangementPlanner._join_steps()`): for each gap of a group, a teacher who is then
+  really with a partner of it (in the simulated day, not away nor moved) and teaches that partner the
+  same subject as one of their lessons with the gap's group at another hour (every group of that
+  lesson a partner of the joined one). The step is `('join', teacher, lesson, target, groups, joined
+  groups)`; it is simulated, scored, depended on and checked like a move (`schedule_shift()`: the
+  teacher's day can only get shorter, the target being already theirs). The teachers' lessons carry
+  their subject for this (`teachers[...]['lessons']` items are `(period, group ids, subject id)`).
+- **Applied** as a move (`_board_create_move(..., joined=...)`): `arrangement_type = 'move'` with
+  `joined_group_ids` set and `space_id` the room of the teacher's lesson with the other half. Every
+  move behaviour applies unchanged: waiting for the notice that frees its lesson, siblings, withdrawal,
+  #659's corrections, the teachers' notifications. Only the wording differs (`_arrangement_label()`,
+  the plan step "Joined groups: ...").
+- **Students' notice** of the half that moves (`_arrangement_moved_lessons()`): the lesson carries the
+  room and the other half's name (`(..., room id, other half)`), told as "... together with X in
+  room Y".
+- **Timetable and PDF**: `_board_cell_arrangements()` returns `joined`, the other half taught with the
+  cell's group then, for both halves; the cell shows "Together with ...".
+
+The same-hour split (both halves at once with two teachers, one away) is not a join: nothing is left
+free.
 
 #### Where they show
 

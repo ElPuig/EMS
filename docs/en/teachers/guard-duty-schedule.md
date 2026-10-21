@@ -187,7 +187,7 @@ A group whose families must be told a correction is not in this box but in a red
 Each proposal is a list of steps, one per line, always between teachers of those groups and within the same day:
 
 - **Moved lesson**: a teacher who is free at that time teaches then one of their lessons with the group from another time. The lesson they leave becomes a gap, which another step can fill in turn: one teacher brings a lesson forward, another fills the gap it leaves, and so on, until what is left free is at the start or the end of the day (or next to a break).
-- **Swap**: another teacher of the group teaches then, and the absent teacher, who is in at another time, teaches that teacher's lesson with the group.
+- **Joined groups**: for the two halves of a split group. The teacher who teaches the same subject to the other half at that time teaches both halves together, in the other half's room, and the lesson they had with this half at another time is left free, as in a moved lesson. It often lets both halves leave an hour earlier. Two halves are groups that share some lesson in the weekly timetable; nothing has to be set up.
 - **Notice to the families**: the group comes in later, leaves earlier or has a longer break, for the lessons left free at the start or the end of the day.
 
 A lesson shared by several groups is moved for all of them, as long as all of them have the same gap, and the notice then goes to each group.
@@ -209,7 +209,7 @@ Proposals come in this order: first those where the students lose fewer lessons;
 
 **The group's tutor gets a copy.** When a notice from the board is sent, to the families (comes in later, leaves earlier, longer break, no classes) or to the students (lessons that change time), the group's tutor receives an Odoo message with a copy of it, so they know how their group's day changes. For a reinforcement group, which has no tutor, the tutors of its main groups receive it. If a scheduled notice is cancelled before it goes out, they are told too.
 
-Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own.
+Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own. With joined groups, both halves show **Together with** and the other one's name.
 
 **Other arrangement (described by hand)**, the last option of the dialog, is for whatever the board cannot work out, so that it is on record: two groups joined for the same subject, a teacher of another group... Describe it and, if a teacher is involved, choose them (they receive a message). No guard is then needed for that class.
 

@@ -187,7 +187,7 @@ Un grup a les famílies del qual s'ha de rectificar alguna cosa no surt en aques
 Cada proposta és una llista de passos, un per línia, sempre entre docents d'aquells grups i dins el mateix dia:
 
 - **Classe moguda**: un docent que està lliure en aquella hora hi fa una classe seva amb el grup d'una altra hora. La classe que deixa es converteix en un buit, que un altre pas pot omplir alhora: un docent avança una classe, un altre omple el buit que deixa, i així successivament, fins que el que queda lliure és al principi o al final del dia (o al costat d'un pati).
-- **Intercanvi**: un altre docent del grup fa classe aleshores, i el docent absent, que és al centre en una altra hora, fa la classe d'aquest docent amb el grup.
+- **Grups units**: per a les dues meitats d'un grup desdoblat. El docent que fa la mateixa matèria a l'altra meitat en aquella hora fa classe a les dues meitats alhora, a l'aula de l'altra meitat, i la classe que tenia amb aquesta meitat en una altra hora queda lliure, com en una classe moguda. Sovint serveix perquè les dues meitats surtin una hora abans. Dues meitats són les dels grups que comparteixen alguna classe a l'horari setmanal; no cal configurar res.
 - **Avís a les famílies**: el grup entra més tard, surt abans o té un pati més llarg, per les classes que queden lliures al principi o al final del dia.
 
 Una classe compartida per diversos grups es mou per a tots, sempre que tots tinguin el mateix buit, i aleshores l'avís va a cada grup.
@@ -209,7 +209,7 @@ Les propostes surten en aquest ordre: primer les que fan perdre menys classes a 
 
 **El tutor o tutora del grup en rep una còpia.** Quan s'envia un comunicat des del quadrant, a les famílies (entrada més tard, sortida més d'hora, esbarjo més llarg, sense classes) o a l'alumnat (classes que canvien d'hora), el tutor o tutora del grup rep un missatge d'Odoo amb una còpia, perquè sàpiga com canvia el dia del seu grup. En un grup de reforç, que no té tutor, el reben els tutors dels seus grups principals. Si es cancel·la un comunicat programat abans que surti, també se'ls avisa.
 
-Quan una reorganització té efecte, l'**Horari de guàrdies** mostra qui fa realment cada classe implicada, i un docent que estava de guàrdia en una hora en què ara fa classe surt ratllat a la columna **Guàrdia** en aquella franja: no se'l pot enviar a cobrir res més aleshores, i ningú no pot agafar aquella classe pel seu compte.
+Quan una reorganització té efecte, l'**Horari de guàrdies** mostra qui fa realment cada classe implicada, i un docent que estava de guàrdia en una hora en què ara fa classe surt ratllat a la columna **Guàrdia** en aquella franja: no se'l pot enviar a cobrir res més aleshores, i ningú no pot agafar aquella classe pel seu compte. En uns grups units, les dues meitats mostren **Juntament amb** i el nom de l'altra.
 
 **Una altra reorganització (descrita a mà)**, l'última opció del diàleg, serveix per a tot allò que el quadrant no pot deduir, perquè en quedi constància: dos grups que s'ajunten per fer la mateixa matèria, un docent d'un altre grup... Descriu-la i, si hi ha un docent implicat, tria'l (rep un missatge). Aquella classe ja no necessita guàrdia.
 

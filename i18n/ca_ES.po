@@ -23244,3 +23244,68 @@ msgstr "No s'ha pogut enviar el comunicat i queda com a esborrany perquè el rev
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Notice sent."
 msgstr "Comunicat enviat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__stayed_employee_ids
+msgid "Co-teachers left on guard"
+msgstr "Docents en codocència que es queden de guàrdia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "lesson moved"
+msgstr "classe moguda"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Swap (%(groups)s): %(teacher)s teach at %(target)s and %(absent)s at %(lesson)s."
+msgstr "Intercanvi (%(groups)s): %(teacher)s fan classe a les %(target)s i %(absent)s a les %(lesson)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s move their %(lesson)s lesson to %(target)s (%(groups)s)."
+msgstr "%(teacher)s passen la seva classe de les %(lesson)s a les %(target)s (%(groups)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "away then"
+msgstr "absent en aquella hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "busy then"
+msgstr "ocupat en aquella hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "their working day would get longer"
+msgstr "se li allargaria la jornada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s cannot follow the lesson (%(reason)s): on guard at %(time)s instead."
+msgstr "%(teacher)s no pot moure's amb la classe (%(reason)s): es queda de guàrdia a les %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Swap: %(teacher)s teach at %(time)s and %(absent)s at %(other_time)s."
+msgstr "Intercanvi: %(teacher)s fan classe a les %(time)s i %(absent)s a les %(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(teacher)s move their %(other_time)s lesson to %(time)s."
+msgstr "%(teacher)s passen la seva classe de les %(other_time)s a les %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "On guard at %(other_time)s instead: %(teachers)s."
+msgstr "De guàrdia a les %(other_time)s: %(teachers)s."

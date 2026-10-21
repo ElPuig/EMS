@@ -40,27 +40,34 @@ class ArrangementPlanner:
       whose lesson went elsewhere, and whether somebody already covers it.
     - `breaks`: `{group id: [(hour_from, hour_to)]}`, its level's breaks that day.
     - `communicated`: `{group id: {side: change}}`, what the families were already told per side.
-    - `teachers`: `{teacher id: {'lessons': [((hour_from, hour_to), frozenset(group ids))],
-      'periods': [(hour_from, hour_to)], 'vacated': [(hour_from, hour_to)]}}`: their lessons with
-      these groups, every period of their day, and their lessons another arrangement already moved.
+    - `teachers`: `{teacher id: {'periods': [(hour_from, hour_to)], 'vacated': [(hour_from, hour_to)]}}`:
+      every period of their day, and their lessons another arrangement already moved.
+    - `sessions`: `[(lesson, frozenset(group ids), frozenset(teacher ids), frozenset(away ids))]`,
+      the lessons of these groups with the teachers who give them together, and which of them are
+      away then (issue #678): co-teachers are a pack, the lesson moves with all of them (see
+      ems.course._arrangement_sessions).
     - `free(teacher id, hour_from, hour_to)`: whether they can be with a group then.
     - `swaps`: the lesson swaps the timetable allows (see ems.course._get_arrangement_options),
       as steps: they combine with moves like any other step.
 
-    A step is a hashable tuple: `('move', teacher id, lesson, target, group ids)` or
-    `('swap', teacher id, lesson, target, group ids, absent teacher id)`, periods as
-    `(hour_from, hour_to)`."""
+    A step is a hashable tuple `(kind, teachers, lesson, target, group ids, absents, stays)`:
+    'move' or 'swap'; the pack that teaches its `lesson` in the gap (`target`) for those groups; in
+    a swap the absent teachers who teach `lesson` instead (empty in a move); and the co-teachers
+    who cannot follow the lesson (busy or away in the gap, or their day would get longer) but are in
+    at its usual time, who stay on guard while it is gone. A teacher away at the lesson can still
+    take it to a gap where they are in: their own lesson is taught after all. Teachers as frozensets of ids, periods as `(hour_from, hour_to)`."""
 
     MAX_MOVES = 4
     BEAM = 30
 
-    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, free, swaps=()):
+    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, sessions, free, swaps=()):
         self.course = course
         self.blocks = blocks
         self.breaks = breaks
         self.communicated = communicated
         self.now_hour = now_hour
         self.teachers = teachers
+        self.sessions = sessions
         self.free = free
         self.swaps = list(swaps)
 
@@ -69,23 +76,22 @@ class ArrangementPlanner:
     def simulate(self, steps):
         day = {group_id: [dict(block, away=set(block['away'])) for block in blocks]
                for group_id, blocks in self.blocks.items()}
-        for step in steps:
-            kind, teacher_id, lesson, target, group_ids = step[:5]
+        for kind, teachers, lesson, target, group_ids, _absents, stays in steps:
             for group_id in group_ids:
                 for block in day[group_id]:
                     if overlaps(block['hour_from'], block['hour_to'], *target):
                         block['filled'] = True
                     if overlaps(block['hour_from'], block['hour_to'], *lesson):
-                        block['away'].add(teacher_id)
+                        # The lesson is gone: whoever stays behind is on guard, not with the group.
+                        block['away'] |= teachers | stays
                         if kind == 'swap':
-                            block['filled'] = True  # the absent teacher teaches it instead
+                            block['filled'] = True  # the absent teachers teach it instead
         for group_id, blocks in day.items():
             for block in blocks:
                 block['empty'] = bool(block['teachers']) and block['teachers'] <= block['away'] and not block['filled']
-                block['taught'] = (block['teachers'] - block['away']) | {
+                block['taught'] = (block['teachers'] - block['away']).union(*(
                     step[1] for step in steps if group_id in step[4] and overlaps(block['hour_from'], block['hour_to'], *step[3])
-                } | {step[5] for step in steps if step[0] == 'swap' and group_id in step[4]
-                     and overlaps(block['hour_from'], block['hour_to'], *step[2])}
+                ), *(step[5] for step in steps if group_id in step[4] and overlaps(block['hour_from'], block['hour_to'], *step[2])))
         return day
 
     def _is_past(self, change, blocks):
@@ -107,10 +113,11 @@ class ArrangementPlanner:
            longer break - coming in later or leaving earlier is what avoids them;
         3. of those, the ones that need a guard;
         4. notices to the families;
-        5. teachers who move a lesson;
-        6. runs of a teacher's lessons with a group cut in two (two hours in a row of the same
+        5. co-taught lessons moved without all of their teachers (issue #678);
+        6. teachers who move a lesson;
+        7. runs of a teacher's lessons with a group cut in two (two hours in a row of the same
            subject are better kept together);
-        7. changes to somebody's entry or exit time."""
+        8. changes to somebody's entry or exit time."""
         day = self.simulate(steps)
         lost = idle = guards = 0
         notices = []
@@ -137,8 +144,9 @@ class ArrangementPlanner:
                     if all(window[0] == 'long_break' for window in freeing):
                         idle += 1
         shifts = self._shifts(steps)
-        moves = len({step[1] for step in steps})
-        return (lost, idle, guards, len(notices), moves, self._runs(day),
+        broken = sum(1 for step in steps if step[6])
+        moves = len(frozenset().union(*(step[1] for step in steps)))
+        return (lost, idle, guards, len(notices), broken, moves, self._runs(day),
                 sum(len(changes) for changes in shifts.values())), notices
 
     @staticmethod
@@ -156,13 +164,14 @@ class ArrangementPlanner:
         """`{teacher id: [(kind, old, new)]}` for every teacher the steps move; None for a teacher
         whose day they would lengthen."""
         removed, added = defaultdict(list), defaultdict(list)
-        for step in steps:
-            removed[step[1]].append(step[2])
-            added[step[1]].append(step[3])
-            if step[0] == 'swap':
-                # The absent teacher teaches the other lesson instead of their own.
-                removed[step[5]].append(step[3])
-                added[step[5]].append(step[2])
+        for _kind, teachers, lesson, target, _groups, absents, _stays in steps:
+            for teacher_id in teachers:
+                removed[teacher_id].append(lesson)
+                added[teacher_id].append(target)
+            # In a swap the absent teachers teach the other lesson instead of their own.
+            for teacher_id in absents:
+                removed[teacher_id].append(target)
+                added[teacher_id].append(lesson)
         return {teacher_id: schedule_shift(self.teachers[teacher_id]['periods'], removed[teacher_id], added[teacher_id])
                 for teacher_id in removed}
 
@@ -170,7 +179,7 @@ class ArrangementPlanner:
 
     def _keeps_days(self, steps, step):
         shifts = self._shifts([*steps, step])
-        return all(shifts.get(teacher_id) is not None for teacher_id in (step[1], *step[5:]))
+        return all(shifts.get(teacher_id) is not None for teacher_id in step[1] | step[5])
 
     def _steps(self, steps, day):
         holes = defaultdict(set)
@@ -179,31 +188,37 @@ class ArrangementPlanner:
                 if block['empty']:
                     holes[(block['hour_from'], block['hour_to'])].add(group_id)
         # Where each teacher already is because of a step: in the gap they fill, and in a swap the
-        # absent teacher at the other lesson.
-        taken = [(step[1], step[3]) for step in steps] + [(step[5], step[2]) for step in steps if step[0] == 'swap']
-        vacated = {(step[1], step[2]) for step in steps}
+        # absent teachers at the other lesson.
+        taken = [(teacher_id, step[3]) for step in steps for teacher_id in step[1]] + \
+                [(teacher_id, step[2]) for step in steps for teacher_id in step[5]]
+        vacated = {(teacher_id, step[2]) for step in steps for teacher_id in step[1] | step[6]}
+
+        def busy(teacher_id, period):
+            return any(other == teacher_id and overlaps(*other_period, *period) for other, other_period in taken)
+
         for step in self.swaps:
-            _kind, teacher_id, lesson, target, group_ids, absent_id = step
-            if step not in steps and target in holes and group_ids <= holes[target] and (teacher_id, lesson) not in vacated \
-                    and not any(other in (teacher_id, absent_id) and overlaps(*period, *(target if other == teacher_id else lesson))
-                                for other, period in taken) \
+            _kind, teachers, lesson, target, group_ids, absents, stays = step
+            if step not in steps and target in holes and group_ids <= holes[target] \
+                    and not any((teacher_id, lesson) in vacated for teacher_id in teachers | stays) \
+                    and not any(busy(teacher_id, target) for teacher_id in teachers) \
+                    and not any(busy(teacher_id, lesson) for teacher_id in absents) \
                     and self._keeps_days(steps, step):
                 yield step
         for target, group_ids in sorted(holes.items()):
-            for teacher_id in sorted(self.teachers):
-                teacher = self.teachers[teacher_id]
-                if any(other == teacher_id and overlaps(*period, *target) for other, period in taken) \
-                        or not self.free(teacher_id, *target):
+            for lesson, lesson_groups, pack, away in self.sessions:
+                # Every group of the lesson must have the gap: a shared lesson moves for all of
+                # them, and none may end up with a lesson where it already had one.
+                if overlaps(*lesson, *target) or not lesson_groups <= group_ids \
+                        or any((teacher_id, lesson) in vacated or any(
+                            overlaps(*lesson, *other) for other in self.teachers[teacher_id]['vacated'])
+                            for teacher_id in pack):
                     continue
-                for lesson, lesson_groups in teacher['lessons']:
-                    # Every group of the lesson must have the gap: a shared lesson moves for all
-                    # of them, and none may end up with a lesson where it already had one.
-                    if overlaps(*lesson, *target) or not lesson_groups <= group_ids or (teacher_id, lesson) in vacated \
-                            or any(overlaps(*lesson, *other) for other in teacher['vacated']):
-                        continue
-                    step = ('move', teacher_id, lesson, target, lesson_groups)
-                    if self._keeps_days(steps, step):
-                        yield step
+                # The whole pack follows the lesson (issue #678); whoever cannot stays on guard.
+                movers = {teacher_id for teacher_id in pack if not busy(teacher_id, target) and self.free(teacher_id, *target)}
+                shifts = self._shifts([*steps, ('move', frozenset(movers), lesson, target, lesson_groups, frozenset(), frozenset())])
+                movers = frozenset(teacher_id for teacher_id in movers if shifts.get(teacher_id) is not None)
+                if movers:
+                    yield ('move', movers, lesson, target, lesson_groups, frozenset(), pack - movers - away)
 
     # Search.
 
@@ -236,7 +251,7 @@ class ArrangementPlanner:
         kept = [(score, steps, notices) for score, steps, notices in kept if not any(
             frozenset(other) < frozenset(steps) and other_score[:4] <= score[:4]
             for other_score, other, _other_notices in kept)]
-        kept.sort(key=lambda item: (item[0], [(step[0] != 'swap', step[3], step[1]) for step in item[1]]))
+        kept.sort(key=lambda item: (item[0], [(step[0] != 'swap', step[3], sorted(step[1])) for step in item[1]]))
         # Two ways to the very same day (a swap seen from each of its two absences) are one plan.
         unique, seen_days = [], set()
         for score, steps, notices in kept:

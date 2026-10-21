@@ -25582,3 +25582,15 @@ msgstr "Rep la convocatòria per correu, en un missatge només per a ella: mai j
 #: code:addons/ems/models/quality/minute_line.py:0
 msgid "%(name)s has no email to send the call to."
 msgstr "%(name)s no té cap correu per enviar-li la convocatòria."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"<span invisible=\"presence_id\">Save the minute to prepare its attendance kiosk.</span>\n"
+"                                    <span invisible=\"not presence_id or presence_state == 'closed'\">The lists below fill in by themselves from the tags passed at the kiosk.</span>\n"
+"                                    <span invisible=\"presence_state != 'closed'\">Attendance is closed: these are the people who passed their tag.</span>"
+msgstr ""
+"<span invisible=\"presence_id\">Deseu l'acta per preparar el seu quiosc d'assistència.</span>\n"
+"                                    <span invisible=\"not presence_id or presence_state == 'closed'\">Les llistes de sota s'omplen soles amb els tags que es passen pel quiosc.</span>\n"
+"                                    <span invisible=\"presence_state != 'closed'\">L'assistència està tancada: aquestes són les persones que han passat el tag.</span>"
+

@@ -21,6 +21,8 @@ items, or earlier years.
 Other useful facets: **Overdue** (past their deadline and still open), and by type: meeting agreements,
 improvement actions, or corrective and preventive ones.
 
+![List of actions and agreements with the facets Open and Current course](../../assets/quality/acords-01-llistat.png)
+
 ## Who sees and who changes an agreement
 
 An agreement tells apart three ways of being in it:
@@ -56,6 +58,10 @@ An agreement you may not change opens in read-only mode.
    year", write that in **Deadline (as agreed)** and leave the date empty.
 7. Save. The **code** is issued automatically: `ACORD-<scope>-<course>-<number>`.
 
+![Form of an agreement: responsibility, deadline, scope and the description in the tab below](../../assets/quality/acords-02-formulari.png)
+
+(1) The responsible people, who carry its progress; (2) the people involved, who only read it and get the notices; (3) the deadline and (4) the scope.
+
 ## The code and the numbering
 
 The counter runs **per scope and course**, so a department's agreements are consecutive: if a
@@ -74,6 +80,12 @@ An agreement's state is **not picked from a dropdown**. It comes from the latest
 So moving an agreement forward means adding a follow-up entry in the **Follow-up** tab: the date, the
 state it leaves it in, and what happened. This is deliberate: it forces the **reason** for the change to
 be written down, which is exactly what an audit asks for.
+
+![Follow-up tab of an agreement with an entry in progress](../../assets/quality/acords-03-seguiment.png)
+
+![Add follow-up dialog with the date, the state and what happened](../../assets/quality/acords-04-afegeix-seguiment.png)
+
+A responsible person adds the follow-up with **Add follow-up**, without being able to change what was agreed.
 
 ## Closing an agreement
 

@@ -16,6 +16,9 @@ the Seminar Chief of whoever writes it); if whoever approves it is away, their
 chiefs (Department Chief, Head or Deputy Head of Studies, Director) can approve it in their place. Any other minute you can see (one of
 a meeting you attended, one of your department) opens **read-only**, with no actions.
 
+![List of the year's minutes with the facets Mine or Awaiting my approval, Meeting minutes and Current course](../../assets/teachers/actes-01-llistat.png)
+
+
 ---
 
 ## Writing a minute
@@ -30,6 +33,10 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 4. Check the **date and time** (the next full hour comes proposed), the nature and the modality, and
    set the **room**. If the meeting is not in person, write where it takes place in **Place** (a video
    call, a mailing list...).
+
+   ![Form of a department minute being prepared: type, department, date and time, duration, nature, modality, room and attendance](../../assets/teachers/actes-02-preparar.png)
+
+   (1) The minute type, (2) whose meeting it is, (3) the date and time, (4) the room and (5) how attendance is taken.
 5. Choose how **attendance** is taken:
    - **Written by hand:** the **Attendance** tab already holds the list **filled in**, taken from the
      scope (the department's members, the workgroup's, or the teachers of the group). Just move whoever
@@ -41,14 +48,22 @@ a meeting you attended, one of your department) opens **read-only**, with no act
      is already closed, **Reopen** it, mark them by hand (present, or justified with a note) and close it
      again. The minute's lists update by themselves. It can be done until the minute is approved.
 
+     ![Box of the attendance taken with the NFC tag, with the Open the kiosk button](../../assets/teachers/actes-04-nfc.png)
+
    If somebody from outside EMS comes to the meeting (a student's family, a teacher from another school...),
    switch on **Add people from outside EMS** and add them to the table that appears: first name, surname, email and, if useful, their organisation
    or relationship. Untick **Present** for somebody who was invited but did not come. The minute names
    them with their organisation; their email is not printed. Tick **Send them the call** for them to get
    it: it reaches them in a message of their own, never together with the staff's.
+
+   ![Attendance tab with the list of attendees already filled in and a person from outside EMS in the table](../../assets/teachers/actes-03-assistencia.png)
+
+   (1) The list of attendees, already filled in from the department. (2) The people from outside EMS, with the box to send them the call.
 6. In the **Items to discuss** tab, add the meeting's own topics. The **agenda** is not typed in: it is
    put together below, with the approval of the previous minute (when there is one), the follow-up of the
    agreements (when some are still open), your items and any other business.
+
+   ![Items to discuss tab with two items and, below, the agenda put together from them](../../assets/teachers/actes-05-punts.png)
    In the **Content** tab, fill in each section the type asks for. The ones marked as
    required have to be filled in before the minute can be approved.
 7. In **Agreements**, add what was agreed: the commitment, who is responsible (who carries its progress), who is involved
@@ -78,6 +93,9 @@ the previous meeting, so they can read it before approving it.
 If anything changes afterwards (the date, the time, the place or the items), **Actions → Send the call
 again** sends it once more, saying it replaces the earlier one. The minute keeps the date it was last sent.
 
+![Actions dropdown of a minute being prepared, with Send the call and Start the meeting](../../assets/teachers/actes-06-accions.png)
+
+
 ## Holding the meeting and writing the minute
 
 When the meeting starts, **Actions → Start the meeting**. The minute moves to the **Meeting** state and
@@ -89,11 +107,15 @@ meeting goes on.
 - **Follow-up of the agreements:** each agreement still open has its card. Write what was said about it, set
   a **new deadline** if needed and tick **Done** when it is closed. What you write goes to the agreement's
   own follow-up, and a closed agreement is not brought to the next meeting.
+
+  ![Follow-up of the agreements block during the meeting, with one card per open agreement](../../assets/teachers/actes-07-seguiment-acords.png)
 - **Items to discuss:** each item has its own text box, with the formatting toolbar above it (bold,
   underline, lists). Type `/` to insert a table. A long item scrolls inside its own box. **Add an item** adds one that was not planned.
 - **Any other business:** another text box.
 - **Agreements:** each new agreement is a card, with its content at full width and, in the header, the
   deadline and who is responsible (by default, the department's chief and its seminar chief).
+
+  ![Agreements block during the meeting: card of an agreement with deadline, responsible people, people involved, content and description](../../assets/teachers/actes-08-acords.png)
 - **Pending topics:** at the end, as a list.
 
 The minute saves itself while you write, in your pauses. **Open the draft of the minute**, at the top and
@@ -106,6 +128,11 @@ the meeting**.
 Under **Signatures**, the **Approved by** field says who will approve the minute. Whoever answers for the
 scope that meets comes proposed (the department's chief, the group's tutor, the director) and the dropdown
 shows those people first; anybody else can be chosen by typing their name or with **Search more**.
+
+![Signatures block with who writes the minute and who will approve it](../../assets/teachers/actes-09-signatures.png)
+
+(1) Who will approve the minute.
+
 
 When the minute is ready, **Actions → Send for approval**. Whoever gives the approval finds it on their own screen
 under the *Awaiting my approval* facet, and approving it:

@@ -25586,3 +25586,15 @@ msgstr "Recibe la convocatoria por correo, en un mensaje solo para ella: nunca j
 #: code:addons/ems/models/quality/minute_line.py:0
 msgid "%(name)s has no email to send the call to."
 msgstr "%(name)s no tiene ningún correo para enviarle la convocatoria."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid ""
+"<span invisible=\"presence_id\">Save the minute to prepare its attendance kiosk.</span>\n"
+"                                    <span invisible=\"not presence_id or presence_state == 'closed'\">The lists below fill in by themselves from the tags passed at the kiosk.</span>\n"
+"                                    <span invisible=\"presence_state != 'closed'\">Attendance is closed: these are the people who passed their tag.</span>"
+msgstr ""
+"<span invisible=\"presence_id\">Guardad el acta para preparar su quiosco de asistencia.</span>\n"
+"                                    <span invisible=\"not presence_id or presence_state == 'closed'\">Las listas de abajo se rellenan solas con los tags que se pasan por el quiosco.</span>\n"
+"                                    <span invisible=\"presence_state != 'closed'\">La asistencia está cerrada: estas son las personas que han pasado el tag.</span>"
+

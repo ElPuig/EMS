@@ -17,6 +17,9 @@ Només qui redacta una acta i qui li ha de donar el vistiplau la poden modificar
 adjunt, director). Qualsevol altra acta que
 veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **només en lectura**, sense accions.
 
+![Llista d'actes del curs amb les facetes Les meves o Pendents que jo aprovi, Actes de reunió i Curs actual](../../assets/teachers/actes-01-llistat.png)
+
+
 ---
 
 ## Redactar una acta
@@ -29,6 +32,10 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 4. Comproveu la **data i hora** (ve proposada la propera hora en punt), el caràcter i la modalitat, i
    indiqueu la **sala**. Si la reunió no és presencial, escriviu on es fa al camp **Lloc** (una
    videotrucada, una llista de correu...).
+
+   ![Formulari d'una acta de departament en preparació: tipus, departament, data i hora, durada, caràcter, modalitat, sala i assistència](../../assets/teachers/actes-02-preparar.png)
+
+   (1) El tipus d'acta, (2) de qui és la reunió, (3) la data i hora, (4) la sala i (5) com es recull l'assistència.
 5. Trieu com es recull l'**assistència**:
    - **Anotada a mà:** a la pestanya **Assistència** ja hi trobareu la llista **omplerta**, treta de
      l'àmbit (els membres del departament, els de l'equip de treball o el professorat que fa classe al
@@ -40,14 +47,22 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
      està tancada, **Reobrir**, marqueu-lo a mà (present, o justificat amb la nota) i torneu a tancar-la.
      Les llistes de l'acta s'actualitzen soles. Es pot fer fins que l'acta estigui aprovada.
 
+     ![Requadre de l'assistència amb el tag NFC, amb el botó Obre el quiosc](../../assets/teachers/actes-04-nfc.png)
+
    Si a la reunió hi ve algú de fora de l'EMS (la família d'un alumne, un professor d'un altre institut...),
    activeu **Afegeix persones externes** i afegiu-lo a la taula que apareix: nom, cognoms, correu i, si cal, l'entitat o la relació.
    Desmarqueu **Present** si estava convidat però no hi va venir. Surt a l'acta amb el nom i l'entitat;
    el correu no s'imprimeix. Marqueu **Envia-li la convocatòria** si voleu que la rebi: li arriba en un
    correu només per a ella, mai juntament amb el del professorat.
+
+   ![Pestanya Assistència amb la llista d'assistents ja omplerta i una persona externa a la taula](../../assets/teachers/actes-03-assistencia.png)
+
+   (1) La llista d'assistents, ja omplerta amb el departament. (2) Les persones externes a l'EMS, amb la casella per enviar-los la convocatòria.
 6. A la pestanya **Punts a tractar**, afegiu els temes propis de la reunió. L'**ordre del dia** no s'escriu:
    es forma sol a sota, amb l'aprovació de l'acta anterior (si n'hi ha), el seguiment dels acords (si en
    queden d'oberts), els vostres punts i els precs i preguntes.
+
+   ![Pestanya Punts a tractar amb dos punts i, a sota, l'ordre del dia que se'n forma](../../assets/teachers/actes-05-punts.png)
    A la pestanya **Contingut**, ompliu cada secció que el tipus d'acta demana. Les
    marcades com a obligatòries s'han d'omplir abans de poder aprovar l'acta.
 7. A **Acords**, afegiu els acords: què s'acorda, qui se'n fa responsable (qui en porta l'avanç), qui hi està implicat (qui
@@ -78,6 +93,9 @@ Si després canvia qualsevol cosa (la data, l'hora, el lloc o els punts), **Acci
 convocatòria** l'envia de nou, indicant que substitueix l'anterior. La data del darrer enviament queda a
 l'acta.
 
+![Desplegable Accions d'una acta en preparació, amb Envia la convocatòria i Comença la reunió](../../assets/teachers/actes-06-accions.png)
+
+
 ## Fer la reunió i redactar l'acta
 
 Quan comença la reunió, **Accions → Comença la reunió**. L'acta passa a l'estat **Reunió** i la pantalla
@@ -89,12 +107,16 @@ mesura que avança la reunió.
 - **Seguiment dels acords:** cada acord que seguia obert té la seva fitxa. Escriviu-hi què se n'ha dit, poseu
   una **nova data límit** si cal i marqueu **Fet** si es dona per tancat. El que hi escriviu queda al
   seguiment del mateix acord, i un acord tancat ja no torna a sortir a la reunió següent.
+
+  ![Bloc Seguiment dels acords durant la reunió, amb una fitxa per acord obert](../../assets/teachers/actes-07-seguiment-acords.png)
 - **Punts a tractar:** cada punt té el seu quadre de text, amb la barra de format a sobre (negreta,
   subratllat, llistes). Escriviu `/` per inserir una taula. Un punt llarg es desplaça dins del seu quadre. **Afegeix un punt** n'afegeix un que no
   estava previst.
 - **Precs i preguntes:** un altre quadre de text.
 - **Acords:** cada acord nou és una fitxa, amb el contingut a tota l'amplada i, a la capçalera, la data
   límit i els responsables (per defecte, el cap de departament i el de seminari).
+
+  ![Bloc Acords durant la reunió: fitxa d'un acord amb data límit, persones responsables, persones implicades, contingut i descripció](../../assets/teachers/actes-08-acords.png)
 - **Temes pendents:** al final, com a llista.
 
 L'acta es desa sola mentre escriviu, a les pauses. **Obre l'esborrany de l'acta**, a dalt i a baix de la
@@ -107,6 +129,11 @@ a la preparació**.
 A **Signatures**, el camp **Vistiplau** indica qui aprovarà l'acta. Ve proposat el responsable de l'àmbit que es
 reuneix (el cap de departament, el tutor del grup, la direcció) i el desplegable mostra primer aquestes
 persones; es pot triar qualsevol altra escrivint-ne el nom o amb **Cerca més**.
+
+![Bloc Signatures amb qui redacta l'acta i qui li donarà el vistiplau](../../assets/teachers/actes-09-signatures.png)
+
+(1) Qui aprovarà l'acta.
+
 
 Quan l'acta estigui llesta, **Accions → Enviar a aprovar**. Qui hagi de donar el vistiplau la trobarà a la seva
 pantalla amb la faceta *Pendents que jo aprovi*, i en aprovar-la:

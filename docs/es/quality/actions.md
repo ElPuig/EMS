@@ -15,11 +15,13 @@ documentos: **qué tengo pendiente y para cuándo**.
 
 ## Cómo se abre la pantalla
 
-Con dos filtros ya aplicados: **Abiertas** y **Curso actual**. Quitad uno y veréis también las cerradas
+Con dos filtros ya aplicados: **Abierta** y **Curso actual**. Quitad uno y veréis también las cerradas
 o las de cursos anteriores.
 
 Otros filtros útiles: **Vencidas** (pasadas de plazo y todavía abiertas), y por tipo: acuerdos de
 reunión, acciones de mejora, o correctivas y preventivas.
+
+![Lista de acciones y acuerdos con las facetas Abierta y Curso actual](../../assets/quality/acords-01-llistat.png)
 
 ## Quién ve y quién modifica un acuerdo
 
@@ -58,6 +60,10 @@ Si abre un acuerdo que no puede modificar, se abre en modo de solo lectura.
    curso", escribidlo en el campo **Plazo (tal como se acordó)** y dejad la fecha vacía.
 7. Guardad. El **código** se asigna solo: `ACORD-<ámbito>-<curso>-<número>`.
 
+![Formulario de un acuerdo: responsabilidad, fecha límite, ámbito y la descripción en la pestaña de abajo](../../assets/quality/acords-02-formulari.png)
+
+(1) Las personas responsables, que llevan su avance; (2) las personas implicadas, que solo lo leen y reciben los avisos; (3) la fecha límite y (4) el ámbito.
+
 ## El código y la numeración
 
 El contador es **por ámbito y por curso**, así que los acuerdos de un departamento van seguidos: si en la
@@ -76,6 +82,12 @@ El estado de un acuerdo **no se elige en un desplegable**. Sale de la última en
 Para hacer avanzar un acuerdo, por tanto, se le añade una entrada de seguimiento en la pestaña
 **Seguimiento**: la fecha, en qué estado queda y qué ha pasado. Esto es deliberado: obliga a dejar
 escrito **por qué** ha cambiado, que es exactamente lo que os pedirán en una auditoría.
+
+![Pestaña Seguimiento de un acuerdo con una entrada en proceso](../../assets/quality/acords-03-seguiment.png)
+
+![Diálogo Añadir seguimiento con la fecha, el estado y qué ha pasado](../../assets/quality/acords-04-afegeix-seguiment.png)
+
+Una persona responsable añade el seguimiento con **Añadir seguimiento**, sin poder cambiar lo que se acordó.
 
 ## Cerrar un acuerdo
 

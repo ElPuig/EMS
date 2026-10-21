@@ -15,11 +15,13 @@ documents: **què tinc pendent i per quan**.
 
 ## Com s'obre la pantalla
 
-Amb dos filtres ja aplicats: **Obertes** i **Curs actual**. Traieu-ne un i veureu també les tancades o
+Amb dos filtres ja aplicats: **Oberta** i **Curs actual**. Traieu-ne un i veureu també les tancades o
 les de cursos anteriors.
 
 Altres filtres útils: **Vençudes** (passades de termini i encara obertes), i per tipus: acords de
 reunió, accions de millora, o correctives i preventives.
+
+![Llista d'accions i acords amb les facetes Oberta i Curs actual](../../assets/quality/acords-01-llistat.png)
 
 ## Qui veu i qui modifica un acord
 
@@ -57,6 +59,10 @@ Si obriu un acord que no podeu modificar, s'obre en mode de només lectura.
    escriviu-ho al camp **Termini (tal com es va acordar)** i deixeu la data buida.
 7. Deseu. El **codi** s'assigna sol: `ACORD-<àmbit>-<curs>-<número>`.
 
+![Formulari d'un acord: responsabilitat, data límit, àmbit i la descripció a la pestanya de sota](../../assets/quality/acords-02-formulari.png)
+
+(1) Les persones responsables, que en porten l'avanç; (2) les persones implicades, que només el llegeixen i reben els avisos; (3) la data límit i (4) l'àmbit.
+
 ## El codi i la numeració
 
 El comptador és **per àmbit i per curs**, així que els acords d'un departament van seguits: si a la
@@ -76,6 +82,12 @@ L'estat d'un acord **no es tria en un desplegable**. Surt de la darrera entrada 
 Per fer avançar un acord, doncs, s'hi afegeix una entrada de seguiment a la pestanya **Seguiment**: la
 data, en quin estat queda i què ha passat. Això és deliberat: obliga a deixar escrit **per què** ha
 canviat, que és exactament el que us demanaran en una auditoria.
+
+![Pestanya Seguiment d'un acord amb una entrada en procés](../../assets/quality/acords-03-seguiment.png)
+
+![Diàleg Afegeix seguiment amb la data, l'estat i què ha passat](../../assets/quality/acords-04-afegeix-seguiment.png)
+
+Una persona responsable afegeix el seguiment amb **Afegeix seguiment**, sense poder canviar el que es va acordar.
 
 ## Tancar un acord
 

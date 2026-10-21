@@ -35,7 +35,7 @@ flowchart LR
 
 Two deliberately separate notification channels, to avoid double-emailing anyone:
 - **The student** is the only chatter follower — they get emailed on `action_approve`/`action_reject` (a `mail.mt_comment` post), which is the outcome they actually need to hear about.
-- **Reviewers** (secretary/admin configured in *Academic Management > Configuration > Task Assignment*, keyed off the `ems.mail_activity_student_document_review` activity type — see `docs/en/developers/shared/task_assignment.md`) get a **to-do activity** instead of a chatter subscription; `mail_activity_quick_update` suppresses Odoo's own "X assigned you an activity" email (would otherwise read as if the submitting family were assigning work to the office), and `_unsubscribe_reviewers` keeps them off `message_partner_ids` so the later approve/reject comment doesn't double-notify them either.
+- **Reviewers** (secretary/admin configured in *Academic Management > Configuration > Enrollment > Task Assignment*, keyed off the `ems.mail_activity_student_document_review` activity type — see `docs/en/developers/shared/task_assignment.md`) get a **to-do activity** instead of a chatter subscription; `mail_activity_quick_update` suppresses Odoo's own "X assigned you an activity" email (would otherwise read as if the submitting family were assigning work to the office), and `_unsubscribe_reviewers` keeps them off `message_partner_ids` so the later approve/reject comment doesn't double-notify them either.
 
 ---
 

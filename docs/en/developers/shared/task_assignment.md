@@ -16,7 +16,7 @@ indistinguishable from a real secretary. Administrators (and OdooBot) therefore 
 a task for every single document uploaded in the school.
 
 Recipients are now an explicit list per activity type, editable at
-**Academic Management → Configuration → Task Assignment**.
+**Academic Management → Configuration → Enrollment → Task Assignment**.
 
 Assigning a task sends no email; each recipient is reminded of everything still pending in a
 single morning email instead, see [Daily pending-tasks digest](task_digest.md).

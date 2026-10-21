@@ -11392,8 +11392,8 @@ msgstr "Ningú: aquesta tasca no es crearà"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_mail_activity_type__ems_task_assignment
-msgid "Set on the activity types EMS schedules automatically, so that they show up under Academic Management > Configuration > Task Assignment."
-msgstr "Es marca als tipus d'activitat que l'EMS programa automàticament, perquè apareguin a Gestió acadèmica > Configuració > Assignació de tasques."
+msgid "Set on the activity types EMS schedules automatically, so that they show up under Academic Management > Configuration > Enrollment > Task Assignment."
+msgstr "Es marca als tipus d'activitat que l'EMS programa automàticament, perquè apareguin a Gestió acadèmica > Configuració > Matrícula > Assignació de tasques."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_task_assignment model:ir.ui.menu,name:ems.menu_ems_task_assignment model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list

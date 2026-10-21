@@ -19,6 +19,7 @@
         <!-- Sections of Academic management > Configuration, rendered as headers inside its
              dropdown (issue #654): Enrollment here, Authorizations and Convalidations in their
              own menu files. -->
+        <!-- Task Assignment (task_assignment/menu.xml) also sits in this section. -->
         <menuitem id="menu_ems_configuration_enrollment"
                   name="Enrollment"
                   parent="menu_ems_configuration"

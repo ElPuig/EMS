@@ -13,7 +13,7 @@ class MailActivityType(models.Model):
     ems_task_assignment = fields.Boolean(
         string="Managed by EMS",
         help="Set on the activity types EMS schedules automatically, so that they "
-             "show up under Academic Management > Configuration > Task Assignment.")
+             "show up under Academic Management > Configuration > Enrollment > Task Assignment.")
     ems_assignee_ids = fields.Many2many(
         string="Assigned to", comodel_name="res.users",
         relation="ems_mail_activity_type_assignee_rel",
@@ -41,5 +41,5 @@ class MailActivityType(models.Model):
         if not users:
             _logger.warning(
                 "No recipient configured for activity type %s: no task will be scheduled. "
-                "Set one in Academic Management > Configuration > Task Assignment.", xmlid)
+                "Set one in Academic Management > Configuration > Enrollment > Task Assignment.", xmlid)
         return users

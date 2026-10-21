@@ -295,7 +295,7 @@ class SaleOrder(models.Model):
         "view all activities". Skips orders that already have a pending one so
         repeated comments don't pile up tasks.
 
-        Recipients come from Academic Management > Configuration > Task Assignment,
+        Recipients come from Academic Management > Configuration > Enrollment > Task Assignment,
         not from a security group: who handles enrollments is a matter of
         organisation, not of access rights.
 

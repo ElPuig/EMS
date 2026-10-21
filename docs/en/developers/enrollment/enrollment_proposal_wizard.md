@@ -151,14 +151,14 @@ Edited in Settings → EMS Management → Course Management Settings. Same shape
 
 ```mermaid
 flowchart TD
-    A[Menu load / action run] --> B{User in PREENROLLMENT_ALWAYS_GROUPS?}
+    A[Menu load / action run] --> B{Sees every student, or system admin?}
     B -- yes --> V[Enrollment shown / action runs]
     B -- no --> C{_ems_preenrollment_period_open?}
     C -- yes --> V
     C -- no --> H[Menu hidden, empty folders pruned / UserError with the next opening]
 ```
 
-- **Who always sees it:** `PREENROLLMENT_ALWAYS_GROUPS` in `models/settings/company.py`: `base.group_system`, `ems.group_academic_admin`, `ems.group_secretary`, `ems.group_head_of_studies` (the Director implies it). Everyone else reaching the menu (tutors, Department/Seminar Chiefs through `group_tutor`, guidance and coexistence through `group_student_data_reader`) loses it outside the period. Decided in `res.company._ems_preenrollment_closed_for_user()`, the one method both checks below use.
+- **Who always sees it:** the staff who see every student (`EmsBase.get_user_sees_every_student()`: `ems.group_academic_admin`, `ems.group_secretary`, `ems.group_head_of_studies`, which the Director implies) and `base.group_system`. Everyone else reaching the menu (tutors, Department/Seminar Chiefs through `group_tutor`, guidance and coexistence through `group_student_data_reader`) loses it outside the period. Decided in `res.company._ems_preenrollment_closed_for_user()`, the one method both checks below use.
 - **Menu:** `ir.ui.menu._visible_menu_ids()` (`models/settings/menu.py`) drops `menu_students_tutor` after `super()`, then every folder above it left with no visible child and no action (`menu_ems_enrollment`; for guidance/coexistence also Academic management itself, which had nothing else for them). `super()`'s set is ormcached and shared, so it is copied, never changed in place.
 - **Action:** the server action calls `res.company._ems_check_preenrollment_access()` first, which raises a `UserError` naming the next opening (company time zone), so a bookmarked URL does not open the screen either.
 - **Cache:** menu visibility is ormcached (`_visible_menu_ids` by groups, `load_menus` by user), so a change of state does not show by itself. `res.company._ems_sync_preenrollment_period()` compares the current state with the last one seen (`ir.config_parameter` `ems.preenrollment_period_open`) and only on a change stores it and clears the registry cache (`registry.clear_cache()`, signalled to every worker): twice a year. It runs from the cron `ems.ir_cron_preenrollment_period` (daily, the safety net) and whenever a `preenrollment_*` field is written, and each run triggers the cron again one minute after the next change (`_trigger(at=...)`; one minute later because the closing minute is still inside the period).

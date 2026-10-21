@@ -11,6 +11,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from cryptography.fernet import Fernet
 
+from ..shared import base
+
 _logger = logging.getLogger(__name__)
 
 MONTHS = [
@@ -18,14 +20,6 @@ MONTHS = [
     ('7', 'July'), ('8', 'August'), ('9', 'September'), ('10', 'October'), ('11', 'November'),
     ('12', 'December'),
 ]
-
-# Always see Academic management > Enrollment, pre-enrollment period or not (issue #654); everyone
-# else (tutors, department chiefs, guidance and coexistence) only while it is open.
-# ems.group_director implies ems.group_head_of_studies.
-PREENROLLMENT_ALWAYS_GROUPS = (
-    'base.group_system', 'ems.group_academic_admin', 'ems.group_secretary',
-    'ems.group_head_of_studies',
-)
 
 class ems_company(models.Model):
     _inherit = 'res.company'
@@ -97,7 +91,7 @@ class ems_company(models.Model):
     convalidation_end_month = fields.Selection(selection=MONTHS, default='3', required=True)
     convalidation_end_time = fields.Float(default=23 + 59 / 60)
     # Issue #654 - yearly pre-enrollment period, same shape as the convalidation one: outside it
-    # only the roles in PREENROLLMENT_ALWAYS_GROUPS see Academic management > Enrollment
+    # only the staff who see every student see Academic management > Enrollment
     # (ir.ui.menu._visible_menu_ids) and can open the enrollment proposals.
     preenrollment_start_day = fields.Integer(default=1)
     preenrollment_start_month = fields.Selection(selection=MONTHS, default='5', required=True)
@@ -390,9 +384,9 @@ class ems_company(models.Model):
 
     def _ems_preenrollment_closed_for_user(self):
         """Whether the current user is kept out of the enrollment proposals right now: the
-        pre-enrollment period is closed and none of PREENROLLMENT_ALWAYS_GROUPS is theirs."""
-        user = self.env.user
-        if any(user.has_group(xmlid) for xmlid in PREENROLLMENT_ALWAYS_GROUPS):
+        pre-enrollment period is closed and they are not among the staff who see every student
+        (academic admin, secretary, Head of Studies/Deputy and Director) or a system admin."""
+        if self.env.user.has_group('base.group_system') or base.EmsBase.get_user_sees_every_student(self):
             return False
         return not self._ems_preenrollment_period_open()
 

@@ -44,4 +44,5 @@
 ## Yearly periods share one implementation (issue #654):
 
 - The convalidation request period's arithmetic and validation on res.company became generic helpers taking the fields' prefix (`_ems_yearly_period_keys/_open/_next_change`, `_ems_check_yearly_period`); the convalidation methods are thin wrappers. Its three validation messages are now parametrized by the period's name (re-translated).
+- Who always sees the enrollment proposals reuses the "sees every student" check instead of its own list of groups. Screens that are read only for the Heads of Studies share one helper (`EmsBase.view_read_only_for_non_enrollment_editors`).
 - Tests: `set_yearly_period`/`open_yearly_period`/`close_yearly_period` in tests/common.py; the reader tests, the guidance tour and the tutor doc screenshots open the pre-enrollment period in their fixtures. New TestPreenrollmentPeriod, TestAuthorizationMenus and a tutor tour checking the menu bar outside the period.

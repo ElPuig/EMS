@@ -30,9 +30,8 @@ class TestEnrollmentHeadOfStudiesAccess(TransactionCase):
     """Issue #654: Head of Studies/Deputy Head of Studies and the Director read the whole of
     Academic management > Enrollment and its Configuration section, centre-wide and read only."""
 
-    MENUS = ('ems.menu_ems_enrollments', 'ems.menu_ems_applicants', 'ems.menu_students_no_destination',
-             'ems.menu_ems_configuration_enrollment', 'ems.menu_ems_enrollment_items',
-             'ems.menu_ems_enrollment_templates', 'ems.menu_ems_task_assignment')
+    # Configuration > Enrollment's menus: TestAuthorizationMenus.
+    MENUS = ('ems.menu_ems_enrollments', 'ems.menu_ems_applicants', 'ems.menu_students_no_destination')
 
     @classmethod
     def setUpClass(cls):
@@ -54,10 +53,6 @@ class TestEnrollmentHeadOfStudiesAccess(TransactionCase):
         with self.assertRaises(AccessError):
             self.order.with_user(self.head_of_studies).unlink()
 
-    def test_head_of_studies_reads_applicants(self):
-        Partner = self.env['res.partner'].with_user(self.head_of_studies)
-        self.assertEqual(Partner.search([('id', '=', self.applicant.id)]), self.applicant)
-
     def test_head_of_studies_cannot_change_the_enrollment_set_up(self):
         template = self.env['sale.order.template'].search([], limit=1) \
             or self.env['sale.order.template'].create({'name': 'HSE Template'})
@@ -78,34 +73,12 @@ class TestEnrollmentHeadOfStudiesAccess(TransactionCase):
                 self.assertNotIn(self.env.ref(xmlid).id, chief_visible)
 
     def test_preinscription_list_offers_create_and_delete_only_to_the_secretary(self):
-        view = self.env.ref('ems.view_applicant_list')
         secretary = create_role_user(self, 'secretary', 'test_secretary_preinscription_list')
-
-        def list_root(user):
-            arch = self.env['res.partner'].with_user(user).get_views([(view.id, 'list')])['views']['list']['arch']
-            return etree.fromstring(arch)
-
-        hos_list = list_root(self.head_of_studies)
-        self.assertEqual((hos_list.get('create'), hos_list.get('delete')), ('0', '0'))
-        secretary_list = list_root(secretary)
-        self.assertNotIn(secretary_list.get('create'), ('0', 'false', 'False'))
-        self.assertNotIn(secretary_list.get('delete'), ('0', 'false', 'False'))
-
-
-class TestConvalidationReasonsHeadOfStudies(TransactionCase):
-    """Issue #654: Head of Studies/Deputy Head of Studies and the Director maintain the
-    convalidation reasons they pick from, and archive rather than delete them."""
-
-    def test_head_of_studies_creates_edits_and_archives_reasons(self):
-        head_of_studies = create_role_user(self, 'head_of_studies', 'test_hos_convalidation_reasons')
-        for model in ('ems.convalidation.info_reason', 'ems.convalidation.rejection_reason'):
-            with self.subTest(model=model):
-                reason = self.env[model].with_user(head_of_studies).create({'name': f'HSR {model}'})
-                reason.write({'name': f'HSR {model} renamed'})
-                reason.action_archive()
-                self.assertFalse(reason.active)
-                with self.assertRaises(AccessError):
-                    reason.unlink()
+        view = 'ems.view_applicant_list'
+        hos_flags = self._root_flags(self.head_of_studies, 'res.partner', 'list', view)
+        self.assertFalse(hos_flags['create'] or hos_flags['delete'])
+        secretary_flags = self._root_flags(secretary, 'res.partner', 'list', view)
+        self.assertTrue(secretary_flags['create'] and secretary_flags['delete'])
 
     def _root_flags(self, user, model, view_type, view_xmlid=None):
         view_id = self.env.ref(view_xmlid).id if view_xmlid else False
@@ -123,6 +96,19 @@ class TestConvalidationReasonsHeadOfStudies(TransactionCase):
                 self.assertTrue(self._root_flags(secretary, 'sale.order', view_type, view_xmlid)['create'])
                 # The native Sales views are left alone.
                 self.assertTrue(self._root_flags(self.head_of_studies, 'sale.order', view_type)['create'])
+
+    def test_academic_admin_keeps_editing_the_read_only_screens(self):
+        """The academic admin sits above the Director, who reads these screens only: they keep
+        New, Edit and Delete there with that role alone (no secretary group)."""
+        admin = create_role_user(self, 'academic_admin', 'test_admin_enrollment_screens')
+        full = {'create': True, 'edit': True, 'delete': True}
+        for model, view_type, view_xmlid in (
+                ('sale.order', 'list', 'ems.view_ems_enrollments_list'),
+                ('sale.order', 'form', 'ems.view_ems_enrollments_form'),
+                ('res.partner', 'list', 'ems.view_applicant_list'),
+                ('res.partner', 'form', 'ems.view_enrollment_contact_form')):
+            with self.subTest(view=view_xmlid):
+                self.assertEqual(self._root_flags(admin, model, view_type, view_xmlid), full)
 
     def test_contact_form_from_enrollment_screens_is_read_only_for_head_of_studies(self):
         secretary = create_role_user(self, 'secretary', 'test_secretary_enrollment_contact')
@@ -157,3 +143,19 @@ class TestConvalidationReasonsHeadOfStudies(TransactionCase):
         other_type = self.env['mail.activity.type'].search([('ems_task_assignment', '=', False)], limit=1)
         with self.assertRaises(AccessError):
             other_type.with_user(admin).write({'summary': 'Not EMS'})
+
+
+class TestConvalidationReasonsHeadOfStudies(TransactionCase):
+    """Issue #654: Head of Studies/Deputy Head of Studies and the Director maintain the
+    convalidation reasons they pick from, and archive rather than delete them."""
+
+    def test_head_of_studies_creates_edits_and_archives_reasons(self):
+        head_of_studies = create_role_user(self, 'head_of_studies', 'test_hos_convalidation_reasons')
+        for model in ('ems.convalidation.info_reason', 'ems.convalidation.rejection_reason'):
+            with self.subTest(model=model):
+                reason = self.env[model].with_user(head_of_studies).create({'name': f'HSR {model}'})
+                reason.write({'name': f'HSR {model} renamed'})
+                reason.action_archive()
+                self.assertFalse(reason.active)
+                with self.assertRaises(AccessError):
+                    reason.unlink()

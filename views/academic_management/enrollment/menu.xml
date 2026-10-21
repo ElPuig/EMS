@@ -20,7 +20,7 @@
             <field name="priority">100</field>
             <field name="arch" type="xml">
                 <list position="attributes">
-                    <attribute name="string">Enrollments</attribute>
+                    <attribute name="class" add="o_ems_enrollments" separator=" "/>
                 </list>
             </field>
         </record>
@@ -33,7 +33,7 @@
             <field name="priority">100</field>
             <field name="arch" type="xml">
                 <kanban position="attributes">
-                    <attribute name="string">Enrollments</attribute>
+                    <attribute name="class" add="o_ems_enrollments" separator=" "/>
                 </kanban>
             </field>
         </record>
@@ -46,7 +46,7 @@
             <field name="priority">100</field>
             <field name="arch" type="xml">
                 <form position="attributes">
-                    <attribute name="string">Enrollment</attribute>
+                    <attribute name="class" add="o_ems_enrollments" separator=" "/>
                 </form>
             </field>
         </record>

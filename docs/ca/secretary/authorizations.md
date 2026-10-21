@@ -20,7 +20,7 @@ Aquesta guia explica com crear formularis d'autorització, enviar-los a l'alumna
 
 ## Crear un formulari d'autorització
 
-Aneu a **Gestió acadèmica > Configuració > Formularis d'autorització** i feu clic a **Nou**.
+Aneu a **Gestió acadèmica > Configuració > Autoritzacions > Formularis d'autorització** i feu clic a **Nou**.
 
 ![Formulari d'autorització](../../assets/secretary/authorizations-template-form.png)
 

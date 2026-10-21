@@ -7,25 +7,34 @@
                   groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="10"/>
 
-        <!-- The Heads of Studies only reach the Authorization Forms in here (issue #654): every
-             other entry names its own groups, since a menu without them is open to whoever
-             sees its folder. -->
+        <!-- The Heads of Studies only reach the Authorizations section in here (issue #654):
+             every other entry names its own groups, since a menu without them is open to
+             whoever sees its folder. -->
         <menuitem id="menu_ems_configuration"
                   name="Configuration"
                   parent="menu_ems_academic_management"
                   groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                   sequence="100"/>
 
+        <!-- Sections of Academic management > Configuration, rendered as headers inside its
+             dropdown (issue #654): Enrollment here, Authorizations and Convalidations in their
+             own menu files. -->
+        <menuitem id="menu_ems_configuration_enrollment"
+                  name="Enrollment"
+                  parent="menu_ems_configuration"
+                  groups="ems.group_academic_admin,ems.group_secretary"
+                  sequence="10"/>
+
         <menuitem id="menu_ems_enrollment_items"
                   name="Enrollment Items"
-                  parent="menu_ems_configuration"
+                  parent="menu_ems_configuration_enrollment"
                   action="action_ems_enrollment_items"
                   groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="10"/>
 
         <menuitem id="menu_ems_enrollment_templates"
                   name="Enrollment Templates"
-                  parent="menu_ems_configuration"
+                  parent="menu_ems_configuration_enrollment"
                   action="action_ems_enrollment_template"
                   groups="ems.group_academic_admin,ems.group_secretary"
                   sequence="30"/>

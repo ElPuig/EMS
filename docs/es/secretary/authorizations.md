@@ -20,7 +20,7 @@ Esta guía explica cómo crear formularios de autorización, enviarlos al alumna
 
 ## Crear un formulario de autorización
 
-Id a **Gestión académica > Configuración > Formularios de autorización** y haced clic en **Nuevo**.
+Id a **Gestión académica > Configuración > Autorizaciones > Formularios de autorización** y haced clic en **Nuevo**.
 
 ![Formulario de autorización](../../assets/secretary/authorizations-template-form.png)
 

@@ -476,8 +476,10 @@ class TestAuthorizationMenus(TransactionCase):
     def test_head_of_studies_only_gets_the_forms_in_configuration(self):
         visible = self._visible(create_role_user(self, 'head_of_studies', 'test_auth_menu_hos'))
         self.assertIn(self.env.ref('ems.menu_ems_configuration').id, visible)
+        self.assertIn(self.env.ref('ems.menu_ems_configuration_authorizations').id, visible)
         self.assertIn(self.env.ref('ems.menu_ems_authorization_forms').id, visible)
-        for xmlid in ('ems.menu_ems_enrollment_items', 'ems.menu_ems_enrollment_templates'):
+        for xmlid in ('ems.menu_ems_configuration_enrollment', 'ems.menu_ems_enrollment_items',
+                      'ems.menu_ems_enrollment_templates', 'ems.menu_ems_task_assignment'):
             with self.subTest(menu=xmlid):
                 self.assertNotIn(self.env.ref(xmlid).id, visible)
 

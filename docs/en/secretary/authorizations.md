@@ -20,7 +20,7 @@ This guide explains how to create authorization forms, send them to students dur
 
 ## Creating an authorization form
 
-Go to **Academic management > Configuration > Authorization Forms** and click **New**.
+Go to **Academic management > Configuration > Authorizations > Authorization Forms** and click **New**.
 
 ![Authorization form](../../assets/secretary/authorizations-template-form.png)
 

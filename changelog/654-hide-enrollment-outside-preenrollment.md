@@ -12,7 +12,7 @@
 ## Authorizations: a single menu entry, forms in Configuration (issue #654):
 
 - Academic management → Authorizations is now one entry, like the other sections: it opens the responses list, and its **New** button opens the Send Authorizations assistant (same roles as the assistant). The Send Authorizations / Responses / Configuration submenus are gone (removed by the upgrade itself, no migration).
-- Authorization Forms moved to Academic management → Configuration. Head of Studies/Deputy Head of Studies reach only that entry there: Enrollment Items and Enrollment Templates now name their own groups (academic administration and secretary).
+- Academic management → Configuration is organised in sections, like Convalidations already was: **Enrollment** (Enrollment Items, Enrollment Templates) and **Authorizations** (Authorization Forms, moved here from the old submenu). Head of Studies/Deputy Head of Studies reach only the Authorizations section there.
 - Outside the pre-enrollment period a tutor entering Academic management lands on that list instead of a dialog.
 
 # Internal changes

@@ -425,9 +425,10 @@ sections (issue #654): it opens the responses list (`action_ems_authorizations_f
 whose header **New** button (`create="false"` stays, an authorization is never made by hand)
 opens the Send Authorizations assistant, for the same groups as the assistant's own
 `_check_rights`. Authorization Forms (`menu_ems_authorization_forms`) sits in Academic
-Management → Configuration, for academic admin, secretary and head of studies. The head of
-studies reaches nothing else there: `menu_ems_configuration` lists `group_head_of_studies` and
-every other entry of that folder names its own groups. `menu_ems_authorization_forms` kept its
+Management → Configuration → Authorizations (`menu_ems_configuration_authorizations`, a section
+header of the dropdown next to Enrollment and Convalidations), for academic admin, secretary and
+head of studies. The head of studies reaches nothing else there: `menu_ems_configuration` lists
+`group_head_of_studies` and every other entry of that folder names its own groups. `menu_ems_authorization_forms` kept its
 xmlid (it exists on released databases), so no migration; the submenus it replaced
 (`menu_ems_authorization_send`, `menu_ems_authorizations`, `menu_ems_authorization_config`) are
 removed by the upgrade itself.

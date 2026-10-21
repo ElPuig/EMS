@@ -12,8 +12,9 @@
   change on either half is copied to the other, and delegates are chosen among the students of both. The
   form asks for confirmation before replacing a half's own tutor, delegate or sub-delegate.
 - Once released, nothing is joined until the halves are set on the group forms.
-- Group and guard duty board tests, a browser tour of the field (as Department Chief), admin and teacher
-  manuals (ca/es/en), developer docs and translations.
+- Group and guard duty board tests, a browser tour of the field and its confirmation (as Department
+  Chief), admin and teacher manuals (ca/es/en) with the group form screenshot updated, developer docs and
+  translations.
 
 # Fixes
 

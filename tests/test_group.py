@@ -463,6 +463,10 @@ class TestGroup(TransactionCase):
                              group.name)
         half_b.tutor_id = other_tutor
         self.assertEqual(self.test_group.tutor_id, other_tutor)
+        created = self.env['ems.group'].create({'course': 1, 'acronym': 'C', 'level_id': self.test_level.id,
+                                                'study_id': self.test_study.id, 'joinable_group_ids': [(6, 0, half_b.ids)]})
+        self.assertEqual((created.tutor_id, created.delegate_id), (other_tutor, delegate),
+                         "a group created as a half takes the other half's where it has none")
 
     def test_linking_asks_only_when_a_half_would_lose_its_own(self):
         half_b, half_c = self._halves('B', 'C')

@@ -186,6 +186,9 @@ class TestDocsScreenshotsAdmin(HttpCase, DocsScreenshotMixin):
             self._student(name, group).id for name in ('Nil Exemple Serra', 'Aina Mostra Puig')])
         group.delegate_id = students[0]
         group.subdelegate_id = students[1]
+        # ...and the other half of the split group it joins with (issue #676).
+        group.joinable_group_ids = self.env['ems.group'].create({
+            'course': group.course, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id})
         self._capture(
             self._form_url('ems.group', group), '.o_form_sheet', 'admin-groups-form.png',
             login='doc_shot_admin', wait_for=".o_form_sheet .o_field_widget[name='tutor_id']",

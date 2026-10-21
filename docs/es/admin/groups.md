@@ -37,7 +37,7 @@ Navega a: **Comunidad Educativa → Grupos**
    - **Gestionado por los departamentos** (solo lectura, visible cuando hay alguno): el departamento indicado en los estudios del grupo o, en un grupo de refuerzo, en los estudios de sus grupos principales. Sus jefes también pueden organizar las ausencias de las clases del grupo. Se cambia desde la ficha de los estudios (ver [Estudios](curriculum-studies.md)).
 4. Haz clic en **Guardar**.
 
-![Ficha de un grupo principal: nivel, estudio, curso, acrónimo, tutor, delegado y subdelegado, con sus alumnos](../../assets/admin/admin-groups-form.png)
+![Ficha de un grupo principal: nivel, estudio, curso, acrónimo, tutor, delegado, subdelegado y la otra mitad con la que se une, con sus alumnos](../../assets/admin/admin-groups-form.png)
 
 Los alumnos no se añaden desde aquí — consulta la pestaña **Alumnos** para revisar quién está asignado, pero es el propio registro del alumno (o el proceso de matrícula) el que realmente lo asigna a un grupo.
 

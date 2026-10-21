@@ -302,8 +302,8 @@ class EmsGroup(models.Model):
 		for group in self:
 			previous = before.get(group.id, Group)
 			added = group.joinable_group_ids - previous
-			blanks = {field: added.filtered(field)[0][field].id for field in JOINABLE_SHARED_FIELDS
-				if not group[field] and added.filtered(field)}
+			sources = {field: added.filtered(field)[:1] for field in JOINABLE_SHARED_FIELDS if not group[field]}
+			blanks = {field: source[field].id for field, source in sources.items() if source}
 			if blanks:
 				group.with_context(ems_skip_joinable_mirror=True).write(blanks)
 			shared = {field: group[field].id for field in JOINABLE_SHARED_FIELDS}
@@ -417,8 +417,9 @@ class EmsGroup(models.Model):
 		if mirror:
 			self._mirror_joinable_groups(old_halves)
 		for group in self.filtered('joinable_group_ids') if shared else ():
-			group.joinable_group_ids.with_context(ems_skip_joinable_mirror=True).write(
-				{field: group[field].id for field in shared})
+			# The halves just linked already took them from _mirror_joinable_groups.
+			halves = group.joinable_group_ids & old_halves.get(group.id, group.joinable_group_ids)
+			halves.with_context(ems_skip_joinable_mirror=True).write({field: group[field].id for field in shared})
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:

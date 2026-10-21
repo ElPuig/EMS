@@ -37,7 +37,7 @@ Navigate to: **Educational Community → Groups**
    - **Managed by the departments** (read-only, shown when there is one): the department set on the group's study or, for a reinforcement group, on the studies of its main groups. Its chiefs can also organise the absences of the group's classes. It is changed on the study's form (see [Studies](curriculum-studies.md)).
 4. Click **Save**.
 
-![A main group's form: level, study, course, acronym, tutor, delegate and sub-delegate, with its students](../../assets/admin/admin-groups-form.png)
+![A main group's form: level, study, course, acronym, tutor, delegate, sub-delegate and the other half it joins with, with its students](../../assets/admin/admin-groups-form.png)
 
 Students aren't added from here — see the **Students** tab to review who's assigned, but a student's own record (or the enrolment flow) is what actually assigns them to a group.
 

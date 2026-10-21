@@ -37,7 +37,7 @@ Navega a: **Comunitat Educativa → Grups**
    - **Gestionat pels departaments** (només lectura, visible quan n'hi ha): el departament indicat als estudis del grup o, en un grup de reforç, als estudis dels seus grups principals. Els seus caps també poden organitzar les absències de les classes del grup. Es canvia des de la fitxa dels estudis (consulta [Estudis](curriculum-studies.md)).
 4. Fes clic a **Desa**.
 
-![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat i sotsdelegat, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
+![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat, sotsdelegat i l'altra meitat amb què s'uneix, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
 
 Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el propi registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.
 

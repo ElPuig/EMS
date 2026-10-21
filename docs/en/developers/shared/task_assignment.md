@@ -92,7 +92,7 @@ flowchart TD
 
 ## Access control
 
-The screen is for whoever runs the office: `ems.group_secretary_admin`. Odoo natively
+The screen is for whoever runs the office: `ems.group_secretary_admin`. Head of Studies/Deputy Head of Studies and the Director also reach it (issue #654), read only: they hold only the native read ACL every internal user has on `mail.activity.type`. Odoo natively
 reserves write access on `mail.activity.type` to `base.group_system`, which that group
 does not hold, so EMS adds an ACL of its own
 (`ems.access_mail_activity_type_secretary_admin`, write but no create/unlink).

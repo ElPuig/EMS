@@ -23,6 +23,10 @@
 
 - Head of Studies/Deputy Head of Studies and the Director now reach Academic management > Student Documents and read every document type (ID card, IBAN, medical card, benefit proofs, Google credentials) of the students whose tutor is below them in the chain of command, read only: approving, rejecting and reopening stays with the secretary's office. Another Head of Studies' students stay out; Department/Seminar Chiefs still only read the Google credentials. New Head of Studies manual "Consulting student documents".
 
+## Head of Studies reads the whole Enrollment menu (issue #654):
+
+- Head of Studies/Deputy Head of Studies and the Director now reach every screen of Academic management > Enrollment (Enrollments, Preinscription, Students without destination) and of Configuration > Enrollment (Enrollment Items, Enrollment Templates, Task Assignment), for the whole centre and read only: a new read rule on enrollments and their lines; the rest was already readable. The "Enrollment proposal" and "Suggest destination group" buttons of those lists stay with the secretary's office and the academic administration. Department/Seminar Chiefs are unchanged.
+
 # Internal changes
 
 ## Yearly periods share one implementation (issue #654):

@@ -232,6 +232,20 @@
         <field name="perm_unlink" eval="False"/>
     </record>
 
+    <!-- Head of Studies/Deputy Head of Studies and the Director read every enrollment of the
+         centre from Academic management > Enrollment (issue #654), read only: writing stays
+         with the tutor rules below (their chain's drafts) and the secretary's office. -->
+    <record id="rule_sale_order_head_of_studies" model="ir.rule">
+        <field name="name">Enrollment: head of studies (read every enrollment)</field>
+        <field name="model_id" ref="sale.model_sale_order"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
     <record id="rule_sale_order_teacher" model="ir.rule">
         <field name="name">Enrollment (sale.order): teacher (read only)</field>
         <field name="model_id" ref="sale.model_sale_order"/>
@@ -273,6 +287,17 @@
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="True"/>
         <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="rule_sale_order_line_head_of_studies" model="ir.rule">
+        <field name="name">Enrollment line: head of studies (read every line)</field>
+        <field name="model_id" ref="sale.model_sale_order_line"/>
+        <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+        <field name="domain_force">[]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
         <field name="perm_unlink" eval="False"/>
     </record>
 

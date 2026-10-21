@@ -32,7 +32,7 @@
                       name="Enrollments"
                       parent="menu_ems_enrollment"
                       action="action_ems_enrollments"
-                      groups="ems.group_academic_admin,ems.group_secretary"
+                      groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                       sequence="30"/>
 
     </data>

@@ -40,7 +40,8 @@
                     <header>
                         <button name="action_enrollment_proposal"
                                 type="object"
-                                string="Enrollment proposal"/>
+                                string="Enrollment proposal"
+                                groups="ems.group_academic_admin,ems.group_secretary"/>
                         <button name="action_ems_close_unconfirmed"
                                 type="object"
                                 string="Close unconfirmed enrollments"
@@ -83,7 +84,7 @@
                   name="Preinscription"
                   parent="menu_ems_enrollment"
                   action="action_ems_applicants"
-                  groups="ems.group_academic_admin,ems.group_secretary"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                   sequence="10"/>
     </data>
 </odoo>

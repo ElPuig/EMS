@@ -18,6 +18,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 - [Registering a withdrawal or an expulsion](../secretary/graduation-withdrawal.md) — you can register a student's withdrawal or expulsion, same steps as the secretariat (shared manual).
 - [Students' Google credentials](../tutors/google-credentials.md) — viewing them, creating the account and resetting the password, same steps as tutors, for the students of the tutors in your area.
 - [Consulting student documents](student-documents.md) — Every document submitted by the students of the tutors in your area, read only.
+- [Enrolling the preinscription students](../secretary/manual-matriculacio-preinscripcio.md) — you can consult every screen of **Academic management > Enrollment** (enrollments, preinscription, students without destination) and its configuration (enrollment items, templates, task assignment), for the whole centre, read only: the steps in this manual are the secretariat's (shared manual).
 - [Deciding on Attendance Correction Requests](attendance-corrections.md)
 - [Strikes: Convivencia Menu and Escalation Emails](strike.md)
 - [A Group's Weekly Schedule](../admin/group-schedule.md)

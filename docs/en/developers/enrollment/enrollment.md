@@ -107,6 +107,25 @@ this is a test-only timing artifact, not a production behavior change. Tested in
 
 ---
 
+## Head of Studies access (issue #654)
+
+Head of Studies/Deputy Head of Studies and the Director (`ems.group_head_of_studies`) reach every
+screen of Academic management > Enrollment (Enrollments, Preinscription, Students without
+destination) and of Configuration > Enrollment (Enrollment Items, Enrollment Templates, Task
+Assignment), centre-wide and read only:
+
+- `rule_sale_order_head_of_studies` / `rule_sale_order_line_head_of_studies` (`security/rules/contacts.xml`)
+  give read on every enrollment and line, nothing else. Writing stays with the tutor rules (their
+  chain's drafts, `tutor_scope_user_ids`) and the secretary's office, and a header button on someone
+  else's enrollment stops at `_is_blocked_tutor()` below with its friendly message.
+- Applicants and students are already readable through the contact rules; items, templates and task
+  types through the read-only ACLs every teacher has (`ems.group_teacher` on `product.template` and
+  `sale.order.template`, native `base.group_user` on `mail.activity.type`).
+- The buttons that write from those lists ("Enrollment proposal" on Preinscription, "Suggest
+  destination group" on Students without destination) carry `groups` for the academic admin and the
+  secretary only. "Close unconfirmed enrollments" already included the Head of Studies.
+- `TestEnrollmentHeadOfStudiesAccess` and `TestEnrollmentHeadOfStudiesTour` cover it.
+
 ## Tutor-blocking guards
 
 `_is_blocked_tutor()` returns `True` for a *plain* teacher (member of

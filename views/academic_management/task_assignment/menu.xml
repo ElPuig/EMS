@@ -5,7 +5,7 @@
                   name="Task Assignment"
                   parent="menu_ems_configuration_enrollment"
                   action="action_task_assignment"
-                  groups="ems.group_secretary_admin"
+                  groups="ems.group_secretary_admin,ems.group_head_of_studies"
                   sequence="40"/>
     </data>
 </odoo>

@@ -124,10 +124,16 @@ Assignment), centre-wide and read only:
 - The buttons that write from those lists ("Enrollment proposal" on Preinscription, "Suggest
   destination group" on Students without destination) carry `groups` for the academic admin and the
   secretary only. "Close unconfirmed enrollments" already included the Head of Studies.
-- Preinscription offers no New or Delete to anyone but the academic admin and the secretary:
-  `res.partner.get_view()` sets `create="0" delete="0"` on `view_applicant_list` per user, the way
-  Odoo's own `_postprocess_access_rights()` does, because the Heads of Studies' contact ACL is full
-  (they manage contacts elsewhere) and an inherited view can't carry `groups_id` in Odoo 18.
+- Preinscription offers no New or Delete, and Enrollments no New, to anyone but the academic admin
+  and the secretary: `res.partner.get_view()` and `sale.order.get_view()` call
+  `EmsBase.view_read_only_for_non_enrollment_editors()`, which sets `create="0"` (and `delete="0"`
+  for Preinscription) on the screen's own views per user, the way Odoo's own
+  `_postprocess_access_rights()` does. Their ACLs alone would allow more (full contacts; drafts of
+  their chain through the tutor rules), an inherited view can't carry `groups_id` in Odoo 18, and
+  the client only sends `lang` and `*_view_ref` context keys to `get_views()`. That is why
+  `action_ems_enrollments` has its own primary views (`view_ems_enrollments_list/kanban/form`,
+  inheriting the native Sales ones and so every EMS extension of them): the native Sales screens
+  keep their views untouched.
 - `TestEnrollmentHeadOfStudiesAccess` and `TestEnrollmentHeadOfStudiesTour` cover it.
 
 ## Tutor-blocking guards

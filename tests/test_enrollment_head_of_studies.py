@@ -106,3 +106,19 @@ class TestConvalidationReasonsHeadOfStudies(TransactionCase):
                 self.assertFalse(reason.active)
                 with self.assertRaises(AccessError):
                     reason.unlink()
+
+    def test_enrollments_offer_new_only_to_the_secretary(self):
+        secretary = create_role_user(self, 'secretary', 'test_secretary_enrollments_new')
+
+        def root_create(user, view_type, view_xmlid=None):
+            view_id = self.env.ref(view_xmlid).id if view_xmlid else False
+            arch = self.env['sale.order'].with_user(user).get_views([(view_id, view_type)])['views'][view_type]['arch']
+            return etree.fromstring(arch).get('create')
+
+        for view_type in ('list', 'kanban', 'form'):
+            with self.subTest(view_type=view_type):
+                view_xmlid = f'ems.view_ems_enrollments_{view_type}'
+                self.assertEqual(root_create(self.head_of_studies, view_type, view_xmlid), '0')
+                self.assertNotEqual(root_create(secretary, view_type, view_xmlid), '0')
+                # The native Sales views are left alone.
+                self.assertNotEqual(root_create(self.head_of_studies, view_type), '0')

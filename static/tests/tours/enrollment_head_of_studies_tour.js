@@ -13,6 +13,10 @@ registry.category("web_tour.tours").add("ems_enrollment_head_of_studies", {
             content: "The enrollment is listed",
         },
         {
+            trigger: ".o_control_panel:not(:has(.o_list_button_add))",
+            content: "No New button: the Head of Studies only reads enrollments",
+        },
+        {
             trigger: ".o_switch_view.o_kanban",
             content: "Switch to the kanban view",
             run: "click",

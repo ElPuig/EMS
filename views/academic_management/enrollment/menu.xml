@@ -7,12 +7,61 @@
              the "Not confirmed" (draft + sent) working set. The ems_enrollment
              context flag turns the native "Create Invoices" header button into
              the "Send Enrollment" one (see enrollment_list.xml). -->
+        <!-- Academic management's own copies of the native Sales views (with every extension
+             EMS adds to them), so this screen can differ per user without touching Sales:
+             sale.order.get_view() drops New here for whoever does not edit
+             enrollments (issue #654). The client only sends lang and *_view_ref keys to
+             get_views(), so the action's context can't tell this screen apart. -->
+        <record id="view_ems_enrollments_list" model="ir.ui.view">
+            <field name="name">ems.enrollments.list</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_tree"/>
+            <field name="mode">primary</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <list position="attributes">
+                    <attribute name="string">Enrollments</attribute>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_ems_enrollments_kanban" model="ir.ui.view">
+            <field name="name">ems.enrollments.kanban</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_sale_order_kanban"/>
+            <field name="mode">primary</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <kanban position="attributes">
+                    <attribute name="string">Enrollments</attribute>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="view_ems_enrollments_form" model="ir.ui.view">
+            <field name="name">ems.enrollments.form</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="mode">primary</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <form position="attributes">
+                    <attribute name="string">Enrollment</attribute>
+                </form>
+            </field>
+        </record>
+
         <record id="action_ems_enrollments" model="ir.actions.act_window">
             <field name="name">Enrollments</field>
             <field name="res_model">sale.order</field>
             <field name="view_mode">list,form,kanban</field>
             <field name="domain" eval="[('ems_study_id', '!=', False)]"/>
             <field name="context">{'ems_enrollment': 1, 'ems_header_actions': 1, 'search_default_no_confirmades': 1}</field>
+            <field name="view_ids" eval="[(5, 0, 0),
+                (0, 0, {'view_mode': 'list', 'view_id': ref('view_ems_enrollments_list')}),
+                (0, 0, {'view_mode': 'form', 'view_id': ref('view_ems_enrollments_form')}),
+                (0, 0, {'view_mode': 'kanban', 'view_id': ref('view_ems_enrollments_kanban')}),
+            ]"/>
         </record>
 
 

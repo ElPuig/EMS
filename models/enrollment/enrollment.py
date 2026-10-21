@@ -8,6 +8,8 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date
 from odoo.addons.mail.tools.discuss import Store
 
+from ..shared import base
+
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
@@ -212,6 +214,15 @@ class SaleOrder(models.Model):
             "This student already has a pre-enrolment or active enrolment for this "
             "academic year. Someone else may have just created one — please refresh "
             "and check.")) from error
+
+    @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        """Academic management > Enrollment > Enrollments offers New only to whoever edits
+        enrollments (issue #654): the Heads of Studies only read it. Its own views, so native
+        Sales screens are left untouched."""
+        return base.EmsBase.view_read_only_for_non_enrollment_editors(
+            self, super().get_view(view_id, view_type, **options),
+            ('ems.view_ems_enrollments_list', 'ems.view_ems_enrollments_kanban', 'ems.view_ems_enrollments_form'))
 
     @api.model_create_multi
     def create(self, vals_list):

@@ -593,5 +593,26 @@ registry.category("web_tour.tours").add("ems_convalidation_default_filter", {
             trigger: ".o_list_view .o_data_row:nth-child(1) td[name='student_id']:contains('Convalidation Student')",
             content: "The oldest request comes first",
         },
+        {
+            trigger: ".o_searchview .o_searchview_facet .o_facet_remove",
+            content: "Clear the search",
+            run: "click",
+        },
+        {
+            // Issue #657: the identity document finds the student's requests from Student (the
+            // search view's second field, hence its position in the suggestions).
+            trigger: ".o_searchview_input",
+            content: "Type the student's identity document",
+            run: "edit 00000657T",
+        },
+        {
+            trigger: ".o_searchview_autocomplete .o_menu_item:nth-child(2)",
+            content: "Search it under Student",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view:has(.o_data_row td[name='student_id']:contains('Convalidation Student')):not(:has(.o_data_row td[name='student_id']:contains('Still Under Review Student')))",
+            content: "Only that student's request is listed",
+        },
     ],
 });

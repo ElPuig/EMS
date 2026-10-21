@@ -20,7 +20,7 @@ class TestConvalidationTour(HttpCase):
         super().setUpClass()
         mock_outgoing_email(cls)
         create_portal_convalidation_fixtures(cls)
-        # Issue #657: the request shows both, to the Head of Studies.
+        # Issue #657: the request shows both, to the Head of Studies and the secretariat.
         cls.student.document_id = '00000657T'
         cls.env['ems.student.year_record'].create({
             'student_id': cls.student.id, 'course_id': cls.env['ems.course'].create({'start': 2092, 'end': 2093}).id,

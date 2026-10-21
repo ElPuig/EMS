@@ -110,7 +110,8 @@
              convivencia, issue #393) ven todos; los tutores solo ven los suyos. El filtro vive
              aquí y no solo en las reglas de registro, así que un permiso de fila nuevo no basta:
              sin esta condición la pantalla saldría vacía. Fuera del periodo de preinscripción
-             solo la abren los roles de PREENROLLMENT_ALWAYS_GROUPS (issue #654). -->
+             la abre solo quien ve a todo el alumnado o es administrador del sistema
+             (res.company._ems_preenrollment_closed_for_user, issue #654). -->
         <record id="action_student_group_enrollment" model="ir.actions.server">
             <field name="name">Group enrollment proposal</field>
             <field name="model_id" ref="base.model_res_partner"/>

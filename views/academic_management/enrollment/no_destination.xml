@@ -36,7 +36,7 @@
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <list string="Students without destination"
-                      default_order="study_id asc, name asc" create="0">
+                      default_order="study_id asc, name asc" create="0" delete="0">
                     <header>
                         <button name="action_suggest_destination_group"
                                 type="object"
@@ -69,6 +69,7 @@
             <field name="search_view_id" ref="view_student_search_no_destination"/>
             <field name="view_ids" eval="[(5,0,0),
                 (0,0,{'view_mode': 'list', 'view_id': ref('view_student_list_no_destination')}),
+                (0,0,{'view_mode': 'form', 'view_id': ref('view_enrollment_contact_form')}),
             ]"/>
         </record>
 

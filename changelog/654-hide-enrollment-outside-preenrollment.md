@@ -31,6 +31,14 @@
 
 - Head of Studies/Deputy Head of Studies and the Director now reach Academic management > Configuration > Convalidations and create, edit and archive the documentation request and refusal reasons they pick from; deleting stays with the academic administration.
 
+## Academic management permission review (issue #654):
+
+- Enrollments, Preinscription and the contact form those screens open are read only for the Heads of Studies (no New, Edit or Delete there; their contact rights elsewhere are unchanged). Enrollments has its own views for it, so the Sales app is unchanged.
+- Enrollment Items no longer offer New and Edit to the Heads of Studies, who can only read them (saving failed with an access error).
+- The authorization forms' "Apply to / Remove from Pre-Enrollments" buttons are only for the academic administration, the secretary's office and the Heads of Studies, who can now remove pending authorizations (it failed for them); a tutor opening a form no longer sees them.
+- Students without destination no longer offers deleting contacts from the list.
+- The academic administrator can edit Task Assignment with that role alone, as the top of every permission.
+
 # Internal changes
 
 ## Yearly periods share one implementation (issue #654):

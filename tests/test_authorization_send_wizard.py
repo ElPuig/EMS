@@ -4,7 +4,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
@@ -323,6 +323,18 @@ class TestAuthorizationSendWizard(TransactionCase):
     def test_head_of_studies_can_send(self):
         self._wizard(user=self.head, student_ids=[(6, 0, self.adult.ids)]).action_apply()
         self.assertTrue(self._auths(self.adult, self.template))
+
+    def test_head_of_studies_deletes_only_pending_authorizations(self):
+        # Issue #654: "Remove from Pre-Enrollments" deletes a form's pending authorizations.
+        self._wizard(student_ids=[(6, 0, (self.adult | self.other_student).ids)]).action_apply()
+        pending = self._auths(self.adult, self.template)
+        answered = self._auths(self.other_student, self.template)
+        answered.write({'status': 'yes', 'signed_document': FAKE_PDF,
+                        'signed_document_name': 'signed.pdf'})
+        pending.with_user(self.head).unlink()
+        self.assertFalse(pending.exists())
+        with self.assertRaises(AccessError):
+            answered.with_user(self.head).unlink()
 
     def test_staff_are_not_restricted_to_their_own_students(self):
         Authorization = self.env['ems.authorization']

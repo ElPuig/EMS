@@ -107,18 +107,53 @@ class TestConvalidationReasonsHeadOfStudies(TransactionCase):
                 with self.assertRaises(AccessError):
                     reason.unlink()
 
-    def test_enrollments_offer_new_only_to_the_secretary(self):
+    def _root_flags(self, user, model, view_type, view_xmlid=None):
+        view_id = self.env.ref(view_xmlid).id if view_xmlid else False
+        arch = self.env[model].with_user(user).get_views([(view_id, view_type)])['views'][view_type]['arch']
+        root = etree.fromstring(arch)
+        return {attr: root.get(attr) not in ('0', 'false', 'False') for attr in ('create', 'edit', 'delete')}
+
+    def test_enrollments_are_read_only_except_for_the_secretary(self):
         secretary = create_role_user(self, 'secretary', 'test_secretary_enrollments_new')
-
-        def root_create(user, view_type, view_xmlid=None):
-            view_id = self.env.ref(view_xmlid).id if view_xmlid else False
-            arch = self.env['sale.order'].with_user(user).get_views([(view_id, view_type)])['views'][view_type]['arch']
-            return etree.fromstring(arch).get('create')
-
+        read_only = {'create': False, 'edit': False, 'delete': False}
         for view_type in ('list', 'kanban', 'form'):
             with self.subTest(view_type=view_type):
                 view_xmlid = f'ems.view_ems_enrollments_{view_type}'
-                self.assertEqual(root_create(self.head_of_studies, view_type, view_xmlid), '0')
-                self.assertNotEqual(root_create(secretary, view_type, view_xmlid), '0')
+                self.assertEqual(self._root_flags(self.head_of_studies, 'sale.order', view_type, view_xmlid), read_only)
+                self.assertTrue(self._root_flags(secretary, 'sale.order', view_type, view_xmlid)['create'])
                 # The native Sales views are left alone.
-                self.assertNotEqual(root_create(self.head_of_studies, view_type), '0')
+                self.assertTrue(self._root_flags(self.head_of_studies, 'sale.order', view_type)['create'])
+
+    def test_contact_form_from_enrollment_screens_is_read_only_for_head_of_studies(self):
+        secretary = create_role_user(self, 'secretary', 'test_secretary_enrollment_contact')
+        form = 'ems.view_enrollment_contact_form'
+        self.assertEqual(self._root_flags(self.head_of_studies, 'res.partner', 'form', form),
+                         {'create': False, 'edit': False, 'delete': False})
+        self.assertEqual(self._root_flags(secretary, 'res.partner', 'form', form),
+                         {'create': True, 'edit': True, 'delete': True})
+        # The contact form everywhere else keeps the Heads of Studies' contact rights.
+        self.assertTrue(self._root_flags(self.head_of_studies, 'res.partner', 'form')['edit'])
+        for action in ('ems.action_ems_applicants', 'ems.action_students_no_destination'):
+            with self.subTest(action=action):
+                self.assertIn((self.env.ref(form).id, 'form'), self.env.ref(action).views)
+
+    def test_nobody_deletes_contacts_from_students_without_destination(self):
+        secretary = create_role_user(self, 'secretary', 'test_secretary_no_destination_delete')
+        self.assertFalse(self._root_flags(secretary, 'res.partner', 'list', 'ems.view_student_list_no_destination')['delete'])
+
+    def test_enrollment_items_follow_the_acl(self):
+        secretary = create_role_user(self, 'secretary', 'test_secretary_enrollment_items')
+        for view_type, view_xmlid in (('list', 'ems.view_ems_enrollment_items_tree'),
+                                      ('form', 'ems.view_ems_enrollment_items_form')):
+            with self.subTest(view_type=view_type):
+                self.assertFalse(self._root_flags(self.head_of_studies, 'product.template', view_type, view_xmlid)['create'])
+                self.assertTrue(self._root_flags(secretary, 'product.template', view_type, view_xmlid)['create'])
+        self.assertFalse(self._root_flags(self.head_of_studies, 'product.template', 'form', 'ems.view_ems_enrollment_items_form')['edit'])
+
+    def test_task_assignment_editable_by_the_academic_admin(self):
+        admin = create_role_user(self, 'academic_admin', 'test_admin_task_assignment')
+        ems_type = self.env['mail.activity.type'].search([('ems_task_assignment', '=', True)], limit=1)
+        ems_type.with_user(admin).write({'summary': 'Edited by the academic admin'})
+        other_type = self.env['mail.activity.type'].search([('ems_task_assignment', '=', False)], limit=1)
+        with self.assertRaises(AccessError):
+            other_type.with_user(admin).write({'summary': 'Not EMS'})

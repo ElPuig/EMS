@@ -92,7 +92,9 @@ flowchart TD
 
 ## Access control
 
-The screen is for whoever runs the office: `ems.group_secretary_admin`. Head of Studies/Deputy Head of Studies and the Director also reach it (issue #654), read only: they hold only the native read ACL every internal user has on `mail.activity.type`. Odoo natively
+The screen is for whoever runs the office: `ems.group_secretary_admin`, and the academic admin
+(`ems.group_academic_admin`, at the top of every permission, issue #654), which gets the same ACL
+and rule of its own since it does not imply the Secretary Administrator. Head of Studies/Deputy Head of Studies and the Director also reach it (issue #654), read only: they hold only the native read ACL every internal user has on `mail.activity.type`. Odoo natively
 reserves write access on `mail.activity.type` to `base.group_system`, which that group
 does not hold, so EMS adds an ACL of its own
 (`ems.access_mail_activity_type_secretary_admin`, write but no create/unlink).
@@ -103,13 +105,12 @@ Call, To Do...). `security/rules/task_assignment.xml` confines it:
 
 | Rule | Groups | Perm | Domain |
 |------|--------|------|--------|
-| `rule_mail_activity_type_ems_only` | `ems.group_secretary_admin` | write | `[('ems_task_assignment','=',True)]` |
+| `rule_mail_activity_type_ems_only` | `ems.group_secretary_admin`, `ems.group_academic_admin` | write | `[('ems_task_assignment','=',True)]` |
 | `rule_mail_activity_type_system_all` | `base.group_system` | write | `[(1,'=',1)]` |
 
-The second rule is not redundant. `group_academic_admin` **implies**
-`group_secretary_admin`, so it inherits the first rule and would otherwise lose the
-unrestricted write access it holds through `base.group_system`. Record rules of the
-groups a user belongs to are OR-ed together, so the second rule gives it back.
+The second rule is not redundant: a user in one of the first rule's groups who also holds
+`base.group_system` would otherwise be narrowed to EMS types. Record rules of the groups a
+user belongs to are OR-ed together, so the second rule gives the unrestricted write back.
 
 | Group | Task Assignment screen | Receives tasks |
 |-------|------------------------|----------------|

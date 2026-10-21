@@ -132,6 +132,25 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn(b'gdb-absence-row gdb-absence-covered gdb-cover-0', html)
         self.assertIn(b'gdb-guard-badge gdb-cover-0', html)
 
+    def test_the_guard_badge_is_coloured_only_in_the_blocks_they_cover(self):
+        """Issue #675: on guard 8-11 but sent only to the 8-9 class, their 9-10 and 10-11 badges
+        stay plain, on screen and on the PDF."""
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._assign()
+
+        data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        badges = {line['time_label']: next(guard for guard in line['guards'] if guard['id'] == self.teacher_guard.id)
+                  for line in data['lines'] if any(guard['id'] == self.teacher_guard.id for guard in line['guards'])}
+        # `is not False`: colour 0 is a colour, and 0 == False.
+        self.assertEqual({label: badge['color'] is not False for label, badge in badges.items()},
+                         {'08:00-09:00': True, '09:00-10:00': False, '10:00-11:00': False})
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+        self.assertEqual(html.count(b'gdb-guard-badge gdb-cover-'), 1)
+
     def test_two_guards_covering_at_once_get_different_colours(self):
         self._morning()
         self._schedule_class(self.teacher_b, self.group_b, 'TABC Calendar B (group B)', periods=((8, 9), (11, 12)))
@@ -1990,8 +2009,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.Cover.with_user(self.department_chief).board_assign(
             str(self.day), 9, 10, self.teacher_b.id, self.group_b.id, self.teacher_c.id, 'Other class')
 
-        colors = self.env['ems.course']._board_cover_colors(
-            self.course.get_guard_duty_board_lines('0', 'morning', day=self.day)['lines'])
+        colors = self.course.get_guard_duty_board_lines('0', 'morning', day=self.day)['lines'][0]['cover_colors']
 
         self.assertEqual(colors[self.teacher_guard.id], colors[self.teacher_guard_2.id])
         self.assertNotEqual(colors[self.teacher_c.id], colors[self.teacher_guard.id])

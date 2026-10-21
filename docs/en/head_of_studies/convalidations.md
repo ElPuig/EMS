@@ -49,6 +49,8 @@ The list opens with the **Pending for me** filter on, which shows the requests w
 
 Requests waiting for the applicant's documentation are never among them: use the **Pending documentation** filter to see them. Remove the **Pending for me** filter to see every request, or use the filter of a specific state (**Pending the Director**, **Completed**, **Rejected**, **Cancelled**...) to follow the ones that are in somebody else's hands.
 
+The list shows the oldest request first, by registration number, so requests are dealt with in the order they arrived.
+
 ![Convalidation request list](../../assets/head_of_studies/convalidations-list.png)
 
 To see a student's requests, open their record and click the **Convalidations** button.
@@ -68,10 +70,12 @@ Open the request from the list. The form shows:
 
 - The **registration number** (e.g. CONV-2026-27-0001), above the student's name.
 - The student's IDALU (**Student ID**), under *Requested by*, with a button that copies it so you can paste it into Esfera to look up their academic record. You can also type an IDALU in the list's search bar, under *Student*, to find their requests.
+- The student's identity document (**Document ID**), right under the IDALU and with the same copy button, to look the student up in other applications. You can also search for it under *Student*.
 - **Study**, **Course** and **Grounds**. These, the student and the applicant's comments come from the request and cannot be changed.
 - **Studies passed** (prior studies only): at this centre or at another centre or university. A request from the portal for studies passed elsewhere, or on any other grounds, always comes with supporting documents; only studies passed here may come without them.
 - Under the student's name, the notice **Holds a title obtained at this centre** when the academic history records a title obtained here.
 - **Subjects** tab: one line for each module requested.
+- **Academic history** tab (Head of Studies, Deputy, Director and administrator only): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades.
 - **Supporting documents** tab: the attached files.
 - **Applicant's comments** tab: what the student or the family wrote.
 - **Documentation requested** tab: the last documentation you asked for, if any.

@@ -49,6 +49,8 @@ La lista se abre con el filtro **Pendientes de mí** activado, que muestra las s
 
 Las que esperan la documentación del solicitante no aparecen nunca: usa el filtro **Pendiente de documentación** para verlas. Quita el filtro **Pendientes de mí** para ver todas las solicitudes, o usa el filtro de un estado concreto (**Pendiente de dirección**, **Completadas**, **Rechazadas**, **Anuladas**...) para seguir las que están en manos de otra persona.
 
+La lista muestra primero la solicitud más antigua, por número de registro, para que las solicitudes se atiendan en el orden en que han llegado.
+
 ![Lista de solicitudes de convalidación](../../assets/head_of_studies/convalidations-list.png)
 
 Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **Convalidaciones**.
@@ -68,10 +70,12 @@ Abre la solicitud desde la lista. El formulario muestra:
 
 - El **número de registro** (por ejemplo CONV-2026-27-0001), encima del nombre del alumno.
 - El IDALU del alumno (**ID de estudiante**), bajo *Solicitada por*, con un botón que lo copia para pegarlo en Esfera y consultar su expediente académico. También puedes escribir un IDALU en el buscador de la lista, en *Alumno*, para encontrar sus solicitudes.
+- El documento de identidad del alumno (**Documento de identidad (DNI/NIE)**), justo debajo del IDALU y con el mismo botón de copiar, para encontrar al alumno en otras aplicaciones. También puedes buscarlo en *Alumno*.
 - **Estudio**, **Curso** y **Motivo**. Estos datos, el alumno y las observaciones del solicitante son los de la solicitud y no se pueden modificar.
 - **Estudios superados** (solo estudios previos): en este centro o en otro centro o en la universidad. Una solicitud del portal por estudios superados en otro sitio, o por cualquier otro motivo, siempre llega con documentación justificativa; solo los estudios superados aquí pueden llegar sin ella.
 - Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico consta un título obtenido aquí.
 - Pestaña **Asignaturas**: una línea por cada módulo solicitado.
+- Pestaña **Histórico académico** (solo JE, JEA, dirección y administrador): el histórico del alumno en el centro, una línea por curso, el mismo que muestra su ficha. Abre una línea para ver sus asignaturas y notas.
 - Pestaña **Documentación justificativa**: los ficheros adjuntados.
 - Pestaña **Observaciones del solicitante**: lo que ha escrito el alumno o la familia.
 - Pestaña **Documentación solicitada**: la última documentación que has pedido, si has pedido alguna.

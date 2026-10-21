@@ -6,12 +6,15 @@
             <field name="name">ems.convalidation.list</field>
             <field name="model">ems.convalidation</field>
             <field name="arch" type="xml">
-                <list string="Convalidations"
+                <!-- Issue #657: first come, first served - the oldest request on top. Only here: the
+                     student's own requests on the portal keep the model's order, newest first. -->
+                <list string="Convalidations" default_order="name asc, id asc"
                       decoration-muted="state == 'cancelled'"
                       decoration-success="state == 'completed'">
                     <field name="name"/>
                     <field name="student_id"/>
                     <field name="student_idalu" optional="hide"/>
+                    <field name="student_document_id" optional="hide"/>
                     <field name="study_id"/>
                     <field name="course_id" optional="show"/>
                     <field name="submission_date"/>
@@ -109,6 +112,9 @@
                                 <field name="requester_id" readonly="1" invisible="not requester_id"/>
                                 <!-- Issue #576: one click to copy it into Esfera. -->
                                 <field name="student_idalu" widget="CopyClipboardChar" class="o_ems_copy_compact" invisible="not student_idalu"/>
+                                <!-- Issue #657: the same, to look the student up in other applications. -->
+                                <field name="student_document_id" widget="CopyClipboardChar" class="o_ems_copy_compact"
+                                       invisible="not student_document_id"/>
                                 <field name="ministry_date" invisible="not resolved_by_ministry"/>
                                 <field name="validation_date" invisible="not validation_date"/>
                                 <field name="validated_by_id" invisible="not validated_by_id"/>
@@ -175,6 +181,11 @@
                                     Every refused subject needs its reason, which the resolution states.
                                 </div>
                             </page>
+                            <!-- Issue #657: what the student studied before, for whoever decides the subjects. -->
+                            <page name="academic_history" string="Academic history"
+                                  groups="ems.group_head_of_studies,ems.group_academic_admin">
+                                <field name="student_year_record_ids" context="{'list_view_ref': 'ems.view_year_record_history_list'}"/>
+                            </page>
                             <page name="documents" string="Supporting documents">
                                 <field name="attachment_ids" widget="many2many_binary"/>
                             </page>
@@ -207,7 +218,7 @@
                 <search string="Convalidations">
                     <field name="name"/>
                     <field name="student_id"
-                           filter_domain="['|', ('student_id', 'ilike', self), ('student_idalu', 'ilike', self)]"/>
+                           filter_domain="['|', '|', ('student_id', 'ilike', self), ('student_idalu', 'ilike', self), ('student_document_id', 'ilike', self)]"/>
                     <field name="study_id"/>
                     <field name="course_id"/>
                     <field name="line_ids" string="Subject" filter_domain="[('line_ids.subject_id', 'ilike', self)]"/>

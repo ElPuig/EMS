@@ -3223,7 +3223,7 @@ msgid "Document approved:"
 msgstr "Documento aprobado:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_partner__document_id model:ir.model.fields,field_description:ems.field_res_users__document_id model_terms:ir.ui.view,arch_db:ems.view_family_search
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id model:ir.model.fields,field_description:ems.field_res_users__document_id model:ir.model.fields,field_description:ems.field_ems_convalidation__student_document_id model_terms:ir.ui.view,arch_db:ems.view_family_search
 msgid "Document ID"
 msgstr "Documento de identidad (DNI/NIE)"
 
@@ -11490,7 +11490,7 @@ msgid "A year record already exists for this student and course!"
 msgstr "¡Ya existe un registro de histórico para este/a alumno/a y este curso!"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_year_record_list model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids model:ir.model.fields,field_description:ems.field_res_users__year_record_ids model:ir.ui.menu,name:ems.menu_year_record model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.actions.act_window,name:ems.action_year_record_list model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids model:ir.model.fields,field_description:ems.field_res_users__year_record_ids model:ir.ui.menu,name:ems.menu_year_record model:ir.model.fields,field_description:ems.field_ems_convalidation__student_year_record_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Academic history"
 msgstr "Histórico académico"
 
@@ -23247,3 +23247,8 @@ msgstr "No se ha podido enviar el comunicado y queda como borrador para que lo r
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Notice sent."
 msgstr "Comunicado enviado."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__student_document_id
+msgid "The student's identity document, to look them up in other applications."
+msgstr "El documento de identidad del alumno, para encontrarlo en otras aplicaciones."

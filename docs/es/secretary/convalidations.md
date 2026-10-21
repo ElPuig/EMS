@@ -23,7 +23,7 @@ Cada solicitud resuelta aparece en la bandeja de actividades (🕒) de todo el p
 
 ## Acceso
 
-Navega a: **Gestión académica → Convalidaciones**. La lista se abre con el filtro **Pendientes de mí** activado, que para secretaría muestra las solicitudes en estado **Pendiente de secretaría**; quítalo para ver todas las solicitudes. También puedes buscar una solicitud por su **número de registro** (por ejemplo CONV-2026-27-0001).
+Navega a: **Gestión académica → Convalidaciones**. La lista se abre con el filtro **Pendientes de mí** activado, que para secretaría muestra las solicitudes en estado **Pendiente de secretaría**; quítalo para ver todas las solicitudes. También puedes buscar una solicitud por su **número de registro** (por ejemplo CONV-2026-27-0001). La solicitud más antigua aparece primero.
 
 Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **Convalidaciones**.
 

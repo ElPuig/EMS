@@ -23,7 +23,7 @@ Each resolved request appears in the activity tray (🕒) of all secretariat sta
 
 ## Access
 
-Navigate to: **Academic management → Convalidations**. The list opens with the **Pending for me** filter on, which for the secretariat shows the requests in **Pending the secretariat**; remove it to see every request. You can also search a request by its **registration number** (e.g. CONV-2026-27-0001).
+Navigate to: **Academic management → Convalidations**. The list opens with the **Pending for me** filter on, which for the secretariat shows the requests in **Pending the secretariat**; remove it to see every request. You can also search a request by its **registration number** (e.g. CONV-2026-27-0001). The oldest request comes first.
 
 To see a student's requests, open their record and click the **Convalidations** button.
 

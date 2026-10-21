@@ -46,6 +46,12 @@ class EmsConvalidation(models.Model):
                                  domain="[('contact_type', 'in', ('student', 'applicant'))]")
     student_idalu = fields.Char(string="Student ID", related='student_id.student_id',
                                 help="The student's IDALU, to look up their academic record in Esfera.")
+    student_document_id = fields.Char(string="Document ID", related='student_id.document_id',
+                                      help="The student's identity document, to look them up in other applications.")
+    # Issue #657: what the student studied before, for whoever decides the subjects. Field-level
+    # groups too, not only the page's: nobody else reads it by RPC either.
+    student_year_record_ids = fields.One2many(string="Academic history", related='student_id.year_record_ids',
+                                              groups='ems.group_head_of_studies,ems.group_academic_admin')
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', ondelete='set null',
                                    help="Portal user who submitted the request: the student or a family contact.")
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', required=True,

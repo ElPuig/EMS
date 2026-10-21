@@ -480,6 +480,19 @@ class TestConvalidation(TransactionCase):
         with self.assertRaises(UserError):
             request.with_user(self.head_of_studies).action_complete()
 
+    def test_academic_history_only_for_who_decides_the_subjects(self):
+        """Issue #657: the request shows the student's academic history to the Head of Studies,
+        and to the Director and the administrator above them; not to the secretariat, although
+        it reads the history elsewhere."""
+        request = self._request()
+        record = self.env['ems.student.year_record'].create({
+            'student_id': self.student.id, 'course_id': self.course.id})
+        admin = create_role_user(self, 'academic_admin', 'test_convalidation_history_admin')
+        for user in (self.head_of_studies, self.director, admin):
+            self.assertEqual(request.with_user(user).student_year_record_ids, record)
+        with self.assertRaises(AccessError):
+            request.with_user(self.secretary).read(['student_year_record_ids'])
+
     def test_director_can_review(self):
         request = self._request()
         self._line(request).with_user(self.director).action_grant()

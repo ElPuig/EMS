@@ -23386,9 +23386,46 @@ msgid ""
 "The other halves of the same split group. When a teacher is away, the guard "
 "duty board can propose that a teacher who teaches them the same subject "
 "teaches both halves together. Setting it on one half sets it on the other "
-"too."
+"too, and both halves share their tutor, delegate and sub-delegate."
 msgstr ""
 "Las otras mitades del mismo grupo desdoblado. Cuando falta un docente, el "
 "horario de guardias puede proponer que un docente que les da la misma "
 "materia dé clase a las dos mitades a la vez. Si se indica en una mitad, la "
-"otra también lo tiene."
+"otra también lo tiene, y las dos mitades comparten tutor, delegado y "
+"subdelegado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"The halves of a split group must be of the same type: two main groups or two"
+" reinforcement groups."
+msgstr ""
+"Las mitades de un grupo desdoblado deben ser del mismo tipo: dos grupos "
+"principales o dos grupos de refuerzo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "%(group)s: %(field)s %(current)s will be replaced by %(new)s."
+msgstr "%(group)s: %(field)s %(current)s será sustituido por %(new)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"The halves of a split group share their tutor, delegate and sub-delegate:"
+msgstr ""
+"Las mitades de un grupo desdoblado comparten tutor, delegado y subdelegado:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Do you want to link them anyway?"
+msgstr "¿Quieres enlazarlas igualmente?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Link these halves?"
+msgstr "¿Enlazar estas mitades?"

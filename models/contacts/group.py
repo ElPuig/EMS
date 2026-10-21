@@ -5,6 +5,10 @@ from odoo.exceptions import RedirectWarning, ValidationError
 
 from ..shared.attendance_mixin import EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
+# Issue #676: what the halves of a split group share. Changing one on a half changes it on the others.
+JOINABLE_SHARED_FIELDS = ("tutor_id", "delegate_id", "subdelegate_id")
+
+
 class EmsGroup(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
@@ -31,9 +35,10 @@ class EmsGroup(models.Model):
 	study_id = fields.Many2one(string="Study", comodel_name="ems.study")
 	tutor_id = fields.Many2one(string="Tutor", comodel_name="hr.employee", domain="[('employee_type', '=', 'teacher')]")
 
-	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id)]")
+	# Issue #676: chosen among the students of the group and of its other halves, since they share it.
+	delegate_id = fields.Many2one(string="Delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', 'in', joinable_group_ids + [id])]")
 	# Issue #574: stands in for the delegate; same students to pick from, never the delegate themselves.
-	subdelegate_id = fields.Many2one(string="Sub-delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', '=', id), ('id', '!=', delegate_id)]")
+	subdelegate_id = fields.Many2one(string="Sub-delegate", comodel_name="res.partner", domain="[('contact_type', '=', 'student'), ('main_group_id', 'in', joinable_group_ids + [id]), ('id', '!=', delegate_id)]")
 	space_id = fields.Many2one(string="Reference classroom", comodel_name="ems.space",
 		help="Updated automatically whenever the group's schedule changes: the classroom of its tutorship or, "
 			"if its schedule has no tutorship, the classroom where it spends the most teaching hours. "
@@ -67,12 +72,13 @@ class EmsGroup(models.Model):
 		help="The main groups of this group's enrolled students that are not among its main groups.")
 	# Issue #676: the other halves of the same split group, which the guard duty board may teach
 	# together (issue #660). Set by hand: sharing a lesson is not enough (DAM2A and DAM2B share some
-	# without being halves). Always mutual, see _mirror_joinable_groups.
+	# without being halves). Always mutual, and the halves share their tutor, delegate and
+	# sub-delegate (JOINABLE_SHARED_FIELDS), see _mirror_joinable_groups.
 	joinable_group_ids = fields.Many2many(string="Joins with", comodel_name="ems.group", relation="ems_group_joinable_rel",
 		column1="group_id", column2="joinable_id", domain="[('id', '!=', id)]",
 		help="The other halves of the same split group. When a teacher is away, the guard duty board can propose "
 			"that a teacher who teaches them the same subject teaches both halves together. Setting it on one half "
-			"sets it on the other too.")
+			"sets it on the other too, and both halves share their tutor, delegate and sub-delegate.")
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
@@ -142,6 +148,13 @@ class EmsGroup(models.Model):
 				raise ValidationError(_("Only a reinforcement group can belong to main groups."))
 			if group.parent_group_ids.filtered(lambda parent: parent.group_type != "main"):
 				raise ValidationError(_("A reinforcement group can only belong to main groups."))
+
+	@api.constrains("group_type", "joinable_group_ids")
+	def _check_joinable_groups(self):
+		for group in self:
+			if group.joinable_group_ids.filtered(lambda half: half.group_type != group.group_type):
+				raise ValidationError(_("The halves of a split group must be of the same type: two main groups or two "
+					"reinforcement groups."))
 
 	def _compute_enrolled_student_ids(self):
 		for group in self:
@@ -243,8 +256,10 @@ class EmsGroup(models.Model):
 		"""Keep 'employees' Tutor role and security groups in sync with whether they
 		currently tutor at least one group. Shared by create() (a group created with
 		tutor_id already set) and write() (tutor_id assigned/reassigned/cleared later) so
-		both paths behave the same way instead of only write() doing the sync."""
-		employees.update_tutor_role()
+		both paths behave the same way instead of only write() doing the sync. As superuser: it
+		follows from a change the user may make (a Department Chief sets a group's tutor), but the
+		user may not edit employees (issue #676)."""
+		employees.sudo().update_tutor_role()
 		employees._sync_security_groups()
 
 	def _raise_if_archived_duplicate(self, groups):
@@ -279,14 +294,47 @@ class EmsGroup(models.Model):
 
 	def _mirror_joinable_groups(self, before):
 		"""Keep 'Joins with' mutual (issue #676): every group added to (removed from) a group's
-		halves gets (loses) that group too. `before`: `{group id: its previous halves}`."""
+		halves gets (loses) that group too. A half just added takes this group's tutor, delegate and
+		sub-delegate; where this group has none, it takes the half's instead (the form asks first
+		when both have one and they differ, see get_joinable_confirmation_message). `before`:
+		`{group id: its previous halves}`."""
 		Group = self.env['ems.group']
 		for group in self:
 			previous = before.get(group.id, Group)
-			for half in group.joinable_group_ids - previous:
-				half.with_context(ems_skip_joinable_mirror=True).write({'joinable_group_ids': [(4, group.id)]})
+			added = group.joinable_group_ids - previous
+			blanks = {field: added.filtered(field)[0][field].id for field in JOINABLE_SHARED_FIELDS
+				if not group[field] and added.filtered(field)}
+			if blanks:
+				group.with_context(ems_skip_joinable_mirror=True).write(blanks)
+			shared = {field: group[field].id for field in JOINABLE_SHARED_FIELDS}
+			for half in added:
+				half.with_context(ems_skip_joinable_mirror=True).write({'joinable_group_ids': [(4, group.id)], **shared})
 			for half in previous - group.joinable_group_ids:
 				half.with_context(ems_skip_joinable_mirror=True).write({'joinable_group_ids': [(3, group.id)]})
+
+	def get_joinable_confirmation_message(self, joinable_ids, values):
+		"""RPC-callable from the group form before saving (issue #676): what the halves about to be
+		added to `self` (empty when new) in `joinable_ids` would lose, since they take this group's
+		tutor, delegate and sub-delegate (`values`, `{field: id or False}`, as on the form). False
+		when nothing is lost: a blank on either side or the same value."""
+		self.check_access('write')
+		added = self.browse(joinable_ids) - self.joinable_group_ids
+		lines = []
+		for half in added:
+			for field in JOINABLE_SHARED_FIELDS:
+				current = half[field]
+				if values.get(field) and current and current.id != values[field]:
+					lines.append(_("%(group)s: %(field)s %(current)s will be replaced by %(new)s.",
+						group=half.name, field=self._fields[field].get_description(self.env)['string'],
+						current=current.display_name, new=current.browse(values[field]).display_name))
+		if not lines:
+			return False
+		return "\n".join([
+			_("The halves of a split group share their tutor, delegate and sub-delegate:"),
+			*lines,
+			"",
+			_("Do you want to link them anyway?"),
+		])
 
 	def _archive_confirmation_message(self):
 		# Archiving is always allowed (it never removes/unenrolls anyone) - this only builds the
@@ -358,7 +406,9 @@ class EmsGroup(models.Model):
 		# actually changed and what to move away from (see _propagate_classroom_change below).
 		old_space_by_group = {group.id: group.space_id for group in self} if 'space_id' in vals else {}
 		name_affecting = vals.keys() & {"name", "course", "acronym", "study_id", "group_type", "external_id"}
-		mirror = 'joinable_group_ids' in vals and not self.env.context.get('ems_skip_joinable_mirror')
+		skip_mirror = self.env.context.get('ems_skip_joinable_mirror')
+		mirror = 'joinable_group_ids' in vals and not skip_mirror
+		shared = [] if skip_mirror else [field for field in JOINABLE_SHARED_FIELDS if field in vals]
 		old_halves = {group.id: group.joinable_group_ids for group in self} if mirror else {}
 		with self.env.cr.savepoint():
 			res = super(EmsGroup, self).write(vals)
@@ -366,6 +416,9 @@ class EmsGroup(models.Model):
 				self._raise_if_archived_duplicate(self)
 		if mirror:
 			self._mirror_joinable_groups(old_halves)
+		for group in self.filtered('joinable_group_ids') if shared else ():
+			group.joinable_group_ids.with_context(ems_skip_joinable_mirror=True).write(
+				{field: group[field].id for field in shared})
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:

@@ -15,6 +15,14 @@
 - Academic management → Configuration is organised in sections, like Convalidations already was: **Enrollment** (Enrollment Items, Enrollment Templates, Task Assignment) and **Authorizations** (Authorization Forms, moved here from the old submenu). Head of Studies/Deputy Head of Studies reach only the Authorizations section there.
 - Outside the pre-enrollment period a tutor entering Academic management lands on that list instead of a dialog.
 
+## Authorization answers follow the chain of command (issue #654):
+
+- The Authorizations list now shows a tutor the answers of the students they act as tutor of through the hierarchy (`tutor_scope_user_ids`, issue #483), not only their own group's: a Department/Seminar Chief also follows the answers of the students of the tutors in their department. Staff who see every student are unchanged.
+
+## Head of Studies reads student documents (issue #654):
+
+- Head of Studies/Deputy Head of Studies and the Director now reach Academic management > Student Documents and read every document type (ID card, IBAN, medical card, benefit proofs, Google credentials) of the students whose tutor is below them in the chain of command, read only: approving, rejecting and reopening stays with the secretary's office. Another Head of Studies' students stay out; Department/Seminar Chiefs still only read the Google credentials. New Head of Studies manual "Consulting student documents".
+
 # Internal changes
 
 ## Yearly periods share one implementation (issue #654):

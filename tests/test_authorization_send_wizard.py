@@ -370,6 +370,18 @@ class TestAuthorizationSendWizard(TransactionCase):
         staff_action = Authorization.with_user(self.sender).action_open_follow_up()
         self.assertFalse(staff_action.get('domain'))
 
+    def test_a_chief_above_the_tutor_follows_up_their_students(self):
+        """The Department/Seminar Chief above the tutor (parent_id) follows the tutor's students
+        too, never anyone else's (tutor_scope_user_ids, issue #483)."""
+        chief = create_role_user(self, 'department_chief', 'test_chief_send_wizard')
+        self.tutor_employee.parent_id = create_role_employee(self, chief)
+        self._wizard(student_ids=[(6, 0, (self.adult | self.other_student).ids)]).action_apply()
+        Authorization = self.env['ems.authorization']
+        seen = Authorization.with_user(chief).search(
+            Authorization.with_user(chief).action_open_follow_up()['domain'])
+        self.assertIn(self._auths(self.adult, self.template), seen)
+        self.assertNotIn(self._auths(self.other_student, self.template), seen)
+
     def test_a_plain_teacher_cannot_send(self):
         with self.assertRaises(Exception):
             self._wizard(user=self.teacher, student_ids=[(6, 0, self.adult.ids)]).action_apply()

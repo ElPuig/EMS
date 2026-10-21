@@ -187,8 +187,9 @@ preview list nobody while sending (on the saved record) worked; both halves are 
 ### Tutors
 
 A tutor (`ems.group_tutor`, granted by the "Tutor" employee role; the students are the ones
-whose main group they tutor, `res.partner.tutor_id.user_id`) sends forms from the catalogue to
-their own students and follows up the answers:
+they act as tutor of, `res.partner.tutor_id.tutor_scope_user_ids`: their own main group's, and
+for a Department/Seminar Chief those of the tutors below them, issue #483) sends forms from the
+catalogue to their own students and follows up the answers:
 
 - **Menu.** The Authorizations submenu includes `ems.group_tutor`; its Configuration section
   (the catalogue) does not.
@@ -217,7 +218,8 @@ their own students and follows up the answers:
   inside the web client.
 - **Following up.** The Responses menu entry opens `action_ems_authorizations_follow_up`, a
   server action calling `ems.authorization.action_open_follow_up()`: the whole list for the
-  staff, `partner_id.tutor_id.user_id = uid` for a tutor. It is decided there, not in a record
+  staff, `partner_id.tutor_id.tutor_scope_user_ids = uid` for a tutor (so a Department/Seminar
+  Chief follows the answers of the students of the tutors below them too). It is decided there, not in a record
   rule, because the teacher read rule already lets every teacher read every authorization -
   the same reason and pattern as `action_student_group_enrollment`. `action_ems_authorizations`
   stays the window action tours and links open directly.
@@ -409,7 +411,7 @@ which is what allows one email per student instead of one per authorization.
 | `group_academic_admin`, `group_secretary` | full CRUD | full CRUD | Unrestricted (`security/rules/contacts.xml`). |
 | `group_head_of_studies` | full CRUD | read/write/create | Needs a rule of its own with `domain_force = []`: rules of *different* groups are ANDed, so inheriting only the teacher's read-only rule and the tutor's own-students-only one would stop them sending anything to a student they do not tutor. |
 | `group_teacher` | read-only | read-only | Every teacher can read every authorization (`rule_ems_authorization_teacher`, domain `[]`); it predates issue #443 and the student file relies on it. |
-| `group_tutor` | read-only | create/write, no unlink, own students only | Scoped to `partner_id.tutor_id.user_id = user.id`. Sends forms from the catalogue to their own students through the send assistant and follows up their answers; never sees the catalogue's Configuration section. |
+| `group_tutor` | read-only | create/write, no unlink, own students only | Scoped to `partner_id.tutor_id.tutor_scope_user_ids = user.id` (the tutor and every chief above them). Sends forms from the catalogue to their own students through the send assistant and follows up their answers; never sees the catalogue's Configuration section. |
 | `base.group_portal` | read-only | read/write, no create/unlink | `[('partner_id', 'in', [user.partner_id.id] + user.partner_id.get_portal_students().ids)]`. |
 | `group_student_data_reader` | — | read-only | |
 

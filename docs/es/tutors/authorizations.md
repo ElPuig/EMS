@@ -48,7 +48,7 @@ El alumno y la familia responden desde **Matrícula y autorizaciones** en el por
 
 ## Seguimiento de las respuestas
 
-Id a **Gestión académica > Autorizaciones**. La lista muestra las autorizaciones de vuestro alumnado, tanto las enviadas durante el curso como las de la matrícula.
+Id a **Gestión académica > Autorizaciones**. La lista muestra las autorizaciones de vuestro alumnado, tanto las enviadas durante el curso como las de la matrícula. Si sois jefe de departamento o de seminario, también veis las del alumnado de los tutores de vuestro departamento.
 
 - Filtrad por **Pendiente**, **Aceptado** o **Rechazado**, y por **Enviada durante el curso** o **De una matrícula**.
 - Agrupad por autorización, alumno o estado.

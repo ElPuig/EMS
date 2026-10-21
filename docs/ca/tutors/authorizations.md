@@ -48,7 +48,7 @@ L'alumne i la família responen des de **Matrícula i autoritzacions** al portal
 
 ## Seguiment de les respostes
 
-Aneu a **Gestió acadèmica > Autoritzacions**. La llista mostra les autoritzacions del vostre alumnat, tant les enviades durant el curs com les de la matrícula.
+Aneu a **Gestió acadèmica > Autoritzacions**. La llista mostra les autoritzacions del vostre alumnat, tant les enviades durant el curs com les de la matrícula. Si sou cap de departament o de seminari, també hi veieu les de l'alumnat dels tutors del vostre departament.
 
 - Filtreu per **Pendent**, **Acceptat** o **Rebutjat**, i per **Enviada durant el curs** o **D'una matrícula**.
 - Agrupeu per autorització, alumne o estat.

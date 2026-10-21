@@ -48,7 +48,7 @@ The student and the family answer from **Enrollment and authorizations** on the 
 
 ## Following up the answers
 
-Go to **Academic management > Authorizations**. The list shows the authorizations of your students, both the ones sent during the course and the ones from the enrollment.
+Go to **Academic management > Authorizations**. The list shows the authorizations of your students, both the ones sent during the course and the ones from the enrollment. If you are a Department or Seminar Chief, you also see those of the students of the tutors in your department.
 
 - Filter by **Pending**, **Accepted** or **Rejected**, and by **Sent during the course** or **From an enrollment**.
 - Group by authorization, student or status.

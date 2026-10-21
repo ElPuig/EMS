@@ -151,6 +151,18 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
         self.assertEqual(html.count(b'gdb-guard-badge gdb-cover-'), 1)
 
+    def test_a_guard_block_with_nothing_covered_leaves_its_colour_free(self):
+        """Issue #675: teacher_guard (on guard 8-11) only covers 8-9, so their 10-11 badge shows no
+        colour and the 10-11 class can take the same one."""
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._assign()
+        self._assign(self.teacher_guard_2, 10, 11)
+
+        colors = self._teaching_line(self.day, 10, 11)['cover_colors']
+
+        self.assertEqual(colors[self.teacher_guard.id], colors[self.teacher_guard_2.id])
+
     def test_two_guards_covering_at_once_get_different_colours(self):
         self._morning()
         self._schedule_class(self.teacher_b, self.group_b, 'TABC Calendar B (group B)', periods=((8, 9), (11, 12)))

@@ -23,10 +23,13 @@
                   groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                   sequence="20"/>
 
-            <menuitem id="menu_ems_authorization_forms"
-                      name="Authorization Forms"
-                      parent="menu_ems_configuration_authorizations"
-                      action="action_ems_authorization_template"
-                      sequence="10"/>
+        <!-- Its own groups too, not just its folder's: teachers can read the catalogue (they
+             pick a form when sending), and Odoo would count the entry as reachable for them. -->
+        <menuitem id="menu_ems_authorization_forms"
+                  name="Authorization Forms"
+                  parent="menu_ems_configuration_authorizations"
+                  action="action_ems_authorization_template"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
+                  sequence="10"/>
     </data>
 </odoo>

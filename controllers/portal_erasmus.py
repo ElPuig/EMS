@@ -2,7 +2,7 @@
 
 from odoo import http
 from odoo.exceptions import UserError
-from odoo.http import request
+from odoo.http import content_disposition, request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
 from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS
@@ -67,6 +67,13 @@ class EmsPortalErasmusController(CustomerPortal):
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
             'saved': kwargs.get('saved'),
+            # Issue #685: results of the published resolutions, newest first, and the place offered.
+            'result_lines': application.resolution_line_ids.filtered(
+                lambda line: line.resolution_id.state == 'published').sorted(
+                lambda line: line.resolution_id.publish_date, reverse=True),
+            'result_labels': dict(request.env['ems.erasmus.resolution.line']._fields['result'].selection),
+            'offer': application.offer_ids.filtered(lambda offer: offer.state == 'pending')[:1],
+            'answered': kwargs.get('answered'),
         })
         return request.render('ems.portal_erasmus_application', values)
 
@@ -111,3 +118,56 @@ class EmsPortalErasmusController(CustomerPortal):
         return request.env['ir.binary']._get_stream_from(
             call, 'rules_document', filename_field='rules_filename').get_response(
             as_attachment=True)
+
+    # --- issue #685: resolutions and place offers ----------------------------------------------
+
+    def _ems_erasmus_resolution(self, call_id, resolution_id):
+        """A published resolution of a call the logged-in user applied to."""
+        call = self._ems_erasmus_call(call_id)
+        if not call or call not in request.env.user.partner_id._ems_erasmus_applications().call_id:
+            return None
+        return call._ems_published_resolutions().filtered(lambda resolution: resolution.id == resolution_id)
+
+    @http.route('/my/erasmus/call/<int:call_id>/resolution/<int:resolution_id>', type='http', auth='user',
+                website=True)
+    def portal_erasmus_resolution(self, call_id, resolution_id, **kwargs):
+        resolution = self._ems_erasmus_resolution(call_id, resolution_id)
+        if not resolution:
+            return request.redirect(self._redirect)
+        values = self._prepare_portal_layout_values()
+        values.update({'page_name': 'erasmus', 'resolution': resolution})
+        return request.render('ems.portal_erasmus_resolution', values)
+
+    @http.route('/my/erasmus/call/<int:call_id>/resolution/<int:resolution_id>/pdf', type='http', auth='user',
+                website=True)
+    def portal_erasmus_resolution_pdf(self, call_id, resolution_id, **kwargs):
+        resolution = self._ems_erasmus_resolution(call_id, resolution_id)
+        if not resolution:
+            return request.redirect(self._redirect)
+        pdf, _type = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
+            'ems.action_report_erasmus_resolution', resolution.ids)
+        return request.make_response(pdf, headers=[
+            ('Content-Type', 'application/pdf'),
+            ('Content-Disposition', content_disposition(f'{resolution.name}.pdf')),
+        ])
+
+    @http.route('/my/erasmus/call/<int:call_id>/offer', type='http', auth='user', methods=['POST'], website=True)
+    def portal_erasmus_offer(self, call_id, answer=None, reason=None, **kwargs):
+        """Accept or renounce the place offered to the logged-in user in this call."""
+        call = self._ems_erasmus_call(call_id)
+        if not call:
+            return request.redirect('/my/home')
+        page = f'{self._redirect}/call/{call.id}'
+        offer = request.env['ems.erasmus.offer'].sudo().search([
+            ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id),
+            ('state', '=', 'pending')], limit=1)
+        if not offer or answer not in ('accept', 'renounce'):
+            return request.redirect(f'{page}?error=1')
+        try:
+            if answer == 'accept':
+                offer.action_accept()
+            else:
+                offer.action_renounce((reason or '').strip()[:2000] or False)
+        except UserError:
+            return request.redirect(f'{page}?error=1')
+        return request.redirect(f'{page}?answered=1')

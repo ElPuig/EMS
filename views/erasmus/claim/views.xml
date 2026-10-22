@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #685 - claims and appeals, recorded by the Erasmus team (art. 14 of the call). -->
+        <record id="view_erasmus_claim_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.claim.list</field>
+            <field name="model">ems.erasmus.claim</field>
+            <field name="arch" type="xml">
+                <list string="Claims" decoration-muted="state == 'resolved'">
+                    <field name="received_date"/>
+                    <field name="partner_id"/>
+                    <field name="call_id" optional="hide"/>
+                    <field name="kind"/>
+                    <field name="resolution_id" optional="show"/>
+                    <field name="resolved_date" optional="show"/>
+                    <field name="state" widget="badge" decoration-warning="state == 'open'"
+                           decoration-success="state == 'resolved'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_claim_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.claim.form</field>
+            <field name="model">ems.erasmus.claim</field>
+            <field name="arch" type="xml">
+                <form string="Claim">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_resolve" type="object" string="Resolve" class="btn-primary"
+                                    invisible="state != 'open'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_reopen" type="object" string="Reopen"
+                                    invisible="state != 'resolved'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="application_id" options="{'no_create': True}"/>
+                                <field name="call_id" invisible="1"/>
+                                <field name="kind"/>
+                                <field name="resolution_id" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="received_date"/>
+                                <field name="resolved_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="description"/>
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                            <field name="response"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_claim_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.claim.search</field>
+            <field name="model">ems.erasmus.claim</field>
+            <field name="arch" type="xml">
+                <search string="Claims">
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <filter name="open" string="Open" domain="[('state', '=', 'open')]"/>
+                    <filter name="appeals" string="Appeals" domain="[('kind', '=', 'appeal')]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_claim" model="ir.actions.act_window">
+            <field name="name">Claims</field>
+            <field name="res_model">ems.erasmus.claim</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_claim_search"/>
+            <field name="context">{'search_default_open': 1}</field>
+        </record>
+    </data>
+</odoo>

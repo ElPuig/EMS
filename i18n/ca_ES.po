@@ -1333,6 +1333,7 @@ msgstr "Només acceptació"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_correction__state__accepted model:ir.model.fields.selection,name:ems.selection__ems_authorization__status__yes model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
 msgid "Accepted"
 msgstr "Acceptat"
 
@@ -1388,6 +1389,9 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1403,6 +1407,9 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__active
 #: model:ir.model.fields,field_description:ems.field_hr_attendance__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__active
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__active
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__active
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1478,6 +1485,9 @@ msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_ids
 msgid "Activities"
 msgstr "Activitats"
 
@@ -1498,6 +1508,9 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepció a una activitad"
 
@@ -1513,6 +1526,9 @@ msgstr "Decorador de la excepció a una activitad"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_state
 msgid "Activity State"
 msgstr "Estat de l'activitat"
 
@@ -1528,6 +1544,9 @@ msgstr "Estat de l'activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
@@ -1955,6 +1974,9 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -2444,6 +2466,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2983,6 +3006,11 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3048,6 +3076,11 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3382,6 +3415,11 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3519,6 +3557,8 @@ msgstr "Descarregant enquestes"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_limesurvey_header__state__draft model:ir.model.fields.selection,name:ems.selection__ems_notice__state__draft model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__draft
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__draft model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__state__draft
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
 msgid "Draft"
 msgstr "Esborrany"
 
@@ -4138,6 +4178,9 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -4155,6 +4198,9 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -4170,6 +4216,9 @@ msgstr "Seguidors (Companys)"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icona de font impressionant, p. ex. tasques-fa"
 
@@ -4447,6 +4496,8 @@ msgstr "Grup"
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
 msgid "Group By"
 msgstr "Agrupar per"
 
@@ -4527,6 +4578,9 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -4688,6 +4742,11 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -4709,6 +4768,9 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_exception_icon
 msgid "Icon"
 msgstr "Icona"
 
@@ -4724,6 +4786,9 @@ msgstr "Icona"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icona per indicar una activitat d'excepció."
 
@@ -4746,6 +4811,9 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -4775,6 +4843,12 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -5052,6 +5126,9 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -5226,6 +5303,11 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5291,6 +5373,11 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5645,6 +5732,9 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -5662,6 +5752,9 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -5687,6 +5780,7 @@ msgstr "Acta: Defineix l'acta d'una reunió (reunió de departament, reunió de 
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_minute_tree
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__approval_reference
 msgid "Minutes"
 msgstr "Actes"
 
@@ -5706,6 +5800,11 @@ msgstr "Mòbil"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__modality
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__modality_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__modality_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__modality_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__modality_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
 msgid "Modality"
 msgstr "Modalitat"
 
@@ -5755,6 +5854,9 @@ msgstr "Mare"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Data límit de la meva activitat"
 
@@ -5776,6 +5878,7 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__name
 #: code:addons/ems/models/grades/title_import_wizard.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__name
 msgid "Name"
 msgstr "Nom"
 
@@ -5818,6 +5921,9 @@ msgstr "Nou contacte d'alumne/a"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Data límit de la següent activitat"
 
@@ -5833,6 +5939,9 @@ msgstr "Data límit de la següent activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resum de l'activitat següent"
 
@@ -5848,6 +5957,9 @@ msgstr "Resum de l'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipus d'activitat següent"
 
@@ -6055,6 +6167,9 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -6072,6 +6187,9 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -6089,6 +6207,9 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -6106,6 +6227,9 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -6215,6 +6339,8 @@ msgstr "Només els tutors poden justificar les faltes dels alumnes."
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0 model:ir.model.fields.selection,name:ems.selection__ems_grade_session__state__open model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__target_state__open model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__open model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__state__open
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_search
 msgid "Open"
 msgstr "Oberta"
 
@@ -6761,6 +6887,9 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -6798,6 +6927,7 @@ msgstr "Motiu de rebuig (obligatori abans de rebutjar)"
 #. odoo-javascript
 #. odoo-python
 #: code:addons/ems/static/src/js/backend/attendance_session_view.js:0 code:addons/ems/models/contacts/student_document.py:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Reason:"
 msgstr "Motiu:"
 
@@ -6872,6 +7002,7 @@ msgstr "Destinataris eliminats correctament!"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__rectification
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__kind__rectification
 msgid "Rectification"
 msgstr "Rectificació"
 
@@ -6997,6 +7128,7 @@ msgstr "Data de renovació/revisió"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_interview_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_form
 msgid "Reopen"
 msgstr "Reobrir"
 
@@ -7042,6 +7174,7 @@ msgstr "Respost des de"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__response
 msgid "Response"
 msgstr "Resposta"
 
@@ -7067,6 +7200,9 @@ msgstr "Detalls de la resposta"
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_user_id
 msgid "Responsible User"
 msgstr "Usuari responsable"
 
@@ -7216,6 +7352,9 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -7290,6 +7429,7 @@ msgstr "Àmbit d'aplicació"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_outcome__score model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__score
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 msgid "Score"
 msgstr "Puntuació"
 
@@ -7505,6 +7645,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -7742,6 +7883,9 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__state
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__state
 msgid "State"
 msgstr "Estat"
 
@@ -7776,6 +7920,9 @@ msgstr "Estat"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_state
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_state
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__activity_state
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_state
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_state
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -8771,6 +8918,9 @@ msgstr "Conflicte"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipus de l'activitat d'excepció registrada."
 
@@ -8951,6 +9101,9 @@ msgstr "Usuari"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_strike__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__user_is_admin
 msgid "User Is Admin"
 msgstr "L'usuari és administrador"
 
@@ -8962,6 +9115,9 @@ msgstr "L'usuari és administrador"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_strike__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__user_is_tutor
 msgid "User Is Tutor"
 msgstr "L'usuari és tutor"
 
@@ -9054,6 +9210,9 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -9071,6 +9230,9 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_erasmus_interview__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_claim__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -9376,6 +9538,8 @@ msgstr "Dreta"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__resolution
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_conflict_mixin__resolution
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__resolution_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
 msgid "Resolution"
 msgstr "Resolució"
 
@@ -10517,6 +10681,9 @@ msgstr "openpyxl és necessari per importar fitxers xlsx."
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__applicant model:res.partner.category,name:ems.partner_category_applicant model_terms:ir.ui.view,arch_db:ems.view_applicant_list model_terms:ir.ui.view,arch_db:ems.view_applicant_search
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__partner_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__partner_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__partner_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__partner_id
 msgid "Applicant"
 msgstr "Sol·licitant"
 
@@ -10556,6 +10723,9 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_kind
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__kind
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__kind
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__kind
 msgid "Kind"
 msgstr "Tipus"
 
@@ -12274,6 +12444,7 @@ msgstr "Ponderació (%)"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__withdrawn model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__withdrawn
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_offer__state__cancelled
 msgid "Withdrawn"
 msgstr "Baixa"
 
@@ -12720,6 +12891,8 @@ msgstr "Previsualitzar"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__outcome
 #: code:addons/ems/models/grades/title_import_wizard.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard__result_html
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__result
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 msgid "Result"
 msgstr "Resultat"
 
@@ -15794,6 +15967,9 @@ msgstr "Marqueu els mòduls que ja heu superat en altres estudis."
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Esdeveniment de calendari de la següent activitat"
 
@@ -15864,6 +16040,7 @@ msgstr "Resolució enviada a %s."
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__state__resolved
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__state__resolved
 msgid "Resolved"
 msgstr "Resolta"
 
@@ -17435,6 +17612,7 @@ msgstr "Respost per"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__submitted_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__answer_date
 msgid "Answered on"
 msgstr "Respost el"
 
@@ -18574,6 +18752,7 @@ msgstr "Pot veure la identificació"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_identification_id
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 msgid "Identity document"
 msgstr "Document d'identitat"
 
@@ -19005,6 +19184,7 @@ msgstr "Resolució: signatura per delegació"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_form
 msgid "Resolve"
 msgstr "Resoldre"
 
@@ -19809,6 +19989,9 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_notice_form
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_interview_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -23849,6 +24032,7 @@ msgstr "Comunicat enviat."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: code:addons/ems/models/erasmus/call.py
 msgid "%s (copy)"
 msgstr "%s (còpia)"
 
@@ -24036,12 +24220,14 @@ msgstr "<i class=\"fa fa-save me-1\"/>Desa l'esborrany"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: code:addons/ems/models/erasmus/call.py
 msgid "A call with submitted applications cannot go back to draft."
 msgstr "Una convocatòria amb sol·licituds enviades no pot tornar a esborrany."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: code:addons/ems/models/erasmus/call.py
 msgid "A level can only belong to one modality of the call."
 msgstr "Un nivell només pot pertànyer a una modalitat de la convocatòria."
 
@@ -24058,12 +24244,14 @@ msgstr "Admet sol·licituds"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: code:addons/ems/models/erasmus/call.py
 msgid "Add at least one modality before publishing the call."
 msgstr "Afegeix almenys una modalitat abans de publicar la convocatòria."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: code:addons/ems/models/erasmus/call.py
 msgid "Add at least one required document before publishing the call."
 msgstr ""
 "Afegeix almenys un document obligatori abans de publicar la convocatòria."
@@ -24081,6 +24269,7 @@ msgstr "Admet"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__admitted
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution_line__result__admitted
 msgid "Admitted"
 msgstr "Admesa"
 
@@ -24104,6 +24293,9 @@ msgstr "Observacions del sol·licitant"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__application_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__application_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__application_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__application_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__application_id
 msgid "Application"
 msgstr "Sol·licitud"
 
@@ -24161,6 +24353,7 @@ msgstr "Torna a revisió"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "Both admission checks must be met to admit %s."
 msgstr "Per admetre %s s'han de complir les dues comprovacions d'admissió."
 
@@ -24171,6 +24364,11 @@ msgstr "Per admetre %s s'han de complir les dues comprovacions d'admissió."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_interview__call_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__call_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__call_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__call_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__call_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
 msgid "Call"
 msgstr "Convocatòria"
 
@@ -24321,6 +24519,7 @@ msgstr "Erasmus+: cal esmenar la teva sol·licitud - {{ object.call_id.name }}"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "Every required document of %s must be valid to admit the application."
 msgstr ""
 "Per admetre la sol·licitud, tots els documents obligatoris de %s han de ser "
@@ -24334,16 +24533,19 @@ msgstr "Exclou"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__excluded
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution_line__result__excluded
 msgid "Excluded"
 msgstr "Exclosa"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__exclusion_reason
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__exclusion_reason
 msgid "Exclusion reason"
 msgstr "Motiu d'exclusió"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__attachment_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__attachment_ids
 msgid "Files"
 msgstr "Fitxers"
 
@@ -24404,6 +24606,7 @@ msgstr "KA131-HED"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "Mark which documents need changes before asking for corrections."
 msgstr "Marca quins documents cal corregir abans de demanar l'esmena."
 
@@ -24438,6 +24641,7 @@ msgstr "Cal corregir"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "No email sent: the applicant has no email address."
 msgstr "No s'ha enviat cap correu: el sol·licitant no té adreça electrònica."
 
@@ -24465,6 +24669,7 @@ msgstr "Nombre de sol·licituds"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "Only the Erasmus team changes an application."
 msgstr "Només l'equip Erasmus pot modificar una sol·licitud."
 
@@ -24481,6 +24686,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid ""
 "Only the Head of Studies or the Director record the serious sanction check."
 msgstr ""
@@ -24495,6 +24701,7 @@ msgstr "Opcional"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__places
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Places"
 msgstr "Places"
 
@@ -24515,11 +24722,14 @@ msgstr "Projecte"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
 msgid "Publish"
 msgstr "Publica"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__state__published
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__state__published
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
 msgid "Published"
 msgstr "Publicada"
 
@@ -24641,42 +24851,49 @@ msgstr "Enviada el"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "The application can no longer be changed."
 msgstr "La sol·licitud ja no es pot modificar."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "The application can no longer be submitted."
 msgstr "La sol·licitud ja no es pot enviar."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "The application of %s is not in the right state for this action."
 msgstr "La sol·licitud de %s no és en un estat que permeti aquesta acció."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: code:addons/ems/models/erasmus/call.py
 msgid "The call %s is not in the right state for this action."
 msgstr "La convocatòria %s no és en un estat que permeti aquesta acció."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: code:addons/ems/models/erasmus/call.py
 msgid "The call must close after it opens."
 msgstr "La convocatòria s'ha de tancar després d'obrir-se."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "The document %s can no longer be changed."
 msgstr "El document %s ja no es pot modificar."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "The state of an application only changes through its actions."
 msgstr "L'estat d'una sol·licitud només canvia amb les seves accions."
 
@@ -24689,6 +24906,7 @@ msgstr "Ara mateix no hi ha cap convocatòria Erasmus+ per a tu."
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+#: code:addons/ems/models/erasmus/application.py
 msgid "This call is not accepting applications."
 msgstr "Aquesta convocatòria no admet sol·licituds."
 
@@ -24700,6 +24918,7 @@ msgstr "Fins quan els sol·licitants poden pujar les esmenes demanades."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "Upload the required documents first: %s"
 msgstr "Primer puja els documents obligatoris: %s"
 
@@ -24712,12 +24931,14 @@ msgstr "Vàlid"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "Write the exclusion reason first."
 msgstr "Primer escriu el motiu d'exclusió."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "You cannot apply to this call."
 msgstr "No pots presentar sol·licitud a aquesta convocatòria."
 
@@ -24862,6 +25083,7 @@ msgstr "<i class=\"fa fa-calendar me-1\"/> La teva entrevista:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_a
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_a
 msgid "A. Record"
 msgstr "A. Expedient"
 
@@ -24883,6 +25105,7 @@ msgstr "Adaptació i comunicació"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "An evaluator only scores the rubric of their interviews."
 msgstr "Un avaluador només puntua la rúbrica de les seves entrevistes."
 
@@ -24903,6 +25126,8 @@ msgstr "Mitjana trobada a l'EMS"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_b
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_b
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "B. Interview"
 msgstr "B. Entrevista"
 
@@ -24918,6 +25143,8 @@ msgstr "B2"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_c
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_c
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "C. Languages"
 msgstr "C. Llengües"
 
@@ -24958,6 +25185,8 @@ msgstr "Criteris"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_d
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_d
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "D. Fewer opportunities"
 msgstr "D. Menys oportunitats"
 
@@ -24968,6 +25197,8 @@ msgstr "Sorteig"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_e
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_e
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "E. First mobility"
 msgstr "E. Primera mobilitat"
 
@@ -25039,6 +25270,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_f
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_f
 msgid "F. Conduct"
 msgstr "F. Convivència"
 
@@ -25220,6 +25452,7 @@ msgstr "Només un avaluador ha pogut puntuar l'entrevista (annex 4)."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "Only the Erasmus team assigns interviews."
 msgstr "Només l'equip Erasmus assigna entrevistes."
 
@@ -25235,6 +25468,8 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__rank
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer__rank
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer_wizard__rank
 msgid ""
 "Position in the modality among the admitted applications. 0 until every one "
 "of them has a complete score."
@@ -25244,6 +25479,10 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__rank
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__rank
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__rank
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__rank
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 msgid "Rank"
 msgstr "Posició"
 
@@ -25278,12 +25517,14 @@ msgstr "Nota de rectificació"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "Reopen the interview before changing its scores."
 msgstr "Reobre l'entrevista abans de canviar-ne les puntuacions."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "Reopened after the review deadline: %s"
 msgstr "Reoberta després del termini de revisió: %s"
 
@@ -25304,6 +25545,7 @@ msgstr "Puntuació completa"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "Score every criterion first: %s"
 msgstr "Primer puntua tots els criteris: %s"
 
@@ -25315,6 +25557,7 @@ msgstr "Puntuació necessària per ser elegible."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "Score the Erasmus+ interview of %s"
 msgstr "Puntuar l'entrevista Erasmus+ de %s"
 
@@ -25336,6 +25579,7 @@ msgstr "Enviar la convocatòria a l'entrevista"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid "Set the interview date of %s first."
 msgstr "Primer indica la data de l'entrevista de %s."
 
@@ -25350,15 +25594,6 @@ msgstr ""
 "qui no té notes a l'EMS."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_interview__is_locked
-msgid ""
-"The call's interview review deadline has passed: only the Erasmus team can "
-"reopen it, with a rectification note."
-msgstr ""
-"Ha passat el termini de revisió de les entrevistes de la convocatòria: només"
-" l'equip Erasmus la pot reobrir, amb una nota de rectificació."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__language_level
 msgid ""
 "The highest official foreign-language certificate the applicant uploaded."
@@ -25369,6 +25604,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/application.py
 msgid ""
 "The interview call must be sent at least 24 hours before the interview."
 msgstr ""
@@ -25378,12 +25614,14 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "The interview is not submitted."
 msgstr "L'entrevista no està enviada."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "The review deadline has passed: only the Erasmus team can reopen it."
 msgstr ""
 "Ha passat el termini de revisió: només l'equip Erasmus la pot reobrir."
@@ -25400,6 +25638,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid ""
 "The review deadline has passed: the interview can no longer be changed."
 msgstr "Ha passat el termini de revisió: l'entrevista ja no es pot canviar."
@@ -25407,6 +25646,7 @@ msgstr "Ha passat el termini de revisió: l'entrevista ja no es pot canviar."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid "This interview is assigned to someone else."
 msgstr "Aquesta entrevista està assignada a una altra persona."
 
@@ -25418,6 +25658,8 @@ msgstr "Per puntuar"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_total
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_total
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Total score"
 msgstr "Puntuació total"
 
@@ -25445,8 +25687,843 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
+#: code:addons/ems/models/erasmus/interview.py
 msgid ""
 "Write the rectification note before reopening after the review deadline."
 msgstr ""
 "Escriu la nota de rectificació abans de reobrir després del termini de "
 "revisió."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_offer
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            A place of the modality <strong t-out=\"object.modality_id.name\"/> of\n"
+"                            <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Accept or renounce it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            before <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
+"                            Without an answer by then, the place is considered renounced.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Ha quedat lliure una plaça de la modalitat <strong t-out=\"object.modality_id.name\"/> de\n"
+"                            <strong t-out=\"object.call_id.name\"/> i te l'oferim.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Accepta-la o renuncia-hi al portal del centre\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            abans del <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
+"                            Si no respons dins del termini, es considera que hi renuncies.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_resolution_published
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            A new list has been published: <strong t-out=\"object.resolution_id.name\"/>.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
+"                        <t t-if=\"object.result == 'excluded'\">\n"
+"                            <p>Your application has been excluded.</p>\n"
+"                            <p t-if=\"object.exclusion_reason\">Reason: <t t-out=\"object.exclusion_reason\"/></p>\n"
+"                        </t>\n"
+"                        <p t-elif=\"object.result == 'admitted'\">\n"
+"                            Your application has been admitted. The Erasmus team will call you to the personal interview.\n"
+"                        </p>\n"
+"                        <t t-else=\"\">\n"
+"                            <p>\n"
+"                                Modality <strong t-out=\"object.modality_id.name\"/>: position <strong t-out=\"object.rank\"/>,\n"
+"                                <strong t-out=\"object._ems_format_score()\"/> points.\n"
+"                            </p>\n"
+"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
+"                                <p t-if=\"object.result == 'selected'\">With this provisional result you would get a place.</p>\n"
+"                                <p t-elif=\"object.result == 'reserve'\">With this provisional result you would be on the reserve list.</p>\n"
+"                                <p t-else=\"\">With this provisional result you do not reach the minimum score.</p>\n"
+"                                <p>\n"
+"                                    If you disagree, you can claim by replying to this email\n"
+"                                    <t t-if=\"call.claims_deadline\">until <strong t-out=\"call._ems_local_format(call.claims_deadline)\"/></t>.\n"
+"                                </p>\n"
+"                            </t>\n"
+"                            <t t-else=\"\">\n"
+"                                <p t-if=\"object.result == 'selected'\">\n"
+"                                    You have been <strong>selected</strong>. Accept or renounce the place on the school portal\n"
+"                                    before <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
+"                                    without an answer by then, the place is considered renounced.\n"
+"                                </p>\n"
+"                                <p t-elif=\"object.result == 'reserve'\">\n"
+"                                    You are on the <strong>reserve list</strong>. If a place becomes free, we will offer it to you by email.\n"
+"                                </p>\n"
+"                                <p t-else=\"\">You have not been selected: you do not reach the minimum score.</p>\n"
+"                            </t>\n"
+"                        </t>\n"
+"                        <p>\n"
+"                            You can see the detail of your score and the published list on the school portal:\n"
+"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            S'ha publicat una nova llista: <strong t-out=\"object.resolution_id.name\"/>.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.resolution_id.notes\" t-out=\"object.resolution_id.notes\"/>\n"
+"                        <t t-if=\"object.result == 'excluded'\">\n"
+"                            <p>La teva sol·licitud ha quedat exclosa.</p>\n"
+"                            <p t-if=\"object.exclusion_reason\">Motiu: <t t-out=\"object.exclusion_reason\"/></p>\n"
+"                        </t>\n"
+"                        <p t-elif=\"object.result == 'admitted'\">\n"
+"                            La teva sol·licitud ha estat admesa. L'equip Erasmus et convocarà a l'entrevista personal.\n"
+"                        </p>\n"
+"                        <t t-else=\"\">\n"
+"                            <p>\n"
+"                                Modalitat <strong t-out=\"object.modality_id.name\"/>: posició <strong t-out=\"object.rank\"/>,\n"
+"                                <strong t-out=\"object._ems_format_score()\"/> punts.\n"
+"                            </p>\n"
+"                            <t t-if=\"object.resolution_id.kind == 'provisional'\">\n"
+"                                <p t-if=\"object.result == 'selected'\">Amb aquest resultat provisional obtindries plaça.</p>\n"
+"                                <p t-elif=\"object.result == 'reserve'\">Amb aquest resultat provisional quedaries en reserva.</p>\n"
+"                                <p t-else=\"\">Amb aquest resultat provisional no arribes a la puntuació mínima.</p>\n"
+"                                <p>\n"
+"                                    Si no hi estàs d'acord, pots reclamar responent aquest correu\n"
+"                                    <t t-if=\"call.claims_deadline\">fins al <strong t-out=\"call._ems_local_format(call.claims_deadline)\"/></t>.\n"
+"                                </p>\n"
+"                            </t>\n"
+"                            <t t-else=\"\">\n"
+"                                <p t-if=\"object.result == 'selected'\">\n"
+"                                    Has estat <strong>seleccionat o seleccionada</strong>. Accepta la plaça o renuncia-hi al portal del centre\n"
+"                                    abans del <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
+"                                    si no respons dins del termini, es considera que hi renuncies.\n"
+"                                </p>\n"
+"                                <p t-elif=\"object.result == 'reserve'\">\n"
+"                                    Ets a la <strong>llista de reserva</strong>. Si queda lliure alguna plaça, te l'oferirem per correu.\n"
+"                                </p>\n"
+"                                <p t-else=\"\">No has estat seleccionat o seleccionada: no arribes a la puntuació mínima.</p>\n"
+"                            </t>\n"
+"                        </t>\n"
+"                        <p>\n"
+"                            Pots consultar el detall de la teva puntuació i la llista publicada al portal del centre:\n"
+"                            <a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_resolution
+msgid "<i class=\"fa fa-arrow-left me-1\"/>My application"
+msgstr "<i class=\"fa fa-arrow-left me-1\"/>La meva sol·licitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "<i class=\"fa fa-check me-1\"/>I accept the place"
+msgstr "<i class=\"fa fa-check me-1\"/>Accepto la plaça"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"<i class=\"fa fa-check-circle me-1\"/> You have accepted your Erasmus+ "
+"place. The Erasmus team will contact you to prepare the mobility."
+msgstr ""
+"<i class=\"fa fa-check-circle me-1\"/> Has acceptat la plaça Erasmus+. "
+"L'equip Erasmus es posarà en contacte amb tu per preparar la mobilitat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "<i class=\"fa fa-check-circle me-1\"/> Your answer has been recorded."
+msgstr "<i class=\"fa fa-check-circle me-1\"/> S'ha registrat la teva resposta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_resolution
+msgid "<i class=\"fa fa-file-pdf-o me-1\"/>Download PDF"
+msgstr "<i class=\"fa fa-file-pdf-o me-1\"/>Descarrega el PDF"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "<i class=\"fa fa-list me-1\"/>See the published list"
+msgstr "<i class=\"fa fa-list me-1\"/>Mostra la llista publicada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "<i class=\"fa fa-plane me-1\"/>A place is offered to you"
+msgstr "<i class=\"fa fa-plane me-1\"/>T'oferim una plaça"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "<strong>Results</strong>"
+msgstr "<strong>Resultats</strong>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid ""
+"A published resolution cannot be changed: publish a rectification instead."
+msgstr ""
+"Una resolució publicada no es pot modificar: publica una rectificació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "A published resolution cannot be deleted."
+msgstr "Una resolució publicada no es pot esborrar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "A. Academic record"
+msgstr "A. Expedient acadèmic"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__acceptance_deadline
+msgid "Acceptance deadline"
+msgstr "Termini d'acceptació"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__kind__admission
+msgid "Admission list"
+msgstr "Llista d'admesos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Admit or exclude every application first: %s"
+msgstr "Primer admet o exclou totes les sol·licituds: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__resolution_id
+msgid "Against"
+msgstr "Contra"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__deadline
+msgid "Answer before"
+msgstr "Resposta abans de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Answer before:"
+msgstr "Resposta abans de:"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__kind__appeal
+msgid "Appeal before the Director"
+msgstr "Recurs davant la direcció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_search
+msgid "Appeals"
+msgstr "Recursos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__approval_date
+msgid "Approved by the Commission on"
+msgstr "Aprovada per la Comissió el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+msgid "Approved by the Erasmus+ Commission on:"
+msgstr "Aprovada per la Comissió Erasmus+ el:"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__kind__claim
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_form
+msgid "Claim"
+msgstr "Reclamació"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_claim
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__claim_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__claim_ids
+#: model:ir.ui.menu,name:ems.menu_erasmus_claims
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_search
+msgid "Claims"
+msgstr "Reclamacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__claims_deadline
+msgid "Claims deadline"
+msgstr "Termini de reclamacions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Claims deadline:"
+msgstr "Termini de reclamacions:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Close the applications of the call first."
+msgstr "Primer tanca les sol·licituds de la convocatòria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Complete the score and resolve the draws of: %s"
+msgstr "Completa la puntuació i resol els sortejos de: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Confirm that I renounce the place"
+msgstr "Confirmo que renuncio a la plaça"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__kind__definitive
+msgid "Definitive resolution"
+msgstr "Resolució definitiva"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__has_final_resolution
+msgid "Definitive resolution published"
+msgstr "Resolució definitiva publicada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Downloads an .xlsx with the people who accepted a place."
+msgstr "Descarrega un .xlsx amb les persones que han acceptat una plaça."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_wizard_form
+msgid ""
+"EMS proposes the best-ranked reserve of the modality. The offer is emailed "
+"to them and they answer on the portal before the deadline."
+msgstr ""
+"EMS proposa la reserva amb millor posició de la modalitat. Rep l'oferta per "
+"correu i respon al portal abans del termini."
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_offer
+msgid "EMS: Erasmus+, place offered"
+msgstr "EMS: Erasmus+, plaça oferta"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_erasmus_expire_offers_ir_actions_server
+msgid "EMS: Erasmus+, place offers with no answer"
+msgstr "EMS: Erasmus+, ofertes de plaça sense resposta"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_resolution_published
+msgid "EMS: Erasmus+, resolution published"
+msgstr "EMS: Erasmus+, resolució publicada"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_claim
+msgid "Erasmus+ claim"
+msgstr "Reclamació Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_offer_wizard
+msgid "Erasmus+ offer a free place"
+msgstr "Oferir una plaça lliure Erasmus+"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/controllers/erasmus_export.py:0
+msgid "Erasmus+ participants"
+msgstr "Participants Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_offer
+msgid "Erasmus+ place offer"
+msgstr "Oferta de plaça Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_resolution
+msgid "Erasmus+ resolution"
+msgstr "Resolució Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_resolution_line
+msgid "Erasmus+ resolution line"
+msgstr "Línia de resolució Erasmus+"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_offer
+msgid "Erasmus+: a place is offered to you - {{ object.call_id.name }}"
+msgstr "Erasmus+: t'oferim una plaça - {{ object.call_id.name }}"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_resolution_published
+msgid "Erasmus+: {{ object.resolution_id.name }}"
+msgstr "Erasmus+: {{ object.resolution_id.name }}"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Explain in the notes what the rectification corrects."
+msgstr "Explica a les notes què corregeix la rectificació."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_erasmus_export_participants
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Export to spreadsheet"
+msgstr "Exporta a full de càlcul"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "F. Conduct warnings"
+msgstr "F. Amonestacions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__free_places
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__free_places
+msgid "Free places"
+msgstr "Places lliures"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+msgid ""
+"Freezes the list as the applications are now. Can be repeated until it is "
+"published."
+msgstr ""
+"Congela la llista tal com estan ara les sol·licituds. Es pot repetir fins "
+"que es publiqui."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "I want to renounce the place"
+msgstr "Vull renunciar a la plaça"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__public_id
+msgid "Identity document (published)"
+msgstr "Document d'identitat (publicat)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "If you disagree, you can claim by replying to the result email."
+msgstr ""
+"Si no hi estàs d'acord, pots reclamar responent el correu del resultat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__line_ids
+msgid "Lines"
+msgstr "Línies"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__prepare_date
+msgid "Lines frozen on"
+msgstr "Línies congelades el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+msgid "Minutes:"
+msgstr "Actes:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__next_reserve_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__application_id
+msgid "Next reserve"
+msgstr "Següent reserva"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_offer__state__expired
+msgid "No answer"
+msgstr "Sense resposta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "No answer to the place offer by the deadline: renounced."
+msgstr "No s'ha respost l'oferta de plaça dins del termini: renúncia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Nobody has accepted a place yet."
+msgstr "Encara ningú no ha acceptat cap plaça."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__not_selected
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution_line__result__not_selected
+msgid "Not selected"
+msgstr "No seleccionada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__notes
+msgid "Notes for applicants"
+msgstr "Notes per als sol·licitants"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+msgid "Notes for applicants, published with the list."
+msgstr "Notes per als sol·licitants, es publiquen amb la llista."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_offer_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_wizard_form
+msgid "Offer a free place"
+msgstr "Ofereix una plaça lliure"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_wizard_form
+msgid "Offer the place"
+msgstr "Ofereix la plaça"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__offer_date
+msgid "Offered on"
+msgstr "Oferta el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__from_reserve
+msgid "Offered to a reserve"
+msgstr "Oferta a una reserva"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid ""
+"Offers a place left free by a renunciation to the next reserve of the "
+"modality."
+msgstr ""
+"Ofereix una plaça que ha quedat lliure per una renúncia a la següent reserva"
+" de la modalitat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "Only an offer waiting for an answer can be withdrawn."
+msgstr "Només es pot retirar una oferta pendent de resposta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution_line__exclusion_reason
+msgid ""
+"Only for the applicant (email and portal), never in the published list."
+msgstr ""
+"Només per al sol·licitant (correu i portal), mai a la llista publicada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Only the Erasmus team exports the participants."
+msgstr "Només l'equip Erasmus exporta els participants."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "Only the Erasmus team withdraws an offer."
+msgstr "Només l'equip Erasmus retira una oferta."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__accepted
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_offer__state__accepted
+msgid "Place accepted"
+msgstr "Plaça acceptada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_form
+msgid "Place offer"
+msgstr "Oferta de plaça"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_offer
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__offer_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__offer_ids
+#: model:ir.ui.menu,name:ems.menu_erasmus_offers
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
+msgid "Place offers"
+msgstr "Ofertes de plaça"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_modality__free_places
+#: model:ir.model.fields,help:ems.field_ems_erasmus_offer_wizard__free_places
+msgid "Places not accepted nor offered to someone still to answer."
+msgstr "Places no acceptades ni ofertes a algú que encara ha de respondre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Position"
+msgstr "Posició"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+msgid "Prepare lines"
+msgstr "Prepara les línies"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Prepare the lines first."
+msgstr "Primer prepara les línies."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution__kind__provisional
+msgid "Provisional resolution"
+msgstr "Resolució provisional"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Publish the %s first."
+msgstr "Primer publica la %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__published_by_id
+msgid "Published by"
+msgstr "Publicada per"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_erasmus_resolution
+msgid "Published list"
+msgstr "Llista publicada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__publish_date
+msgid "Published on"
+msgstr "Publicada el"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__notes
+msgid ""
+"Published with the list. A rectification must explain what it corrects."
+msgstr ""
+"Es publiquen amb la llista. Una rectificació ha d'explicar què corregeix."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Reason (optional)"
+msgstr "Motiu (opcional)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__renounce_reason
+msgid "Reason for renouncing"
+msgstr "Motiu de la renúncia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__received_date
+msgid "Received on"
+msgstr "Rebuda el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Record the Commission's approval (date and minutes) before publishing."
+msgstr "Registra l'aprovació de la Comissió (data i actes) abans de publicar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Record the identity document of: %s"
+msgstr "Registra el document d'identitat de: %s"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__approval_reference
+msgid "Reference of the Erasmus+ Commission minutes that approve it."
+msgstr "Referència de les actes de la Comissió Erasmus+ que l'aproven."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__renounced
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_offer__state__renounced
+msgid "Renounced"
+msgstr "Renúncia"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__reserve
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution_line__result__reserve
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+msgid "Reserve"
+msgstr "Reserva"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__resolution_line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__resolution_ids
+#: model:ir.ui.menu,name:ems.menu_erasmus_resolutions
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
+msgid "Resolutions"
+msgstr "Resolucions"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__resolved_date
+msgid "Resolved on"
+msgstr "Resolta el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Results"
+msgstr "Resultats"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__selected
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_resolution_line__result__selected
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
+msgid "Selected"
+msgstr "Seleccionada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid ""
+"Set a future acceptance deadline on the call before publishing who goes."
+msgstr ""
+"Posa un termini d'acceptació futur a la convocatòria abans de publicar qui "
+"hi va."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_modality__next_reserve_id
+msgid "The best-ranked reserve without an offer waiting or accepted."
+msgstr "La reserva amb millor posició sense cap oferta pendent ni acceptada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_interview__is_locked
+msgid ""
+"The call's interview review deadline has passed, or the provisional "
+"resolution is published: only the Erasmus team can reopen it, with a "
+"rectification note."
+msgstr ""
+"Ha passat el termini de revisió de les entrevistes de la convocatòria o s'ha"
+" publicat la resolució provisional: només l'equip Erasmus la pot reobrir, "
+"amb una nota de rectificació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "The deadline must be in the future."
+msgstr "El termini ha de ser futur."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "The deadline to answer this offer has passed."
+msgstr "Ha passat el termini per respondre aquesta oferta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+msgid ""
+"The list will be published on the portal and every applicant will receive "
+"their result by email. A published resolution cannot be changed. Continue?"
+msgstr ""
+"La llista es publicarà al portal i cada sol·licitant rebrà el resultat per "
+"correu. Una resolució publicada no es pot modificar. Vols continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "The modality %s has no free place."
+msgstr "La modalitat %s no té cap plaça lliure."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "The modality %s has no reserve left."
+msgstr "A la modalitat %s no hi queda cap reserva."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "The resolution is already published."
+msgstr "La resolució ja està publicada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "This call already has a published %s: publish a rectification instead."
+msgstr "Aquesta convocatòria ja té publicada la %s: publica una rectificació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/offer.py:0
+msgid "This offer has already been answered."
+msgstr "Aquesta oferta ja està resposta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__claims_deadline
+msgid ""
+"Until when applicants can claim against the provisional resolution (shown to"
+" them on the portal)."
+msgstr ""
+"Fins quan els sol·licitants poden reclamar contra la resolució provisional "
+"(ho veuen al portal)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__acceptance_deadline
+msgid ""
+"Until when the selected can accept the place offered when the definitive "
+"resolution is published."
+msgstr ""
+"Fins quan les persones seleccionades poden acceptar la plaça que se'ls "
+"ofereix en publicar la resolució definitiva."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_offer__state__pending
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
+msgid "Waiting for an answer"
+msgstr "Pendent de resposta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__description
+msgid "What is claimed"
+msgstr "Què es reclama"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
+msgid "Withdraw offer"
+msgstr "Retira l'oferta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_list
+msgid "Withdraw this offer?"
+msgstr "Vols retirar aquesta oferta?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Without an answer by then, the place is considered renounced."
+msgstr "Si no respons dins del termini, es considera que hi renuncies."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/claim.py:0
+msgid "Write the response first."
+msgstr "Primer escriu la resposta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "You have renounced the place."
+msgstr "Has renunciat a la plaça."
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_erasmus_resolution
+msgid "object.name"
+msgstr "object.name"

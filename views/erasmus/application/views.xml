@@ -7,7 +7,7 @@
             <field name="model">ems.erasmus.application</field>
             <field name="arch" type="xml">
                 <list string="Applications" create="false"
-                      decoration-muted="state in ('draft', 'not_submitted')">
+                      decoration-muted="state in ('draft', 'not_submitted', 'not_selected', 'renounced')">
                     <field name="partner_id"/>
                     <field name="call_id" optional="show"/>
                     <field name="modality_id"/>
@@ -19,8 +19,9 @@
                     <field name="state" widget="badge"
                            decoration-info="state == 'submitted'"
                            decoration-warning="state == 'subsanation'"
-                           decoration-success="state == 'admitted'"
-                           decoration-danger="state == 'excluded'"/>
+                           decoration-success="state in ('admitted', 'selected', 'accepted')"
+                           decoration-danger="state == 'excluded'"
+                           decoration-primary="state == 'reserve'"/>
                 </list>
             </field>
         </record>
@@ -36,6 +37,8 @@
                     <filter name="subsanation" string="Corrections requested" domain="[('state', '=', 'subsanation')]"/>
                     <filter name="admitted" string="Admitted" domain="[('state', '=', 'admitted')]"/>
                     <filter name="excluded" string="Excluded" domain="[('state', '=', 'excluded')]"/>
+                    <filter name="selected" string="Selected" domain="[('state', 'in', ('selected', 'accepted'))]"/>
+                    <filter name="reserve" string="Reserve" domain="[('state', '=', 'reserve')]"/>
                     <separator/>
                     <filter name="sanction_pending" string="Sanction check pending" domain="[('sanction_check', '=', 'pending'), ('state', 'not in', ('draft', 'not_submitted'))]"/>
                     <group>
@@ -64,10 +67,12 @@
                             <button name="action_send_interview_call" type="object" string="Send interview call"
                                     invisible="state != 'admitted' or not interview_date" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Emails the applicant the interview's date and place. At least 24 hours ahead."/>
+                            <button name="action_export_participants" type="object" string="Export to spreadsheet"
+                                    invisible="state != 'accepted'" groups="ems.group_erasmus"/>
                             <button name="action_back_to_review" type="object" string="Back to review"
                                     invisible="state not in ('admitted', 'excluded')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
                     </header>
                     <sheet>
                         <div class="oe_title">
@@ -120,7 +125,7 @@
                                     <field name="exclusion_reason" readonly="not can_manage"/>
                                 </group>
                             </page>
-                            <page string="Interview" name="interview" invisible="state not in ('admitted', 'excluded')">
+                            <page string="Interview" name="interview" invisible="state in ('draft', 'submitted', 'subsanation', 'not_submitted')">
                                 <group>
                                     <group>
                                         <field name="interview_date" readonly="not can_manage"/>
@@ -194,6 +199,35 @@
                                     </list>
                                 </field>
                             </page>
+                            <!-- Issue #685: what each published resolution said, the places offered and the claims. -->
+                            <page string="Results" name="results" invisible="not resolution_line_ids and not offer_ids and not claim_ids">
+                                <field name="resolution_line_ids">
+                                    <list>
+                                        <field name="resolution_id"/>
+                                        <field name="kind" column_invisible="True"/>
+                                        <field name="rank"/>
+                                        <field name="score_total"/>
+                                        <field name="result" widget="badge"/>
+                                    </list>
+                                </field>
+                                <field name="offer_ids">
+                                    <list>
+                                        <field name="offer_date"/>
+                                        <field name="deadline"/>
+                                        <field name="from_reserve"/>
+                                        <field name="answer_date"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                                <field name="claim_ids" readonly="not can_manage" context="{'default_application_id': id}">
+                                    <list>
+                                        <field name="received_date"/>
+                                        <field name="kind"/>
+                                        <field name="resolution_id"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                            </page>
                             <page string="Answers" name="answers">
                                 <group>
                                     <field name="previous_mobility" readonly="not can_manage"/>
@@ -233,6 +267,7 @@
                     <field name="score_complete"/>
                     <field name="is_eligible"/>
                     <field name="needs_draw" optional="show"/>
+                    <field name="state" widget="badge" optional="show"/>
                 </list>
             </field>
         </record>
@@ -241,10 +276,25 @@
             <field name="name">Ranking</field>
             <field name="res_model">ems.erasmus.application</field>
             <field name="view_mode">list,form</field>
-            <field name="domain">[('state', '=', 'admitted')]</field>
+            <field name="domain">[('state', 'in', ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced'))]</field>
             <field name="context">{}</field>
             <field name="search_view_id" ref="view_erasmus_application_search"/>
             <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_ranking_list')})]"/>
+        </record>
+
+        <!-- Issue #685: the spreadsheet of the people who accepted a place (personal and bank data:
+             Erasmus team only). The application and call forms have it in their Actions dropdown,
+             so it is list-only here. -->
+        <record id="action_erasmus_export_participants" model="ir.actions.server">
+            <field name="name">Export to spreadsheet</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application"/>
+            <field name="binding_model_id" ref="ems.model_ems_erasmus_application"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_erasmus'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+action = records.action_export_participants()
+            </field>
         </record>
 
         <record id="action_erasmus_application" model="ir.actions.act_window">

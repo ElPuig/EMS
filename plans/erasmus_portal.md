@@ -1,6 +1,6 @@
 # Erasmus+ calls and mobilities inside EMS
 
-**Status: design, current as of 2026-10-22. Phases 1 (#683) and 2 (#684) implemented on their branches, not merged yet: what it
+**Status: design, current as of 2026-10-22. Phases 1 (#683), 2 (#684) and 3 (#685) implemented on their branches, not merged yet: what it
 ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Design of record for the
 umbrella issue #682 and its phase issues (#683-#687); keep it current as each phase lands, then delete it once the
 last phase ships (its contents folded into `docs/en/developers/erasmus/` and the role manuals).
@@ -184,8 +184,9 @@ recorded with the substitute the Director appoints, who then rates instead.
 `kind`: `admission` (admitted/excluded list), `provisional`, `definitive`, `rectification`.
 Preparing one **freezes** its lines (`ems.erasmus.resolution.line`: application, modality, rank,
 total, partial scores, result). Coordination records the Commission's approval (date, minutes
-reference) and publishes it by hand. Published lists show **name and four digits of the ID
-document** (art. 14), never the private file. A published resolution is never edited; a
+reference) and publishes it by hand. Published lists show **only four digits of the ID document**,
+no names (coordinator, 2026-10-22; art. 14 of the call says name and four digits and should be
+updated), never the private file. A published resolution is never edited; a
 correction is a new rectification resolution.
 
 ### 4.8. Claims and appeals (`ems.erasmus.claim`)
@@ -299,8 +300,11 @@ graph LR
   certificate of previous studies, the Secretariat has no role in it).* Criteria A-F with freezing at close,
   record average computed by EMS, strike count, interview assignment with two evaluators, rubric, review
   deadline and locking, ranking and tie-breaks.
-- **F3 - Resolutions, claims and offers** *(medium)*. Provisional and definitive resolutions with
-  frozen lines, publication on the portal (name + 4 ID digits), claims and appeals log,
+- **F3 - Resolutions, claims and offers** *(medium; implemented on `685-erasmus-phase-3`, see the dev doc.
+  Decided 2026-10-22: the published lists show no names, only rank, masked identity document, total and
+  result; the selected get their offer automatically when the definitive resolution is published, a freed
+  place goes to the next reserve only when the team confirms it; no new call states).* Provisional and definitive resolutions with
+  frozen lines, publication on the portal (4 ID digits, no names), claims and appeals log,
   acceptance, renunciation, reserve offers. Closes the student cycle of the first delivery.
   Also an **"Export to spreadsheet"** action (list of applications and call form, `ems.group_erasmus`
   only, it carries personal data): one `.xlsx` row per person who accepted a place, sheet

@@ -43,9 +43,26 @@ Si falta un documento o hay que corregirlo, recibirás un correo con la lista y 
 
 Si tu solicitud es admitida, recibirás un correo con la fecha y el lugar de la entrevista personal, como mínimo 24 horas antes. También los verás en tu solicitud en el portal. Una parte de la entrevista es en inglés. Llega 15 minutos antes: no presentarse supone la exclusión, salvo por causa de fuerza mayor justificada.
 
-## 6. Seguir la solicitud
+## 6. Tus resultados
 
-La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida* o *Excluida*.
+Cuando la Comisión Erasmus+ publica una lista (la lista de admitidos, la resolución provisional, la resolución definitiva), recibes un correo con tu resultado y lo ves en tu solicitud en el portal, en **Resultados**: tu posición en tu modalidad, tu puntuación total y los puntos de cada criterio.
+
+Haz clic en **Ver la lista publicada** para ver la lista completa. No aparecen nombres: cada persona aparece solo con cuatro cifras de su documento de identidad, por ejemplo ***4567**. También puedes descargarla en PDF.
+
+Si no estás de acuerdo con el resultado provisional, puedes reclamar respondiendo al correo del resultado antes del plazo de reclamaciones que se indica.
+
+## 7. Aceptar o renunciar a la plaza
+
+Si quedas **seleccionado o seleccionada** en la resolución definitiva, tu solicitud muestra la plaza ofrecida y el plazo para responder:
+
+- Haz clic en **Acepto la plaza** para aceptarla.
+- Si no puedes ir, abre **Quiero renunciar a la plaza**, escribe el motivo si quieres y haz clic en **Confirmo que renuncio a la plaza**.
+
+Si no respondes dentro del plazo, se considera que renuncias. Si estás en **reserva** y queda una plaza libre, recibirás un correo y la oferta aparecerá en tu solicitud, con su propio plazo.
+
+## 8. Seguir la solicitud
+
+La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*.
 
 Para cualquier duda, escribe a la coordinación Erasmus: **erasmus@elpuig.xeill.net**.
 

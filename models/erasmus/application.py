@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import base64
+import io
 from datetime import timedelta
+
+import xlsxwriter
 
 from markupsafe import Markup
 
@@ -19,6 +22,16 @@ STAMPED_FIELDS = ('requirements_check', 'sanction_check', 'language_level', 'few
                   'first_mobility')
 # Application states whose data is frozen when the call closes.
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
+# Application states that compete in the ranking (issue #685): admitted, and the results after it.
+RANKED_STATES = ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced')
+# The criteria and total a resolution freezes on its lines.
+SCORE_FIELDS = ('score_a', 'score_b', 'score_c', 'score_d', 'score_e', 'score_f', 'score_total')
+# Issue #685: "Export to spreadsheet". An external tool imports the file as is, so the sheet name and
+# the headers are fixed, in Spanish, in this order, and are never translated.
+PARTICIPANT_SHEET = 'Participantes'
+PARTICIPANT_HEADERS = ('Nombre', 'Apellidos', 'DNI', 'Email', 'Teléfono', 'Dirección', 'Fecha de nacimiento',
+                       'Nacionalidad', 'Género', 'Ciclo formativo', 'Curso', 'Titular de la cuenta', 'Banco', 'BIC',
+                       'IBAN', 'Tutor legal', 'Email del tutor legal', 'Teléfono del tutor legal')
 # Answers of the portal form, editable by the applicant while the call accepts applications.
 ANSWER_FIELDS = ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
                  'image_consent', 'applicant_notes')
@@ -46,6 +59,8 @@ class EmsErasmusApplication(models.Model):
                              selection=[
                                  ('draft', "Draft"), ('submitted', "Submitted"), ('subsanation', "Corrections requested"),
                                  ('admitted', "Admitted"), ('excluded', "Excluded"), ('not_submitted', "Not submitted"),
+                                 ('selected', "Selected"), ('reserve', "Reserve"), ('not_selected', "Not selected"),
+                                 ('accepted', "Place accepted"), ('renounced', "Renounced"),
                              ])
     submit_date = fields.Datetime(string="Submitted on", readonly=True, copy=False)
     is_minor = fields.Boolean(string="Minor", compute='_compute_is_minor')
@@ -144,6 +159,13 @@ class EmsErasmusApplication(models.Model):
                                "of them has a complete score.")
     needs_draw = fields.Boolean(string="Needs a draw", compute='_compute_rank', store=True)
 
+    # --- resolutions, claims and offers (issue #685) ---
+    resolution_line_ids = fields.One2many(string="Resolutions", comodel_name='ems.erasmus.resolution.line',
+                                          inverse_name='application_id', readonly=True)
+    offer_ids = fields.One2many(string="Place offers", comodel_name='ems.erasmus.offer',
+                                inverse_name='application_id', readonly=True)
+    claim_ids = fields.One2many(string="Claims", comodel_name='ems.erasmus.claim', inverse_name='application_id')
+
     @api.depends('partner_id.birth_date')
     def _compute_is_minor(self):
         for application in self:
@@ -199,14 +221,14 @@ class EmsErasmusApplication(models.Model):
                  'call_id.application_ids.interview_english', 'call_id.application_ids.grade_average',
                  'call_id.application_ids.draw_order')
     def _compute_rank(self):
-        """Rank among the admitted applications of the same modality, by total and art. 12's
+        """Rank among the admitted applications (and their results) of the same modality, by total and art. 12's
         tie-breaks, then the draw. Only once every one of them has a complete score."""
         self.rank = 0
         self.needs_draw = False
         for (call, modality), applications in self.grouped(lambda application: (
                 application.call_id, application.modality_id)).items():
             ranked = call.application_ids.filtered(
-                lambda application: application.state == 'admitted' and application.modality_id == modality)
+                lambda application: application.state in RANKED_STATES and application.modality_id == modality)
             if not ranked or not all(ranked.mapped('score_complete')):
                 continue
             keys = {application: (-application.score_total, -application.score_d, -application.score_e,
@@ -295,6 +317,73 @@ class EmsErasmusApplication(models.Model):
                 raise UserError(_("The interview call must be sent at least 24 hours before the interview."))
         self._ems_send('ems.email_template_erasmus_interview_call')
         self.sudo().write({'interview_call_date': fields.Datetime.now()})
+
+    def _ems_ranking_result(self):
+        """Issue #685: selected within the modality's places, reserve after them, not selected
+        below the minimum score."""
+        self.ensure_one()
+        if not self.is_eligible:
+            return 'not_selected'
+        return 'selected' if self.rank <= self.modality_id.places else 'reserve'
+
+    def action_export_participants(self):
+        """Issue #685: the spreadsheet of the people who accepted a place, served by
+        EmsErasmusExportController (it carries personal data: Erasmus team only)."""
+        accepted = self._ems_participants()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f"/ems/erasmus/participants?application_ids={','.join(map(str, accepted.ids))}",
+            'target': 'download',
+        }
+
+    def _ems_participants(self):
+        """The applications in self whose applicant accepted a place, for the Erasmus team only."""
+        if not (self.env.su or self.env.user.has_group('ems.group_erasmus')):
+            raise AccessError(_("Only the Erasmus team exports the participants."))
+        accepted = self.filtered(lambda application: application.state == 'accepted')
+        if not accepted:
+            raise UserError(_("Nobody has accepted a place yet."))
+        return accepted
+
+    def _ems_participants_xlsx(self):
+        """The participants as an .xlsx: one row per application, PARTICIPANT_HEADERS' columns."""
+        stream = io.BytesIO()
+        workbook = xlsxwriter.Workbook(stream, {'in_memory': True})
+        sheet = workbook.add_worksheet(PARTICIPANT_SHEET)
+        bold = workbook.add_format({'bold': True})
+        date_format = workbook.add_format({'num_format': 'dd/mm/yyyy'})
+        sheet.write_row(0, 0, PARTICIPANT_HEADERS, bold)
+        for row, application in enumerate(self._ems_participants().sudo().sorted(
+                lambda application: application.partner_id.name), start=1):
+            values = application._ems_participant_row()
+            birth_date = values.pop(6)
+            sheet.write_row(row, 0, values[:6])
+            if birth_date:
+                sheet.write_datetime(row, 6, birth_date, date_format)
+            sheet.write_row(row, 7, values[6:])
+        sheet.set_column(0, len(PARTICIPANT_HEADERS) - 1, 18)
+        workbook.close()
+        return stream.getvalue()
+
+    def _ems_participant_row(self):
+        """The values of PARTICIPANT_HEADERS for this applicant, the birth date as a datetime.
+        The legal guardian columns, only for minors: every family contact, in the same order."""
+        self.ensure_one()
+        partner = self.partner_id
+        group = partner.main_group_id
+        bank = partner.bank_ids[:1]
+        family = partner._ems_family_contacts() if self.is_minor else self.env['res.partner']
+        address = partner._display_address(without_company=True).replace('\n', ', ').strip(', ')
+        birth_date = partner.birth_date and fields.Datetime.to_datetime(partner.birth_date)
+        return [
+            partner.firstname or '', partner.lastname or '', partner.document_id or partner.passport_id or '',
+            partner.email or '', partner.phone or partner.mobile or '', address, birth_date,
+            partner.citizenship_id.name or '', '', group.study_id.acronym or '', group.course or '',
+            bank.acc_holder_name or (bank and partner.name) or '', bank.bank_id.name or '', bank.bank_id.bic or '',
+            bank.sanitized_acc_number or '',
+            ', '.join(family.mapped('name')), ', '.join(contact.email or '' for contact in family),
+            ', '.join(contact.phone or contact.mobile or '' for contact in family),
+        ]
 
     def _ems_freeze_scoring_data(self):
         """Copy the record average (A) and the conduct warnings (F) as EMS has them now: what the
@@ -459,16 +548,22 @@ class EmsErasmusApplication(models.Model):
         return self.env.su or user.has_group('ems.group_erasmus') or user.has_group('ems.group_academic_admin')
 
     def _ems_send(self, xmlid):
-        """Email `xmlid` to the applicant's own address; note it in the chatter when there is none."""
+        self._ems_mail(self, xmlid)
+
+    @api.model
+    def _ems_mail(self, records, xmlid):
+        """Email `xmlid` (a template of `records`' model: applications, resolution lines, offers) to
+        each applicant's own address; note it in the application's chatter when there is none."""
         template = self.env.ref(xmlid, raise_if_not_found=False)
         if not template:
             return
-        for application in self:
-            partner = application.partner_id
+        for record in records:
+            partner = record.partner_id
             if partner.email:
                 template.with_context(lang=partner.lang).sudo().send_mail(
-                    application.id, force_send=False, email_values={'email_to': partner.email})
+                    record.id, force_send=False, email_values={'email_to': partner.email})
             else:
+                application = record if record._name == self._name else record.application_id
                 application.sudo().chatter(_("No email sent: the applicant has no email address."))
 
     def _ems_mail_document_list(self, lines):

@@ -349,6 +349,10 @@
         'views/erasmus/call/views.xml',
         'views/erasmus/application/views.xml',
         'views/erasmus/interview/views.xml',
+        'reports/erasmus/report_erasmus_resolution.xml',
+        'views/erasmus/resolution/views.xml',
+        'views/erasmus/offer/views.xml',
+        'views/erasmus/claim/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',
@@ -391,6 +395,7 @@
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
         'mails/erasmus/application.xml',
+        'mails/erasmus/resolution.xml',
         'mails/shared/task_digest.xml',
         'mails/contacts/contact_data_request.xml',
 
@@ -420,6 +425,7 @@
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
         'data/main/ir.cron-task_digest.csv',
+        'data/main/ir.cron-erasmus.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',

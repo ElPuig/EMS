@@ -43,9 +43,26 @@ Si falta un document o cal corregir-lo, rebràs un correu amb la llista i el ter
 
 Si la teva sol·licitud és admesa, rebràs un correu amb la data i el lloc de l'entrevista personal, com a mínim 24 hores abans. També els veuràs a la teva sol·licitud al portal. Una part de l'entrevista es fa en anglès. Arriba-hi 15 minuts abans: no presentar-s'hi suposa l'exclusió, excepte per causa de força major justificada.
 
-## 6. Seguir la sol·licitud
+## 6. Els teus resultats
 
-La pàgina Erasmus+ mostra l'estat de la teva sol·licitud: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa* o *Exclosa*.
+Quan la Comissió Erasmus+ publica una llista (la llista d'admesos, la resolució provisional, la resolució definitiva), reps un correu amb el teu resultat i el veus a la teva sol·licitud al portal, a **Resultats**: la teva posició a la modalitat, la puntuació total i els punts de cada criteri.
+
+Fes clic a **Mostra la llista publicada** per veure la llista sencera. No hi surten noms: cada persona apareix només amb quatre xifres del document d'identitat, per exemple ***4567**. També la pots descarregar en PDF.
+
+Si no estàs d'acord amb el resultat provisional, pots reclamar responent el correu del resultat abans del termini de reclamacions que s'hi indica.
+
+## 7. Acceptar o renunciar a la plaça
+
+Si quedes **seleccionat o seleccionada** a la resolució definitiva, la teva sol·licitud mostra la plaça oferta i el termini per respondre:
+
+- Fes clic a **Accepto la plaça** per acceptar-la.
+- Si no hi pots anar, obre **Vull renunciar a la plaça**, escriu-ne el motiu si vols i fes clic a **Confirmo que renuncio a la plaça**.
+
+Si no respons dins del termini, es considera que hi renuncies. Si estàs en **reserva** i queda una plaça lliure, rebràs un correu i l'oferta apareixerà a la teva sol·licitud, amb el seu propi termini.
+
+## 8. Seguir la sol·licitud
+
+La pàgina Erasmus+ mostra l'estat de la teva sol·licitud: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa*, *Exclosa*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaça acceptada* o *Renúncia*.
 
 Per a qualsevol dubte, escriu a la coordinació Erasmus: **erasmus@elpuig.xeill.net**.
 

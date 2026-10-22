@@ -33,6 +33,12 @@
                                     confirm="Applications still in draft will be marked as not submitted. Continue?"/>
                             <button name="action_back_to_draft" type="object" string="Back to draft"
                                     invisible="state != 'published'"/>
+                            <button name="action_offer_place" type="object" string="Offer a free place"
+                                    invisible="not has_final_resolution"
+                                    help="Offers a place left free by a renunciation to the next reserve of the modality."/>
+                            <button name="action_export_participants" type="object" string="Export to spreadsheet"
+                                    invisible="not has_final_resolution" groups="ems.group_erasmus"
+                                    help="Downloads an .xlsx with the people who accepted a place."/>
                         </div>
                         <field name="state" widget="statusbar"/>
                     </header>
@@ -58,6 +64,8 @@
                                 <field name="date_close"/>
                                 <field name="subsanation_deadline"/>
                                 <field name="interview_deadline"/>
+                                <field name="claims_deadline"/>
+                                <field name="acceptance_deadline"/>
                                 <field name="min_score"/>
                                 <field name="is_accepting"/>
                             </group>
@@ -86,6 +94,28 @@
                                         <field name="description"/>
                                     </list>
                                 </field>
+                            </page>
+                            <page string="Resolutions" name="resolutions" invisible="state != 'closed'">
+                                <field name="has_final_resolution" invisible="1"/>
+                                <field name="resolution_ids" context="{'default_call_id': id}">
+                                    <list>
+                                        <field name="kind"/>
+                                        <field name="approval_date"/>
+                                        <field name="publish_date"/>
+                                        <field name="state" widget="badge" decoration-info="state == 'draft'"
+                                               decoration-success="state == 'published'"/>
+                                    </list>
+                                </field>
+                                <group string="Places" invisible="not has_final_resolution">
+                                    <field name="modality_ids" nolabel="1" colspan="2" readonly="1">
+                                        <list>
+                                            <field name="name"/>
+                                            <field name="places"/>
+                                            <field name="free_places"/>
+                                            <field name="next_reserve_id"/>
+                                        </list>
+                                    </field>
+                                </group>
                             </page>
                             <page string="Information for applicants" name="description">
                                 <field name="description"/>

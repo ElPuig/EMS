@@ -5,7 +5,7 @@ from pytz import UTC
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
-from .application import SUBMITTED_STATES
+from .application import RANKED_STATES, SUBMITTED_STATES
 
 
 class EmsErasmusCall(models.Model):
@@ -27,6 +27,12 @@ class EmsErasmusCall(models.Model):
                                            help="Until when applicants can upload the corrections asked for.")
     interview_deadline = fields.Datetime(string="Interview review deadline", tracking=True, copy=False,
                                          help="Until when evaluators can reopen and change their interviews.")
+    claims_deadline = fields.Datetime(string="Claims deadline", tracking=True, copy=False,
+                                      help="Until when applicants can claim against the provisional resolution "
+                                           "(shown to them on the portal).")
+    acceptance_deadline = fields.Datetime(string="Acceptance deadline", tracking=True, copy=False,
+                                          help="Until when the selected can accept the place offered when the "
+                                               "definitive resolution is published.")
     min_score = fields.Float(string="Minimum score", default=50.0, tracking=True,
                              help="Score needed to be eligible.")
     description = fields.Html(string="Information for applicants",
@@ -39,6 +45,12 @@ class EmsErasmusCall(models.Model):
                                    inverse_name='call_id', copy=True)
     application_ids = fields.One2many(string="Applications", comodel_name='ems.erasmus.application',
                                       inverse_name='call_id')
+    resolution_ids = fields.One2many(string="Resolutions", comodel_name='ems.erasmus.resolution',
+                                     inverse_name='call_id')
+    offer_ids = fields.One2many(string="Place offers", comodel_name='ems.erasmus.offer', inverse_name='call_id')
+    claim_ids = fields.One2many(string="Claims", comodel_name='ems.erasmus.claim', inverse_name='call_id')
+    has_final_resolution = fields.Boolean(string="Definitive resolution published",
+                                          compute='_compute_has_final_resolution')
     application_count = fields.Integer(string="Number of applications", compute='_compute_application_count')
     is_accepting = fields.Boolean(string="Accepting applications", compute='_compute_is_accepting',
                                   help="Published, and the closing date has not passed yet.")
@@ -49,6 +61,11 @@ class EmsErasmusCall(models.Model):
             [('call_id', 'in', self.ids)], ['call_id'], ['__count']))
         for call in self:
             call.application_count = counts.get(call, 0)
+
+    @api.depends('resolution_ids.state', 'resolution_ids.kind')
+    def _compute_has_final_resolution(self):
+        for call in self:
+            call.has_final_resolution = 'definitive' in call._ems_published_resolutions().mapped('kind')
 
     @api.depends('state', 'date_open', 'date_close')
     def _compute_is_accepting(self):
@@ -95,8 +112,23 @@ class EmsErasmusCall(models.Model):
     def action_view_ranking(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_ranking')
-        action['domain'] = [('call_id', '=', self.id), ('state', '=', 'admitted')]
+        action['domain'] = [('call_id', '=', self.id), ('state', 'in', RANKED_STATES)]
         return action
+
+    def action_offer_place(self):
+        """Issue #685: offer a free place to the next reserve (the team confirms it in the wizard)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_offer_wizard')
+        action['context'] = {'default_call_id': self.id}
+        return action
+
+    def action_export_participants(self):
+        self.ensure_one()
+        return self.application_ids.action_export_participants()
+
+    def _ems_published_resolutions(self):
+        self.ensure_one()
+        return self.resolution_ids.filtered(lambda resolution: resolution.state == 'published')
 
     def action_view_applications(self):
         self.ensure_one()
@@ -155,6 +187,24 @@ class EmsErasmusCallModality(models.Model):
     places = fields.Integer(string="Places")
     period = fields.Char(string="Period")
     destinations = fields.Char(string="Destinations")
+    free_places = fields.Integer(string="Free places", compute='_compute_offers',
+                                 help="Places not accepted nor offered to someone still to answer.")
+    next_reserve_id = fields.Many2one(string="Next reserve", comodel_name='ems.erasmus.application',
+                                      compute='_compute_offers',
+                                      help="The best-ranked reserve without an offer waiting or accepted.")
+
+    @api.depends('places', 'call_id.offer_ids.state', 'call_id.application_ids.state',
+                 'call_id.application_ids.rank')
+    def _compute_offers(self):
+        """Issue #685: places still to offer, and to whom EMS proposes offering the next one."""
+        for modality in self:
+            offers = modality.call_id.offer_ids.filtered(lambda offer: offer.modality_id == modality)
+            holding = offers.filtered(lambda offer: offer.state in ('pending', 'accepted'))
+            modality.free_places = modality.places - len(holding.application_id)
+            reserves = modality.call_id.application_ids.filtered(
+                lambda application: application.modality_id == modality and application.state == 'reserve'
+                and application not in holding.application_id)
+            modality.next_reserve_id = reserves.sorted('rank')[:1]
 
     @api.constrains('level_ids', 'call_id')
     def _check_one_modality_per_level(self):

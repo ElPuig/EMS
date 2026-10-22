@@ -78,6 +78,82 @@
                     <strong t-out="application.interview_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/><t t-if="application.interview_place">, <t t-esc="application.interview_place"/></t>.
                     Part of it is in English. Please arrive 15 minutes early.
                 </div>
+
+                <!-- Issue #685: the place offered, to accept or renounce in writing before the deadline. -->
+                <div t-if="answered" class="alert alert-success mb-3 o_ems_erasmus_answered">
+                    <i class="fa fa-check-circle me-1"/> Your answer has been recorded.
+                </div>
+                <div t-if="offer" class="card border-success shadow-sm mb-3 o_ems_erasmus_offer">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="fa fa-plane me-1"/>A place is offered to you</h5>
+                        <p class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
+                        <p class="mb-1">Answer before: <strong t-out="offer.deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
+                        <p class="mb-2">Without an answer by then, the place is considered renounced.</p>
+                        <form t-attf-action="/my/erasmus/call/#{call.id}/offer" method="post" class="d-inline">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <button type="submit" name="answer" value="accept" class="btn btn-success o_ems_erasmus_accept">
+                                <i class="fa fa-check me-1"/>I accept the place
+                            </button>
+                        </form>
+                        <details class="mt-3">
+                            <summary class="text-danger">I want to renounce the place</summary>
+                            <form t-attf-action="/my/erasmus/call/#{call.id}/offer" method="post" class="mt-2">
+                                <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                                <label class="form-label small" for="renounce_reason">Reason (optional)</label>
+                                <textarea class="form-control form-control-sm mb-2" name="reason" id="renounce_reason" rows="2"/>
+                                <button type="submit" name="answer" value="renounce" class="btn btn-outline-danger btn-sm o_ems_erasmus_renounce">
+                                    Confirm that I renounce the place
+                                </button>
+                            </form>
+                        </details>
+                    </div>
+                </div>
+                <div t-if="application.state == 'accepted'" class="alert alert-success mb-3 o_ems_erasmus_accepted">
+                    <i class="fa fa-check-circle me-1"/> You have accepted your Erasmus+ place. The Erasmus team will contact you to prepare the mobility.
+                </div>
+                <div t-if="application.state == 'renounced'" class="alert alert-secondary mb-3 o_ems_erasmus_renounced">
+                    You have renounced the place.
+                </div>
+
+                <!-- Issue #685: what each published resolution says about this application. -->
+                <div t-if="result_lines" class="card shadow-sm mb-4 o_ems_erasmus_results">
+                    <div class="card-header"><strong>Results</strong></div>
+                    <ul class="list-group list-group-flush">
+                        <li t-foreach="result_lines" t-as="line" class="list-group-item o_ems_erasmus_result">
+                            <div class="d-flex justify-content-between flex-wrap gap-2">
+                                <strong t-esc="line.resolution_id.name"/>
+                                <span t-attf-class="badge #{'text-bg-success' if line.result in ('admitted', 'selected') else 'text-bg-warning' if line.result == 'reserve' else 'text-bg-secondary'} o_ems_erasmus_result_#{line.result}"
+                                      t-esc="result_labels.get(line.result)"/>
+                            </div>
+                            <p t-if="line.result == 'excluded' and line.exclusion_reason" class="small mb-1">
+                                Reason: <t t-esc="line.exclusion_reason"/>
+                            </p>
+                            <t t-if="line.kind != 'admission' and line.result != 'excluded'">
+                                <table class="table table-sm small mb-1 o_ems_erasmus_breakdown">
+                                    <tbody>
+                                        <tr><td>Modality</td><td class="text-end" t-esc="line.modality_id.name"/></tr>
+                                        <tr><td>Position</td><td class="text-end" t-esc="line.rank"/></tr>
+                                        <tr class="fw-bold"><td>Total score</td><td class="text-end" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>A. Academic record</td><td class="text-end" t-out="line.score_a" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>B. Interview</td><td class="text-end" t-out="line.score_b" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>C. Languages</td><td class="text-end" t-out="line.score_c" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>D. Fewer opportunities</td><td class="text-end" t-out="line.score_d" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>E. First mobility</td><td class="text-end" t-out="line.score_e" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>F. Conduct warnings</td><td class="text-end" t-out="line.score_f" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <t t-if="line.kind == 'provisional' and call.claims_deadline">
+                                <p class="small text-muted mb-0">If you disagree, you can claim by replying to the result email.</p>
+                                <p class="small text-muted mb-1">Claims deadline: <t t-out="call.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
+                            </t>
+                            <a t-attf-href="/my/erasmus/call/#{call.id}/resolution/#{line.resolution_id.id}" class="small o_ems_erasmus_list_link">
+                                <i class="fa fa-list me-1"/>See the published list
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
                 <div t-if="call.description" class="mb-3" t-out="call.description"/>
 
                 <form t-attf-action="/my/erasmus/call/#{call.id}/save" method="post" enctype="multipart/form-data"
@@ -155,6 +231,22 @@
                         </button>
                     </div>
                 </form>
+            </div>
+        </t>
+    </template>
+
+    <!-- Issue #685: a published resolution as the applicants see it: no names, only four digits
+         of the identity document (the same list as the PDF for the centre's website). -->
+    <template id="portal_erasmus_resolution" name="Erasmus+ resolution">
+        <t t-call="portal.portal_layout">
+            <div id="erasmus_resolution_content" class="container mt-4 o_ems_portal_erasmus">
+                <p class="mb-2"><a t-attf-href="/my/erasmus/call/#{resolution.call_id.id}"><i class="fa fa-arrow-left me-1"/>My application</a></p>
+                <p>
+                    <a t-attf-href="/my/erasmus/call/#{resolution.call_id.id}/resolution/#{resolution.id}/pdf" class="btn btn-secondary btn-sm">
+                        <i class="fa fa-file-pdf-o me-1"/>Download PDF
+                    </a>
+                </p>
+                <t t-call="ems.erasmus_resolution_list"/>
             </div>
         </t>
     </template>

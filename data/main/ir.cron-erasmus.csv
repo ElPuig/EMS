@@ -1,0 +1,2 @@
+"id","name","model_id/id","user_id/id","state","code","interval_number","interval_type"
+"ems.ir_cron_erasmus_expire_offers","EMS: Erasmus+, place offers with no answer","ems.model_ems_erasmus_offer","base.user_root","code","model._cron_expire_offers()","1","hours"

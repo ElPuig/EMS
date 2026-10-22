@@ -23,7 +23,20 @@
                   parent="menu_erasmus" action="action_erasmus_my_interviews"
                   groups="ems.group_erasmus_evaluator"/>
 
-        <menuitem name="Calls" sequence="5" id="menu_erasmus_calls"
+        <!-- Issue #685: resolutions, place offers and claims; the Head of Studies and the Director read them. -->
+        <menuitem name="Resolutions" sequence="5" id="menu_erasmus_resolutions"
+                  parent="menu_erasmus" action="action_erasmus_resolution"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+
+        <menuitem name="Place offers" sequence="6" id="menu_erasmus_offers"
+                  parent="menu_erasmus" action="action_erasmus_offer"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+
+        <menuitem name="Claims" sequence="7" id="menu_erasmus_claims"
+                  parent="menu_erasmus" action="action_erasmus_claim"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+
+        <menuitem name="Calls" sequence="8" id="menu_erasmus_calls"
                   parent="menu_erasmus" action="action_erasmus_call"
                   groups="ems.group_erasmus,ems.group_academic_admin"/>
     </data>

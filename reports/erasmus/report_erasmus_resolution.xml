@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #685: the list to publish on the centre's website and on the portal. People are
+             identified only by four digits of their identity document (art. 14), never by name. -->
+        <record id="action_report_erasmus_resolution" model="ir.actions.report">
+            <field name="name">Published list</field>
+            <field name="model">ems.erasmus.resolution</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_erasmus_resolution</field>
+            <field name="report_file">ems.report_erasmus_resolution</field>
+            <field name="print_report_name">object.name</field>
+            <field name="binding_model_id" ref="ems.model_ems_erasmus_resolution"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="report_erasmus_resolution">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="resolution">
+                    <t t-call="web.external_layout">
+                        <div class="page">
+                            <t t-call="ems.erasmus_resolution_list"/>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+
+        <!-- The list itself, shared by the PDF and the portal page. Needs `resolution`. -->
+        <template id="erasmus_resolution_list">
+            <t t-set="results" t-value="dict(resolution.line_ids._fields['result'].selection)"/>
+            <t t-set="ranked" t-value="resolution.kind != 'admission'"/>
+            <h2 class="o_ems_erasmus_resolution_title" t-esc="resolution.name"/>
+            <p t-if="resolution.approval_date" class="mb-0">Approved by the Erasmus+ Commission on: <span t-field="resolution.approval_date"/></p>
+            <p t-if="resolution.approval_reference">Minutes: <t t-esc="resolution.approval_reference"/></p>
+            <p t-if="resolution.notes" style="white-space: pre-line;" t-esc="resolution.notes"/>
+            <t t-foreach="resolution.line_ids.modality_id" t-as="modality">
+                <h4 class="mt-4" t-esc="modality.name"/>
+                <table class="table table-sm o_ems_erasmus_resolution_table">
+                    <thead>
+                        <tr>
+                            <th t-if="ranked">Rank</th>
+                            <th>Identity document</th>
+                            <th t-if="ranked" class="text-end">Score</th>
+                            <th>Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr t-foreach="resolution.line_ids.filtered(lambda line: line.modality_id == modality)" t-as="line">
+                            <td t-if="ranked"><t t-if="line.rank and line.result != 'excluded'" t-esc="line.rank"/></td>
+                            <td t-esc="line.public_id"/>
+                            <td t-if="ranked" class="text-end">
+                                <t t-if="line.result != 'excluded'" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/>
+                            </td>
+                            <td t-esc="results.get(line.result)"/>
+                        </tr>
+                    </tbody>
+                </table>
+            </t>
+        </template>
+    </data>
+</odoo>

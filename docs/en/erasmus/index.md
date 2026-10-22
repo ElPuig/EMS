@@ -14,6 +14,7 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 |--------|------------|
 | [Calls and applications](calls-and-applications.md) | Creating and publishing a call, reviewing the documents, asking for corrections and admitting or excluding applications |
 | [Scoring and interviews](scoring-and-interviews.md) | The criteria of the call, the interviews with two evaluators and the ranking of each modality |
+| [Resolutions, claims and place offers](resolutions-and-offers.md) | Publishing the admission list and the provisional and definitive resolutions, recording claims, offering the places and exporting the participants |
 
 ---
 

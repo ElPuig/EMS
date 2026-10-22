@@ -14,6 +14,7 @@ Aquesta secció conté els manuals per a l'**equip Erasmus+**: la coordinació E
 |--------|------------|
 | [Convocatòries i sol·licituds](calls-and-applications.md) | Crear i publicar una convocatòria, revisar els documents, demanar esmenes i admetre o excloure sol·licituds |
 | [Baremació i entrevistes](scoring-and-interviews.md) | Els criteris de la convocatòria, les entrevistes amb dues persones avaluadores i la classificació de cada modalitat |
+| [Resolucions, reclamacions i ofertes de plaça](resolutions-and-offers.md) | Publicar la llista d'admesos i les resolucions provisional i definitiva, registrar les reclamacions, oferir les places i exportar els participants |
 
 ---
 

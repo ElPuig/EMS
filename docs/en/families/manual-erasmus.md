@@ -43,9 +43,26 @@ If a document is missing or needs changes, you will receive an email with the li
 
 If your application is admitted, you will receive an email with the date and place of your personal interview, at least 24 hours ahead. You will also see them on your application in the portal. Part of the interview is in English. Arrive 15 minutes early: not attending excludes you, unless for a justified reason of force majeure.
 
-## 6. Follow your application
+## 6. Your results
 
-The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted* or *Excluded*.
+When the Erasmus+ Commission publishes a list (the admission list, the provisional resolution, the definitive resolution), you receive an email with your result and you see it on your application in the portal, under **Results**: your position in your modality, your total score and the points of each criterion.
+
+Click **See the published list** to see the whole list. It does not show names: each person appears only with four digits of their identity document, for example ***4567**. You can also download it as a PDF.
+
+If you disagree with the provisional result, you can claim by replying to the result email before the claims deadline shown with it.
+
+## 7. Accept or renounce your place
+
+If you are **selected** in the definitive resolution, your application shows the place offered and the deadline to answer:
+
+- Click **I accept the place** to accept it.
+- If you cannot go, open **I want to renounce the place**, write the reason if you want, and click **Confirm that I renounce the place**.
+
+Without an answer by the deadline, the place is considered renounced. If you are on the **reserve list** and a place becomes free, you will receive an email and the offer will appear on your application, with its own deadline.
+
+## 8. Follow your application
+
+The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*.
 
 For any question, write to the Erasmus coordination: **erasmus@elpuig.xeill.net**.
 

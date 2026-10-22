@@ -36,8 +36,9 @@ class EmsErasmusInterview(models.Model):
                              selection=[('draft', "To score"), ('submitted', "Submitted")])
     submit_date = fields.Datetime(string="Submitted on", readonly=True, copy=False)
     is_locked = fields.Boolean(string="Locked", compute='_compute_is_locked', compute_sudo=True,
-                               help="The call's interview review deadline has passed: only the Erasmus team "
-                                    "can reopen it, with a rectification note.")
+                               help="The call's interview review deadline has passed, or the provisional "
+                                    "resolution is published: only the Erasmus team can reopen it, with a "
+                                    "rectification note.")
 
     motivation = fields.Selection(string="Motivation", selection=RUBRIC, tracking=True,
                                   help="0-1: mainly living abroad or leisure, unrelated to the cycle. 2-3: "
@@ -74,11 +75,16 @@ class EmsErasmusInterview(models.Model):
             interview.general_score = sum(int(interview[name] or 0) for name in GENERAL_CRITERIA)
             interview.english_score = sum(int(interview[name] or 0) for name in ENGLISH_CRITERIA)
 
-    @api.depends('application_id.call_id.interview_deadline')
+    @api.depends('application_id.call_id.interview_deadline', 'application_id.call_id.resolution_ids.state')
     def _compute_is_locked(self):
+        """Locked at the review deadline, or when the provisional resolution is published if that
+        comes first (issue #685)."""
         for interview in self:
-            deadline = interview.application_id.call_id.interview_deadline
-            interview.is_locked = bool(deadline) and deadline <= interview.application_id.call_id._ems_now()
+            call = interview.application_id.call_id
+            deadline = call.interview_deadline
+            interview.is_locked = (bool(deadline) and deadline <= call._ems_now()) or bool(
+                call.resolution_ids.filtered(lambda resolution: resolution.state == 'published'
+                                             and resolution.kind != 'admission'))
 
     def _compute_display_name(self):
         for interview in self:

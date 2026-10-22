@@ -18,7 +18,7 @@ This section contains the manuals for **families and students**.
 | [Uploading official documents, IBAN and benefit requests](manual-documentacio.md) | How to submit ID/health card documents, register your IBAN and request a bonification or exemption |
 | [Checking the class schedule](manual-horari.md) | How to see the student's weekly schedule on the portal and download it as a PDF |
 | [Requesting convalidations](manual-convalidacions.md) | How to ask for the convalidation of vocational training modules and follow the resolution |
-| [Applying for an Erasmus+ internship](manual-erasmus.md) | How to apply for an Erasmus+ internship abroad and follow the application |
+| [Applying for an Erasmus+ internship](manual-erasmus.md) | How to apply for an Erasmus+ internship abroad, follow the application, see the results and accept the place |
 | [Reviewing the contact details](manual-dades-contacte.md) | How to review and complete the contact details of the student and the family on the portal |
 
 ---

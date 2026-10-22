@@ -71,6 +71,11 @@ registry.category("web_tour.tours").add("ems_erasmus_review", {
             content: "The document is no longer pending",
         },
         {
+            trigger: ".o_form_view .o_notebook a[name='admission']",
+            content: "Open the admission tab",
+            run: "click",
+        },
+        {
             // Selection values are JSON-encoded in the <select>, hence the quotes.
             trigger: ".o_form_view .o_field_widget[name='requirements_check'] select",
             content: "Record that the requirements are met",
@@ -129,6 +134,11 @@ registry.category("web_tour.tours").add("ems_erasmus_sanction_check", {
         {
             trigger: ".o_list_view .o_data_row td[name='partner_id']:contains('Erasmus Test Student')",
             content: "The Head of Studies sees the application",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_notebook a[name='admission']",
+            content: "Open the admission tab",
             run: "click",
         },
         {

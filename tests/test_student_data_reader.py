@@ -5,7 +5,8 @@ from datetime import date
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study_group, create_student_academic_file, mock_outgoing_email
+from .common import (create_level_study_group, create_student_academic_file, mock_outgoing_email,
+                     open_yearly_period)
 
 # Every model the guidance (Orientació) and coexistence posts must be able to read
 # centre-wide - see docs/en/developers/employees/role_hierarchy.md, "Transversal read-only
@@ -56,6 +57,8 @@ class TestStudentDataReader(TransactionCase):
         # ems.strike sends a real email synchronously on create() - see CLAUDE.md's
         # "Email safety in tests".
         mock_outgoing_email(cls)
+        # Outside it the Students screen is not theirs (issue #654, TestPreenrollmentPeriod).
+        open_yearly_period(cls.env, 'preenrollment')
 
         cls.group_user = cls.env.ref('base.group_user')
         cls.group_teacher = cls.env.ref('ems.group_teacher')

@@ -100,15 +100,32 @@ class TestGroup(TransactionCase):
         with self.assertRaises(ValidationError):
             self.test_group.subdelegate_id = student
 
-    def test_subdelegate_domain_excludes_the_delegate(self):
+    def test_subdelegate_domain_excludes_the_delegate_and_includes_the_other_halves(self):
+        half_b, = self._halves('B')
         delegate = self._main_student('Delegate (Domain)')
         other = self._main_student('Classmate (Domain)')
-        self.test_group.delegate_id = delegate
-        domain = safe_eval(self.test_group._fields['subdelegate_id'].domain,
-                           {'id': self.test_group.id, 'delegate_id': delegate.id})
+        other_half = self._main_student('Other Half Student (Domain)', half_b)
+        outsider = self._main_student('Outsider (Domain)', self._halves('C'))
+        self.test_group.write({'delegate_id': delegate.id, 'joinable_group_ids': [(6, 0, half_b.ids)]})
+        domain = safe_eval(self.test_group._fields['subdelegate_id'].domain, {
+            'id': self.test_group.id, 'delegate_id': delegate.id, 'joinable_group_ids': half_b.ids})
         candidates = self.env['res.partner'].search(domain)
         self.assertIn(other, candidates)
+        self.assertIn(other_half, candidates, "the halves of a split group share their sub-delegate (issue #676)")
         self.assertNotIn(delegate, candidates)
+        self.assertNotIn(outsider, candidates)
+
+    def test_a_department_chief_can_change_the_tutor(self):
+        """Issue #676: the Tutor role follows the tutorship, even when whoever sets it may not edit employees."""
+        chief = create_role_user(self, 'department_chief', 'test_tutor_change_chief')
+        user = create_role_user(self, 'teacher', 'test_tutor_change_teacher')
+        teacher = self.env['hr.employee'].create({'name': 'Test Tutor Change', 'employee_type': 'teacher', 'user_id': user.id})
+
+        self.test_group.with_user(chief).tutor_id = teacher
+
+        self.assertIn(self.env.ref('ems.role_tutor'), teacher.role_ids)
+        self.test_group.with_user(chief).tutor_id = False
+        self.assertNotIn(self.env.ref('ems.role_tutor'), teacher.role_ids)
 
     def test_clear_stale_delegate_clears_only_the_leaving_students_role(self):
         """A student who leaves the group stops being its delegate or its sub-delegate, and only that."""
@@ -403,3 +420,65 @@ class TestGroup(TransactionCase):
         self.assertEqual(group.parent_group_ids, self.test_group | other | third,
                          "a main group set by hand (its students not enrolled yet, say) stays")
         self.assertFalse(group.missing_parent_group_ids)
+
+    def _halves(self, *acronyms):
+        """Main groups of the test study, besides test_group (acronym 'A'): halves to link to it."""
+        return self.env['ems.group'].create([{'course': 1, 'acronym': acronym, 'level_id': self.test_level.id,
+                                              'study_id': self.test_study.id} for acronym in acronyms])
+
+    def test_joins_with_is_mutual(self):
+        """Issue #676: setting a group's other halves on one of them sets it on the others, on
+        create and on write, and removing one removes it from both."""
+        half_b, half_c = self._halves('B', 'C')
+        self.test_group.joinable_group_ids = half_b | half_c
+
+        self.assertEqual((half_b.joinable_group_ids, half_c.joinable_group_ids), (self.test_group, self.test_group))
+        half_b.joinable_group_ids = False
+        self.assertEqual(self.test_group.joinable_group_ids, half_c)
+        new = self.env['ems.group'].create({'course': 1, 'acronym': 'D', 'level_id': self.test_level.id,
+                                            'study_id': self.test_study.id, 'joinable_group_ids': [(6, 0, half_c.ids)]})
+        self.assertEqual(half_c.joinable_group_ids, self.test_group | new)
+
+    def test_halves_must_be_of_the_same_type(self):
+        split = self.env['ems.group'].create({'group_type': 'reinforcement', 'name': 'Test Split Half'})
+        with self.assertRaises(ValidationError):
+            self.test_group.joinable_group_ids = split
+
+    def test_halves_share_their_tutor_and_delegates(self):
+        """Issue #676: linking takes the edited group's tutor, delegate and sub-delegate onto the
+        new half, and the half's own where the edited group has none; from then on, changing one on
+        either half changes it on the other."""
+        half_b, = self._halves('B')
+        tutor, other_tutor = self.env['hr.employee'].create([{'name': f'Test Halves Tutor {n}', 'employee_type': 'teacher'}
+                                                             for n in (1, 2)])
+        delegate = self._main_student('Test Halves Delegate A')
+        subdelegate = self._main_student('Test Halves Subdelegate B', half_b)
+        self.test_group.write({'tutor_id': tutor.id, 'delegate_id': delegate.id})
+        half_b.write({'tutor_id': other_tutor.id, 'subdelegate_id': subdelegate.id})
+
+        self.test_group.joinable_group_ids = half_b
+
+        for group in self.test_group | half_b:
+            self.assertEqual((group.tutor_id, group.delegate_id, group.subdelegate_id), (tutor, delegate, subdelegate),
+                             group.name)
+        half_b.tutor_id = other_tutor
+        self.assertEqual(self.test_group.tutor_id, other_tutor)
+        created = self.env['ems.group'].create({'course': 1, 'acronym': 'C', 'level_id': self.test_level.id,
+                                                'study_id': self.test_study.id, 'joinable_group_ids': [(6, 0, half_b.ids)]})
+        self.assertEqual((created.tutor_id, created.delegate_id), (other_tutor, delegate),
+                         "a group created as a half takes the other half's where it has none")
+
+    def test_linking_asks_only_when_a_half_would_lose_its_own(self):
+        half_b, half_c = self._halves('B', 'C')
+        tutor, other_tutor = self.env['hr.employee'].create([{'name': f'Test Ask Tutor {n}', 'employee_type': 'teacher'}
+                                                             for n in (1, 2)])
+        half_b.tutor_id = tutor
+        half_c.tutor_id = other_tutor
+        values = {'tutor_id': tutor.id, 'delegate_id': False, 'subdelegate_id': False}
+
+        self.assertFalse(self.test_group.get_joinable_confirmation_message(half_b.ids, values), "the same tutor")
+        self.assertFalse(self.test_group.get_joinable_confirmation_message(
+            half_c.ids, dict(values, tutor_id=False)), "nothing set on the edited group")
+        message = self.test_group.get_joinable_confirmation_message((half_b | half_c).ids, values)
+        self.assertIn(f"{half_c.name}: Tutor {other_tutor.name} will be replaced by {tutor.name}.", message)
+        self.assertNotIn(f"{half_b.name}:", message)

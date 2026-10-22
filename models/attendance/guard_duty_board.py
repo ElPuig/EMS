@@ -57,6 +57,18 @@ def _same_period(period, other):
     return _period_contains(period, other) and _period_contains(other, period)
 
 
+def _board_guard_covers(lines):
+    """`{guard employee id: [(hour_from, hour_to, partial)]}` - what each guard covers on the board's
+    `lines`, `partial` when it is only part of its class (issue #637)."""
+    guard_covers = defaultdict(list)
+    for line in lines:
+        for row in line['absences']:
+            for cover in row['covers']:
+                guard_covers[cover.guard_employee_id.id].append((cover.hour_from, cover.hour_to, not _period_contains(
+                    (cover.hour_from, cover.hour_to), (line['hour_from'], line['hour_to']))))
+    return guard_covers
+
+
 def _entries_by_group(entries):
     """`{group id: {(hour_from, hour_to): attendance recordset}}`, in one pass over `entries` and
     keeping their order: looking a cell up here instead of filtering every entry of the shift per
@@ -628,6 +640,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         return (change[0] == other[0] and len(change) == len(other)
                 and all(abs(value - other_value) < HOUR_EPSILON for value, other_value in zip(change[1:], other[1:])))
 
+    @classmethod
+    def _find_change_state(cls, states, change):
+        """`(state, option)`: the state among `states` (one group's sides, see
+        _get_absence_change_states) offering `change` - to propose or correct it, or to change
+        what was told (issue #659) - and that option; `(None, None)` when no side offers it."""
+        return next(((state, option) for state in states for option in state['options'] + state['change_options']
+                     if cls._same_change(option, change)), (None, None))
+
     @staticmethod
     def _change_window_contains(change, hour_from, hour_to):
         """Whether a period falls inside the part of the day `change` frees the group from."""
@@ -690,7 +710,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         - None: nothing to communicate, nothing communicated.
         - 'communicated': the families were told one of the allowed changes - the largest one or
           a smaller one the planner chose, with a guard for the rest: it is their decision, so a
-          smaller one is never nagged about.
+          smaller one is never nagged about. Until its time comes they may still change it for
+          another allowed one or the usual timetable, with one correction (`'change_options'`,
+          issue #659).
         - 'proposal': nothing communicated yet, and the absences allow a change.
         - 'rectification': what was communicated is no longer allowed (the absence shrank, was
           refused or cancelled, or the timetable changed): a sent notice cannot be undone, so a
@@ -732,19 +754,25 @@ class EmsCourseGuardDutyBoard(models.Model):
                     change for notice, change in reversed(side_told) if notice.state in COMMUNICATED_NOTICE_STATES), None))
                 options = [option for option in allowed[side] if not is_past(option)]
                 expected = options[-1] if options else None
+                normal = (('normal_break', *BoardBreakSide.period(side)) if BoardBreakSide.is_break(side)
+                          else (NORMAL_CHANGE[side], 0.0))
+                usual = [] if is_past(normal) else [normal]
+                change_options = []
                 if not communicated:
                     status = 'proposal' if options else None
-                elif is_past(communicated) or any(self._same_change(communicated, option) for option in options):
+                elif is_past(communicated):
+                    status, options = 'communicated', []
+                elif any(self._same_change(communicated, option) for option in options):
+                    # Still true, but whoever organises it may change their mind (issue #659).
+                    change_options = [option for option in options if not self._same_change(option, communicated)] + usual
                     status, options = 'communicated', []
                 else:
-                    normal = (('normal_break', *BoardBreakSide.period(side)) if BoardBreakSide.is_break(side)
-                              else (NORMAL_CHANGE[side], 0.0))
-                    options = options + [normal] if not is_past(normal) else options
+                    options = options + usual
                     status = 'rectification' if options else None
                 target = options[-2] if status == 'rectification' and len(options) > 1 else (options[-1] if options else None)
                 draft, draft_change = next((
                     (notice, change) for notice, change in reversed(side_told) if notice.state == 'draft'
-                    and any(self._same_change(change, option) for option in options)), (notices.browse(), None))
+                    and any(self._same_change(change, option) for option in options + change_options)), (notices.browse(), None))
                 window = [block for block in blocks if any(
                     self._change_window_contains(other, block['hour_from'], block['hour_to'])
                     for other in (expected, communicated))]
@@ -757,6 +785,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'communicated': communicated,
                     'status': status,
                     'options': options,
+                    'change_options': change_options,
                     'target': target,
                     'draft': draft,
                     'draft_change': draft_change,
@@ -776,8 +805,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         if not block or self._guard_duty_is_co_taught(block['entries'], absent, block['absences']):
             return None
         sides = self._get_absence_change_states(day, group)[group.id]
+        # A side being changed (issue #659) frees nothing: its lessons are planned again.
         if any(self._change_window_contains(sides[side]['communicated'], block['hour_from'], block['hour_to'])
-               for side in sides):
+               for side in sides if self._reopened_side() != (group.id, side)):
             return None
         return block
 
@@ -964,16 +994,44 @@ class EmsCourseGuardDutyBoard(models.Model):
                                     'shifts': shifts})
         return sorted(options, key=lambda option: (bool(option['shifts']), option['hour_from'], option['teacher'].name))
 
-    @staticmethod
-    def _linked_groups(context, group):
+    def _linked_groups(self, context, group):
         """`group` and every group sharing a lesson with it that day, directly or through another
-        one: moving a shared lesson changes all of their days at once (issue #645)."""
+        one: moving a shared lesson changes all of their days at once (issue #645). Also the other
+        halves it could be joined with that day (issue #660, see _split_partners): a join changes
+        the day of the half that moves and needs the other one's."""
         shared = context.setdefault('shared', context['entries'].filtered(lambda attendance: len(attendance.group_ids) > 1))
+        partners = self._split_partners(context)
+        Group = self.env['ems.group']
         linked = pending = group
         while pending:
-            pending = shared.filtered(lambda attendance: attendance.group_ids & pending).group_ids - linked
+            pending = (shared.filtered(lambda attendance: attendance.group_ids & pending).group_ids
+                       | Group.browse(sorted({partner for group_id in pending.ids for partner in partners.get(group_id, ())}))) - linked
             linked |= pending
         return linked
+
+    def _split_partners(self, context):
+        """`{group id: frozenset(group ids)}`: the other halves each group could be joined with on
+        the board's day (issue #660). Two groups are halves of the same one when their forms say so
+        ('Joins with', issue #676: sharing a lesson is not enough), and they can be joined that day
+        when a teacher teaches both the same subject at different hours. Read once per board load,
+        and only when arrangements are planned."""
+        if 'partners' not in context:
+            halves = {group.id: frozenset(group.joinable_group_ids.ids)
+                      for group in context['entries'].group_ids if group.joinable_group_ids}
+            lessons = defaultdict(list)
+            for attendance in context['entries']:
+                if attendance.subject_id and halves.keys() & set(attendance.group_ids.ids):
+                    lessons[(attendance.employee_id.id, attendance.subject_id.id)].append(attendance)
+            partners = defaultdict(set)
+            for same_subject in lessons.values():
+                for first in same_subject:
+                    for second in same_subject:
+                        if overlaps(first.hour_from, first.hour_to, second.hour_from, second.hour_to):
+                            continue
+                        for group_id in first.group_ids.ids:
+                            partners[group_id] |= halves.get(group_id, frozenset()) & set(second.group_ids.ids)
+            context['partners'] = {group_id: frozenset(ids) for group_id, ids in partners.items() if ids}
+        return context['partners']
 
     def _get_arrangement_plans(self, day, group, context=None):
         """The best internal arrangements (issues #605, #645) for `group`'s day and the days of the
@@ -993,17 +1051,26 @@ class EmsCourseGuardDutyBoard(models.Model):
         groups = self._linked_groups(context, group).sorted('name')
         key = tuple(sorted(groups.ids))
         if key not in context['plans']:
-            context['plans'][key] = [self._arrangement_plan_records(raw, groups, number) for number, raw
-                                     in enumerate(self._arrangement_planner(context, groups).plans(), start=1)]
+            planner, states = self._arrangement_planner(context, groups)
+            context['plans'][key] = [self._arrangement_plan_records(raw, groups, number, states) for number, raw
+                                     in enumerate(planner.plans(), start=1)]
         return context['plans'][key]
 
+    def _reopened_side(self):
+        """`(group id, side)` whose communicated change is being changed (issue #659, the
+        'ems_reopen_side' context key, see get_change_proposal_options), or None."""
+        reopen = self.env.context.get('ems_reopen_side')
+        return (reopen[0], reopen[1]) if reopen else None
+
     def _arrangement_planner(self, context, groups):
-        """An ArrangementPlanner over the day of `groups` (a set of linked groups, see
-        _linked_groups), fed with what `context` already read."""
+        """`(planner, states)`: an ArrangementPlanner over the day of `groups` (a set of linked
+        groups, see _linked_groups), fed with what `context` already read, and the groups'
+        timetable-change states it was built from (see _get_absence_change_states)."""
         day = context['day']
         covers = context['covers']
         blocks_by_group = self._get_group_day_blocks(day, groups)
         states = self._get_absence_change_states(day, groups, blocks_by_group)
+        reopen = self._reopened_side()
         weekday = str(day.weekday())
         # An arrangement still waiting for its notice is decided: its class is not a gap to fill.
         pending = covers.filtered(lambda cover: cover.cover_type == 'arrangement' and not cover.is_effective)
@@ -1020,7 +1087,9 @@ class EmsCourseGuardDutyBoard(models.Model):
             } for block in blocks_by_group[group.id]]
             breaks[group.id] = sorted(self._get_guard_duty_board_break_periods(
                 [group.level_id.id], weekday, 0, 24)) if group.level_id else []
-            communicated[group.id] = {side: state['communicated'] for side, state in states[group.id].items()}
+            # A side being changed (issue #659) is planned as if nothing had been told about it.
+            communicated[group.id] = {side: None if reopen == (group.id, side) else state['communicated']
+                                      for side, state in states[group.id].items()}
             for block, data in zip(blocks_by_group[group.id], blocks[group.id]):
                 if not data['teachers'] <= data['away'] or data['filled']:
                     continue
@@ -1033,8 +1102,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         vacated = covers.filtered(lambda cover: cover.group_id in groups and cover.vacated_hour_to)
         employees = {teacher.id: teacher for teacher in lessons.employee_id}
         teachers = {teacher.id: {
-            'lessons': sorted({((attendance.hour_from, attendance.hour_to), frozenset(attendance.group_ids.ids))
-                               for attendance in context['by_teacher'][teacher.id] if attendance.group_ids & groups}),
+            'lessons': sorted({((attendance.hour_from, attendance.hour_to), frozenset(attendance.group_ids.ids),
+                                attendance.subject_id.id) for attendance in context['by_teacher'][teacher.id]
+                               if attendance.group_ids & groups}),
             'periods': [(attendance.hour_from, attendance.hour_to) for attendance in context['by_teacher'][teacher.id]],
             'vacated': [(cover.vacated_hour_from, cover.vacated_hour_to) for cover in vacated
                         if cover.guard_employee_id == teacher],
@@ -1047,31 +1117,59 @@ class EmsCourseGuardDutyBoard(models.Model):
                     context, covers, employees[teacher_id], hour_from, hour_to)
             return free_cache[teacher_id, hour_from, hour_to]
 
-        return ArrangementPlanner(self, blocks, breaks, communicated, self._board_day_hour(day), teachers, free, swaps)
+        partners = {group_id: ids & frozenset(groups.ids) for group_id, ids in self._split_partners(context).items()
+                    if group_id in groups.ids}
+        return ArrangementPlanner(self, blocks, breaks, communicated, self._board_day_hour(day), teachers, free, swaps,
+                                  partners=partners), states
 
-    def _arrangement_plan_records(self, raw, groups, number):
+    def _arrangement_plan_records(self, raw, groups, number, states):
         """A plan from ArrangementPlanner as records, its steps in the order they are shown and
         applied: by time, a step never before one it needs. A teacher's entry/exit change goes with
-        their last step, and one notice step tells the same change to every group it applies to."""
+        their last step, and one notice step tells the same change to every group it applies to.
+
+        The plan also corrects what the families of its groups were told (issue #659), so that each
+        group gets one email and whoever only wants the correction unchecks the rest: 'correction'
+        steps, after every other one, for each side of `states` (the groups' timetable-change
+        states) whose communicated change no longer matches the absences (its correction as the
+        correction alone would propose it), and for the side being changed (see _reopened_side):
+        a notice of the plan on that side becomes its correction - or is dropped, if it repeats what
+        was told - and without one the correction puts that side back to the usual timetable."""
         Employee, Group = self.env['hr.employee'], self.env['ems.group']
         items = []
         for index, step in enumerate(raw['steps']):
             items.append({
                 'kind': step[0], 'teacher': Employee.browse(step[1]), 'lesson': step[2], 'target': step[3],
                 'groups': Group.browse(sorted(step[4])), 'absent': Employee.browse(step[5]) if step[0] == 'swap' else Employee,
+                'joined': Group.browse(sorted(step[5])) if step[0] == 'join' else Group,
                 'needs': set(raw['depends'][index]), 'time': step[3][0], 'source': index,
             })
+        reopen = self._reopened_side()
         notices = {}
-        for (group_id, _side, change), depends in zip(raw['notices'], raw['notice_depends']):
-            notice = notices.setdefault(change, {'kind': 'notice', 'groups': Group, 'change': change, 'needs': set(),
-                                                 'time': 0.0 if change[0] == 'no_classes' else change[1], 'source': None})
+
+        def tell(kind, group_id, change, depends=()):
+            notice = notices.setdefault((kind, change), {'kind': kind, 'groups': Group, 'change': change, 'needs': set(),
+                                                         'time': 0.0 if change[0] == 'no_classes' else change[1], 'source': None})
             notice['groups'] |= Group.browse(group_id)
             notice['needs'] |= set(depends)
+
+        for (group_id, side, change), depends in zip(raw['notices'], raw['notice_depends']):
+            if reopen != (group_id, side):
+                tell('notice', group_id, change, depends)
+            elif not self._same_change(change, states[group_id][side]['communicated']):
+                tell('correction', group_id, change, depends)
+        for group in groups:
+            for side, state in states[group.id].items():
+                if state['status'] == 'rectification':
+                    tell('correction', group.id, state['target'])
+                elif reopen == (group.id, side) and state['change_options'] and not any(
+                        notice_group == group.id and notice_side == side for notice_group, notice_side, _change in raw['notices']):
+                    tell('correction', group.id, state['change_options'][-1])  # the usual timetable
         items += notices.values()
         ordered, placed, done = [], set(), set()
         while len(ordered) < len(items):
             item = min((item for item in items if id(item) not in done and item['needs'] <= placed),
-                       key=lambda item: (item['time'], item['kind'] == 'notice', item['groups'].mapped('name'), item['source'] or 0))
+                       key=lambda item: (item['kind'] == 'correction', item['time'], item['kind'] == 'notice',
+                                         item['groups'].mapped('name'), item['source'] or 0))
             ordered.append(item)
             done.add(id(item))
             if item['source'] is not None:
@@ -1079,7 +1177,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         position = {item['source']: index for index, item in enumerate(ordered) if item['source'] is not None}
         last = {}
         for index, item in enumerate(ordered):
-            if item['kind'] != 'notice':
+            if item['kind'] in ('move', 'swap', 'join'):
                 last[item['teacher'].id] = index
                 if item['kind'] == 'swap':
                     last[item['absent'].id] = index
@@ -1087,7 +1185,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         for index, item in enumerate(ordered):
             step = {key: value for key, value in item.items() if key not in ('needs', 'time', 'source')}
             step['depends'] = sorted(position[need] for need in item['needs'])
-            if item['kind'] != 'notice':
+            if item['kind'] in ('move', 'swap', 'join'):
                 owners = [item['teacher'].id] + ([item['absent'].id] if item['kind'] == 'swap' else [])
                 step['shifts'] = [(Employee.browse(owner), *change) for owner in owners if last.get(owner, index) == index
                                   for change in raw['shifts'].get(owner) or ()]
@@ -1102,7 +1200,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             group in step['groups'] and (
                 cls._change_window_contains(step['change'], hour_from, hour_to) if step['kind'] == 'notice'
                 else overlaps(*step['target'], hour_from, hour_to))
-            for step in plan['steps'])
+            for step in plan['steps'] if step['kind'] != 'correction')
 
     @api.model
     def get_arrangement_candidates(self, day, hour_from, hour_to, absent_employee_id, group_id):
@@ -1120,6 +1218,44 @@ class EmsCourseGuardDutyBoard(models.Model):
             self._get_guard_duty_absence_intervals(day, teachers), teachers, hour_from, hour_to)
         return [{'id': teacher.id, 'name': teacher.display_name}
                 for teacher in teachers.sorted('name') if teacher.id not in away]
+
+    @api.model
+    def get_change_proposal_options(self, day, group_id, side):
+        """What the "Change proposal" dialog of a struck-out row offers (issue #659): the change
+        the families were told on that `side` of the group's day ('told') and what it can still be
+        changed for: another change the absences allow or the usual timetable ('options', each
+        sent as one correction by ems.notice.board_send_absence_change), or an internal
+        arrangement of the group's day ('plans', with the correction among its steps, applied by
+        ems.absence_cover.board_apply_plan with 'reopen'). Only for whoever organises the absences
+        it concerns, and only before its time comes."""
+        day = fields.Date.to_date(day)
+        group = self.env['ems.group'].browse(group_id).exists()
+        if not group:
+            raise UserError(_("This group no longer exists."))
+        self._check_board_day_not_past(day)
+        state = self._get_absence_change_states(day, group)[group.id].get(side)
+        if not state or not state['change_options']:
+            raise UserError(_("The absences of this group have changed since the board was loaded. Reload the board."))
+        if not any(self._is_absence_manager(teacher, group) for teacher in state['teachers']):
+            raise AccessError(_("Only whoever organises the absences of this group's classes can do this."))
+        # The internal arrangements that could replace it, planned as if nothing had been told on
+        # that side: each brings its correction along, so the families still get one email.
+        reopened = self.with_context(ems_reopen_side=[group.id, side])
+        plans = [plan for plan in reopened._get_arrangement_plans(day, group, context=reopened._arrangement_context(day))
+                 if any(step['kind'] in ('move', 'swap', 'join') and group in step['groups'] for step in plan['steps'])]
+        return {
+            'group': group.name,
+            'told': self._absence_change_label(state['communicated']),
+            'options': [self._change_option_data(change) for change in state['change_options']],
+            'plans': [reopened._arrangement_plan_data(plan) for plan in plans],
+            'reopen': [group.id, side],
+        }
+
+    def _change_option_data(self, change):
+        """JSON-safe version of one timetable change the planner can choose, as the board's
+        selectors and ems.notice.board_send_absence_change take it."""
+        return {'change_type': change[0], 'hour': change[1], 'hour_to': change[2] if len(change) > 2 else 0.0,
+                'change': list(change), 'label': self._absence_change_label(change)}
 
     def get_guard_duty_board_lines(self, weekday, shift, area_ids=None, day=None):
         """Board rows for one weekday + shift: the group columns actually taught in that slot
@@ -1299,14 +1435,21 @@ class EmsCourseGuardDutyBoard(models.Model):
         lines = [line for _hour_from, _hour_to, line in dated_lines]
         # Colours for the whole shift, not per line: a guard can cover part of a class on another
         # line than their own guard block (issue #637), and both must share the colour.
-        guard_colors = self._board_cover_colors(lines)
-        # ...and whoever covers only part of some class gets a dashed border (screen and PDF).
-        partial_guard_ids = {
-            cover.guard_employee_id.id for line in lines for row in line['absences'] for cover in row['covers']
-            if not _period_contains((cover.hour_from, cover.hour_to), (line['hour_from'], line['hour_to']))}
+        guard_covers = _board_guard_covers(lines)
+        guard_colors = self._board_cover_colors(lines, guard_covers)
+        # A guard's badge only takes it in the blocks where they cover something (issue #675), with a
+        # dotted border where what they cover there is only part of a class (screen and PDF).
         for line in lines:
-            line['guard_colors'] = guard_colors
-            line['partial_guard_ids'] = partial_guard_ids
+            line['cover_colors'] = guard_colors
+            line['guard_colors'] = {}
+            line['partial_guard_ids'] = set()
+            for guard_id, covers in guard_covers.items():
+                here = [partial for hour_from, hour_to, partial in covers
+                        if overlaps(hour_from, hour_to, line['hour_from'], line['hour_to'])]
+                if here:
+                    line['guard_colors'][guard_id] = guard_colors[guard_id]
+                    if any(here):
+                        line['partial_guard_ids'].add(guard_id)
         # Who could be sent to each line's classes, and for which part (issue #637): every regular
         # guard of the shift, not only the line's own - one on a partly overlapping block covers
         # part of the class. Computed per line from data already loaded, no query.
@@ -1332,10 +1475,18 @@ class EmsCourseGuardDutyBoard(models.Model):
         """How the internal arrangements in effect (issue #605) change one timetable cell, so the
         timetable never reads as the usual one: 'substitutes', who is with the group instead of the
         absent teacher (or, in a swap, the absent teacher taking over the other lesson), 'moved',
-        the teachers whose lesson there went elsewhere, and 'freed', `{teacher: cover}` for those
-        moved without telling the families (issue #645): nobody is with the group then."""
+        the teachers whose lesson there went elsewhere, 'freed', `{teacher: cover}` for those
+        moved without telling the families (issue #645): nobody is with the group then, and
+        'joined', the other halves of a split group taught together with it then (issue #660)."""
         substitutes, moved, freed = self.env['hr.employee'], self.env['hr.employee'], {}
+        joined = self.env['ems.group']
         if management:
+            for cover in management['covers'].filtered(lambda cover: cover.cover_type == 'arrangement' and cover.is_effective
+                                                       and cover.joined_group_ids and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to)):
+                if cover.group_id == group:
+                    joined |= cover.joined_group_ids
+                elif group in cover.joined_group_ids:
+                    joined |= cover.group_id
             for cover in management['covers'].filtered(
                     lambda cover: cover.cover_type == 'arrangement' and cover.group_id == group and cover.is_effective):
                 if overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to):
@@ -1346,7 +1497,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         substitutes |= cover.absent_employee_id
                     elif not cover.notice_id and cover.guard_employee_id in teachers:
                         freed[cover.guard_employee_id] = cover
-        return {'substitutes': substitutes, 'moved': moved, 'freed': freed}
+        return {'substitutes': substitutes, 'moved': moved, 'freed': freed, 'joined': joined}
 
     def _board_row_arrangement_plans(self, management, day, row, hour_from, hour_to):
         """The arrangements (issues #605, #645) that resolve one absences-table row: only for a
@@ -1509,12 +1660,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         were told because of it (the lesson it moved here is one the group no longer has: it
         comes in later or leaves earlier), shown next to it so the row says both (issue #623).
         'covers' are the guard covers of the row - several when each covers part of the class
-        (issue #637) - and 'missing' the parts none covers yet (empty without any cover)."""
+        (issue #637) - and 'missing' the parts none covers yet (empty without any cover).
+        'change_side' is the side of the group's day whose communicated change strikes the row out,
+        while it can still be changed (issue #659, see get_change_proposal_options), else False."""
         duty = duty or self.env['ems.non_teaching_type']
         no_cover = self.env['ems.absence_cover']
         if not management:
             return {'covers': no_cover, 'missing': [], 'arrangement': no_cover, 'arrangement_change': None,
-                    'authorized': None, 'proposed': None, 'can_manage': False}
+                    'authorized': None, 'change_side': False, 'proposed': None, 'can_manage': False}
         resolved = management['covers'].filtered(
             lambda cover: cover.absent_employee_id == teacher and cover.group_id == group and cover.duty_id == duty
                 and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))
@@ -1525,11 +1678,13 @@ class EmsCourseGuardDutyBoard(models.Model):
         missing = _uncovered_periods((hour_from, hour_to), [(cover.hour_from, cover.hour_to) for cover in covers]) if covers else []
         moved = arrangement.filtered(lambda cover: cover.arrangement_type == 'move' and cover.is_effective)
         authorized = proposed = arrangement_change = None
-        for state in management['states'].get(group.id, {}).values() if group else ():
+        change_side = False
+        for side, state in management['states'].get(group.id, {}).items() if group else ():
             if moved and self._change_window_contains(state['communicated'], moved.vacated_hour_from, moved.vacated_hour_to):
                 arrangement_change = state['communicated']
             if self._change_window_contains(state['communicated'], hour_from, hour_to):
                 authorized = state['communicated']
+                change_side = side if state['change_options'] else False
             elif state['status'] == 'proposal' and self._change_window_contains(state['expected'], hour_from, hour_to):
                 proposed = state['expected']
         return {
@@ -1538,13 +1693,14 @@ class EmsCourseGuardDutyBoard(models.Model):
             'arrangement': arrangement,
             'arrangement_change': arrangement_change,
             'authorized': authorized,
+            'change_side': change_side,
             'proposed': proposed,
             'can_manage': management['can_manage'](
                 self._original_absent(management['covers'], teacher, group, hour_from, hour_to), group),
         }
 
     @staticmethod
-    def _board_cover_colors(lines):
+    def _board_cover_colors(lines, guard_covers):
         """`{guard employee id: colour index}` for the shift (issue #637). The colour belongs to the
         class covered: every guard covering one class shares its colour - and a guard covering
         several classes joins them under one colour, since their badge can only have one. Two such
@@ -1568,10 +1724,13 @@ class EmsCourseGuardDutyBoard(models.Model):
                 for guard in row['covers'].guard_employee_id:
                     parent[root(('guard', guard.id))] = root(node)
                 periods[node].append((line['hour_from'], line['hour_to']))
-        # A guard's own block counts too: their badge shows there, next to everybody on guard then.
+        # A guard's own block counts too where their badge shows the colour (where they cover
+        # something, issue #675): next to everybody on guard then. `guard_covers`: see
+        # _board_guard_covers().
         for line in lines:
             for guard in line['guards'].employee_id:
-                if ('guard', guard.id) in parent:
+                if any(overlaps(hour_from, hour_to, line['hour_from'], line['hour_to'])
+                       for hour_from, hour_to, _partial in guard_covers.get(guard.id, ())):
                     periods[('guard', guard.id)].append((line['hour_from'], line['hour_to']))
         groups = defaultdict(list)
         for node, node_periods in periods.items():
@@ -1703,6 +1862,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'subject': first.subject_id.acronym if first else False,
                     'teachers': self._guard_duty_teacher_data(cell['teachers'], cell['absences'], moved=cell.get('moved', ())),
                     'substitutes': [teacher.name for teacher in cell.get('substitutes', [])],
+                    'joined': cell['joined'].mapped('name') if cell.get('joined') else [],
                     'room': first.space_id.display_name if first and first.space_id else False,
                 })
             wc_employee_ids = set(line['guards'].filtered(
@@ -1747,7 +1907,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'guard_id': cover.guard_employee_id.id,
                         'guard': cover.guard_employee_id.name,
                         'message': cover.message or '',
-                        'color': line['guard_colors'].get(cover.guard_employee_id.id, 0),
+                        'color': line['cover_colors'].get(cover.guard_employee_id.id, 0),
                         'label': self._period_label(cover.hour_from, cover.hour_to),
                         'partial': not _period_contains((cover.hour_from, cover.hour_to), (line['hour_from'], line['hour_to'])),
                     } for cover in row['covers']],
@@ -1767,6 +1927,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     # The lesson a move left free (issue #645): where it went.
                     'moved': self._moved_label(row['moved_cover']),
                     'authorized': self._absence_change_label(row['authorized']),
+                    'change_side': editable and row['change_side'],
                     'proposed': self._absence_change_label(row['proposed'], proposed=True),
                     'can_manage': row['can_manage'],
                     # A guard takes their own part of a class (issue #637) while nobody covers it yet.
@@ -1782,7 +1943,10 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'schedule_grid': data['schedule_grid'], 'absence_grid': data['absence_grid'],
                 # Only whoever may act on them sees the day's pending decisions: to everybody else
                 # they are noise, and the struck-out rows already say what was decided.
-                'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']]}
+                'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']],
+                # Whether anybody can still act on this day (from today on): the board then explains
+                # every line still to be covered, also to whoever cannot cover it.
+                'editable': editable}
 
     def _arrangement_plan_data(self, plan):
         """JSON-safe version of a detected arrangement plan (see _get_arrangement_plans): its
@@ -1791,20 +1955,25 @@ class EmsCourseGuardDutyBoard(models.Model):
         steps = []
         for step in plan['steps']:
             groups = format_list(self.env, step['groups'].mapped('name'))
-            if step['kind'] == 'notice':
-                label = _("Notice to the families of %(groups)s: %(change)s.",
-                          groups=groups, change=self._absence_change_label(step['change']))
-                payload = {'kind': 'notice', 'group_ids': step['groups'].ids, 'change': list(step['change'])}
+            if step['kind'] in ('notice', 'correction'):
+                values = {'groups': groups, 'change': self._absence_change_label(step['change'])}
+                label = (_("Notice to the families of %(groups)s: %(change)s.", **values) if step['kind'] == 'notice'
+                         else _("Correction to the families of %(groups)s: %(change)s.", **values))
+                payload = {'kind': step['kind'], 'group_ids': step['groups'].ids, 'change': list(step['change'])}
             else:
                 values = {'teacher': step['teacher'].name, 'absent': step['absent'].name, 'groups': groups,
                           'lesson': self._format_report_time(step['lesson'][0]),
                           'target': self._format_report_time(step['target'][0])}
                 if step['kind'] == 'swap':
                     label = _("Swap (%(groups)s): %(teacher)s teaches at %(target)s and %(absent)s at %(lesson)s.", **values)
+                elif step['kind'] == 'join':
+                    label = _("Joined groups: %(teacher)s teaches %(groups)s together with %(joined)s at %(target)s, "
+                              "instead of at %(lesson)s.", joined=format_list(self.env, step['joined'].mapped('name')), **values)
                 else:
                     label = _("%(teacher)s moves their %(lesson)s lesson to %(target)s (%(groups)s).", **values)
                 payload = {'kind': step['kind'], 'teacher_id': step['teacher'].id, 'absent_id': step['absent'].id,
-                           'lesson': list(step['lesson']), 'target': list(step['target']), 'group_ids': step['groups'].ids}
+                           'lesson': list(step['lesson']), 'target': list(step['target']), 'group_ids': step['groups'].ids,
+                           'joined_group_ids': step['joined'].ids if step['kind'] == 'join' else []}
             steps.append({
                 'kind': step['kind'],
                 'label': label,
@@ -1916,15 +2085,14 @@ class EmsCourseGuardDutyBoard(models.Model):
             values['change'] = self._absence_change_label(action['expected'], proposed=True)
             label = _("%(group)s: %(change)s.", **values)
         else:
-            values['change'] = self._absence_change_label(action['expected'])
+            # Nothing allowed any more: the usual timetable, always the last option then.
+            values['change'] = self._absence_change_label(action['expected'] or action['options'][-1])
             values['told'] = self._absence_change_label(action['communicated'])
             label = _("%(group)s: the families were told \"%(told)s\", which no longer matches the absences "
                       "(now: %(change)s).", **values)
         # Every change that can be communicated, from the smallest to the largest: the planner may
         # tell the families about part of the empty lessons and send a guard to the rest.
-        options = [{'change_type': change[0], 'hour': change[1], 'hour_to': change[2] if len(change) > 2 else 0.0,
-                    'label': self._absence_change_label(change)}
-                   for change in action['options']]
+        options = [self._change_option_data(change) for change in action['options']]
         draft = action['draft']
         data.update(label=label, options=options, default=action['options'].index(action['target']),
                     draft_id=draft.id or False, draft_label=self._absence_change_label(action['draft_change']))

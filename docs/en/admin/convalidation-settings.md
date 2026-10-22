@@ -66,7 +66,7 @@ Changes apply to resolutions issued from then on.
 
 When the Head of Studies asks an applicant for more documentation, they pick a reason from a list. You maintain that list.
 
-**Required role:** EMS administrator
+**Required role:** EMS administrator, or Head of Studies/Deputy Head of Studies/Director (they can create, edit and archive reasons, not delete them)
 
 Navigate to: **Academic management → Configuration → Convalidations → Documentation request reasons**
 
@@ -80,7 +80,7 @@ Navigate to: **Academic management → Configuration → Convalidations → Docu
 
 When the Head of Studies refuses to convalidate a module, they pick the reason from a list. You maintain that list.
 
-**Required role:** EMS administrator
+**Required role:** EMS administrator, or Head of Studies/Deputy Head of Studies/Director (they can create, edit and archive reasons, not delete them)
 
 Navigate to: **Academic management → Configuration → Convalidations → Refusal reasons per subject**
 

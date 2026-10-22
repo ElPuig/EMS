@@ -24,6 +24,11 @@ FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'prior_studies_o
 # be asked for (and send) more documentation: before the resolution exists.
 REVIEW_STATES = ('pending', 'documentation', 'ministry')
 
+# States in which the resolution comments can still change (issue #657): until the Director
+# issues the resolution, whose PDF prints them. From then on the PDF, the email the secretariat's
+# step sends and the portal must all say the same.
+RESOLUTION_NOTES_STATES = REVIEW_STATES + ('direction',)
+
 # Whose turn each state is (issue #610): what each role finds when opening the list. 'ministry' is
 # the Head of Studies' too (they record the Ministry's answer); 'documentation' is nobody's - the
 # request waits for the applicant - and the closed states need no one.
@@ -46,6 +51,14 @@ class EmsConvalidation(models.Model):
                                  domain="[('contact_type', 'in', ('student', 'applicant'))]")
     student_idalu = fields.Char(string="Student ID", related='student_id.student_id',
                                 help="The student's IDALU, to look up their academic record in Esfera.")
+    student_document_id = fields.Char(string="Document ID", related='student_id.document_id',
+                                      help="The student's identity document, to look them up in other applications.")
+    # Issue #657: what the student studied before, for whoever decides the subjects and for the
+    # secretariat, who keeps it. Field-level groups too, not only the page's: nobody else reads it
+    # by RPC either.
+    student_year_record_ids = fields.One2many(
+        string="Academic history", related='student_id.year_record_ids',
+        groups='ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin')
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', ondelete='set null',
                                    help="Portal user who submitted the request: the student or a family contact.")
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', required=True,
@@ -247,6 +260,9 @@ class EmsConvalidation(models.Model):
             # The state only moves through the circuit's own actions, which write it with sudo.
             if 'state' in vals:
                 raise UserError(_("The state of a request only changes through its buttons."))
+            if 'resolution_notes' in vals and self.filtered(
+                    lambda convalidation: convalidation.state not in RESOLUTION_NOTES_STATES):
+                raise UserError(_("The resolution comments cannot be changed once the resolution is issued."))
         res = super().write(vals)
         if 'attachment_ids' in vals:
             self._ems_link_attachments()

@@ -8,12 +8,13 @@
         </record>
 
         <!-- The catalog the Head of Studies picks from when asking a convalidation applicant for
-             more documentation; maintained by the EMS administrator, like the strike reasons. -->
+             more documentation; maintained by the EMS administrator and the Heads of Studies
+             themselves, who archive rather than delete (issue #654). -->
         <menuitem id="menu_ems_convalidation_info_reasons"
                   name="Documentation request reasons"
                   parent="menu_ems_configuration_convalidations"
                   action="action_convalidation_info_reason_list"
-                  groups="ems.group_academic_admin"
+                  groups="ems.group_academic_admin,ems.group_head_of_studies"
                   sequence="10"/>
     </data>
 </odoo>

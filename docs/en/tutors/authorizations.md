@@ -19,7 +19,7 @@ This guide explains how to send authorizations from the centre's catalogue to yo
 
 ## Sending authorizations
 
-Go to **Academic management > Authorizations > Send Authorizations**.
+Go to **Academic management > Authorizations** and click **New**.
 
 ![Send Authorizations assistant for a tutor](../../assets/tutors/authorizations-tutor-send.png)
 
@@ -48,7 +48,7 @@ The student and the family answer from **Enrollment and authorizations** on the 
 
 ## Following up the answers
 
-Go to **Academic management > Authorizations > Responses**. The list shows the authorizations of your students, both the ones sent during the course and the ones from the enrollment.
+Go to **Academic management > Authorizations**. The list shows the authorizations of your students, both the ones sent during the course and the ones from the enrollment. If you are a Department or Seminar Chief, you also see those of the students of the tutors in your department.
 
 - Filter by **Pending**, **Accepted** or **Rejected**, and by **Sent during the course** or **From an enrollment**.
 - Group by authorization, student or status.
@@ -56,7 +56,7 @@ Go to **Academic management > Authorizations > Responses**. The list shows the a
 
 ## Answering on a family's behalf
 
-When a family hands in the signed form on paper, open the authorization from **Responses**, set the **Status** and attach the scanned document in the **Document** field. The status cannot be changed without attaching it.
+When a family hands in the signed form on paper, open the authorization from the **Authorizations** list, set the **Status** and attach the scanned document in the **Document** field. The status cannot be changed without attaching it.
 
 ---
 

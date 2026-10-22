@@ -14,7 +14,7 @@
         <menuitem id="menu_ems_configuration_convalidations"
                   name="Convalidations"
                   parent="menu_ems_configuration"
-                  groups="ems.group_academic_admin"
+                  groups="ems.group_academic_admin,ems.group_head_of_studies"
                   sequence="50"/>
     </data>
 </odoo>

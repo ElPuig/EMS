@@ -212,6 +212,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'name': 'Justificants', 'res_model': 'ems.attendance_justification',
             'view_mode': 'list,form', 'domain': [('student_id', 'in', cls.students.ids)],
         })
+        # The list's "New" opens this assistant (issue #656); shot on its own action, as a dialog.
+        cls.justification_wizard_action = cls.env.ref('ems.action_attendance_justification_wizard')
 
     @classmethod
     def _setup_google_credentials(cls):
@@ -291,8 +293,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             wait_for='.o_list_renderer .o_data_row',
         )
         self._capture(
-            '/odoo/action-%d/new' % self.justification_action.id,
-            '.o_form_sheet', 'justificants-02-nou.png',
+            '/odoo/action-%d' % self.justification_wizard_action.id,
+            '.modal-content', 'justificants-02-nou.png',
             login='doc_shot_tutor',
             tour='ems_doc_shot_tutor_justification',
         )
@@ -396,6 +398,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
                 'state': 'rejected',
                 'rejection_reason_id': self.env.ref('ems.convalidation_rejection_reason_contents').id})
 
+        # Issue #657: the identity document, copied like the IDALU above it.
+        self.students[0].document_id = '00000000T'
         # The Head of Studies' review: subjects decided, one refused with its reason.
         review = new_request(self.students[0], subjects[1:], attachment_ids=[(0, 0, {
             'name': 'Certificat_academic_SMX.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x')})],
@@ -455,7 +459,10 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             '.o_form_view', 'convalidations-ministry.png',
             login='doc_shot_hos',
             wait_for=".o_form_statusbar .o_ems_actions_toggle",
-            max_height=420,
+            # Issue #657: where the Ministry's resolution is attached.
+            click=".o_notebook .nav-link[name='resolution']",
+            wait_after=".o_field_widget[name='ministry_resolution']",
+            max_height=520,
         )
         self._capture(
             '/odoo/action-ems.action_convalidation/%d' % proposed.id,
@@ -476,7 +483,10 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             login='doc_shot_secretary',
             # Its only action, so a plain header button rather than an Actions dropdown.
             wait_for=".o_form_statusbar button[name='action_complete']",
-            max_height=420,
+            # Issue #657: where the resolution PDF is.
+            click=".o_notebook .nav-link[name='resolution']",
+            wait_after=".o_field_widget[name='resolution_pdf_link'] a",
+            max_height=560,
         )
 
         # The portal (goes to docs/assets/families/): the resolved request, completed; a new one

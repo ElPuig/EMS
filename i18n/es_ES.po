@@ -1256,6 +1256,7 @@ msgstr "Falta justificada por: "
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "The completion date must be later than the start date."
 msgstr "La fecha de finalización debe ser posterior a la fecha de inicio."
 
@@ -1709,6 +1710,8 @@ msgstr "Cargar"
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 #: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_list
 msgid "New"
 msgstr "Nuevo"
 
@@ -1893,6 +1896,8 @@ msgstr "Aviso"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__attachment_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Attached files"
 msgstr "Archivos adjuntos"
 
@@ -2168,7 +2173,7 @@ msgid "Authorization text"
 msgstr "Texto de autorización"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorization_root model:ir.ui.menu,name:ems.menu_ems_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorization_root model:ir.ui.menu,name:ems.menu_ems_configuration_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Authorizations"
 msgstr "Autorizaciones"
 
@@ -2397,6 +2402,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2889,6 +2895,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -2909,6 +2916,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3198,6 +3206,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -3223,7 +3232,7 @@ msgid "Document approved:"
 msgstr "Documento aprobado:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_partner__document_id model:ir.model.fields,field_description:ems.field_res_users__document_id model_terms:ir.ui.view,arch_db:ems.view_family_search
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id model:ir.model.fields,field_description:ems.field_res_users__document_id model:ir.model.fields,field_description:ems.field_ems_convalidation__student_document_id model_terms:ir.ui.view,arch_db:ems.view_family_search
 msgid "Document ID"
 msgstr "Documento de identidad (DNI/NIE)"
 
@@ -3532,6 +3541,7 @@ msgstr "Tiempo final"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__end_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__end_date
 msgid "End date"
 msgstr "Fecha de finalización"
 
@@ -3556,7 +3566,7 @@ msgid "Enrolled Products (Technical)"
 msgstr "Productos matriculados (Técnico)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+#: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model:ir.ui.menu,name:ems.menu_ems_configuration_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_applicant_list
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__enrollment_id
 msgid "Enrollment"
 msgstr "Matrícula"
@@ -4260,6 +4270,8 @@ msgstr "Grupo:"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__groups
 msgid "Groups"
 msgstr "Grupos"
 
@@ -4422,6 +4434,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -4869,6 +4882,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -4889,6 +4903,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5292,6 +5307,7 @@ msgstr "Modalidad"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__mode model:ir.model.fields,field_description:ems.field_hr_attendance__in_mode
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__mode
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__mode
 msgid "Mode"
 msgstr "Modo"
 
@@ -5516,6 +5532,8 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Notes"
 msgstr "Notas"
 
@@ -5726,6 +5744,7 @@ msgstr "Solo el tutor del estudiante puede actualizar sus justificaciones de asi
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "Only tutors can justify student's attendances."
 msgstr "Solo los tutores pueden justificar las faltas de los alumnos."
 
@@ -5985,6 +6004,7 @@ msgstr "Pendiente de revisión"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Period"
 msgstr "Período"
 
@@ -7209,6 +7229,7 @@ msgstr "Hora de inicio"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__start_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__start_date
 msgid "Start date"
 msgstr "Fecha de inicio"
 
@@ -7422,6 +7443,8 @@ msgstr "Alumno/a:"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_ids model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model:ir.ui.menu,name:ems.menu_students_root
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__students
 msgid "Students"
 msgstr "Estudiantes"
 
@@ -7688,6 +7711,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__teacher_id
 msgid "Teacher"
 msgstr "Profesor"
 
@@ -8412,6 +8436,7 @@ msgstr "Usuario"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_strike__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__user_is_admin
 msgid "User Is Admin"
 msgstr "El usuario es administrador"
 
@@ -11391,8 +11416,8 @@ msgstr "Nadie: esta tarea no se creará"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_mail_activity_type__ems_task_assignment
-msgid "Set on the activity types EMS schedules automatically, so that they show up under Academic Management > Configuration > Task Assignment."
-msgstr "Se marca en los tipos de actividad que EMS programa automáticamente, para que aparezcan en Gestión académica > Configuración > Asignación de tareas."
+msgid "Set on the activity types EMS schedules automatically, so that they show up under Academic Management > Configuration > Enrollment > Task Assignment."
+msgstr "Se marca en los tipos de actividad que EMS programa automáticamente, para que aparezcan en Gestión académica > Configuración > Matrícula > Asignación de tareas."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_task_assignment model:ir.ui.menu,name:ems.menu_ems_task_assignment model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
@@ -11490,7 +11515,7 @@ msgid "A year record already exists for this student and course!"
 msgstr "¡Ya existe un registro de histórico para este/a alumno/a y este curso!"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_year_record_list model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids model:ir.model.fields,field_description:ems.field_res_users__year_record_ids model:ir.ui.menu,name:ems.menu_year_record model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.actions.act_window,name:ems.action_year_record_list model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids model:ir.model.fields,field_description:ems.field_res_users__year_record_ids model:ir.ui.menu,name:ems.menu_year_record model:ir.model.fields,field_description:ems.field_ems_convalidation__student_year_record_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Academic history"
 msgstr "Histórico académico"
 
@@ -16515,34 +16540,6 @@ msgid "September"
 msgstr "Septiembre"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period must open and close at different moments."
-msgstr ""
-"El periodo de solicitud de convalidaciones se tiene que abrir y cerrar en "
-"momentos distintos."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period uses a day that does not exist: %(day)s "
-"%(month)s."
-msgstr ""
-"El periodo de solicitud de convalidaciones usa un día que no existe: %(day)s"
-" %(month)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period's times must be between 00:00 and 23:59."
-msgstr ""
-"Las horas del periodo de solicitud de convalidaciones tienen que estar entre"
-" las 00:00 y las 23:59."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_search
 msgid "Show only current course"
 msgstr "Mostrar solamente el curso actual"
@@ -20636,15 +20633,10 @@ msgstr "Asignar y avisar"
 msgid "Remove assignment"
 msgstr "Quitar la asignación"
 
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Send notice"
-msgstr "Enviar comunicado"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
 msgid "Send correction"
 msgstr "Enviar rectificación"
 
@@ -23247,3 +23239,361 @@ msgstr "No se ha podido enviar el comunicado y queda como borrador para que lo r
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Notice sent."
 msgstr "Comunicado enviado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "convalidation request period"
+msgstr "periodo de solicitud de convalidaciones"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "pre-enrollment period"
+msgstr "periodo de preinscripción"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The %(period)s uses a day that does not exist: %(day)s %(month)s."
+msgstr "El %(period)s usa un día que no existe: %(day)s %(month)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The times of the %(period)s must be between 00:00 and 23:59."
+msgstr "Las horas del %(period)s tienen que estar entre las 00:00 y las 23:59."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The %(period)s must open and close at different moments."
+msgstr "El %(period)s se tiene que abrir y cerrar en momentos distintos."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "Enrollment proposals are only available during the pre-enrollment period. It opens on %(date)s."
+msgstr "Las propuestas de matrícula solo están disponibles durante el periodo de preinscripción. Se abre el %(date)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Pre-enrollment period"
+msgstr "Periodo de preinscripción"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Every year, tutors, department and seminar chiefs, guidance and coexistence only see Academic management > Enrollment between these two moments, in the centre's local time. Academic administration, the secretary's office, the Heads of Studies and the Director always see it."
+msgstr "Cada año, los tutores, los jefes de departamento y de seminario, orientación y convivencia solo ven Gestión académica > Matrícula entre estos dos momentos, en hora local del centro. La administración académica, la secretaría, los jefes de estudios y el director la ven siempre."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_preenrollment_period_ir_actions_server
+msgid "EMS: Pre-enrollment period opening and closing"
+msgstr "EMS: Apertura y cierre del periodo de preinscripción"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_day
+msgid "Preenrollment Start Day"
+msgstr "Día de apertura de la preinscripción"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_month
+msgid "Preenrollment Start Month"
+msgstr "Mes de apertura de la preinscripción"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_time
+msgid "Preenrollment Start Time"
+msgstr "Hora de apertura de la preinscripción"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_day
+msgid "Preenrollment End Day"
+msgstr "Día de cierre de la preinscripción"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_month
+msgid "Preenrollment End Month"
+msgstr "Mes de cierre de la preinscripción"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_time
+msgid "Preenrollment End Time"
+msgstr "Hora de cierre de la preinscripción"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "%s student(s) justified."
+msgstr "Alumnos justificados: %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__overlap_student_ids
+msgid "Already justified"
+msgstr "Ya justificados"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Choose at least one student or group."
+msgstr "Elegid al menos un alumno o un grupo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_domain
+msgid "Group Domain"
+msgstr "Dominio de grupos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid "Justify"
+msgstr "Justificar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+#: model:ir.actions.act_window,name:ems.action_attendance_justification_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid "Justify absences"
+msgstr "Justificar faltas"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_justification_wizard
+msgid "Justify the absences of several students or groups"
+msgstr "Justificar las faltas de varios alumnos o grupos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Only the student's tutor can justify its attendances: %(students)s"
+msgstr "Solo el tutor del alumno puede justificar sus faltas: %(students)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Skipped, they already have a justification overlapping this period: %s"
+msgstr ""
+"Omitidos porque ya tienen un justificante que se solapa con este periodo: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_domain
+msgid "Student Domain"
+msgstr "Dominio de alumnos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__target_student_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid "Students to justify"
+msgstr "Alumnos por justificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid ""
+"These students already have a justification overlapping this period and will"
+" be skipped:"
+msgstr ""
+"Estos alumnos ya tienen un justificante que se solapa con este periodo y se "
+"omitirán:"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__student_document_id
+msgid "The student's identity document, to look them up in other applications."
+msgstr "El documento de identidad del alumno, para encontrarlo en otras aplicaciones."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "The resolution comments cannot be changed once the resolution is issued."
+msgstr "Los comentarios de la resolución no se pueden modificar una vez emitida la resolución."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Notice cancelled: %(subject)s"
+msgstr "Comunicado cancelado: %(subject)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "This notice about group %(group)s has been cancelled:"
+msgstr "Se ha cancelado este comunicado sobre el grupo %(group)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Notice sent to %(group)s: %(subject)s"
+msgstr "Comunicado enviado a %(group)s: %(subject)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "As tutor, here is a copy of the notice sent about group %(group)s:"
+msgstr "Como tutor o tutora, aquí tienes una copia del comunicado enviado sobre el grupo %(group)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Correction to the families of %(groups)s: %(change)s."
+msgstr "Rectificación a las familias de %(groups)s: %(change)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Change proposal"
+msgstr "Cambiar la propuesta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "The families were told"
+msgstr "Se comunicó a las familias"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Change it for"
+msgstr "Cambiarlo por"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Or rearrange the lessons"
+msgstr "O bien reorganizar las clases"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "One correction will be sent to the students and families of %s."
+msgstr "Se enviará una sola rectificación al alumnado y las familias de %s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Correction sent."
+msgstr "Rectificación enviada."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Corrections to absences already organised"
+msgstr "Corrección de ausencias previamente asignadas"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."
+msgstr "A las familias de estos grupos se les comunicó algo que ya no coincide con las ausencias: envíales una rectificación lo antes posible. Cada propuesta ya la incluye, en un solo correo por grupo; para enviar solo la rectificación, desmarca el resto de pasos."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "You cannot cover this teacher: you are not on guard duty at this time."
+msgstr "No puedes cubrir a este docente porque a esta hora no estás de guardia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid ""
+"%(subject)s: from %(usual)s to %(new)s, together with %(joined)s in %(room)s"
+msgstr "%(subject)s: de %(usual)s a %(new)s, junto con %(joined)s en %(room)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid ""
+"%(teacher)s teaches the group together with %(joined)s at %(time)s, instead "
+"of at %(other_time)s."
+msgstr ""
+"%(teacher)s da clase al grupo junto con %(joined)s a las %(time)s, en lugar "
+"de a las %(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid ""
+"Joined groups: %(teacher)s teaches %(groups)s together with %(joined)s at "
+"%(target)s, instead of at %(lesson)s."
+msgstr ""
+"Grupos unidos: %(teacher)s da clase a %(groups)s junto con %(joined)s a las "
+"%(target)s, en lugar de a las %(lesson)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__joined_group_ids
+msgid "Joined with"
+msgstr "Unido con"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__joined_group_ids
+msgid ""
+"The other half of the group, which the teacher was already teaching at that "
+"time: both halves are taught together."
+msgstr ""
+"La otra mitad del grupo, a la que el docente ya daba clase a esa hora: las "
+"dos mitades dan clase juntas."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Together with"
+msgstr "Junto con"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__joinable_group_ids
+msgid "Joins with"
+msgstr "Se une con"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
+msgid ""
+"The other halves of the same split group. When a teacher is away, the guard "
+"duty board can propose that a teacher who teaches them the same subject "
+"teaches both halves together. Setting it on one half sets it on the other "
+"too, and both halves share their tutor, delegate and sub-delegate."
+msgstr ""
+"Las otras mitades del mismo grupo desdoblado. Cuando falta un docente, el "
+"horario de guardias puede proponer que un docente que les da la misma "
+"materia dé clase a las dos mitades a la vez. Si se indica en una mitad, la "
+"otra también lo tiene, y las dos mitades comparten tutor, delegado y "
+"subdelegado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"The halves of a split group must be of the same type: two main groups or two"
+" reinforcement groups."
+msgstr ""
+"Las mitades de un grupo desdoblado deben ser del mismo tipo: dos grupos "
+"principales o dos grupos de refuerzo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "%(group)s: %(field)s %(current)s will be replaced by %(new)s."
+msgstr "%(group)s: %(field)s %(current)s será sustituido por %(new)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"The halves of a split group share their tutor, delegate and sub-delegate:"
+msgstr ""
+"Las mitades de un grupo desdoblado comparten tutor, delegado y subdelegado:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid "Do you want to link them anyway?"
+msgstr "¿Quieres enlazarlas igualmente?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Link these halves?"
+msgstr "¿Enlazar estas mitades?"

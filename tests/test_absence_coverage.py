@@ -132,6 +132,37 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn(b'gdb-absence-row gdb-absence-covered gdb-cover-0', html)
         self.assertIn(b'gdb-guard-badge gdb-cover-0', html)
 
+    def test_the_guard_badge_is_coloured_only_in_the_blocks_they_cover(self):
+        """Issue #675: on guard 8-11 but sent only to the 8-9 class, their 9-10 and 10-11 badges
+        stay plain, on screen and on the PDF."""
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._assign()
+
+        data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        badges = {line['time_label']: next(guard for guard in line['guards'] if guard['id'] == self.teacher_guard.id)
+                  for line in data['lines'] if any(guard['id'] == self.teacher_guard.id for guard in line['guards'])}
+        # `is not False`: colour 0 is a colour, and 0 == False.
+        self.assertEqual({label: badge['color'] is not False for label, badge in badges.items()},
+                         {'08:00-09:00': True, '09:00-10:00': False, '10:00-11:00': False})
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+        self.assertEqual(html.count(b'gdb-guard-badge gdb-cover-'), 1)
+
+    def test_a_guard_block_with_nothing_covered_leaves_its_colour_free(self):
+        """Issue #675: teacher_guard (on guard 8-11) only covers 8-9, so their 10-11 badge shows no
+        colour and the 10-11 class can take the same one."""
+        self._morning()
+        self._absence(self.teacher_a, self.day)
+        self._assign()
+        self._assign(self.teacher_guard_2, 10, 11)
+
+        colors = self._teaching_line(self.day, 10, 11)['cover_colors']
+
+        self.assertEqual(colors[self.teacher_guard.id], colors[self.teacher_guard_2.id])
+
     def test_two_guards_covering_at_once_get_different_colours(self):
         self._morning()
         self._schedule_class(self.teacher_b, self.group_b, 'TABC Calendar B (group B)', periods=((8, 9), (11, 12)))
@@ -1126,9 +1157,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
     @staticmethod
     def _plan_summary(plan):
-        """Each step as `(kind, teacher, lesson start, gap start, groups)`, a notice as
-        `('notice', change, groups)`."""
-        return [('notice', step['change'], step['groups']) if step['kind'] == 'notice'
+        """Each step as `(kind, teacher, lesson start, gap start, groups)`, a notice (or a
+        correction) as `('notice', change, groups)`."""
+        return [(step['kind'], step['change'], step['groups']) if step['kind'] in ('notice', 'correction')
                 else (step['kind'], step['teacher'], step['lesson'][0], step['target'][0], step['groups'])
                 for step in plan['steps']]
 
@@ -1465,6 +1496,99 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._calendar_rows(self.teacher_guard, ((8, 9, 'wc'), (10, 11, 'guard'), (12, 13, 'guard'), (13, 14, both)))
         self._absence(self.teacher_a, self.day)
         return both
+
+    def _split_groups_day(self, halves=True):
+        """group_a and group_b as the two halves of a split group (issue #660). Monday: teacher_b
+        teaches both the same subject, group_a at 9 and group_b at 12, its last lesson; teacher_a,
+        away all day, has group_b at 9, in the middle of its day, and group_a at 12, its last one;
+        teacher_c (group_b at 8, a WC duty at 9, group_a 10-12) and teacher_guard (group_b 10-12)
+        fill the rest. Their forms say they are halves of the same group (issue #676); they also
+        share a lesson on Tuesday, which alone does not make them halves.
+        Without arrangements group_b needs a guard at 9; joining it to group_a's lesson with
+        teacher_b frees its 12:00 lesson, and both halves leave at 12."""
+        self._calendar_rows(self.teacher_a, ((9, 10, self.group_b), (12, 13, self.group_a)))
+        self._calendar_rows(self.teacher_b, ((9, 10, self.group_a), (12, 13, self.group_b)))
+        self._calendar_rows(self.teacher_c, ((8, 9, self.group_b), (9, 10, 'wc'), (10, 11, self.group_a), (11, 12, self.group_a)))
+        self._calendar_rows(self.teacher_guard, ((10, 11, self.group_b), (11, 12, self.group_b)))
+        self._new_calendar(self.teacher_guard_2, 'TABC 660 Tuesday').apply_schedule_changes([{
+            'dayofweek': '1', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'subject_id': self.subject.id,
+            'group_ids': (self.group_a | self.group_b).ids, 'name': 'TGDB', 'space_id': self.space.id,
+        }])
+        if halves:
+            self.group_a.joinable_group_ids = self.group_b
+        self._absence(self.teacher_a, self.day)
+
+    def _join_plan(self):
+        self._split_groups_day()
+        expected = [('join', self.teacher_b, 12, 9, self.group_b), ('notice', ('early_leave', 12), self.group_a | self.group_b)]
+        plans = [plan for plan in self._plans(self.group_b) if self._plan_summary(plan) == expected]
+        self.assertTrue(plans, "group_b joins group_a's lesson with teacher_b at 9, and both halves leave at 12")
+        return plans[0]
+
+    def test_the_two_halves_of_a_split_group_can_be_joined(self):
+        plan = self._join_plan()
+
+        self.assertEqual(plan['steps'][0]['joined'], self.group_a)
+        self.assertEqual(plan['steps'][0]['shifts'], [(self.teacher_b, 'exit', 13, 10)], "teacher_b leaves at 10")
+        self.assertEqual(self._plans(self.group_a), self._plans(self.group_b), "one set of plans for both halves")
+        label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['label']
+        self.assertIn(f"together with {self.group_a.name} at 09:00, instead of at 12:00", label)
+
+    def test_groups_sharing_a_lesson_are_not_joined_unless_set_as_halves(self):
+        """Issue #676: DAM2A and DAM2B share lessons without being halves of a split group."""
+        self._split_groups_day(halves=False)
+
+        self.assertFalse([step for plan in self._plans(self.group_b) for step in plan['steps']
+                          if step['kind'] == 'join' and step['teacher'] == self.teacher_b])
+
+    def test_only_the_same_subject_is_joined(self):
+        other = self.env['ems.subject'].create({'code': 'TABC660', 'acronym': 'T660', 'name': 'TABC 660 Other subject',
+                                                'study_ids': [(6, 0, [self.study.id])]})
+        self._split_groups_day()
+        self.env['resource.calendar.attendance'].search([
+            ('calendar_id.employee_id', '=', self.teacher_b.id), ('hour_from', '=', 12)]).subject_id = other
+
+        self.assertFalse([step for plan in self._plans(self.group_b) for step in plan['steps']
+                          if step['kind'] == 'join' and step['teacher'] == self.teacher_b])
+
+    def test_applying_a_join_needs_no_guard_and_tells_both_halves(self):
+        covers, _notice_action = self._apply(self._join_plan())
+
+        join = covers.filtered('joined_group_ids')
+        self.assertEqual((join.group_id, join.absent_employee_id, join.guard_employee_id, join.hour_from, join.vacated_hour_from),
+                         (self.group_b, self.teacher_a, self.teacher_b, 9, 12))
+        self.assertEqual((join.arrangement_type, join.joined_group_ids, join.space_id), ('move', self.group_a, self.space),
+                         "a move into group_a's lesson, in group_a's room")
+        self.assertIn(f"together with {self.group_a.name} at 09:00, instead of at 12:00", join._arrangement_label())
+        notices = self.Notice.search([('absence_group_id', 'in', (self.group_a | self.group_b).ids)])
+        self.assertEqual({(notice.absence_group_id, tuple(notice._absence_change_tuples())) for notice in notices},
+                         {(self.group_a, (('early_leave', 12.0),)), (self.group_b, (('early_leave', 12.0),))})
+        self.assertEqual(join.notice_id.absence_group_id, self.group_b, "the join waits for group_b's notice")
+        students = join.student_notice_id
+        self.assertIn(f"together with {self.group_a.name} in {self.space.display_name}", students.message)
+
+        notices.write({'state': 'scheduled'})
+
+        self.assertTrue(join.is_effective)
+        for group, other in ((self.group_a, self.group_b), (self.group_b, self.group_a)):
+            cell = next(cell for cell in self._teaching_line(self.day, 9, 10)['cells'] if cell['group'] == group)
+            self.assertEqual(cell['joined'], other, f"{group.name} at 9 shows it is taught with {other.name}")
+        self.assertFalse([row for row in self._teaching_line(self.day, 9, 10)['absences'] if not (row['arrangement'] or row['authorized'])],
+                         "nobody needs a guard at 9")
+        message = self._messages(self.teacher_b, 'Timetable arrangement')
+        self.assertIn(f"together with {self.group_a.name}", message.body)
+
+    def test_a_join_is_withdrawn_like_a_moved_lesson(self):
+        covers, _notice_action = self._apply(self._join_plan())
+        join = covers.filtered('joined_group_ids')
+        self.Notice.search([('absence_group_id', 'in', (self.group_a | self.group_b).ids)]).write({'state': 'scheduled'})
+
+        self.Cover.with_user(self.department_chief).board_release(join.id)
+
+        self.assertEqual(join.state, 'released')
+        self.assertTrue(self._messages(self.teacher_b, 'Arrangement cancelled'))
+        cell = next(cell for cell in self._teaching_line(self.day, 9, 10)['cells'] if cell['group'] == self.group_a)
+        self.assertFalse(cell['joined'])
 
     def test_a_chain_of_moved_lessons_frees_the_end_of_the_day(self):
         both = self._two_groups_day()
@@ -1851,6 +1975,64 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(correction.subject.startswith('Correction:'))
         self.assertEqual(sent.state, 'scheduled')
 
+    # The group's tutor gets a copy of every notice that moves its classes (issue #658).
+
+    def _tutor(self, group=None):
+        tutor = create_role_employee(self, create_role_user(self, 'teacher', 'test_tutor_tabc658'),
+                                     name='TABC 658 Tutor')
+        (group or self.group_a).tutor_id = tutor
+        return tutor
+
+    def _tutor_messages(self, tutor):
+        return self.env['mail.message'].search([('model', '=', 'ems.notice'), ('partner_ids', 'in', tutor.user_id.partner_id.ids)])
+
+    def test_the_tutor_gets_a_copy_of_the_students_notice(self):
+        self._can_send()
+        tutor = self._tutor()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        cover, _notice_action = self._apply(self._plans()[0])
+
+        notice = cover.student_notice_id
+        message = self._tutor_messages(tutor)
+        self.assertEqual(len(message), 1)
+        self.assertEqual(message.res_id, notice.id)
+        self.assertIn(notice.subject, message.subject)
+        self.assertIn(f'{self.subject.name}: from 11:00-12:00 to 08:00-09:00', message.body)
+
+    def test_the_tutor_gets_a_copy_of_the_families_notice_once_sent(self):
+        self._can_send()
+        tutor = self._tutor()
+        self._two_sides_day()
+        draft = self.Notice.with_user(self.department_chief)._board_absence_change_draft(
+            str(self.day), self.group_a.id, 'late_entry', 9.0)
+
+        self.assertFalse(self._tutor_messages(tutor), "a draft tells nobody")
+
+        self._apply_notices(('early_leave', 11.0), ('late_entry', 9.0))
+
+        notice = self._families_notices()
+        message = self._tutor_messages(tutor)
+        self.assertEqual((len(message), message.res_id), (1, notice.id))
+        self.assertIn('will finish classes at 11:00', message.body)
+        self.assertFalse(draft.exists())
+
+    def test_the_main_groups_tutors_get_a_copy_for_a_reinforcement_group(self):
+        tutor_a, tutor_b = self._tutor(), create_role_employee(
+            self, create_role_user(self, 'teacher', 'test_tutor_b_tabc658'), name='TABC 658 Tutor B')
+        self.group_b.tutor_id = tutor_b
+        reinforcement = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'TABC 658 Reinforcement',
+            'parent_group_ids': [(6, 0, (self.group_a | self.group_b).ids)]})
+        notice = self.Notice._create_arrangement_notice(reinforcement, self.day, {
+            'subject': 'TABC 658 moved lessons', 'message': '<p>TABC 658</p>', 'arrangement_lessons': []})
+
+        notice.state = 'scheduled'
+
+        self.assertEqual(len(self._tutor_messages(tutor_a)), 1)
+        self.assertEqual(len(self._tutor_messages(tutor_b)), 1)
+
     def _send_change(self, change_type, hour=0.0):
         return self.Notice.with_user(self.department_chief).board_send_absence_change(
             str(self.day), self.group_a.id, change_type, hour)
@@ -1866,6 +2048,18 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual((notice._absence_change_tuples(), notice.state), ([('late_entry', 9.0)], 'scheduled'))
         self.assertEqual(notice.sent_by, self.department_chief)
         self.assertEqual(self._states()['entry']['status'], 'communicated')
+
+    def test_a_correction_with_nothing_allowed_any_more_says_the_usual_timetable(self):
+        self._can_send()
+        leave = self._two_sides_day()
+        self._apply_notices(('early_leave', 11.0))
+        leave.action_refuse()
+
+        action = next(action for action in self._actions() if action['type'] == 'rectification')
+        label = self.env['ems.course']._board_action_data(action)['label']
+
+        self.assertIn('(now: Usual timetable)', label)
+        self.assertNotIn('False', label)
 
     def test_send_correction_sends_it_at_once_too(self):
         self._can_send()
@@ -1990,8 +2184,213 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.Cover.with_user(self.department_chief).board_assign(
             str(self.day), 9, 10, self.teacher_b.id, self.group_b.id, self.teacher_c.id, 'Other class')
 
-        colors = self.env['ems.course']._board_cover_colors(
-            self.course.get_guard_duty_board_lines('0', 'morning', day=self.day)['lines'])
+        colors = self.course.get_guard_duty_board_lines('0', 'morning', day=self.day)['lines'][0]['cover_colors']
 
         self.assertEqual(colors[self.teacher_guard.id], colors[self.teacher_guard_2.id])
         self.assertNotEqual(colors[self.teacher_c.id], colors[self.teacher_guard.id])
+
+    # Changing a timetable change already communicated (issue #659)
+
+    def _change_options(self, side):
+        return self.env['ems.course'].with_user(self.department_chief).get_change_proposal_options(
+            str(self.day), self.group_a.id, side)
+
+    def _change_to(self, change_type, hour=0.0, hour_to=0.0, user=None):
+        return self.Notice.with_user(user or self.department_chief).board_send_absence_change(
+            str(self.day), self.group_a.id, change_type, hour, hour_to)
+
+    def test_a_communicated_longer_break_can_go_back_to_the_usual_break(self):
+        """The absence has not changed, but whoever organises it changed their mind: one correction
+        to the families, and the lessons need a guard again."""
+        self._can_send()
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._apply_notices(('long_break', 9.0, 10.5))
+        side = next(side for side in self._states() if side.startswith('break@'))
+
+        self.assertEqual(self._break_state()['change_options'], [('normal_break', 10, 10.5)])
+        self.assertEqual(self._row(9, 10)['change_side'], side)
+        data = self._change_options(side)
+        self.assertEqual(data['told'], 'Break from 09:00 to 10:30')
+        self.assertEqual([option['label'] for option in data['options']], ['Usual break'])
+
+        self.assertFalse(self._change_to('normal_break', 10.0, 10.5)['notice_action'])
+
+        notices = self._families_notices().sorted('id')
+        self.assertEqual(len(notices), 2, "one correction, nothing else")
+        self.assertEqual((notices[-1]._absence_change_tuples(), notices[-1].state), ([('normal_break', 10.0, 10.5)], 'scheduled'))
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+        self.assertIsNone(self._row(9, 10)['authorized'])
+        self.assertTrue(self._assign(hour_from=9, hour_to=10))
+
+    def test_a_communicated_early_leave_can_be_changed_to_another_hour(self):
+        self._can_send()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=11)
+        self._absence(self.teacher_b, self.day)
+        self._apply_notices(('early_leave', 10.0))
+
+        self.assertEqual(self._states()['leave']['change_options'], [('early_leave', 11), ('normal_leave', 0.0)])
+
+        self._change_to('early_leave', 11.0)
+
+        correction = self._families_notices().sorted('id')[-1]
+        self.assertEqual(correction._absence_change_tuples(), [('early_leave', 11.0)])
+        self.assertTrue(correction.subject.startswith('Correction:'))
+        self.assertEqual(self._states()['leave']['communicated'], ('early_leave', 11))
+        self.assertIsNone(self._row(10, 11)['authorized'])
+        self.assertEqual(self._row(11, 12, teacher=self.teacher_b)['authorized'], ('early_leave', 11))
+
+    def test_a_change_whose_time_has_come_can_no_longer_be_changed(self):
+        self._can_send()
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._apply_notices(('long_break', 9.0, 10.5))
+
+        with self._at(9.5):
+            self.assertEqual(self._break_state()['change_options'], [])
+            self.assertFalse(self._row(9, 10)['change_side'])
+            with self.assertRaises(UserError):
+                self._change_to('normal_break', 10.0, 10.5)
+
+    def test_only_whoever_organises_the_absence_can_change_what_was_told(self):
+        self._can_send()
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        self._apply_notices(('long_break', 9.0, 10.5))
+        side = next(side for side in self._states() if side.startswith('break@'))
+
+        with self.assertRaises(AccessError):
+            self.env['ems.course'].with_user(self.other_department_chief).get_change_proposal_options(
+                str(self.day), self.group_a.id, side)
+
+    @staticmethod
+    def _corrections(plan):
+        return [(step['change'], step['groups']) for step in plan['steps'] if step['kind'] == 'correction']
+
+    def test_a_plan_carries_the_correction_its_group_still_needs(self):
+        """The families were told the group starts at 9:00, and that absence was refused; a new
+        one leaves the group's last lesson free. The plan that tells them it leaves earlier
+        corrects the start too: one correction, not a notice and a correction apart."""
+        self._can_send()
+        self._morning()
+        refused = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9, approve=False)
+        self._apply_notices(('late_entry', 9.0))
+        refused.action_refuse()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+
+        plan = self._plans()[0]
+
+        self.assertEqual(self._plan_summary(plan)[:2], [
+            ('move', self.teacher_b, 11, 10, self.group_a), ('notice', ('early_leave', 11), self.group_a)])
+        for other in self._plans():
+            self.assertEqual(self._corrections(other), [(('normal_entry', 0.0), self.group_a)],
+                             "every plan of the group carries it, so it never goes out apart")
+        label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][-1]['label']
+        self.assertEqual(label, f'Correction to the families of {self.group_a.name}: Usual timetable.')
+
+        self._apply(plan)
+
+        correction = self._families_notices().sorted('id')[-1]
+        self.assertEqual(len(self._families_notices()), 2, "the first notice and one correction")
+        self.assertEqual(sorted(correction._absence_change_tuples()), [('early_leave', 11.0), ('normal_entry', 0.0)])
+        self.assertTrue(correction.subject.startswith('Correction:'))
+        self.assertIsNone(self._states()['entry']['status'], "nothing left to correct")
+
+    def _told_late_entry(self):
+        """teacher_a away 8-9 and the families told the group starts at 9:00."""
+        self._can_send()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._apply_notices(('late_entry', 9.0))
+
+    def test_a_change_proposal_offers_arrangements_that_correct_what_was_told(self):
+        """Instead of coming in at 9:00, teacher_b swaps their 11:00 lesson with teacher_a: the
+        families are told, in one correction, that the group starts at the usual time."""
+        self._told_late_entry()
+
+        data = self._change_options('entry')
+
+        swap = next(plan for plan in data['plans'] if plan['steps'][0]['kind'] == 'swap')
+        self.assertEqual([step['kind'] for step in swap['steps']], ['swap', 'correction'])
+        self.assertEqual(swap['steps'][-1]['payload']['change'], ['normal_entry', 0.0])
+        self.assertEqual(data['reopen'], [self.group_a.id, 'entry'])
+
+        result = self.Cover.with_user(self.department_chief).board_apply_plan(
+            str(self.day), [step['payload'] for step in swap['steps']], reopen=data['reopen'])
+
+        self.assertEqual(self.Cover.browse(result['cover_ids']).arrangement_type, 'swap')
+        notices = self._families_notices().sorted('id')
+        self.assertEqual(len(notices), 2, "the first notice and one correction")
+        self.assertEqual(notices[-1]._absence_change_tuples(), [('normal_entry', 0.0)])
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+        self.assertIsNone(self._states()['entry']['status'])
+
+    def test_a_change_proposal_arrangement_with_its_own_notice_sends_one_correction(self):
+        """teacher_b moves their 11:00 lesson to 8:00: the group starts at the usual time and
+        leaves at 11:00, both in the same correction."""
+        self._told_late_entry()
+
+        data = self._change_options('entry')
+        plan = next(plan for plan in data['plans'] if [step['kind'] for step in plan['steps']] == ['move', 'notice', 'correction'])
+        self.Cover.with_user(self.department_chief).board_apply_plan(
+            str(self.day), [step['payload'] for step in plan['steps']], reopen=data['reopen'])
+
+        notices = self._families_notices().sorted('id')
+        self.assertEqual(len(notices), 2)
+        self.assertEqual(sorted(notices[-1]._absence_change_tuples()), [('early_leave', 11.0), ('normal_entry', 0.0)])
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+
+    def test_a_side_already_told_is_not_changed_by_a_plan_without_reopening_it(self):
+        self._told_late_entry()
+
+        with self.assertRaises(UserError):
+            self.Cover.with_user(self.department_chief).board_apply_plan(str(self.day), [
+                {'kind': 'move', 'teacher_id': self.teacher_b.id, 'absent_id': False, 'lesson': [11, 12],
+                 'target': [8, 9], 'group_ids': self.group_a.ids},
+                {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': ['early_leave', 11.0]},
+                {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': ['normal_entry', 0.0]}])
+
+    @staticmethod
+    def _plan_changes(plan):
+        """`[(kind, change, group ids)]` of the notice and correction steps of a plan's data."""
+        return [(step['kind'], tuple(step['payload']['change']), tuple(step['payload']['group_ids']))
+                for step in plan['steps'] if step['kind'] in ('notice', 'correction')]
+
+    def test_a_plan_notice_on_the_side_being_changed_becomes_its_correction(self):
+        """The families were told the group starts at 10:00; teacher_b's 11:00 lesson moved to 9:00
+        lets it start at 9:00 instead. That is the correction itself, not a notice plus a
+        correction back to the usual start."""
+        self._can_send()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10)
+        self._apply_notices(('late_entry', 10.0))
+
+        plan = next(plan for plan in self._change_options('entry')['plans']
+                    if ('correction', ('late_entry', 9.0), tuple(self.group_a.ids)) in self._plan_changes(plan))
+
+        changes = self._plan_changes(plan)
+        self.assertFalse([change for change in changes if change[1][0] in ('late_entry', 'normal_entry') and change[0] == 'notice'])
+        self.assertNotIn(('correction', ('normal_entry', 0.0), tuple(self.group_a.ids)), changes)
+        self.Cover.with_user(self.department_chief).board_apply_plan(
+            str(self.day), [step['payload'] for step in plan['steps']], reopen=[self.group_a.id, 'entry'])
+        correction = self._families_notices().sorted('id')[-1]
+        self.assertIn(('late_entry', 9.0), correction._absence_change_tuples())
+        self.assertTrue(correction.subject.startswith('Correction:'))
+
+    def test_a_plan_notice_repeating_what_was_told_is_dropped(self):
+        """group_a was told it starts at 9:00, and nobody can fill its first lesson (teacher_b is
+        with group_b then). Changing that start, the plan that moves teacher_b's 11:00 lesson into
+        the 10:00 gap tells the families the group leaves at 11:00 - and nothing about the start,
+        which stays as told: never a correction back to the usual start."""
+        self._can_send()
+        self._calendar_rows(self.teacher_a, ((8, 9, self.group_a), (9, 10, self.group_a), (10, 11, self.group_a)))
+        self._calendar_rows(self.teacher_b, ((8, 9, self.group_b), (11, 12, self.group_a)))
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._apply_notices(('late_entry', 9.0))
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=11)
+
+        plan = next(plan for plan in self._change_options('entry')['plans']
+                    if ('notice', ('early_leave', 11.0), tuple(self.group_a.ids)) in self._plan_changes(plan))
+
+        self.assertEqual(self._plan_changes(plan), [('notice', ('early_leave', 11.0), tuple(self.group_a.ids))])

@@ -4,6 +4,7 @@ from odoo.tests import HttpCase, tagged
 
 from .common import (
     create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, mock_outgoing_email,
+    next_student_id,
 )
 
 
@@ -157,6 +158,59 @@ class TestAbsenceCoverageTour(HttpCase):
 
         self.start_tour("/odoo", "ems_absence_arrangement_result", login=self.department_chief.login)
 
+    def _rows(self, employee, name, rows):
+        """`employee`'s personal calendar - the one they have, or a new one - with exactly `rows`:
+        `(dayofweek, hour_from, hour_to, values)`."""
+        calendar = employee.resource_calendar_id.filtered(lambda own: own.employee_id == employee) \
+            or self.env['resource.calendar'].create({'name': name, 'employee_id': employee.id, 'attendance_ids': [(5, 0, 0)]})
+        employee.resource_calendar_id = calendar
+        calendar.apply_schedule_changes([{'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_to,
+                                          'day_period': 'morning', **values} for dayofweek, hour_from, hour_to, values in rows])
+
+    def test_join_split_groups_tour(self):
+        """Issue #660, as the Department Chief: TABTG and TABTH are the two halves of a split group
+        (their forms say so, issue #676). Next Monday the absent teacher has TABTH at 9, in the
+        middle of its day, and TABTG at 12, its last lesson; 'Tour Join Teacher' teaches both the
+        same subject, TABTG at 9 and TABTH at 12. The board proposes joining TABTH to TABTG's 9:00
+        lesson: both halves leave at 12 and nobody needs a guard."""
+        teacher, _guard, half_a = self._board_fixture(away=(8, 14))
+        half_b = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TABTH', 'level_id': half_a.level_id.id, 'study_id': half_a.study_id.id, 'shift': 'morning'})
+        subject = self.env['ems.subject'].search([('code', '=', 'TABT001')])
+        # The other teachers teach another subject: only Tour Join Teacher teaches both halves the same one.
+        filler_a, filler_b = (self.env['ems.subject'].create({
+            'code': f'TABT66{half}', 'acronym': f'TF6{half}', 'name': f'Tour Filler Subject {half}',
+            'study_ids': [(6, 0, subject.study_ids.ids)]}) for half in 'AB')
+        wc = self.env.ref('ems.non_teaching_gwc')
+
+        def lesson(groups, of=subject):
+            return {'subject_id': of.id, 'group_ids': groups.ids, 'name': 'TABT'}
+
+        self._rows(teacher, 'Tour Absent Teacher 660', [('0', 9, 10, lesson(half_b)), ('0', 12, 13, lesson(half_a))])
+        joiner = self.env['hr.employee'].create({'name': 'Tour Join Teacher', 'employee_type': 'teacher'})
+        self._rows(joiner, 'Tour Join Teacher', [('0', 9, 10, lesson(half_a)), ('0', 12, 13, lesson(half_b))])
+        other = self.env['hr.employee'].create({'name': 'Tour Other Teacher', 'employee_type': 'teacher'})
+        self._rows(other, 'Tour Other Teacher', [
+            ('0', 8, 9, lesson(half_b, filler_b)), ('0', 9, 10, {'non_teaching': wc.id, 'name': 'WC'}),
+            ('0', 10, 11, lesson(half_a, filler_a)), ('0', 11, 12, lesson(half_a, filler_a))])
+        third = self.env['hr.employee'].create({'name': 'Tour Third Teacher', 'employee_type': 'teacher'})
+        self._rows(third, 'Tour Third Teacher', [('0', 10, 11, lesson(half_b, filler_b)), ('0', 11, 12, lesson(half_b, filler_b))])
+        half_a.joinable_group_ids = half_b
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        plans = [[(step['kind'], step.get('change') or step['teacher']) for step in plan['steps']]
+                 for plan in self.env['ems.course']._get_arrangement_plans(day, half_b)]
+        self.assertIn([('join', joiner), ('notice', ('early_leave', 12))], plans)
+
+        self.start_tour("/odoo", "ems_join_split_groups", login=self.department_chief.login)
+
+        join = self.env['ems.absence_cover'].search([('group_id', '=', half_b.id), ('state', '=', 'assigned')])
+        self.assertEqual((join.guard_employee_id, join.joined_group_ids, join.hour_from, join.vacated_hour_from),
+                         (joiner, half_a, 9, 12))
+        # The halves have no students: their families' notices stay drafts. Sent, the join counts.
+        self.env['ems.notice'].search([('absence_group_id', 'in', (half_a | half_b).ids)]).write({'state': 'scheduled'})
+
+        self.start_tour("/odoo", "ems_join_split_groups_result", login=self.department_chief.login)
+
     def _move_fixture(self):
         """The absent teacher is only away 9-10, in the middle of the group's day; the group's
         last lesson, at 12, can be moved into it, the group leaving at 11: the one plan."""
@@ -192,3 +246,65 @@ class TestAbsenceCoverageTour(HttpCase):
         self.env['ems.notice'].browse(result['notice_action']['res_id']).state = 'scheduled'
 
         self.start_tour("/odoo", "ems_absence_arrangement_change", login=self.department_chief.login)
+
+    def _told_late_entry(self, swapper=False):
+        """Issue #659: `_board_fixture`, with a student and family the notices reach, and the
+        families told the group starts at 10:00. With `swapper`, a teacher of the group at 11:00
+        who could swap lessons with the absent one."""
+        teacher, _guard, group = self._board_fixture()
+        if swapper:
+            self._arrangement_teacher('Tour Swap Teacher', (11, 12), group)
+        student = self.env['res.partner'].create({
+            'name': 'Tour 659 Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': group.id, 'email': 'tour659.student@example.com'})
+        family = self.env['res.partner'].create({
+            'name': 'Tour 659 Family', 'contact_type': 'family', 'email': 'tour659.family@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': student.id})
+        self.department_chief.email = 'tour659.chief@example.com'
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        self.env['ems.notice'].with_user(self.department_chief).board_send_absence_change(str(day), group.id, 'late_entry', 10.0)
+        return group
+
+    def test_change_proposal_tour(self):
+        """Issue #659, as the Department Chief: the families were told the group starts at 10:00;
+        from the struck-out row, the chief sees a swap that would correct it, but changes it to 9:00
+        instead (a guard will cover the 9:00 lesson), and one correction goes out."""
+        group = self._told_late_entry(swapper=True)
+
+        self.start_tour("/odoo", "ems_change_proposal", login=self.department_chief.login)
+
+        notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
+        self.assertEqual(len(notices), 2, "the notice and one correction")
+        self.assertEqual((notices[-1]._absence_change_tuples(), notices[-1].state), ([('late_entry', 9.0)], 'scheduled'))
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+
+    def test_corrections_box_tour(self):
+        """Issue #659: the families were told the group starts at 10:00, and the absence then moved
+        to 10-11. The group goes in the red corrections box; only telling the families, the chief
+        unchecks the new early leave and sends the correction alone."""
+        group = self._told_late_entry()
+        leave = self.env['hr.leave'].search([('employee_id.name', '=', 'Tour Absent Teacher')])
+        day = leave.request_date_from
+        leave.action_refuse()
+        self.env['hr.leave'].create({
+            'employee_id': leave.employee_id.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day, 'request_date_to': day, 'ems_full_day': False,
+            'request_hour_from': 10, 'request_hour_to': 11, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+
+        self.start_tour("/odoo", "ems_corrections_box", login=self.department_chief.login)
+
+        notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
+        self.assertEqual(len(notices), 2, "the notice and one correction")
+        self.assertEqual(notices[-1]._absence_change_tuples(), [('normal_entry', 0.0)])
+
+    def test_not_on_guard_tour(self):
+        """Issue #659, as a plain teacher who is not on guard duty: a class still to be covered
+        answers the pointer too, saying why they cannot cover it."""
+        user = create_role_user(self, 'teacher', 'test_tour_not_on_guard', name='Tour Not On Guard')
+        create_role_employee(self, user, name='Tour Not On Guard')
+        self._board_fixture()
+
+        self.start_tour("/odoo", "ems_not_on_guard", login=user.login)

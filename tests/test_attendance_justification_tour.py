@@ -24,11 +24,6 @@ class TestAttendanceJustificationTour(HttpCase):
             'teacher_id': cls.teacher.id, 'student_id': cls.student.id,
             'start_date': datetime(2026, 1, 5, 9, 0), 'end_date': datetime(2026, 1, 5, 11, 0),
         })
-        # Dedicated student for the creation-flow tour, kept separate from cls.student/
-        # cls.justification above so the two test methods stay independent of each other.
-        cls.student2 = cls.env['res.partner'].create({
-            'name': 'Attendance Justification Tour Student 2', 'contact_type': 'student', 'student_id': next_student_id(),
-        })
         cls._setup_tutor_justification()
 
     @classmethod
@@ -95,14 +90,15 @@ class TestAttendanceJustificationTour(HttpCase):
         self.assertEqual(self.justification.notes, 'Tour note')
 
     def test_attendance_justification_create_tour(self):
-        force_user_language_to_english(self, self.env.ref('base.user_admin'))
-        self.start_tour("/odoo", "ems_attendance_justification_create", login="admin")
+        # Issue #656: a tutor justifies their whole group from the assistant.
+        self.start_tour("/odoo", "ems_attendance_justification_create", login=self.tutor_user.login)
 
         justification = self.env['ems.attendance_justification'].search([
-            ('student_id', '=', self.student2.id),
-            ('teacher_id', '=', self.teacher.id),
+            ('student_id', '=', self.tutor_justification.student_id.id),
+            ('id', '!=', self.tutor_justification.id),
         ])
         self.assertEqual(len(justification), 1)
+        self.assertEqual(justification.teacher_id.user_id, self.tutor_user)
         # The web client reads the typed 09:00-11:00 in the company's timezone (issue #518, see
         # docs/en/developers/shared/timezones.md), and the database stores it in UTC.
         utils = self.env['ems.datetime_utils']

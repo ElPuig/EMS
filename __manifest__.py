@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.38.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.39.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -245,6 +245,7 @@
 
             'views/attendance/attendance_schedule/form.xml',
 
+            'views/attendance/attendance_justification/wizard.xml',
             'views/attendance/attendance_justification/menu.xml',
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
@@ -307,8 +308,8 @@
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',
             'views/academic_management/enrollment/menu.xml',
-            'views/academic_management/enrollment/no_destination.xml',
             'views/academic_management/enrollment/applicants.xml',
+            'views/academic_management/enrollment/no_destination.xml',
             'views/academic_management/enrollment/applicant_import_wizard.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
@@ -330,9 +331,9 @@
             'views/academic_management/authorizations/authorization_template_view.xml',
             'views/academic_management/authorizations/authorization_template_form.xml',
             'views/academic_management/authorizations/authorization_search.xml',
+            'views/academic_management/authorizations/authorization_send_wizard.xml',  # before authorization_view.xml: its list's New button opens this wizard's action
             'views/academic_management/authorizations/authorization_view.xml',
             'views/academic_management/authorizations/authorization_form.xml',
-            'views/academic_management/authorizations/authorization_send_wizard.xml',
             'views/academic_management/authorizations/menu.xml',
             'views/academic_management/task_assignment/view.xml',
             'views/academic_management/task_assignment/menu.xml',
@@ -412,6 +413,7 @@
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
         'data/main/ir.cron-task_digest.csv',
+        'data/main/ir.cron-preenrollment_period.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',

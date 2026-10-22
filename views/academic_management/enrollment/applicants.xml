@@ -40,7 +40,8 @@
                     <header>
                         <button name="action_enrollment_proposal"
                                 type="object"
-                                string="Enrollment proposal"/>
+                                string="Enrollment proposal"
+                                groups="ems.group_academic_admin,ems.group_secretary"/>
                         <button name="action_ems_close_unconfirmed"
                                 type="object"
                                 string="Close unconfirmed enrollments"
@@ -65,6 +66,23 @@
             </field>
         </record>
 
+        <!-- The contact form opened from Preinscription and Students without destination: the
+             usual one (every EMS extension included), as a view of its own so that
+             res.partner.get_view() can make it read only there for whoever does not edit
+             enrollments, without touching the contact form everywhere else (issue #654). -->
+        <record id="view_enrollment_contact_form" model="ir.ui.view">
+            <field name="name">ems.enrollment.contact.form</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="mode">primary</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <form position="attributes">
+                    <attribute name="class" add="o_ems_enrollment_contact" separator=" "/>
+                </form>
+            </field>
+        </record>
+
         <record id="action_ems_applicants" model="ir.actions.act_window">
             <field name="name">Preinscription</field>
             <field name="res_model">res.partner</field>
@@ -76,6 +94,7 @@
             <field name="search_view_id" ref="view_applicant_search"/>
             <field name="view_ids" eval="[(5,0,0),
                 (0,0,{'view_mode': 'list', 'view_id': ref('view_applicant_list')}),
+                (0,0,{'view_mode': 'form', 'view_id': ref('view_enrollment_contact_form')}),
             ]"/>
         </record>
 
@@ -83,7 +102,7 @@
                   name="Preinscription"
                   parent="menu_ems_enrollment"
                   action="action_ems_applicants"
-                  groups="ems.group_academic_admin,ems.group_secretary"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                   sequence="10"/>
     </data>
 </odoo>

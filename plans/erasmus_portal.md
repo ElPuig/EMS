@@ -302,9 +302,23 @@ graph LR
 - **F3 - Resolutions, claims and offers** *(medium)*. Provisional and definitive resolutions with
   frozen lines, publication on the portal (name + 4 ID digits), claims and appeals log,
   acceptance, renunciation, reserve offers. Closes the student cycle of the first delivery.
+  Also an **"Export to spreadsheet"** action (list of applications and call form, `ems.group_erasmus`
+  only, it carries personal data): one `.xlsx` row per person who accepted a place, sheet
+  *Participantes*, columns in this exact order and with these exact Spanish headers (an external
+  tool imports the file as is; never name that tool in code, docs or changelog): Nombre, Apellidos,
+  DNI, Email, Teléfono, Dirección, Fecha de nacimiento, Nacionalidad, Género, Ciclo formativo, Curso,
+  Titular de la cuenta, Banco, BIC, IBAN, Tutor legal, Email del tutor legal, Teléfono del tutor
+  legal. Only Nombre, Apellidos and DNI are required. Sources: `firstname`/`lastname`, `document_id`
+  (else `passport_id`), personal `email`, phone, address, `birth_date` as a real date cell
+  (DD/MM/YYYY), `citizenship_id`, the study acronym in force (e.g. SMX), the year of their group (1
+  or 2), the first `res.partner.bank` (holder, bank name, BIC, IBAN). Género stays empty (EMS keeps
+  no gender for students). Legal guardian columns only for minors, with **every** family contact
+  (`_ems_family_contacts()`), joined with ", " in the same order in all three columns (decided
+  2026-10-22).
 - **F4 - Staff call** *(medium)*. Staff application on the same portal page, mobility plan upload,
   panel configuration and ratings, manual merits, staff scoring and tie-breaks, project/period
-  assignment, one place per person. Reuses F1-F3.
+  assignment, one place per person. Reuses F1-F3, including "Export to spreadsheet": for staff,
+  Ciclo formativo, Curso and the legal guardian columns stay empty (decided 2026-10-22).
 - **F5 - Mobility preparation** *(large; second delivery)*. Destination choice by rank, own
   proposals, host entity, documents and signers (signed outside EMS and uploaded), checklist per
   modality (OLS, virtual component for GS, return documents), Director validation of staff

@@ -288,12 +288,18 @@ and the template just does `t-esc="title"`.
 weekday tabs render their own day of the month alongside their name, so the tab strip doubles
 as that week's calendar. The toolbar carries `‹ ›` week navigation plus a native
 `<input type="date">`; picking any date moves the whole week and lands on that date's own
-weekday tab. Three helpers at the top of the file keep this honest: `toIsoDate()` formats from
+weekday tab. Four helpers at the top of the file keep this honest: `toIsoDate()` formats from
 the browser's **local** calendar fields, deliberately not `toISOString()` (which converts to UTC
 first and so returns the previous day for anyone east of Greenwich during the evening — the
 board's date is a calendar day, never an instant); `fromIsoDate()` parses one back; `mondayOf()`
 maps any date onto its week's Monday, with a weekend belonging to the week it closes, which is
-also what makes picking a Saturday in the date input land on a real, showable weekday.
+also what makes picking a Saturday in the date input land on a real, showable weekday; and
+`addDays()` moves by calendar days (`new Date(year, month, day + n)`), never by adding milliseconds:
+the day the clocks go back has 25 hours, so a week of 7 x 24h from a Monday landed on Sunday 23:00
+and Monday and Tuesday both showed as the 25th (issue #678, October 2026; the 23-hour day in March
+did the same going back). `ems_guard_duty_board_clock_change` checks both, with the test browser
+put in the centre's timezone (`Emulation.setTimezoneOverride`): it runs in UTC otherwise, which has
+no clock changes.
 
 **Two views of the same payload, no extra round trip.** `state.activeView` switches between the
 absences table (`table`, first and the default since 2026-10-07: it is the one the centre works from

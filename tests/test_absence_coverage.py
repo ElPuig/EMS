@@ -1380,6 +1380,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.Notice.browse(notice_action['res_id']).state = 'scheduled'
 
         self.assertEqual(covers.guard_employee_id, both, "one cover per teacher who moves the lesson")
+        message = str(covers.student_notice_id.message)
+        self.assertEqual(message.count(f"{self.subject.name}: from 11:00-12:00 to 10:00-11:00"), 1,
+                         "the students are told about the lesson once, not once per teacher")
         self.assertEqual(covers[0]._arrangement_label(),
                          f"{self.teacher_b.name} and {self.teacher_c.name} move their 11:00 lesson to 10:00.")
         self.assertEqual(self._cell(10, 11)['substitutes'], both)

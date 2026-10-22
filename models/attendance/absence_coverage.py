@@ -606,11 +606,10 @@ class EmsAbsenceCover(models.Model):
             if step['kind'] == 'notice':
                 notices.append((groups, tuple(step['change'])))
                 continue
-            teachers, absents, stays = (Employee.browse(step.get(key) or []).exists()
-                                        for key in ('teacher_ids', 'absent_ids', 'stay_ids'))
+            ids = [set(step.get(key) or []) for key in ('teacher_ids', 'absent_ids', 'stay_ids')]
+            teachers, absents, stays = (Employee.browse(sorted(employee_ids)).exists() for employee_ids in ids)
             if step['kind'] not in ('move', 'swap') or not teachers or (step['kind'] == 'swap' and not absents) \
-                    or len(teachers | absents | stays) != len(
-                        set(step.get('teacher_ids') or []) | set(step.get('absent_ids') or []) | set(step.get('stay_ids') or [])):
+                    or len(teachers) + len(absents) + len(stays) != sum(map(len, ids)):
                 raise UserError(_("The class or the guard teacher no longer exists."))
             moves.append((step['kind'], teachers, tuple(step['lesson']), tuple(step['target']), groups, absents, stays))
         if not moves and not notices:

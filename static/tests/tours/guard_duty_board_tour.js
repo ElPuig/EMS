@@ -403,3 +403,66 @@ registry.category("web_tour.tours").add("ems_guard_duty_board", {
         },
     ],
 });
+
+// Issue #678: the week arrows across the days the clocks change, with the browser in the centre's
+// timezone (see TestGuardDutyBoardTour.test_week_arrows_across_clock_changes). The 25th of October
+// 2026 has 25 hours: a week added in milliseconds landed on Sunday, and Monday and Tuesday both
+// showed as the 25th. The 28th of March 2027 has 23 hours, the same going back a week.
+function assertWeek(...expected) {
+    const days = [...document.querySelectorAll(".o_guard_board_tabs .o_guard_board_tab_date")].map((node) => Number(node.textContent.trim()));
+    if (days.join(",") !== expected.join(",")) {
+        throw new Error(`Expected the week ${expected.join(",")}, got ${days.join(",")}`);
+    }
+}
+
+registry.category("web_tour.tours").add("ems_guard_duty_board_clock_change", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board?date=2026-10-19",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_tabs li:first-child .o_guard_board_tab_date:contains('19')",
+            content: "The week of Monday 19 October 2026",
+            run: () => assertWeek(19, 20, 21, 22, 23),
+        },
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Next week, across the clocks going back",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs li:first-child .o_guard_board_tab_date:contains('26')",
+            content: "Monday 26 to Friday 30, each day once",
+            run: () => {
+                assertWeek(26, 27, 28, 29, 30);
+                const value = document.querySelector(".o_guard_board_date_input").value;
+                if (value !== "2026-10-26") {
+                    throw new Error(`Expected Monday 2026-10-26 on the board, got ${value}`);
+                }
+            },
+        },
+        {
+            trigger: ".o_guard_board_date_input",
+            content: "Pick Monday 29 March 2027",
+            run: () => {
+                const input = document.querySelector(".o_guard_board_date_input");
+                input.value = "2027-03-29";
+                input.dispatchEvent(new Event("change", { bubbles: true }));
+            },
+        },
+        {
+            trigger: ".o_guard_board_tabs li:first-child .o_guard_board_tab_date:contains('29')",
+            content: "The week of Monday 29 March 2027",
+            run: () => assertWeek(29, 30, 31, 1, 2),
+        },
+        {
+            trigger: ".o_guard_board_week_nav button:first-child",
+            content: "Previous week, across the clocks going forward",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs li:first-child .o_guard_board_tab_date:contains('22')",
+            content: "Monday 22 to Friday 26 March, each day once",
+            run: () => assertWeek(22, 23, 24, 25, 26),
+        },
+    ],
+});

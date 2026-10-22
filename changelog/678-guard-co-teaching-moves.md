@@ -8,3 +8,8 @@
 - On the absent side of a swap every teacher away from the class must be able to teach the other lesson, or the swap is not offered.
 - The students' notice lists a co-taught lesson once.
 - New tests in `TestAbsenceCoverage` (pack move, absent co-teacher, co-teacher left on guard and assigned, whole pack first, pack swap, absent side of a swap) and a new tour (`ems_absence_arrangement_co_teaching`). Board load timing unchanged on the dev DB (~0.12-0.17 s for the afternoon of 2026-10-22, before and after).
+
+## Guard duty board: the week arrows no longer skip a day where the clocks change:
+
+- Reported while testing #678: moving to the week of 26 October 2026 with the arrows showed Monday and Tuesday both as the 25th, and every tab one day early (only picking the date from the calendar worked). The arrows, the tabs and `mondayOf()` added days as 24-hour blocks of milliseconds, and the 25th of October has 25 hours, so the week started on Sunday at 23:00. They now count calendar days (`addDays()`); the 23-hour day in March, going back a week, had the same problem.
+- New tour `ems_guard_duty_board_clock_change`, run with the test browser in Europe/Madrid (it runs in UTC otherwise, where there is no clock change): fails with the old code, passes now.

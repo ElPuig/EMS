@@ -975,6 +975,18 @@ class EmsCourseGuardDutyBoard(models.Model):
             context['sessions'] = sessions
         return context['sessions']
 
+    def _group_sessions(self, context, group_ids):
+        """The sessions (see _arrangement_sessions) of any of `group_ids`, indexed by group once
+        per board load."""
+        if 'sessions_by_group' not in context:
+            by_group = defaultdict(list)
+            for session in self._arrangement_sessions(context):
+                for group_id in session[1]:
+                    by_group[group_id].append(session)
+            context['sessions_by_group'] = by_group
+        sessions = dict.fromkeys(session for group_id in group_ids for session in context['sessions_by_group'][group_id])
+        return sorted(sessions, key=lambda session: (session[0], sorted(session[1]), sorted(session[2])))
+
     def _get_arrangement_options(self, day, group, absent, hour_from, hour_to, exclude=None, context=None):
         """The lesson swaps that would leave the class of `group` in the period, whose teachers
         `absent` are all away, without needing a guard (issue #605): another lesson of the group
@@ -999,7 +1011,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         vacated = covers.filtered(lambda cover: cover.group_id == group and cover.vacated_hour_to)
         Employee = self.env['hr.employee']
         options = []
-        for lesson, group_ids, pack, away in self._arrangement_sessions(context):
+        for lesson, group_ids, pack, away in self._group_sessions(context, group.ids):
             if group_ids != {group.id} or overlaps(*lesson, hour_from, hour_to) or pack & set(absent.ids):
                 continue
             if vacated.filtered(lambda cover, lesson=lesson: overlaps(cover.vacated_hour_from, cover.vacated_hour_to, *lesson)):
@@ -1091,7 +1103,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     swaps.append(('swap', frozenset(option['teacher'].ids), (option['hour_from'], option['hour_to']),
                                   (block['hour_from'], block['hour_to']), frozenset(group.ids), frozenset(absents.ids),
                                   frozenset(option['stays'].ids)))
-        sessions = [session for session in self._arrangement_sessions(context) if session[1] & set(groups.ids)]
+        sessions = self._group_sessions(context, groups.ids)
         vacated = covers.filtered(lambda cover: cover.group_id in groups and cover.vacated_hour_to)
         employees = context['entries'].filtered(lambda attendance: attendance.group_ids & groups).employee_id
         teachers = {teacher.id: {

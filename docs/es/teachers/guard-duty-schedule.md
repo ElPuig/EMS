@@ -106,6 +106,36 @@ Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el 
 
 ---
 
+## Docentes que no han fichado
+
+Hoy, en cuanto empieza una clase, si su docente no ha fichado aparece en la **Tabla de ausencias** como una ausencia, para que un docente de guardia la pueda cubrir. Su nombre se muestra en rojo subrayado con puntos y con la etiqueta **Sin fichar**. Lo mismo pasa con un docente de guardia: queda marcado en la columna de guardia y no se le puede enviar a cubrir nada hasta que fiche.
+
+- La clase sale de la tabla en cuanto el docente ficha, y también sus clases siguientes. Las clases que han terminado antes de que fichara se quedan, de modo que una guardia que ya se haya enviado sigue siendo correcta.
+- Una ausencia (aprobada, solicitada o prevista) siempre tiene preferencia: entonces la línea muestra la ausencia.
+- Estas clases solo se cubren con una guardia. El horario no propone avisar a las familias ni reorganizar clases, porque puede que el docente esté en el centro.
+- Solo cuentan las clases de hoy. Otro día todavía no ha fichado nadie.
+
+![Tabla de ausencias a las 10:30: la clase de 8 a 9, ya terminada, y la de 10 a 11 de una docente que no ha fichado, ambas con la etiqueta Sin fichar, y el docente de guardia](../../assets/teachers/guard-duty-10-sense-fitxar.png)
+
+### El docente está en el aula
+
+A veces el docente está en el aula y solo se ha olvidado de fichar. Si estás de guardia en esa franja, u organizas las ausencias de ese docente (su jefe de departamento o de seminario, JE, JEA, Dirección o el administrador), puedes indicarlo:
+
+1. En la **Tabla de ausencias**, haz clic en la línea de la clase en curso (la indicación dice que el docente **aún no ha fichado. Haz clic si está en el aula, o para cubrir la clase.**).
+2. Haz clic en el botón **Está en el aula**.
+
+![Diálogo de la clase en curso: la docente aún no ha fichado, con los botones Está en el aula y Cubrirla yo](../../assets/teachers/guard-duty-11-es-a-l-aula.png)
+
+Se registra la entrada del docente a la hora actual, la clase sale de la tabla y el docente recibe un mensaje que dice quién la ha registrado. En la ficha del fichaje, **Entrada registrada por** muestra tu nombre. Si la hora no es correcta, el docente puede solicitar una corrección como con cualquier otro fichaje.
+
+El mismo diálogo también ofrece lo que podrías hacer con la línea: **Cubrirla yo** si estás de guardia, o **Enviar un docente de guardia** si organizas la ausencia. Una clase que ya ha terminado no se puede resolver así: registrar ahora la entrada del docente no la cambiaría.
+
+### El horario se actualiza solo
+
+Mientras está abierto, el horario se actualiza solo, sin volver a cargar la página, únicamente cuando cambia algo que muestra: cuando empieza o termina una clase, cuando alguien ficha, envía o retira una guardia, o cuando cambia una ausencia o un comunicado a las familias. Así ves al instante lo que un compañero acaba de organizar. Si hay un diálogo abierto o la pestaña del navegador está en segundo plano, espera y se actualiza en cuanto lo cierras o vuelves a ella.
+
+---
+
 ## Cubrir tú mismo una clase
 
 Si estás de guardia en una franja, no hace falta que esperes a que alguien te envíe: puedes coger tú mismo una clase que todavía está sin docente.

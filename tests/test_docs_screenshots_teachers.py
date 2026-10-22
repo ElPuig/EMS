@@ -516,6 +516,53 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         self._capture(url, '.o_guard_board_table_wrap', 'guard-duty-08-cobertura-parcial.png', login='doc_shot_teacher',
                       wait_for='.o_guard_board_missing_tag')
 
+    def test_capture_guard_duty_unchecked(self):
+        """A class whose teacher has not checked in (issue #692), seen by the guard on duty at 10:30:
+        the row with its "Sense fitxar" tag, and the dialog that says the teacher is in the
+        classroom. Every name and group is invented."""
+        if not self.env.company.current_course_id:
+            self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
+        mock_outgoing_email(self)
+        now = shift_ems_clock(self, hour=10.5, weekdays=range(5))
+        today, weekday = now.date(), str(now.weekday())
+        level = self.env['ems.level'].create({'acronym': 'T692S', 'name': 'ESO exemple'})
+        study = self.env['ems.study'].create({'code': 'T692S', 'acronym': 'ESOX', 'name': 'ESO exemple', 'level_id': level.id,
+                                              'date': '2026-01-01'})
+        group = self.env['ems.group'].create({'course': 1, 'acronym': 'A', 'level_id': level.id, 'study_id': study.id})
+        subject = self.env['ems.subject'].create({'code': 'T692SMAT', 'acronym': 'MAT', 'name': 'MAT', 'study_ids': [(6, 0, study.ids)]})
+
+        def timetable(employee, rows):
+            calendar = self.env['resource.calendar'].create({
+                'name': f'{employee.name} Calendar', 'employee_id': employee.id, 'attendance_ids': [(5, 0, 0)]})
+            employee.resource_calendar_id = calendar
+            calendar.apply_schedule_changes([{'dayofweek': weekday, 'day_period': 'morning', **row} for row in rows])
+
+        anna = self.env['hr.employee'].create({'name': '0000 Anna Exemple', 'employee_type': 'teacher'})
+        timetable(anna, [{'hour_from': hour, 'hour_to': hour + 1, 'subject_id': subject.id, 'group_ids': [group.id], 'name': 'MAT'}
+                         for hour in (8, 10)])
+        guard = self.teacher_employee
+        timetable(guard, [{'hour_from': 10, 'hour_to': 11, 'non_teaching': self.env.ref('ems.non_teaching_g').id, 'name': 'G'}])
+        utils = self.env['ems.datetime_utils']
+        self.env['hr.attendance'].create({
+            'employee_id': guard.id, 'check_in': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(today, 7.9))})
+        # Only this fixture's rows, never the dev DB's real timetable (see test_capture_guard_duty_schedule).
+        fixture_ids = (anna | guard).ids
+        course_model = type(self.env['ems.course'])
+        original = course_model._get_guard_duty_board_attendance_ids
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course, domain=(): original(course, domain).filtered(
+            lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+        url = f'/odoo/action-ems.action_guard_duty_board?date={today}&shift=morning&view=table'
+        self._capture(url, '.o_guard_board_table_wrap', 'guard-duty-10-sense-fitxar.png', login='doc_shot_teacher',
+                      wait_for='.o_guard_board_unchecked_tag')
+        self._capture(url, '.o_dialog .modal-content', 'guard-duty-11-es-a-l-aula.png', login='doc_shot_teacher',
+                      wait_for='.o_guard_board_unchecked_tag',
+                      # The only line the guard can act on: the 10-11 class (the 8-9 one is over).
+                      click='.o_guard_board_absence_manageable',
+                      wait_after='.o_guard_unchecked_present')
+
     def test_capture_guard_duty_management(self):
         """Organising absences from the absences table (issues #539, #571, #581, #605), as the
         absent teachers' Department Chief, on next Monday (a past day is read-only): a late entry

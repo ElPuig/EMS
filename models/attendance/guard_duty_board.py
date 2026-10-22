@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
+from datetime import timedelta
+
+from pytz import UTC
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -369,8 +372,13 @@ class EmsCourseGuardDutyBoard(models.Model):
             *domain,
         ])
 
-    def _get_guard_duty_absence_intervals(self, day, employees):
+    def _get_guard_duty_absence_intervals(self, day, employees, unchecked=False):
         """`{employee.id: [(hour_from, hour_to, state)]}` - the absences covering `day`.
+
+        `unchecked` (issue #692) also adds, for today only, the teachers who have not checked in:
+        see _get_unchecked_intervals. Only the guard side of the board asks for it (its rows, who
+        can be sent, whether a guard is still needed): a teacher who has not checked in may still
+        be in the building, so nothing proposes telling the families or rearranging lessons.
 
         Resolved on demand rather than stored anywhere: an absence is an 'hr.leave' keyed to a
         real date, the board is keyed to a weekday, and nothing joins the two until a date is
@@ -411,22 +419,55 @@ class EmsCourseGuardDutyBoard(models.Model):
             hours = absence._get_local_hours(day)
             if hours:
                 intervals[absence.employee_id.id].append((*hours, 'pending'))
+        if unchecked:
+            for employee_id, interval in self._get_unchecked_intervals(day, employees).items():
+                intervals[employee_id].append(interval)
         return intervals
+
+    def _get_unchecked_intervals(self, day, employees):
+        """`{employee.id: (now, arrival, 'unchecked')}` for `day` when it is today (issue #692):
+        `now` the company's current hour, `arrival` the hour of the employee's first check-in that
+        day (24.0 without one). A class counts as left without its teacher once it has started
+        (hour_from <= now) unless they checked in before it ended (see _guard_duty_absence_state):
+        checking in late clears the class in progress and the next ones, while those already over
+        stay, so a guard sent to them is still the right one. One query for every employee, in the
+        company's day: sudo because, like the absences, whoever reads the board needs to know a
+        colleague is not in, and only that fact leaves this method."""
+        utils = self.env['ems.datetime_utils']
+        if not day or day != utils.get_local_today() or not employees:
+            return {}
+        day_start = utils.datetime_to_odoo(utils.time_float_to_utc_datetime(day, 0.0))
+        check_ins = self.env['hr.attendance'].sudo()._read_group(
+            [('employee_id', 'in', employees.ids), ('check_in', '>=', day_start),
+             ('check_in', '<', day_start + timedelta(days=1))],
+            ['employee_id'], ['check_in:min'])
+        arrivals = {
+            employee.id: utils.time_to_float(utils.utc_datetime_to_local(first.replace(tzinfo=UTC)))
+            for employee, first in check_ins}
+        now = self._board_day_hour(day)
+        return {employee.id: (now, arrivals.get(employee.id, 24.0), 'unchecked') for employee in employees}
 
     @staticmethod
     def _guard_duty_absence_state(intervals, employees, hour_from, hour_to):
-        """`{employee.id: 'approved'|'pending'}` for those of `employees` absent in the period.
+        """`{employee.id: 'approved'|'pending'|'unchecked'}` for those of `employees` absent in the
+        period.
 
         An approved absence outranks a pending one when the same teacher has both overlapping
         the same period: the period is going to need covering either way, so reporting it as
-        merely "requested" would understate it.
+        merely "requested" would understate it. Either outranks a missing check-in ('unchecked',
+        issue #692), whose interval reads differently: `(now, arrival)`, the period counting once
+        it has started and when the teacher had not arrived before it ended (see
+        _get_unchecked_intervals).
         """
         states = {}
         for employee in employees:
             overlapping = {state for start, stop, state in intervals.get(employee.id, ())
-                           if start < hour_to and stop > hour_from}
-            if overlapping:
-                states[employee.id] = 'approved' if 'approved' in overlapping else 'pending'
+                           if (hour_from <= start + HOUR_EPSILON and hour_to <= stop + HOUR_EPSILON
+                               if state == 'unchecked' else start < hour_to and stop > hour_from)}
+            for state in ('approved', 'pending', 'unchecked'):
+                if state in overlapping:
+                    states[employee.id] = state
+                    break
         return states
 
     @staticmethod
@@ -528,18 +569,55 @@ class EmsCourseGuardDutyBoard(models.Model):
         if day < self.env['ems.datetime_utils'].get_local_today():
             raise UserError(_("This day is already over."))
 
+    # "The teacher is in the classroom" (issue #692): a class left on the table only because its
+    # teacher has not checked in, which whoever is on guard or manages the absence can resolve by
+    # checking them in.
+
+    def _is_unchecked_in_progress(self, day, employee, hour_from, hour_to):
+        """Whether `employee`'s class (or guard duty) in the period is going on right now and they
+        have still not checked in. One already over stays on the table whatever is done now:
+        checking them in at this hour would not take it off."""
+        if day != self.env['ems.datetime_utils'].get_local_today() \
+                or not self._in_progress(self._board_day_hour(day), hour_from, hour_to):
+            return False
+        if not self._get_guard_duty_board_attendance_ids([
+                ('dayofweek', '=', str(day.weekday())), ('calendar_id.employee_id', '=', employee.id),
+                ('hour_from', '<', hour_to), ('hour_to', '>', hour_from)]):
+            return False
+        intervals = self._get_guard_duty_absence_intervals(day, employee, unchecked=True)
+        return self._guard_duty_absence_state(intervals, employee, hour_from, hour_to).get(employee.id) == 'unchecked'
+
+    @staticmethod
+    def _in_progress(now, hour_from, hour_to):
+        """Whether the period is going on at `now` (a float hour, None for no clock)."""
+        return now is not None and hour_from <= now + HOUR_EPSILON < hour_to
+
+    def _is_on_guard(self, day, employee, hour_from, hour_to):
+        """Whether `employee` has a guard duty (regular or not) overlapping the period on `day`."""
+        return bool(employee) and bool(self._get_guard_duty_board_attendance_ids([
+            ('dayofweek', '=', str(day.weekday())), ('calendar_id.employee_id', '=', employee.id),
+            ('non_teaching_is_guard', '=', True), ('hour_from', '<', hour_to), ('hour_to', '>', hour_from)]))
+
+    def _can_mark_present(self, day, employee, group, hour_from, hour_to):
+        """Whether the current user may check `employee` in from the board: they are on guard then,
+        or they manage the absence (_is_absence_manager: the chain of command, Direction and the
+        administrator)."""
+        return self._is_absence_manager(employee, group) \
+            or self._is_on_guard(day, self.env.user.employee_id, hour_from, hour_to)
+
     def _get_group_day_blocks(self, day, groups):
         """`{group.id: [block, ...]}`: each group's own lessons on `day`, in chronological order,
         one block per period (a period absorbed by a longer one folds into it, same as the board's
         own rows). A block carries its attendance 'entries', its 'teachers', which of them are away
-        ('absences', where a teacher whose lesson an arrangement moved elsewhere counts as away),
+        ('absences', where a teacher whose lesson an arrangement moved elsewhere counts as away, and
+        one who has not checked in today as 'unchecked', issue #692),
         the 'covers' already resolving it (a guard, or an internal arrangement in effect), and
         'empty' - true when every teacher of the block is away and nobody covers it, i.e. the group's students
         have nobody with them. The whole day, not one shift: a group starts its day at its first
         lesson and ends it at its last, whichever shift they fall in."""
         weekday = str(day.weekday())
         entries = self._get_guard_duty_board_attendance_ids([('dayofweek', '=', weekday), ('group_ids', 'in', groups.ids)])
-        intervals = self._get_guard_duty_absence_intervals(day, entries.employee_id)
+        intervals = self._get_guard_duty_absence_intervals(day, entries.employee_id, unchecked=True)
         # An arrangement still waiting for its notice changes nothing yet (issue #605).
         covers = self.env['ems.absence_cover'].sudo().search([
             ('date', '=', day), ('state', '=', 'assigned'), ('group_id', 'in', groups.ids)]).filtered('is_effective')
@@ -575,7 +653,10 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'teachers': teachers,
                     'absences': absences,
                     'covers': block_covers,
-                    'empty': bool(teachers) and all(teacher.id in absences for teacher in teachers) and not block_covers,
+                    # A teacher who has not checked in (issue #692) may still be with the group:
+                    # their class needs a guard, but never makes the group's day shorter.
+                    'empty': bool(teachers) and all(absences.get(teacher.id, 'unchecked') != 'unchecked'
+                                                    for teacher in teachers) and not block_covers,
                 })
             blocks_by_group[group.id] = blocks
         return blocks_by_group
@@ -846,10 +927,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         same guard in the same room in the same period count once (issue #629): two groups put
         together in one room are a single guard, while two groups in two rooms are two, and so are
         two periods in a row with the same group. A cover with no room (a guard duty, a class the
-        timetable gives none) always counts by itself."""
+        timetable gives none) always counts by itself.
+
+        sudo: a count everybody who opens the board sees, the Secretary included, who reads it
+        without being a teacher (only teachers can read ems.absence_cover itself). Only the number
+        leaves this method, like the board's other reads of covers (_get_day_covers)."""
         self.ensure_one()
         start, end = self.date_range()
-        periods = self.env['ems.absence_cover']._read_group(
+        periods = self.env['ems.absence_cover'].sudo()._read_group(
             [('guard_employee_id', 'in', guards.ids), ('state', '=', 'assigned'),
              ('date', '>=', start), ('date', '<=', end)],
             ['guard_employee_id', 'date:day', 'space_id', 'hour_from', 'hour_to'], ['__count'])
@@ -867,7 +952,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         entries = self._get_guard_duty_board_attendance_ids([('dayofweek', '=', weekday), ('non_teaching', '=', duty.id)]).filtered(
             lambda attendance: attendance.employee_id == absent and not duty.is_regular_guard
                 and overlaps(attendance.hour_from, attendance.hour_to, hour_from, hour_to))
-        intervals = self._get_guard_duty_absence_intervals(day, absent)
+        intervals = self._get_guard_duty_absence_intervals(day, absent, unchecked=True)
         if not entries or absent.id not in self._guard_duty_absence_state(intervals, absent, hour_from, hour_to):
             return entries.browse()
         return entries[:1]
@@ -910,7 +995,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             ('dayofweek', '=', str(day.weekday())), ('non_teaching.is_regular_guard', '=', True),
             ('hour_from', '<', hour_to), ('hour_to', '>', hour_from)])
         covers = self._get_day_covers(day)
-        intervals = self._get_guard_duty_absence_intervals(day, guard_entries.employee_id | covers.stayed_employee_ids)
+        intervals = self._get_guard_duty_absence_intervals(
+            day, guard_entries.employee_id | covers.stayed_employee_ids, unchecked=True)
         return self._guard_spans(guard_entries, intervals, covers, hour_from, hour_to)
 
     @staticmethod
@@ -1182,7 +1268,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'hour_from': block['hour_from'],
                 'hour_to': block['hour_to'],
                 'teachers': frozenset(block['teachers'].ids),
-                'away': frozenset(block['absences']),
+                # A teacher who has not checked in is no gap to fill (issue #692): only a guard.
+                'away': frozenset(teacher_id for teacher_id, state in block['absences'].items() if state != 'unchecked'),
                 'filled': bool(block['covers']) or any(
                     cover.group_id == group and overlaps(cover.hour_from, cover.hour_to, block['hour_from'], block['hour_to'])
                     for cover in pending),
@@ -1438,7 +1525,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             ('dayofweek', '=', weekday), ('hour_from', '>=', shift_start), ('hour_to', '<=', shift_end)])
         teaching_entries = entries.filtered(lambda attendance: attendance.subject_id or attendance.group_ids)
         guard_entries = entries.filtered(lambda attendance: attendance.non_teaching_is_guard)
-        intervals = self._get_guard_duty_absence_intervals(day, entries.employee_id)
+        intervals = self._get_guard_duty_absence_intervals(day, entries.employee_id, unchecked=True)
 
         areas = self._guard_duty_group_areas(teaching_entries.group_ids)
         level_ids = None
@@ -1641,7 +1728,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         class still left without anybody, and only for whoever may organise it - to anybody else
         they are noise."""
         if not management or not row['group'] or not row['can_manage'] or row['covered'] or row['covers'] \
-                or row['arrangement'] or row['authorized']:
+                or row['arrangement'] or row['authorized'] or row['state'] == 'unchecked':
             return []
         if 'arrangement_context' not in management:
             management['arrangement_context'] = self._arrangement_context(day)
@@ -1987,6 +2074,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         # like every other board action (see _check_board_day_not_past).
         editable = bool(day) and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()
         me = self.env.user.employee_id
+        # "The teacher is in the classroom" (issue #692): only on today's classes in progress.
+        today = bool(day) and fields.Date.to_date(day) == self.env['ems.datetime_utils'].get_local_today()
+        now = course._board_day_hour(fields.Date.to_date(day)) if today else None
         # Every name on the board read in one batch: reading them cell by cell fetched each
         # employee on its own, every fetch paying hr.employee's per-read field access check.
         self.env['hr.employee'].union(*(
@@ -2029,6 +2119,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             spans = sorted(line['guard_spans'].items(), key=lambda item: (
                 item[1] != (line['hour_from'], line['hour_to']), item[1], item[0].name))
             my_span = line['guard_spans'].get(me) if editable else None
+            in_progress = course._in_progress(now, line['hour_from'], line['hour_to'])
+            on_guard_here = in_progress and me in line['guards'].employee_id
             lines.append({
                 'time_label': line['time_label'],
                 'hour_from': line['hour_from'],
@@ -2085,6 +2177,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'self_label': self._period_label(*my_span) if my_span else False,
                     'self_cover_id': editable and row['covers'].filtered(
                         lambda cover: cover.is_self_assigned and cover.assigned_by_id == self.env.user)[:1].id,
+                    'can_mark_present': in_progress and row['state'] == 'unchecked'
+                        and (row['can_manage'] or on_guard_here),
                 } for row in line['absences']],
                 'is_break': line.get('is_break', False),
             })

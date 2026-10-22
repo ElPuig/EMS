@@ -26,7 +26,10 @@ class EmsNoticeAbsenceChange(models.Model):
     'absence_changes' back to strike out what no longer needs a guard, and to offer a
     rectification when the absences change after it was sent, since a sent notice can never be
     taken back."""
-    _inherit = 'ems.notice'
+    _name = 'ems.notice'
+    # The guard duty board reloads when a timetable change is told or corrected (issue #692).
+    _inherit = ['ems.notice', 'ems.guard_board_notifier']
+    _guard_board_fields = ('state', 'absence_date', 'absence_changes')
 
     absence_date = fields.Date(string="Absence day", readonly=True, copy=False, index=True)
     absence_group_id = fields.Many2one(string="Absence group", comodel_name='ems.group', readonly=True, copy=False)
@@ -55,6 +58,9 @@ class EmsNoticeAbsenceChange(models.Model):
                 raise ValidationError(_(
                     "A timetable change notice can only be sent to the students and families of %s.",
                     notice.absence_group_id.name))
+
+    def _guard_board_spans(self):
+        return {(notice.absence_date, notice.absence_date) for notice in self}
 
     def _absence_change_tuples(self):
         """The changes the notice tells, as the tuples the board's options use."""

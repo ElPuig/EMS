@@ -22609,6 +22609,7 @@ msgstr "%s está ausente en esta franja."
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_cover_dialog.js:0
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Send a guard teacher"
 msgstr "Enviar un docente de guardia"
 
@@ -26289,3 +26290,87 @@ msgstr "Espera a la reunión"
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__waits_for_meeting
 msgid "The session of a minute still being prepared: it opens when its meeting starts."
 msgstr "La sesión de un acta que todavía se prepara: se abre cuando empieza la reunión."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_unchecked_dialog.js:0
+msgid "%(group)s (%(time)s)"
+msgstr "%(group)s (%(time)s)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_unchecked_dialog.js:0
+msgid "%(teacher)s has not checked in yet. If they are in the classroom, their check-in is registered now in your name and they are told."
+msgstr "%(teacher)s aún no ha fichado. Si está en el aula, se le registra ahora la entrada en tu nombre y se le avisa."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
+msgid "They are in the classroom"
+msgstr "Está en el aula"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board_absence
+msgid "Not checked in"
+msgstr "Sin fichar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s has not checked in yet. Click if they are in the classroom, or to cover the class."
+msgstr "%s aún no ha fichado. Haz clic si está en el aula, o para cubrir la clase."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Cover it myself"
+msgstr "Cubrirla yo"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "%s is now checked in."
+msgstr "%s ya tiene la entrada registrada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%s has not checked in yet: send a guard teacher, or say they are in the classroom."
+msgstr "%s aún no ha fichado: envía un docente de guardia o indica que está en el aula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Only a guard teacher on duty then, or whoever manages the absences of %s, can register their check-in."
+msgstr "Solo un docente de guardia en esa franja, o quien gestiona las ausencias de %s, puede registrar su entrada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%s can no longer be checked in from here: the class is not going on now, or they have already checked in. Reload the board."
+msgstr "Ya no se puede registrar la entrada de %s desde aquí: la clase no se está dando ahora o ya ha fichado. Vuelve a cargar el cuadrante."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "The class or the teacher no longer exists."
+msgstr "La clase o el docente ya no existe."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Check-in registered for you at %(time)s"
+msgstr "Entrada registrada en tu nombre a las %(time)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "%(user)s registered your check-in at %(time)s from the guard duty board, because you were in the classroom but had not checked in. If it is not right, request a correction."
+msgstr "%(user)s ha registrado tu entrada a las %(time)s desde el cuadrante de guardias, porque estabas en el aula, pero no habías fichado. Si no es correcto, solicita una corrección."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_attendance__ems_checked_in_by_id
+msgid "Check-in registered by"
+msgstr "Entrada registrada por"

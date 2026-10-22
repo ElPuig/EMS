@@ -44,7 +44,31 @@ class TestDevMailGuard(TransactionCase):
 
     def test_a_production_email_keeps_its_subject(self):
         self._server_role(False)
+        self.params.set_param('ems.environment_type', 'production')
         self.assertEqual(self._prepared_subject(), "Sol·licitud d'absència")
+
+    def test_a_development_database_marks_the_subject_without_the_machine_role(self):
+        """Issue #691: a box prepared by a devel.sh older than #590 has a 'dev' database but no
+        ems_server_role in odoo.conf. Its emails still say where they come from, and nothing is
+        blocked: such a database may lack ems.dev_mail_redirect, so the guard would refuse even
+        the developer's own inbox."""
+        self._server_role(False)
+        self.params.set_param('ems.dev_mail_redirect', False)
+        self.assertEqual(self._prepared_subject(), "[DEV] Sol·licitud d'absència")
+        self.assertEqual(self._prepare(['family@gmail.example']), ['family@gmail.example'])
+
+    def test_startup_warns_when_a_development_database_lacks_the_machine_role(self):
+        """Issue #691: nothing told the developer that machine had no mail guard."""
+        company = self.env['res.company']
+        self._server_role(False)
+        with self.assertLogs('odoo.addons.ems.models.settings.company', 'WARNING') as logs:
+            company._ems_check_environment_declaration()
+        self.assertIn('devel.sh', logs.output[0])
+        for role, environment_type in (('dev', 'dev'), (False, 'production')):
+            self._server_role(role)
+            self.params.set_param('ems.environment_type', environment_type)
+            with self.subTest(role=role), self.assertNoLogs('odoo.addons.ems.models.settings.company', 'WARNING'):
+                company._ems_check_environment_declaration()
 
     def test_production_machine_is_untouched(self):
         """No role in odoo.conf (production, CI): whatever the database says, nothing changes."""

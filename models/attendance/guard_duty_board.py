@@ -57,6 +57,18 @@ def _same_period(period, other):
     return _period_contains(period, other) and _period_contains(other, period)
 
 
+def _board_guard_covers(lines):
+    """`{guard employee id: [(hour_from, hour_to, partial)]}` - what each guard covers on the board's
+    `lines`, `partial` when it is only part of its class (issue #637)."""
+    guard_covers = defaultdict(list)
+    for line in lines:
+        for row in line['absences']:
+            for cover in row['covers']:
+                guard_covers[cover.guard_employee_id.id].append((cover.hour_from, cover.hour_to, not _period_contains(
+                    (cover.hour_from, cover.hour_to), (line['hour_from'], line['hour_to']))))
+    return guard_covers
+
+
 def _entries_by_group(entries):
     """`{group id: {(hour_from, hour_to): attendance recordset}}`, in one pass over `entries` and
     keeping their order: looking a cell up here instead of filtering every entry of the shift per
@@ -1426,14 +1438,21 @@ class EmsCourseGuardDutyBoard(models.Model):
         lines = [line for _hour_from, _hour_to, line in dated_lines]
         # Colours for the whole shift, not per line: a guard can cover part of a class on another
         # line than their own guard block (issue #637), and both must share the colour.
-        guard_colors = self._board_cover_colors(lines)
-        # ...and whoever covers only part of some class gets a dashed border (screen and PDF).
-        partial_guard_ids = {
-            cover.guard_employee_id.id for line in lines for row in line['absences'] for cover in row['covers']
-            if not _period_contains((cover.hour_from, cover.hour_to), (line['hour_from'], line['hour_to']))}
+        guard_covers = _board_guard_covers(lines)
+        guard_colors = self._board_cover_colors(lines, guard_covers)
+        # A guard's badge only takes it in the blocks where they cover something (issue #675), with a
+        # dotted border where what they cover there is only part of a class (screen and PDF).
         for line in lines:
-            line['guard_colors'] = guard_colors
-            line['partial_guard_ids'] = partial_guard_ids
+            line['cover_colors'] = guard_colors
+            line['guard_colors'] = {}
+            line['partial_guard_ids'] = set()
+            for guard_id, covers in guard_covers.items():
+                here = [partial for hour_from, hour_to, partial in covers
+                        if overlaps(hour_from, hour_to, line['hour_from'], line['hour_to'])]
+                if here:
+                    line['guard_colors'][guard_id] = guard_colors[guard_id]
+                    if any(here):
+                        line['partial_guard_ids'].add(guard_id)
         # Who could be sent to each line's classes, and for which part (issue #637): every regular
         # guard of the shift, not only the line's own - one on a partly overlapping block covers
         # part of the class. Computed per line from data already loaded, no query.
@@ -1684,7 +1703,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         }
 
     @staticmethod
-    def _board_cover_colors(lines):
+    def _board_cover_colors(lines, guard_covers):
         """`{guard employee id: colour index}` for the shift (issue #637). The colour belongs to the
         class covered: every guard covering one class shares its colour - and a guard covering
         several classes joins them under one colour, since their badge can only have one. Two such
@@ -1708,10 +1727,13 @@ class EmsCourseGuardDutyBoard(models.Model):
                 for guard in row['covers'].guard_employee_id:
                     parent[root(('guard', guard.id))] = root(node)
                 periods[node].append((line['hour_from'], line['hour_to']))
-        # A guard's own block counts too: their badge shows there, next to everybody on guard then.
+        # A guard's own block counts too where their badge shows the colour (where they cover
+        # something, issue #675): next to everybody on guard then. `guard_covers`: see
+        # _board_guard_covers().
         for line in lines:
             for guard in line['guards'].employee_id:
-                if ('guard', guard.id) in parent:
+                if any(overlaps(hour_from, hour_to, line['hour_from'], line['hour_to'])
+                       for hour_from, hour_to, _partial in guard_covers.get(guard.id, ())):
                     periods[('guard', guard.id)].append((line['hour_from'], line['hour_to']))
         groups = defaultdict(list)
         for node, node_periods in periods.items():
@@ -1888,7 +1910,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         'guard_id': cover.guard_employee_id.id,
                         'guard': cover.guard_employee_id.name,
                         'message': cover.message or '',
-                        'color': line['guard_colors'].get(cover.guard_employee_id.id, 0),
+                        'color': line['cover_colors'].get(cover.guard_employee_id.id, 0),
                         'label': self._period_label(cover.hour_from, cover.hour_to),
                         'partial': not _period_contains((cover.hour_from, cover.hour_to), (line['hour_from'], line['hour_to'])),
                     } for cover in row['covers']],

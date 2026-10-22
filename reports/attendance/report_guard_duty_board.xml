@@ -307,7 +307,7 @@
             <!-- Several guards can each cover part of the class (issue #637): struck out only once
                  nothing is missing. -->
             <t t-set="covers" t-value="absence['covers']"/>
-            <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or (covers and not absence['missing']) or absence['authorized'] or (absence['arrangement'] and absence['arrangement'].is_effective) else '') + (' gdb-cover-%s' % line['guard_colors'].get(covers[:1].guard_employee_id.id, 0) if covers else '') + (' gdb-cover-partial' if covers and absence['missing'] else '')">
+            <div t-att-class="'gdb-absence-row' + (' gdb-absence-covered' if absence['covered'] or (covers and not absence['missing']) or absence['authorized'] or (absence['arrangement'] and absence['arrangement'].is_effective) else '') + (' gdb-cover-%s' % line['cover_colors'].get(covers[:1].guard_employee_id.id, 0) if covers else '') + (' gdb-cover-partial' if covers and absence['missing'] else '')">
                 <span t-att-class="'gdb-absent' if absence['state'] == 'approved' else 'gdb-absent-pending'" t-esc="absence['teacher'].name"/>
                 <span class="gdb-absence-class">
                     <t t-esc="absence['label']"/><t t-if="absence['subject']"> · <t t-esc="absence['subject'].acronym"/></t><t t-if="absence['room']"> · <t t-esc="absence['room'].display_name"/></t>

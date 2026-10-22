@@ -1197,13 +1197,18 @@ setting, is planned in `plans/absence_management_automation.md`.
 
 ### Colours
 
-`_board_cover_colors(lines)` gives colour indexes (`COVER_COLOR_COUNT` = 8) once for the whole
-shift, not per line (issue #637): a guard can cover part of a class on another line than their own
-guard block, and both must match. The colour belongs to the class covered (developer decision): every
+`_board_cover_colors(lines, guard_covers)` gives colour indexes (`COVER_COLOR_COUNT` = 8) once for
+the whole shift, not per line (issue #637): a guard can cover part of a class on another line than
+their own guard block, and both must match. Each line carries that shift-wide map as
+`line['cover_colors']`, read by the absence rows and their guard tags. A guard's badge in the Guard
+duty column only takes the colour in the blocks where they cover something
+(`line['guard_colors']`, issue #675): on guard 10-12 and sent to a 10-11 class, their 11-12 badge
+stays plain. `_board_guard_covers(lines)` (what each guard covers, and whether it is partial) is
+computed once and feeds both. The colour belongs to the class covered (developer decision): every
 guard covering one class shares it, and a guard covering several classes joins them under one
 colour, since their badge can only have one (a union-find over classes and guards). Groups are
 coloured in time order, greedily: a group never takes the colour of another overlapping it in time -
-their classes, or the guard blocks their badges show in -, while one overlapping nobody may reuse a
+their classes, or the guard blocks their badges show the colour in -, while one overlapping nobody may reuse a
 colour, so the palette only runs short with more groups at the same time than colours. The screen
 uses `o_guard_board_cover_N`, the PDF `gdb-cover-N`, with the same palette. This is the board's one
 deliberate use of background colour (see "No cell colouring" above): it pairs two things the
@@ -1212,7 +1217,7 @@ planner must match at a glance, which plain text can't do.
 **Whole or partial: the border.** On top of the colour, a solid bar means a whole class covered and
 a thin dotted one a partial cover (`o_guard_board_cover_partial`/`gdb-cover-partial`): on the row
 while a part is still `missing`, on a guard's tag when their cover is partial, and on a guard's badge
-when any of their covers is (`line['partial_guard_ids']`, computed with the colours). Dotted and 2px
+when any of their covers overlapping that block is (`line['partial_guard_ids']`). Dotted and 2px
 rather than dashed: a 4px dashed bar draws as big blocks (developer feedback).
 
 ### Who can manage

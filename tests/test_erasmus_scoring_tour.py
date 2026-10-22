@@ -8,8 +8,7 @@ from .test_portal_erasmus import create_portal_erasmus_fixtures
 @tagged('post_install', '-at_install')
 class TestErasmusScoringTour(HttpCase):
     """Issue #684 - the scoring and interview screens, each driven by the least-privileged user
-    that uses it: a plain teacher as evaluator, the Secretariat for a typed average, the Erasmus
-    team for the rest. The application is admitted and the call closed (its data frozen)."""
+    that uses it: a plain teacher as evaluator, the Erasmus team for the rest. The application is admitted and the call closed (its data frozen)."""
 
     @classmethod
     def setUpClass(cls):
@@ -17,7 +16,6 @@ class TestErasmusScoringTour(HttpCase):
         mock_outgoing_email(cls)
         create_portal_erasmus_fixtures(cls)
         cls.evaluator = create_role_user(cls, 'teacher', 'test_erasmus_tour_evaluator')
-        cls.secretary_user = create_role_user(cls, 'secretary', 'test_erasmus_tour_secretary')
         application = cls.env['ems.erasmus.application']._ems_portal_get_or_create(cls.call, cls.student)
         upload(application, cls.cv)
         application.action_submit()
@@ -40,11 +38,6 @@ class TestErasmusScoringTour(HttpCase):
                         login='test_erasmus_team')
         self.assertEqual(self.application.language_level, 'b2')
         self.assertEqual(self.application.first_mobility, 'yes')
-
-    def test_manual_average_tour(self):
-        self.start_tour('/odoo/action-ems.action_erasmus_application', 'ems_erasmus_manual_average',
-                        login='test_erasmus_tour_secretary')
-        self.assertAlmostEqual(self.application.grade_average, 7.5)
 
     def test_ranking_tour(self):
         self.start_tour('/odoo/action-ems.action_erasmus_ranking', 'ems_erasmus_ranking',

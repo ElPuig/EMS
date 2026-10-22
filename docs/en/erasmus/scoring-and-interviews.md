@@ -21,7 +21,7 @@ Later changes in grades or warnings do not change these values. You see them on 
 
 > **Tip:** close the call right after the closing date, so the data is the one EMS had on that date.
 
-If a student has no grades in EMS (for example, they joined the centre this year), the average stays *pending* until the Erasmus team, the Secretariat or the Head of Studies types the average of the certificate of previous studies.
+A student who joined the centre this year only has this year's modules: their average is the provisional grade of the learning outcomes already graded. If a student has no learning outcome graded at all, the average stays *pending* and the application has no complete score.
 
 ## 2. Fill in the criteria checked by the team
 

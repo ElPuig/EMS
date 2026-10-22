@@ -1,7 +1,7 @@
 from datetime import timedelta
 
 from odoo import fields
-from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase, tagged
 
 from .common import create_role_user, mock_outgoing_email, next_student_id
@@ -65,8 +65,9 @@ class ErasmusScoringCase(TransactionCase):
 
     def _current_grade(self, partner, subject, grade, group=None, **vals):
         """A live grade line of this course for `partner`: an overridden internal grade."""
-        session = self.env['ems.grade_session'].create({
-            'group_id': (group or self.group).id, 'subject_id': subject.id, 'round': '1'})
+        values = {'group_id': (group or self.group).id, 'subject_id': subject.id, 'round': '1'}
+        session = self.env['ems.grade_session'].search([(key, '=', value) for key, value in values.items()]) \
+            or self.env['ems.grade_session'].create(values)
         line = session.grade_subject_line_ids.filtered(lambda subject_line: subject_line.student_id == partner)
         line = line or self.env['ems.grade_subject_line'].create({
             'grade_session_id': session.id, 'student_id': partner.id})
@@ -140,30 +141,17 @@ class TestErasmusRecordAverage(ErasmusScoringCase):
         line.internal_score = 2
         self.assertAlmostEqual(application.grade_average, 8.0)
 
-    def test_without_grades_pending_until_the_manual_average(self):
+    def test_without_any_evaluated_grade_the_average_stays_pending(self):
         application = self._admitted()
         self.call.action_close()
         self.assertFalse(application.grade_line_ids)
         self.assertTrue(application.score_a_pending)
-        application.with_user(self.secretary_user).grade_average_manual = 7.25
-        self.assertFalse(application.score_a_pending)
-        self.assertAlmostEqual(application.score_a, 29.0)
-        self.assertEqual(application.grade_average_manual_user_id, self.secretary_user)
-        with self.assertRaises(ValidationError):
-            application.grade_average_manual = 11
+        self.assertFalse(application.score_complete)
 
-    def test_manual_average_only_without_grades_in_ems(self):
-        self._current_grade(self.student, self.subject_a, 8)
+    def test_secretariat_has_no_access(self):
         application = self._admitted()
-        self.call.action_close()
-        with self.assertRaises(ValidationError):
-            application.grade_average_manual = 6
-
-    def test_teacher_cannot_type_the_average(self):
-        application = self._admitted()
-        self.call.action_close()
         with self.assertRaises(AccessError):
-            application.with_user(self.teacher_user).grade_average_manual = 6
+            application.with_user(self.secretary_user).read(['score_total'])
 
 
 @tagged('post_install', '-at_install')
@@ -183,9 +171,9 @@ class TestErasmusScore(ErasmusScoringCase):
         self.assertEqual(application.score_f, -9, "Capped at -9")
 
     def test_a_pending_criterion_blocks_the_total(self):
+        self._current_grade(self.student, self.subject_a, 7)
         application = self._admitted()
         self.call.action_close()
-        application.grade_average_manual = 7
         self.assertFalse(application.score_complete)
         application.write({'language_level': 'b2', 'fewer_opportunities_check': 'yes', 'first_mobility': 'yes'})
         self.assertFalse(application.score_complete, "The interviews are still missing")
@@ -213,10 +201,11 @@ class TestErasmusScore(ErasmusScoringCase):
             application.with_user(self.hos_user).read(['fewer_opportunities_check'])
 
     def test_ranking_per_modality_with_the_tie_breaks(self):
+        self._current_grade(self.student, self.subject_a, 6)
+        self._current_grade(self.second, self.subject_a, 6)
         first = self._admitted()
         second = self._admitted(self.second)
         self.call.action_close()
-        (first | second).write({'grade_average_manual': 6})
         self._complete(first, fewer='no', first='no')
         self.assertEqual(first.rank, 0, "The ranking waits for every admitted application")
         self._complete(second, fewer='yes', first='no', language='none')
@@ -226,10 +215,11 @@ class TestErasmusScore(ErasmusScoringCase):
         self.assertEqual((second.rank, first.rank), (1, 2), "Fewer opportunities breaks the tie")
 
     def test_a_tie_after_every_criterion_needs_a_draw(self):
+        self._current_grade(self.student, self.subject_a, 6)
+        self._current_grade(self.second, self.subject_a, 6)
         first = self._admitted()
         second = self._admitted(self.second)
         self.call.action_close()
-        (first | second).write({'grade_average_manual': 6})
         self._complete(first)
         self._complete(second)
         self.assertEqual((first.rank, second.rank), (1, 1))
@@ -342,7 +332,7 @@ class TestErasmusInterview(ErasmusScoringCase):
         application.interview_date = fields.Datetime.now() + timedelta(days=2)
         application.action_send_interview_call()
         mail = self.env['mail.mail'].search([('model', '=', application._name), ('res_id', '=', application.id),
-                                             ('subject', 'ilike', 'interview')])
+                                             ('body_html', 'ilike', 'Room 12')])
         self.assertEqual(len(mail), 1)
         self.assertIn('Room 12', mail.body_html)
         self.assertTrue(application.interview_call_date)

@@ -2,15 +2,14 @@
 <odoo>
     <data>
         <!-- Issue #683: the Erasmus team manages calls and applications; the Head of Studies and
-             the Director open the applications for the serious-sanction check. Issue #684: the
-             Secretariat opens them to type a record average from a certificate, and whoever has an
-             interview to score (ems.group_erasmus_evaluator) sees only "My evaluations". -->
+             the Director open the applications for the serious-sanction check. Issue #684: whoever has
+             an interview to score (ems.group_erasmus_evaluator) sees only "My evaluations". -->
         <menuitem name="Erasmus+" sequence="9" id="menu_erasmus"
-                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_secretary,ems.group_erasmus_evaluator,ems.group_academic_admin"/>
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_academic_admin"/>
 
         <menuitem name="Applications" sequence="1" id="menu_erasmus_applications"
                   parent="menu_erasmus" action="action_erasmus_application"
-                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
         <menuitem name="Ranking" sequence="2" id="menu_erasmus_ranking"
                   parent="menu_erasmus" action="action_erasmus_ranking"

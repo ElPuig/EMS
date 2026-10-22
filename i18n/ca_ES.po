@@ -24902,21 +24902,6 @@ msgid "Average from EMS found"
 msgstr "Mitjana trobada a l'EMS"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__grade_average_manual
-msgid "Average from certificate"
-msgstr "Mitjana del certificat"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__grade_average_manual_user_id
-msgid "Average typed by"
-msgstr "Mitjana introduïda per"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__grade_average_manual_date
-msgid "Average typed on"
-msgstr "Mitjana introduïda el"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_b
 msgid "B. Interview"
 msgstr "B. Entrevista"
@@ -24945,16 +24930,6 @@ msgstr "C1"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__language_level__c2
 msgid "C2"
 msgstr "C2"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__can_type_average
-msgid "Can type the average"
-msgstr "Pot introduir la mitjana"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__grade_average_manual_note
-msgid "Certificate"
-msgstr "Certificat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
@@ -25259,15 +25234,6 @@ msgstr ""
 "mitjana de l'expedient."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__grade_average_manual
-msgid ""
-"Only when EMS has no grade for the applicant: the average of the certificate"
-" of previous studies."
-msgstr ""
-"Només quan l'EMS no té cap nota de la persona sol·licitant: la mitjana del "
-"certificat dels estudis anteriors."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__rank
 msgid ""
 "Position in the modality among the admitted applications. 0 until every one "
@@ -25414,12 +25380,6 @@ msgstr ""
 #: code:addons/ems/models/erasmus/interview.py:0
 msgid "The interview is not submitted."
 msgstr "L'entrevista no està enviada."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/application.py:0
-msgid "The record average goes from 0 to 10."
-msgstr "La mitjana de l'expedient va de 0 a 10."
 
 #. module: ems
 #. odoo-python

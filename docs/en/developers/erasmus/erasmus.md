@@ -141,7 +141,7 @@ Art. 12 of the call: up to 100 points, 50 to be eligible (`ems.erasmus.call.min_
 
 | | Criterion | Field(s) on the application | Who / how |
 |---|---|---|---|
-| A | Record average x 4 (max 40) | `grade_average`, `grade_line_ids`, `grade_average_manual` | **Computed by EMS at closing** (below). Manual average only when EMS has no grade. |
+| A | Record average x 4 (max 40) | `grade_average`, `grade_line_ids` | **Computed by EMS at closing** (below). Never typed by hand. |
 | B | Interview: general (max 20) + English (max 15) | `interview_general`, `interview_english` | Mean of the submitted interviews (below). |
 | C | Language certificate (B1 2.5, B2 5, C1 7.5, C2 10) | `language_level` | Erasmus team. |
 | D | Fewer opportunities (10 or 0) | `fewer_opportunities_check` | Erasmus team only (confidential). |
@@ -176,9 +176,9 @@ grades or warnings never change it.
 - Mean weighted by module hours (`ems.subject.total_hours`), two decimals. The modules used are
   copied to `grade_line_ids` (`ems.erasmus.application.grade`: module, course, grade, hours).
 
-When EMS has no grade for the applicant, the average stays pending until the Erasmus team, the
-Secretariat or the Head of Studies types the one on the applicant's certificate of previous
-studies (`grade_average_manual`, allowed only then).
+There is no manual average (decided 2026-10-22: no certificate of previous studies): a student
+new to the centre is scored with this course's provisional grades. With no evaluated module at all,
+A stays pending (`score_a_pending`) and the application has no complete score.
 
 **Conduct warnings (F)** - the applicant's `ems.strike` records up to `date_close` whose group
 belongs to the same study (`group_id.study_id`), copied to `strike_ids`/`strike_count`. EMS only
@@ -235,10 +235,9 @@ stateDiagram-v2
 
 ### Access (phase 2)
 
-| | Erasmus team | Head of Studies / Director | Secretariat | Evaluator |
-|---|---|---|---|---|
-| Criteria C, E, draw | W | R | R | - |
-| Criterion D | W | - | - | - |
-| Manual record average (A) | W | W | W | - |
-| `ems.erasmus.interview` | rwcu | - | - | rw own (rubric, notes), no create/unlink |
-| `ems.erasmus.application.grade` | r | r | r | - |
+| | Erasmus team | Head of Studies / Director | Evaluator |
+|---|---|---|---|
+| Criteria C, E, draw | W | R | - |
+| Criterion D | W | - | - |
+| `ems.erasmus.interview` | rwcu | - | rw own (rubric, notes), no create/unlink |
+| `ems.erasmus.application.grade` | r | r | - |

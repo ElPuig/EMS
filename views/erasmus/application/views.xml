@@ -168,12 +168,7 @@
                                 <group>
                                     <group string="A. Record average">
                                         <field name="grade_average"/>
-                                        <field name="grade_average_from_ems" invisible="1"/>
-                                        <field name="can_type_average" invisible="1"/>
-                                        <field name="grade_average_manual" invisible="grade_average_from_ems" readonly="not can_type_average"/>
-                                        <field name="grade_average_manual_note" invisible="grade_average_from_ems" readonly="not can_type_average"/>
-                                        <field name="grade_average_manual_user_id" invisible="not grade_average_manual_user_id"/>
-                                        <field name="grade_average_manual_date" invisible="not grade_average_manual_user_id"/>
+                                        <field name="score_a_pending" invisible="not score_a_pending"/>
                                     </group>
                                     <group string="Checked by the Erasmus team">
                                         <field name="language_level" readonly="not can_manage"/>

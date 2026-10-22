@@ -6,7 +6,7 @@ from datetime import timedelta
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.exceptions import AccessError, UserError
 
 CHECK_STATES = [('pending', "Pending"), ('met', "Met"), ('not_met', "Not met")]
 YES_NO = [('yes', "Yes"), ('no', "No")]
@@ -14,11 +14,9 @@ YES_NO = [('yes', "Yes"), ('no', "No")]
 LANGUAGE_SCORES = {'none': 0.0, 'b1': 2.5, 'b2': 5.0, 'c1': 7.5, 'c2': 10.0}
 # What a Head of Studies who is not in the Erasmus team may write: the check reserved to them.
 SANCTION_FIELDS = {'sanction_check', 'sanction_check_note'}
-# The record average typed from a certificate (criterion A): Erasmus team, Secretariat or Head of Studies.
-AVERAGE_FIELDS = {'grade_average_manual', 'grade_average_manual_note'}
 # Values set by hand that keep who set them and when (<field>_user_id, <field>_date).
 STAMPED_FIELDS = ('requirements_check', 'sanction_check', 'language_level', 'fewer_opportunities_check',
-                  'first_mobility', 'grade_average_manual')
+                  'first_mobility')
 # Application states whose data is frozen when the call closes.
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
 # Answers of the portal form, editable by the applicant while the call accepts applications.
@@ -87,13 +85,6 @@ class EmsErasmusApplication(models.Model):
                                      inverse_name='application_id', readonly=True)
     grade_average_ems = fields.Float(string="Average from EMS", digits=(4, 2), readonly=True, copy=False)
     grade_average_from_ems = fields.Boolean(string="Average from EMS found", readonly=True, copy=False)
-    grade_average_manual = fields.Float(string="Average from certificate", digits=(4, 2), tracking=True, copy=False,
-                                        help="Only when EMS has no grade for the applicant: the average of the "
-                                             "certificate of previous studies.")
-    grade_average_manual_note = fields.Char(string="Certificate", copy=False)
-    grade_average_manual_user_id = fields.Many2one(string="Average typed by", comodel_name='res.users',
-                                                   readonly=True, copy=False)
-    grade_average_manual_date = fields.Datetime(string="Average typed on", readonly=True, copy=False)
     grade_average = fields.Float(string="Record average", digits=(4, 2), compute='_compute_scores', store=True)
     language_level = fields.Selection(string="Language certificate", tracking=True, copy=False, selection=[
         ('none', "None"), ('b1', "B1"), ('b2', "B2"), ('c1', "C1"), ('c2', "C2")],
@@ -152,7 +143,6 @@ class EmsErasmusApplication(models.Model):
                           help="Position in the modality among the admitted applications. 0 until every one "
                                "of them has a complete score.")
     needs_draw = fields.Boolean(string="Needs a draw", compute='_compute_rank', store=True)
-    can_type_average = fields.Boolean(string="Can type the average", compute='_compute_permissions')
 
     @api.depends('partner_id.birth_date')
     def _compute_is_minor(self):
@@ -163,11 +153,9 @@ class EmsErasmusApplication(models.Model):
     def _compute_permissions(self):
         can_check_sanction = self._ems_can_check_sanction()
         can_manage = self._ems_can_manage()
-        can_type_average = self._ems_can_type_average()
         for application in self:
             application.can_check_sanction = can_check_sanction
             application.can_manage = can_manage
-            application.can_type_average = can_type_average
 
     @api.depends('interview_ids.state', 'interview_ids.general_score', 'interview_ids.english_score',
                  'single_interview_reason')
@@ -182,16 +170,15 @@ class EmsErasmusApplication(models.Model):
             application.interview_general = sum(submitted.mapped('general_score')) / count if count else 0.0
             application.interview_english = sum(submitted.mapped('english_score')) / count if count else 0.0
 
-    @api.depends('grade_average_ems', 'grade_average_from_ems', 'grade_average_manual', 'scoring_frozen_date',
+    @api.depends('grade_average_ems', 'grade_average_from_ems', 'scoring_frozen_date',
                  'interview_general', 'interview_english', 'interview_complete', 'language_level',
                  'fewer_opportunities_check', 'first_mobility', 'strike_count', 'call_id.min_score')
     def _compute_scores(self):
         """Art. 12: A + B + C + D + E + F, no floor at zero. A pending criterion leaves it incomplete."""
         for application in self:
-            average = application.grade_average_ems if application.grade_average_from_ems \
-                else application.grade_average_manual
+            average = application.grade_average_ems
             application.grade_average = average
-            application.score_a_pending = not (application.scoring_frozen_date and average)
+            application.score_a_pending = not (application.scoring_frozen_date and application.grade_average_from_ems)
             application.score_a = average * 4
             application.score_b = application.interview_general + application.interview_english
             application.score_c = LANGUAGE_SCORES.get(application.language_level, 0.0)
@@ -235,15 +222,6 @@ class EmsErasmusApplication(models.Model):
         for application in self:
             application.display_name = f"{application.partner_id.name} - {application.call_id.name}"
 
-    @api.constrains('grade_average_manual', 'grade_average_from_ems')
-    def _check_grade_average_manual(self):
-        for application in self:
-            if not 0 <= application.grade_average_manual <= 10:
-                raise ValidationError(_("The record average goes from 0 to 10."))
-            if application.grade_average_manual and application.grade_average_from_ems:
-                raise ValidationError(_("The average of %s comes from EMS: a certificate's average is only "
-                                        "for applicants with no grades in EMS.", application.partner_id.name))
-
     @api.model_create_multi
     def create(self, vals_list):
         """One document line per document the call asks for."""
@@ -261,10 +239,7 @@ class EmsErasmusApplication(models.Model):
             touched = set(vals)
             if touched & SANCTION_FIELDS and not self._ems_can_check_sanction():
                 raise AccessError(_("Only the Head of Studies or the Director record the serious sanction check."))
-            if touched & AVERAGE_FIELDS and not self._ems_can_type_average():
-                raise AccessError(_("Only the Erasmus team, the Secretariat or the Head of Studies type the "
-                                    "record average."))
-            if touched - SANCTION_FIELDS - AVERAGE_FIELDS and not self._ems_can_manage():
+            if touched - SANCTION_FIELDS and not self._ems_can_manage():
                 raise AccessError(_("Only the Erasmus team changes an application."))
         now = fields.Datetime.now()
         for name in STAMPED_FIELDS:
@@ -478,11 +453,6 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_can_check_sanction(self):
         return self.env.su or self.env.user.has_group('ems.group_head_of_studies')
-
-    def _ems_can_type_average(self):
-        user = self.env.user
-        return self._ems_can_manage() or user.has_group('ems.group_secretary') \
-            or user.has_group('ems.group_head_of_studies')
 
     def _ems_can_manage(self):
         user = self.env.user

@@ -21,7 +21,7 @@ Los cambios posteriores de notas o de avisos no modifican estos valores. Los ver
 
 > **Consejo:** cierra la convocatoria justo después de la fecha de cierre, para que los datos sean los que tenía EMS ese día.
 
-Si un alumno no tiene notas en EMS (por ejemplo, porque se ha incorporado al centro este curso), la media queda *pendiente* hasta que el equipo Erasmus, la secretaría o el jefe de estudios introducen la media del certificado de los estudios anteriores.
+Un alumno que se ha incorporado al centro este curso solo tiene los módulos de este curso: su media es la nota provisional de los resultados de aprendizaje que ya tienen nota. Si un alumno no tiene ningún resultado de aprendizaje con nota, la media queda *pendiente* y la solicitud no tiene la puntuación completa.
 
 ## 2. Rellenar los criterios que comprueba el equipo
 

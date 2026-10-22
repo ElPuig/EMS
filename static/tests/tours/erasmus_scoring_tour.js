@@ -88,38 +88,6 @@ registry.category("web_tour.tours").add("ems_erasmus_scoring", {
     ],
 });
 
-// The Secretariat types the record average of an applicant with no grades in EMS.
-registry.category("web_tour.tours").add("ems_erasmus_manual_average", {
-    test: true,
-    url: "/odoo/action-ems.action_erasmus_application",
-    steps: () => [
-        {
-            trigger: ".o_list_view .o_data_row td[name='partner_id']:contains('Erasmus Test Student')",
-            content: "The Secretariat sees the application",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_notebook a[name='scoring']",
-            content: "Open the scoring tab",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_field_widget[name='grade_average_manual'] input",
-            content: "Type the certificate's average",
-            run: "edit 7.5",
-        },
-        {
-            trigger: ".o_form_view .o_form_button_save",
-            content: "Save",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_form_saved",
-            content: "Saved",
-        },
-    ],
-});
-
 // The ranking of a closed call and the team's list of interviews open.
 registry.category("web_tour.tours").add("ems_erasmus_ranking", {
     test: true,

@@ -12,9 +12,9 @@
         </record>
 
         <record id="rule_erasmus_application_document_not_confidential" model="ir.rule">
-            <field name="name">Erasmus application document: not confidential (Head of Studies, Secretariat)</field>
+            <field name="name">Erasmus application document: not confidential (Head of Studies)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
-            <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_secretary'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
             <field name="domain_force">[('confidential', '=', False)]</field>
         </record>
 

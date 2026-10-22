@@ -21,7 +21,7 @@ Els canvis posteriors de notes o d'avisos no modifiquen aquests valors. Els veur
 
 > **Consell:** tanca la convocatòria just després de la data de tancament, perquè les dades siguin les que tenia l'EMS aquell dia.
 
-Si un alumne no té notes a l'EMS (per exemple, perquè s'ha incorporat al centre aquest curs), la mitjana queda *pendent* fins que l'equip Erasmus, la secretaria o el cap d'estudis hi introdueixen la mitjana del certificat dels estudis anteriors.
+Un alumne que s'ha incorporat al centre aquest curs només té els mòduls d'aquest curs: la seva mitjana és la nota provisional dels resultats d'aprenentatge que ja tenen nota. Si un alumne no té cap resultat d'aprenentatge amb nota, la mitjana queda *pendent* i la sol·licitud no té la puntuació completa.
 
 ## 2. Omplir els criteris que comprova l'equip
 

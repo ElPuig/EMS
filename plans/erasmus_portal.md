@@ -207,7 +207,7 @@ deadline. Never automatic.
 
 | | Criterion | Source in EMS |
 |---|---|---|
-| A | Record average × 4 (max 40) | **Computed by EMS** (agreed 2026-10-22 with the coordinator, after Juan and Fer pointed out EMS holds every grade since 2024-25 and the RA ponderations): every module of the applicant's current cycle, all its years. Past years: `ems.student.year_record.subject.final_grade`. Current course: `ems.grade_subject_line.computed_score` when `internal_is_scored` - a provisional grade from the RAs evaluated so far (`_internal_from_outcomes`: RA-weighted, whole number, capped at 4 if an evaluated RA failed). Failed modules count with their grade; a module with nothing evaluated yet is left out (never 0); convalidated / exempt modules excluded. Mean **weighted by module hours** (`ems.subject.total_hours`; decided 2026-10-22). Frozen at closing with the list of modules used. Manual value (certificate of previous studies, validated by Secretariat, Erasmus team or Head of Studies) only for applicants with no grades in EMS. |
+| A | Record average × 4 (max 40) | **Computed by EMS** (agreed 2026-10-22 with the coordinator, after Juan and Fer pointed out EMS holds every grade since 2024-25 and the RA ponderations): every module of the applicant's current cycle, all its years. Past years: `ems.student.year_record.subject.final_grade`. Current course: `ems.grade_subject_line.computed_score` when `internal_is_scored` - a provisional grade from the RAs evaluated so far (`_internal_from_outcomes`: RA-weighted, whole number, capped at 4 if an evaluated RA failed). Failed modules count with their grade; a module with nothing evaluated yet is left out (never 0); convalidated / exempt modules excluded. Mean **weighted by module hours** (`ems.subject.total_hours`; decided 2026-10-22). Frozen at closing with the list of modules used. No manual value (decided 2026-10-22): a student new to the centre counts with this course's provisional grades. |
 | B | Interview: general 20 + English 15 | 4.5. Both parts kept (English breaks ties). |
 | C | Language certificate, highest only: B1 2.5, B2 5, C1 7.5, C2 10 | Team, from the uploaded certificate. |
 | D | Fewer opportunities: 10 or 0 | Team, from the confidential evidence. |
@@ -255,21 +255,20 @@ New groups:
   to every Erasmus file, including confidential evidence. The technician can do every management
   action coordination does, as a substitute, with the author recorded. Linked from
   `ems.role_erasmus` ("Erasmus coordinator") and a new role "Erasmus mobility technician".
-- No group for evaluators: interviews and plan ratings are readable/writable by
-  `ems.group_teacher` through a record rule `evaluator_id = user`. Being an evaluator gives no
-  access to the rest of the file.
+- **`ems.group_erasmus_evaluator`** (hidden, managed by EMS as interviews are assigned): interviews
+  and plan ratings are readable/writable through a record rule `evaluator_id = user`. Being an
+  evaluator gives no access to the rest of the file (not even the CV or video).
 
-| | Applicant | Evaluator | Erasmus team | Secretariat | Head of Studies | Director |
-|---|---|---|---|---|---|---|
-| Own application (portal) | R+W until close | - | R+W all | - | - | - |
-| Applications | - | R assigned, no confidential | R+W all | R (to validate A) | R | R |
-| Confidential evidence | own upload only | - | R+W | - | - | - |
-| Validate average (A) | - | - | W | W | W | - |
-| Serious-sanction check | - | - | R | - | **W** | **W** |
-| Interviews | - | R+W own | R+W all | - | - | - |
-| Staff plan ratings | - | R+W own | R+W all | - | R+W if panel | R+W if panel |
-| Resolutions, claims, offers | own result | - | R+W | - | R | R |
-| Staff activity validation (phase 5) | - | - | R | - | - | **W** |
+| | Applicant | Evaluator | Erasmus team | Head of Studies | Director |
+|---|---|---|---|---|---|
+| Own application (portal) | R+W until close | - | R+W all | - | - |
+| Applications | - | - | R+W all | R | R |
+| Confidential evidence | own upload only | - | R+W | - | - |
+| Serious-sanction check | - | - | R | **W** | **W** |
+| Interviews | - | R+W own | R+W all | - | - |
+| Staff plan ratings | - | R+W own | R+W all | R+W if panel | R+W if panel |
+| Resolutions, claims, offers | own result | - | R+W | R | R |
+| Staff activity validation (phase 5) | - | - | R | - | **W** |
 
 The administrator (`base.group_system` / `ems.group_academic_admin`) can do everything (CLAUDE.md).
 A candidate never rates their own call; abstentions are recorded (4.6).
@@ -296,9 +295,9 @@ graph LR
 - **F2 - Student scoring and interviews** *(medium-large; implemented on `684-erasmus-phase-2`, see the
   dev doc. Decided 2026-10-22: a repeated module counts once with its latest grade; A and F freeze when the
   team clicks "Close applications"; evaluators see only their own interview, not the CV or video; an
-  automatic hidden group `ems.group_erasmus_evaluator` shows them *My evaluations*; the Secretariat opens
-  the applications to type a certificate's average).* Criteria A-F with freezing at close,
-  average validation, strike count, interview assignment with two evaluators, rubric, review
+  automatic hidden group `ems.group_erasmus_evaluator` shows them *My evaluations*; no manual average from a
+  certificate of previous studies, the Secretariat has no role in it).* Criteria A-F with freezing at close,
+  record average computed by EMS, strike count, interview assignment with two evaluators, rubric, review
   deadline and locking, ranking and tie-breaks.
 - **F3 - Resolutions, claims and offers** *(medium)*. Provisional and definitive resolutions with
   frozen lines, publication on the portal (name + 4 ID digits), claims and appeals log,

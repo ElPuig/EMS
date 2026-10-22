@@ -17,8 +17,6 @@ The Erasmus+ call excludes students with a sanction for conduct seriously harmfu
 
 You can open the applications and their non-confidential documents, but you can only change this check: the rest of the application is managed by the Erasmus team.
 
-You can also type the record average of a student with no grades in EMS, from their certificate of previous studies: see [Erasmus+: typing a record average](../secretary/erasmus-record-average.md).
-
 ---
 
 [← Back to the Head of Studies index](index.md)

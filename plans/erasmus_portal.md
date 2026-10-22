@@ -381,6 +381,18 @@ turns**; graduates **keep the portal until their mobility is closed**; a staff m
 the Director rejects **proposes another one on the portal**; host entities are **reusable contacts**.
 The rest are proposals of this design, to confirm when testing.
 
+**Revised with the coordinator after the first implementation (2026-10-22); where the rest of this
+section differs, these win (and the dev doc describes what ships):**
+- A missed turn keeps the place: the turn passes on and they choose among what is left at the end.
+- No "back to the reserve list" button: a student none of whose destinations suits talks to the
+  Erasmus team, which agrees an alternative (their own find, or through an intermediary
+  organisation) and sets it with *Set the agreed destination*.
+- The staff activity is validated by the Direction: the Director or the Head of Studies.
+- No identity document among the mobility documents (EMS already has it).
+- Preparation documents due `preparation_days` (30) before the start of each mobility at the
+  latest, ideally as soon as the place is accepted (art. 17 and annex 1 updated in the draft).
+- Staff: EMS requests the absence for training for the mobility's dates, approved as any absence.
+
 ### 10.1. Models
 
 ```mermaid

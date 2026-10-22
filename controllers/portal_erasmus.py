@@ -196,8 +196,8 @@ class EmsPortalErasmusController(CustomerPortal):
     @http.route('/my/erasmus/call/<int:call_id>/mobility/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_erasmus_mobility(self, call_id, step, **post):
-        """The participant's own mobility of this call: choose a destination in their turn, go back
-        to the reserve list, send a proposal, upload documents or renounce the place."""
+        """The participant's own mobility of this call: choose a destination in their turn, send a
+        proposal, upload documents or renounce the place."""
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
@@ -213,8 +213,6 @@ class EmsPortalErasmusController(CustomerPortal):
                 if not destination:
                     return request.redirect(f'{page}?error=1')
                 mobility.action_choose_destination(destination)
-            elif step == 'reserve':
-                mobility.action_back_to_reserve()
             elif step == 'propose':
                 country = request.env['res.country'].sudo().browse(int(post.get('proposal_country_id') or 0)).exists()
                 values = {name: (post.get(name) or '').strip()[:2000] or False for name in PROPOSAL_FIELDS}

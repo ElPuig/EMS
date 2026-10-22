@@ -27835,11 +27835,6 @@ msgid "Authorisation for minors to travel abroad"
 msgstr "Autorització de sortida de menors a l'estranger"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_offer__state__returned
-msgid "Back to the reserve list"
-msgstr "Ha tornat a la llista de reserva"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__stage__preparation model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__stage__preparation model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Before leaving"
 msgstr "Abans de marxar"
@@ -28070,11 +28065,6 @@ msgid "GM: learning agreement. GS: Learning Agreement for Traineeships."
 msgstr "GM: acord d'aprenentatge. GS: Learning Agreement for Traineeships."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-msgid "Go back to the reserve list"
-msgstr "Torna a la llista de reserva"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "Grant agreement"
@@ -28165,11 +28155,6 @@ msgid "No document of %s is missing or needs changes."
 msgstr "A %s no li falta cap document ni n'ha de corregir cap."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-msgid "None of the destinations suits me, or I am not available for any of them"
-msgstr "Cap destinació no em va bé, o no estic disponible per a cap"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_state__rejected
 msgid "Not validated"
 msgstr "No validada"
@@ -28217,12 +28202,6 @@ msgstr "Només per a menors."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__modality_ids
 msgid "Only for modalities"
 msgstr "Només per a les modalitats"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/mobility.py:0
-msgid "Only the Director validates a staff activity, and the Erasmus team a student's own destination."
-msgstr "Només la direcció valida l'activitat del personal, i l'equip Erasmus la destinació pròpia d'un alumne."
 
 #. module: ems
 #. odoo-python
@@ -28364,12 +28343,6 @@ msgstr "Rebut:"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Reject the proposal"
 msgstr "Rebutja la proposta"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/mobility.py:0
-msgid "Rejected the destinations with places: back to the reserve list."
-msgstr "Ha rebutjat les destinacions amb places: torna a la llista de reserva."
 
 #. module: ems
 #. odoo-python
@@ -28551,11 +28524,6 @@ msgid "Ticked on"
 msgstr "Marcat el"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__preparation_deadline model:ir.model.fields,help:ems.field_ems_erasmus_mobility__preparation_deadline
-msgid "Until when the participants hand in the travel and preparation documents (art. 17)."
-msgstr "Fins quan els participants lliuren els documents de viatge i de preparació (art. 17)."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Update documents and checklist"
 msgstr "Actualitza documents i passos"
@@ -28570,12 +28538,6 @@ msgstr "Puja els documents"
 #: code:addons/ems/models/erasmus/mobility.py:0
 msgid "Upload the host entity's written commitment."
 msgstr "Puja el compromís per escrit de l'entitat d'acollida."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Valid for the whole stay: DNI or passport (EU citizens); passport and NIE (non-EU citizens)."
-msgstr "Vigent durant tota l'estada: DNI o passaport (ciutadania de la UE); passaport i NIE (ciutadania de fora de la UE)."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
@@ -28628,12 +28590,6 @@ msgstr "Primer escriu el motiu de la decisió: el participant el llegeix."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
-msgid "You can only go back to the reserve list while choosing the destination."
-msgstr "Només pots tornar a la llista de reserva mentre tries la destinació."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/mobility.py:0
 msgid "You cannot send a proposal now."
 msgstr "Ara no pots enviar cap proposta."
 
@@ -28641,11 +28597,6 @@ msgstr "Ara no pots enviar cap proposta."
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "You find the host company or entity yourself, with its written commitment to take you; the entity must also write to the Erasmus coordination. The Erasmus team validates it."
 msgstr "Busques pel teu compte l'empresa o entitat d'acollida, amb el seu compromís per escrit d'acollir-te; l'entitat també ha d'escriure a la coordinació Erasmus. L'equip Erasmus la valida."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-msgid "You go back to the reserve list with your score, and your place is offered to the next reserve."
-msgstr "Tornes a la llista de reserva amb la teva puntuació, i la plaça s'ofereix a la persona següent en reserva."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
@@ -28828,3 +28779,109 @@ msgid ""
 msgstr ""
 "Has perdut el torn i totes les altres persones ja han triat: tria ara entre "
 "les destinacions que queden."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__preparation_days
+msgid "Days before leaving to hand in the documents"
+msgstr "Dies abans de marxar per lliurar els documents"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Erasmus+ mobility: %s"
+msgstr "Mobilitat Erasmus+: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"If none of the destinations suits you, or you are not available for their "
+"dates, talk to the Erasmus team (erasmus@elpuig.xeill.net) to find an "
+"alternative: a destination you propose yourself, or one through an "
+"organisation the centre works with."
+msgstr ""
+"Si cap destinació no et va bé, o no estàs disponible per a les seves dates, "
+"parla amb l'equip Erasmus (erasmus@elpuig.xeill.net) per buscar una "
+"alternativa: una destinació que proposis tu o una a través d'una entitat amb"
+" què treballa el centre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid ""
+"Only the Direction validates a staff activity, and the Erasmus team a "
+"student's own destination."
+msgstr ""
+"Només la direcció valida l'activitat del personal, i l'equip Erasmus la "
+"destinació pròpia d'un alumne."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Set the agreed destination"
+msgstr "Fixa la destinació acordada"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__leave_id
+msgid ""
+"Staff: the absence for training EMS requests for the mobility's dates, "
+"approved as any other absence."
+msgstr ""
+"Personal: l'absència per formació que l'EMS sol·licita per a les dates de la"
+" mobilitat, que s'aprova com qualsevol altra absència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The dates of the mobility changed: correct its training absence too."
+msgstr ""
+"Les dates de la mobilitat han canviat: corregiu també la seva absència per "
+"formació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The destination of %s is already set."
+msgstr "La destinació de %s ja està fixada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The mobility was cancelled: cancel its training absence too."
+msgstr ""
+"La mobilitat s'ha cancel·lat: cancel·leu també la seva absència per "
+"formació."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__preparation_days
+msgid ""
+"The travel and preparation documents are due this many days before the start"
+" of each mobility at the latest; better as soon as the place is accepted "
+"(art. 17)."
+msgstr ""
+"Els documents de viatge i de preparació s'han de lliurar com a mínim aquests"
+" dies abans de l'inici de cada mobilitat; millor tan bon punt s'accepta la "
+"plaça (art. 17)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__leave_id
+msgid "Training absence"
+msgstr "Absència per formació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid ""
+"Write the country (and the city, host entity and dates you have) first: e.g."
+" a destination through an intermediary organisation."
+msgstr ""
+"Primer escriu el país (i la ciutat, l'entitat d'acollida i les dates que "
+"tinguis): per exemple, una destinació a través d'una entitat intermediària."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Write the country of the destination first."
+msgstr "Primer escriu el país de la destinació."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "at the latest, but better as soon as you can."
+msgstr "com a màxim, però millor com més aviat millor."

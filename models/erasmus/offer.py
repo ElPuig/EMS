@@ -29,7 +29,7 @@ class EmsErasmusOffer(models.Model):
     state = fields.Selection(string="State", required=True, default='pending', readonly=True, tracking=True,
                              selection=[('pending', "Waiting for an answer"), ('accepted', "Place accepted"),
                                         ('renounced', "Renounced"), ('expired', "No answer"),
-                                        ('cancelled', "Withdrawn"), ('returned', "Back to the reserve list")])
+                                        ('cancelled', "Withdrawn")])
     answer_date = fields.Datetime(string="Answered on", readonly=True)
     renounce_reason = fields.Text(string="Reason for renouncing", readonly=True)
 

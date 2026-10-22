@@ -69,9 +69,10 @@ class EmsErasmusCall(models.Model):
                                        help="How long each selected student has to choose their destination when "
                                             "their turn comes. Without an answer in time, the turn passes on and "
                                             "they choose among what is left at the end (art. 15).")
-    preparation_deadline = fields.Datetime(string="Documents before leaving by", tracking=True, copy=False,
-                                           help="Until when the participants hand in the travel and preparation "
-                                                "documents (art. 17).")
+    preparation_days = fields.Integer(string="Days before leaving to hand in the documents", default=30,
+                                      help="The travel and preparation documents are due this many days before the "
+                                           "start of each mobility at the latest; better as soon as the place is "
+                                           "accepted (art. 17).")
     return_days = fields.Integer(string="Days to hand in the return documents", default=30,
                                  help="Counted from the end of the mobility.")
     application_ids = fields.One2many(string="Applications", comodel_name='ems.erasmus.application',
@@ -162,14 +163,12 @@ class EmsErasmusCall(models.Model):
 
     @api.model
     def _ems_preparation_documents(self, audience):
-        identity = {'name': _("Identity document"), 'description': _(
-            "Valid for the whole stay: DNI or passport (EU citizens); passport and NIE (non-EU citizens).")}
         health_card = {'name': _("European Health Insurance Card"),
                        'description': _("Requested at the Social Security's electronic office.")}
         grant = {'name': _("Grant agreement"), 'sign_participant': True, 'sign_centre': True}
         if audience == 'staff':
             documents = [
-                identity, health_card, grant,
+                health_card, grant,
                 {'name': _("Mobility programme"), 'sign_participant': True, 'sign_centre': True, 'sign_host': True,
                  'description': _("Activities, dates and expected results, agreed with the host entity.")},
                 {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True},
@@ -178,7 +177,7 @@ class EmsErasmusCall(models.Model):
             ]
         else:
             documents = [
-                identity, health_card,
+                health_card,
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
                  'description': _("Processed with the Mossos d'Esquadra.")},
                 {'name': _("Commitment letter"), 'sign_participant': True, 'sign_guardian': True,
@@ -348,9 +347,7 @@ class EmsErasmusCall(models.Model):
         reserves = self.application_ids.filtered(
             lambda application: application.state == 'reserve' and application not in holding and (
                 self.audience == 'staff' or application.modality_id == modality))
-        # Issue #687: a student back on the list after rejecting the destinations comes after the others.
-        return reserves.sorted(lambda application: (
-            bool(application.offer_ids.filtered(lambda offer: offer.state == 'returned')), application.rank))[:1]
+        return reserves.sorted('rank')[:1]
 
     def _ems_published_resolutions(self):
         self.ensure_one()

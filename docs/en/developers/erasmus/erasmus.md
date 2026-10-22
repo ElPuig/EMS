@@ -564,8 +564,10 @@ of the students' call, art. 15 of the staff call), editable. `_ems_sync_requirem
 the mobility's modality needs and is missing, never removing a line: on creation, when a staff
 member's modality is assigned (`application.write`), and from *Update documents and checklist*.
 
-New call fields: `choice_turn_hours` (default 72), `choice_open`, `preparation_deadline` and
-`return_days` (default 30; `return_deadline` = end date + days).
+New call fields: `choice_turn_hours` (default 72), `choice_open`, `preparation_days` (default 30;
+the mobility's `preparation_deadline` = start date - days, art. 17: "at least a month before") and
+`return_days` (default 30; `return_deadline` = end date + days). There is no identity document among
+the defaults: EMS already holds it on the contact or employee file.
 
 ### Mobility states
 
@@ -573,15 +575,15 @@ New call fields: `choice_turn_hours` (default 72), `choice_open`, `preparation_d
 stateDiagram-v2
     [*] --> choosing: offer accepted
     choosing --> preparing: destination chosen / one destination / proposal validated
-    choosing --> cancelled: back to the reserve list / renounced / cancelled
+    choosing --> preparing: Set the agreed destination (team)
+    choosing --> cancelled: renounced / cancelled
     preparing --> done: Close (return documents and steps complete)
     preparing --> cancelled: renounced / cancelled by the team (with a reason)
 ```
 
 The state changes only through the actions. Cancelling frees the place (`_ems_cancel`): the
-accepted offer becomes `renounced`, or `returned` when the student goes back to the reserve list
-(the application to `reserve`); the place is then offered with the existing wizard, never on its
-own. `_ems_next_reserve` puts a student who came back after the other reserves.
+accepted offer and the application become `renounced`; the place is then offered with the existing
+wizard, never on its own.
 
 ### Destination choice (students, art. 15)
 
@@ -594,7 +596,10 @@ rejection and cancellation. Per modality:
   waiting for an own proposal) gets `turn_deadline` = now + `choice_turn_hours` and the email
   `email_template_erasmus_choice_turn`. One turn at a time.
 - On the portal they choose among `_ems_choices()` (free and suitable for their `level_id`, the
-  level when the place was accepted), or go back to the reserve list.
+  level when the place was accepted). If none suits them, they talk to the Erasmus team (art. 15),
+  which agrees an alternative (their own find, or a destination through an intermediary
+  organisation), writes it on the mobility and clicks *Set the agreed destination*
+  (`action_agree_destination`, needs the country).
 - No answer: the hourly cron `ems.ir_cron_erasmus_expire_turns` (`_cron_expire_turns`) clears the
   turn and sets `turn_missed`; the place is kept and the next one gets the turn. Once nobody in the
   modality is left to choose in order, every mobility that missed its turn gets `free_choice` (and
@@ -612,7 +617,7 @@ The same fields serve a student's **own destination** and a staff member's **act
 | | Student | Staff |
 |---|---|---|
 | Sent | From the portal while choosing, with the host's written commitment (required) | Copied from the application when the mobility is created; again from the portal only after a rejection |
-| Validated by (`_ems_can_validate`) | Erasmus team | **Director** (`ems.group_director`); the Erasmus team cannot |
+| Validated by (`_ems_can_validate`) | Erasmus team | **Direction**: the Director or a Head of Studies (`ems.group_head_of_studies`, which the Director implies); the Erasmus team cannot |
 | Validated | Preparing, country and city from the proposal | Same |
 | Rejected (needs `decision_note`) | Back to choosing the centre's destinations | Proposes another activity on the portal |
 
@@ -627,6 +632,12 @@ always validate.
 - `preparation_complete` / `return_complete`: every required line of the stage valid and every
   step done. **Close** needs `return_complete`.
 - **Cancel** (team) needs `cancel_reason`; the participant can renounce from the portal.
+- **Staff absence for training** (`_ems_sync_training_leave`, run when the dates or the state
+  change): once a staff mobility is preparing with both dates, EMS files an `hr.leave` of
+  `ems.leave_type_training` for those whole days (`leave_id`), submitted, so it follows the usual
+  approval of that employee's absences. While it is not decided it follows the dates and is
+  withdrawn (unlinked) if the mobility is cancelled; once decided, a change or a cancellation only
+  leaves a note on the mobility for the team to correct it by hand.
 
 ### Graduates
 
@@ -638,7 +649,7 @@ mobility left, as the transition would have (`res.partner._ems_retire_graduate`,
 ### Portal (phase 5)
 
 `POST /my/erasmus/call/<id>/mobility/<step>` acts on the logged-in user's own mobility of that
-call: `choose` (`destination_id`), `reserve`, `propose` (the `proposal_*` fields and
+call: `choose` (`destination_id`), `propose` (the `proposal_*` fields and
 `proposal_files`), `upload` (`document_<call document id>`) and `renounce` (`reason`). The call page
 shows the *Your mobility* card (`ems.portal_erasmus_mobility`).
 
@@ -647,7 +658,7 @@ shows the *Your mobility* card (`ems.portal_erasmus_mobility`).
 | Model | Erasmus team | Head of Studies | Director | Portal |
 |---|---|---|---|---|
 | `ems.erasmus.destination`, `.call.task`, `.mobility.task` | rwcu | r | r | via controller |
-| `ems.erasmus.mobility` | rwcu | r | r + `decision_note` and validating staff proposals (`write()` guard) | via controller |
+| `ems.erasmus.mobility` | rwcu | r + `decision_note` and validating staff proposals (`write()` guard) | same as Head of Studies | via controller |
 
 Menu *Erasmus+ > Mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
 filter.

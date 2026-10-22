@@ -38,9 +38,9 @@ Si et seleccionen, **accepta o renuncia a la plaça** al portal abans del termin
 
 ## 4. Preparar la mobilitat
 
-Quan acceptes la plaça, la pàgina mostra **La teva mobilitat**. La direcció valida l'activitat que vas proposar a la sol·licitud (activitat, entitat d'acollida o curs, destinació i dates). Si no la valida, rebràs el motiu per correu: obre **Proposa una altra activitat**, canvia el que calgui i fes clic a **Envia la proposta**.
+Quan acceptes la plaça, la pàgina mostra **La teva mobilitat**. La direcció (la directora o el director, o el cap d'estudis) valida l'activitat que vas proposar a la sol·licitud (activitat, entitat d'acollida o curs, destinació i dates). Si no la valida, rebràs el motiu per correu: obre **Proposa una altra activitat**, canvia el que calgui i fes clic a **Envia la proposta**.
 
-Un cop validada, la targeta mostra els documents que cal lliurar abans de marxar i en tornar (conveni de subvenció, programa de mobilitat signat per tu, pel centre i per l'entitat d'acollida, certificat d'assistència, una breu memòria amb evidències en el mes següent al retorn...), qui signa cadascun i els terminis, i els passos que cal seguir (reunions de preparació, activitats preparades per als teus grups, informe final, sessió de difusió). Signa els documents fora de l'EMS, adjunta'ls i fes clic a **Puja els documents**.
+Un cop validada, la targeta mostra els documents que cal lliurar abans de marxar i en tornar (conveni de subvenció, programa de mobilitat signat per tu, pel centre i per l'entitat d'acollida, certificat d'assistència, una breu memòria amb evidències en el mes següent al retorn...), qui signa cadascun i els terminis, i els passos que cal seguir (reunions de preparació, activitats preparades per als teus grups, informe final, sessió de difusió). Signa els documents fora de l'EMS, adjunta'ls i fes clic a **Puja els documents**. Quan la mobilitat té dates, l'EMS sol·licita la teva absència per formació per a aquests dies; s'aprova com qualsevol altra absència.
 
 ---
 

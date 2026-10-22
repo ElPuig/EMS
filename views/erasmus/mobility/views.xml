@@ -62,6 +62,9 @@
                             <button name="action_reject_proposal" type="object" string="Reject the proposal"
                                     invisible="not can_validate or state != 'choosing' or proposal_state != 'pending'"
                                     help="Write the reason of the decision first: the participant reads it."/>
+                            <button name="action_agree_destination" type="object" string="Set the agreed destination"
+                                    invisible="state != 'choosing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Write the country (and the city, host entity and dates you have) first: e.g. a destination through an intermediary organisation."/>
                             <button name="action_notify_documents" type="object" string="Notify pending documents"
                                     invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Emails the participant the documents missing or needing changes."/>
@@ -104,6 +107,7 @@
                                        invisible="not host_partner_id"/>
                                 <field name="date_start"/>
                                 <field name="date_end"/>
+                                <field name="leave_id" invisible="audience != 'staff' or not leave_id"/>
                             </group>
                         </group>
                         <notebook>

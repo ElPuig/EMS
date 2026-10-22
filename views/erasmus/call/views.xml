@@ -134,7 +134,7 @@
                             </page>
                             <page string="Mobility documents" name="preparation_documents">
                                 <group>
-                                    <field name="preparation_deadline"/>
+                                    <field name="preparation_days"/>
                                     <field name="return_days"/>
                                 </group>
                                 <field name="preparation_document_ids" context="{'default_stage': 'preparation'}">

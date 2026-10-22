@@ -6,7 +6,7 @@
 
 Un cop acceptada una plaça, la mobilitat es prepara a l'EMS: la destinació, l'entitat d'acollida i les dates, els documents que cal lliurar abans de marxar i en tornar, i els passos que cal seguir.
 
-**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). El cap d'estudis i la directora o el director poden consultar les mobilitats; la direcció valida les activitats del personal (vegeu [Validar les activitats del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
+**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). El cap d'estudis i la directora o el director poden consultar les mobilitats; la direcció (la directora o el director, o el cap d'estudis) valida les activitats del personal (vegeu [Validar les activitats del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
 
 ---
 
@@ -14,9 +14,9 @@ Un cop acceptada una plaça, la mobilitat es prepara a l'EMS: la destinació, l'
 
 A la convocatòria, reviseu aquestes pestanyes:
 
-- **Documents de la mobilitat:** el que lliuren els participants **abans de marxar** i **en tornar**. Una convocatòria nova ja porta els habituals (document d'identitat, targeta sanitària europea, autorització de sortida de menors, carta de compromís, conveni de subvenció, acord d'aprenentatge, certificat d'estada; per al personal, el programa de mobilitat i la memòria amb evidències). Per a cadascun, indiqueu si és obligatori, si és només per a algunes modalitats i **qui el signa**: participant, tutor legal (només menors), centre i entitat d'acollida. Els documents se signen fora de l'EMS i es pugen signats.
+- **Documents de la mobilitat:** el que lliuren els participants **abans de marxar** i **en tornar**. Una convocatòria nova ja porta els habituals (targeta sanitària europea, autorització de sortida de menors, carta de compromís, conveni de subvenció, acord d'aprenentatge, certificat d'estada; per al personal, el programa de mobilitat i la memòria amb evidències). Per a cadascun, indiqueu si és obligatori, si és només per a algunes modalitats i **qui el signa**: participant, tutor legal (només menors), centre i entitat d'acollida. Els documents se signen fora de l'EMS i es pugen signats.
 - **Llista de passos:** els passos que no són un document (sessions de preparació, curs de llengua en línia, component virtual de GS, informe final a l'EU Survey, difusió). Podeu limitar un pas a algunes modalitats, per exemple el component virtual a GS.
-- **Documents abans de marxar fins al:** el termini dels documents de viatge i de preparació.
+- **Dies abans de marxar per lliurar els documents:** els documents de viatge i de preparació s'han de lliurar com a mínim aquests dies abans de l'inici de cada mobilitat (30 per defecte). Demaneu als participants que els lliurin tan bon punt acceptin la plaça.
 - **Dies per lliurar els documents de tornada:** comptats des del final de cada mobilitat (30 per defecte).
 
 **Només a la convocatòria d'alumnat**, a la pestanya **Destinacions**: afegiu cada destinació amb la seva **modalitat**, un nom, el país, la ciutat, les **places**, els **nivells** per als quals és adequada (en blanc: tots els nivells de la modalitat), les dates si ja se saben i notes per a l'alumnat.
@@ -28,7 +28,7 @@ Quan s'ha publicat la resolució definitiva i les destinacions estan a punt, feu
 - Una modalitat amb **una sola destinació**: s'hi assigna directament tot l'alumnat que ha acceptat la plaça.
 - Una modalitat amb **diverses destinacions**: l'alumnat tria al portal **per torns, per ordre de puntuació**. Quan li arriba el torn rep un correu i té les **Hores per torn d'elecció** (72 per defecte) per triar entre les destinacions amb places lliures adequades al seu nivell. Quan tria, el torn passa a la persona següent.
 - Qui no respon dins del seu torn **perd el torn, no la plaça**: el torn passa a la persona següent, i tria entre les destinacions que queden quan totes les altres han triat (llavors rep un altre correu).
-- Qui diu que cap destinació no li va bé, o que no hi està disponible, **torna a la llista de reserva** amb la seva puntuació. La plaça queda lliure: oferiu-la a la reserva següent amb **Accions > Ofereix una plaça lliure**, com sempre. Qui ha tornat a la llista de reserva es proposa després de les altres persones en reserva.
+- Qui veu que cap destinació no li va bé, o que no està disponible per a les seves dates, ho ha de parlar amb l'equip Erasmus per buscar una alternativa: una destinació que trobi pel seu compte, o una a través d'una entitat intermediària amb què treballa el centre. Quan s'hagi acordat, escriviu el país (i la ciutat, l'entitat d'acollida i les dates que tingueu) a la seva mobilitat i feu clic a **Accions > Fixa la destinació acordada**.
 
 Un alumne que accepta una plaça més tard entra a la cua segons la seva posició.
 
@@ -47,6 +47,7 @@ Obriu la mobilitat des d'**Erasmus+ > Mobilitats** (o des del botó **Mobilitats
 - Ompliu l'**Entitat d'acollida** (un contacte d'empresa, que es manté per als cursos següents) i la seva **Persona de contacte de l'entitat**, i corregiu el lloc i les **dates** si cal.
 - Pestanya **Documents**: el participant els puja al portal, i també els podeu adjuntar aquí. Marqueu cadascun com a **Vàlid** o **Cal corregir** (amb un comentari que el participant veu). Un fitxer nou el torna a revisió; els fitxers anteriors es conserven. **A punt per marxar** es marca quan tots els documents obligatoris d'abans de marxar són vàlids i s'han fet tots els passos d'abans de marxar.
 - Pestanya **Llista de passos**: marqueu cada pas quan s'hagi fet. L'EMS registra qui l'ha marcat i quan.
+- **Personal:** quan la mobilitat té dates, l'EMS sol·licita l'**absència per formació** de la persona per a aquests dies, i qui aprova les seves absències l'aprova com sempre. Si les dates canvien abans que s'aprovi, l'absència les segueix; si ja estava aprovada, l'EMS us avisa a la mobilitat perquè la corregiu a mà.
 - **Accions > Avisa dels documents pendents** envia al participant un correu amb els documents que falten o que cal corregir.
 - Per al personal, si els documents depenen de la modalitat, assigneu la modalitat a la sol·licitud (els documents s'afegeixen sols). Feu clic a **Accions > Actualitza documents i passos** després d'afegir documents o passos a la convocatòria.
 

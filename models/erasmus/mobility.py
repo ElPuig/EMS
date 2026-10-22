@@ -152,12 +152,20 @@ class EmsErasmusMobility(models.Model):
                                    inverse_name='mobility_id')
     task_ids = fields.One2many(string="Checklist", comodel_name='ems.erasmus.mobility.task',
                                inverse_name='mobility_id')
-    preparation_deadline = fields.Datetime(string="Documents before leaving by",
-                                           related='call_id.preparation_deadline')
+    preparation_deadline = fields.Date(string="Documents before leaving by", compute='_compute_preparation_deadline')
+    leave_id = fields.Many2one(string="Training absence", comodel_name='hr.leave', readonly=True, copy=False,
+                               help="Staff: the absence for training EMS requests for the mobility's dates, approved "
+                                    "as any other absence.")
     return_deadline = fields.Date(string="Return documents by", compute='_compute_return_deadline')
     preparation_complete = fields.Boolean(string="Ready to leave", compute='_compute_complete')
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
     can_validate = fields.Boolean(string="Can validate the proposal", compute='_compute_can_validate')
+
+    @api.depends('date_start', 'call_id.preparation_days')
+    def _compute_preparation_deadline(self):
+        for mobility in self:
+            mobility.preparation_deadline = mobility.date_start and mobility.date_start - timedelta(
+                days=mobility.call_id.preparation_days)
 
     @api.depends('date_end', 'call_id.return_days')
     def _compute_return_deadline(self):
@@ -192,7 +200,10 @@ class EmsErasmusMobility(models.Model):
                 raise AccessError(_("Only who validates the proposal writes the reason of the decision."))
             if touched - DECISION_FIELDS and not self._ems_can_manage():
                 raise AccessError(_("Only the Erasmus team changes a mobility."))
-        return super().write(vals)
+        result = super().write(vals)
+        if {'date_start', 'date_end', 'state'} & set(vals):
+            self._ems_sync_training_leave()
+        return result
 
     # --- creation ----------------------------------------------------------------------------
 
@@ -261,14 +272,22 @@ class EmsErasmusMobility(models.Model):
                             date_start=destination.date_start, date_end=destination.date_end)
         self._ems_send('ems.email_template_erasmus_mobility_assigned')
 
-    def action_back_to_reserve(self):
-        """The participant rejects every destination with places, or is not available for any of
-        them: back to the reserve list with their score; the place is offered to the next reserve
-        by the team (art. 15)."""
+    def action_agree_destination(self):
+        """The Erasmus team sets the destination it agreed with the participant (e.g. one through
+        an intermediary organisation, when none of the centre's suited them, art. 15): the place,
+        host entity and dates written on the mobility."""
+        self._ems_check_manager()
         for mobility in self:
-            if mobility not in mobility._ems_choosing():
-                raise UserError(_("You can only go back to the reserve list while choosing the destination."))
-        self._ems_cancel(_("Rejected the destinations with places: back to the reserve list."), 'returned', 'reserve')
+            if mobility.state != 'choosing':
+                raise UserError(_("The destination of %s is already set.", mobility.partner_id.name))
+            if not mobility.country_id:
+                raise UserError(_("Write the country of the destination first."))
+        self._ems_activities_done()
+        for mobility in self:
+            mobility._ems_set_state('preparing', turn_deadline=False, free_choice=False,
+                                    **(mobility.proposal_state == 'pending' and {'proposal_state': False} or {}))
+        self._ems_send('ems.email_template_erasmus_mobility_assigned')
+        self.call_id.filtered('choice_open')._ems_advance_choice()
 
     @api.model
     def _cron_expire_turns(self):
@@ -332,25 +351,26 @@ class EmsErasmusMobility(models.Model):
     def _ems_check_decision(self):
         self.ensure_one()
         if not self._ems_can_validate():
-            raise AccessError(_("Only the Director validates a staff activity, and the Erasmus team a student's "
+            raise AccessError(_("Only the Direction validates a staff activity, and the Erasmus team a student's "
                                 "own destination."))
         if self.state != 'choosing' or self.proposal_state != 'pending':
             raise UserError(_("There is no proposal waiting for validation."))
 
     def _ems_can_validate(self):
-        """Staff activities: the Director (staff call art. 4); a student's own destination: the
+        """Staff activities: the Direction, the Director or a Head of Studies (staff call art. 4,
+        ems.group_head_of_studies, which the Director implies); a student's own destination: the
         Erasmus team (students' call art. 15). The administrator, always."""
         self.ensure_one()
         user = self.env.user
         if self.env.su or user.has_group('ems.group_academic_admin'):
             return True
         if self.audience == 'staff':
-            return user.has_group('ems.group_director')
+            return user.has_group('ems.group_head_of_studies')
         return user.has_group('ems.group_erasmus')
 
     def _ems_validators(self):
         self.ensure_one()
-        group = self.env.ref('ems.group_director' if self.audience == 'staff' else 'ems.group_erasmus')
+        group = self.env.ref('ems.group_head_of_studies' if self.audience == 'staff' else 'ems.group_erasmus')
         return group.sudo().users.filtered(lambda user: not user.share)
 
     def _ems_ask_validation(self):
@@ -392,6 +412,37 @@ class EmsErasmusMobility(models.Model):
         self.ensure_one()
         return self.call_id.destination_ids.filtered(lambda destination: destination._ems_suits(self))
 
+    def _ems_sync_training_leave(self):
+        """Staff: request the absence for training (ems.leave_type_training) for the mobility's
+        dates once it is in preparation, approved by whoever approves the employee's absences. A
+        request not decided yet follows the dates and is withdrawn if the mobility is cancelled;
+        a decided one is left alone and the team is told to correct it."""
+        for mobility in self.filtered(lambda mobility: mobility.audience == 'staff'):
+            leave = mobility.leave_id.sudo()
+            pending = leave and leave.state in ('confirm', 'validate1')
+            if mobility.state == 'cancelled':
+                if pending:
+                    leave.unlink()
+                elif leave and leave.state == 'validate':
+                    mobility.chatter(_("The mobility was cancelled: cancel its training absence too."))
+                continue
+            if mobility.state != 'preparing' or not (mobility.date_start and mobility.date_end):
+                continue
+            dates = {'request_date_from': mobility.date_start, 'request_date_to': mobility.date_end}
+            if not leave:
+                leave = self.env['hr.leave'].sudo().create({
+                    'employee_id': mobility.application_id.employee_id.id,
+                    'holiday_status_id': self.env.ref('ems.leave_type_training').id,
+                    'private_name': _("Erasmus+ mobility: %s", mobility.call_id.name),
+                    'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
+                    **dates})
+                mobility.with_context(ems_erasmus_state=True).sudo().leave_id = leave
+            elif (leave.request_date_from, leave.request_date_to) != (mobility.date_start, mobility.date_end):
+                if pending:
+                    leave.write(dates)
+                else:
+                    mobility.chatter(_("The dates of the mobility changed: correct its training absence too."))
+
     def _ems_documents_to_correct(self):
         self.ensure_one()
         return self.document_ids.filtered(
@@ -416,13 +467,13 @@ class EmsErasmusMobility(models.Model):
         for mobility in self:
             if not (mobility.cancel_reason or '').strip():
                 raise UserError(_("Write the reason for cancelling first."))
-        self._ems_cancel(False, 'renounced', 'renounced')
+        self._ems_cancel(False)
 
     def action_renounce(self, reason=False):
         """The participant renounces the place from the portal (art. 18 of the call)."""
-        self._ems_cancel(reason or _("Renounced by the participant."), 'renounced', 'renounced')
+        self._ems_cancel(reason or _("Renounced by the participant."))
 
-    def _ems_cancel(self, reason, offer_state, application_state):
+    def _ems_cancel(self, reason):
         """Cancel and free the place: the offer stops holding it, so the team can offer it to the
         next reserve with the usual wizard (never automatic)."""
         for mobility in self:
@@ -433,8 +484,8 @@ class EmsErasmusMobility(models.Model):
             mobility._ems_set_state('cancelled', turn_deadline=False,
                                     **(reason and {'cancel_reason': reason} or {}))
             mobility.application_id.offer_ids.filtered(lambda offer: offer.state == 'accepted').sudo().write(
-                {'state': offer_state})
-            mobility.application_id._ems_set_state(application_state)
+                {'state': 'renounced'})
+            mobility.application_id._ems_set_state('renounced')
         self.partner_id._ems_erasmus_release_graduate()
         self.call_id.filtered('choice_open')._ems_advance_choice()
 

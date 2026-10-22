@@ -20634,15 +20634,10 @@ msgstr "Asignar y avisar"
 msgid "Remove assignment"
 msgstr "Quitar la asignación"
 
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "Send notice"
-msgstr "Enviar comunicado"
 
 #. module: ems
 #. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
 msgid "Send correction"
 msgstr "Enviar rectificación"
 
@@ -23435,3 +23430,63 @@ msgstr "Comunicado enviado a %(group)s: %(subject)s"
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "As tutor, here is a copy of the notice sent about group %(group)s:"
 msgstr "Como tutor o tutora, aquí tienes una copia del comunicado enviado sobre el grupo %(group)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Correction to the families of %(groups)s: %(change)s."
+msgstr "Rectificación a las familias de %(groups)s: %(change)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Change proposal"
+msgstr "Cambiar la propuesta"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "The families were told"
+msgstr "Se comunicó a las familias"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Change it for"
+msgstr "Cambiarlo por"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "Or rearrange the lessons"
+msgstr "O bien reorganizar las clases"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_change_proposal_dialog.js:0
+msgid "One correction will be sent to the students and families of %s."
+msgstr "Se enviará una sola rectificación al alumnado y las familias de %s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Correction sent."
+msgstr "Rectificación enviada."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Corrections to absences already organised"
+msgstr "Corrección de ausencias previamente asignadas"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."
+msgstr "A las familias de estos grupos se les comunicó algo que ya no coincide con las ausencias: envíales una rectificación lo antes posible. Cada propuesta ya la incluye, en un solo correo por grupo; para enviar solo la rectificación, desmarca el resto de pasos."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "You cannot cover this teacher: you are not on guard duty at this time."
+msgstr "No puedes cubrir a este docente porque a esta hora no estás de guardia."

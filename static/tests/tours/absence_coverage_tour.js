@@ -35,8 +35,8 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             run: "click",
         },
         {
-            trigger: ".o_guard_board_action:contains('TABTG'):contains('Could start at 10:00') .o_guard_board_action_button",
-            content: "Both empty first lessons let the group start at 10:00",
+            trigger: ".o_guard_board_notice_step:contains('TABTG'):contains('Could start at 10:00') .o_guard_board_plan_check:checked",
+            content: "Both empty first lessons let the group start at 10:00, a step checked by default",
         },
         {
             trigger: ".o_guard_board_section:contains('TABTG') .o_guard_board_notice_plan:contains('Only tell the families') .o_guard_board_action:contains('Could start at 10:00')",
@@ -106,8 +106,12 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             content: "Its reason, and for whoever organises the absence a way to change the guard",
         },
         {
-            trigger: ".o_guard_board_action:contains('TABTG'):contains('Could start at 09:00') .o_guard_board_action_button",
+            trigger: ".o_guard_board_notice_step:contains('TABTG'):contains('Could start at 09:00') .o_guard_board_plan_check:checked",
             content: "With a guard in the second lesson, only the first one can be skipped now",
+        },
+        {
+            trigger: ".o_guard_board_section:contains('TABTG') .o_guard_board_notices_apply:enabled",
+            content: "Tell the families: the group has nobody to send it to, so its draft opens",
             run: "click",
         },
         {
@@ -175,3 +179,152 @@ function assertBoardOnNextMonday() {
         throw new Error("Expected the absences table to be the active view");
     }
 }
+
+// Issue #659: the families were told group TABTG starts at 10:00 next Monday. From the struck-out
+// 8:00 row, its Department Chief sees the arrangements that could replace it (each correcting the
+// notice) and changes it to 9:00 with one correction; the 9:00 lesson then needs a guard again. Seed data comes from TestAbsenceCoverageTour.test_change_proposal_tour.
+registry.category("web_tour.tours").add("ems_change_proposal", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck:contains('Starts at 10:00') .o_guard_board_change_proposal",
+            content: "The struck-out row offers to change what the families were told",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_change_proposal_dialog:contains('Starts at 10:00')",
+            content: "The dialog says what was told",
+        },
+        {
+            trigger: ".o_guard_change_proposal_plan:has(.fa-exchange):has(.fa-exclamation-triangle)",
+            content: "It also offers a swap, with the correction to the families among its steps",
+        },
+        {
+            trigger: ".o_guard_change_proposal_dialog .form-check:contains('Starts at 09:00') .o_guard_change_proposal_option",
+            content: "Start at 9:00 instead",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_change_proposal_send:enabled",
+            content: "Send one correction",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_struck:contains('Starts at 09:00')",
+            content: "The first lesson is now struck out by the new start time",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
+            content: "The second lesson needs a guard again",
+        },
+    ],
+});
+
+// Issue #659: a group whose families were told something that no longer matches the absences is
+// in the red corrections box, its correction a step of every proposal; "Only tell the families",
+// the new early leave unchecked, sends the correction alone. Seed data comes from
+// TestAbsenceCoverageTour.test_corrections_box_tour.
+registry.category("web_tour.tours").add("ems_corrections_box", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_corrections .o_guard_board_section:contains('TABTG') .o_guard_board_notice_step.o_guard_board_action_rectification",
+            content: "The group is in the corrections box, its correction a step",
+        },
+        {
+            trigger: ".o_guard_board_corrections .o_guard_board_notice_step.o_guard_board_action_proposal:contains('Could leave') .o_guard_board_plan_check",
+            content: "Uncheck the new early leave: only the correction goes out",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_corrections .o_guard_board_notices_apply:enabled",
+            content: "Apply the checked steps",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_arrangements:not(.o_guard_board_corrections) .o_guard_board_section:contains('TABTG')",
+            content: "Nothing to correct any more: the group is back with the other proposals",
+        },
+    ],
+});
+
+// Issue #659: a teacher who is not on guard duty sees every class still to be covered answer the
+// pointer, saying why they cannot cover it. Seed data comes from
+// TestAbsenceCoverageTour.test_not_on_guard_tour.
+registry.category("web_tour.tours").add("ems_not_on_guard", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('08:00-09:00')) .o_guard_board_absence_not_on_guard[data-tooltip*='not on guard duty']:contains('Tour Absent Teacher')",
+            content: "The class answers the pointer and says why it cannot be covered",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_reason_popover:contains('not on guard duty')",
+            content: "Clicking it says the same",
+        },
+    ],
+});

@@ -4,6 +4,7 @@ from odoo.tests import HttpCase, tagged
 
 from .common import (
     create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, mock_outgoing_email,
+    next_student_id,
 )
 
 
@@ -192,3 +193,65 @@ class TestAbsenceCoverageTour(HttpCase):
         self.env['ems.notice'].browse(result['notice_action']['res_id']).state = 'scheduled'
 
         self.start_tour("/odoo", "ems_absence_arrangement_change", login=self.department_chief.login)
+
+    def _told_late_entry(self, swapper=False):
+        """Issue #659: `_board_fixture`, with a student and family the notices reach, and the
+        families told the group starts at 10:00. With `swapper`, a teacher of the group at 11:00
+        who could swap lessons with the absent one."""
+        teacher, _guard, group = self._board_fixture()
+        if swapper:
+            self._arrangement_teacher('Tour Swap Teacher', (11, 12), group)
+        student = self.env['res.partner'].create({
+            'name': 'Tour 659 Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': group.id, 'email': 'tour659.student@example.com'})
+        family = self.env['res.partner'].create({
+            'name': 'Tour 659 Family', 'contact_type': 'family', 'email': 'tour659.family@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': student.id})
+        self.department_chief.email = 'tour659.chief@example.com'
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        self.env['ems.notice'].with_user(self.department_chief).board_send_absence_change(str(day), group.id, 'late_entry', 10.0)
+        return group
+
+    def test_change_proposal_tour(self):
+        """Issue #659, as the Department Chief: the families were told the group starts at 10:00;
+        from the struck-out row, the chief sees a swap that would correct it, but changes it to 9:00
+        instead (a guard will cover the 9:00 lesson), and one correction goes out."""
+        group = self._told_late_entry(swapper=True)
+
+        self.start_tour("/odoo", "ems_change_proposal", login=self.department_chief.login)
+
+        notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
+        self.assertEqual(len(notices), 2, "the notice and one correction")
+        self.assertEqual((notices[-1]._absence_change_tuples(), notices[-1].state), ([('late_entry', 9.0)], 'scheduled'))
+        self.assertTrue(notices[-1].subject.startswith('Correction:'))
+
+    def test_corrections_box_tour(self):
+        """Issue #659: the families were told the group starts at 10:00, and the absence then moved
+        to 10-11. The group goes in the red corrections box; only telling the families, the chief
+        unchecks the new early leave and sends the correction alone."""
+        group = self._told_late_entry()
+        leave = self.env['hr.leave'].search([('employee_id.name', '=', 'Tour Absent Teacher')])
+        day = leave.request_date_from
+        leave.action_refuse()
+        self.env['hr.leave'].create({
+            'employee_id': leave.employee_id.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day, 'request_date_to': day, 'ems_full_day': False,
+            'request_hour_from': 10, 'request_hour_to': 11, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+
+        self.start_tour("/odoo", "ems_corrections_box", login=self.department_chief.login)
+
+        notices = self.env['ems.notice'].search([('absence_group_id', '=', group.id)], order='id')
+        self.assertEqual(len(notices), 2, "the notice and one correction")
+        self.assertEqual(notices[-1]._absence_change_tuples(), [('normal_entry', 0.0)])
+
+    def test_not_on_guard_tour(self):
+        """Issue #659, as a plain teacher who is not on guard duty: a class still to be covered
+        answers the pointer too, saying why they cannot cover it."""
+        user = create_role_user(self, 'teacher', 'test_tour_not_on_guard', name='Tour Not On Guard')
+        create_role_employee(self, user, name='Tour Not On Guard')
+        self._board_fixture()
+
+        self.start_tour("/odoo", "ems_not_on_guard", login=user.login)

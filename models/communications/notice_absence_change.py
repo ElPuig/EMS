@@ -157,8 +157,9 @@ class EmsNoticeAbsenceChange(models.Model):
 
     @api.model
     def board_send_absence_change(self, day, group_id, change_type, hour=0.0, hour_to=0.0):
-        """Sends the notice of a timetable change the board proposed, a correction included (issue
-        #652): clicking "Send notice" is the confirmation, as checking a notice step of a plan is.
+        """Sends the notice of one timetable change the board offers, as a correction when that
+        side was already told (issues #652, #659: the "Change proposal" dialog): choosing it is the
+        confirmation, as checking a notice step of a plan is.
         Returns `{'notice_action', 'notice_error'}` as ems.absence_cover._board_send_notices: the
         draft's form and why, when it could not be sent and stays a draft to review."""
         notice = self._board_absence_change_draft(day, group_id, change_type, hour, hour_to)
@@ -180,8 +181,7 @@ class EmsNoticeAbsenceChange(models.Model):
             requested = (change_type, hour, hour_to)
         else:
             requested = (change_type, hour if change_type in ('late_entry', 'early_leave') else 0.0)
-        state, change = next(((state, option) for state in course._get_absence_change_states(day, group)[group.id].values()
-                              for option in state['options'] if course._same_change(option, requested)), (None, None))
+        state, change = course._find_change_state(course._get_absence_change_states(day, group)[group.id].values(), requested)
         if not change:
             raise UserError(_("The absences of this group have changed since the board was loaded. Reload the board."))
         if not any(course._is_absence_manager(teacher, group) for teacher in state['teachers']):

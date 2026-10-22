@@ -115,6 +115,8 @@ Si estàs de guàrdia en una franja, no cal que esperis que algú t'hi enviï: p
 
 La classe queda ratllada amb el teu nom al costat, igual que quan t'hi envien. Ningú no rep cap missatge: el mateix quadrant mostra qui cobreix què. Si la teva guàrdia només coincideix amb una part de la classe, n'agafes aquesta part (el diàleg t'indica quina), i algú altre en pot cobrir la resta. Només es pot agafar una classe, o la teva part, que encara no té cap docent de guàrdia, i només en una franja en què estàs de guàrdia ordinària (no en una guàrdia de WC o de pati, ni mentre tu mateix estàs absent). El mateix val per a la línia d'una guàrdia de WC o de pati el docent de la qual falta: també la pots agafar tu mateix.
 
+Les línies que no pots agafar perquè en aquella hora no estàs de guàrdia també mostren la mà, amb la indicació **No pots cobrir aquest docent perquè a aquesta hora no estàs de guàrdia** (i el mateix en fer-hi clic), perquè sàpigues per què no les pots agafar.
+
 Si canvies d'idea, torna a fer clic a la línia i després a **Deixa de cobrir aquesta classe**: la classe torna a quedar sense guàrdia. Només ho pots fer amb una classe que t'has agafat tu; si algú t'hi ha enviat, demana-li que ho canviï. Qui organitza l'absència sempre pot canviar o treure un docent de guàrdia que s'hagi agafat una classe pel seu compte.
 
 ## Introduir una absència prevista
@@ -176,7 +178,9 @@ Quan falta el docent d'una guàrdia de WC o de pati, la seva guàrdia apareix co
 
 Sovint no cal cap guàrdia, perquè els docents poden reorganitzar les seves classes d'aquell dia. El quadrant ho calcula per a cada classe que encara no té ningú i ho proposa al quadre **Propostes per a les absències**, damunt la taula (només el veu qui pot organitzar l'absència); aquestes línies també mostren una etiqueta com ara **3 reorganitzacions possibles**.
 
-El quadre té una secció per grup, encapçalada pel seu nom. Els grups que comparteixen una classe aquell dia (dos grups que fan classe junts) comparteixen secció, perquè reorganitzar una classe compartida canvia el dia de tots dos. A cada secció surt primer el que està pendent (una reorganització que espera el seu comunicat, un comunicat per rectificar), després les propostes, numerades a partir de la millor, i al final **Només avisar les famílies** (vegeu [Entrada tard, sortida abans d'hora o sense classes](#entrada-tard-sortida-abans-dhora-o-sense-classes)).
+El quadre té una secció per grup, encapçalada pel seu nom. Els grups que comparteixen una classe aquell dia (dos grups que fan classe junts) comparteixen secció, perquè reorganitzar una classe compartida canvia el dia de tots dos. A cada secció surt primer el que està pendent (una reorganització que espera el seu comunicat), després les propostes, numerades a partir de la millor, i al final **Només avisar les famílies** (vegeu [Entrada tard, sortida abans d'hora o sense classes](#entrada-tard-sortida-abans-dhora-o-sense-classes)).
+
+Un grup a les famílies del qual s'ha de rectificar alguna cosa no surt en aquest quadre sinó en un de vermell, a sobre: **Correcció d'absències prèviament assignades** (vegeu **Quan l'absència canvia després**).
 
 ![Quadre de propostes per a les absències: la secció de dos grups, amb tres propostes numerades, cadascuna amb una llista de passos amb la seva casella i, en taronja, les hores d'entrada i sortida que canvien, i al final l'opció de només avisar les famílies](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
@@ -217,11 +221,11 @@ Quan les classes sense docent són les primeres del dia del grup (una, dues o m�
 
 Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10:00**, i la secció del grup al quadre **Propostes per a les absències**, damunt la taula (només el veu qui pot organitzar l'absència), ofereix aquest canvi com a última proposta, **Només avisar les famílies**. Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir.
 
-El selector de cada proposta et permet comunicar a les famílies menys del que permeten les absències: amb dues classes sense docent, pots triar **Entra a les 09:00** en lloc d'**Entra a les 10:00**. Aleshores només es ratlla la primera classe; la segona encara necessita un docent de guàrdia, que envies com sempre. Triar el canvi més curt és decisió teva: res no et demanarà que el rectifiquis.
+El selector de cada pas et permet comunicar a les famílies menys del que permeten les absències: amb dues classes sense docent, pots triar **Entra a les 09:00** en lloc d'**Entra a les 10:00**. Aleshores només es ratlla la primera classe; la segona encara necessita un docent de guàrdia, que envies com sempre. Triar el canvi més curt és decisió teva: res no et demanarà que el rectifiquis.
 
 El mateix dia, el quadrant només proposa canvis que encara no han arribat: a partir de les 09:00 ja no ofereix **Entra a les 09:00** (les famílies ho sabrien massa tard), i una proposta o una rectificació l'hora de la qual ja ha passat desapareix. Si fa estona que tens el quadrant obert, recarrega'l per veure les propostes actuals.
 
-**Enviar comunicat** envia de seguida un comunicat a l'alumnat i les famílies d'aquell grup, amb el text que proposa el quadrant: fer-hi clic ja és la confirmació. Si no es pot enviar (per exemple, perquè el grup no té ningú a qui enviar-lo), queda com a esborrany i s'obre amb un missatge que n'explica el motiu: revisa'l i envia'l des d'aquell formulari com qualsevol altre comunicat (els grups d'un comunicat de canvi d'horari no es poden canviar). Mentre queda en esborrany, el botó diu **Obrir esborrany**.
+Cada canvi és un pas amb la seva casella, marcat per defecte, com els d'una reorganització: desmarca els que no vulguis i fes clic a **Aplicar els passos marcats**. S'envia de seguida **un sol comunicat per grup** a l'alumnat i les famílies, amb el text que proposa el quadrant: aplicar els passos ja és la confirmació. Si no es pot enviar (per exemple, perquè el grup no té ningú a qui enviar-lo), queda com a esborrany i s'obre amb un missatge que n'explica el motiu: revisa'l i envia'l des d'aquell formulari com qualsevol altre comunicat (els grups d'un comunicat de canvi d'horari no es poden canviar). Mentre queda en esborrany, el pas mostra el botó **Obrir esborrany**.
 
 ![Comunicat preparat pel quadrant, amb el canvi d'horari i el text proposat](../../assets/teachers/guard-duty-05-comunicat.png)
 
@@ -233,13 +237,29 @@ Quan les classes sense docent són just abans i/o just després d'un pati del ni
 
 No es confon mai amb entrar o sortir: si les classes buides arriben a l'inici del dia, és una entrada tard (per exemple, entrar després del pati, a les 18:20); si arriben al final, una sortida abans d'hora (per exemple, marxar a casa a l'hora del pati, a les 18:00).
 
+### Canviar una proposta ja enviada
+
+Un comunicat ja enviat no es pot desfer, però sí que es pot canviar mentre no hagi arribat la seva hora: per exemple, si es va avisar que el grup entra a les 10:00 i finalment hi ha un docent de guàrdia per a la primera hora, o si preferiu reorganitzar les classes en lloc d'allargar el pati.
+
+1. A la **Taula d'absències**, a la línia ratllada pel comunicat, fes clic a **Canviar la proposta** (al costat de l'etiqueta verda amb el que es va comunicar). Només ho veu qui organitza l'absència.
+2. Tria per què el vols canviar:
+   - **Canviar-ho per**: un altre canvi que permeten les absències (una altra hora d'entrada, un pati més curt...) o l'**Horari habitual**, que és l'opció marcada per defecte.
+   - **O bé reorganitzar les classes**: les reorganitzacions possibles del dia del grup, calculades com si no s'hagués comunicat res, amb els seus passos marcats (pots desmarcar-ne). Cada una inclou el pas de rectificació a les famílies.
+3. Fes clic a **Enviar rectificació**.
+
+Sigui quina sigui l'opció, les famílies i l'alumnat del grup reben **un sol comunicat de rectificació** amb la nova situació, mai una anul·lació i un comunicat nou per separat. Les classes que tornen a fer-se deixen d'estar ratllades i les pots cobrir amb un docent de guàrdia com sempre.
+
+![Diàleg Canviar la proposta: el que es va comunicar, els altres canvis possibles i dues reorganitzacions, cadascuna amb el seu pas de rectificació](../../assets/teachers/guard-duty-09-canviar-proposta.png)
+
 ### Quan l'absència canvia després
 
 Si una absència es rebutja, s'anul·la o s'escurça, o resulta que un altre docent sí que hi és, el que s'havia organitzat pot deixar de caldre. Res no es desfà automàticament: els quadres de damunt la taula t'ho indiquen, i tu decideixes.
 
 - **Un docent de guàrdia que ja no cal** (quadre **Guàrdies que ja no calen**): fes clic a **Alliberar la guàrdia**. Se li comunica que ja no cal que cobreixi la classe.
 - **Una reorganització que ja no és vàlida** (mateix quadre): la classe ja no s'ha de cobrir, o un dels docents de qui depèn ara és absent en aquella hora. Fes clic a **Treure la reorganització**; s'avisa els docents.
-- **Un comunicat que ja no coincideix** (es va comunicar més del que ara permeten les absències): un comunicat ja enviat no es pot desfer, així que el quadre de propostes ofereix **Enviar rectificació**, que envia de seguida al mateix grup un comunicat nou amb la situació corregida (una altra hora, o tornar a l'horari habitual), igual que **Enviar comunicat**.
+- **Un comunicat que ja no coincideix** (es va comunicar més del que ara permeten les absències): un comunicat ja enviat no es pot desfer, així que el grup passa al quadre vermell **Correcció d'absències prèviament assignades**, a sobre del de propostes, perquè és urgent. Totes les propostes del grup hi inclouen el pas de rectificació, i també a **Només avisar les famílies**. El que apliquis surt en **un sol comunicat per grup**: per exemple, que surt a les 11:00 i entra a l'hora habitual. Per enviar només la rectificació, desmarca la resta de passos.
+
+![Quadre vermell de correccions: una proposta amb el seu pas de rectificació i, al final, només avisar les famílies](../../assets/teachers/guard-duty-10-correccions.png)
 
 ---
 

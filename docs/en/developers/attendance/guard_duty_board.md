@@ -1065,13 +1065,19 @@ its own notice when its own day changes; the half that only receives the other o
   teaches the same subject at different hours on the board's day. Read once per board load, lazily
   (only when plans are computed). `_linked_groups()` links them too, so both halves are planned
   together and `board_apply_plan()` accepts them.
-- **Planner** (`ArrangementPlanner._join_steps()`): for each gap of a group, a teacher who is then
-  really with a partner of it (in the simulated day, not away nor moved) and teaches that partner the
-  same subject as one of their lessons with the gap's group at another hour (every group of that
-  lesson a partner of the joined one). The step is `('join', teacher, lesson, target, groups, joined
-  groups)`; it is simulated, scored, depended on and checked like a move (`schedule_shift()`: the
-  teacher's day can only get shorter, the target being already theirs). The teachers' lessons carry
-  their subject for this (`teachers[...]['lessons']` items are `(period, group ids, subject id)`).
+- **Planner** (`ArrangementPlanner._join_steps()`): for each gap of a group and each of its
+  lessons at another hour (a session, with every teacher who gives it, #678), the teachers of that
+  lesson who are then really with a partner of the gap's group (in the simulated day, not away nor
+  moved) teaching it the same subject they teach the lesson (every group of the lesson a partner of
+  the joined one). The step is `('join', teachers, lesson, target, groups, (), stays, joined groups)`;
+  it is simulated, scored, depended on and checked like a move (`schedule_shift()`: the teachers'
+  day can only get shorter, the target being already theirs). The teachers' lessons carry their
+  subject for this (`teachers[...]['lessons']` items are `(period, group ids, subject id)`).
+- **Co-teachers in a join** (developer decision, 2026-10-22): the lesson goes with those of its
+  teachers who are with the other half then; the rest of the pack who are in at the lesson's usual
+  time stay on guard then (`stays`, as in a move), with the warning "cannot follow the lesson (not
+  with the other half then)" (`_stay_reason()` = 'apart'). Example: GA1A's 9:00 lesson given by A
+  and B, joined to GA1B at 8:00 where only A teaches it: A joins, B is on guard at 9:00.
 - **Applied** as a move (`_board_create_move(..., joined=...)`): `arrangement_type = 'move'` with
   `joined_group_ids` set and `space_id` the room of the teacher's lesson with the other half. Every
   move behaviour applies unchanged: waiting for the notice that frees its lesson, siblings, withdrawal,

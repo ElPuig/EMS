@@ -765,12 +765,17 @@ implementation:
 ## 12. State of the work (2026-10-22)
 
 Read this to resume without the old session. Everything below is committed and pushed on
-`497-quality-phase-2`, which contains `496-quality-phase-1`; both are up to date with `main` v18.0.0.39.1
-and were reviewed against the project's rules on 2026-10-22 before going to "Ready to merge". Nothing is in
-flight; the items in 12.3 are follow-up work, not part of these two issues.
+`497-quality-phase-2` (269a7a12), which contains `496-quality-phase-1` (a87c6401); both are up to date with
+`main` v18.0.0.39.1 and were reviewed against the project's rules on 2026-10-22 before going to "Ready to
+merge" (see 12.2 bis). Nothing is in flight; the items in 12.3 are follow-up work, not part of these two
+issues. `.claude/settings.json` is the developer's personal file: it was taken out of both branches and is
+excluded locally (`.git/info/exclude`); never commit it again.
 
 ### 12.1. The dev database
 
+- The quality work's database is the `quality` slot of `emsdb` (`/usr/local/bin/emsdb`, outside the repo):
+  `emsdb` shows which slot is live, `emsdb quality -c -u` switches to it (checkout of its branch plus
+  `./upgrade.sh`). The other slot, `main`, is parked as `ems__main`.
 - `ems` was restored on 2026-10-19 from production's dump of that day (after `demo.sh` was launched by
   accident and reverted the frozen `data/custom/` records; see memory `reference_demo_sh_reinstall_revierte_custom`),
   then `devel.sh`, password `demoems` for every user, `./upgrade.sh` on 497.
@@ -782,9 +787,12 @@ flight; the items in 12.3 are follow-up work, not part of these two issues.
 - Test data: the real Informàtica department minute of 2026-09-02 (Google Doc
   `1RfNA3o8tDlIqeOSqdSkHbI6cajRZKJjIkIRFR5cewJ4`) is minute id 1, ACTA-INFOR-2026-27-001, in "To approve",
   approver Oscar Torrente, writer Juan Morote, with agreement ACORD-INFOR-2026-27-001 and 7 pending topics.
-  The developer is about to write the second Informàtica minute against it (previous minute, carried
-  agreements and topics). Import it with `odoo shell` **with `lang=ca_ES` in the context**, or its stored
-  title and scope come out in English (see 12.3).
+  The developer wrote the second one against it: minute id 585, ACTA-INFOR-2026-27-002, in draft, attendance
+  with the NFC tag, session id 48. That session is **open** while its minute is still a draft: it was opened
+  before the rule of 12.2 bis existed, which no longer allows it. Starting the meeting (Actions → Start the
+  meeting) puts the pair back in step; nothing else needs fixing. Import any further real minute with
+  `odoo shell` **with `lang=ca_ES` in the context**, or its stored title and scope come out in English (see
+  12.3).
 - Old copies kept until the developer says otherwise: `ems_dev_20261010` (the previous quality dev DB),
   `ems_antes_restore_20261015`, `ems_antes_restore_20261019`.
 
@@ -822,6 +830,53 @@ flight; the items in 12.3 are follow-up work, not part of these two issues.
   approval in EMS" (new fields `submitted_by_id`, `submission_date`, cleared when the minute goes back) and
   "Approved in EMS".
 
+### 12.2 bis. Decided and implemented on 2026-10-21/22
+
+- **People from outside EMS in a minute** (`ems.minute.guest`): first name, surname, optional email
+  (validated), organisation, *Present*; they count as attendees and appear in the PDF without their email.
+  The table stays behind an *Add people from outside EMS* switch (`show_guests`). Each guest can be sent the
+  call (`send_call`), in a message of their own without the link to the previous minute. Decided
+  2026-10-22: **external people stay in the minute only**; an NFC session (with or without a minute) only
+  holds employees, who have a tag.
+- **The writer's chain of command** (`redactor_scope_user_ids`, `compute_sudo`) writes the minute and
+  everything hanging from it (agreements, follow-up, NFC session), not only the approver's chain.
+- **NFC attendance corrected by hand** from the minute (*Actions → Correct the attendance* opens the
+  session); teachers reach the sessions of the minutes they may write (rule on `minute_ids`), and every
+  manual change of a line updates the minute's lists at once.
+- **Delete a minute while in draft** (*Actions → Delete*, with its lines, agreements and draft session);
+  refused from the meeting on, for every role. The call can no longer be sent once the minute is sent for
+  approval.
+- **One rule for who is convened**, shared by the minute and the attendance session
+  (`ems.meeting.presence._ems_convened_employees()`, step 4 of the integration plan): a department convenes
+  its members and those of the departments under it (`child_of`, so an area such as VET convenes all of its
+  departments), a workgroup its members, a group whoever teaches it plus **its tutor even without a
+  subject in it** (developer, 2026-10-22: the tutor nearly always teaches the group, but the rule covers the
+  exception), all teachers / all staff by company. Sessions gained the scope *A group's teaching team*
+  (`group_id`), and a session prepared from a minute copies the minute's scope, so *Load convened people*
+  finds the same list. Both lists still take anybody else by hand (developer: always leave that open).
+- **The NFC kiosk waits for the meeting** (developer, 2026-10-22): while the minute is a draft its session
+  can be neither opened nor closed, from the minute (*Open the kiosk*, *Close attendance* and *Correct the
+  attendance* only in the `meeting` state, `_ems_check_meeting_held()`) or from the session's own screen
+  (`waits_for_meeting` hides *Start attendance* and `action_open()` refuses it). Once the session has been
+  opened, *Back to preparing the meeting* is hidden and refused (decided autonomously as the consequence of
+  that rule; the developer may revisit it).
+- **Translation gotcha met again:** the minute form's NFC box is made of plain `<span>`s side by side, which
+  Odoo extracts as **one** view term; a `.po` entry for a single sentence never matches it, `upgrade.sh` stays
+  clean and the text stays in English. Translate the merged term exactly as `xml_translate` returns it
+  (`odoo shell`: `xml_translate(lambda t: out.append(t) or t, view.arch_db)`); `test_the_nfc_box_is_translated`
+  guards it.
+- **Review for "Ready to merge" (2026-10-22)**, fixed on both branches: *Open document* moved inside the
+  *Actions* dropdown on the process, procedure and document forms; `fields.Date.today()` replaced by
+  `get_local_today()`; the developer doc linked from `docs/en/developers/index.md`; "before/now" wording
+  taken out of the manuals; CLAUDE.md lists `views/quality/` ↔ *Quality*; `ACCESS_MATRIX` covers the
+  minute catalogue, the minute's line models and the link wizard; `TestQualityAction` mocks outgoing
+  email and the other quality tests use `mock_outgoing_email`. Both branches merged `main` v18.0.0.39.1
+  (the `.po` conflicts resolved block by block, three-way, and checked entry by entry).
+- **Screenshots**: `TestDocsScreenshotsMinutes` (tagged `-standard`; run it with
+  `./test.sh "-at_install,*/ems:TestDocsScreenshotsMinutes"`) writes the 9 minute and 4 agreement
+  screenshots to `/tmp/ems_doc_screenshots`; `actes-04-nfc.png` now shows the attendance block of a meeting
+  already started.
+
 ### 12.3. To do
 
 1. ~~Message to Fer about surveys~~: done 2026-10-20. Fer agreed that committee members read every survey
@@ -838,9 +893,11 @@ flight; the items in 12.3 are follow-up work, not part of these two issues.
 4. **Simultaneous editing** (two people writing one minute): Odoo 18's collaborative HTML
    (`options="{'collaborative': true}"`) only covers plain HTML fields of the record; the minute's texts live
    in line records under a custom widget. Left as a future study; today the last save wins on the same item.
-5. **Integration with meeting attendance** (`plans/meeting_presence_minute_integration.md`): largely in the
-   code already (`presence_id`, NFC mode, kiosk, attendance sync); check its steps 2-6 against the code and
-   delete that plan once confirmed.
+5. **Integration with meeting attendance** (`plans/meeting_presence_minute_integration.md`): steps 1-4 done
+   (one root menu, `presence_id`, attendee lists derived from the session, one convened rule). Left: step 5,
+   quality coordination (`group_quality_admin`) as a session manager with the read ACLs it needs on courses,
+   rooms, departments and workgroups. Delete that plan when it lands.
 6. Three shared translations to review (*Closed* = *Tancada*, *Attendees* = *Assistents*, *Room* = *Sala*),
-   and a LanguageTool pass over this branch's Catalan/Spanish texts in the close review (no key on this box).
+   and a LanguageTool pass over this branch's Catalan/Spanish texts in the release close review (no key on
+   this box).
 7. Next design step after that: section 9's phase 3.

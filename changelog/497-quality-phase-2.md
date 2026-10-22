@@ -36,7 +36,7 @@ While it is being written the minute saves by itself in the writer's pauses, so 
 
 ## The minute is approved by a person, and written in the centre's language:
 
-Who approves a minute is now a person rather than a post: whoever answers for the scope that meets comes proposed (a department's chief, a group's tutor, the director), those people come first in the dropdown, and anybody else can be chosen. The same person signs the call. A minute's PDF and its call are always written in the centre's language, whatever language the person producing them works in.
+Who approves a minute is now a person rather than a post: whoever answers for the scope that meets comes proposed (a department's chief, a group's tutor, the director), those people come first in the dropdown, and anybody else can be chosen. The same person signs the call. A minute's title, its PDF and its call are always written in the centre's language (Catalan for now), whatever language the person producing them works in.
 
 ## One controlled template instead of five:
 

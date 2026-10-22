@@ -886,10 +886,11 @@ excluded locally (`.git/info/exclude`); never commit it again.
    (see `docs/en/developers/quality/quality_overview.md`, Access control); the follow-up now has rules too.
    Split decided with the developer the same day: content managers, responsible people (progress only, via
    follow-up entries) and the new *People involved* (read and notified only); the deadline is content.
-3. **Stored title in the writer's language**: `ems.minute.name`/`scope_name` are stored computes, so they are
-   saved in the language of whoever triggers the recompute (a Spanish-language teacher would store
-   "Informática"). Proposed fix: compute them in the centre's language (`_ems_centre_lang()`), as the PDF
-   already does. Not done yet.
+3. ~~Stored title in the writer's language~~: done 2026-10-22. Developer's decision: for now a minute's
+   title is always in Catalan; `name`/`scope_name` are computed in `_ems_centre_lang()` (`ca_ES`), like the
+   PDF and the call (`test_title_is_in_the_centre_language_whoever_writes_it`). Declaring the
+   installation's main language is future work (issue #620, with the departments' own acronyms); for this
+   centre it is Catalan.
 4. **Simultaneous editing** (two people writing one minute): Odoo 18's collaborative HTML
    (`options="{'collaborative': true}"`) only covers plain HTML fields of the record; the minute's texts live
    in line records under a custom widget. Left as a future study; today the last save wins on the same item.

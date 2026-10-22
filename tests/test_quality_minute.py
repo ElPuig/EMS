@@ -253,6 +253,24 @@ class TestQualityMinute(TransactionCase):
             minute.action_back_to_draft()
         self.assertEqual(minute.state, 'meeting')
 
+    def test_title_is_in_the_centre_language_whoever_writes_it(self):
+        """The title and the scope are stored: they are written in the centre's language (Catalan),
+        not in the language of whoever creates the minute."""
+        Lang = self.env['res.lang']
+        if not (Lang._lang_get('ca_ES') and Lang._lang_get('es_ES')):
+            self.skipTest("needs Catalan and Spanish installed")
+        department = self.env['hr.department'].create({'name': 'Computer Science Test'})
+        department.update_field_translations('name', {'ca_ES': 'Informàtica Prova', 'es_ES': 'Informática Prueba'})
+        # The class reads everything in the source language; this test needs the real centre language.
+        with patch.object(type(self.env['ems.minute']), '_ems_centre_lang', lambda minute: 'ca_ES'):
+            minute = self.env['ems.minute'].with_context(lang='es_ES').create({
+                'type_id': self.type.id, 'department_id': department.id, 'course_id': self.course.id,
+                'redactor_employee_id': self.employee.id,
+            })
+            minute.flush_recordset()  # stored computes run lazily: before the patch goes away
+        self.assertEqual(minute.scope_name, 'Informàtica Prova')
+        self.assertTrue(minute.name.endswith(' - Informàtica Prova'), minute.name)
+
     def test_the_nfc_box_is_translated(self):
         """The box's messages are plain spans side by side, which Odoo extracts as one term: a
         .po entry for a single sentence never matches it and the box stays in English."""

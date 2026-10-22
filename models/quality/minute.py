@@ -234,12 +234,15 @@ class EmsMinute(models.Model):
 
     @api.depends('type_id', 'scope_name', 'date')
     def _compute_name(self):
+        # Stored, so written in the centre's language whoever triggers it: a minute's title must not
+        # depend on the language of the teacher who happened to create it.
         for minute in self:
             if not minute.type_id:
                 minute.name = minute.name or ""
                 continue
+            type_name = minute.type_id.with_context(lang=minute._ems_centre_lang()).name
             scope = minute.scope_name
-            minute.name = f"{minute.type_id.name} - {scope}" if scope else minute.type_id.name
+            minute.name = f"{type_name} - {scope}" if scope else type_name
 
     def _ems_agenda_entries(self):
         """The points of the agenda, in order, as (title, [sub-items]).
@@ -275,8 +278,9 @@ class EmsMinute(models.Model):
 
     @api.depends('department_id', 'workgroup_id', 'group_id', 'is_centre')
     def _compute_scope_name(self):
+        # Stored: in the centre's language, like the title built from it.
         for minute in self:
-            minute.scope_name = minute._scope_label()
+            minute.scope_name = minute.with_context(lang=minute._ems_centre_lang())._scope_label()
 
     @api.depends('space_id', 'place_text')
     def _compute_place_name(self):

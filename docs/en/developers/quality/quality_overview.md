@@ -146,6 +146,11 @@ stay English in the source and are translated through `i18n/ca_ES.po` and `i18n/
 
 ## `ems.minute` — lifecycle
 
+**Language.** The title (`name`) and the scope (`scope_name`) are stored computes, so they are built in
+the centre's language (`_ems_centre_lang()`, `common.SCOPE_CODE_LANG` = `ca_ES`, falling back to the
+user's when Catalan is not installed) rather than in the language of whoever creates the minute; the PDF
+and the call use the same language. Making it a setting of the installation is future work (issue #620).
+
 A meeting minute goes through four states; an evidence record (a minute type of kind `record`) skips the
 meeting and goes straight from draft to approval.
 

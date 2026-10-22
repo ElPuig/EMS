@@ -70,6 +70,18 @@ class ems_contact_portal(models.Model):
             _revoke(member)
         return summary
 
+    def _ems_retire_graduate(self):
+        """Revoke the portal of this graduate (and of its family, see _ems_revoke_student_portal)
+        and archive it; Odoo refuses to archive a contact still linked to an active portal user, so
+        one whose revoke failed is left active. Returns the issues to report."""
+        self.ensure_one()
+        issues = self._ems_revoke_student_portal()['issues']
+        if self._has_active_portal_user():
+            issues.append(_("%s: portal access could not be revoked, kept active") % self.display_name)
+        else:
+            self.write({'active': False})
+        return issues
+
     def _ems_grant_student_portal(self):
         """Grant the portal to whoever gets it when this student is enrolled: the student, plus
         the family while a minor (_ems_portal_access_recipients, the portal access wizard's own

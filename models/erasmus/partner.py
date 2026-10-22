@@ -2,6 +2,8 @@
 
 from odoo import models
 
+from .mobility import OPEN_STATES
+
 
 class ResPartner(models.Model):
     """Issue #683 - which Erasmus+ calls a student sees on the portal; issue #686, which staff
@@ -37,3 +39,15 @@ class ResPartner(models.Model):
         to one. Families do not see it."""
         self.ensure_one()
         return bool(self._ems_erasmus_calls() or self._ems_erasmus_applications())
+
+    def _ems_erasmus_open_mobility(self):
+        """Issue #687: an Erasmus+ mobility of this person not closed nor cancelled yet."""
+        return bool(self.env['ems.erasmus.mobility'].sudo().search_count(
+            [('partner_id', 'in', self.ids), ('state', 'in', OPEN_STATES)]))
+
+    def _ems_erasmus_release_graduate(self):
+        """Issue #687: a graduate the course transition kept on the portal for their mobility is
+        retired, as the transition would have done, once no mobility of theirs is open."""
+        for partner in self.sudo():
+            if partner.active and partner.contact_type == 'alumni' and not partner._ems_erasmus_open_mobility():
+                partner._ems_retire_graduate()

@@ -43,6 +43,10 @@
                             <button name="action_export_participants" type="object" string="Export to spreadsheet"
                                     invisible="not has_final_resolution" groups="ems.group_erasmus"
                                     help="Downloads an .xlsx with the people who accepted a place."/>
+                            <button name="action_open_destination_choice" type="object" string="Open destination choice"
+                                    invisible="audience != 'student' or not has_final_resolution or choice_open"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="The selected who accepted their place choose their destination on the portal, by turns in rank order."/>
                         </div>
                         <field name="state" widget="statusbar"/>
                     </header>
@@ -53,6 +57,8 @@
                             </button>
                             <button name="action_view_ranking" type="object" class="oe_stat_button" icon="fa-trophy"
                                     string="Ranking" invisible="state != 'closed'"/>
+                            <button name="action_view_mobilities" type="object" class="oe_stat_button" icon="fa-plane"
+                                    string="Mobilities" invisible="not has_final_resolution"/>
                         </div>
                         <div class="oe_title">
                             <h1><field name="name" placeholder="e.g. Erasmus+ internships 2026-27"/></h1>
@@ -98,6 +104,63 @@
                                         <field name="requirement"/>
                                         <field name="confidential"/>
                                         <field name="panel_visible" column_invisible="parent.audience != 'staff'"/>
+                                        <field name="description"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <!-- Issue #687: mobility preparation. -->
+                            <page string="Destinations" name="destinations" invisible="audience != 'student'">
+                                <group>
+                                    <field name="choice_turn_hours"/>
+                                    <field name="choice_open"/>
+                                </group>
+                                <field name="destination_ids" context="{'default_call_id': id}">
+                                    <list editable="bottom">
+                                        <field name="call_id" column_invisible="1"/>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="modality_id" options="{'no_create': True}"/>
+                                        <field name="name"/>
+                                        <field name="country_id"/>
+                                        <field name="city"/>
+                                        <field name="places"/>
+                                        <field name="free_places"/>
+                                        <field name="level_ids" widget="many2many_tags"/>
+                                        <field name="date_start"/>
+                                        <field name="date_end"/>
+                                        <field name="host_partner_ids" widget="many2many_tags" optional="hide"/>
+                                        <field name="notes" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Mobility documents" name="preparation_documents">
+                                <group>
+                                    <field name="preparation_deadline"/>
+                                    <field name="return_days"/>
+                                </group>
+                                <field name="preparation_document_ids" context="{'default_stage': 'preparation'}">
+                                    <list editable="bottom">
+                                        <field name="call_id" column_invisible="1"/>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="requirement"/>
+                                        <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                        <field name="sign_participant" string="Participant"/>
+                                        <field name="sign_guardian" string="Legal guardian"/>
+                                        <field name="sign_centre" string="Centre"/>
+                                        <field name="sign_host" string="Host entity"/>
+                                        <field name="description"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Checklist" name="checklist">
+                                <field name="task_ids">
+                                    <list editable="bottom">
+                                        <field name="call_id" column_invisible="1"/>
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
                                         <field name="description"/>
                                     </list>
                                 </field>

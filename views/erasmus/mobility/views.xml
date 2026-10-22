@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #687 - mobilities: created when a place is accepted; the destination, the host
+             entity, the documents and the checklist until the participant is back. -->
+        <record id="view_erasmus_mobility_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.list</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="arch" type="xml">
+                <list string="Mobilities" create="false" decoration-muted="state in ('done', 'cancelled')">
+                    <field name="call_id" optional="hide"/>
+                    <field name="modality_id"/>
+                    <field name="rank" optional="show"/>
+                    <field name="partner_id"/>
+                    <field name="destination_id" optional="show"/>
+                    <field name="host_partner_id" optional="show"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="proposal_state" optional="show" widget="badge" decoration-warning="proposal_state == 'pending'"
+                           decoration-success="proposal_state == 'validated'" decoration-danger="proposal_state == 'rejected'"/>
+                    <field name="preparation_complete" optional="show"/>
+                    <field name="return_complete" optional="show"/>
+                    <field name="state" widget="badge" decoration-info="state == 'choosing'"
+                           decoration-warning="state == 'preparing'" decoration-success="state == 'done'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_mobility_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.search</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="arch" type="xml">
+                <search string="Mobilities">
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <field name="destination_id"/>
+                    <field name="host_partner_id"/>
+                    <filter name="open" string="Open" domain="[('state', 'in', ('choosing', 'preparing'))]"/>
+                    <filter name="proposal_pending" string="Proposal to validate"
+                            domain="[('proposal_state', '=', 'pending'), ('state', '=', 'choosing')]"/>
+                    <separator/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
+                        <filter name="group_modality" string="Modality" context="{'group_by': 'modality_id'}"/>
+                        <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_mobility_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.mobility.form</field>
+            <field name="model">ems.erasmus.mobility</field>
+            <field name="arch" type="xml">
+                <form string="Mobility" create="false">
+                    <header>
+                        <field name="can_validate" invisible="1"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_validate_proposal" type="object" string="Validate the proposal"
+                                    class="btn-primary"
+                                    invisible="not can_validate or state != 'choosing' or proposal_state != 'pending'"/>
+                            <button name="action_reject_proposal" type="object" string="Do not validate the proposal"
+                                    invisible="not can_validate or state != 'choosing' or proposal_state != 'pending'"
+                                    help="Write the reason of the decision first: the participant reads it."/>
+                            <button name="action_notify_documents" type="object" string="Notify pending documents"
+                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Emails the participant the documents missing or needing changes."/>
+                            <button name="action_sync_requirements" type="object" string="Update documents and checklist"
+                                    invisible="state not in ('choosing', 'preparing')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Adds the documents and steps of the call that this mobility does not have yet."/>
+                            <button name="action_close" type="object" string="Close the mobility"
+                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_cancel" type="object" string="Cancel the mobility"
+                                    invisible="state not in ('choosing', 'preparing')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    confirm="The place becomes free and the application is marked as renounced. Continue?"
+                                    help="Write the reason for cancelling first."/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="choosing,preparing,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="partner_id" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="application_id"/>
+                                <field name="call_id"/>
+                                <field name="audience" invisible="1"/>
+                                <field name="modality_id"/>
+                                <field name="rank"/>
+                                <field name="level_id" invisible="audience != 'student'"/>
+                            </group>
+                            <group>
+                                <field name="destination_id" invisible="audience != 'student'"/>
+                                <field name="turn_deadline" invisible="not turn_deadline"/>
+                                <field name="country_id"/>
+                                <field name="city"/>
+                                <field name="host_partner_id" context="{'default_is_company': True}"/>
+                                <field name="host_contact_id" context="{'default_parent_id': host_partner_id}"
+                                       invisible="not host_partner_id"/>
+                                <field name="date_start"/>
+                                <field name="date_end"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Proposal" name="proposal" invisible="not proposal_state">
+                                <group>
+                                    <group>
+                                        <field name="proposal_state"/>
+                                        <field name="proposal_activity" invisible="audience != 'staff'"/>
+                                        <field name="proposal_host"/>
+                                        <field name="proposal_contact"/>
+                                        <field name="proposal_country_id"/>
+                                        <field name="proposal_city"/>
+                                        <field name="proposal_dates"/>
+                                    </group>
+                                    <group>
+                                        <field name="proposal_date"/>
+                                        <field name="proposal_attachment_ids" widget="many2many_binary"/>
+                                        <field name="proposal_notes"/>
+                                        <field name="decision_note" readonly="not can_validate or proposal_state != 'pending'"/>
+                                        <field name="decided_by_id"/>
+                                        <field name="decision_date"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <page string="Documents" name="documents">
+                                <group>
+                                    <field name="preparation_deadline"/>
+                                    <field name="return_deadline"/>
+                                    <field name="preparation_complete"/>
+                                    <field name="return_complete"/>
+                                </group>
+                                <field name="document_ids">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="signers"/>
+                                        <field name="is_required"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
+                                               decoration-danger="review_state == 'needs_change'"/>
+                                        <field name="review_comment"/>
+                                        <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
+                                                invisible="review_state == 'valid' or not attachment_ids"/>
+                                        <button name="action_mark_needs_change" type="object" string="Needs changes"
+                                                icon="fa-pencil" invisible="review_state == 'needs_change'"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Checklist" name="checklist">
+                                <field name="task_ids">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="done"/>
+                                        <field name="done_user_id" optional="show"/>
+                                        <field name="done_date" optional="show"/>
+                                        <field name="note"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Cancellation" name="cancellation">
+                                <group>
+                                    <field name="cancel_reason" readonly="state not in ('choosing', 'preparing')"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_mobility" model="ir.actions.act_window">
+            <field name="name">Mobilities</field>
+            <field name="res_model">ems.erasmus.mobility</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_open': 1}</field>
+        </record>
+    </data>
+</odoo>

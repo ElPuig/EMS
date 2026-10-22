@@ -139,8 +139,8 @@ registry.category("web_tour.tours").add("ems_erasmus_portal_accept", {
             content: "The answer is recorded",
         },
         {
-            trigger: ".o_ems_erasmus_accepted",
-            content: "The place is accepted",
+            trigger: ".o_ems_erasmus_mobility .o_ems_erasmus_mobility_choosing",
+            content: "The place is accepted: the mobility starts (issue #687)",
         },
         {
             trigger: ".o_ems_erasmus_list_link",

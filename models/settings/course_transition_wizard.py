@@ -619,12 +619,13 @@ class ems_course_transition_wizard(models.TransientModel):
         graduates.write({'has_graduated': True})
         graduates._ems_convert_to_ex_student()
         for graduate in graduates:
-            issues += graduate._ems_revoke_student_portal()['issues']
-            if graduate._has_active_portal_user():
-                issues.append(_("%s: portal access could not be revoked, kept active")
+            # Issue #687: a summer Erasmus+ mobility keeps the portal until it is closed, which
+            # then retires the graduate (res.partner._ems_erasmus_release_graduate).
+            if graduate._ems_erasmus_open_mobility():
+                issues.append(_("%s: kept on the portal until their Erasmus+ mobility is closed")
                               % graduate.display_name)
-            else:
-                graduate.write({'active': False})
+                continue
+            issues += graduate._ems_retire_graduate()
         return issues
 
     def _apply_continuing_graduates(self, graduates):

@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from pytz import UTC
 
 from odoo import _, api, fields, models
@@ -51,7 +53,26 @@ class EmsErasmusCall(models.Model):
     modality_ids = fields.One2many(string="Modalities", comodel_name='ems.erasmus.call.modality',
                                    inverse_name='call_id', copy=True)
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.call.document',
-                                   inverse_name='call_id', copy=True)
+                                   inverse_name='call_id', copy=True, domain=[('stage', '=', 'application')])
+    # Issue #687: mobility preparation.
+    preparation_document_ids = fields.One2many(
+        string="Mobility documents", comodel_name='ems.erasmus.call.document', inverse_name='call_id', copy=True,
+        domain=[('stage', 'in', ('preparation', 'return'))],
+        help="What the participants hand in before leaving and on return, once their place is accepted.")
+    task_ids = fields.One2many(string="Checklist", comodel_name='ems.erasmus.call.task', inverse_name='call_id',
+                               copy=True)
+    destination_ids = fields.One2many(string="Destinations", comodel_name='ems.erasmus.destination',
+                                      inverse_name='call_id')
+    mobility_ids = fields.One2many(string="Mobilities", comodel_name='ems.erasmus.mobility', inverse_name='call_id')
+    choice_open = fields.Boolean(string="Destination choice open", readonly=True, copy=False, tracking=True)
+    choice_turn_hours = fields.Integer(string="Hours per choice turn", default=72,
+                                       help="How long each selected student has to choose their destination when "
+                                            "their turn comes. No answer in time loses the place (art. 15).")
+    preparation_deadline = fields.Datetime(string="Documents before leaving by", tracking=True, copy=False,
+                                           help="Until when the participants hand in the travel and preparation "
+                                                "documents (art. 17).")
+    return_days = fields.Integer(string="Days to hand in the return documents", default=30,
+                                 help="Counted from the end of the mobility.")
     application_ids = fields.One2many(string="Applications", comodel_name='ems.erasmus.application',
                                       inverse_name='call_id')
     resolution_ids = fields.One2many(string="Resolutions", comodel_name='ems.erasmus.resolution',
@@ -114,8 +135,14 @@ class EmsErasmusCall(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
-            if vals.get('audience') == 'staff' and not vals.get('document_ids'):
+            audience = vals.get('audience', 'student')
+            if audience == 'staff' and not vals.get('document_ids'):
                 vals['document_ids'] = self._ems_staff_documents()
+            # Issue #687: the documents and checklist of art. 17 (students) and art. 15 (staff), editable.
+            if 'preparation_document_ids' not in vals:
+                vals['preparation_document_ids'] = self._ems_preparation_documents(audience)
+            if 'task_ids' not in vals:
+                vals['task_ids'] = self._ems_preparation_tasks(audience)
         return super().create(vals_list)
 
     @api.model
@@ -131,6 +158,49 @@ class EmsErasmusCall(models.Model):
             {'sequence': 4, 'name': _("Language certificates"), 'requirement': 'optional',
              'description': _("Official, B2 or higher.")},
         )]
+
+    @api.model
+    def _ems_preparation_documents(self, audience):
+        identity = {'name': _("Identity document"), 'description': _(
+            "Valid for the whole stay: DNI or passport (EU citizens); passport and NIE (non-EU citizens).")}
+        health_card = {'name': _("European Health Insurance Card"),
+                       'description': _("Requested at the Social Security's electronic office.")}
+        grant = {'name': _("Grant agreement"), 'sign_participant': True, 'sign_centre': True}
+        if audience == 'staff':
+            documents = [
+                identity, health_card, grant,
+                {'name': _("Mobility programme"), 'sign_participant': True, 'sign_centre': True, 'sign_host': True,
+                 'description': _("Activities, dates and expected results, agreed with the host entity.")},
+                {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True},
+                {'stage': 'return', 'name': _("Report with evidence"), 'sign_participant': True,
+                 'description': _("A short report with evidence, within a month of your return.")},
+            ]
+        else:
+            documents = [
+                identity, health_card,
+                {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
+                 'description': _("Processed with the Mossos d'Esquadra.")},
+                {'name': _("Commitment letter"), 'sign_participant': True, 'sign_guardian': True,
+                 'description': _("Annex 3 of the call.")},
+                grant,
+                {'name': _("Learning agreement"), 'sign_participant': True, 'sign_centre': True, 'sign_host': True,
+                 'description': _("GM: learning agreement. GS: Learning Agreement for Traineeships.")},
+                {'stage': 'return', 'name': _("Certificate of stay"), 'sign_host': True},
+            ]
+        return [(0, 0, {'sequence': index, 'stage': 'preparation', 'requirement': 'required', **vals})
+                for index, vals in enumerate(documents, 1)]
+
+    @api.model
+    def _ems_preparation_tasks(self, audience):
+        if audience == 'staff':
+            names = [('preparation', _("Preparation meetings")),
+                     ('preparation', _("Activities left for your groups")),
+                     ('return', _("Final report (EU Survey)")), ('return', _("Dissemination session"))]
+        else:
+            names = [('preparation', _("Preparation sessions")), ('preparation', _("Online language course (OLS)")),
+                     ('preparation', _("Virtual component (GS)")),
+                     ('return', _("Final report (EU Survey)")), ('return', _("Dissemination activities"))]
+        return [(0, 0, {'sequence': index, 'stage': stage, 'name': name}) for index, (stage, name) in enumerate(names, 1)]
 
     def write(self, vals):
         if 'audience' in vals and self.filtered(
@@ -214,6 +284,36 @@ class EmsErasmusCall(models.Model):
         self.ensure_one()
         return self.application_ids.action_export_participants()
 
+    def action_open_destination_choice(self):
+        """Issue #687 - start the destination choice by turns (art. 15 of the students' call)."""
+        for call in self:
+            if call.audience != 'student' or not call.has_final_resolution:
+                raise UserError(_("The destinations are chosen after the definitive resolution of a students' call."))
+            if not call.destination_ids:
+                raise UserError(_("Add the destinations first."))
+        self.write({'choice_open': True})
+        self._ems_advance_choice()
+
+    def _ems_advance_choice(self):
+        """Per modality: a modality with one destination assigns it to everyone directly (art.
+        15); otherwise the best-ranked student still choosing gets the turn, unless one is open."""
+        now = self._ems_now()
+        for call in self.filtered(lambda call: call.choice_open and call.audience == 'student'):
+            choosing = call.sudo().mobility_ids._ems_choosing()
+            for modality in call.modality_ids:
+                waiting = choosing.filtered(lambda mobility: mobility.modality_id == modality).sorted('rank')
+                destinations = call.destination_ids.filtered(lambda destination: destination.modality_id == modality)
+                if len(destinations) == 1:
+                    for mobility in waiting.filtered(lambda mobility: destinations._ems_suits(mobility)):
+                        mobility._ems_assign(destinations)
+                    continue
+                if not destinations or waiting.filtered('turn_deadline'):
+                    continue
+                for mobility in waiting[:1]:
+                    mobility.with_context(ems_erasmus_state=True).write(
+                        {'turn_deadline': now + timedelta(hours=call.choice_turn_hours)})
+                    mobility._ems_send('ems.email_template_erasmus_choice_turn')
+
     def _ems_candidate_partners(self):
         """Who applied to this call (submitted at least once): they never rate in it."""
         self.ensure_one()
@@ -240,11 +340,19 @@ class EmsErasmusCall(models.Model):
         reserves = self.application_ids.filtered(
             lambda application: application.state == 'reserve' and application not in holding and (
                 self.audience == 'staff' or application.modality_id == modality))
-        return reserves.sorted('rank')[:1]
+        # Issue #687: a student back on the list after rejecting the destinations comes after the others.
+        return reserves.sorted(lambda application: (
+            bool(application.offer_ids.filtered(lambda offer: offer.state == 'returned')), application.rank))[:1]
 
     def _ems_published_resolutions(self):
         self.ensure_one()
         return self.resolution_ids.filtered(lambda resolution: resolution.state == 'published')
+
+    def action_view_mobilities(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_mobility')
+        action['domain'] = [('call_id', '=', self.id)]
+        return action
 
     def action_view_applications(self):
         self.ensure_one()
@@ -344,6 +452,24 @@ class EmsErasmusCallDocument(models.Model):
         ('required', "Required"), ('optional', "Optional"), ('minor', "Required for minors")])
     confidential = fields.Boolean(string="Confidential",
                                   help="Only the Erasmus team sees these files (e.g. evidence of fewer opportunities).")
+    stage = fields.Selection(string="When", required=True, default='application', selection=[
+        ('application', "With the application"), ('preparation', "Before leaving"), ('return', "On return")])
+    modality_ids = fields.Many2many(string="Only for modalities", comodel_name='ems.erasmus.call.modality',
+                                    domain="[('call_id', '=', call_id)]",
+                                    help="Mobility documents: empty, every modality.")
+    sign_participant = fields.Boolean(string="Signed by the participant")
+    sign_guardian = fields.Boolean(string="Signed by the legal guardian", help="Only for minors.")
+    sign_centre = fields.Boolean(string="Signed by the centre")
+    sign_host = fields.Boolean(string="Signed by the host entity")
+    signers = fields.Char(string="Signed by", compute='_compute_signers')
     panel_visible = fields.Boolean(string="Shown to the panel",
                                    help="Staff call: the panel members see these files when they rate (the mobility "
                                         "plan), and nothing else of the application.")
+
+    @api.depends('sign_participant', 'sign_guardian', 'sign_centre', 'sign_host')
+    def _compute_signers(self):
+        """Issue #687: who signs it, outside EMS, before it is uploaded."""
+        labels = [('sign_participant', _("participant")), ('sign_guardian', _("legal guardian")),
+                  ('sign_centre', _("centre")), ('sign_host', _("host entity"))]
+        for document in self:
+            document.signers = ", ".join(label for name, label in labels if document[name])

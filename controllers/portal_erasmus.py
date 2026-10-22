@@ -8,6 +8,7 @@ from odoo.http import content_disposition, request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
 from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS
+from odoo.addons.ems.models.erasmus.mobility import PROPOSAL_FIELDS
 
 BOOLEAN_ANSWERS = ('previous_mobility', 'fewer_opportunities', 'image_consent', 'host_not_identified',
                    'accompany_students', 'declared_never_staff_mobility')
@@ -82,6 +83,13 @@ class EmsPortalErasmusController(CustomerPortal):
                 lambda line: line.resolution_id.publish_date, reverse=True),
             'result_labels': dict(request.env['ems.erasmus.resolution.line']._fields['result'].selection),
             'offer': application.offer_ids.filtered(lambda offer: offer.state == 'pending')[:1],
+            # Issue #687: the mobility of an accepted place.
+            'mobility': application.mobility_ids[:1],
+            'countries': request.env['res.country'].sudo().search([]),
+            'mobility_state_labels': dict(request.env['ems.erasmus.mobility']._fields['state']._description_selection(
+                request.env)),
+            'review_labels': dict(request.env['ems.erasmus.application.document']._fields[
+                'review_state']._description_selection(request.env)),
             'answered': kwargs.get('answered'),
         })
         return request.render('ems.portal_erasmus_application', values)
@@ -182,3 +190,51 @@ class EmsPortalErasmusController(CustomerPortal):
         except UserError:
             return request.redirect(f'{page}?error=1')
         return request.redirect(f'{page}?answered=1')
+
+    # --- issue #687: mobility preparation -------------------------------------------------------
+
+    @http.route('/my/erasmus/call/<int:call_id>/mobility/<string:step>', type='http', auth='user', methods=['POST'],
+                website=True)
+    def portal_erasmus_mobility(self, call_id, step, **post):
+        """The participant's own mobility of this call: choose a destination in their turn, go back
+        to the reserve list, send a proposal, upload documents or renounce the place."""
+        call = self._ems_erasmus_call(call_id)
+        if not call:
+            return request.redirect('/my/home')
+        page = f'{self._redirect}/call/{call.id}'
+        mobility = request.env['ems.erasmus.mobility'].sudo().search([
+            ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)], limit=1)
+        if not mobility:
+            return request.redirect(f'{page}?error=1')
+        try:
+            if step == 'choose':
+                destination = call.destination_ids.filtered(
+                    lambda destination: str(destination.id) == post.get('destination_id'))
+                if not destination:
+                    return request.redirect(f'{page}?error=1')
+                mobility.action_choose_destination(destination)
+            elif step == 'reserve':
+                mobility.action_back_to_reserve()
+            elif step == 'propose':
+                country = request.env['res.country'].sudo().browse(int(post.get('proposal_country_id') or 0)).exists()
+                values = {name: (post.get(name) or '').strip()[:2000] or False for name in PROPOSAL_FIELDS}
+                values['proposal_country_id'] = country.id
+                files = [(upload.filename, upload.read())
+                         for upload in request.httprequest.files.getlist('proposal_files') if upload.filename]
+                mobility._ems_portal_propose(values, files)
+            elif step == 'upload':
+                uploads = {}
+                for line in mobility.document_ids:
+                    files = [(upload.filename, upload.read()) for upload in
+                             request.httprequest.files.getlist(f'document_{line.call_document_id.id}')
+                             if upload.filename]
+                    if files:
+                        uploads[line.call_document_id.id] = files
+                mobility._ems_portal_upload(uploads)
+            elif step == 'renounce':
+                mobility.action_renounce((post.get('reason') or '').strip()[:2000] or False)
+            else:
+                return request.redirect(f'{page}?error=1')
+        except UserError:
+            return request.redirect(f'{page}?error=1')
+        return request.redirect(f'{page}?saved=1')

@@ -354,6 +354,7 @@
         'views/erasmus/resolution/views.xml',
         'views/erasmus/offer/views.xml',
         'views/erasmus/claim/views.xml',
+        'views/erasmus/mobility/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',
@@ -397,6 +398,7 @@
         'mails/grades/convalidation_info_request.xml',
         'mails/erasmus/application.xml',
         'mails/erasmus/resolution.xml',
+        'mails/erasmus/mobility.xml',
         'mails/shared/task_digest.xml',
         'mails/contacts/contact_data_request.xml',
 

@@ -41,6 +41,11 @@
                   parent="menu_erasmus" action="action_erasmus_offer"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
+        <!-- Issue #687: mobility preparation; the Director validates the staff's activities from here. -->
+        <menuitem name="Mobilities" sequence="7" id="menu_erasmus_mobilities"
+                  parent="menu_erasmus" action="action_erasmus_mobility"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+
         <menuitem name="Claims" sequence="7" id="menu_erasmus_claims"
                   parent="menu_erasmus" action="action_erasmus_claim"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>

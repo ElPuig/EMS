@@ -130,6 +130,8 @@ class EmsErasmusApplication(models.Model):
              "Erasmus team records another level after checking the certificate.")
 
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.application.document',
+                                   inverse_name='application_id', domain=[('stage', '=', 'application')])
+    mobility_ids = fields.One2many(string="Mobility", comodel_name='ems.erasmus.mobility',
                                    inverse_name='application_id')
 
     requirements_check = fields.Selection(string="Requirements", selection=CHECK_STATES, default='pending',
@@ -445,7 +447,11 @@ class EmsErasmusApplication(models.Model):
         for name in STAMPED_FIELDS:
             if name in vals:
                 vals.update({f'{name}_user_id': self.env.uid, f'{name}_date': now})
-        return super().write(vals)
+        result = super().write(vals)
+        if 'modality_id' in vals:
+            # Issue #687: a staff member's modality, assigned after selection, brings its documents.
+            self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
+        return result
 
     # --- team actions ----------------------------------------------------------------------
 
@@ -811,6 +817,12 @@ class EmsErasmusApplicationDocument(models.Model):
                                      ondelete='cascade', index=True)
     call_document_id = fields.Many2one(string="Call document", comodel_name='ems.erasmus.call.document',
                                        required=True, ondelete='restrict')
+    # Issue #687: the documents of a mobility (before leaving, on return) are lines of its application too.
+    mobility_id = fields.Many2one(string="Mobility", comodel_name='ems.erasmus.mobility', ondelete='cascade',
+                                  index=True)
+    stage = fields.Selection(string="When", related='call_document_id.stage', store=True)
+    signers = fields.Char(string="Signed by", related='call_document_id.signers')
+    description = fields.Text(string="Instructions", related='call_document_id.description')
     name = fields.Char(string="Document", related='call_document_id.name')
     sequence = fields.Integer(string="Sequence", related='call_document_id.sequence', store=True)
     confidential = fields.Boolean(string="Confidential", related='call_document_id.confidential', store=True)

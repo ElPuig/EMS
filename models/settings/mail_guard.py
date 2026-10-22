@@ -24,10 +24,18 @@ class IrMailServer(models.Model):
     def _prepare_email_message(self, message, smtp_session):
         # Every real SMTP send goes through here; tests that mock send_email() never do.
         smtp_from, smtp_to_list, message = super()._prepare_email_message(message, smtp_session)
-        if config.get('ems_server_role') == DEV_SERVER_ROLE:
+        dev_machine = config.get('ems_server_role') == DEV_SERVER_ROLE
+        if dev_machine:
             self._ems_check_dev_recipients(smtp_to_list)
+        # The database alone is enough to mark the subject (issue #691): a box prepared by a
+        # devel.sh older than #590 has no machine role, but its emails come from development too.
+        if dev_machine or self._ems_is_dev_database():
             self._ems_mark_dev_subject(message)
         return smtp_from, smtp_to_list, message
+
+    def _ems_is_dev_database(self):
+        """devel.sh ran on this database ('ems.environment_type', see CLAUDE.md)."""
+        return self.env['ir.config_parameter'].sudo().get_param('ems.environment_type') == 'dev'
 
     def _ems_mark_dev_subject(self, message):
         """Whoever receives it - the developer's redirect inbox, or a shared allowlisted one
@@ -40,11 +48,11 @@ class IrMailServer(models.Model):
         message['Subject'] = f"{DEV_SUBJECT_MARK} {subject}".strip()
 
     def _ems_check_dev_recipients(self, recipients):
-        params = self.env['ir.config_parameter'].sudo()
-        if params.get_param('ems.environment_type') != 'dev':
+        if not self._ems_is_dev_database():
             raise MailDeliveryException(_(
                 "Email blocked: this is a development machine and this database has not been "
                 "prepared with devel.sh, so its addresses may be real people's."))
+        params = self.env['ir.config_parameter'].sudo()
         redirect = (params.get_param('ems.dev_mail_redirect') or '').strip().lower()
         allowlist = {address.strip().lower() for address in (params.get_param('ems.dev_mail_allowlist') or '').split(',')}
         blocked = [recipient for recipient in recipients if not self._ems_dev_recipient_allowed(recipient, redirect, allowlist)]

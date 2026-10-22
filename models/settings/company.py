@@ -12,6 +12,7 @@ from odoo.exceptions import UserError, ValidationError
 from cryptography.fernet import Fernet
 
 from ..shared import base
+from .mail_guard import DEV_SERVER_ROLE
 
 _logger = logging.getLogger(__name__)
 
@@ -288,17 +289,24 @@ class ems_company(models.Model):
         return res
 
     def _register_hook(self):
-        """Warns once per server start if this database has never declared whether it's a
-        development or a production environment (see 'ems.environment_type', set by
-        install.sh/devel.sh/deploy.sh - CLAUDE.md's own 'Development vs. production environment
-        declaration' section has the full picture). Skipped during automated test runs
-        (config['test_enable']) - a throwaway test database never runs any of those scripts and
-        never needs to."""
+        """Freezes the centre's own data and, outside automated test runs (a throwaway test
+        database never runs install.sh/devel.sh/deploy.sh and never needs to), checks this
+        environment's declaration once per server start."""
         super()._register_hook()
         self._ems_freeze_living_custom_data()
         if config['test_enable']:
             return
-        if not self.env['ir.config_parameter'].sudo().get_param('ems.environment_type'):
+        self._ems_check_environment_declaration()
+
+    @api.model
+    def _ems_check_environment_declaration(self):
+        """Warns if this database has never declared whether it's a development or a production
+        environment ('ems.environment_type', set by install.sh/devel.sh/deploy.sh - CLAUDE.md's
+        own 'Development vs. production environment declaration' section has the full picture),
+        or if it is a development one but this machine's odoo.conf lacks the role that turns on
+        the development mail guard (issue #691: devel.sh only sets it since #590)."""
+        environment_type = self.env['ir.config_parameter'].sudo().get_param('ems.environment_type')
+        if not environment_type:
             _logger.warning(
                 "EMS: 'ems.environment_type' is not set on this database - neither install.sh, "
                 "devel.sh nor deploy.sh has declared this environment yet. If this is a local "
@@ -306,6 +314,13 @@ class ems_company(models.Model):
                 "onto it (it redirects every stored email to your own inbox, avoiding accidental "
                 "sends to real people); if this is a real deployment, run deploy.sh, or set "
                 "ir.config_parameter 'ems.environment_type' to 'production' directly."
+            )
+        elif environment_type == 'dev' and config.get('ems_server_role') != DEV_SERVER_ROLE:
+            _logger.warning(
+                "EMS: this is a development database but odoo.conf has no "
+                "'ems_server_role = dev', so this machine's development mail guard is off: "
+                "emails are not checked against the developer's redirect and allowlist, and a "
+                "restored production copy could send real ones. Run devel.sh again to set it up."
             )
 
     def _ems_freeze_living_custom_data(self):

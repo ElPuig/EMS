@@ -95,6 +95,8 @@
                             <group>
                                 <field name="destination_id" invisible="audience != 'student'"/>
                                 <field name="turn_deadline" invisible="not turn_deadline"/>
+                                <field name="turn_missed" invisible="not turn_missed"/>
+                                <field name="free_choice" invisible="not free_choice"/>
                                 <field name="country_id"/>
                                 <field name="city"/>
                                 <field name="host_partner_id" context="{'default_is_company': True}"/>

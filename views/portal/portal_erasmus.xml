@@ -359,10 +359,11 @@
 
                     <!-- Students: the destination, by turns in rank order (art. 15). -->
                     <t t-if="mobility.audience == 'student' and mobility.proposal_state != 'pending'">
-                        <t t-if="mobility.turn_deadline">
-                            <p class="mb-2">It is your turn to choose your destination, before
+                        <t t-if="mobility.turn_deadline or mobility.free_choice">
+                            <p t-if="mobility.turn_deadline" class="mb-2">It is your turn to choose your destination, before
                                 <strong t-out="mobility.turn_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
-                                Without an answer by then, you lose the place.</p>
+                                Without an answer by then, the turn passes to the next person and you will choose among the destinations left at the end.</p>
+                            <p t-else="" class="mb-2 o_ems_erasmus_free_choice">You missed your turn and everyone else has chosen: choose now among the destinations left.</p>
                             <t t-set="choices" t-value="mobility._ems_choices()"/>
                             <form t-if="choices" t-att-action="action + 'choose'" method="post" class="ems-loading-form o_ems_erasmus_choose">
                                 <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -382,6 +383,7 @@
                             </form>
                             <p t-else="" class="text-muted">No destination has places for your profile now.</p>
                         </t>
+                        <p t-elif="mobility.turn_missed" class="o_ems_erasmus_waiting_turn"><i class="fa fa-clock-o me-1"/>You did not choose in your turn: you will choose among the destinations left once the others have chosen.</p>
                         <p t-elif="call.choice_open" class="o_ems_erasmus_waiting_turn"><i class="fa fa-clock-o me-1"/>The selected choose their destination in rank order: you will receive an email when it is your turn.</p>
                         <p t-else=""><i class="fa fa-clock-o me-1"/>The Erasmus team will open the choice of destinations: you will receive an email when it is your turn.</p>
                         <details class="mt-3">

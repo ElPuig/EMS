@@ -573,7 +573,7 @@ New call fields: `choice_turn_hours` (default 72), `choice_open`, `preparation_d
 stateDiagram-v2
     [*] --> choosing: offer accepted
     choosing --> preparing: destination chosen / one destination / proposal validated
-    choosing --> cancelled: back to the reserve list / no answer in the turn / renounced / cancelled
+    choosing --> cancelled: back to the reserve list / renounced / cancelled
     preparing --> done: Close (return documents and steps complete)
     preparing --> cancelled: renounced / cancelled by the team (with a reason)
 ```
@@ -595,8 +595,10 @@ rejection and cancellation. Per modality:
   `email_template_erasmus_choice_turn`. One turn at a time.
 - On the portal they choose among `_ems_choices()` (free and suitable for their `level_id`, the
   level when the place was accepted), or go back to the reserve list.
-- No answer: the hourly cron `ems.ir_cron_erasmus_expire_turns` (`_cron_expire_turns`) cancels the
-  mobility (the place is lost) and the next one gets the turn.
+- No answer: the hourly cron `ems.ir_cron_erasmus_expire_turns` (`_cron_expire_turns`) clears the
+  turn and sets `turn_missed`; the place is kept and the next one gets the turn. Once nobody in the
+  modality is left to choose in order, every mobility that missed its turn gets `free_choice` (and
+  the turn email, without a deadline) and can choose any destination still free.
 
 Assigning copies country, city and dates from the destination and emails
 `email_template_erasmus_mobility_assigned`.

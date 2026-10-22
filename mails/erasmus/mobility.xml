@@ -18,11 +18,16 @@
                             It is your turn to choose the destination of your Erasmus+ mobility
                             (<strong t-out="object.call_id.name"/>), among the destinations that still have places.
                         </p>
-                        <p>
+                        <p t-if="object.turn_deadline">
                             Choose it on the school portal
                             (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>)
                             before <strong t-out="object._ems_local_format(object.turn_deadline)"/>.
-                            Without an answer by then, you lose the place.
+                            Without an answer by then, the turn passes to the next person and you will choose among
+                            the destinations left at the end.
+                        </p>
+                        <p t-else="">
+                            Everyone else has already chosen: choose it on the school portal
+                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>) as soon as you can.
                         </p>
                         <p>
                             Kind regards,<br/>

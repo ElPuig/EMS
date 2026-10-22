@@ -27643,58 +27643,6 @@ msgid "(optional)"
 msgstr "(opcional)"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-msgid ""
-".\n"
-"                                Without an answer by then, you lose the place."
-msgstr ""
-".\n"
-"                                Si no respondes antes, pierdes la plaza."
-
-#. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_choice_turn
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            It is your turn to choose the destination of your Erasmus+ mobility\n"
-"                            (<strong t-out=\"object.call_id.name\"/>), among the destinations that still have places.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Choose it on the school portal\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                            before <strong t-out=\"object._ems_local_format(object.turn_deadline)\"/>.\n"
-"                            Without an answer by then, you lose the place.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            Te toca elegir el destino de tu movilidad Erasmus+\n"
-"                            (<strong t-out=\"object.call_id.name\"/>), entre los destinos que aún tienen plazas.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Elígelo en el portal del instituto\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                            antes del <strong t-out=\"object._ems_local_format(object.turn_deadline)\"/>.\n"
-"                            Si no respondes antes, pierdes la plaza.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Saludos cordiales,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_mobility_assigned
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -28171,11 +28119,6 @@ msgid "Hours per choice turn"
 msgstr "Horas por turno de elección"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__choice_turn_hours
-msgid "How long each selected student has to choose their destination when their turn comes. No answer in time loses the place (art. 15)."
-msgstr "Cuánto tiempo tiene cada alumno seleccionado para elegir el destino cuando le toca. Si no responde a tiempo, pierde la plaza (art. 15)."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
 msgid "It is not your turn to choose a destination."
@@ -28222,12 +28165,6 @@ msgstr "Programa de movilidad"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__proposal_contact
 msgid "Name and email of the person at the host entity."
 msgstr "Nombre y correo de la persona de la entidad de acogida."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/mobility.py:0
-msgid "No destination chosen by the end of the turn."
-msgstr "No ha elegido destino antes del final del turno."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
@@ -28777,3 +28714,130 @@ msgstr "participante"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__modality_ids
 msgid "Mobility documents: empty, every modality."
 msgstr "Documentos de la movilidad: en blanco, todas las modalidades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+".\n"
+"                                Without an answer by then, the turn passes to the next person and you will choose among the destinations left at the end."
+msgstr ""
+".\n"
+"                                Si no respondes antes, el turno pasa a la persona siguiente y elegirás entre los destinos que queden al final."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_choice_turn
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            It is your turn to choose the destination of your Erasmus+ mobility\n"
+"                            (<strong t-out=\"object.call_id.name\"/>), among the destinations that still have places.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.turn_deadline\">\n"
+"                            Choose it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            before <strong t-out=\"object._ems_local_format(object.turn_deadline)\"/>.\n"
+"                            Without an answer by then, the turn passes to the next person and you will choose among\n"
+"                            the destinations left at the end.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            Everyone else has already chosen: choose it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) as soon as you can.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Te toca elegir el destino de tu movilidad Erasmus+\n"
+"                            (<strong t-out=\"object.call_id.name\"/>), entre los destinos que aún tienen plazas.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.turn_deadline\">\n"
+"                            Elígelo en el portal del instituto\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            antes del <strong t-out=\"object._ems_local_format(object.turn_deadline)\"/>.\n"
+"                            Si no respondes antes, el turno pasa a la persona siguiente y elegirás entre\n"
+"                            los destinos que queden al final.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            Todas las demás personas ya han elegido: elígelo en el portal del instituto\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) en cuanto puedas.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Saludos cordiales,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"<i class=\"fa fa-clock-o me-1\"/>You did not choose in your turn: you will "
+"choose among the destinations left once the others have chosen."
+msgstr ""
+"<i class=\"fa fa-clock-o me-1\"/>No has elegido en tu turno: elegirás entre "
+"los destinos que queden cuando las demás personas hayan elegido."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__free_choice
+msgid "Choosing among what is left"
+msgstr "Elige entre lo que queda"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__turn_missed
+msgid ""
+"Did not choose in their turn: chooses among the destinations left once the "
+"others have chosen."
+msgstr ""
+"No ha elegido en su turno: elige entre los destinos que quedan cuando las "
+"demás personas han elegido."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__choice_turn_hours
+msgid ""
+"How long each selected student has to choose their destination when their "
+"turn comes. Without an answer in time, the turn passes on and they choose "
+"among what is left at the end (art. 15)."
+msgstr ""
+"Cuánto tiempo tiene cada alumno seleccionado para elegir el destino cuando "
+"le toca. Si no responde a tiempo, el turno pasa a la persona siguiente y "
+"elige entre lo que quede al final (art. 15)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__turn_missed
+msgid "Missed their turn"
+msgstr "Ha perdido el turno"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__free_choice
+msgid ""
+"Missed their turn and the others have already chosen: can choose any "
+"destination still free, without a deadline."
+msgstr ""
+"Ha perdido el turno y las demás personas ya han elegido: puede elegir "
+"cualquier destino aún libre, sin plazo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid ""
+"No destination chosen in the turn: chooses among what is left at the end."
+msgstr ""
+"No ha elegido destino en su turno: elegirá entre lo que quede al final."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"You missed your turn and everyone else has chosen: choose now among the "
+"destinations left."
+msgstr ""
+"Has perdido el turno y todas las demás personas ya han elegido: elige ahora "
+"entre los destinos que quedan."

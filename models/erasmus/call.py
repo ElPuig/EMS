@@ -67,7 +67,8 @@ class EmsErasmusCall(models.Model):
     choice_open = fields.Boolean(string="Destination choice open", readonly=True, copy=False, tracking=True)
     choice_turn_hours = fields.Integer(string="Hours per choice turn", default=72,
                                        help="How long each selected student has to choose their destination when "
-                                            "their turn comes. No answer in time loses the place (art. 15).")
+                                            "their turn comes. Without an answer in time, the turn passes on and "
+                                            "they choose among what is left at the end (art. 15).")
     preparation_deadline = fields.Datetime(string="Documents before leaving by", tracking=True, copy=False,
                                            help="Until when the participants hand in the travel and preparation "
                                                 "documents (art. 17).")
@@ -296,7 +297,9 @@ class EmsErasmusCall(models.Model):
 
     def _ems_advance_choice(self):
         """Per modality: a modality with one destination assigns it to everyone directly (art.
-        15); otherwise the best-ranked student still choosing gets the turn, unless one is open."""
+        15); otherwise the best-ranked student still choosing gets the turn, unless one is open.
+        Who missed their turn waits until the others have chosen, and then chooses among what is
+        left, with no turn nor deadline."""
         now = self._ems_now()
         for call in self.filtered(lambda call: call.choice_open and call.audience == 'student'):
             choosing = call.sudo().mobility_ids._ems_choosing()
@@ -309,10 +312,15 @@ class EmsErasmusCall(models.Model):
                     continue
                 if not destinations or waiting.filtered('turn_deadline'):
                     continue
-                for mobility in waiting[:1]:
+                in_order = waiting.filtered(lambda mobility: not mobility.turn_missed)
+                for mobility in in_order[:1]:
                     mobility.with_context(ems_erasmus_state=True).write(
                         {'turn_deadline': now + timedelta(hours=call.choice_turn_hours)})
                     mobility._ems_send('ems.email_template_erasmus_choice_turn')
+                if not in_order:
+                    left = waiting.filtered(lambda mobility: not mobility.free_choice)
+                    left.with_context(ems_erasmus_state=True).write({'free_choice': True})
+                    left._ems_send('ems.email_template_erasmus_choice_turn')
 
     def _ems_candidate_partners(self):
         """Who applied to this call (submitted at least once): they never rate in it."""

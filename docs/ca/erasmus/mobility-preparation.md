@@ -27,7 +27,8 @@ Quan s'ha publicat la resolució definitiva i les destinacions estan a punt, feu
 
 - Una modalitat amb **una sola destinació**: s'hi assigna directament tot l'alumnat que ha acceptat la plaça.
 - Una modalitat amb **diverses destinacions**: l'alumnat tria al portal **per torns, per ordre de puntuació**. Quan li arriba el torn rep un correu i té les **Hores per torn d'elecció** (72 per defecte) per triar entre les destinacions amb places lliures adequades al seu nivell. Quan tria, el torn passa a la persona següent.
-- Qui no respon dins del seu torn **perd la plaça**. Qui diu que cap destinació no li va bé, o que no hi està disponible, **torna a la llista de reserva** amb la seva puntuació. En tots dos casos la plaça queda lliure: oferiu-la a la reserva següent amb **Accions > Ofereix una plaça lliure**, com sempre. Qui ha tornat a la llista de reserva es proposa després de les altres persones en reserva.
+- Qui no respon dins del seu torn **perd el torn, no la plaça**: el torn passa a la persona següent, i tria entre les destinacions que queden quan totes les altres han triat (llavors rep un altre correu).
+- Qui diu que cap destinació no li va bé, o que no hi està disponible, **torna a la llista de reserva** amb la seva puntuació. La plaça queda lliure: oferiu-la a la reserva següent amb **Accions > Ofereix una plaça lliure**, com sempre. Qui ha tornat a la llista de reserva es proposa després de les altres persones en reserva.
 
 Un alumne que accepta una plaça més tard entra a la cua segons la seva posició.
 

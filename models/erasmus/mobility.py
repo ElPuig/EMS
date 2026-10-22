@@ -112,6 +112,12 @@ class EmsErasmusMobility(models.Model):
                                      tracking=True, domain="[('call_id', '=', call_id)]")
     turn_deadline = fields.Datetime(string="Choose before", readonly=True,
                                     help="Set while it is this participant's turn to choose the destination.")
+    turn_missed = fields.Boolean(string="Missed their turn", readonly=True,
+                                 help="Did not choose in their turn: chooses among the destinations left once the "
+                                      "others have chosen.")
+    free_choice = fields.Boolean(string="Choosing among what is left", readonly=True,
+                                 help="Missed their turn and the others have already chosen: can choose any destination "
+                                      "still free, without a deadline.")
 
     # Own proposal (students) or the activity proposal (staff), and its decision.
     proposal_state = fields.Selection(string="Proposal", readonly=True, tracking=True, selection=[
@@ -240,9 +246,9 @@ class EmsErasmusMobility(models.Model):
     def action_choose_destination(self, destination):
         """The participant chooses `destination` during their turn (portal)."""
         self.ensure_one()
-        if not (self in self._ems_choosing() and self.turn_deadline):
+        if not (self in self._ems_choosing() and (self.turn_deadline or self.free_choice)):
             raise UserError(_("It is not your turn to choose a destination."))
-        if self.turn_deadline <= self.call_id._ems_now():
+        if self.turn_deadline and self.turn_deadline <= self.call_id._ems_now():
             raise UserError(_("Your turn to choose has ended."))
         if not destination._ems_suits(self):
             raise UserError(_("This destination has no place for you."))
@@ -266,10 +272,14 @@ class EmsErasmusMobility(models.Model):
 
     @api.model
     def _cron_expire_turns(self):
-        """No answer in the turn = the place is lost (art. 15); the next one gets the turn."""
+        """No answer in the turn: the turn passes to the next one, and this participant chooses
+        among the destinations left once the others have chosen (art. 15). The place is kept."""
         Call = self.env['ems.erasmus.call']
         expired = self.sudo().search([('state', '=', 'choosing'), ('turn_deadline', '<=', Call._ems_now())])
-        expired._ems_cancel(_("No destination chosen by the end of the turn."), 'renounced', 'renounced')
+        expired.with_context(ems_erasmus_state=True).write({'turn_deadline': False, 'turn_missed': True})
+        for mobility in expired:
+            mobility.chatter(_("No destination chosen in the turn: chooses among what is left at the end."))
+        expired.call_id._ems_advance_choice()
 
     # --- proposals -----------------------------------------------------------------------------
 

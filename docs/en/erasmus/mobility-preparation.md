@@ -27,7 +27,8 @@ When the definitive resolution is published and the destinations are ready, clic
 
 - A modality with **one destination**: every student who accepted a place is assigned to it directly.
 - A modality with **several destinations**: the students choose on the portal **by turns, in rank order**. When their turn comes they receive an email and have the **Hours per choice turn** (72 by default) to choose among the destinations with free places that suit their level. When they choose, the next one gets the turn.
-- Whoever does not answer in their turn **loses the place**. Whoever says that no destination suits them, or that they are not available, **goes back to the reserve list** with their score. In both cases the place is free: offer it to the next reserve with **Actions > Offer a free place**, as usual. A student who came back to the reserve list is proposed after the other reserves.
+- Whoever does not answer in their turn **loses the turn, not the place**: the next one gets the turn, and they choose among the destinations left once everyone else has chosen (they receive another email then).
+- Whoever says that no destination suits them, or that they are not available, **goes back to the reserve list** with their score. The place is free: offer it to the next reserve with **Actions > Offer a free place**, as usual. A student who came back to the reserve list is proposed after the other reserves.
 
 A student who accepts a place later joins the queue in their rank order.
 

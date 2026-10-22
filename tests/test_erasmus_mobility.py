@@ -109,17 +109,23 @@ class TestErasmusMobility(ErasmusMobilityCase):
         with self.assertRaises(UserError):
             first.action_choose_destination(cyprus)
 
-    def test_no_answer_in_the_turn_loses_the_place(self):
+    def test_no_answer_in_the_turn_passes_it_and_keeps_the_place(self):
+        """Art. 15: who does not answer in their turn chooses among what is left at the end."""
         first, second = self._accepted()
-        self._destinations(1, 1)
+        _cyprus, germany = self._destinations(1, 1)
         self.call.action_open_destination_choice()
         first.with_context(ems_erasmus_state=True).sudo().turn_deadline = fields.Datetime.now() - timedelta(minutes=1)
         self.env['ems.erasmus.mobility']._cron_expire_turns()
-        self.assertEqual(first.state, 'cancelled')
-        self.assertEqual(first.application_id.state, 'renounced')
-        self.assertEqual(first.application_id.offer_ids.state, 'renounced')
-        self.assertEqual(self.modality.free_places, 1)
+        self.assertEqual((first.state, first.turn_missed, first.turn_deadline), ('choosing', True, False))
+        self.assertEqual(first.application_id.state, 'accepted')
         self.assertTrue(second.turn_deadline)
+        with self.assertRaises(UserError):
+            first.action_choose_destination(germany)
+        second.action_choose_destination(_cyprus)
+        self.assertTrue(first.free_choice)
+        self.assertEqual(first._ems_choices(), germany)
+        first.action_choose_destination(germany)
+        self.assertEqual((first.state, first.destination_id), ('preparing', germany))
 
     def test_rejecting_every_destination_goes_back_to_the_reserve_list(self):
         first, second = self._accepted()

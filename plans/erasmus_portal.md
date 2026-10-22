@@ -363,9 +363,8 @@ Execution notes, all phases:
 - ~~Art. 6 of the student call said "segon curs"~~: fixed in the draft 2026-10-22 (also the last sentence
   of art. 4's summer stays row, which said the same). Staff: "professorat de FP" already covers PFI and
   CFGB (coordinator, 2026-10-22), no change.
-- Art. 15 of the student call says the coordination contacts the selected in rank order: with phase 5
-  the choice is made on the portal, by turns, with an email when the turn starts (section 10). The call
-  text should say so, with the turn's length.
+- ~~Art. 15 of the student call~~: updated in the draft 2026-10-22 (choice on the portal by turns of 72
+  hours; a missed turn keeps the place and chooses among what is left).
 - Where the official call text says "the online form published on the centre's website" (art. 7):
   the calls must be updated to point to EMS before publishing.
 - Seniority < 1 year = 0 is agreed but not yet in the staff call text.
@@ -432,7 +431,7 @@ erDiagram
 stateDiagram-v2
     [*] --> choosing: offer accepted
     choosing --> preparing: destination chosen / proposal validated / only one destination
-    choosing --> cancelled: rejects every destination (back to reserve), no answer in turn, renounces
+    choosing --> cancelled: rejects every destination (back to reserve), renounces
     preparing --> done: Close (team, return documents and tasks complete)
     preparing --> cancelled: renounces / team cancels with a reason
 ```
@@ -451,8 +450,9 @@ reserves.
   `choice_turn_hours` and emails it. On the portal they choose among the destinations with free
   places that suit their level, or say none suits them / they are not available (back to the reserve
   list). Choosing ends the turn and starts the next one.
-- No answer by the turn's deadline = they lose the place (art. 15): the hourly cron cancels the
-  mobility (application `renounced`) and starts the next turn.
+- No answer by the turn's deadline = they lose the turn, not the place (coordinator, 2026-10-22; art. 15
+  updated): the hourly cron passes the turn on, and they choose among what is left once the others
+  have chosen.
 - A reserve who accepts later joins the queue by rank.
 
 ### 10.4. Own proposal (students) and staff validation

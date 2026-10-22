@@ -27,7 +27,8 @@ Cuando se ha publicado la resolución definitiva y los destinos están listos, h
 
 - Una modalidad con **un solo destino**: se asigna directamente a todo el alumnado que ha aceptado la plaza.
 - Una modalidad con **varios destinos**: el alumnado elige en el portal **por turnos, por orden de puntuación**. Cuando le llega el turno recibe un correo y tiene las **Horas por turno de elección** (72 por defecto) para elegir entre los destinos con plazas libres adecuados a su nivel. Cuando elige, el turno pasa a la persona siguiente.
-- Quien no responde dentro de su turno **pierde la plaza**. Quien dice que ningún destino le va bien, o que no está disponible, **vuelve a la lista de reserva** con su puntuación. En ambos casos la plaza queda libre: ofrecedla a la reserva siguiente con **Acciones > Ofrecer una plaza libre**, como siempre. Quien ha vuelto a la lista de reserva se propone después de las demás personas en reserva.
+- Quien no responde dentro de su turno **pierde el turno, no la plaza**: el turno pasa a la persona siguiente, y elige entre los destinos que quedan cuando todas las demás han elegido (entonces recibe otro correo).
+- Quien dice que ningún destino le va bien, o que no está disponible, **vuelve a la lista de reserva** con su puntuación. La plaza queda libre: ofrecedla a la reserva siguiente con **Acciones > Ofrecer una plaza libre**, como siempre. Quien ha vuelto a la lista de reserva se propone después de las demás personas en reserva.
 
 Un alumno que acepta una plaza más tarde entra en la cola según su posición.
 

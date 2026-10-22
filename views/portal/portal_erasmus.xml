@@ -208,15 +208,21 @@
                                 <input type="text" class="form-control" name="preferred_dates" id="preferred_dates"
                                        t-att-value="application.preferred_dates or ''"/>
                             </div>
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="previous_mobility" id="previous_mobility"
-                                       t-att-checked="application.previous_mobility or None"/>
-                                <label class="form-check-label" for="previous_mobility">I have already taken part in an Erasmus+ mobility</label>
+                            <div class="mb-3">
+                                <label class="form-label" for="declared_last_mobility_date">Month and year of your last Erasmus+ staff mobility from this centre</label>
+                                <input type="month" class="form-control" name="declared_last_mobility_date" id="declared_last_mobility_date"
+                                       t-att-value="application.declared_last_mobility_date and application.declared_last_mobility_date.strftime('%Y-%m') or ''"/>
+                                <div class="form-text">Only Erasmus+ staff mobilities: accompanying students, other programmes and mobilities from other centres do not count.</div>
+                                <div class="form-check mt-1">
+                                    <input class="form-check-input" type="checkbox" name="declared_never_staff_mobility" id="declared_never_staff_mobility"
+                                           t-att-checked="application.declared_never_staff_mobility or None"/>
+                                    <label class="form-check-label" for="declared_never_staff_mobility">I have never had one</label>
+                                </div>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label" for="previous_mobility_details">If so, which ones and when</label>
-                                <textarea class="form-control" name="previous_mobility_details" id="previous_mobility_details" rows="2"
-                                          t-esc="application.previous_mobility_details or ''"/>
+                                <label class="form-label" for="declared_centre_start_date">Month and year since when you work at the centre without interruption</label>
+                                <input type="month" class="form-control" name="declared_centre_start_date" id="declared_centre_start_date"
+                                       t-att-value="application.declared_centre_start_date and application.declared_centre_start_date.strftime('%Y-%m') or ''"/>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="centre_projects">Centre projects, commissions or coordinations you take part in (last course and this one)</label>

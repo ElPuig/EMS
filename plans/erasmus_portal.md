@@ -324,7 +324,10 @@ graph LR
   export; the staff's identity document and export data come from their employee file; one ranking for the
   whole call, the team assigns project and period after selection; no work-life balance question in the
   form (the applicant proposes the dates in the plan); no extra places; criterion 4 scores the certificate the
-  applicant declares, the team corrects it only if the uploaded one does not match).* Staff application on the same portal page, mobility plan upload,
+  applicant declares, the team corrects it only if the uploaded one does not match; the applicant also
+  declares the month of their last staff mobility from the centre and the month they joined it, which give
+  criteria 2 and 5; no substitutes in the panel, abstentions just don't count; ties: plan, then seniority;
+  the call opens without places and with the documents of art. 8 preset).* Staff application on the same portal page, mobility plan upload,
   panel configuration and ratings, manual merits, staff scoring and tie-breaks, project/period
   assignment, one place per person. Reuses F1-F3, including "Export to spreadsheet": for staff,
   Ciclo formativo, Curso and the legal guardian columns stay empty (decided 2026-10-22).

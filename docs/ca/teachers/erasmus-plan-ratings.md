@@ -6,7 +6,7 @@
 
 Com a membre del tribunal de la convocatòria Erasmus+ del personal, valores a l'EMS el pla de mobilitat de cada persona candidata amb la rúbrica de la convocatòria.
 
-**Qui:** els membres del tribunal que l'equip Erasmus afegeix a la convocatòria i les persones substitutes que designa la direcció.
+**Qui:** els membres del tribunal que l'equip Erasmus afegeix a la convocatòria (la direcció i els caps de departament i de seminari).
 
 ---
 
@@ -29,9 +29,9 @@ Pots escriure les teves notes a **Notes de l'avaluador**.
 
 ## 3. Enviar-la
 
-Fes clic a **Accions > Enviar**. Fins al termini de revisió de la convocatòria la pots **Reobrir** i canviar; després, si hi ha un error, avisa l'equip Erasmus.
+Fes clic a **Accions > Enviar**. Fins al **termini per corregir puntuacions** de la convocatòria la pots **Reobrir** i canviar; després, si hi ha un error, avisa l'equip Erasmus.
 
-**Si et presentes a la convocatòria, o tens un conflicte d'interessos amb una persona candidata**, no valores: avisa l'equip Erasmus, que ho registrarà juntament amb la persona substituta que designi la direcció.
+**Si et presentes a la convocatòria, o tens un conflicte d'interessos amb una persona candidata**, no valores: avisa l'equip Erasmus, que registrarà l'abstenció. La puntuació del pla és la mitjana de la resta de membres.
 
 ---
 

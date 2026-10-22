@@ -6,7 +6,7 @@
 
 As a member of the panel of the Erasmus+ staff call, you rate in EMS the mobility plan of every candidate with the rubric of the call.
 
-**Who:** the panel members the Erasmus team adds to the call, and the substitutes the Director appoints.
+**Who:** the panel members the Erasmus team adds to the call (the management and the heads and seminar chiefs of the departments).
 
 ---
 
@@ -29,9 +29,9 @@ You can write your own notes in **Evaluator's notes**.
 
 ## 3. Submit it
 
-Click **Actions > Submit**. Until the call's review deadline you can **Reopen** it and change it; afterwards, if there is a mistake, tell the Erasmus team.
+Click **Actions > Submit**. Until the call's **score correction deadline** you can **Reopen** it and change it; afterwards, if there is a mistake, tell the Erasmus team.
 
-**If you are a candidate in the call, or you have a conflict of interest with a candidate**, you don't rate: tell the Erasmus team, who will record it and the substitute the Director appoints.
+**If you are a candidate in the call, or you have a conflict of interest with a candidate**, you don't rate: tell the Erasmus team, who will record the abstention. The plan's score is the mean of the other members.
 
 ---
 

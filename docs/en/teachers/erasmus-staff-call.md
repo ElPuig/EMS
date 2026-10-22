@@ -19,14 +19,16 @@ Go to **Erasmus+** on the school portal (`/my/erasmus`; the Erasmus team shares 
 - **Activity:** job shadowing, structured course or teaching assignment.
 - **Host entity or course** and **Destination** (city and country). If you have not found one yet, tick the box and the Erasmus coordination will help you.
 - **Preferred dates or period** and the approximate duration.
-- Your previous Erasmus+ mobilities and the **centre projects** you take part in.
+- The **month and year of your last Erasmus+ staff mobility** from the centre, or tick that you never had one. Accompanying students, other programmes and mobilities from other centres don't count.
+- The **month and year since when you work at the centre** without interruption.
+- The **centre projects**, commissions or coordinations you take part in (last course and this one).
 - Your highest official **language certificate** (B2 or higher), if you have one. Attach it in the documents too.
 - Optional: whether you want to accompany groups of students, and the **support** you need to do the mobility. This answer is confidential: only the Erasmus team reads it.
 - The voluntary consent to use your image.
 
 Attach the documents the call asks for: identity document, Europass CV in English and the **mobility plan** (annex 1, two pages at most). The language certificates are optional.
 
-Click **Save draft** to keep working on it later, or **Submit application** when everything is ready. You receive a receipt by email. Until the closing date you can change it and submit it again.
+You can't submit it without your last mobility and the date you joined the centre. Click **Save draft** to keep working on it later, or **Submit application** when everything is ready. You receive a receipt by email. Until the closing date you can change it and submit it again.
 
 ## 3. Follow it
 

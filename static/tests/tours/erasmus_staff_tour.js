@@ -37,6 +37,18 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_staff_apply", {
             run: "edit Tour host school",
         },
         {
+            trigger: "form.o_ems_erasmus_form input[name='declared_never_staff_mobility']",
+            content: "Never had a staff mobility",
+            run: "click",
+        },
+        {
+            trigger: "form.o_ems_erasmus_form input[name='declared_centre_start_date']",
+            content: "At the centre since September 2015",
+            run() {
+                this.anchor.value = "2015-09";
+            },
+        },
+        {
             trigger: "form.o_ems_erasmus_form .o_ems_erasmus_document.o_ems_erasmus_required input[type='file']",
             content: "Attach the required documents",
             run() {

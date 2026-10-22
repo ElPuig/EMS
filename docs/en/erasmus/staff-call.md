@@ -4,7 +4,7 @@
 
 # The Erasmus+ staff call
 
-Run the call for vocational training staff (job shadowing, structured courses and teaching assignments): the staff apply from the portal, the panel rates their mobility plans, and you record the other criteria, publish the resolutions and offer the places.
+Run the call for vocational training staff (job shadowing, structured courses and teaching assignments): the staff apply from the portal, the panel rates their mobility plans, and you review the rest, publish the resolutions and offer the places.
 
 **Required role:** *Erasmus coordinator* or *Erasmus mobility technician* (Erasmus+ > Manager).
 
@@ -12,52 +12,59 @@ The staff call works like the students' one (see [Calls and applications](calls-
 
 ---
 
-## 1. Create the call
+## 1. Open the call
 
-In **Erasmus+ > Calls**, create the call and set **Applicants** to *Staff*. The **Minimum score** goes to 0: the staff call has none.
+In **Erasmus+ > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
 
-- **Modalities:** one line per project and period, with its places (for example *GM April*, *GM June-July*, *GS June-July*). There are no levels: the staff apply once, without choosing a modality.
-- **Documents:** the identity document, the Europass CV, the **mobility plan** and, optional, the language certificates. Tick **Shown to the panel** on the mobility plan: it is the only document the panel sees.
-- **Panel** tab: the people who rate the mobility plans, with their post (for example the Director, the Head of Studies and the heads and seminar chiefs of the departments). Every member rates every plan.
+- The **documents** of art. 8 are added on their own: identity document, Europass CV in English, **mobility and transfer plan** (the only document the panel sees, marked **Shown to the panel**) and, optional, the language certificates. You can change them before publishing.
+- The **Minimum score** is 0: the staff call has none.
+- The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5).
 
 Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). Share that link when you announce the call.
 
-## 2. Review and admit
+## 2. What the staff fill in
 
-The staff application has its own answers (activity, host entity or course, destination, preferred dates, projects of the centre, interest in accompanying students). They also declare their highest language certificate. The **support needs** are confidential: only the Erasmus team sees them.
+Besides the activity, host entity or course, destination and dates, each applicant declares:
 
-Review the documents and admit or exclude as in the students' call. There is no serious-sanction check: admitting needs the **Requirements** check (staff of vocational training this course) and every required document valid.
+- The **month and year of their last Erasmus+ staff mobility** from the centre, or that they never had one. Accompanying students and other programmes don't count.
+- The **month and year since when they work at the centre** without interruption.
+- Their highest **language certificate** (B2 or higher), and they attach it.
+- The **centre projects** they take part in, and optionally their **support needs** (confidential: only the Erasmus team sees them).
 
-## 3. Send the plans to the panel
+They can't submit without the last mobility and the date at the centre.
 
-After **Close applications**, click **Actions > Send plans to the panel**. Every panel member gets a task to rate the plan of every admitted application, from **Erasmus+ > My plan ratings**. You can click it again after admitting more applications: it only creates the ratings still missing.
+## 3. Review, admit and send the plans to the panel
 
-**A panel member who is a candidate in the call does not rate** (art. 10). Their ratings are created without anyone to rate them and with the reason *Candidate in this call*. Open each one in **Erasmus+ > Plan ratings** (filter *Waiting for a substitute*) and set as **Evaluator** the substitute the Director appoints. For any other conflict of interest, write the **Abstention reason** and set the substitute the same way. A candidate can never be set as evaluator.
+Review the documents and admit or exclude as in the students' call (there is no serious-sanction check).
 
-The plan score (criterion 1) is the mean of every rating. **A pending rating blocks it:** the application has no complete score until every panel member, or their substitute, has submitted theirs.
+Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My plan ratings**. You can click it again after admitting more applications: it only creates the ratings still missing.
 
-## 4. Record the other criteria
+**Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating in **Erasmus+ > Plan ratings** and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted.
 
-On the application's **Scoring** tab:
+## 4. Review the other criteria
 
-| Criterion | Field | Points |
-|---|---|---|
-| 1. Mobility plan | The panel's mean | Up to 2 |
-| 2. Last staff mobility | **Last staff mobility** (accompanying students does not count) | Never or more than two courses ago 1.5; two courses ago 0.5; last course or this one 0 |
-| 3. Centre projects | **Merits**: each collaboration 0.5, each coordination 1 | Up to 1.5 |
-| 4. Languages | **Declared language certificate**, the highest. If the uploaded certificate does not match, record the right level in **Language certificate checked**, which counts instead | B2 1; C1 1.5; C2 2 |
-| 5. Seniority | **Seniority at the centre**, continuous at the closing date | Less than 1 year 0; 1 to 2 years 1; 2 to 5 years 1.5; 5 years or more 2 |
-| 6. Internationalisation | **Merits**: each activity 0.5 | Up to 1 |
+On the application's **Scoring** tab EMS shows what the applicant declared and the points it gives. You only correct it when it is wrong:
 
-Write each merit with its justification (which project or activity and when). EMS caps criteria 3 and 6 at their maximum. Tick **Merits reviewed** once every merit is recorded, also when there is none: until then the score is incomplete.
+| Criterion | Comes from | Correct it in | Points |
+|---|---|---|---|
+| 1. Mobility plan | The panel's mean | - | Up to 2 |
+| 2. Last staff mobility | **Declared last staff mobility** (the course of the month they gave) | **Last staff mobility checked** | Never or more than two courses ago 1.5; two courses ago 0.5; last course or this one 0 |
+| 3. Centre projects | **Merits** you record: each collaboration 0.5, each coordination 1 | - | Up to 1.5 |
+| 4. Languages | **Declared language certificate** | **Language certificate checked** | B2 1; C1 1.5; C2 2 |
+| 5. Seniority | **Declared seniority** (at the closing date) | **Seniority checked** | Less than 1 year 0; 1 to 2 years 1; 2 to 5 years 1.5; 5 years or more 2 |
+| 6. Internationalisation | **Merits** you record: each activity 0.5 | - | Up to 1 |
 
-## 5. Ranking and resolutions
+Record each merit with its justification, from what the applicant wrote in centre projects. Tick **Merits reviewed** once every merit is recorded, also when there is none: until then the score is incomplete.
 
-The staff are ranked **in one list** for the whole call (**Ranking** button of the call). Ties are broken, in this order, by never having had a staff mobility, the mobility plan score, seniority and, last, the draw you record.
+## 5. Places, ranking and resolutions
 
-The resolutions are published as in the students' call, with the same rule: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it before preparing the list.
+Before preparing the provisional resolution, add the **modalities** of the call with the places you finally have (for example *GM April*, *GM June-July*, *GS June-July*).
 
-Each person gets one place at most. The selected are those within the call's places (the sum of every modality). Then assign each one their project and period in the application's **Modality** field, checking the project's conditions.
+The staff are ranked **in one list** for the whole call (**Ranking** button of the call). Ties are broken by the mobility plan score, then seniority and, last, the draw you record.
+
+The resolutions are published as in the students' call: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it.
+
+The selected are those within the call's places (the sum of every modality); each person gets one place at most. Then assign each one their project and period in the application's **Modality** field.
 
 ## 6. Offers and spreadsheet
 

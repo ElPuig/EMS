@@ -106,7 +106,31 @@ class EmsErasmusCall(models.Model):
 
     @api.onchange('audience')
     def _onchange_audience(self):
+        """A staff call has no minimum score and starts with the documents of art. 8 of the staff call."""
         self.min_score = 0.0 if self.audience == 'staff' else 50.0
+        if self.audience == 'staff' and not self.document_ids:
+            self.document_ids = self._ems_staff_documents()
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get('audience') == 'staff' and not vals.get('document_ids'):
+                vals['document_ids'] = self._ems_staff_documents()
+        return super().create(vals_list)
+
+    @api.model
+    def _ems_staff_documents(self):
+        """The documents art. 8 of the staff call asks for; the mobility plan is the one the panel sees."""
+        return [(0, 0, vals) for vals in (
+            {'sequence': 1, 'name': _("Identity document"), 'requirement': 'required',
+             'description': _("DNI or passport (EU citizens); passport and NIE (non-EU citizens).")},
+            {'sequence': 2, 'name': _("Europass CV in English"), 'requirement': 'required',
+             'description': _("With your experience, skills and a photo (europass.europa.eu).")},
+            {'sequence': 3, 'name': _("Mobility and transfer plan"), 'requirement': 'required', 'panel_visible': True,
+             'description': _("Annex 1 of the call, two pages at most.")},
+            {'sequence': 4, 'name': _("Language certificates"), 'requirement': 'optional',
+             'description': _("Official, B2 or higher.")},
+        )]
 
     def write(self, vals):
         if 'audience' in vals and self.filtered(
@@ -124,7 +148,7 @@ class EmsErasmusCall(models.Model):
 
     def action_publish(self):
         for call in self:
-            if not call.modality_ids:
+            if call.audience == 'student' and not call.modality_ids:
                 raise UserError(_("Add at least one modality before publishing the call."))
             if call.audience == 'student' and call.modality_ids.filtered(lambda modality: not modality.level_ids):
                 raise UserError(_("Every modality of a students' call needs the levels whose students apply in it."))
@@ -148,8 +172,8 @@ class EmsErasmusCall(models.Model):
 
     def action_send_to_panel(self):
         """Issue #686: one rating per admitted application and panel member, for those still
-        without one. A member who is a candidate in the call abstains (art. 10): their rating waits
-        for the substitute the Director appoints."""
+        without one. A member who is a candidate in the call abstains (art. 10): their rating has no
+        evaluator and does not count."""
         Rating = self.env['ems.erasmus.plan_rating']
         for call in self:
             if call.audience != 'staff' or call.state != 'closed':

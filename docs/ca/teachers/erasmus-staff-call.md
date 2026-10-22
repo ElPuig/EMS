@@ -19,14 +19,16 @@ Ves a **Erasmus+** al portal del centre (`/my/erasmus`; l'equip Erasmus en compa
 - **Activitat:** job shadowing, curs estructurat o estada de docència.
 - **Entitat d'acollida o curs** i **Destinació** (ciutat i país). Si encara no en tens cap, marca la casella i la coordinació Erasmus t'ajudarà a trobar-ne una.
 - **Dates o període preferent** i la durada aproximada.
-- Les teves mobilitats Erasmus+ anteriors i els **projectes del centre** en què participes.
+- El **mes i l'any de la teva última mobilitat Erasmus+ de personal** des del centre, o marca que no n'has fet mai cap. Els acompanyaments d'alumnat, altres programes i les mobilitats des d'altres centres no compten.
+- El **mes i l'any des que treballes al centre** de manera continuada.
+- Els **projectes**, comissions o coordinacions del centre en què participes (el curs passat i l'actual).
 - El teu **certificat de llengua** oficial més alt (B2 o superior), si en tens. Adjunta'l també als documents.
 - Opcionalment: si vols acompanyar grups d'alumnat, i el **suport** que necessites per fer la mobilitat. Aquesta resposta és confidencial: només la llegeix l'equip Erasmus.
 - El consentiment voluntari per a l'ús de la teva imatge.
 
 Adjunta els documents que demana la convocatòria: document d'identitat, CV Europass en anglès i el **pla de mobilitat** (annex 1, com a màxim dues pàgines). Els certificats de llengües són opcionals.
 
-Fes clic a **Desa l'esborrany** per continuar-hi més tard, o a **Envia la sol·licitud** quan ho tinguis tot a punt. Rebràs un justificant per correu. Fins a la data de tancament la pots modificar i tornar a enviar.
+No la pots enviar sense l'última mobilitat i la data d'incorporació al centre. Fes clic a **Desa l'esborrany** per continuar-hi més tard, o a **Envia la sol·licitud** quan ho tinguis tot a punt. Rebràs un justificant per correu. Fins a la data de tancament la pots modificar i tornar a enviar.
 
 ## 3. Seguir-la
 

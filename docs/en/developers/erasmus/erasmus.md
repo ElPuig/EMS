@@ -414,9 +414,10 @@ what differs:
 | | Students | Staff |
 |---|---|---|
 | Who sees the call on the portal | A student whose main group's level is in a modality | An internal user with an employee file (`res.partner._ems_erasmus_employee`) |
-| Modality | Computed from the level when applying | Empty when applying; the team assigns the project and period after the selection |
+| Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change): required before preparing the provisional resolution; the team assigns each selected person's project and period |
+| Documents | Configured per call | The four of art. 8 added on their own (`_ems_staff_documents`, on create and on the `audience` onchange), the mobility plan `panel_visible` |
 | Admission checks | Requirements + serious sanctions (Head of Studies) | Requirements only |
-| Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6), every value recorded by the team or the panel |
+| Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | The sum of every modality, offered as one pool |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
@@ -429,7 +430,7 @@ erDiagram
     ems_erasmus_application }o--o| hr_employee : "employee_id"
     ems_erasmus_application ||--o{ ems_erasmus_plan_rating : "plan_rating_ids"
     ems_erasmus_plan_rating }o--|| res_users : "panel_member_id"
-    ems_erasmus_plan_rating }o--o| res_users : "evaluator_id (member or substitute)"
+    ems_erasmus_plan_rating }o--o| res_users : "evaluator_id (the member, empty if abstaining)"
     ems_erasmus_application ||--o{ ems_erasmus_application_merit : "merit_ids"
 ```
 
@@ -443,7 +444,8 @@ erDiagram
 
 The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`): activity
 (`staff_activity`), host entity or course, "host not found yet", destination, preferred dates,
-previous mobilities, centre projects, interest in accompanying students, support needs
+last staff mobility and date at the centre (below), centre projects, interest in accompanying
+students, support needs
 (confidential: `groups` Erasmus team and administrator), the declared language certificate
 (`declared_language_level`), image consent, notes. The controller saves only the answers of the call's audience;
 `_ems_portal_save` refuses an activity outside the selection. `employee_id` is set when the
@@ -454,14 +456,15 @@ application is created. `is_minor` is always false for staff.
 **Actions > Send plans to the panel** (`action_send_to_panel`, closed staff call only) creates one
 rating per admitted application and panel member still without one, so it can be repeated after
 admitting more. A panel member who applied to the call (`_ems_candidate_partners`: any application
-past draft) is created without `evaluator_id` and with the abstention reason *Candidate in this
-call* (art. 10). The team then sets the substitute the Director appoints as `evaluator_id`;
-`_check_evaluator` requires an `abstention_reason` whenever the evaluator is not the panel member,
-and never accepts a candidate of the call as evaluator.
+past draft) gets an abstention instead: no `evaluator_id`, reason *Candidate in this call* (art. 10).
+For any other conflict of interest the team writes the `abstention_reason`, which clears the
+evaluator (`write`); clearing the reason gives the rating back to the member. There are no
+substitutes (decided with the coordinator 2026-10-22): `_check_evaluator` only accepts the panel
+member, or nobody, and never a candidate of the call.
 
-`plan_score` is the mean of the submitted ratings; `plan_complete` needs a submitted rating for
-every panel member (`call.panel_ids`). A pending rating, or one still without a substitute, leaves
-the score incomplete.
+`plan_score` is the mean of the submitted ratings that are not abstentions; `plan_complete` needs
+every non-abstaining rating submitted and a rating for every panel member (`call.panel_ids`). A
+pending rating leaves the score incomplete.
 
 **What a panel member sees:** only their ratings (record rule `evaluator_id = user`), and, so they
 can open the plan, the application document lines whose call document is `panel_visible` and not
@@ -473,19 +476,26 @@ read only); the rating shows those files (`plan_attachment_ids`). Nothing else o
 | | Criterion | Field(s) | Points |
 |---|---|---|---|
 | 1 | Mobility plan | `plan_score` → `score_plan` | max 2 |
-| 2 | Last staff mobility | `last_staff_mobility` → `score_last_mobility` | never / older 1.5, two courses ago 0.5, recent 0 |
+| 2 | Last staff mobility | `last_staff_mobility` (team correction) else `declared_last_staff_mobility` → `score_last_mobility` | never / older 1.5, two courses ago 0.5, recent 0 |
 | 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 1.5 |
 | 4 | Languages | `language_level` (checked by the team) else `declared_language_level` (the applicant's) → `score_staff_language` | B2 1, C1 1.5, C2 2 (B1 0) |
-| 5 | Seniority | `seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
+| 5 | Seniority | `seniority` (team correction) else `declared_seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
 | 6 | Internationalisation | `merit_ids` (internationalisation) → `score_internationalisation` | sum, max 1 |
 
-`score_complete` needs the plan complete, `last_staff_mobility`, `seniority` and
+**Declared values** (`_compute_declared_staff_bands`): the applicant gives the month of their last
+Erasmus+ staff mobility from the centre (`declared_last_mobility_date`, or
+`declared_never_staff_mobility`) and the month they joined the centre (`declared_centre_start_date`);
+both are required to submit. The mobility belongs to the course starting the 1 September before it
+and is compared with the call's course; seniority counts whole months up to the call's closing date
+(company time). The portal sends them as `<input type="month">` values (`YYYY-MM`, stored as the 1st).
+
+`score_complete` needs the plan complete, criteria 2 and 5 (declared or corrected) and
 `merits_checked` (stamped like every manual criterion, so "no merits" is an explicit answer).
 Criterion 4 never blocks: no declared certificate counts as none (`_ems_staff_language_level`).
 
 **Ranking** (`_compute_rank`, `_ems_rank_key`): one list per call, once every admitted application
-is complete. Tie-breaks: never had a staff mobility (`last_staff_mobility == 'never'`, which scores
-the same as `older`), plan score, seniority, then the recorded draw. Result
+is complete. Tie-breaks (decided with the coordinator 2026-10-22): plan score, seniority, then the
+recorded draw. Result
 (`_ems_ranking_result`): selected within the sum of every modality's places, reserve after them.
 
 ### Resolutions, offers and export

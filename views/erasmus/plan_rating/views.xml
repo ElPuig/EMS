@@ -28,7 +28,7 @@
                     <field name="evaluator_id"/>
                     <filter name="to_score" string="To score" domain="[('state', '=', 'draft')]"/>
                     <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
-                    <filter name="no_evaluator" string="Waiting for a substitute" domain="[('evaluator_id', '=', False)]"/>
+                    <filter name="abstentions" string="Abstentions" domain="[('abstention_reason', '!=', False)]"/>
                     <group>
                         <filter name="group_member" string="Panel member" context="{'group_by': 'panel_member_id'}"/>
                     </group>
@@ -62,8 +62,6 @@
                             <group>
                                 <field name="call_name"/>
                                 <field name="panel_member_id" readonly="1"/>
-                                <field name="evaluator_id" readonly="state != 'draft'" options="{'no_create': True}"
-                                       groups="ems.group_erasmus,ems.group_academic_admin"/>
                                 <field name="abstention_reason" readonly="state != 'draft'"
                                        groups="ems.group_erasmus,ems.group_academic_admin"/>
                             </group>

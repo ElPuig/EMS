@@ -18862,8 +18862,10 @@ msgstr "Aquesta assistència va ser registrada automàticament com a sortida al 
 msgid "Can view identity"
 msgstr "Pot veure la identificació"
 
+#: code:addons/ems/models/erasmus/call.py:0
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__scoped_identification_id
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 msgid "Identity document"
@@ -26703,6 +26705,7 @@ msgstr "0: no es preveu cap aplicació ni difusió. 0,5: aplicació o difusió p
 msgid "0: no relation with the job or the training cycles, generic objectives and activity. 0.5: a general relation, or objectives and activity not very concrete. 1: a clear relation with the job, the department and the training cycles, concrete objectives and the entity or course named."
 msgstr "0: no s'explica la relació amb la feina ni amb els cicles formatius, i els objectius i l'activitat són genèrics. 0,5: la relació és general o els objectius i l'activitat són poc concrets. 1: la relació amb la feina, el departament i els cicles formatius és clara, amb objectius concrets i l'entitat o el curs indicats pel nom."
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_seniority__y1
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__seniority__y1
 msgid "1 to less than 2 years"
@@ -26713,6 +26716,7 @@ msgstr "D'1 a menys de 2 anys"
 msgid "1. Mobility plan"
 msgstr "1. Pla de mobilitat"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_seniority__y2
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__seniority__y2
 msgid "2 to less than 5 years"
@@ -26738,6 +26742,7 @@ msgstr "3. Projectes del centre"
 msgid "4. Languages"
 msgstr "4. Llengües"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_seniority__y5
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__seniority__y5
 msgid "5 years or more"
@@ -26846,11 +26851,6 @@ msgid "Collaboration in a centre project (0.5)"
 msgstr "Col·laboració en un projecte del centre (0,5)"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__seniority
-msgid "Continuous, at the closing date of the call."
-msgstr "Continuada, a la data de tancament de la convocatòria."
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_merit__kind__project_coordination
 msgid "Coordination of a centre project (1)"
 msgstr "Coordinació d'un projecte del centre (1)"
@@ -26891,11 +26891,6 @@ msgid "Erasmus+ staff merit"
 msgstr "Mèrit del personal Erasmus+"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__last_staff_mobility
-msgid "Erasmus+ staff mobilities. Accompanying students does not count."
-msgstr "Mobilitats Erasmus+ de personal. Els acompanyaments d'alumnat no compten."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
 msgid "Every admission check must be met to admit %s."
@@ -26919,11 +26914,6 @@ msgid "Every modality of a students' call needs the levels whose students apply 
 msgstr "Cada modalitat d'una convocatòria d'alumnat necessita els nivells de l'alumnat que s'hi presenta."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_complete
-msgid "Every panel member (or their substitute) has submitted their rating."
-msgstr "Tots els membres del tribunal (o les persones substitutes) han enviat la seva valoració."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__host_entity model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Host entity or course"
 msgstr "Entitat d'acollida o curs"
@@ -26944,11 +26934,6 @@ msgid "I have not found one yet: I would like the Erasmus coordination to help m
 msgstr "Encara no n'he trobat cap: m'agradaria que la coordinació Erasmus m'ajudés"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "If so, which ones and when"
-msgstr "Si és així, quines i quan"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__accompany_students
 msgid "Interested in accompanying students"
 msgstr "Interès a acompanyar alumnat"
@@ -26963,6 +26948,7 @@ msgstr "Activitat d'internacionalització (0,5)"
 msgid "Job shadowing"
 msgstr "Job shadowing"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_last_staff_mobility__recent
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__last_staff_mobility__recent
 msgid "Last course or this one"
@@ -26983,6 +26969,7 @@ msgstr "Última mobilitat comprovada el"
 msgid "Last staff mobility"
 msgstr "Última mobilitat de personal"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_seniority__y0
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__seniority__y0
 msgid "Less than 1 year"
@@ -27043,6 +27030,7 @@ msgstr "Valoracions de plans de mobilitat"
 msgid "Mobility plan score"
 msgstr "Puntuació del pla de mobilitat"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_last_staff_mobility__older
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__last_staff_mobility__older
 msgid "More than two courses ago"
@@ -27053,6 +27041,7 @@ msgstr "Fa més de dos cursos"
 msgid "My plan ratings"
 msgstr "Les meves valoracions de plans"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_last_staff_mobility__never
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__last_staff_mobility__never
 msgid "Never"
@@ -27273,6 +27262,7 @@ msgstr "No queda cap persona de reserva."
 msgid "This evaluation is assigned to someone else."
 msgstr "Aquesta avaluació està assignada a una altra persona."
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_last_staff_mobility__two_courses
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__last_staff_mobility__two_courses
 msgid "Two courses ago"
@@ -27282,11 +27272,6 @@ msgstr "Fa dos cursos"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
 msgid "Until when evaluators can reopen and change their interviews or mobility plan ratings."
 msgstr "Fins quan les persones avaluadores poden reobrir i canviar les seves entrevistes o valoracions de plans de mobilitat."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_search
-msgid "Waiting for a substitute"
-msgstr "Pendent de suplència"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_merit__description
@@ -27299,20 +27284,9 @@ msgid "Why the Erasmus team reopens the evaluation after the review deadline."
 msgstr "Per què l'equip Erasmus reobre l'avaluació després del termini de revisió."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__abstention_reason
-msgid "Why the panel member does not rate this plan. The substitute the Director appoints rates it instead."
-msgstr "Per què el membre del tribunal no valora aquest pla. El valora en el seu lloc la persona substituta que designa la direcció."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call_panel__post
 msgid "Why they are in the panel, e.g. Director, Head of department."
 msgstr "Per què forma part del tribunal, p. ex. direcció, cap de departament."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/plan_rating.py:0
-msgid "Write the abstention reason before a substitute rates instead of the panel member."
-msgstr "Escriu el motiu de l'abstenció abans que una persona substituta valori en lloc del membre del tribunal."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -27354,3 +27328,163 @@ msgstr "Termini per corregir puntuacions"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_language_level
 msgid "The highest certificate the staff applicant declares (B2 or higher). It scores criterion 4 unless the Erasmus team records another level after checking the certificate."
 msgstr "El certificat més alt que declara la persona sol·licitant (B2 o superior). Puntua el criteri 4, tret que l'equip Erasmus registri un altre nivell després de comprovar el certificat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_search
+msgid "Abstentions"
+msgstr "Abstencions"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Add the modalities of the call, with their places, before preparing the resolution."
+msgstr "Afegeix les modalitats de la convocatòria, amb les seves places, abans de preparar la resolució."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Annex 1 of the call, two pages at most."
+msgstr "Annex 1 de la convocatòria, com a màxim dues pàgines."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_centre_start_date
+msgid "At the centre since"
+msgstr "Al centre des de"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_last_staff_mobility
+msgid "Criterion 2, from what the applicant declared and the call's course."
+msgstr "Criteri 2, a partir del que ha declarat la persona sol·licitant i el curs de la convocatòria."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_seniority
+msgid "Criterion 5, from the date the applicant declared, at the call's closing date."
+msgstr "Criteri 5, a partir de la data que ha declarat la persona sol·licitant, a la data de tancament de la convocatòria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "DNI or passport (EU citizens); passport and NIE (non-EU citizens)."
+msgstr "DNI o passaport (persones de la UE); passaport i NIE (persones de fora de la UE)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_last_staff_mobility
+msgid "Declared last staff mobility"
+msgstr "Última mobilitat de personal declarada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_seniority
+msgid "Declared seniority"
+msgstr "Antiguitat declarada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Europass CV in English"
+msgstr "CV Europass en anglès"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_complete
+msgid "Every panel member who does not abstain has submitted their rating."
+msgstr "Tots els membres del tribunal que no s'abstenen han enviat la seva valoració."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "I have never had one"
+msgstr "No n'he fet mai cap"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Language certificates"
+msgstr "Certificats de llengües"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Last staff mobility checked"
+msgstr "Última mobilitat de personal comprovada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_last_mobility_date
+msgid "Last staff mobility on"
+msgstr "Última mobilitat de personal el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Mobility and transfer plan"
+msgstr "Pla de mobilitat i transferència"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_last_mobility_date
+msgid "Month and year of the applicant's last Erasmus+ staff mobility from this centre. Accompanying students, other programmes and mobilities from other centres do not count."
+msgstr "Mes i any de l'última mobilitat Erasmus+ de personal de la persona sol·licitant des d'aquest centre. Els acompanyaments d'alumnat, altres programes i les mobilitats des d'altres centres no compten."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Month and year of your last Erasmus+ staff mobility from this centre"
+msgstr "Mes i any de la teva última mobilitat Erasmus+ de personal des d'aquest centre"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_centre_start_date
+msgid "Month and year since when the applicant works at the centre without interruption."
+msgstr "Mes i any des que la persona sol·licitant treballa al centre de manera continuada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Month and year since when you work at the centre without interruption"
+msgstr "Mes i any des que treballes al centre de manera continuada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_never_staff_mobility
+msgid "Never had a staff mobility"
+msgstr "Mai no ha fet cap mobilitat de personal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Official, B2 or higher."
+msgstr "Oficials, de nivell B2 o superior."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Only Erasmus+ staff mobilities: accompanying students, other programmes and mobilities from other centres do not count."
+msgstr "Només mobilitats Erasmus+ de personal: els acompanyaments d'alumnat, altres programes i les mobilitats des d'altres centres no compten."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/plan_rating.py:0
+msgid "Only the panel member rates their plans."
+msgstr "Només el membre del tribunal valora els seus plans."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__last_staff_mobility model:ir.model.fields,help:ems.field_ems_erasmus_application__seniority
+msgid "Only when what the applicant declared is wrong: this counts instead."
+msgstr "Només quan el que ha declarat la persona sol·licitant no és correcte: això compta en el seu lloc."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Say when your last staff mobility was (or that you never had one) and since when you work at the centre."
+msgstr "Indica quan va ser la teva última mobilitat de personal (o que no n'has fet mai cap) i des de quan treballes al centre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Seniority checked"
+msgstr "Antiguitat comprovada"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_never_staff_mobility
+msgid "The applicant has never done an Erasmus+ staff mobility from this centre."
+msgstr "La persona sol·licitant no ha fet mai cap mobilitat Erasmus+ de personal des d'aquest centre."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__abstention_reason
+msgid "Why the panel member does not rate this plan. The plan's score is the mean of the other members' ratings."
+msgstr "Per què el membre del tribunal no valora aquest pla. La puntuació del pla és la mitjana de les valoracions de la resta de membres."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "With your experience, skills and a photo (europass.europa.eu)."
+msgstr "Amb l'experiència, les competències i una fotografia (europass.europa.eu)."

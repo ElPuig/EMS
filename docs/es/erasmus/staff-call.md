@@ -4,7 +4,7 @@
 
 # La convocatoria Erasmus+ del personal
 
-Gestiona la convocatoria para el personal de formación profesional (job shadowing, cursos estructurados y estancias de docencia): el personal solicita desde el portal, el tribunal valora los planes de movilidad, y tú registras el resto de criterios, publicas las resoluciones y ofreces las plazas.
+Gestiona la convocatoria para el personal de formación profesional (job shadowing, cursos estructurados y estancias de docencia): el personal solicita desde el portal, el tribunal valora los planes de movilidad, y tú revisas el resto, publicas las resoluciones y ofreces las plazas.
 
 **Rol necesario:** *Coordinador/a Erasmus* o *Técnico/a de movilidad Erasmus* (Erasmus+ > Gestor/a).
 
@@ -12,52 +12,59 @@ La convocatoria del personal funciona como la del alumnado (ver [Convocatorias y
 
 ---
 
-## 1. Crear la convocatoria
+## 1. Abrir la convocatoria
 
-En **Erasmus+ > Convocatorias**, crea la convocatoria y pon *Personal* en **Solicitantes**. La **Puntuación mínima** pasa a 0: la convocatoria del personal no tiene.
+En **Erasmus+ > Convocatorias**, crea la convocatoria, pon *Personal* en **Solicitantes**, rellena las fechas, adjunta la convocatoria publicada y publícala. Nada más:
 
-- **Modalidades:** una línea por proyecto y periodo, con sus plazas (por ejemplo *GM abril*, *GM junio-julio*, *GS junio-julio*). No hay niveles: el personal solicita una sola vez, sin elegir modalidad.
-- **Documentos:** el documento de identidad, el CV Europass, el **plan de movilidad** y, opcionales, los certificados de idiomas. Marca **Visible para el tribunal** en el plan de movilidad: es el único documento que ve el tribunal.
-- Pestaña **Tribunal:** las personas que valoran los planes de movilidad, con su cargo (por ejemplo, la dirección, la jefatura de estudios y las jefaturas de departamento y de seminario). Cada miembro valora todos los planes.
+- Los **documentos** del artículo 8 se añaden solos: documento de identidad, CV Europass en inglés, **plan de movilidad y transferencia** (el único documento que ve el tribunal, marcado como **Visible para el tribunal**) y, opcionales, los certificados de idiomas. Puedes cambiarlos antes de publicar.
+- La **Puntuación mínima** es 0: la convocatoria del personal no tiene.
+- Para abrirla no hace falta indicar las **plazas**: la convocatoria publicada ya da las orientativas, y pueden cambiar según los proyectos. Las añades más adelante (paso 5).
 
 Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en el portal (tarjeta **Erasmus+**, `/my/erasmus`). Comparte este enlace cuando la anuncies.
 
-## 2. Revisar y admitir
+## 2. Qué rellena el personal
 
-La solicitud del personal tiene sus propias respuestas (actividad, entidad de acogida o curso, destino, fechas preferentes, proyectos del centro, interés en acompañar alumnado). También declaran su certificado de idioma más alto. Las **necesidades de apoyo** son confidenciales: solo las ve el equipo Erasmus.
+Además de la actividad, la entidad de acogida o el curso, el destino y las fechas, cada persona solicitante declara:
 
-Revisa los documentos y admite o excluye como en la convocatoria del alumnado. No hay comprobación de sanciones graves: para admitir hace falta la comprobación de **Requisitos** (personal de formación profesional este curso) y todos los documentos obligatorios válidos.
+- El **mes y el año de su última movilidad Erasmus+ de personal** desde el centro, o que nunca ha hecho ninguna. Los acompañamientos de alumnado y otros programas no cuentan.
+- El **mes y el año desde que trabaja en el centro** de forma continuada.
+- Su **certificado de idioma** más alto (B2 o superior), que también adjunta.
+- Los **proyectos del centro** en los que participa y, opcionalmente, sus **necesidades de apoyo** (confidenciales: solo las ve el equipo Erasmus).
 
-## 3. Enviar los planes al tribunal
+No puede enviar la solicitud sin la última movilidad y la fecha de incorporación al centro.
 
-Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro del tribunal recibe una tarea para valorar el plan de cada solicitud admitida, desde **Erasmus+ > Mis valoraciones de planes**. Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
+## 3. Revisar, admitir y enviar los planes al tribunal
 
-**Un miembro del tribunal que se presenta a la convocatoria no valora** (art. 10). Sus valoraciones se crean sin nadie que las haga y con el motivo *Candidato en esta convocatoria*. Ábrelas en **Erasmus+ > Valoraciones de planes** (filtro *Pendiente de suplencia*) y pon como **Evaluador** a la persona sustituta que designe la dirección. Para cualquier otro conflicto de intereses, escribe el **Motivo de la abstención** y pon a la persona sustituta de la misma manera. Nunca se puede poner como evaluadora a una persona candidata.
+Revisa los documentos y admite o excluye como en la convocatoria del alumnado (no hay comprobación de sanciones graves).
 
-La puntuación del plan (criterio 1) es la media de todas las valoraciones. **Una valoración pendiente la bloquea:** la solicitud no tiene la puntuación completa hasta que todos los miembros del tribunal, o las personas sustitutas, han enviado la suya.
+Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mis valoraciones de planes**. Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
 
-## 4. Registrar el resto de criterios
+**Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración en **Erasmus+ > Valoraciones de planes** y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía.
 
-En la pestaña **Baremación** de la solicitud:
+## 4. Revisar el resto de criterios
 
-| Criterio | Campo | Puntos |
-|---|---|---|
-| 1. Plan de movilidad | La media del tribunal | Hasta 2 |
-| 2. Última movilidad de personal | **Última movilidad de personal** (los acompañamientos de alumnado no cuentan) | Nunca o hace más de dos cursos 1,5; hace dos cursos 0,5; el curso pasado o el actual 0 |
-| 3. Proyectos del centro | **Méritos**: cada colaboración 0,5, cada coordinación 1 | Hasta 1,5 |
-| 4. Idiomas | **Certificado de idioma declarado**, el más alto. Si el certificado adjunto no coincide, registra el nivel correcto en **Certificado de idioma comprobado**, que cuenta en su lugar | B2 1; C1 1,5; C2 2 |
-| 5. Antigüedad | **Antigüedad en el centro**, continuada en la fecha de cierre | Menos de 1 año 0; de 1 a 2 años 1; de 2 a 5 años 1,5; 5 años o más 2 |
-| 6. Internacionalización | **Méritos**: cada actividad 0,5 | Hasta 1 |
+En la pestaña **Baremación** de la solicitud, EMS muestra lo que ha declarado la persona y los puntos que le corresponden. Solo lo corriges si no es correcto:
 
-Escribe cada mérito con su justificación (qué proyecto o actividad y cuándo). EMS limita los criterios 3 y 6 a su máximo. Marca **Méritos revisados** cuando todos los méritos estén registrados, también si no hay ninguno: hasta entonces la puntuación no está completa.
+| Criterio | Sale de | Se corrige en | Puntos |
+|---|---|---|---|
+| 1. Plan de movilidad | La media del tribunal | - | Hasta 2 |
+| 2. Última movilidad de personal | **Última movilidad de personal declarada** (el curso del mes indicado) | **Última movilidad de personal comprobada** | Nunca o hace más de dos cursos 1,5; hace dos cursos 0,5; el curso pasado o el actual 0 |
+| 3. Proyectos del centro | Los **Méritos** que registras: cada colaboración 0,5, cada coordinación 1 | - | Hasta 1,5 |
+| 4. Idiomas | **Certificado de idioma declarado** | **Certificado de idioma comprobado** | B2 1; C1 1,5; C2 2 |
+| 5. Antigüedad | **Antigüedad declarada** (en la fecha de cierre) | **Antigüedad comprobada** | Menos de 1 año 0; de 1 a 2 años 1; de 2 a 5 años 1,5; 5 años o más 2 |
+| 6. Internacionalización | Los **Méritos** que registras: cada actividad 0,5 | - | Hasta 1 |
 
-## 5. Clasificación y resoluciones
+Registra cada mérito con su justificación, a partir de lo que la persona ha escrito en proyectos del centro. Marca **Méritos revisados** cuando todos los méritos estén registrados, también si no hay ninguno: hasta entonces la puntuación no está completa.
 
-El personal se clasifica **en una sola lista** para toda la convocatoria (botón **Clasificación** de la convocatoria). Los empates se deshacen, por este orden, por no haber hecho nunca una movilidad de personal, la puntuación del plan de movilidad, la antigüedad y, por último, el sorteo que registres.
+## 5. Plazas, clasificación y resoluciones
 
-Las resoluciones se publican como en la convocatoria del alumnado, con la misma norma: las listas solo muestran cuatro cifras del documento de identidad, nunca nombres. Para el personal se toma de su **ficha de empleado** (DNI o NIE; si no, el pasaporte); si alguien no lo tiene, pide a secretaría que lo añada antes de preparar la lista.
+Antes de preparar la resolución provisional, añade las **modalidades** de la convocatoria con las plazas que tengas finalmente (por ejemplo *GM abril*, *GM junio-julio*, *GS junio-julio*).
 
-Cada persona obtiene como máximo una plaza. Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de todas las modalidades). Después asigna a cada una su proyecto y periodo en el campo **Modalidad** de la solicitud, comprobando las condiciones del proyecto.
+El personal se clasifica **en una sola lista** para toda la convocatoria (botón **Clasificación** de la convocatoria). Los empates se deshacen por la puntuación del plan de movilidad, después por la antigüedad y, por último, por el sorteo que registres.
+
+Las resoluciones se publican como en la convocatoria del alumnado: las listas solo muestran cuatro cifras del documento de identidad, nunca nombres. Para el personal se toma de su **ficha de empleado** (DNI o NIE; si no, el pasaporte); si alguien no lo tiene, pide a secretaría que lo añada.
+
+Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de todas las modalidades); cada persona obtiene como máximo una plaza. Después asigna a cada una su proyecto y periodo en el campo **Modalidad** de la solicitud.
 
 ## 6. Ofertas y hoja de cálculo
 

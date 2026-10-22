@@ -5,6 +5,7 @@ import io
 from datetime import timedelta
 
 import xlsxwriter
+from pytz import UTC
 
 from markupsafe import Markup
 
@@ -36,6 +37,10 @@ STAFF_LANGUAGE_SCORES = {'b2': 1.0, 'c1': 1.5, 'c2': 2.0}
 # Criterion 2: the last staff mobility. Criterion 5: continuous seniority at the closing date.
 LAST_MOBILITY_SCORES = {'never': 1.5, 'older': 1.5, 'two_courses': 0.5, 'recent': 0.0}
 SENIORITY_SCORES = {'y0': 0.0, 'y1': 1.0, 'y2': 1.5, 'y5': 2.0}
+LAST_MOBILITY_BANDS = [('never', "Never"), ('older', "More than two courses ago"), ('two_courses', "Two courses ago"),
+                       ('recent', "Last course or this one")]
+SENIORITY_BANDS = [('y0', "Less than 1 year"), ('y1', "1 to less than 2 years"), ('y2', "2 to less than 5 years"),
+                   ('y5', "5 years or more")]
 # Issue #685: "Export to spreadsheet". An external tool imports the file as is, so the sheet name and
 # the headers are fixed, in Spanish, in this order, and are never translated.
 PARTICIPANT_SHEET = 'Participantes'
@@ -47,8 +52,9 @@ ANSWER_FIELDS = {
     'student': ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
                 'image_consent', 'applicant_notes'),
     'staff': ('staff_activity', 'host_entity', 'host_not_identified', 'destination', 'preferred_dates',
-              'previous_mobility', 'previous_mobility_details', 'centre_projects', 'accompany_students',
-              'declared_language_level', 'support_needs', 'image_consent', 'applicant_notes'),
+              'declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
+              'centre_projects', 'accompany_students', 'declared_language_level', 'support_needs', 'image_consent',
+              'applicant_notes'),
 }
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
@@ -102,6 +108,22 @@ class EmsErasmusApplication(models.Model):
     centre_projects = fields.Text(string="Centre projects")
     accompany_students = fields.Boolean(string="Interested in accompanying students")
     support_needs = fields.Text(string="Support needs", groups='ems.group_erasmus,ems.group_academic_admin')
+    declared_never_staff_mobility = fields.Boolean(
+        string="Never had a staff mobility",
+        help="The applicant has never done an Erasmus+ staff mobility from this centre.")
+    declared_last_mobility_date = fields.Date(
+        string="Last staff mobility on",
+        help="Month and year of the applicant's last Erasmus+ staff mobility from this centre. Accompanying students, "
+             "other programmes and mobilities from other centres do not count.")
+    declared_centre_start_date = fields.Date(
+        string="At the centre since", help="Month and year since when the applicant works at the centre without "
+                                           "interruption.")
+    declared_last_staff_mobility = fields.Selection(
+        string="Declared last staff mobility", selection=LAST_MOBILITY_BANDS, compute='_compute_declared_staff_bands',
+        store=True, help="Criterion 2, from what the applicant declared and the call's course.")
+    declared_seniority = fields.Selection(
+        string="Declared seniority", selection=SENIORITY_BANDS, compute='_compute_declared_staff_bands', store=True,
+        help="Criterion 5, from the date the applicant declared, at the call's closing date.")
     declared_language_level = fields.Selection(string="Declared language certificate", selection=[
         ('none', "None"), ('b2', "B2"), ('c1', "C1"), ('c2', "C2")],
         help="The highest certificate the staff applicant declares (B2 or higher). It scores criterion 4 unless the "
@@ -208,16 +230,15 @@ class EmsErasmusApplication(models.Model):
     plan_score = fields.Float(string="Mobility plan score", digits=(4, 2), compute='_compute_plan', store=True,
                               help="Mean of the panel's ratings.")
     plan_complete = fields.Boolean(string="Mobility plan rated", compute='_compute_plan', store=True,
-                                   help="Every panel member (or their substitute) has submitted their rating.")
-    last_staff_mobility = fields.Selection(string="Last staff mobility", tracking=True, copy=False, selection=[
-        ('never', "Never"), ('older', "More than two courses ago"), ('two_courses', "Two courses ago"),
-        ('recent', "Last course or this one")], help="Erasmus+ staff mobilities. Accompanying students does not count.")
+                                   help="Every panel member who does not abstain has submitted their rating.")
+    last_staff_mobility = fields.Selection(string="Last staff mobility", tracking=True, copy=False,
+                                           selection=LAST_MOBILITY_BANDS,
+                                           help="Only when what the applicant declared is wrong: this counts instead.")
     last_staff_mobility_user_id = fields.Many2one(string="Last mobility checked by", comodel_name='res.users',
                                                   readonly=True, copy=False)
     last_staff_mobility_date = fields.Datetime(string="Last mobility checked on", readonly=True, copy=False)
-    seniority = fields.Selection(string="Seniority at the centre", tracking=True, copy=False, selection=[
-        ('y0', "Less than 1 year"), ('y1', "1 to less than 2 years"), ('y2', "2 to less than 5 years"),
-        ('y5', "5 years or more")], help="Continuous, at the closing date of the call.")
+    seniority = fields.Selection(string="Seniority at the centre", tracking=True, copy=False, selection=SENIORITY_BANDS,
+                                 help="Only when what the applicant declared is wrong: this counts instead.")
     seniority_user_id = fields.Many2one(string="Seniority checked by", comodel_name='res.users', readonly=True,
                                         copy=False)
     seniority_date = fields.Datetime(string="Seniority checked on", readonly=True, copy=False)
@@ -264,14 +285,16 @@ class EmsErasmusApplication(models.Model):
             application.interview_english = sum(submitted.mapped('english_score')) / count if count else 0.0
 
     @api.depends('plan_rating_ids.state', 'plan_rating_ids.score', 'plan_rating_ids.panel_member_id',
+                 'plan_rating_ids.abstention_reason',
                  'call_id.panel_ids.user_id')
     def _compute_plan(self):
         """Issue #686: the mean of the panel's ratings, complete when every panel member has a
-        submitted one (a pending rating blocks, it never counts as zero)."""
+        submitted one (a pending rating blocks, it never counts as zero). Abstentions do not count."""
         for application in self:
             ratings = application.plan_rating_ids
-            submitted = ratings.filtered(lambda rating: rating.state == 'submitted')
-            application.plan_complete = bool(ratings) and submitted == ratings and not (
+            counted = ratings.filtered(lambda rating: not rating.abstention_reason)
+            submitted = counted.filtered(lambda rating: rating.state == 'submitted')
+            application.plan_complete = bool(counted) and submitted == counted and not (
                 application.call_id.panel_ids.user_id - ratings.panel_member_id)
             application.plan_score = round(sum(submitted.mapped('score')) / len(submitted), 2) if submitted else 0.0
 
@@ -279,7 +302,7 @@ class EmsErasmusApplication(models.Model):
                  'interview_general', 'interview_english', 'interview_complete', 'language_level',
                  'fewer_opportunities_check', 'first_mobility', 'strike_count', 'call_id.min_score', 'audience',
                  'plan_score', 'plan_complete', 'last_staff_mobility', 'seniority', 'merits_checked',
-                 'declared_language_level',
+                 'declared_language_level', 'declared_last_staff_mobility', 'declared_seniority',
                  'merit_ids.kind')
     def _compute_scores(self):
         """Art. 12: A + B + C + D + E + F, no floor at zero. A pending criterion leaves it incomplete.
@@ -311,18 +334,48 @@ class EmsErasmusApplication(models.Model):
         merits = self.merit_ids
         self.update({
             'score_plan': self.plan_score,
-            'score_last_mobility': LAST_MOBILITY_SCORES.get(self.last_staff_mobility, 0.0),
+            'score_last_mobility': LAST_MOBILITY_SCORES.get(self._ems_staff_last_mobility(), 0.0),
             'score_projects': min(sum(merits.filtered(lambda merit: merit.kind in PROJECT_MERITS).mapped('points')),
                                   1.5),
             'score_staff_language': STAFF_LANGUAGE_SCORES.get(self._ems_staff_language_level(), 0.0),
-            'score_seniority': SENIORITY_SCORES.get(self.seniority, 0.0),
+            'score_seniority': SENIORITY_SCORES.get(self._ems_staff_seniority(), 0.0),
             'score_internationalisation': min(
                 sum(merits.filtered(lambda merit: merit.kind == 'internationalisation').mapped('points')), 1.0),
         })
         self.score_total = sum(self[name] for name in STAFF_SCORE_FIELDS)
-        self.score_complete = self.plan_complete and self.merits_checked and all(
-            self[name] for name in ('last_staff_mobility', 'seniority'))
+        self.score_complete = self.plan_complete and self.merits_checked and bool(
+            self._ems_staff_last_mobility() and self._ems_staff_seniority())
         self.is_eligible = self.score_complete and self.score_total >= self.call_id.min_score
+
+    @api.depends('declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
+                 'call_id.course_id.start', 'call_id.date_close')
+    def _compute_declared_staff_bands(self):
+        """Criteria 2 and 5 from the dates the applicant declared. A mobility belongs to the course
+        starting on 1 September; seniority is counted in whole months up to the call's closing date."""
+        utils = self.env['ems.datetime_utils']
+        for application in self:
+            mobility = application.declared_last_mobility_date
+            band = 'never' if application.declared_never_staff_mobility else False
+            if mobility and not band:
+                course = (application.call_id.course_id or self.env.company.current_course_id).start
+                ago = course - (mobility.year if mobility.month >= 9 else mobility.year - 1)
+                band = 'recent' if ago <= 1 else 'two_courses' if ago == 2 else 'older'
+            application.declared_last_staff_mobility = band
+            start, close = application.declared_centre_start_date, application.call_id.date_close
+            seniority = False
+            if start and close:
+                close = utils.utc_datetime_to_local(close.replace(tzinfo=UTC))
+                months = (close.year - start.year) * 12 + close.month - start.month
+                seniority = 'y0' if months < 12 else 'y1' if months < 24 else 'y2' if months < 60 else 'y5'
+            application.declared_seniority = seniority
+
+    def _ems_staff_last_mobility(self):
+        """Criterion 2: the Erasmus team's correction, else what the applicant declared."""
+        return self.last_staff_mobility or self.declared_last_staff_mobility
+
+    def _ems_staff_seniority(self):
+        """Criterion 5: the Erasmus team's correction, else what the applicant declared."""
+        return self.seniority or self.declared_seniority
 
     def _ems_staff_language_level(self):
         """Criterion 4: the level the Erasmus team recorded after checking the certificate, else
@@ -330,17 +383,17 @@ class EmsErasmusApplication(models.Model):
         return self.language_level or self.declared_language_level or 'none'
 
     @api.depends('state', 'modality_id', 'score_total', 'score_complete', 'score_d', 'score_e',
-                 'interview_english', 'grade_average', 'draw_order', 'last_staff_mobility', 'score_plan',
-                 'seniority', 'call_id.application_ids.state', 'call_id.application_ids.modality_id',
+                 'interview_english', 'grade_average', 'draw_order', 'score_plan', 'score_seniority',
+                 'call_id.application_ids.state', 'call_id.application_ids.modality_id',
                  'call_id.application_ids.score_total', 'call_id.application_ids.score_complete',
                  'call_id.application_ids.score_d', 'call_id.application_ids.score_e',
                  'call_id.application_ids.interview_english', 'call_id.application_ids.grade_average',
-                 'call_id.application_ids.draw_order', 'call_id.application_ids.last_staff_mobility',
-                 'call_id.application_ids.score_plan', 'call_id.application_ids.seniority')
+                 'call_id.application_ids.draw_order', 'call_id.application_ids.score_plan',
+                 'call_id.application_ids.score_seniority')
     def _compute_rank(self):
         """Rank among the admitted applications (and their results) of the same modality, by total and art. 12's
         tie-breaks, then the draw. Only once every one of them has a complete score. A staff call ranks
-        everyone in one list, with art. 11's tie-breaks (issue #686)."""
+        everyone in one list (issue #686)."""
         self.rank = 0
         self.needs_draw = False
         for (call, modality), applications in self.grouped(lambda application: (
@@ -357,12 +410,11 @@ class EmsErasmusApplication(models.Model):
                 application.needs_draw = ordered.count(keys[application]) > 1
 
     def _ems_rank_key(self):
-        """Total, then the call's tie-breaks (students: art. 12; staff: never had a staff mobility,
-        mobility plan, seniority), then the draw."""
+        """Total, then the call's tie-breaks (students: art. 12; staff: mobility plan, then seniority,
+        decided with the coordinator 2026-10-22), then the draw."""
         self.ensure_one()
         if self.audience == 'staff':
-            return (-self.score_total, self.last_staff_mobility != 'never', -self.score_plan,
-                    -SENIORITY_SCORES.get(self.seniority, 0.0), self.draw_order)
+            return (-self.score_total, -self.score_plan, -self.score_seniority, self.draw_order)
         return (-self.score_total, -self.score_d, -self.score_e, -self.interview_english, -self.grade_average,
                 self.draw_order)
 
@@ -687,6 +739,11 @@ class EmsErasmusApplication(models.Model):
             missing = application.document_ids.filtered(lambda line: line.is_required and not line.attachment_ids)
             if missing:
                 raise UserError(_("Upload the required documents first: %s", ", ".join(missing.mapped('name'))))
+            if application.audience == 'staff' and not (
+                    (application.declared_never_staff_mobility or application.declared_last_mobility_date)
+                    and application.declared_centre_start_date):
+                raise UserError(_("Say when your last staff mobility was (or that you never had one) and since when "
+                                  "you work at the centre."))
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
         self.document_ids.sudo().correction_requested = False

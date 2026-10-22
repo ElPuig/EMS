@@ -31,7 +31,7 @@ Pots escriure les teves observacions a **Notes de l'avaluador**.
 
 Fes clic a **Accions > Enviar** quan tinguis tots els criteris puntuats. La tasca queda feta.
 
-Fins al termini de revisió de la convocatòria la pots **Reobrir** i canviar. Passat el termini ja no es pot modificar: si hi ha un error, avisa l'equip Erasmus.
+Fins al **termini per corregir puntuacions** de la convocatòria la pots **Reobrir** i canviar. Passat el termini ja no es pot modificar: si hi ha un error, avisa l'equip Erasmus.
 
 ---
 

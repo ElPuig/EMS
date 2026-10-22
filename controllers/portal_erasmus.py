@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import re
+
 from odoo import http
 from odoo.exceptions import UserError
 from odoo.http import content_disposition, request
@@ -8,7 +10,9 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS
 
 BOOLEAN_ANSWERS = ('previous_mobility', 'fewer_opportunities', 'image_consent', 'host_not_identified',
-                   'accompany_students')
+                   'accompany_students', 'declared_never_staff_mobility')
+# Answers given as a month (<input type="month">, "YYYY-MM"), stored as the 1st of that month.
+MONTH_ANSWERS = ('declared_last_mobility_date', 'declared_centre_start_date')
 
 
 class EmsPortalErasmusController(CustomerPortal):
@@ -96,6 +100,8 @@ class EmsPortalErasmusController(CustomerPortal):
             if application._ems_portal_editable():
                 answers = {name: bool(post.get(name)) if name in BOOLEAN_ANSWERS
                            else (post.get(name) or '').strip()[:2000] or False for name in names}
+                answers.update({name: re.fullmatch(r'\d{4}-\d{2}', answers[name] or '') and f'{answers[name]}-01'
+                                or False for name in MONTH_ANSWERS if name in answers})
             elif any(post.get(name) for name in names):
                 # Answers sent after the closing date: refused, nothing saved.
                 return request.redirect(f'{page}?error=1')

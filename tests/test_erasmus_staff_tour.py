@@ -20,8 +20,9 @@ class TestErasmusStaffTour(HttpCase):
     def _admitted_and_closed(self):
         partner = self.staff_users[0].partner_id
         application = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.staff_call, partner)
-        application._ems_portal_save({}, {self.id_document.id: [('id.pdf', PDF)],
-                                          self.plan_document.id: [('plan.pdf', PDF)]})
+        application._ems_portal_save(
+            {'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01'},
+            {self.id_document.id: [('id.pdf', PDF)], self.plan_document.id: [('plan.pdf', PDF)]})
         application.action_submit()
         application.requirements_check = 'met'
         application.document_ids.filtered('attachment_ids').action_mark_valid()
@@ -35,6 +36,7 @@ class TestErasmusStaffTour(HttpCase):
         self.assertEqual(application.state, 'submitted')
         self.assertEqual((application.staff_activity, application.host_entity),
                          ('job_shadowing', 'Tour host school'))
+        self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
 
     def test_my_plan_rating_tour(self):
         application = self._admitted_and_closed()

@@ -129,6 +129,8 @@ class EmsErasmusResolution(models.Model):
         previous = PREVIOUS_KIND.get(self.kind)
         if previous and previous not in published.mapped('kind'):
             raise UserError(_("Publish the %s first.", self._ems_kind_labels()[previous].lower()))
+        if call.audience == 'staff' and self.kind != 'admission' and not sum(call.modality_ids.mapped('places')):
+            raise UserError(_("Add the modalities of the call, with their places, before preparing the resolution."))
         applications = call.application_ids
         undecided = applications.filtered(lambda application: application.state in ('submitted', 'subsanation'))
         if undecided:

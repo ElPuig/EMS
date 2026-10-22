@@ -6,7 +6,7 @@
 
 Como miembro del tribunal de la convocatoria Erasmus+ del personal, valoras en EMS el plan de movilidad de cada persona candidata con la rúbrica de la convocatoria.
 
-**Quién:** los miembros del tribunal que el equipo Erasmus añade a la convocatoria y las personas sustitutas que designa la dirección.
+**Quién:** los miembros del tribunal que el equipo Erasmus añade a la convocatoria (la dirección y las jefaturas de departamento y de seminario).
 
 ---
 
@@ -29,9 +29,9 @@ Puedes escribir tus notas en **Notas del evaluador**.
 
 ## 3. Enviarla
 
-Haz clic en **Acciones > Enviar**. Hasta el plazo de revisión de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
+Haz clic en **Acciones > Enviar**. Hasta el **plazo para corregir puntuaciones** de la convocatoria puedes **Reabrirla** y cambiarla; después, si hay un error, avisa al equipo Erasmus.
 
-**Si te presentas a la convocatoria, o tienes un conflicto de intereses con una persona candidata**, no valoras: avisa al equipo Erasmus, que lo registrará junto con la persona sustituta que designe la dirección.
+**Si te presentas a la convocatoria, o tienes un conflicto de intereses con una persona candidata**, no valoras: avisa al equipo Erasmus, que registrará la abstención. La puntuación del plan es la media del resto de miembros.
 
 ---
 

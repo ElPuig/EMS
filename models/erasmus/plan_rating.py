@@ -32,8 +32,9 @@ class EmsErasmusCallPanel(models.Model):
 class EmsErasmusPlanRating(models.Model):
     """Issue #686 - one panel member's rating of a staff applicant's mobility plan, with annex 2's
     rubric. Every panel member rates every plan; a member who abstains (a candidate in the call,
-    or a conflict of interest) is replaced by the substitute the Director appoints, who then
-    rates instead. The evaluator's workflow is ems.erasmus.evaluation's. See
+    or a conflict of interest) does not, and the plan's score is the mean of the others (decided
+    with the coordinator 2026-10-22: no substitutes). The evaluator's workflow is
+    ems.erasmus.evaluation's. See
     docs/en/developers/erasmus/erasmus.md."""
     _name = 'ems.erasmus.plan_rating'
     _description = 'Erasmus+ mobility plan rating'
@@ -48,8 +49,8 @@ class EmsErasmusPlanRating(models.Model):
     panel_member_id = fields.Many2one(string="Panel member", comodel_name='res.users', required=True,
                                       ondelete='restrict', index=True)
     abstention_reason = fields.Text(string="Abstention reason", tracking=True,
-                                    help="Why the panel member does not rate this plan. The substitute the Director "
-                                         "appoints rates it instead.")
+                                    help="Why the panel member does not rate this plan. The plan's score is the mean "
+                                         "of the other members' ratings.")
     relevance = fields.Selection(string="Relevance and concreteness", selection=PLAN_RUBRIC, tracking=True,
                                  help="0: no relation with the job or the training cycles, generic objectives and "
                                       "activity. 0.5: a general relation, or objectives and activity not very "
@@ -78,12 +79,22 @@ class EmsErasmusPlanRating(models.Model):
     @api.constrains('evaluator_id', 'panel_member_id', 'abstention_reason')
     def _check_evaluator(self):
         for rating in self:
-            if rating.evaluator_id != rating.panel_member_id and not (rating.abstention_reason or '').strip():
-                raise ValidationError(_("Write the abstention reason before a substitute rates instead of the "
-                                        "panel member."))
+            if rating.evaluator_id not in (rating.panel_member_id, self.env['res.users']):
+                raise ValidationError(_("Only the panel member rates their plans."))
             if rating.evaluator_id and rating.evaluator_id.partner_id in rating.application_id.call_id \
                     ._ems_candidate_partners():
                 raise ValidationError(_("%s is a candidate in this call and cannot rate.", rating.evaluator_id.name))
+
+    def write(self, vals):
+        """An abstention (team only, see ems.erasmus.evaluation.write) leaves the rating without
+        evaluator; withdrawing it gives it back to the panel member."""
+        if 'abstention_reason' not in vals:
+            return super().write(vals)
+        reason = (vals['abstention_reason'] or '').strip()
+        result = True
+        for member, ratings in self.grouped('panel_member_id').items():
+            result &= super(EmsErasmusPlanRating, ratings).write({**vals, 'evaluator_id': not reason and member.id})
+        return result
 
     def _compute_display_name(self):
         for rating in self:

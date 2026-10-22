@@ -13,3 +13,7 @@
 
 - Reported while testing #678: moving to the week of 26 October 2026 with the arrows showed Monday and Tuesday both as the 25th, and every tab one day early (only picking the date from the calendar worked). The arrows, the tabs and `mondayOf()` added days as 24-hour blocks of milliseconds, and the 25th of October has 25 hours, so the week started on Sunday at 23:00. They now count calendar days (`addDays()`); the 23-hour day in March, going back a week, had the same problem.
 - New tour `ems_guard_duty_board_clock_change`, run with the test browser in Europe/Madrid (it runs in UTC otherwise, where there is no clock change): fails with the old code, passes now.
+
+## Joined groups with co-teachers (integrated with #660):
+
+- Integrating #678 over #660's joins of split-group halves: a join now takes the co-teachers who teach the same subject to the other half at that time, and the rest of the lesson's teachers who are in stay on guard at its usual time, with the warning "cannot follow the lesson (not with the other half then)" (developer decision, 2026-10-22). Plan steps carry the joined groups as one more element, so every step kind shares one shape. New tests for a whole pack joining and for a co-teacher left on guard.

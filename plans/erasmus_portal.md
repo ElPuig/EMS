@@ -1,6 +1,7 @@
 # Erasmus+ calls and mobilities inside EMS
 
-**Status: design, current as of 2026-10-22. Nothing implemented yet.** Design of record for the
+**Status: design, current as of 2026-10-22. Phase 1 (#683) implemented on its branch, not merged yet: what it
+ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Design of record for the
 umbrella issue #682 and its phase issues (#683-#687); keep it current as each phase lands, then delete it once the
 last phase ships (its contents folded into `docs/en/developers/erasmus/` and the role manuals).
 
@@ -100,11 +101,14 @@ erDiagram
 - `modality_ids` (`ems.erasmus.call.modality`): `code` (GM / GS for students; for staff, the
   project/period lines: GM April, GM June-July, GS June-July), `project` (KA121-VET / KA131-HED),
   `places`, `period`, `destinations` (text, editable; destinations proper are phase 5).
-- `document_type_ids`: what the call asks for, each `required` / `optional` / `required_if_minor`,
-  `confidential` (inclusion evidence, support needs), `accepts_alternative_format` (video → audio).
+- `document_ids` (`ems.erasmus.call.document`, copied when the call is duplicated): what the call
+  asks for, each `required` / `optional` / `minor` (required for minors), `confidential`
+  (inclusion evidence, support needs). An alternative format (video → audio) is just another file
+  on the same document.
 - `min_score` (students: 50; staff: none).
-- `state`: `draft` → `open` → `closed` (frozen) → `evaluation` → `provisional` → `definitive`
-  → `done`. Moved only by its own buttons.
+- `state`: `draft` → `published` → `closed` (phase 1); later phases add `evaluation` →
+  `provisional` → `definitive` → `done`. Moved only by its own buttons. Applications are accepted
+  while `published` and between `date_open` and `date_close` (`is_accepting`).
 
 ### 4.2. Application (`ems.erasmus.application`, `mail.thread`)
 
@@ -116,8 +120,9 @@ erDiagram
   accompanying students (staff), support / work-life balance needs (staff, confidential), staff
   activity proposal (type: job shadowing / course / teaching; entity or "not yet identified";
   destination; dates; duration).
-- `state`: `draft` → `submitted` → `subsanation` → `admitted` / `excluded` → `selected` /
-  `reserve` / `not_selected` → `accepted` / `renounced`. Plus `withdrawn`.
+- `state`: `draft` → `submitted` → `subsanation` → `admitted` / `excluded` (phase 1, plus
+  `not_submitted` for drafts when the call closes); later phases add `selected` / `reserve` /
+  `not_selected` → `accepted` / `renounced`.
 - `submitted_at` and a **submission receipt** (PDF or confirmation email with the list of files),
   regenerated on every resubmission. Editable by the applicant until `date_close`; afterwards only
   the documents the team asks for during subsanation.
@@ -238,7 +243,6 @@ New root menu **Erasmus+**, visible to the Erasmus team and to anyone with an ev
 
 - *Calls* (team) - *Applications* (team) - *Resolutions* (team) - *Claims* (team)
 - *My evaluations* (anyone with an interview or plan rating assigned)
-- *Configuration* (team): document types.
 
 Created by phase 1 with only what phase 1 delivers (CLAUDE.md / #495 rule: a root menu appears
 when it is useful, never half-built).

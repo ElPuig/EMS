@@ -12,6 +12,7 @@ This section contains the manuals for **Head of Studies, Deputy Head of Studies 
 
 - [Academic history: cohort queries](academic-history.md)
 - [Convalidations: reviewing and resolving requests](convalidations.md) — Reviewing each module and drafting the proposal (Head of Studies), resolving it officially (Director) or filing it with the Ministry.
+- [Erasmus+: checking serious sanctions](erasmus-sanctions.md) — Recording, for each Erasmus+ application, whether the student has a serious sanction this course.
 - [Meeting attendance with the NFC tag](../secretary/meeting-attendance.md) — Confirming attendance to a staff meeting or any meeting with the NFC reader at the door (shared manual with the secretariat).
 - [Plannings: setting the grading ponderations](planning.md)
 - [Managing student and family contacts](../secretary/student-contacts.md) — you have the same full read/write access as secretary here, for any student centre-wide.

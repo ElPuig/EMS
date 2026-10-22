@@ -94,6 +94,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Erasmus+
+
+| Model | Description |
+|-------|-------------|
+| [Erasmus+ calls and applications](erasmus/erasmus.md) | `ems.erasmus.call` (+ modalities, requested documents) and `ems.erasmus.application` (+ document lines): who can apply (modality levels), call and application states, document versions and review, admission checks (the sanction check reserved to the Head of Studies), the `/my/erasmus` portal and access control |
+
+---
+
 ## Enrollment
 
 | Model | Description |

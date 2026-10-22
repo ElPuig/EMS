@@ -78,8 +78,9 @@ stateDiagram-v2
   (`email_template_erasmus_application_submitted`). Each new submission sends a new receipt.
 - **Request corrections** needs at least one document marked *Needs changes* or a required
   document missing; it emails the list and the call's `subsanation_deadline`
-  (`email_template_erasmus_application_subsanation`). During subsanation the applicant can only
-  upload files, not change the answers.
+  (`email_template_erasmus_application_subsanation`). Those lines get `correction_requested`;
+  until the deadline the applicant can upload to them only (not change the answers, nor other
+  documents) and submit again, which clears the flags.
 - **Admit** needs both admission checks met and every required document *Valid*. **Exclude**
   needs the exclusion reason.
 - Emails go only to the applicant's own address; a recipient without one is noted in the chatter.

@@ -115,12 +115,16 @@ Today, as soon as a class starts, if its teacher has not checked in it appears i
 - Such a class is only covered with a guard. The schedule does not propose telling the families or rearranging lessons, because the teacher may still be in the centre.
 - Only today's classes count. On another day nobody is checked in or out yet.
 
+![Absences table at 10:30: the 8-9 class, already over, and the 10-11 class of a teacher who has not checked in, both tagged Not checked in, with the guard on duty](../../assets/teachers/guard-duty-10-sense-fitxar.png)
+
 ### The teacher is in the classroom
 
 Sometimes the teacher is in the classroom and has only forgotten to check in. If you are on guard duty at that time, or you organise that teacher's absences (their department or seminar chief, Head of Studies, Deputy Head of Studies, Direction or the administrator), you can say so:
 
 1. In the **Absences table**, click the line of the class in progress (its tooltip says that the teacher **has not checked in yet. Click if they are in the classroom, or to cover the class.**).
 2. Click **They are in the classroom**.
+
+![Dialog of the class in progress: the teacher has not checked in yet, with the buttons They are in the classroom and Cover it myself](../../assets/teachers/guard-duty-11-es-a-l-aula.png)
 
 The teacher's check-in is registered at the current time, the class leaves the table, and the teacher receives a message saying who registered it. On the check-in's own form, **Check-in registered by** shows your name. If the time is not right, the teacher can request a correction as with any other check-in.
 

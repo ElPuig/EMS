@@ -187,7 +187,7 @@ Un grupo a cuyas familias hay que rectificar algo no aparece en este recuadro, s
 Cada propuesta es una lista de pasos, uno por línea, siempre entre docentes de esos grupos y dentro del mismo día:
 
 - **Clase movida**: un docente que está libre a esa hora da entonces una clase suya con el grupo de otra hora. La clase que deja se convierte en un hueco, que otro paso puede llenar a su vez: un docente adelanta una clase, otro llena el hueco que deja, y así sucesivamente, hasta que lo que queda libre está al principio o al final del día (o junto a un patio).
-- **Intercambio**: otro docente del grupo da clase entonces, y el docente ausente, que está en el centro a otra hora, da la clase de ese docente con el grupo.
+- **Grupos unidos**: para las dos mitades de un grupo desdoblado. El docente que da la misma materia a la otra mitad a esa hora da clase a las dos mitades a la vez, en el aula de la otra mitad, y la clase que tenía con esta mitad a otra hora queda libre, como en una clase movida. A menudo sirve para que las dos mitades salgan una hora antes. Dos mitades son las de los grupos que comparten alguna clase en el horario semanal; no hay que configurar nada.
 - **Aviso a las familias**: el grupo entra más tarde, sale antes o tiene un patio más largo, por las clases que quedan libres al principio o al final del día.
 
 Una clase compartida por varios grupos se mueve para todos, siempre que todos tengan el mismo hueco, y entonces el aviso va a cada grupo.
@@ -209,7 +209,7 @@ Las propuestas aparecen en este orden: primero las que hacen perder menos clases
 
 **El tutor o tutora del grupo recibe una copia.** Cuando se envía un comunicado desde el cuadrante, a las familias (entrada más tarde, salida antes, recreo más largo, sin clases) o al alumnado (clases que cambian de hora), el tutor o tutora del grupo recibe un mensaje de Odoo con una copia, para que sepa cómo cambia el día de su grupo. En un grupo de refuerzo, que no tiene tutor, lo reciben los tutores de sus grupos principales. Si se cancela un comunicado programado antes de que salga, también se les avisa.
 
-Cuando una reorganización tiene efecto, el **Horario de guardias** muestra quién da realmente cada clase implicada, y un docente que estaba de guardia a una hora en la que ahora da clase aparece tachado en la columna **Guardia** en esa franja: no se le puede enviar a cubrir nada más entonces, y nadie puede coger esa clase por su cuenta.
+Cuando una reorganización tiene efecto, el **Horario de guardias** muestra quién da realmente cada clase implicada, y un docente que estaba de guardia a una hora en la que ahora da clase aparece tachado en la columna **Guardia** en esa franja: no se le puede enviar a cubrir nada más entonces, y nadie puede coger esa clase por su cuenta. En unos grupos unidos, las dos mitades muestran **Junto con** y el nombre de la otra.
 
 **Otra reorganización (descrita a mano)**, la última opción del diálogo, sirve para todo lo que el cuadrante no puede deducir, para que quede constancia: dos grupos que se juntan para dar la misma materia, un docente de otro grupo... Descríbela y, si hay un docente implicado, elígelo (recibe un mensaje). Esa clase ya no necesita guardia.
 

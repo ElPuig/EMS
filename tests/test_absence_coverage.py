@@ -1466,6 +1466,96 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._absence(self.teacher_a, self.day)
         return both
 
+    def _split_groups_day(self, weekly_partners=True):
+        """group_a and group_b as the two halves of a split group (issue #660). Monday: teacher_b
+        teaches both the same subject, group_a at 9 and group_b at 12, its last lesson; teacher_a,
+        away all day, has group_b at 9, in the middle of its day, and group_a at 12, its last one;
+        teacher_c (group_b at 8, a WC duty at 9, group_a 10-12) and teacher_guard (group_b 10-12)
+        fill the rest. The halves share a lesson on Tuesday: that is what makes them partners.
+        Without arrangements group_b needs a guard at 9; joining it to group_a's lesson with
+        teacher_b frees its 12:00 lesson, and both halves leave at 12."""
+        self._calendar_rows(self.teacher_a, ((9, 10, self.group_b), (12, 13, self.group_a)))
+        self._calendar_rows(self.teacher_b, ((9, 10, self.group_a), (12, 13, self.group_b)))
+        self._calendar_rows(self.teacher_c, ((8, 9, self.group_b), (9, 10, 'wc'), (10, 11, self.group_a), (11, 12, self.group_a)))
+        self._calendar_rows(self.teacher_guard, ((10, 11, self.group_b), (11, 12, self.group_b)))
+        if weekly_partners:
+            self._new_calendar(self.teacher_guard_2, 'TABC 660 Tuesday').apply_schedule_changes([{
+                'dayofweek': '1', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'subject_id': self.subject.id,
+                'group_ids': (self.group_a | self.group_b).ids, 'name': 'TGDB', 'space_id': self.space.id,
+            }])
+        self._absence(self.teacher_a, self.day)
+
+    def _join_plan(self):
+        self._split_groups_day()
+        expected = [('join', self.teacher_b, 12, 9, self.group_b), ('notice', ('early_leave', 12), self.group_a | self.group_b)]
+        plans = [plan for plan in self._plans(self.group_b) if self._plan_summary(plan) == expected]
+        self.assertTrue(plans, "group_b joins group_a's lesson with teacher_b at 9, and both halves leave at 12")
+        return plans[0]
+
+    def test_the_two_halves_of_a_split_group_can_be_joined(self):
+        plan = self._join_plan()
+
+        self.assertEqual(plan['steps'][0]['joined'], self.group_a)
+        self.assertEqual(plan['steps'][0]['shifts'], [(self.teacher_b, 'exit', 13, 10)], "teacher_b leaves at 10")
+        self.assertEqual(self._plans(self.group_a), self._plans(self.group_b), "one set of plans for both halves")
+        label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['label']
+        self.assertIn(f"together with {self.group_a.name} at 09:00, instead of at 12:00", label)
+
+    def test_only_halves_sharing_a_weekly_lesson_are_joined(self):
+        self._split_groups_day(weekly_partners=False)
+
+        self.assertFalse([step for plan in self._plans(self.group_b) for step in plan['steps']
+                          if step['kind'] == 'join' and step['teacher'] == self.teacher_b])
+
+    def test_only_the_same_subject_is_joined(self):
+        other = self.env['ems.subject'].create({'code': 'TABC660', 'acronym': 'T660', 'name': 'TABC 660 Other subject',
+                                                'study_ids': [(6, 0, [self.study.id])]})
+        self._split_groups_day()
+        self.env['resource.calendar.attendance'].search([
+            ('calendar_id.employee_id', '=', self.teacher_b.id), ('hour_from', '=', 12)]).subject_id = other
+
+        self.assertFalse([step for plan in self._plans(self.group_b) for step in plan['steps']
+                          if step['kind'] == 'join' and step['teacher'] == self.teacher_b])
+
+    def test_applying_a_join_needs_no_guard_and_tells_both_halves(self):
+        covers, _notice_action = self._apply(self._join_plan())
+
+        join = covers.filtered('joined_group_ids')
+        self.assertEqual((join.group_id, join.absent_employee_id, join.guard_employee_id, join.hour_from, join.vacated_hour_from),
+                         (self.group_b, self.teacher_a, self.teacher_b, 9, 12))
+        self.assertEqual((join.arrangement_type, join.joined_group_ids, join.space_id), ('move', self.group_a, self.space),
+                         "a move into group_a's lesson, in group_a's room")
+        self.assertIn(f"together with {self.group_a.name} at 09:00, instead of at 12:00", join._arrangement_label())
+        notices = self.Notice.search([('absence_group_id', 'in', (self.group_a | self.group_b).ids)])
+        self.assertEqual({(notice.absence_group_id, tuple(notice._absence_change_tuples())) for notice in notices},
+                         {(self.group_a, (('early_leave', 12.0),)), (self.group_b, (('early_leave', 12.0),))})
+        self.assertEqual(join.notice_id.absence_group_id, self.group_b, "the join waits for group_b's notice")
+        students = join.student_notice_id
+        self.assertIn(f"together with {self.group_a.name} in {self.space.display_name}", students.message)
+
+        notices.write({'state': 'scheduled'})
+
+        self.assertTrue(join.is_effective)
+        for group, other in ((self.group_a, self.group_b), (self.group_b, self.group_a)):
+            cell = next(cell for cell in self._teaching_line(self.day, 9, 10)['cells'] if cell['group'] == group)
+            self.assertEqual(cell['joined'], other, f"{group.name} at 9 shows it is taught with {other.name}")
+        self.assertFalse([row for row in self._teaching_line(self.day, 9, 10)['absences'] if not (row['arrangement'] or row['authorized'])],
+                         "nobody needs a guard at 9")
+        message = self._messages(self.teacher_b, 'Timetable arrangement')
+        self.assertIn(f"together with {self.group_a.name}", message.body)
+
+    def test_a_join_is_withdrawn_like_a_moved_lesson(self):
+        covers, _notice_action = self._apply(self._join_plan())
+        join = covers.filtered('joined_group_ids')
+        self.Notice.search([('absence_group_id', 'in', (self.group_a | self.group_b).ids)]).write({'state': 'scheduled'})
+
+        self.Cover.with_user(self.department_chief).board_release(join.id)
+
+        self.assertEqual(join.state, 'released')
+        self.assertTrue(self._messages(self.teacher_b, 'Arrangement cancelled'))
+        cell = next(cell for cell in self._teaching_line(self.day, 9, 10)['cells'] if cell['group'] == self.group_a)
+        self.assertFalse(cell['joined'])
+
     def test_a_chain_of_moved_lessons_frees_the_end_of_the_day(self):
         both = self._two_groups_day()
 

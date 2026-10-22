@@ -23488,3 +23488,52 @@ msgstr "A les famílies d'aquests grups se'ls va comunicar alguna cosa que ja no
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "You cannot cover this teacher: you are not on guard duty at this time."
 msgstr "No pots cobrir aquest docent perquè a aquesta hora no estàs de guàrdia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_arrangement.py:0
+msgid ""
+"%(subject)s: from %(usual)s to %(new)s, together with %(joined)s in %(room)s"
+msgstr ""
+"%(subject)s: de %(usual)s a %(new)s, juntament amb %(joined)s a %(room)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid ""
+"%(teacher)s teaches the group together with %(joined)s at %(time)s, instead "
+"of at %(other_time)s."
+msgstr ""
+"%(teacher)s fa classe al grup juntament amb %(joined)s a les %(time)s, en "
+"lloc de a les %(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid ""
+"Joined groups: %(teacher)s teaches %(groups)s together with %(joined)s at "
+"%(target)s, instead of at %(lesson)s."
+msgstr ""
+"Grups units: %(teacher)s fa classe a %(groups)s juntament amb %(joined)s a "
+"les %(target)s, en lloc de a les %(lesson)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__joined_group_ids
+msgid "Joined with"
+msgstr "Unit amb"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_cover__joined_group_ids
+msgid ""
+"The other half of the group, which the teacher was already teaching at that "
+"time: both halves are taught together."
+msgstr ""
+"L'altra meitat del grup, a qui el docent ja feia classe en aquella hora: les"
+" dues meitats fan classe juntes."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/guard_duty_board.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Together with"
+msgstr "Juntament amb"

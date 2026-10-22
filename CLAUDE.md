@@ -1503,3 +1503,17 @@ markup instead of rebuilding it from this description.
   different track and a different author for each video.
 - The rendering pipeline is not in this repo: on the developer's desktop box it lives in
   `/root/ems-slides-video/` (never keep it only under `/tmp`, which is wiped on reboot).
+
+**Live demos in videos (developer, 2026-10-22):** informative slides alone show too little of how
+EMS is used; a video about a screen includes a live demo of it, recorded in a real browser with
+fictitious data. The recipe, the scripts and every gotcha are in
+`/root/ems-slides-video/live/README.md` (read it before starting, it saves the trial and error of
+the first one). In short: a throwaway `HttpCase` recorder (copied into `tests/`, deleted after) with
+a fictitious fixture and the screen narrowed to it; viewport 960x720 at scale 1.5 captured with
+`Page.captureScreenshot` from a second thread (the screencast ignores the scale, CSS `zoom` breaks
+positions); a drawn cursor with hover and click dispatched in JS (real mouse events don't mix with
+the capture loop); a clock warp in the page and the server for time-lapses; for live updates, three
+test patches on the bus (websocket allowed, bus post-commit hooks run by `TestCursor.commit`,
+`bus.bus._poll` from the start id); other people act through their own HTTP session
+(`self.session = None` before `authenticate()`, which otherwise logs the recording browser out). The
+demo is laid out as the app (1440 px) plus a 480 px panel with the clock and the text of each step.

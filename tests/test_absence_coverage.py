@@ -1093,6 +1093,23 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(self.env['ems.course']._get_needed_absence_block(self.day, self.group_a, self.teacher_a, 9, 10))
         self._assign(hour_from=9, hour_to=10)
 
+    def test_the_arrangement_planner_counts_a_longer_break_as_needing_a_guard(self):
+        """Issue #679: the planner scores the lesson a longer break takes in as one more guard, and
+        a plan that only tells the break does not resolve that lesson's row."""
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        course = self.env['ems.course']
+        planner = course._arrangement_planner(course._arrangement_context(self.day), self.group_a)
+
+        score, notices = planner._evaluate(())
+
+        self.assertEqual(score[:3], (1, 1, 1))  # lost, idle, guards
+        self.assertEqual([change for _group, _side, change in notices], [('long_break', 9, 10.5)])
+        notice_plan = {'steps': [{'kind': 'notice', 'groups': self.group_a, 'change': ('long_break', 9, 10.5)}]}
+        self.assertFalse(course._plan_resolves(notice_plan, self.group_a, 9, 10))
+        notice_plan['steps'][0]['change'] = ('late_entry', 10)
+        self.assertTrue(course._plan_resolves(notice_plan, self.group_a, 9, 10))
+
     def test_a_longer_break_told_with_an_early_leave_also_reaches_the_families(self):
         """One notice per group and day (issue #652): when it also changes when they leave, the
         families are told everything, the break included."""
@@ -1129,6 +1146,10 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertEqual(states['entry']['options'], [])
         self.assertEqual(self._break_state()['options'], [('long_break', 10, 11.5)])
+        # The break is the only proposal left, and it is only told to the students.
+        proposals = [self.env['ems.course']._board_action_data(action) for action in self._actions()
+                     if action['type'] == 'proposal' and action['group'] == self.group_a]
+        self.assertEqual([action['students_only'] for action in proposals], [True])
 
     def test_a_correction_is_still_offered_once_its_change_is_switched_off(self):
         """What was told before the switch went off still has to be put right."""

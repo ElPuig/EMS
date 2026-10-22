@@ -462,6 +462,7 @@ export class GuardDutyBoard extends Component {
             arrangementsTitle: _t("Proposals for the absences"),
             arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
             noticeOnly: _t("Only tell the families"),
+            noticeOnlyStudents: _t("Only tell the students"),
             applyPlan: _t("Apply the checked steps"),
         };
     }
@@ -623,6 +624,13 @@ export class GuardDutyBoard extends Component {
     // The timetable change alone comes after the section's arrangement plans, numbered with them.
     noticePlanTitle(section) {
         return _t("Proposal %s:", section.plans.length + 1);
+    }
+
+    // A break is only told to the students (issue #679).
+    noticeOnlyLabel(section) {
+        return section.notices.every((action) => action.students_only)
+            ? this.actionLabels.noticeOnlyStudents
+            : this.actionLabels.noticeOnly;
     }
 
     arrangementCountLabel(absence) {

@@ -1931,7 +1931,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             if step['kind'] == 'notice':
                 values = {'groups': groups, 'change': self._absence_change_label(step['change'])}
                 # A longer break is only the students' business (issue #679).
-                label = (_("Notice to the students of %(groups)s: %(change)s.", **values) if step['change'][0] in BREAK_CHANGES
+                label = (_("Notice to the students of %(groups)s: %(change)s.", **values)
+                         if self.env['ems.notice']._absence_change_students_only([step['change']])
                          else _("Notice to the families of %(groups)s: %(change)s.", **values))
                 payload = {'kind': 'notice', 'group_ids': step['groups'].ids, 'change': list(step['change'])}
             else:
@@ -2075,14 +2076,15 @@ class EmsCourseGuardDutyBoard(models.Model):
             else:
                 data['label'] = _("%(guard)s no longer needs to cover %(group)s at %(time)s (%(teacher)s).", **values)
             return data
+        # Only the students hear about a break (issue #679).
+        students_only = BoardBreakSide.is_break(action['side'])
         if action['type'] == 'proposal':
             values['change'] = self._absence_change_label(action['expected'], proposed=True)
             label = _("%(group)s: %(change)s.", **values)
         else:
             values['change'] = self._absence_change_label(action['expected'])
             values['told'] = self._absence_change_label(action['communicated'])
-            if action['communicated'][0] in BREAK_CHANGES:
-                # Only the students hear about a break (issue #679).
+            if students_only:
                 label = _("%(group)s: the students were told \"%(told)s\", which no longer matches the absences "
                           "(now: %(change)s).", **values)
             else:
@@ -2094,7 +2096,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     'label': self._absence_change_label(change)}
                    for change in action['options']]
         draft = action['draft']
-        data.update(label=label, options=options, default=action['options'].index(action['target']),
+        data.update(label=label, options=options, default=action['options'].index(action['target']), students_only=students_only,
                     draft_id=draft.id or False, draft_label=self._absence_change_label(action['draft_change']))
         return data
 

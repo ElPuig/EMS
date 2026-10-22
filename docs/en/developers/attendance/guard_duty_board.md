@@ -750,7 +750,8 @@ from the period and is not a `long_break`) is what decides "no guard needed": in
 as a tag (`o_guard_board_break_change_tag`), but the row is not struck out and a guard can still be
 sent. Its notice goes to the students only and reminds those under 18 that they cannot leave the
 centre (see [notice.md](../communications/notice.md)); a notice that also changes the entry or the
-leave goes to the families too, break included.
+leave goes to the families too, break included. A break proposal carries `students_only` (`_board_action_data()`), so the proposals box titles a
+group's notice-only section **Only tell the students** when all of its proposals are breaks.
 
 ### What was communicated, and the sides of the day
 

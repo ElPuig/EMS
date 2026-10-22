@@ -23384,3 +23384,9 @@ msgstr "%(group)s: se comunicó «%(told)s» al alumnado, pero ya no coincide co
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Notice to the students of %(groups)s: %(change)s."
 msgstr "Aviso al alumnado de %(groups)s: %(change)s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Only tell the students"
+msgstr "Solo avisar al alumnado"

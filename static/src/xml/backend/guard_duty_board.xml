@@ -279,7 +279,7 @@
                                     <div t-if="section.notices.length" class="o_guard_board_plan o_guard_board_notice_plan">
                                         <div class="o_guard_board_plan_title">
                                             <strong t-esc="noticePlanTitle(section)"/>
-                                            <span class="ms-1" t-esc="actionLabels.noticeOnly"/>
+                                            <span class="ms-1" t-esc="noticeOnlyLabel(section)"/>
                                         </div>
                                         <div class="o_guard_board_plan_steps">
                                             <t t-foreach="section.notices" t-as="action" t-key="action_index">

@@ -1256,6 +1256,7 @@ msgstr "Falta justificada per: "
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "The completion date must be later than the start date."
 msgstr "La data de finalització ha de ser posterior a la data d'inici."
 
@@ -1710,6 +1711,8 @@ msgstr "Carrega"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 #: code:addons/ems/models/employees/absence_pending.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list
+
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_list
 msgid "New"
 msgstr "Nou"
 
@@ -1894,6 +1897,8 @@ msgstr "Toc d'atenció"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__attachment_ids model:ir.model.fields,field_description:ems.field_ems_study__attachment_ids model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form model_terms:ir.ui.view,arch_db:ems.view_study_form
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__attachment_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Attached files"
 msgstr "Fitxers adjunts"
 
@@ -2398,6 +2403,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_change_notice_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2890,6 +2896,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -2910,6 +2917,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3199,6 +3207,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -3533,6 +3542,7 @@ msgstr "Hora de finalització"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__end_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__end_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__end_date
 msgid "End date"
 msgstr "Data de finalització"
 
@@ -4261,6 +4271,8 @@ msgstr "Grup:"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__group_ids model:ir.model.fields,field_description:ems.field_ems_attendance_template__group_ids model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__group_ids model:ir.model.fields,field_description:ems.field_ems_notice__group_ids model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__group_ids model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__group_ids model:ir.ui.menu,name:ems.menu_groups
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__group_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__group_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__groups
 msgid "Groups"
 msgstr "Grups"
 
@@ -4423,6 +4435,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -4870,6 +4883,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -4890,6 +4904,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -5293,6 +5308,7 @@ msgstr "Modalitat"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__mode model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__mode model:ir.model.fields,field_description:ems.field_hr_attendance__in_mode
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__mode
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__mode
 msgid "Mode"
 msgstr "Mode"
 
@@ -5517,6 +5533,8 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Notes"
 msgstr "Notes"
 
@@ -5727,6 +5745,7 @@ msgstr "Només el tutor de l'estudiant pot actualitzar les seves justificacions 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification.py:0
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "Only tutors can justify student's attendances."
 msgstr "Només els tutors poden justificar les faltes dels alumnes."
 
@@ -5986,6 +6005,7 @@ msgstr "Pendent de revisió"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_form
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 msgid "Period"
 msgstr "Període"
 
@@ -7210,6 +7230,7 @@ msgstr "Hora d'inici"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification__start_date model:ir.model.fields,field_description:ems.field_ems_attendance_template__start_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__start_date
 msgid "Start date"
 msgstr "Data d'inici"
 
@@ -7423,6 +7444,8 @@ msgstr "Alumne/a:"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__student_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_ids model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model:ir.ui.menu,name:ems.menu_students_root
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_ids
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_justification_wizard__mode__students
 msgid "Students"
 msgstr "Estudiants"
 
@@ -7689,6 +7712,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__teacher_id
 msgid "Teacher"
 msgstr "Professor/a"
 
@@ -8413,6 +8437,7 @@ msgstr "Usuari"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_strike__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__user_is_admin
 msgid "User Is Admin"
 msgstr "L'usuari és administrador"
 
@@ -23304,3 +23329,75 @@ msgstr "Mes de tancament de la preinscripció"
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_time
 msgid "Preenrollment End Time"
 msgstr "Hora de tancament de la preinscripció"
+
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "%s student(s) justified."
+msgstr "Alumnes justificats: %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__overlap_student_ids
+msgid "Already justified"
+msgstr "Ja justificats"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Choose at least one student or group."
+msgstr "Trieu almenys un alumne o un grup."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__group_domain
+msgid "Group Domain"
+msgstr "Domini de grups"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid "Justify"
+msgstr "Justifica"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+#: model:ir.actions.act_window,name:ems.action_attendance_justification_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid "Justify absences"
+msgstr "Justifica faltes"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_attendance_justification_wizard
+msgid "Justify the absences of several students or groups"
+msgstr "Justifica les faltes de diversos alumnes o grups"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Only the student's tutor can justify its attendances: %(students)s"
+msgstr ""
+"Només el tutor de l'alumne pot justificar les seves faltes: %(students)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
+msgid "Skipped, they already have a justification overlapping this period: %s"
+msgstr ""
+"Omesos perquè ja tenen un justificant que se superposa amb aquest període: %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__student_domain
+msgid "Student Domain"
+msgstr "Domini d'alumnes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__target_student_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid "Students to justify"
+msgstr "Alumnes per justificar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+msgid ""
+"These students already have a justification overlapping this period and will"
+" be skipped:"
+msgstr ""
+"Aquests alumnes ja tenen un justificant que se superposa amb aquest període i "
+"s'ometran:"

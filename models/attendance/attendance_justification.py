@@ -82,50 +82,53 @@ class EmsAttendanceJustification(models.Model):
                                justification.teacher_id.user_id.id))
             justification.allowed_student_ids = self.env["res.partner"].search(domain)
 
+    @api.model
+    def _justifiable_lines(self, students, start_date, end_date):
+        """The session lines the period covers, per student id: what a justification of each of
+        these students over that period links. One search for every student (the assistant
+        justifies whole groups, issue #656)."""
+        # NOTE: Because changing dates is allowed, already justified abscences must be included
+        # 		(already justified will fail due overlapping check).
+        # NOTE: sudo() for the students' tutor (or an admin): most sessions within the period are
+        #       taught by other teachers, whose headers the teacher record rules hide - the search
+        #       below filters on them, so it silently skipped those absences (issue #469).
+        lines = self.env["ems.attendance_session_line"]
+        if self.get_user_is_admin() or all(self.user_acts_as_tutor(student.tutor_id) for student in students):
+            lines = lines.sudo()
+        # A severe delay counts as an absence, so it can be justified too (issue #578); a
+        # mild delay only when it is one already justified (a justified severe delay).
+        found = lines.search([
+            '|',
+            ("status_id", "in", [self.env.ref(f"ems.attendance_status_{key}").id for key in ("miss", "delayed_severe", "justified")]),
+            '&',
+            ("status_id", "=", self.env.ref("ems.attendance_status_delayed").id),
+            ("attendance_justification_id", "!=", False),
+            ("student_id", "in", students.ids),
+            ("attendance_session_id.date", ">=", start_date),
+            ("attendance_session_id.date", "<=", end_date)
+        ])
+        result = {student.id: self.env["ems.attendance_session_line"] for student in students}
+        for line in found:
+            session = line.attendance_session_id
+            if not (session.end_date <= start_date or end_date < session.start_date):
+                result[line.student_id.id] |= line.sudo(False)
+        return result
+
     # NOTE: only fired when adding from the form (so wont be fire), so won't be fired twice when
     # using the regular attendance form.
     @api.onchange("student_id", "start_date", "end_date")
     def _onchange_attendance_session_line_ids(self):
         for justification in self:
             if justification.student_id.id != False and justification.start_date != False and justification.end_date != False:
-                # NOTE: Because changing dates is allowed, already justified abscences must be included
-                # 		(already justified will fail due overlapping check).
-                # NOTE: sudo() for the student's tutor (or an admin): most sessions within the period are
-                #       taught by other teachers, whose headers the teacher record rules hide - the search
-                #       below filters on them, so it silently skipped those absences (issue #469).
-                lines = self.env["ems.attendance_session_line"]
-                if justification._check_permissions():
-                    lines = lines.sudo()
-                # A severe delay counts as an absence, so it can be justified too (issue #578); a
-                # mild delay only when it is one already justified (a justified severe delay).
-                statuses = lines.search([
-                    '|',
-                    ("status_id", "in", [self.env.ref(f"ems.attendance_status_{key}").id for key in ("miss", "delayed_severe", "justified")]),
-                    '&',
-                    ("status_id", "=", self.env.ref("ems.attendance_status_delayed").id),
-                    ("attendance_justification_id", "!=", False),
-                    ("student_id", "=", justification.student_id.id),
-                    ("attendance_session_id.date", ">=", justification.start_date),
-                    ("attendance_session_id.date", "<=", justification.end_date)
-                ]) or False
+                statuses = self._justifiable_lines(justification.student_id, justification.start_date, justification.end_date)[justification.student_id.id]
+                for status in statuses:
+                    # NOTE: shoudl be done with write, direct attribute assignation does not work if the current
+                    #		item is beeing created (the ID will be something like NEW_xxxx).
+                    status.write({
+                        "attendance_justification_id" : [(4, justification.id)]
+                    })
 
-                status_ids = []
-                if statuses != False:
-                    for status in statuses:
-                        status_start_date = justification.utc_datetime_to_local(status.attendance_session_id.start_date)
-                        status_end_date = justification.utc_datetime_to_local(status.attendance_session_id.end_date)
-                        just_start_date = justification.utc_datetime_to_local(justification.start_date)
-                        just_end_date = justification.utc_datetime_to_local(justification.end_date)
-
-                        if not (status_end_date <= just_start_date or just_end_date < status_start_date):
-                            status_ids.append(status.id)
-                            # NOTE: shoudl be done with write, direct attribute assignation does not work if the current
-                            #		item is beeing created (the ID will be something like NEW_xxxx).
-                            status.sudo(False).write({
-                                "attendance_justification_id" : [(4, justification.id)]
-                            })
-
-                justification.attendance_session_line_ids = [(6, 0, status_ids)]
+                justification.attendance_session_line_ids = [(6, 0, statuses.ids)]
 
     @api.depends('student_id', 'start_date', 'end_date')
     def _compute_display_name(self):

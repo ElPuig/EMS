@@ -14,15 +14,24 @@ Unless the centre allows it in its settings, a justification is the only way to 
 
 ## Recording a justification
 
-1. Go to **Student's Attendances → Justifications** and click **New**.
-2. In **Student**, pick the student. Only the students of your group are listed.
-3. In **Period**, set the start and end date and time.
-4. The **Affected sessions** tab lists the sessions within the period where the student has an absence or a severe delay, from every teacher.
-5. Click **Save**. The absences in the list become **Justified Miss**, and the severe delays become **Minor Delay**.
+You can justify one student, several, or whole groups at once (for example, for a group outing).
+
+1. Go to **Student's Attendances → Justifications** and click **New**. The **Justify absences** window opens.
+2. In **Period**, set the start and end date and time.
+3. In **Mode**, choose how to pick them:
+    - **Students**: pick one or more students in **Students**.
+    - **Groups**: pick one or more groups in **Groups**. Every student of those groups is justified.
+
+    Only your groups and their students are listed.
+4. The **Students to justify** tab lists who will be justified. If any of them already has a justification overlapping the period, a yellow notice names them: they will be skipped.
+5. If you want, attach the document in the **Attached files** tab (every student gets their own copy) and add a comment in **Notes**.
+6. Click **Justify**. EMS creates one justification per student: their absences within the period become **Justified Miss**, whichever teacher recorded them, and their severe delays become **Minor Delay**. A message tells you how many students were justified and which ones were skipped.
+
+![The Justify absences assistant on a whole group](../../assets/tutors/justificants-02-nou.png)
+
+Each justification lists, in its **Affected sessions** tab, the sessions within the period where the student had an absence or a severe delay.
 
 In the roll-call, the justified lines show a shield and can no longer be changed by the teacher. Their note says who justified them ("Absence justified by: ..." or "Severe delay justified by: ...").
-
-![New justification with its affected sessions](../../assets/tutors/justificants-02-nou.png)
 
 A student cannot have two justifications with overlapping periods.
 
@@ -33,6 +42,8 @@ The period can include future days (for example, a planned hospital stay). When 
 ---
 
 ## Attaching the document
+
+You can also attach files to a justification after creating it:
 
 1. Open the justification from the **Justifications** list.
 2. In the **Attached files** tab, click the **Attached files** button and choose the file (for example, the medical certificate). You can choose several at once; each one is named after its file.

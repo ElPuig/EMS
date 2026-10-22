@@ -34,8 +34,8 @@
             <p t-if="resolution.approval_date" class="mb-0">Approved by the Erasmus+ Commission on: <span t-field="resolution.approval_date"/></p>
             <p t-if="resolution.approval_reference">Minutes: <t t-esc="resolution.approval_reference"/></p>
             <p t-if="resolution.notes" style="white-space: pre-line;" t-esc="resolution.notes"/>
-            <t t-foreach="resolution.line_ids.modality_id" t-as="modality">
-                <h4 class="mt-4" t-esc="modality.name"/>
+            <t t-foreach="resolution._ems_list_groups()" t-as="group">
+                <h4 t-if="group[0]" class="mt-4" t-esc="group[0]"/>
                 <table class="table table-sm o_ems_erasmus_resolution_table">
                     <thead>
                         <tr>
@@ -46,7 +46,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr t-foreach="resolution.line_ids.filtered(lambda line: line.modality_id == modality)" t-as="line">
+                        <tr t-foreach="group[1]" t-as="line">
                             <td t-if="ranked"><t t-if="line.rank and line.result != 'excluded'" t-esc="line.rank"/></td>
                             <td t-esc="line.public_id"/>
                             <td t-if="ranked" class="text-end">

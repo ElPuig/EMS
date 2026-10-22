@@ -10,6 +10,7 @@
                       decoration-muted="state in ('draft', 'not_submitted', 'not_selected', 'renounced')">
                     <field name="partner_id"/>
                     <field name="call_id" optional="show"/>
+                    <field name="audience" optional="hide"/>
                     <field name="modality_id"/>
                     <field name="submit_date"/>
                     <field name="requirements_check" optional="show"/>
@@ -40,7 +41,10 @@
                     <filter name="selected" string="Selected" domain="[('state', 'in', ('selected', 'accepted'))]"/>
                     <filter name="reserve" string="Reserve" domain="[('state', '=', 'reserve')]"/>
                     <separator/>
-                    <filter name="sanction_pending" string="Sanction check pending" domain="[('sanction_check', '=', 'pending'), ('state', 'not in', ('draft', 'not_submitted'))]"/>
+                    <filter name="sanction_pending" string="Sanction check pending" domain="[('sanction_check', '=', 'pending'), ('audience', '=', 'student'), ('state', 'not in', ('draft', 'not_submitted'))]"/>
+                    <separator/>
+                    <filter name="students" string="Students" domain="[('audience', '=', 'student')]"/>
+                    <filter name="staff" string="Staff" domain="[('audience', '=', 'staff')]"/>
                     <group>
                         <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
                         <filter name="group_modality" string="Modality" context="{'group_by': 'modality_id'}"/>
@@ -82,8 +86,10 @@
                             <group>
                                 <field name="call_id" readonly="1"/>
                                 <field name="can_manage" invisible="1"/>
+                                <field name="audience" invisible="1"/>
                                 <field name="modality_id" options="{'no_create': True}" readonly="not can_manage"/>
-                                <field name="is_minor"/>
+                                <field name="employee_id" invisible="audience != 'staff'"/>
+                                <field name="is_minor" invisible="audience != 'student'"/>
                             </group>
                             <group>
                                 <field name="submit_date"/>
@@ -113,7 +119,7 @@
                                         <field name="requirements_check_user_id"/>
                                         <field name="requirements_check_date"/>
                                     </group>
-                                    <group string="Serious sanctions this course">
+                                    <group string="Serious sanctions this course" invisible="audience != 'student'">
                                         <field name="can_check_sanction" invisible="1"/>
                                         <field name="sanction_check" readonly="not can_check_sanction"/>
                                         <field name="sanction_check_note" readonly="not can_check_sanction"/>
@@ -125,7 +131,7 @@
                                     <field name="exclusion_reason" readonly="not can_manage"/>
                                 </group>
                             </page>
-                            <page string="Interview" name="interview" invisible="state in ('draft', 'submitted', 'subsanation', 'not_submitted')">
+                            <page string="Interview" name="interview" invisible="audience != 'student' or state in ('draft', 'submitted', 'subsanation', 'not_submitted')">
                                 <group>
                                     <group>
                                         <field name="interview_date" readonly="not can_manage"/>
@@ -150,7 +156,58 @@
                                     <field name="single_interview_reason" readonly="not can_manage"/>
                                 </group>
                             </page>
-                            <page string="Scoring" name="scoring" invisible="not scoring_frozen_date">
+                            <!-- Issue #686: art. 11 of the staff call. -->
+                            <page string="Scoring" name="staff_scoring" invisible="audience != 'staff' or state in ('draft', 'submitted', 'subsanation', 'not_submitted', 'excluded')">
+                                <group>
+                                    <group string="Total">
+                                        <field name="score_total"/>
+                                        <field name="score_complete"/>
+                                        <field name="rank"/>
+                                        <field name="needs_draw" invisible="not needs_draw"/>
+                                        <field name="draw_order" readonly="not can_manage" invisible="not needs_draw and not draw_order"/>
+                                    </group>
+                                    <group string="Criteria">
+                                        <field name="score_plan"/>
+                                        <field name="score_last_mobility"/>
+                                        <field name="score_projects"/>
+                                        <field name="score_staff_language"/>
+                                        <field name="score_seniority"/>
+                                        <field name="score_internationalisation"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="1. Mobility plan">
+                                        <field name="plan_score"/>
+                                        <field name="plan_complete"/>
+                                    </group>
+                                    <group string="Checked by the Erasmus team">
+                                        <field name="last_staff_mobility" readonly="not can_manage"/>
+                                        <field name="language_level" readonly="not can_manage"/>
+                                        <field name="seniority" readonly="not can_manage"/>
+                                        <field name="merits_checked" readonly="not can_manage"/>
+                                    </group>
+                                </group>
+                                <field name="plan_rating_ids" readonly="1" groups="ems.group_erasmus,ems.group_academic_admin">
+                                    <list>
+                                        <field name="panel_member_id"/>
+                                        <field name="evaluator_id"/>
+                                        <field name="abstention_reason" optional="show"/>
+                                        <field name="score"/>
+                                        <field name="state" widget="badge" decoration-success="state == 'submitted'"/>
+                                    </list>
+                                </field>
+                                <field name="merit_ids" readonly="not can_manage">
+                                    <list editable="bottom">
+                                        <field name="kind"/>
+                                        <field name="description"/>
+                                        <field name="points"/>
+                                    </list>
+                                </field>
+                                <group>
+                                    <field name="extra_place_note" readonly="not can_manage"/>
+                                </group>
+                            </page>
+                            <page string="Scoring" name="scoring" invisible="audience != 'student' or not scoring_frozen_date">
                                 <group>
                                     <group string="Total">
                                         <field name="score_total"/>
@@ -230,10 +287,19 @@
                             </page>
                             <page string="Answers" name="answers">
                                 <group>
+                                    <field name="staff_activity" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="host_entity" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="host_not_identified" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="destination" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="preferred_dates" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="previous_mobility" readonly="not can_manage"/>
                                     <field name="previous_mobility_details" readonly="not can_manage"/>
-                                    <field name="availability" readonly="not can_manage"/>
-                                    <field name="fewer_opportunities" readonly="not can_manage" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="accompany_students" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="care_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="availability" readonly="not can_manage" invisible="audience != 'student'"/>
+                                    <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     <field name="image_consent" readonly="not can_manage"/>
                                     <field name="applicant_notes" readonly="not can_manage"/>
                                 </group>
@@ -267,6 +333,31 @@
                     <field name="score_complete"/>
                     <field name="is_eligible"/>
                     <field name="needs_draw" optional="show"/>
+                    <field name="state" widget="badge" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Issue #686: the staff call ranks everyone in one list, with art. 11's criteria. -->
+        <record id="view_erasmus_staff_ranking_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.staff.ranking.list</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="priority">30</field>
+            <field name="arch" type="xml">
+                <list string="Ranking" create="false" default_order="rank, score_total desc"
+                      decoration-muted="not score_complete" decoration-warning="needs_draw">
+                    <field name="rank"/>
+                    <field name="partner_id"/>
+                    <field name="score_plan"/>
+                    <field name="score_last_mobility"/>
+                    <field name="score_projects"/>
+                    <field name="score_staff_language"/>
+                    <field name="score_seniority"/>
+                    <field name="score_internationalisation"/>
+                    <field name="score_total"/>
+                    <field name="score_complete"/>
+                    <field name="needs_draw" optional="show"/>
+                    <field name="modality_id" optional="show"/>
                     <field name="state" widget="badge" optional="show"/>
                 </list>
             </field>

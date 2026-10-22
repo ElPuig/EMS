@@ -7,7 +7,8 @@ from odoo.addons.portal.controllers.portal import CustomerPortal
 
 from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS
 
-BOOLEAN_ANSWERS = ('previous_mobility', 'fewer_opportunities', 'image_consent')
+BOOLEAN_ANSWERS = ('previous_mobility', 'fewer_opportunities', 'image_consent', 'host_not_identified',
+                   'accompany_students')
 
 
 class EmsPortalErasmusController(CustomerPortal):
@@ -62,7 +63,9 @@ class EmsPortalErasmusController(CustomerPortal):
             'correctable': application._ems_portal_correctable() if application else application.document_ids,
             'documents': call.document_ids,
             'lines': {line.call_document_id: line for line in application.document_ids},
-            'is_minor': not partner.is_adult,
+            'is_minor': call.audience == 'student' and not partner.is_adult,
+            'activity_labels': dict(request.env['ems.erasmus.application']._fields['staff_activity']._description_selection(
+                request.env)),
             'state_labels': dict(request.env['ems.erasmus.application']._fields['state'].selection),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
@@ -87,11 +90,11 @@ class EmsPortalErasmusController(CustomerPortal):
         try:
             application = Application._ems_portal_get_or_create(call, request.env.user.partner_id)
             answers = {}
+            names = ANSWER_FIELDS[application.audience]
             if application._ems_portal_editable():
-                answers = {name: (post.get(name) or '').strip()[:2000] or False
-                           for name in ANSWER_FIELDS if name not in BOOLEAN_ANSWERS}
-                answers.update({name: bool(post.get(name)) for name in BOOLEAN_ANSWERS})
-            elif any(post.get(name) for name in ANSWER_FIELDS):
+                answers = {name: bool(post.get(name)) if name in BOOLEAN_ANSWERS
+                           else (post.get(name) or '').strip()[:2000] or False for name in names}
+            elif any(post.get(name) for name in names):
                 # Answers sent after the closing date: refused, nothing saved.
                 return request.redirect(f'{page}?error=1')
             uploads = {}

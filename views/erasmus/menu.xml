@@ -23,6 +23,15 @@
                   parent="menu_erasmus" action="action_erasmus_my_interviews"
                   groups="ems.group_erasmus_evaluator"/>
 
+        <!-- Issue #686: the staff's mobility plans, rated by the call's panel. -->
+        <menuitem name="Plan ratings" sequence="3" id="menu_erasmus_plan_ratings"
+                  parent="menu_erasmus" action="action_erasmus_plan_rating"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+
+        <menuitem name="My plan ratings" sequence="4" id="menu_erasmus_my_plan_ratings"
+                  parent="menu_erasmus" action="action_erasmus_my_plan_ratings"
+                  groups="ems.group_erasmus_evaluator"/>
+
         <!-- Issue #685: resolutions, place offers and claims; the Head of Studies and the Director read them. -->
         <menuitem name="Resolutions" sequence="5" id="menu_erasmus_resolutions"
                   parent="menu_erasmus" action="action_erasmus_resolution"

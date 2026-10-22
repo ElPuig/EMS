@@ -32,6 +32,8 @@ This section contains the manuals for **teachers**.
 | [A Student's Public and Private Notes](student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
 | [The Presence Dot on the Teachers Screen](staff-presence.md) | What the green, yellow and grey dot next to each colleague's name means, and what it is based on |
 | [Scoring an Erasmus+ interview](erasmus-interviews.md) | How to score, with the rubric of the call, the Erasmus+ interviews the Erasmus team assigns you |
+| [Applying for an Erasmus+ staff mobility](erasmus-staff-call.md) | How to apply from the portal for a job shadowing, a course or a teaching assignment, and follow your application |
+| [Rating Erasmus+ mobility plans](erasmus-plan-ratings.md) | How the panel of the staff call rates the mobility plans with the rubric of the call |
 
 ---
 

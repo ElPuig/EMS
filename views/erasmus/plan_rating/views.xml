@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #686 - Erasmus+ mobility plan ratings: each panel member rates every staff
+             applicant's plan with annex 2's rubric. See docs/en/developers/erasmus/erasmus.md. -->
+        <record id="view_erasmus_plan_rating_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.plan_rating.list</field>
+            <field name="model">ems.erasmus.plan_rating</field>
+            <field name="arch" type="xml">
+                <list string="Mobility plan ratings" create="false" decoration-muted="state == 'submitted'">
+                    <field name="partner_id"/>
+                    <field name="call_name" optional="show"/>
+                    <field name="panel_member_id" optional="show"/>
+                    <field name="evaluator_id" optional="show"/>
+                    <field name="score"/>
+                    <field name="state" widget="badge" decoration-info="state == 'draft'"
+                           decoration-success="state == 'submitted'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_plan_rating_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.plan_rating.search</field>
+            <field name="model">ems.erasmus.plan_rating</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="partner_id"/>
+                    <field name="evaluator_id"/>
+                    <filter name="to_score" string="To score" domain="[('state', '=', 'draft')]"/>
+                    <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                    <filter name="no_evaluator" string="Waiting for a substitute" domain="[('evaluator_id', '=', False)]"/>
+                    <group>
+                        <filter name="group_member" string="Panel member" context="{'group_by': 'panel_member_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_plan_rating_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.plan_rating.form</field>
+            <field name="model">ems.erasmus.plan_rating</field>
+            <field name="arch" type="xml">
+                <form string="Mobility plan rating" create="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_submit" type="object" string="Submit" class="btn-primary"
+                                    invisible="state != 'draft'"/>
+                            <button name="action_reopen" type="object" string="Reopen"
+                                    invisible="state != 'submitted'"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="partner_id" readonly="1"/></h1>
+                        </div>
+                        <field name="is_locked" invisible="1"/>
+                        <div class="alert alert-warning" role="alert" invisible="not is_locked">
+                            The review deadline has passed: only the Erasmus team can reopen this rating.
+                        </div>
+                        <group>
+                            <group>
+                                <field name="call_name"/>
+                                <field name="panel_member_id" readonly="1"/>
+                                <field name="evaluator_id" readonly="state != 'draft'" options="{'no_create': True}"
+                                       groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                <field name="abstention_reason" readonly="state != 'draft'"
+                                       groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            </group>
+                            <group>
+                                <field name="plan_attachment_ids" widget="many2many_binary" readonly="1"/>
+                                <field name="submit_date"/>
+                            </group>
+                        </group>
+                        <group string="Annex 2 (0, 0.5 or 1 each)">
+                            <field name="relevance" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                            <field name="transfer" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                            <field name="score"/>
+                        </group>
+                        <group>
+                            <field name="notes" readonly="state != 'draft'"/>
+                            <field name="rectification_note" invisible="not is_locked"
+                                   groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_my_plan_ratings" model="ir.actions.act_window">
+            <field name="name">My plan ratings</field>
+            <field name="res_model">ems.erasmus.plan_rating</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('evaluator_id', '=', uid)]</field>
+            <field name="context">{'search_default_to_score': 1}</field>
+            <field name="search_view_id" ref="view_erasmus_plan_rating_search"/>
+        </record>
+
+        <record id="action_erasmus_plan_rating" model="ir.actions.act_window">
+            <field name="name">Mobility plan ratings</field>
+            <field name="res_model">ems.erasmus.plan_rating</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_plan_rating_search"/>
+        </record>
+    </data>
+</odoo>

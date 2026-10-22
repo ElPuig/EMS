@@ -35,7 +35,7 @@ class EmsErasmusOffer(models.Model):
 
     def _compute_display_name(self):
         for offer in self:
-            offer.display_name = f"{offer.partner_id.name} - {offer.modality_id.name}"
+            offer.display_name = f"{offer.partner_id.name} - {offer.modality_id.name or offer.call_id.name}"
 
     @api.model
     def _ems_offer(self, applications, deadline, from_reserve=False, notify=True):
@@ -84,14 +84,16 @@ class EmsErasmusOffer(models.Model):
 
 class EmsErasmusOfferWizard(models.TransientModel):
     """Issue #685 - offer a free place of a modality: EMS proposes the next reserve, the Erasmus
-    team confirms it with a new deadline."""
+    team confirms it with a new deadline. A staff call offers its places as one pool, without a
+    modality (issue #686)."""
     _name = 'ems.erasmus.offer.wizard'
     _description = 'Erasmus+ offer a free place'
 
     call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', required=True)
-    modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality', required=True,
+    audience = fields.Selection(string="Applicants", related='call_id.audience')
+    modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality',
                                   domain="[('call_id', '=', call_id)]")
-    free_places = fields.Integer(string="Free places", related='modality_id.free_places')
+    free_places = fields.Integer(string="Free places", compute='_compute_application_id')
     application_id = fields.Many2one(string="Next reserve", comodel_name='ems.erasmus.application',
                                      compute='_compute_application_id')
     rank = fields.Integer(string="Rank", related='application_id.rank')
@@ -103,22 +105,31 @@ class EmsErasmusOfferWizard(models.TransientModel):
         call = self.env['ems.erasmus.call'].browse(values.get('call_id') or self.env.context.get('active_id'))
         if call:
             values['call_id'] = call.id
+            if call.audience == 'staff':
+                return values
             modality = call.modality_ids.filtered(lambda modality: modality.free_places > 0
                                                   and modality.next_reserve_id)[:1]
             values.setdefault('modality_id', (modality or call.modality_ids[:1]).id)
         return values
 
-    @api.depends('modality_id')
+    @api.depends('call_id', 'modality_id')
     def _compute_application_id(self):
         for wizard in self:
-            wizard.application_id = wizard.modality_id.next_reserve_id
+            call = wizard.call_id
+            if not call or (call.audience == 'student' and not wizard.modality_id):
+                wizard.update({'free_places': 0, 'application_id': False})
+                continue
+            wizard.free_places = call._ems_free_places(wizard.modality_id)
+            wizard.application_id = call._ems_next_reserve(wizard.modality_id)
 
     def action_confirm(self):
         self.ensure_one()
-        if self.modality_id.free_places <= 0:
-            raise UserError(_("The modality %s has no free place.", self.modality_id.name))
+        if self.call_id.audience == 'student' and not self.modality_id:
+            raise UserError(_("Choose the modality of the free place."))
+        if self.free_places <= 0:
+            raise UserError(_("There is no free place."))
         if not self.application_id:
-            raise UserError(_("The modality %s has no reserve left.", self.modality_id.name))
+            raise UserError(_("There is no reserve left."))
         if self.deadline <= self.call_id._ems_now():
             raise UserError(_("The deadline must be in the future."))
         self.env['ems.erasmus.offer']._ems_offer(self.application_id, self.deadline, from_reserve=True)

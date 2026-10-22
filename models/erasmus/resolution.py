@@ -6,7 +6,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools.misc import formatLang
 
-from .application import RANKED_STATES, SCORE_FIELDS
+from .application import RANKED_STATES, SCORE_FIELDS, STAFF_SCORE_FIELDS
 
 KINDS = [('admission', "Admission list"), ('provisional', "Provisional resolution"),
          ('definitive', "Definitive resolution"), ('rectification', "Rectification")]
@@ -141,8 +141,7 @@ class EmsErasmusResolution(models.Model):
                 raise UserError(_("Complete the score and resolve the draws of: %s",
                                   ", ".join(pending.partner_id.mapped('name'))))
         missing = self._ems_applications().filtered(
-            lambda application: not mask_document_id(application.partner_id.document_id
-                                                     or application.partner_id.passport_id))
+            lambda application: not mask_document_id(application._ems_identity_document()))
         if missing:
             raise UserError(_("Record the identity document of: %s", ", ".join(missing.partner_id.mapped('name'))))
 
@@ -156,17 +155,27 @@ class EmsErasmusResolution(models.Model):
         states = ('admitted', 'excluded') if self.kind == 'admission' else RANKED_STATES + ('excluded',)
         return self.call_id.application_ids.filtered(lambda application: application.state in states)
 
+    def _ems_list_groups(self):
+        """The published list's tables, as [(title, lines)]: one per modality in a students' call,
+        a single one in a staff call, which ranks everyone together (issue #686)."""
+        self.ensure_one()
+        if self.call_id.audience == 'staff':
+            return [('', self.line_ids)]
+        return [(modality.name, self.line_ids.filtered(lambda line: line.modality_id == modality))
+                for modality in self.line_ids.modality_id]
+
     def _ems_line_values(self):
         self.ensure_one()
         values = []
         for application in self._ems_applications().sudo().sorted(
-                lambda application: (application.state == 'excluded', application.modality_id.sequence,
-                                     application.modality_id.id, application.rank, application.partner_id.name)):
-            partner = application.partner_id
+                lambda application: (application.state == 'excluded',
+                                     application.audience == 'student' and application.modality_id.sequence,
+                                     application.audience == 'student' and application.modality_id.id,
+                                     application.rank, application.partner_id.name)):
             vals = {
                 'application_id': application.id,
                 'modality_id': application.modality_id.id,
-                'public_id': mask_document_id(partner.document_id or partner.passport_id),
+                'public_id': mask_document_id(application._ems_identity_document()),
                 'sequence': len(values) + 1,
             }
             if application.state == 'excluded':
@@ -174,7 +183,8 @@ class EmsErasmusResolution(models.Model):
             elif self.kind == 'admission':
                 vals['result'] = 'admitted'
             else:
-                vals.update({name: application[name] for name in SCORE_FIELDS}, rank=application.rank,
+                vals.update({name: application[name] for name in SCORE_FIELDS + STAFF_SCORE_FIELDS},
+                            rank=application.rank,
                             result=application._ems_ranking_result())
             values.append(vals)
         return values
@@ -203,6 +213,7 @@ class EmsErasmusResolutionLine(models.Model):
     resolution_id = fields.Many2one(string="Resolution", comodel_name='ems.erasmus.resolution', required=True,
                                     ondelete='cascade', index=True)
     kind = fields.Selection(string="Kind", related='resolution_id.kind')
+    audience = fields.Selection(string="Applicants", related='resolution_id.call_id.audience')
     application_id = fields.Many2one(string="Application", comodel_name='ems.erasmus.application', required=True,
                                      ondelete='restrict', index=True)
     partner_id = fields.Many2one(string="Applicant", related='application_id.partner_id', store=True)
@@ -219,6 +230,13 @@ class EmsErasmusResolutionLine(models.Model):
     score_e = fields.Float(string="E. First mobility", digits=(5, 2))
     score_f = fields.Float(string="F. Conduct", digits=(5, 2))
     score_total = fields.Float(string="Total score", digits=(5, 2))
+    # Issue #686: the staff call's criteria.
+    score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2))
+    score_last_mobility = fields.Float(string="2. Last mobility", digits=(4, 2))
+    score_projects = fields.Float(string="3. Centre projects", digits=(4, 2))
+    score_staff_language = fields.Float(string="4. Languages", digits=(4, 2))
+    score_seniority = fields.Float(string="5. Seniority", digits=(4, 2))
+    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2))
     exclusion_reason = fields.Text(string="Exclusion reason",
                                    help="Only for the applicant (email and portal), never in the published list.")
 

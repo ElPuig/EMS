@@ -349,6 +349,7 @@
         'views/erasmus/call/views.xml',
         'views/erasmus/application/views.xml',
         'views/erasmus/interview/views.xml',
+        'views/erasmus/plan_rating/views.xml',
         'reports/erasmus/report_erasmus_resolution.xml',
         'views/erasmus/resolution/views.xml',
         'views/erasmus/offer/views.xml',

@@ -45,7 +45,7 @@ En la pestaña **Entrevista** de cada solicitud admitida:
 
 Cada persona evaluadora puntúa los 7 criterios de la rúbrica (anexo 4) de 0 a 5 y la envía. La puntuación de la entrevista es la media de las dos. Si por una causa justificada solo la ha podido valorar una persona, escríbelo en **Motivo de una sola valoración**.
 
-En la convocatoria, el **Plazo de revisión de las entrevistas** fija hasta cuándo las personas evaluadoras pueden reabrir y cambiar su valoración. Después, solo el equipo Erasmus puede reabrir una entrevista, desde **Erasmus+ > Entrevistas**, escribiendo una **Nota de rectificación**.
+En la convocatoria, el **Plazo de revisión de las evaluaciones** fija hasta cuándo las personas evaluadoras pueden reabrir y cambiar su valoración. Después, solo el equipo Erasmus puede reabrir una entrevista, desde **Erasmus+ > Entrevistas**, escribiendo una **Nota de rectificación**.
 
 Si un alumno no se presenta a la entrevista, escribe el motivo y haz clic en **Acciones > Excluir**.
 

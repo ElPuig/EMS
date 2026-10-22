@@ -1,7 +1,8 @@
 # Erasmus+ calls and applications
 
 Issues #682 (umbrella), #683 (phase 1: calls and applications), #684 (phase 2: scoring and
-interviews) and #685 (phase 3: resolutions, claims and place offers). Design of the whole project: `plans/erasmus_portal.md`.
+interviews), #685 (phase 3: resolutions, claims and place offers) and #686 (phase 4: the staff
+call). Design of the whole project: `plans/erasmus_portal.md`.
 This page describes what is implemented.
 
 The centre publishes a yearly Erasmus+ call for its vocational training students (CFGM/CFGS, any
@@ -10,8 +11,9 @@ follow their application; the Erasmus team checks the requirements and the docum
 corrections (subsanation) and admits or excludes each application, then scores the admitted ones (record average, interview,
 languages, fewer opportunities, first mobility, conduct warnings) and ranks them per modality.
 The Commission's resolutions are published on the portal, claims are recorded, and the places are
-offered to the selected and, when one is renounced, to the next reserve. The staff call comes in a
-later phase.
+offered to the selected and, when one is renounced, to the next reserve. The centre's vocational
+training staff apply to their own call through the same portal page; a panel rates their mobility
+plans (see "Staff call" at the end).
 
 ## Models
 
@@ -30,7 +32,7 @@ erDiagram
 
 | Model | Purpose |
 |---|---|
-| `ems.erasmus.call` | One call: course, dates (`date_open`, `date_close`, optional `subsanation_deadline`), the published call PDF, the text shown on the portal, state. |
+| `ems.erasmus.call` | One call: who applies (`audience`: students or staff), course, dates (`date_open`, `date_close`, optional `subsanation_deadline`), the published call PDF, the text shown on the portal, state. |
 | `ems.erasmus.call.modality` | A selection list with its own places (GM, GS): project (KA121-VET / KA131-HED), places, period, destinations, and the **levels** whose students compete in it. |
 | `ems.erasmus.call.document` | A document the call asks for: required, optional or required for minors; confidential (only the Erasmus team sees it). |
 | `ems.erasmus.application` | One student's application to one call (unique per call and student). |
@@ -206,6 +208,12 @@ erDiagram
     ems_erasmus_application }o--o{ ems_strike : "strike_ids (frozen)"
 ```
 
+`ems.erasmus.interview` and the staff's `ems.erasmus.plan_rating` (phase 4) share the evaluator's
+workflow through the abstract model `ems.erasmus.evaluation` (`models/erasmus/evaluation.py`):
+evaluator, state, submit, reopen, lock at the review deadline or the provisional resolution, the
+evaluator's activity, `ems.group_erasmus_evaluator` membership and the write guard (an evaluator
+writes only the rubric `_ems_criteria` and their notes). Each model only adds its rubric.
+
 The Erasmus team sets the interview's date and place on the application (`interview_date`,
 `interview_place`) and assigns two evaluators (`ems.erasmus.interview`, one per evaluator, any
 internal user). *Send interview call* emails the applicant the date and place
@@ -228,7 +236,7 @@ stateDiagram-v2
 - **Evaluators see only their own interviews** (record rule `evaluator_id = user`), never the
   other evaluator's, nor anything else of the application. Being assigned adds them to
   `ems.group_erasmus_evaluator` (*Erasmus+ > My evaluations*); losing every interview removes it.
-- After the call's `interview_deadline` the evaluator can no longer change or reopen; the team
+- After the call's `interview_deadline` (label *Evaluation review deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
   can still reopen, writing a rectification note (`rectification_note`), posted in the chatter.
 - The application's interview score is the mean of the submitted interviews, complete when every
   assigned interview is submitted and there are two of them, or one with a recorded reason
@@ -396,3 +404,110 @@ It carries personal and bank data: the file is built on the fly by `/ems/erasmus
 | `ems.erasmus.claim` | rwcu | r | - |
 
 Menus *Erasmus+ > Resolutions*, *Place offers* and *Claims*: team, Head of Studies, Director.
+
+## Staff call (phase 4, #686)
+
+A call's `audience` (*Applicants*) is `student` or `staff`; it cannot change once the call has
+applications. The engine is the same (call, application, documents, resolutions, offers, claims);
+what differs:
+
+| | Students | Staff |
+|---|---|---|
+| Who sees the call on the portal | A student whose main group's level is in a modality | An internal user with an employee file (`res.partner._ems_erasmus_employee`) |
+| Modality | Computed from the level when applying | Empty when applying; the team assigns the project and period after the selection |
+| Admission checks | Requirements + serious sanctions (Head of Studies) | Requirements only |
+| Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6), every value recorded by the team or the panel |
+| Ranking | Per modality | One list for the whole call |
+| Places | Per modality | The sum of every modality, offered as one pool |
+| Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
+| Minimum score | 50 | 0 (set by the onchange of `audience`) |
+
+```mermaid
+erDiagram
+    ems_erasmus_call ||--o{ ems_erasmus_call_panel : "panel_ids"
+    ems_erasmus_call_panel }o--|| res_users : "user_id"
+    ems_erasmus_application }o--o| hr_employee : "employee_id"
+    ems_erasmus_application ||--o{ ems_erasmus_plan_rating : "plan_rating_ids"
+    ems_erasmus_plan_rating }o--|| res_users : "panel_member_id"
+    ems_erasmus_plan_rating }o--o| res_users : "evaluator_id (member or substitute)"
+    ems_erasmus_application ||--o{ ems_erasmus_application_merit : "merit_ids"
+```
+
+| Model | Purpose |
+|---|---|
+| `ems.erasmus.call.panel` | A panel member of a staff call (user, post), copied when the call is duplicated. |
+| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2: `relevance`, `transfer`, 0 / 0.5 / 1 each). Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
+| `ems.erasmus.application.merit` | A merit of criteria 3 (centre project: collaboration 0.5, coordination 1) or 6 (internationalisation activity 0.5), with its justification. |
+
+### Application form
+
+The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`): activity
+(`staff_activity`), host entity or course, "host not found yet", destination, preferred dates,
+previous mobilities, centre projects, interest in accompanying students, support needs and family
+or care responsibilities (both confidential: `groups` Erasmus team and administrator), image
+consent, notes. The controller saves only the answers of the call's audience;
+`_ems_portal_save` refuses an activity outside the selection. `employee_id` is set when the
+application is created. `is_minor` is always false for staff.
+
+### Panel and plan ratings
+
+**Actions > Send plans to the panel** (`action_send_to_panel`, closed staff call only) creates one
+rating per admitted application and panel member still without one, so it can be repeated after
+admitting more. A panel member who applied to the call (`_ems_candidate_partners`: any application
+past draft) is created without `evaluator_id` and with the abstention reason *Candidate in this
+call* (art. 10). The team then sets the substitute the Director appoints as `evaluator_id`;
+`_check_evaluator` requires an `abstention_reason` whenever the evaluator is not the panel member,
+and never accepts a candidate of the call as evaluator.
+
+`plan_score` is the mean of the submitted ratings; `plan_complete` needs a submitted rating for
+every panel member (`call.panel_ids`). A pending rating, or one still without a substitute, leaves
+the score incomplete.
+
+**What a panel member sees:** only their ratings (record rule `evaluator_id = user`), and, so they
+can open the plan, the application document lines whose call document is `panel_visible` and not
+confidential, of the applications they rate (record rule on `ems.erasmus.application.document`,
+read only); the rating shows those files (`plan_attachment_ids`). Nothing else of the application.
+
+### Criteria (art. 11 of the staff call)
+
+| | Criterion | Field(s) | Points |
+|---|---|---|---|
+| 1 | Mobility plan | `plan_score` → `score_plan` | max 2 |
+| 2 | Last staff mobility | `last_staff_mobility` → `score_last_mobility` | never / older 1.5, two courses ago 0.5, recent 0 |
+| 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 1.5 |
+| 4 | Languages | `language_level` → `score_staff_language` | B2 1, C1 1.5, C2 2 (B1 0) |
+| 5 | Seniority | `seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
+| 6 | Internationalisation | `merit_ids` (internationalisation) → `score_internationalisation` | sum, max 1 |
+
+`score_complete` needs the plan complete, `last_staff_mobility`, `language_level`, `seniority` and
+`merits_checked` (stamped like every manual criterion, so "no merits" is an explicit answer).
+
+**Ranking** (`_compute_rank`, `_ems_rank_key`): one list per call, once every admitted application
+is complete. Tie-breaks: never had a staff mobility (`last_staff_mobility == 'never'`, which scores
+the same as `older`), plan score, seniority, then the recorded draw. Result
+(`_ems_ranking_result`): selected within the sum of every modality's places, reserve after them.
+
+### Resolutions, offers and export
+
+- The resolution lines also freeze the staff criteria (`STAFF_SCORE_FIELDS`). The published list
+  (`_ems_list_groups`) is a single table for a staff call, still without names.
+- Offers of a staff call have no modality until the team assigns one; `free_places` and
+  `next_reserve_id` live on the call (`_ems_free_places`, `_ems_next_reserve`), and the offer
+  wizard asks for no modality.
+- **Export to spreadsheet** (`_ems_staff_participant_row`) reads the employee file: name from the
+  user's contact, identity document, private email (else work), private phone (else mobile),
+  private address, birthday, nationality (`country_id`) and `bank_account_id`. Género, Ciclo
+  formativo, Curso and the legal guardian columns stay empty.
+- One place per person: the unique (call, applicant) constraint gives it; an exception when places
+  are left over is recorded in `extra_place_note`.
+
+### Access (phase 4)
+
+| Model | Erasmus team | Head of Studies / Director | Panel member (`ems.group_erasmus_evaluator`) |
+|---|---|---|---|
+| `ems.erasmus.call.panel` | rwcu | r | - |
+| `ems.erasmus.plan_rating` | rwcu | - (unless in the panel) | rw own (rubric, notes) |
+| `ems.erasmus.application.merit` | rwcu | r | - |
+| `ems.erasmus.application.document` | rwcu | r, not confidential | r, `panel_visible` lines of the plans they rate |
+
+Menus *Erasmus+ > Plan ratings* (team) and *My plan ratings* (evaluators).

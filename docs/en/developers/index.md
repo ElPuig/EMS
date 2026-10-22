@@ -98,7 +98,7 @@ Technical reference for developers working on the EMS module.
 
 | Model | Description |
 |-------|-------------|
-| [Erasmus+ calls and applications](erasmus/erasmus.md) | `ems.erasmus.call` (+ modalities, requested documents) and `ems.erasmus.application` (+ document lines): who can apply (modality levels), call and application states, document versions and review, admission checks (the sanction check reserved to the Head of Studies), the `/my/erasmus` portal and access control; phase 2: the scoring of art. 12 (record average and conduct warnings frozen at closing, manual criteria), `ems.erasmus.interview` with two evaluators and the per-modality ranking |
+| [Erasmus+ calls and applications](erasmus/erasmus.md) | `ems.erasmus.call` (+ modalities, requested documents) and `ems.erasmus.application` (+ document lines): who can apply (modality levels), call and application states, document versions and review, admission checks (the sanction check reserved to the Head of Studies), the `/my/erasmus` portal and access control; phase 2: the scoring of art. 12 (record average and conduct warnings frozen at closing, manual criteria), `ems.erasmus.interview` with two evaluators and the per-modality ranking; phase 3: resolutions, claims, place offers and the participants spreadsheet; phase 4: the staff call (`audience`), its panel and `ems.erasmus.plan_rating`, the staff criteria of art. 11 and one ranking per call |
 
 ---
 

@@ -45,7 +45,7 @@ On the **Interview** tab of each admitted application:
 
 Each evaluator scores the 7 criteria of the rubric (annex 4) from 0 to 5 and submits. The interview score is the average of both evaluators. If only one evaluator could score it for a justified reason, write it in **Reason for a single evaluation**.
 
-On the call, the **Interview review deadline** sets until when the evaluators can reopen and change their own evaluation. After it, only the Erasmus team can reopen an interview, from **Erasmus+ > Interviews**, writing a **Rectification note**.
+On the call, the **Evaluation review deadline** sets until when the evaluators can reopen and change their own evaluation. After it, only the Erasmus team can reopen an interview, from **Erasmus+ > Interviews**, writing a **Rectification note**.
 
 If a student does not attend the interview, write the reason and click **Actions > Exclude**.
 

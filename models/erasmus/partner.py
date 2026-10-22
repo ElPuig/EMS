@@ -4,24 +4,36 @@ from odoo import models
 
 
 class ResPartner(models.Model):
-    """Issue #683 - which Erasmus+ calls a student sees on the portal."""
+    """Issue #683 - which Erasmus+ calls a student sees on the portal; issue #686, which staff
+    calls a staff member sees."""
     _inherit = 'res.partner'
 
     def _ems_erasmus_calls(self):
-        """Published calls with a modality for this student's level, open or not yet."""
+        """Published calls this person can apply to, open or not yet: the students' calls with a
+        modality for their level, or the staff calls for an internal user with an employee file."""
         self.ensure_one()
+        Call = self.env['ems.erasmus.call'].sudo()
+        calls = Call
         level = self.contact_type == 'student' and self.main_group_id.level_id
-        if not level:
-            return self.env['ems.erasmus.call']
-        return self.env['ems.erasmus.call'].sudo().search([
-            ('state', '=', 'published'), ('modality_ids.level_ids', 'in', level.ids)])
+        if level:
+            calls |= Call.search([('state', '=', 'published'), ('audience', '=', 'student'),
+                                  ('modality_ids.level_ids', 'in', level.ids)])
+        if self._ems_erasmus_employee():
+            calls |= Call.search([('state', '=', 'published'), ('audience', '=', 'staff')])
+        return calls
+
+    def _ems_erasmus_employee(self):
+        """The employee file of this partner's internal user, if any (staff calls)."""
+        self.ensure_one()
+        users = self.sudo().user_ids.filtered(lambda user: not user.share)
+        return users.employee_ids[:1]
 
     def _ems_erasmus_applications(self):
         self.ensure_one()
         return self.env['ems.erasmus.application'].sudo().search([('partner_id', '=', self.id)])
 
     def _ems_erasmus_portal_visible(self):
-        """The portal's Erasmus+ card: for students who can apply to a published call or already
-        applied to one. Families do not see it."""
+        """The portal's Erasmus+ card: for whoever can apply to a published call or already applied
+        to one. Families do not see it."""
         self.ensure_one()
         return bool(self._ems_erasmus_calls() or self._ems_erasmus_applications())

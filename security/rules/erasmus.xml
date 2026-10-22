@@ -33,5 +33,30 @@
             <field name="groups" eval="[(4, ref('ems.group_erasmus_evaluator'))]"/>
             <field name="domain_force">[('evaluator_id', '=', user.id)]</field>
         </record>
+
+        <!-- Issue #686: a panel member sees only the mobility plan ratings assigned to them, and of
+             each application only the documents the call shows to the panel (the mobility plan),
+             so they can open its files; never the rest of the file. -->
+        <record id="rule_erasmus_plan_rating_all" model="ir.rule">
+            <field name="name">Erasmus plan rating: all (team, admin)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_plan_rating"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_erasmus_plan_rating_evaluator" model="ir.rule">
+            <field name="name">Erasmus plan rating: own (panel member)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_plan_rating"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_evaluator'))]"/>
+            <field name="domain_force">[('evaluator_id', '=', user.id)]</field>
+        </record>
+
+        <record id="rule_erasmus_application_document_panel" model="ir.rule">
+            <field name="name">Erasmus application document: mobility plan to rate (panel member)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_evaluator'))]"/>
+            <field name="domain_force">[('call_document_id.panel_visible', '=', True), ('confidential', '=', False),
+                                        ('application_id.plan_rating_ids.evaluator_id', '=', user.id)]</field>
+        </record>
     </data>
 </odoo>

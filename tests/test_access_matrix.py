@@ -33,6 +33,10 @@ ACCESS_MATRIX = {
     'ems.erasmus.resolution.line': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
     'ems.erasmus.offer': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
     'ems.erasmus.claim': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    # Issue #686: plan ratings have record rules (own ratings for panel members), tested in test_erasmus_staff.py.
+    'ems.erasmus.call.panel': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.plan_rating': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rwcu'},
+    'ems.erasmus.application.merit': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},

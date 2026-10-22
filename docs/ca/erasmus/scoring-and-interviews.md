@@ -45,7 +45,7 @@ A la pestanya **Entrevista** de cada sol·licitud admesa:
 
 Cada persona avaluadora puntua els 7 criteris de la rúbrica (annex 4) de 0 a 5 i l'envia. La puntuació de l'entrevista és la mitjana de les dues. Si per una causa justificada només l'ha pogut valorar una persona, escriu-ho a **Motiu d'una sola valoració**.
 
-A la convocatòria, el **Termini de revisió de les entrevistes** fixa fins quan les persones avaluadores poden reobrir i canviar la seva valoració. Després, només l'equip Erasmus pot reobrir una entrevista, des d'**Erasmus+ > Entrevistes**, escrivint una **Nota de rectificació**.
+A la convocatòria, el **Termini de revisió de les avaluacions** fixa fins quan les persones avaluadores poden reobrir i canviar la seva valoració. Després, només l'equip Erasmus pot reobrir una entrevista, des d'**Erasmus+ > Entrevistes**, escrivint una **Nota de rectificació**.
 
 Si un alumne no es presenta a l'entrevista, escriu-ne el motiu i fes clic a **Accions > Exclou**.
 

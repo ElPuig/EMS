@@ -1,6 +1,6 @@
 # Erasmus+ calls and mobilities inside EMS
 
-**Status: design, current as of 2026-10-22. Phases 1 (#683), 2 (#684) and 3 (#685) implemented on their branches, not merged yet: what it
+**Status: design, current as of 2026-10-22. Phases 1 (#683), 2 (#684), 3 (#685) and 4 (#686) implemented on their branches, not merged yet: what it
 ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Design of record for the
 umbrella issue #682 and its phase issues (#683-#687); keep it current as each phase lands, then delete it once the
 last phase ships (its contents folded into `docs/en/developers/erasmus/` and the role manuals).
@@ -185,8 +185,8 @@ recorded with the substitute the Director appoints, who then rates instead.
 Preparing one **freezes** its lines (`ems.erasmus.resolution.line`: application, modality, rank,
 total, partial scores, result). Coordination records the Commission's approval (date, minutes
 reference) and publishes it by hand. Published lists show **only four digits of the ID document**,
-no names (coordinator, 2026-10-22; art. 14 of the call says name and four digits and should be
-updated), never the private file. A published resolution is never edited; a
+no names (coordinator, 2026-10-22; art. 14 of the student call draft updated accordingly), never the
+private file. A published resolution is never edited; a
 correction is a new rectification resolution.
 
 ### 4.8. Claims and appeals (`ems.erasmus.claim`)
@@ -319,7 +319,10 @@ graph LR
   no gender for students). Legal guardian columns only for minors, with **every** family contact
   (`_ems_family_contacts()`), joined with ", " in the same order in all three columns (decided
   2026-10-22).
-- **F4 - Staff call** *(medium)*. Staff application on the same portal page, mobility plan upload,
+- **F4 - Staff call** *(medium; implemented on `686-erasmus-phase-4`, see the dev doc. Decided 2026-10-22: the
+  staff lists show no names either; the panel sees only the mobility plan; Género stays empty in the
+  export; the staff's identity document and export data come from their employee file; one ranking for the
+  whole call, the team assigns project and period after selection).* Staff application on the same portal page, mobility plan upload,
   panel configuration and ratings, manual merits, staff scoring and tie-breaks, project/period
   assignment, one place per person. Reuses F1-F3, including "Export to spreadsheet": for staff,
   Ciclo formativo, Curso and the legal guardian columns stay empty (decided 2026-10-22).

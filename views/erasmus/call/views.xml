@@ -8,6 +8,7 @@
             <field name="arch" type="xml">
                 <list string="Calls" decoration-muted="state == 'closed'">
                     <field name="name"/>
+                    <field name="audience"/>
                     <field name="course_id" optional="show"/>
                     <field name="date_open"/>
                     <field name="date_close"/>
@@ -33,6 +34,9 @@
                                     confirm="Applications still in draft will be marked as not submitted. Continue?"/>
                             <button name="action_back_to_draft" type="object" string="Back to draft"
                                     invisible="state != 'published'"/>
+                            <button name="action_send_to_panel" type="object" string="Send plans to the panel"
+                                    invisible="audience != 'staff' or state != 'closed'"
+                                    help="Asks every panel member to rate the mobility plan of every admitted application."/>
                             <button name="action_offer_place" type="object" string="Offer a free place"
                                     invisible="not has_final_resolution"
                                     help="Offers a place left free by a renunciation to the next reserve of the modality."/>
@@ -55,6 +59,7 @@
                         </div>
                         <group>
                             <group>
+                                <field name="audience" readonly="application_count"/>
                                 <field name="course_id"/>
                                 <field name="rules_document" filename="rules_filename"/>
                                 <field name="rules_filename" invisible="1"/>
@@ -76,7 +81,8 @@
                                     <list editable="bottom">
                                         <field name="sequence" widget="handle"/>
                                         <field name="name"/>
-                                        <field name="level_ids" widget="many2many_tags"/>
+                                        <field name="level_ids" widget="many2many_tags"
+                                               column_invisible="parent.audience == 'staff'"/>
                                         <field name="project"/>
                                         <field name="places"/>
                                         <field name="period"/>
@@ -91,7 +97,18 @@
                                         <field name="name"/>
                                         <field name="requirement"/>
                                         <field name="confidential"/>
+                                        <field name="panel_visible" column_invisible="parent.audience != 'staff'"/>
                                         <field name="description"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <!-- Issue #686: who rates the staff's mobility plans. -->
+                            <page string="Panel" name="panel" invisible="audience != 'staff'">
+                                <field name="panel_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="user_id" options="{'no_create': True}"/>
+                                        <field name="post"/>
                                     </list>
                                 </field>
                             </page>
@@ -106,7 +123,11 @@
                                                decoration-success="state == 'published'"/>
                                     </list>
                                 </field>
-                                <group string="Places" invisible="not has_final_resolution">
+                                <group string="Places" invisible="not has_final_resolution or audience != 'staff'">
+                                    <field name="free_places"/>
+                                    <field name="next_reserve_id"/>
+                                </group>
+                                <group string="Places" invisible="not has_final_resolution or audience != 'student'">
                                     <field name="modality_ids" nolabel="1" colspan="2" readonly="1">
                                         <list>
                                             <field name="name"/>

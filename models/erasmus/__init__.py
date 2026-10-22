@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from . import (call, application, interview, partner, resolution, offer, claim)
+# evaluation first: the models below inherit it (and call imports application, which imports plan_rating).
+from . import (evaluation, call, application, interview, plan_rating, partner, resolution, offer, claim)

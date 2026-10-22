@@ -26,11 +26,17 @@
                             <p>Your application has been excluded.</p>
                             <p t-if="object.exclusion_reason">Reason: <t t-out="object.exclusion_reason"/></p>
                         </t>
+                        <p t-elif="object.result == 'admitted' and object.audience == 'staff'">
+                            Your application has been admitted. The panel will now rate your mobility plan.
+                        </p>
                         <p t-elif="object.result == 'admitted'">
                             Your application has been admitted. The Erasmus team will call you to the personal interview.
                         </p>
                         <t t-else="">
-                            <p>
+                            <p t-if="object.audience == 'staff'">
+                                Position <strong t-out="object.rank"/>, <strong t-out="object._ems_format_score()"/> points.
+                            </p>
+                            <p t-else="">
                                 Modality <strong t-out="object.modality_id.name"/>: position <strong t-out="object.rank"/>,
                                 <strong t-out="object._ems_format_score()"/> points.
                             </p>
@@ -81,9 +87,12 @@
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.partner_id.name"/>,</p>
-                        <p>
+                        <p t-if="object.modality_id">
                             A place of the modality <strong t-out="object.modality_id.name"/> of
                             <strong t-out="object.call_id.name"/> has become free and it is offered to you.
+                        </p>
+                        <p t-else="">
+                            A place of <strong t-out="object.call_id.name"/> has become free and it is offered to you.
                         </p>
                         <p>
                             Accept or renounce it on the school portal

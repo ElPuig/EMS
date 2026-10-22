@@ -86,7 +86,7 @@
                 <div t-if="offer" class="card border-success shadow-sm mb-3 o_ems_erasmus_offer">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fa fa-plane me-1"/>A place is offered to you</h5>
-                        <p class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
+                        <p t-if="offer.modality_id" class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
                         <p class="mb-1">Answer before: <strong t-out="offer.deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
                         <p class="mb-2">Without an answer by then, the place is considered renounced.</p>
                         <form t-attf-action="/my/erasmus/call/#{call.id}/offer" method="post" class="d-inline">
@@ -128,7 +128,21 @@
                             <p t-if="line.result == 'excluded' and line.exclusion_reason" class="small mb-1">
                                 Reason: <t t-esc="line.exclusion_reason"/>
                             </p>
-                            <t t-if="line.kind != 'admission' and line.result != 'excluded'">
+                            <t t-if="line.kind != 'admission' and line.result != 'excluded' and line.audience == 'staff'">
+                                <table class="table table-sm small mb-1 o_ems_erasmus_breakdown">
+                                    <tbody>
+                                        <tr><td>Position</td><td class="text-end" t-esc="line.rank"/></tr>
+                                        <tr class="fw-bold"><td>Total score</td><td class="text-end" t-out="line.score_total" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>1. Mobility plan</td><td class="text-end" t-out="line.score_plan" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>2. Last staff mobility</td><td class="text-end" t-out="line.score_last_mobility" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>3. Centre projects</td><td class="text-end" t-out="line.score_projects" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>4. Languages</td><td class="text-end" t-out="line.score_staff_language" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>5. Seniority at the centre</td><td class="text-end" t-out="line.score_seniority" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                        <tr><td>6. Internationalisation</td><td class="text-end" t-out="line.score_internationalisation" t-options="{'widget': 'float', 'precision': 2}"/></tr>
+                                    </tbody>
+                                </table>
+                            </t>
+                            <t t-elif="line.kind != 'admission' and line.result != 'excluded'">
                                 <table class="table table-sm small mb-1 o_ems_erasmus_breakdown">
                                     <tbody>
                                         <tr><td>Modality</td><td class="text-end" t-esc="line.modality_id.name"/></tr>
@@ -160,7 +174,84 @@
                       class="ems-loading-form o_ems_erasmus_form">
                     <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
 
-                    <fieldset t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
+                    <!-- Issue #686: the staff application form (art. 8 and annex 1 of the staff call). -->
+                    <fieldset t-if="call.audience == 'staff'" t-att-disabled="None if editable else 'disabled'"
+                              class="card shadow-sm mb-4 o_ems_erasmus_staff_form">
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <label class="form-label" for="staff_activity">Activity</label>
+                                <select class="form-select" name="staff_activity" id="staff_activity">
+                                    <option value="">-</option>
+                                    <t t-foreach="activity_labels.items()" t-as="activity">
+                                        <option t-att-value="activity[0]" t-att-selected="application.staff_activity == activity[0] or None"
+                                                t-esc="activity[1]"/>
+                                    </t>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label" for="host_entity">Host entity or course</label>
+                                <input type="text" class="form-control" name="host_entity" id="host_entity"
+                                       t-att-value="application.host_entity or ''"/>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="host_not_identified" id="host_not_identified"
+                                       t-att-checked="application.host_not_identified or None"/>
+                                <label class="form-check-label" for="host_not_identified">I have not found one yet: I would like the Erasmus coordination to help me</label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="destination">Destination (city and country)</label>
+                                <input type="text" class="form-control" name="destination" id="destination"
+                                       t-att-value="application.destination or ''"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="preferred_dates">Preferred dates or period, and approximate duration</label>
+                                <input type="text" class="form-control" name="preferred_dates" id="preferred_dates"
+                                       t-att-value="application.preferred_dates or ''"/>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="previous_mobility" id="previous_mobility"
+                                       t-att-checked="application.previous_mobility or None"/>
+                                <label class="form-check-label" for="previous_mobility">I have already taken part in an Erasmus+ mobility</label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="previous_mobility_details">If so, which ones and when</label>
+                                <textarea class="form-control" name="previous_mobility_details" id="previous_mobility_details" rows="2"
+                                          t-esc="application.previous_mobility_details or ''"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="centre_projects">Centre projects, commissions or coordinations you take part in (last course and this one)</label>
+                                <textarea class="form-control" name="centre_projects" id="centre_projects" rows="2"
+                                          t-esc="application.centre_projects or ''"/>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="accompany_students" id="accompany_students"
+                                       t-att-checked="application.accompany_students or None"/>
+                                <label class="form-check-label" for="accompany_students">I am interested in accompanying groups of students in their mobilities (optional)</label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="support_needs">Support or adaptations you need to do the mobility (confidential, optional)</label>
+                                <textarea class="form-control" name="support_needs" id="support_needs" rows="2"
+                                          t-esc="application.support_needs or ''"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="care_needs">Family or care responsibilities to take into account for the dates (optional)</label>
+                                <textarea class="form-control" name="care_needs" id="care_needs" rows="2"
+                                          t-esc="application.care_needs or ''"/>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"
+                                       t-att-checked="application.image_consent or None"/>
+                                <label class="form-check-label" for="image_consent">I consent to the use of my image in the project's dissemination activities (voluntary)</label>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
+                                <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
+                                          t-esc="application.applicant_notes or ''"/>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset t-else="" t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
                         <div class="card-body">
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="previous_mobility" id="previous_mobility"

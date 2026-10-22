@@ -11,6 +11,8 @@ from markupsafe import Markup
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
+from .plan_rating import PROJECT_MERITS
+
 CHECK_STATES = [('pending', "Pending"), ('met', "Met"), ('not_met', "Not met")]
 YES_NO = [('yes', "Yes"), ('no', "No")]
 # Criterion C (art. 12): the highest language certificate.
@@ -19,13 +21,21 @@ LANGUAGE_SCORES = {'none': 0.0, 'b1': 2.5, 'b2': 5.0, 'c1': 7.5, 'c2': 10.0}
 SANCTION_FIELDS = {'sanction_check', 'sanction_check_note'}
 # Values set by hand that keep who set them and when (<field>_user_id, <field>_date).
 STAMPED_FIELDS = ('requirements_check', 'sanction_check', 'language_level', 'fewer_opportunities_check',
-                  'first_mobility')
+                  'first_mobility', 'last_staff_mobility', 'seniority', 'merits_checked')
 # Application states whose data is frozen when the call closes.
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
 # Application states that compete in the ranking (issue #685): admitted, and the results after it.
 RANKED_STATES = ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced')
 # The criteria and total a resolution freezes on its lines.
 SCORE_FIELDS = ('score_a', 'score_b', 'score_c', 'score_d', 'score_e', 'score_f', 'score_total')
+# Issue #686: the staff call's criteria (art. 11), frozen too.
+STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language',
+                      'score_seniority', 'score_internationalisation')
+# Criterion 4 of the staff call: from B2, the highest certificate.
+STAFF_LANGUAGE_SCORES = {'b2': 1.0, 'c1': 1.5, 'c2': 2.0}
+# Criterion 2: the last staff mobility. Criterion 5: continuous seniority at the closing date.
+LAST_MOBILITY_SCORES = {'never': 1.5, 'older': 1.5, 'two_courses': 0.5, 'recent': 0.0}
+SENIORITY_SCORES = {'y0': 0.0, 'y1': 1.0, 'y2': 1.5, 'y5': 2.0}
 # Issue #685: "Export to spreadsheet". An external tool imports the file as is, so the sheet name and
 # the headers are fixed, in Spanish, in this order, and are never translated.
 PARTICIPANT_SHEET = 'Participantes'
@@ -33,14 +43,22 @@ PARTICIPANT_HEADERS = ('Nombre', 'Apellidos', 'DNI', 'Email', 'Teléfono', 'Dire
                        'Nacionalidad', 'Género', 'Ciclo formativo', 'Curso', 'Titular de la cuenta', 'Banco', 'BIC',
                        'IBAN', 'Tutor legal', 'Email del tutor legal', 'Teléfono del tutor legal')
 # Answers of the portal form, editable by the applicant while the call accepts applications.
-ANSWER_FIELDS = ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
-                 'image_consent', 'applicant_notes')
+ANSWER_FIELDS = {
+    'student': ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
+                'image_consent', 'applicant_notes'),
+    'staff': ('staff_activity', 'host_entity', 'host_not_identified', 'destination', 'preferred_dates',
+              'previous_mobility', 'previous_mobility_details', 'centre_projects', 'accompany_students',
+              'support_needs', 'care_needs', 'image_consent', 'applicant_notes'),
+}
+STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
+                    ('teaching', "Teaching assignment")]
 
 
 class EmsErasmusApplication(models.Model):
-    """Issue #683 - a student's application to an Erasmus+ call. Filed from the portal
-    (controllers/portal_erasmus.py, with sudo), reviewed by the Erasmus team. The state only moves
-    through the actions below. See docs/en/developers/erasmus/erasmus.md."""
+    """Issue #683 - a student's application to an Erasmus+ call; issue #686, also a staff
+    member's to a staff call. Filed from the portal (controllers/portal_erasmus.py, with sudo),
+    reviewed by the Erasmus team. The state only moves through the actions below. See
+    docs/en/developers/erasmus/erasmus.md."""
     _name = 'ems.erasmus.application'
     _description = 'Erasmus+ application'
     _inherit = ['ems.base']
@@ -53,6 +71,9 @@ class EmsErasmusApplication(models.Model):
                               index=True)
     partner_id = fields.Many2one(string="Applicant", comodel_name='res.partner', required=True, ondelete='restrict',
                                  index=True)
+    audience = fields.Selection(string="Applicants", related='call_id.audience', store=True)
+    employee_id = fields.Many2one(string="Employee", comodel_name='hr.employee', ondelete='restrict', readonly=True,
+                                  help="Staff call: the applicant's employee file.")
     modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality', ondelete='restrict',
                                   domain="[('call_id', '=', call_id)]", tracking=True)
     state = fields.Selection(string="State", required=True, default='draft', tracking=True, copy=False, index=True,
@@ -71,6 +92,18 @@ class EmsErasmusApplication(models.Model):
     fewer_opportunities = fields.Boolean(string="Declares fewer opportunities")
     image_consent = fields.Boolean(string="Image consent")
     applicant_notes = fields.Text(string="Applicant's notes")
+    # Issue #686: the staff application form (art. 8 and annex 1 of the staff call).
+    staff_activity = fields.Selection(string="Activity", selection=STAFF_ACTIVITIES)
+    host_entity = fields.Char(string="Host entity or course")
+    host_not_identified = fields.Boolean(string="Host not found yet",
+                                         help="The Erasmus coordination helps to find one.")
+    destination = fields.Char(string="Destination")
+    preferred_dates = fields.Char(string="Preferred dates")
+    centre_projects = fields.Text(string="Centre projects")
+    accompany_students = fields.Boolean(string="Interested in accompanying students")
+    support_needs = fields.Text(string="Support needs", groups='ems.group_erasmus,ems.group_academic_admin')
+    care_needs = fields.Text(string="Family or care responsibilities",
+                             groups='ems.group_erasmus,ems.group_academic_admin')
 
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.application.document',
                                    inverse_name='application_id')
@@ -166,10 +199,49 @@ class EmsErasmusApplication(models.Model):
                                 inverse_name='application_id', readonly=True)
     claim_ids = fields.One2many(string="Claims", comodel_name='ems.erasmus.claim', inverse_name='application_id')
 
-    @api.depends('partner_id.birth_date')
+    # --- staff scoring (issue #686, art. 11 of the staff call) ---
+    plan_rating_ids = fields.One2many(string="Mobility plan ratings", comodel_name='ems.erasmus.plan_rating',
+                                      inverse_name='application_id',
+                                      groups='ems.group_erasmus,ems.group_academic_admin')
+    plan_score = fields.Float(string="Mobility plan score", digits=(4, 2), compute='_compute_plan', store=True,
+                              help="Mean of the panel's ratings.")
+    plan_complete = fields.Boolean(string="Mobility plan rated", compute='_compute_plan', store=True,
+                                   help="Every panel member (or their substitute) has submitted their rating.")
+    last_staff_mobility = fields.Selection(string="Last staff mobility", tracking=True, copy=False, selection=[
+        ('never', "Never"), ('older', "More than two courses ago"), ('two_courses', "Two courses ago"),
+        ('recent', "Last course or this one")], help="Erasmus+ staff mobilities. Accompanying students does not count.")
+    last_staff_mobility_user_id = fields.Many2one(string="Last mobility checked by", comodel_name='res.users',
+                                                  readonly=True, copy=False)
+    last_staff_mobility_date = fields.Datetime(string="Last mobility checked on", readonly=True, copy=False)
+    seniority = fields.Selection(string="Seniority at the centre", tracking=True, copy=False, selection=[
+        ('y0', "Less than 1 year"), ('y1', "1 to less than 2 years"), ('y2', "2 to less than 5 years"),
+        ('y5', "5 years or more")], help="Continuous, at the closing date of the call.")
+    seniority_user_id = fields.Many2one(string="Seniority checked by", comodel_name='res.users', readonly=True,
+                                        copy=False)
+    seniority_date = fields.Datetime(string="Seniority checked on", readonly=True, copy=False)
+    merit_ids = fields.One2many(string="Merits", comodel_name='ems.erasmus.application.merit',
+                                inverse_name='application_id')
+    merits_checked = fields.Boolean(string="Merits reviewed", tracking=True, copy=False,
+                                    help="Every merit of criteria 3 and 6 is recorded (having none is an answer too).")
+    merits_checked_user_id = fields.Many2one(string="Merits reviewed by", comodel_name='res.users', readonly=True,
+                                             copy=False)
+    merits_checked_date = fields.Datetime(string="Merits reviewed on", readonly=True, copy=False)
+    score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2), compute='_compute_scores', store=True)
+    score_last_mobility = fields.Float(string="2. Last mobility", digits=(4, 2), compute='_compute_scores',
+                                       store=True)
+    score_projects = fields.Float(string="3. Centre projects", digits=(4, 2), compute='_compute_scores', store=True)
+    score_staff_language = fields.Float(string="4. Languages", digits=(4, 2), compute='_compute_scores', store=True)
+    score_seniority = fields.Float(string="5. Seniority", digits=(4, 2), compute='_compute_scores', store=True)
+    score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2),
+                                              compute='_compute_scores', store=True)
+    extra_place_note = fields.Text(string="Additional place", tracking=True, copy=False,
+                                   help="One place per person, unless places are left over: why this person gets "
+                                        "another one (art. 6 of the staff call).")
+
+    @api.depends('partner_id.birth_date', 'audience')
     def _compute_is_minor(self):
         for application in self:
-            application.is_minor = not application.partner_id.is_adult
+            application.is_minor = application.audience == 'student' and not application.partner_id.is_adult
 
     @api.depends_context('uid')
     def _compute_permissions(self):
@@ -192,12 +264,32 @@ class EmsErasmusApplication(models.Model):
             application.interview_general = sum(submitted.mapped('general_score')) / count if count else 0.0
             application.interview_english = sum(submitted.mapped('english_score')) / count if count else 0.0
 
+    @api.depends('plan_rating_ids.state', 'plan_rating_ids.score', 'plan_rating_ids.panel_member_id',
+                 'call_id.panel_ids.user_id')
+    def _compute_plan(self):
+        """Issue #686: the mean of the panel's ratings, complete when every panel member has a
+        submitted one (a pending rating blocks, it never counts as zero)."""
+        for application in self:
+            ratings = application.plan_rating_ids
+            submitted = ratings.filtered(lambda rating: rating.state == 'submitted')
+            application.plan_complete = bool(ratings) and submitted == ratings and not (
+                application.call_id.panel_ids.user_id - ratings.panel_member_id)
+            application.plan_score = round(sum(submitted.mapped('score')) / len(submitted), 2) if submitted else 0.0
+
     @api.depends('grade_average_ems', 'grade_average_from_ems', 'scoring_frozen_date',
                  'interview_general', 'interview_english', 'interview_complete', 'language_level',
-                 'fewer_opportunities_check', 'first_mobility', 'strike_count', 'call_id.min_score')
+                 'fewer_opportunities_check', 'first_mobility', 'strike_count', 'call_id.min_score', 'audience',
+                 'plan_score', 'plan_complete', 'last_staff_mobility', 'seniority', 'merits_checked',
+                 'merit_ids.kind')
     def _compute_scores(self):
-        """Art. 12: A + B + C + D + E + F, no floor at zero. A pending criterion leaves it incomplete."""
+        """Art. 12: A + B + C + D + E + F, no floor at zero. A pending criterion leaves it incomplete.
+        A staff application, criteria 1 to 6 of the staff call instead (`_ems_staff_scores`)."""
         for application in self:
+            application.update(dict.fromkeys(SCORE_FIELDS + STAFF_SCORE_FIELDS, 0.0))
+            application.update({'grade_average': 0.0, 'score_a_pending': False})
+            if application.audience == 'staff':
+                application._ems_staff_scores()
+                continue
             average = application.grade_average_ems
             application.grade_average = average
             application.score_a_pending = not (application.scoring_frozen_date and application.grade_average_from_ems)
@@ -213,32 +305,61 @@ class EmsErasmusApplication(models.Model):
             application.is_eligible = application.score_complete and \
                 application.score_total >= application.call_id.min_score
 
+    def _ems_staff_scores(self):
+        """Art. 11 of the staff call: 1 + 2 + 3 + 4 + 5 + 6, max 10. Criteria 3 and 6 add up the
+        merits, up to their maximums."""
+        merits = self.merit_ids
+        self.update({
+            'score_plan': self.plan_score,
+            'score_last_mobility': LAST_MOBILITY_SCORES.get(self.last_staff_mobility, 0.0),
+            'score_projects': min(sum(merits.filtered(lambda merit: merit.kind in PROJECT_MERITS).mapped('points')),
+                                  1.5),
+            'score_staff_language': STAFF_LANGUAGE_SCORES.get(self.language_level, 0.0),
+            'score_seniority': SENIORITY_SCORES.get(self.seniority, 0.0),
+            'score_internationalisation': min(
+                sum(merits.filtered(lambda merit: merit.kind == 'internationalisation').mapped('points')), 1.0),
+        })
+        self.score_total = sum(self[name] for name in STAFF_SCORE_FIELDS)
+        self.score_complete = self.plan_complete and self.merits_checked and all(
+            self[name] for name in ('last_staff_mobility', 'language_level', 'seniority'))
+        self.is_eligible = self.score_complete and self.score_total >= self.call_id.min_score
+
     @api.depends('state', 'modality_id', 'score_total', 'score_complete', 'score_d', 'score_e',
-                 'interview_english', 'grade_average', 'draw_order',
-                 'call_id.application_ids.state', 'call_id.application_ids.modality_id',
+                 'interview_english', 'grade_average', 'draw_order', 'last_staff_mobility', 'score_plan',
+                 'seniority', 'call_id.application_ids.state', 'call_id.application_ids.modality_id',
                  'call_id.application_ids.score_total', 'call_id.application_ids.score_complete',
                  'call_id.application_ids.score_d', 'call_id.application_ids.score_e',
                  'call_id.application_ids.interview_english', 'call_id.application_ids.grade_average',
-                 'call_id.application_ids.draw_order')
+                 'call_id.application_ids.draw_order', 'call_id.application_ids.last_staff_mobility',
+                 'call_id.application_ids.score_plan', 'call_id.application_ids.seniority')
     def _compute_rank(self):
         """Rank among the admitted applications (and their results) of the same modality, by total and art. 12's
-        tie-breaks, then the draw. Only once every one of them has a complete score."""
+        tie-breaks, then the draw. Only once every one of them has a complete score. A staff call ranks
+        everyone in one list, with art. 11's tie-breaks (issue #686)."""
         self.rank = 0
         self.needs_draw = False
         for (call, modality), applications in self.grouped(lambda application: (
-                application.call_id, application.modality_id)).items():
+                application.call_id, application.audience == 'student' and application.modality_id)).items():
             ranked = call.application_ids.filtered(
-                lambda application: application.state in RANKED_STATES and application.modality_id == modality)
+                lambda application: application.state in RANKED_STATES and (
+                    call.audience == 'staff' or application.modality_id == modality))
             if not ranked or not all(ranked.mapped('score_complete')):
                 continue
-            keys = {application: (-application.score_total, -application.score_d, -application.score_e,
-                                  -application.interview_english, -application.grade_average,
-                                  application.draw_order)
-                    for application in ranked}
+            keys = {application: application._ems_rank_key() for application in ranked}
             ordered = sorted(keys.values())
             for application in applications & ranked:
                 application.rank = ordered.index(keys[application]) + 1
                 application.needs_draw = ordered.count(keys[application]) > 1
+
+    def _ems_rank_key(self):
+        """Total, then the call's tie-breaks (students: art. 12; staff: never had a staff mobility,
+        mobility plan, seniority), then the draw."""
+        self.ensure_one()
+        if self.audience == 'staff':
+            return (-self.score_total, self.last_staff_mobility != 'never', -self.score_plan,
+                    -SENIORITY_SCORES.get(self.seniority, 0.0), self.draw_order)
+        return (-self.score_total, -self.score_d, -self.score_e, -self.interview_english, -self.grade_average,
+                self.draw_order)
 
     def _compute_display_name(self):
         for application in self:
@@ -286,8 +407,9 @@ class EmsErasmusApplication(models.Model):
     def action_admit(self):
         for application in self:
             application._ems_check_state(('submitted',))
-            if application.requirements_check != 'met' or application.sanction_check != 'met':
-                raise UserError(_("Both admission checks must be met to admit %s.", application.partner_id.name))
+            if application.requirements_check != 'met' or (
+                    application.audience == 'student' and application.sanction_check != 'met'):
+                raise UserError(_("Every admission check must be met to admit %s.", application.partner_id.name))
             if application.document_ids.filtered(lambda line: line.is_required and line.review_state != 'valid'):
                 raise UserError(_("Every required document of %s must be valid to admit the application.",
                                   application.partner_id.name))
@@ -311,6 +433,8 @@ class EmsErasmusApplication(models.Model):
         limit = self.call_id._ems_now() + timedelta(hours=24)
         for application in self:
             application._ems_check_state(('admitted',))
+            if application.audience != 'student':
+                raise UserError(_("Only the students' call has interviews."))
             if not application.interview_date:
                 raise UserError(_("Set the interview date of %s first.", application.partner_id.name))
             if application.interview_date < limit:
@@ -320,11 +444,13 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_ranking_result(self):
         """Issue #685: selected within the modality's places, reserve after them, not selected
-        below the minimum score."""
+        below the minimum score. A staff call, within the places of all its modalities."""
         self.ensure_one()
         if not self.is_eligible:
             return 'not_selected'
-        return 'selected' if self.rank <= self.modality_id.places else 'reserve'
+        places = sum(self.call_id.modality_ids.mapped('places')) if self.audience == 'staff' \
+            else self.modality_id.places
+        return 'selected' if self.rank <= places else 'reserve'
 
     def action_export_participants(self):
         """Issue #685: the spreadsheet of the people who accepted a place, served by
@@ -369,6 +495,8 @@ class EmsErasmusApplication(models.Model):
         """The values of PARTICIPANT_HEADERS for this applicant, the birth date as a datetime.
         The legal guardian columns, only for minors: every family contact, in the same order."""
         self.ensure_one()
+        if self.audience == 'staff':
+            return self._ems_staff_participant_row()
         partner = self.partner_id
         group = partner.main_group_id
         bank = partner.bank_ids[:1]
@@ -384,6 +512,32 @@ class EmsErasmusApplication(models.Model):
             ', '.join(family.mapped('name')), ', '.join(contact.email or '' for contact in family),
             ', '.join(contact.phone or contact.mobile or '' for contact in family),
         ]
+
+    def _ems_staff_participant_row(self):
+        """Issue #686: a staff member's row, from their employee file. The cycle, the year and the
+        legal guardian columns stay empty, and so does the gender (decided 2026-10-22)."""
+        employee = self.employee_id
+        partner = self.partner_id
+        bank = employee.bank_account_id
+        address = ', '.join(filter(None, [employee.private_street, employee.private_street2, employee.private_zip,
+                                          employee.private_city, employee.private_state_id.name,
+                                          employee.private_country_id.name]))
+        birth_date = employee.birthday and fields.Datetime.to_datetime(employee.birthday)
+        return [
+            partner.firstname or employee.name or '', partner.lastname or '', self._ems_identity_document(),
+            employee.private_email or employee.work_email or '', employee.private_phone or employee.mobile_phone or '',
+            address, birth_date, employee.country_id.name or '', '', '', '',
+            bank.acc_holder_name or (bank and employee.name) or '', bank.bank_id.name or '', bank.bank_id.bic or '',
+            bank.sanitized_acc_number or '', '', '', '',
+        ]
+
+    def _ems_identity_document(self):
+        """The applicant's identity document: a student's from their contact, a staff member's
+        from their employee file (DNI/NIE, else passport)."""
+        self.ensure_one()
+        record = self.sudo().employee_id if self.audience == 'staff' else self.sudo().partner_id
+        number = record.identification_id if self.audience == 'staff' else record.document_id
+        return number or record.passport_id or ''
 
     def _ems_freeze_scoring_data(self):
         """Copy the record average (A) and the conduct warnings (F) as EMS has them now: what the
@@ -463,19 +617,25 @@ class EmsErasmusApplication(models.Model):
         application = self.search([('call_id', '=', call.id), ('partner_id', '=', partner.id)])
         if application:
             return application
-        modality = call._ems_modality_for(partner)
-        if not modality:
+        if call not in partner._ems_erasmus_calls():
             raise UserError(_("You cannot apply to this call."))
         if not call.is_accepting:
             raise UserError(_("This call is not accepting applications."))
-        return self.create({'call_id': call.id, 'partner_id': partner.id, 'modality_id': modality.id})
+        if call.audience == 'staff':
+            # Issue #686: one application per person, its modality assigned by the team after selection.
+            return self.create({'call_id': call.id, 'partner_id': partner.id,
+                                'employee_id': partner._ems_erasmus_employee().id})
+        return self.create({'call_id': call.id, 'partner_id': partner.id,
+                            'modality_id': call._ems_modality_for(partner).id})
 
     def _ems_portal_save(self, answers, uploads):
         """Save what the applicant sent from the portal. `answers`: values of ANSWER_FIELDS, only
         while the call accepts applications. `uploads`: {call document id: [(file name, bytes)]},
         also during subsanation, until its deadline, for the documents asked for."""
         self.ensure_one()
-        answers = {key: value for key, value in answers.items() if key in ANSWER_FIELDS}
+        answers = {key: value for key, value in answers.items() if key in ANSWER_FIELDS[self.audience]}
+        if answers.get('staff_activity') not in (False, None, *dict(STAFF_ACTIVITIES)):
+            raise UserError(_("Choose one of the activities of the call."))
         if answers:
             if not self._ems_portal_editable():
                 raise UserError(_("The application can no longer be changed."))

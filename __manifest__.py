@@ -62,6 +62,7 @@
         'security/groups.xml',
         'security/rules/attendance.xml',
         'security/rules/coexistence.xml',
+        'security/rules/erasmus.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
         'security/rules/employees.xml',
@@ -345,6 +346,10 @@
             'views/academic_management/convalidation_rejection_reason/form.xml',
             'views/academic_management/convalidation_rejection_reason/menu.xml',
 
+        'views/erasmus/call/views.xml',
+        'views/erasmus/application/views.xml',
+        'views/erasmus/menu.xml',
+
         'views/sales/product_view.xml',
         'views/accounting/payment_term_views.xml',
         'views/accounting/enrollment_collections.xml',
@@ -362,6 +367,7 @@
             'views/portal/portal_contact_data.xml',
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
+            'views/portal/portal_erasmus.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       
@@ -383,6 +389,7 @@
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
+        'mails/erasmus/application.xml',
         'mails/shared/task_digest.xml',
         'mails/contacts/contact_data_request.xml',
 

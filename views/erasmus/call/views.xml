@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #683 - Erasmus+ calls. See docs/en/developers/erasmus/erasmus.md. -->
+        <record id="view_erasmus_call_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.call.list</field>
+            <field name="model">ems.erasmus.call</field>
+            <field name="arch" type="xml">
+                <list string="Calls" decoration-muted="state == 'closed'">
+                    <field name="name"/>
+                    <field name="course_id" optional="show"/>
+                    <field name="date_open"/>
+                    <field name="date_close"/>
+                    <field name="application_count"/>
+                    <field name="state" widget="badge" decoration-info="state == 'draft'"
+                           decoration-success="state == 'published'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_call_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.call.form</field>
+            <field name="model">ems.erasmus.call</field>
+            <field name="arch" type="xml">
+                <form string="Call">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_publish" type="object" string="Publish" class="btn-primary"
+                                    invisible="state != 'draft'"
+                                    help="Shows the call on the portal to the students of its modalities' levels."/>
+                            <button name="action_close" type="object" string="Close applications"
+                                    invisible="state != 'published'"
+                                    confirm="Applications still in draft will be marked as not submitted. Continue?"/>
+                            <button name="action_back_to_draft" type="object" string="Back to draft"
+                                    invisible="state != 'published'"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_applications" type="object" class="oe_stat_button" icon="fa-users">
+                                <field name="application_count" widget="statinfo" string="Applications"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="name" placeholder="e.g. Erasmus+ internships 2026-27"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="course_id"/>
+                                <field name="rules_document" filename="rules_filename"/>
+                                <field name="rules_filename" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="date_open"/>
+                                <field name="date_close"/>
+                                <field name="subsanation_deadline"/>
+                                <field name="is_accepting"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Modalities" name="modalities">
+                                <field name="modality_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="level_ids" widget="many2many_tags"/>
+                                        <field name="project"/>
+                                        <field name="places"/>
+                                        <field name="period"/>
+                                        <field name="destinations"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Documents" name="documents">
+                                <field name="document_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="requirement"/>
+                                        <field name="confidential"/>
+                                        <field name="description"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Information for applicants" name="description">
+                                <field name="description"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_call" model="ir.actions.act_window">
+            <field name="name">Calls</field>
+            <field name="res_model">ems.erasmus.call</field>
+            <field name="view_mode">list,form</field>
+        </record>
+    </data>
+</odoo>

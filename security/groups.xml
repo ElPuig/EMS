@@ -70,6 +70,16 @@
              transversal to the teacher/tutor/HoS hierarchy - the post is held by a teacher, but it
              doesn't sit anywhere on that chain, so it gets its own independent Manager/Administrator
              chain instead of being wired into it. -->
+        <!-- Issue #683: the Erasmus team (coordination and mobility technician) is transversal to
+             the teacher/tutor/HoS hierarchy, like the blocks above. -->
+        <record model="ir.module.category" id="category_erasmus">
+            <field name="name">Erasmus+</field>
+            <field name="description">Educational Management System - Erasmus+ calls and mobilities</field>
+            <field name="parent_id" ref="ems.category_main"/>
+            <field name="sequence">7</field>
+            <field name="visible">True</field>
+        </record>
+
         <record model="ir.module.category" id="category_tac">
             <field name="name">TAC</field>
             <field name="description">Educational Management System - Learning and Knowledge Technologies</field>
@@ -362,6 +372,17 @@
              Administrator here must not silently grant it in another block. root/admin are
              kept with full access to every block through explicit membership on each of
              those groups instead (see their 'users' field above). -->
+        <!-- Issue #683: full access to every Erasmus+ call and application, confidential evidence
+             included. Given through the roles "Erasmus coordinator" and "Erasmus mobility
+             technician" (data/cat/ems.role.csv). No implied group: the technician may not be a
+             teacher. -->
+        <record model="res.groups" id="group_erasmus">
+            <field name="name">Manager</field>
+            <field name="comment">Erasmus team: manages the Erasmus+ calls and applications.</field>
+            <field name="category_id" ref="ems.category_erasmus"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
         <record model="res.groups" id="group_academic_admin">
             <field name="name">Administrator</field>
             <field name="comment">All access rights for the Academic block.</field>

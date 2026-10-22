@@ -75,6 +75,18 @@
                         </t>
                     </t>
 
+                    <!-- Issue #683: students who can apply to a published Erasmus+ call, or already
+                         applied (res.partner._ems_erasmus_portal_visible). -->
+                    <t t-if="request.env.user.partner_id._ems_erasmus_portal_visible()">
+                        <t t-call="portal.portal_docs_entry">
+                            <t t-set="icon" t-value="'/ems/static/src/img/erasmus.svg'"/>
+                            <t t-set="title">Erasmus+</t>
+                            <t t-set="url" t-value="'/my/erasmus'"/>
+                            <t t-set="text">Apply for an Erasmus+ mobility and follow your application</t>
+                            <t t-set="config_card" t-value="True"/>
+                        </t>
+                    </t>
+
                     <t t-call="portal.portal_docs_entry">
                         <t t-set="icon" t-value="'/ems/static/src/img/comunicaciones.svg'"/>
                         <t t-set="title">Communications</t>

@@ -335,6 +335,7 @@ ROLE_GROUP_XMLIDS = {
     'orientation_admin': 'ems.group_orientation_admin',
     'settings': 'ems.group_settings',
     'settings_admin': 'ems.group_settings_admin',
+    'erasmus': 'ems.group_erasmus',
 }
 
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #683: the Erasmus team manages calls and applications; the Head of Studies and
+             the Director open the applications for the serious-sanction check. -->
+        <menuitem name="Erasmus+" sequence="9" id="menu_erasmus"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+
+        <menuitem name="Applications" sequence="1" id="menu_erasmus_applications"
+                  parent="menu_erasmus" action="action_erasmus_application"/>
+
+        <menuitem name="Calls" sequence="2" id="menu_erasmus_calls"
+                  parent="menu_erasmus" action="action_erasmus_call"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+    </data>
+</odoo>

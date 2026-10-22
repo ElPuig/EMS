@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #683 - Erasmus+ applications. See docs/en/developers/erasmus/erasmus.md. -->
+        <record id="view_erasmus_application_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.list</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="arch" type="xml">
+                <list string="Applications" create="false"
+                      decoration-muted="state in ('draft', 'not_submitted')">
+                    <field name="partner_id"/>
+                    <field name="call_id" optional="show"/>
+                    <field name="modality_id"/>
+                    <field name="submit_date"/>
+                    <field name="requirements_check" optional="show"/>
+                    <field name="sanction_check" optional="show"/>
+                    <field name="state" widget="badge"
+                           decoration-info="state == 'submitted'"
+                           decoration-warning="state == 'subsanation'"
+                           decoration-success="state == 'admitted'"
+                           decoration-danger="state == 'excluded'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_application_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.search</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <filter name="to_review" string="To review" domain="[('state', '=', 'submitted')]"/>
+                    <filter name="subsanation" string="Corrections requested" domain="[('state', '=', 'subsanation')]"/>
+                    <filter name="admitted" string="Admitted" domain="[('state', '=', 'admitted')]"/>
+                    <filter name="excluded" string="Excluded" domain="[('state', '=', 'excluded')]"/>
+                    <separator/>
+                    <filter name="sanction_pending" string="Sanction check pending" domain="[('sanction_check', '=', 'pending'), ('state', 'not in', ('draft', 'not_submitted'))]"/>
+                    <group>
+                        <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
+                        <filter name="group_modality" string="Modality" context="{'group_by': 'modality_id'}"/>
+                        <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_application_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.form</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="arch" type="xml">
+                <form string="Application" create="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_admit" type="object" string="Admit" class="btn-primary"
+                                    invisible="state != 'submitted'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_request_subsanation" type="object" string="Request corrections"
+                                    invisible="state != 'submitted'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Emails the applicant the documents marked as needing changes, and the corrections deadline of the call."/>
+                            <button name="action_exclude" type="object" string="Exclude"
+                                    invisible="state not in ('submitted', 'subsanation')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_back_to_review" type="object" string="Back to review"
+                                    invisible="state not in ('admitted', 'excluded')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="partner_id" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="call_id" readonly="1"/>
+                                <field name="can_manage" invisible="1"/>
+                                <field name="modality_id" options="{'no_create': True}" readonly="not can_manage"/>
+                                <field name="is_minor"/>
+                            </group>
+                            <group>
+                                <field name="submit_date"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Documents" name="documents">
+                                <field name="document_ids" readonly="not can_manage">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="name"/>
+                                        <field name="is_required"/>
+                                        <field name="attachment_ids" widget="many2many_binary" readonly="1"/>
+                                        <field name="review_state"/>
+                                        <field name="review_comment"/>
+                                        <button name="action_mark_valid" type="object" icon="fa-check" title="Valid"
+                                                invisible="review_state == 'valid'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_mark_needs_change" type="object" icon="fa-times" title="Needs changes"
+                                                invisible="review_state == 'needs_change'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Admission" name="admission">
+                                <group>
+                                    <group string="Requirements">
+                                        <field name="requirements_check" readonly="not can_manage or state not in ('submitted', 'subsanation')"/>
+                                        <field name="requirements_check_note" readonly="not can_manage"/>
+                                        <field name="requirements_check_user_id"/>
+                                        <field name="requirements_check_date"/>
+                                    </group>
+                                    <group string="Serious sanctions this course">
+                                        <field name="can_check_sanction" invisible="1"/>
+                                        <field name="sanction_check" readonly="not can_check_sanction"/>
+                                        <field name="sanction_check_note" readonly="not can_check_sanction"/>
+                                        <field name="sanction_check_user_id"/>
+                                        <field name="sanction_check_date"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <field name="exclusion_reason" readonly="not can_manage"/>
+                                </group>
+                            </page>
+                            <page string="Answers" name="answers">
+                                <group>
+                                    <field name="previous_mobility" readonly="not can_manage"/>
+                                    <field name="previous_mobility_details" readonly="not can_manage"/>
+                                    <field name="availability" readonly="not can_manage"/>
+                                    <field name="fewer_opportunities" readonly="not can_manage" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    <field name="image_consent" readonly="not can_manage"/>
+                                    <field name="applicant_notes" readonly="not can_manage"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_application" model="ir.actions.act_window">
+            <field name="name">Applications</field>
+            <field name="res_model">ems.erasmus.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_application_search"/>
+        </record>
+    </data>
+</odoo>

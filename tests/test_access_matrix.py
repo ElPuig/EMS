@@ -22,6 +22,10 @@ ACCESS_MATRIX = {
     'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #683: the applications have record rules and a write() guard, tested in test_erasmus.py.
+    'ems.erasmus.call': {'teacher': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.call.document': {'teacher': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.call.modality': {'teacher': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r'},
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},

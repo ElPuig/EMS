@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #683: confidential documents (e.g. evidence of fewer opportunities) are only for
+             the Erasmus team and the administrator. A Head of Studies opens the applications for
+             the serious-sanction check but never sees those files. -->
+        <record id="rule_erasmus_application_document_all" model="ir.rule">
+            <field name="name">Erasmus application document: all (team, admin)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_erasmus_application_document_not_confidential" model="ir.rule">
+            <field name="name">Erasmus application document: not confidential (Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[('confidential', '=', False)]</field>
+        </record>
+    </data>
+</odoo>

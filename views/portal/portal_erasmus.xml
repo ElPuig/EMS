@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #683 - Erasmus+ calls and applications on the portal (controllers/portal_erasmus.py). -->
+    <template id="portal_erasmus" name="Erasmus+">
+        <t t-call="portal.portal_layout">
+            <div id="erasmus_content" class="container mt-4 o_ems_portal_erasmus">
+                <h3 class="mb-3">Erasmus+</h3>
+
+                <div t-if="submitted" class="alert alert-success mb-3 o_ems_erasmus_submitted">
+                    <i class="fa fa-check-circle me-1"/> Your application has been submitted. You will receive a receipt by email.
+                </div>
+
+                <p t-if="not calls" class="text-muted">There are no Erasmus+ calls for you right now.</p>
+
+                <t t-foreach="calls" t-as="call">
+                    <t t-set="application" t-value="applications.get(call)"/>
+                    <div class="card shadow-sm mb-4 o_ems_erasmus_call">
+                        <div class="card-header bg-ems-primary text-white">
+                            <strong t-esc="call.name"/>
+                        </div>
+                        <div class="card-body">
+                            <p class="small mb-2">
+                                <i class="fa fa-calendar me-1"/> Applications from
+                                <strong t-out="call.date_open" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>
+                                to
+                                <strong t-out="call.date_close" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                            </p>
+                            <p t-if="call.rules_document" class="small mb-2">
+                                <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
+                            </p>
+                            <div t-if="application" t-attf-class="mb-2 o_ems_erasmus_application o_ems_erasmus_state_#{application.state}">
+                                Your application: <span class="badge text-bg-secondary" t-esc="state_labels.get(application.state)"/>
+                            </div>
+                            <t t-if="application">
+                                <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_open">
+                                    <i class="fa fa-folder-open me-1"/>See my application
+                                </a>
+                            </t>
+                            <t t-elif="call.is_accepting">
+                                <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_apply">
+                                    <i class="fa fa-pencil me-1"/>Apply
+                                </a>
+                            </t>
+                            <p t-else="" class="text-muted small mb-0">This call is not accepting applications.</p>
+                        </div>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_erasmus_application" name="Erasmus+ application">
+        <t t-call="portal.portal_layout">
+            <div id="erasmus_application_content" class="container mt-4 o_ems_portal_erasmus">
+                <t t-call="ems.portal_loading_overlay"/>
+
+                <p class="mb-2"><a href="/my/erasmus"><i class="fa fa-arrow-left me-1"/>Erasmus+</a></p>
+                <h3 class="mb-1" t-esc="call.name"/>
+                <p class="text-muted small mb-3">
+                    <t t-if="modality">Modality: <t t-esc="modality.name"/></t>
+                    <t t-if="application"> - <t t-esc="state_labels.get(application.state)"/></t>
+                </p>
+
+                <div t-if="saved" class="alert alert-success mb-3 o_ems_erasmus_saved">
+                    <i class="fa fa-check-circle me-1"/> Saved. Remember to submit the application before the closing date.
+                </div>
+                <div t-if="error" class="alert alert-danger mb-3 o_ems_erasmus_error">
+                    <i class="fa fa-exclamation-triangle me-1"/> It could not be saved: check that the application is still open and that every required document is attached.
+                </div>
+                <div t-if="application.state == 'subsanation'" class="alert alert-warning mb-3 o_ems_erasmus_subsanation">
+                    <i class="fa fa-exclamation-circle me-1"/> The Erasmus team asks you to correct the documents marked below<t t-if="call.subsanation_deadline">, before
+                    <strong t-out="call.subsanation_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></t>.
+                </div>
+
+                <div t-if="call.description" class="mb-3" t-out="call.description"/>
+
+                <form t-attf-action="/my/erasmus/call/#{call.id}/save" method="post" enctype="multipart/form-data"
+                      class="ems-loading-form o_ems_erasmus_form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                    <fieldset t-att-disabled="None if editable else 'disabled'" class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="previous_mobility" id="previous_mobility"
+                                       t-att-checked="application.previous_mobility or None"/>
+                                <label class="form-check-label" for="previous_mobility">I have already taken part in an Erasmus+ mobility</label>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="previous_mobility_details">If so, which one and when</label>
+                                <textarea class="form-control" name="previous_mobility_details" id="previous_mobility_details" rows="2"
+                                          t-esc="application.previous_mobility_details or ''"/>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="availability">Availability for the periods of the call</label>
+                                <textarea class="form-control" name="availability" id="availability" rows="2"
+                                          t-esc="application.availability or ''"/>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="fewer_opportunities" id="fewer_opportunities"
+                                       t-att-checked="application.fewer_opportunities or None"/>
+                                <label class="form-check-label" for="fewer_opportunities">I can prove a situation of fewer opportunities (the evidence is confidential)</label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"
+                                       t-att-checked="application.image_consent or None"/>
+                                <label class="form-check-label" for="image_consent">I consent to the use of my image in the project's dissemination activities (voluntary)</label>
+                            </div>
+                            <div class="mb-0">
+                                <label class="form-label" for="applicant_notes">Anything else you want the Erasmus team to know</label>
+                                <textarea class="form-control" name="applicant_notes" id="applicant_notes" rows="2"
+                                          t-esc="application.applicant_notes or ''"/>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <h5 class="mb-2">Documents</h5>
+                    <t t-foreach="documents" t-as="document">
+                        <t t-set="line" t-value="lines.get(document)"/>
+                        <t t-set="required" t-value="document.requirement == 'required' or (document.requirement == 'minor' and is_minor)"/>
+                        <t t-set="can_upload" t-value="editable or (line and line in correctable)"/>
+                        <t t-if="document.requirement != 'minor' or is_minor">
+                            <div t-attf-class="card mb-2 o_ems_erasmus_document #{'o_ems_erasmus_required' if required else ''}">
+                                <div class="card-body py-2">
+                                    <div class="d-flex justify-content-between">
+                                        <strong t-esc="document.name"/>
+                                        <span t-if="required" class="badge text-bg-warning">Required</span>
+                                        <span t-else="" class="badge text-bg-light">Optional</span>
+                                    </div>
+                                    <p t-if="document.description" class="small text-muted mb-1" t-esc="document.description"/>
+                                    <p t-if="line and line.attachment_ids" class="small mb-1">
+                                        <i class="fa fa-paperclip me-1"/><t t-esc="', '.join(line.attachment_ids.mapped('name'))"/>
+                                    </p>
+                                    <p t-if="line and (line.correction_requested or line.review_state == 'needs_change')" class="small text-danger mb-1 o_ems_erasmus_needs_change">
+                                        <i class="fa fa-exclamation-circle me-1"/>Needs changes<t t-if="line.review_comment">: <t t-esc="line.review_comment"/></t>
+                                    </p>
+                                    <input t-if="can_upload" type="file" class="form-control form-control-sm" multiple="multiple"
+                                           t-attf-name="document_#{document.id}"/>
+                                </div>
+                            </div>
+                        </t>
+                    </t>
+
+                    <div t-if="editable or correctable" class="d-flex gap-2 mt-3 mb-5">
+                        <button t-if="editable" type="submit" class="btn btn-secondary">
+                            <i class="fa fa-save me-1"/>Save draft
+                        </button>
+                        <button type="submit" name="submit" value="1" class="btn btn-primary">
+                            <i class="fa fa-paper-plane me-1"/>Submit application
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </t>
+    </template>
+</odoo>

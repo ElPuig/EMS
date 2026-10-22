@@ -15,7 +15,7 @@ file is updated. The calls are drafts; this plan adapts EMS to them, it does not
 ## 1. Goal and approach
 
 The centre runs Erasmus+ mobilities under two projects: KA121-VET (CFGM) and KA131-HED (CFGS).
-Every year it publishes two calls: one for **2nd-year CFGM/CFGS students** (internships abroad)
+Every year it publishes two calls: one for **CFGM/CFGS students, any year** (internships abroad)
 and one for **staff linked to CFGM/CFGS** (job shadowing, structured courses, teaching). Today the
 whole process lives in forms, spreadsheets and email.
 
@@ -51,7 +51,7 @@ Principles:
 
 **The *Erasmus+* entry on the portal home appears only to people who can use it:** someone with
 an application of their own, or who is eligible for a call that is currently open (a student in a
-2nd-year CFGM/CFGS main group for the student call; an internal user with an employee for the
+CFGM/CFGS main group, any year, for the student call; an internal user with an employee for the
 staff call). Nobody else sees it. Families do not see the Erasmus+ file by default; a minor's
 family authorization is a required document the student uploads (see 4.3).
 
@@ -138,7 +138,7 @@ Separate from the score. Each check stores result, author, date and note:
 
 | Check | Who | Source |
 |---|---|---|
-| Students: 2nd year of CFGM/CFGS | Automatic proposal, team confirms | `main_group_id.course`, `level_id` |
+| Students: enrolled in CFGM/CFGS (any year) | Automatic proposal, team confirms | `main_group_id.level_id` |
 | Students: no previous Erasmus+ internship in this cycle | Team | Declaration + team knowledge |
 | Students: no serious sanction this course | **Director / Head of Studies** | Manual, with reference; restricted |
 | Students: family authorization if minor | Team | Document |
@@ -207,7 +207,7 @@ deadline. Never automatic.
 | C | Language certificate, highest only: B1 2.5, B2 5, C1 7.5, C2 10 | Team, from the uploaded certificate. |
 | D | Fewer opportunities: 10 or 0 | Team, from the confidential evidence. |
 | E | First mobility: 5 | Team (GM: no previous Erasmus+; GS: no previous higher-education one). |
-| F | −3 per conduct warning, max −9 | `ems.strike` of the student in the current cycle (2nd year includes 1st; other cycles excluded) up to `date_close`. **Frozen at closing** as a list of strikes + penalty. |
+| F | −3 per conduct warning, max −9 | `ems.strike` of the student in the current cycle (every year of it so far; other cycles excluded) up to `date_close`. **Frozen at closing** as a list of strikes + penalty. |
 
 Total = A + B + C + D + E − min(3 × warnings, 9). No floor at zero.
 Tie-break: D, E, English part of B, A, recorded draw.
@@ -311,7 +311,7 @@ Execution notes, all phases:
 
 - TDD + DTON as in CLAUDE.md: Spec (dev doc + role manuals), tests, tour, implementation, gate with
   scoped `./test.sh`.
-- Tours log in as the least-privileged role: a 2nd-year student for the portal, a plain teacher for
+- Tours log in as the least-privileged role: a CFGM/CFGS student for the portal, a plain teacher for
   *My evaluations*, an `ems.group_erasmus` user for management.
 - **Email**: every notification (subsanation, interview call, results, offers) goes through
   `mail.template` + `message_post`; tests mock `IrMailServer.send_email` and use `@example.com`
@@ -326,6 +326,9 @@ Execution notes, all phases:
 
 ## 9. Open points (do not block F1)
 
+- **Any CFGM/CFGS student can apply, not only 2nd year** (coordinator, 2026-10-22). Art. 6 of the
+  student call still says "segon curs" and must be changed before publishing. Art. 4's note on
+  graduates doing the summer mobility is information for applicants only: it has no effect on EMS.
 - Where the official call text says "the online form published on the centre's website" (art. 7):
   the calls must be updated to point to EMS before publishing.
 - Seniority < 1 year = 0 is agreed but not yet in the staff call text.

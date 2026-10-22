@@ -5840,7 +5840,6 @@ msgstr "Acta: Define un acta de reunión (reunión departamental, reunión de gr
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_minute_tree
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__approval_reference
 msgid "Minutes"
 msgstr "Actas"
 
@@ -26118,16 +26117,6 @@ msgid "Appeals"
 msgstr "Recursos"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__approval_date
-msgid "Approved by the Commission on"
-msgstr "Aprobada por la Comisión el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
-msgid "Approved by the Erasmus+ Commission on:"
-msgstr "Aprobada por la Comisión Erasmus+ el:"
-
-#. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__kind__claim
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_form
 msgid "Claim"
@@ -26310,11 +26299,6 @@ msgstr "Líneas"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__prepare_date
 msgid "Lines frozen on"
 msgstr "Líneas congeladas el"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
-msgid "Minutes:"
-msgstr "Actas:"
 
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__next_reserve_id
 #. module: ems
@@ -26506,20 +26490,8 @@ msgstr "Recibida el"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/resolution.py:0
-msgid "Record the Commission's approval (date and minutes) before publishing."
-msgstr ""
-"Registra la aprobación de la Comisión (fecha y actas) antes de publicar."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/resolution.py:0
 msgid "Record the identity document of: %s"
 msgstr "Registra el documento de identidad de: %s"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__approval_reference
-msgid "Reference of the Erasmus+ Commission minutes that approve it."
-msgstr "Referencia de las actas de la Comisión Erasmus+ que la aprueban."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__state__renounced
@@ -27502,3 +27474,24 @@ msgstr "Por qué el miembro del tribunal no valora este plan. La puntuación del
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "With your experience, skills and a photo (europass.europa.eu)."
 msgstr "Con la experiencia, las competencias y una fotografía (europass.europa.eu)."
+
+#. module: ems
+#: model:res.groups,name:ems.group_erasmus_coordinator
+msgid "Coordinator"
+msgstr "Coordinador/a"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_erasmus_coordinator
+msgid "Erasmus coordinator: also approves and publishes the resolutions."
+msgstr "Coordinador/a Erasmus: también aprueba y publica las resoluciones."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Only the Erasmus coordinator can publish a resolution."
+msgstr "Solo el coordinador o la coordinadora Erasmus puede publicar una resolución."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+msgid "Approved by the Erasmus+ coordination on:"
+msgstr "Aprobada por la coordinación Erasmus+ el:"

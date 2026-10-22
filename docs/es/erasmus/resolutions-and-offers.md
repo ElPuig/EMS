@@ -4,9 +4,9 @@
 
 # Resoluciones, reclamaciones y ofertas de plaza Erasmus+
 
-Publica las listas que aprueba la Comisión Erasmus+, registra las reclamaciones y ofrece las plazas hasta que todas estén aceptadas.
+Prepara y publica las listas de la convocatoria, registra las reclamaciones y ofrece las plazas hasta que todas estén aceptadas.
 
-**Rol necesario:** *Coordinador/a Erasmus* o *Técnico/a de movilidad Erasmus* (Erasmus+ > Gestor/a). La jefatura de estudios y la dirección pueden consultar las resoluciones, las ofertas y las reclamaciones.
+**Rol necesario:** *Coordinador/a Erasmus* o *Técnico/a de movilidad Erasmus* (Erasmus+ > Gestor/a). Solo el coordinador o la coordinadora Erasmus (Erasmus+ > Coordinador/a) puede publicar una resolución: publicarla es aprobarla. La jefatura de estudios y la dirección pueden consultar las resoluciones, las ofertas y las reclamaciones.
 
 ---
 
@@ -34,8 +34,8 @@ Cada una necesita la anterior publicada. Una resolución publicada no se puede m
 
 1. En la convocatoria, abre la pestaña **Resoluciones** (o **Erasmus+ > Resoluciones**) y añade una nueva: elige su **Tipo**.
 2. Haz clic en **Acciones > Preparar líneas**. EMS congela la lista tal como están ahora las solicitudes. Si falta algo (una solicitud sin decidir, una puntuación incompleta, un documento de identidad), EMS te indica de quién se trata. Mientras sea un borrador, puedes volver a prepararla tantas veces como haga falta.
-3. Rellena la aprobación de la Comisión: **Aprobada por la Comisión el** y **Actas**. En una rectificación, explica en **Notas para los solicitantes** qué corrige.
-4. Haz clic en **Acciones > Publicar** y confírmalo.
+3. En una rectificación, explica en **Notas para los solicitantes** qué corrige.
+4. El coordinador o la coordinadora Erasmus revisa la lista y hace clic en **Acciones > Publicar**. EMS guarda quién la ha publicado y cuándo, y la lista publicada muestra esa fecha como fecha de aprobación.
 
 Cuando se publica:
 

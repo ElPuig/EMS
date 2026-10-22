@@ -281,8 +281,7 @@ class TestErasmusStaffResolution(ErasmusStaffCase):
 
     def _publish(self, kind):
         resolution = self.env['ems.erasmus.resolution'].with_user(self.erasmus_user).create({
-            'call_id': self.staff_call.id, 'kind': kind, 'approval_date': fields.Date.today(),
-            'approval_reference': 'Minutes 1'})
+            'call_id': self.staff_call.id, 'kind': kind})
         resolution.action_prepare()
         resolution.action_publish()
         return resolution

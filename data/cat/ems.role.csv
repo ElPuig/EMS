@@ -10,7 +10,7 @@ id,name,color,employee_type,unipersonal,group_id/id
 "ems.role_director","Director",#C62F2F,teacher,true,ems.group_director
 "ems.role_coexistence","Coexistence coordinator",#7AC62F,teacher,false,ems.group_coexistence
 "ems.role_orc","Occupational risk coordinator",#41C62F,teacher,true,
-"ems.role_erasmus","Erasmus coordinator",#B32FC6,teacher,true,ems.group_erasmus
+"ems.role_erasmus","Erasmus coordinator",#B32FC6,teacher,true,ems.group_erasmus_coordinator
 "ems.role_vetcoord","VET coordinator",#C62FA0,teacher,true,
 "ems.role_schieff","Secretary chieff",#2FC6C6,asp,true,
 "ems.role_cchieff","Concierje chieff",#2F8DC6,asp,true,

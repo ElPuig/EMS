@@ -9,7 +9,6 @@
                 <list string="Resolutions">
                     <field name="call_id"/>
                     <field name="kind"/>
-                    <field name="approval_date"/>
                     <field name="publish_date"/>
                     <field name="state" widget="badge" decoration-info="state == 'draft'"
                            decoration-success="state == 'published'"/>
@@ -43,7 +42,7 @@
                                     invisible="state != 'draft'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Freezes the list as the applications are now. Can be repeated until it is published."/>
                             <button name="action_publish" type="object" string="Publish" class="btn-primary"
-                                    invisible="state != 'draft' or not line_ids" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    invisible="state != 'draft' or not line_ids" groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
                                     confirm="The list will be published on the portal and every applicant will receive their result by email. A published resolution cannot be changed. Continue?"/>
                         </div>
                         <field name="state" widget="statusbar"/>
@@ -60,8 +59,6 @@
                                 <field name="prepare_date"/>
                             </group>
                             <group>
-                                <field name="approval_date" readonly="state != 'draft'"/>
-                                <field name="approval_reference" readonly="state != 'draft'"/>
                                 <field name="publish_date" invisible="state != 'published'"/>
                                 <field name="published_by_id" invisible="state != 'published'"/>
                             </group>

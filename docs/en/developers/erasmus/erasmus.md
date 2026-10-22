@@ -10,7 +10,7 @@ year). Students apply from the portal (`/my/erasmus`), upload the documents the 
 follow their application; the Erasmus team checks the requirements and the documents, asks for
 corrections (subsanation) and admits or excludes each application, then scores the admitted ones (record average, interview,
 languages, fewer opportunities, first mobility, conduct warnings) and ranks them per modality.
-The Commission's resolutions are published on the portal, claims are recorded, and the places are
+The resolutions, approved by the Erasmus coordinator, are published on the portal, claims are recorded, and the places are
 offered to the selected and, when one is renounced, to the next reserve. The centre's vocational
 training staff apply to their own call through the same portal page; a panel rates their mobility
 plans (see "Staff call" at the end).
@@ -129,7 +129,9 @@ do not see it.
 
 New group `ems.group_erasmus` ("Erasmus+ / Manager"), assigned through the roles *Erasmus
 coordinator* (`ems.role_erasmus`) and *Erasmus mobility technician* (`ems.role_erasmus_technician`).
-The administrator is a member.
+The coordinator's role gives `ems.group_erasmus_coordinator` ("Erasmus+ / Coordinator", implies
+Manager), the only one besides `ems.group_academic_admin` that can publish a resolution (#686: the
+coordinator alone approves them). The administrator is a member of both.
 
 | Model | Erasmus team | Head of Studies / Director | Portal |
 |---|---|---|---|
@@ -266,7 +268,7 @@ erDiagram
 
 | Model | Purpose |
 |---|---|
-| `ems.erasmus.resolution` | A list the Erasmus+ Commission approves: `admission`, `provisional`, `definitive` or `rectification`. |
+| `ems.erasmus.resolution` | A list the Erasmus team prepares and the Erasmus coordinator approves by publishing it: `admission`, `provisional`, `definitive` or `rectification`. |
 | `ems.erasmus.resolution.line` | One applicant in it, frozen when the resolution was prepared: modality, rank, every criterion, total, result, masked identity document. |
 | `ems.erasmus.offer` | A place offered to an applicant and their answer. |
 | `ems.erasmus.offer.wizard` | Offer a free place to the next reserve (transient). |
@@ -306,7 +308,9 @@ rank, the criteria and the result:
 | `selected` | Eligible and rank within the modality's `places`. |
 | `reserve` | Eligible, after the places. |
 
-**Publishing** needs the lines, the Commission's approval date and minutes reference, notes for a
+**Publishing** is the coordinator's approval (`ems.group_erasmus_coordinator` or
+`ems.group_academic_admin`, checked in `action_publish()`; who and when are `published_by_id` and
+`publish_date`, shown on the list as the approval date). It needs the lines, notes for a
 rectification and, for a definitive resolution or a rectification, a future `acceptance_deadline`.
 Then:
 
@@ -398,7 +402,7 @@ It carries personal and bank data: the file is built on the fly by `/ems/erasmus
 
 | Model | Erasmus team | Head of Studies / Director | Portal |
 |---|---|---|---|
-| `ems.erasmus.resolution` | rwcu (published: read only) | r | via controller (sudo), published only |
+| `ems.erasmus.resolution` | rwcu (published: read only); publishing: coordinator only | r | via controller (sudo), published only |
 | `ems.erasmus.resolution.line` | r (written by *Prepare lines* only); criterion D hidden from others | r | own lines and the list |
 | `ems.erasmus.offer` | r + *Withdraw offer*; created by publishing and the wizard | r | answers their own |
 | `ems.erasmus.claim` | rwcu | r | - |

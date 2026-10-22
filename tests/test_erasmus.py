@@ -42,7 +42,7 @@ def create_erasmus_fixtures(cls):
         {'name': 'Erasmus Test Outsider', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.other_group.id, 'birth_date': '2000-01-01'},
     ])
-    cls.erasmus_user = create_role_user(cls, 'erasmus', 'test_erasmus_team')
+    cls.erasmus_user = create_role_user(cls, 'erasmus_coordinator', 'test_erasmus_team')
     cls.hos_user = create_role_user(cls, 'head_of_studies', 'test_erasmus_hos')
     cls.teacher_user = create_role_user(cls, 'teacher', 'test_erasmus_teacher')
 

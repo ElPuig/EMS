@@ -183,8 +183,8 @@ recorded with the substitute the Director appoints, who then rates instead.
 
 `kind`: `admission` (admitted/excluded list), `provisional`, `definitive`, `rectification`.
 Preparing one **freezes** its lines (`ems.erasmus.resolution.line`: application, modality, rank,
-total, partial scores, result). Coordination records the Commission's approval (date, minutes
-reference) and publishes it by hand. Published lists show **only four digits of the ID document**,
+total, partial scores, result). The Erasmus coordinator alone approves it by publishing it
+(decided 2026-10-22: no Commission approval date or minutes). Published lists show **only four digits of the ID document**,
 no names (coordinator, 2026-10-22; art. 14 of the student call draft updated accordingly), never the
 private file. A published resolution is never edited; a
 correction is a new rectification resolution.

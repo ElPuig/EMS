@@ -383,6 +383,16 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
+        <!-- Issue #686: the Erasmus coordinator alone approves and publishes the resolutions. Given
+             through the role "Erasmus coordinator"; the mobility technician keeps only Manager. -->
+        <record model="res.groups" id="group_erasmus_coordinator">
+            <field name="name">Coordinator</field>
+            <field name="comment">Erasmus coordinator: also approves and publishes the resolutions.</field>
+            <field name="category_id" ref="ems.category_erasmus"/>
+            <field name="implied_ids" eval="[(4, ref('ems.group_erasmus'))]"/>
+            <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
+        </record>
+
         <!-- Issue #684: whoever has an Erasmus+ interview to score (ems.erasmus.interview). Managed by
              EMS itself when interviews are assigned or removed (res.users._ems_sync_erasmus_evaluator_group),
              never by hand, hence hidden. Its record rule shows each evaluator only their own interviews. -->

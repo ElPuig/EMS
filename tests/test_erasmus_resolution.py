@@ -8,6 +8,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
+from .common import create_role_user
 from .test_erasmus import upload
 from .test_erasmus_scoring import ErasmusScoringCase
 from ..models.erasmus.resolution import mask_document_id
@@ -39,8 +40,7 @@ class ErasmusResolutionCase(ErasmusScoringCase):
 
     def _resolution(self, kind, **vals):
         return self.env['ems.erasmus.resolution'].with_user(self.erasmus_user).create({
-            'call_id': self.call.id, 'kind': kind, 'approval_date': fields.Date.today(),
-            'approval_reference': 'Minutes 1', **vals})
+            'call_id': self.call.id, 'kind': kind, **vals})
 
     def _publish(self, kind, **vals):
         resolution = self._resolution(kind, **vals)
@@ -116,15 +116,17 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self._complete(application)
         self._resolution('provisional').action_prepare()
 
-    def test_publishing_needs_the_commission_approval(self):
+    def test_only_the_coordinator_publishes(self):
+        """The mobility technician prepares the resolution; publishing it is the coordinator's approval."""
         self._admitted()
         self.call.action_close()
-        resolution = self._resolution('admission', approval_reference=False)
+        technician = create_role_user(self, 'erasmus', 'test_erasmus_technician')
+        resolution = self.env['ems.erasmus.resolution'].with_user(technician).create(
+            {'call_id': self.call.id, 'kind': 'admission'})
         resolution.action_prepare()
-        with self.assertRaises(UserError):
+        with self.assertRaises(AccessError):
             resolution.action_publish()
-        resolution.approval_reference = 'Minutes 1'
-        resolution.action_publish()
+        resolution.with_user(self.erasmus_user).action_publish()
         self.assertEqual(resolution.state, 'published')
         self.assertEqual(resolution.published_by_id, self.erasmus_user)
 

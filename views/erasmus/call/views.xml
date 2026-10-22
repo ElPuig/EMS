@@ -117,7 +117,6 @@
                                 <field name="resolution_ids" context="{'default_call_id': id}">
                                     <list>
                                         <field name="kind"/>
-                                        <field name="approval_date"/>
                                         <field name="publish_date"/>
                                         <field name="state" widget="badge" decoration-info="state == 'draft'"
                                                decoration-success="state == 'published'"/>

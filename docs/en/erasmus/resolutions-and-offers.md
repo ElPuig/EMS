@@ -4,9 +4,9 @@
 
 # Erasmus+ resolutions, claims and place offers
 
-Publish the lists the Erasmus+ Commission approves, record the claims, and offer the places until they are all accepted.
+Prepare and publish the call's lists, record the claims, and offer the places until they are all accepted.
 
-**Required role:** *Erasmus coordinator* or *Erasmus mobility technician* (Erasmus+ > Manager). The Head of Studies and the Director can read resolutions, offers and claims.
+**Required role:** *Erasmus coordinator* or *Erasmus mobility technician* (Erasmus+ > Manager). Only the Erasmus coordinator (Erasmus+ > Coordinator) can publish a resolution: publishing it is approving it. The Head of Studies and the Director can read resolutions, offers and claims.
 
 ---
 
@@ -34,8 +34,8 @@ Each one needs the previous one published. A published resolution can never be c
 
 1. On the call, open the **Resolutions** tab (or **Erasmus+ > Resolutions**) and add a new one: choose its **Kind**.
 2. Click **Actions > Prepare lines**. EMS freezes the list as the applications are now. If something is missing (an application not decided, a score incomplete, an identity document), EMS tells you who. You can prepare it again as many times as you need while it is a draft.
-3. Fill in the Commission's approval: **Approved by the Commission on** and **Minutes**. For a rectification, explain in **Notes for applicants** what it corrects.
-4. Click **Actions > Publish** and confirm.
+3. For a rectification, explain in **Notes for applicants** what it corrects.
+4. The Erasmus coordinator reviews the list and clicks **Actions > Publish**. EMS keeps who published it and when, and the published list shows that date as the approval date.
 
 When it is published:
 

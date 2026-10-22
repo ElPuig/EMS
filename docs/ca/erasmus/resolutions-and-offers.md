@@ -4,9 +4,9 @@
 
 # Resolucions, reclamacions i ofertes de plaça Erasmus+
 
-Publica les llistes que aprova la Comissió Erasmus+, registra les reclamacions i ofereix les places fins que totes estiguin acceptades.
+Prepara i publica les llistes de la convocatòria, registra les reclamacions i ofereix les places fins que totes estiguin acceptades.
 
-**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). La prefectura d'estudis i la direcció poden consultar les resolucions, les ofertes i les reclamacions.
+**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). Només el coordinador o la coordinadora Erasmus (Erasmus+ > Coordinador/a) pot publicar una resolució: publicar-la és aprovar-la. La prefectura d'estudis i la direcció poden consultar les resolucions, les ofertes i les reclamacions.
 
 ---
 
@@ -34,8 +34,8 @@ Cadascuna necessita l'anterior publicada. Una resolució publicada no es pot mod
 
 1. A la convocatòria, obre la pestanya **Resolucions** (o **Erasmus+ > Resolucions**) i afegeix-ne una de nova: tria'n el **Tipus**.
 2. Fes clic a **Accions > Prepara les línies**. EMS congela la llista tal com estan ara les sol·licituds. Si falta alguna cosa (una sol·licitud sense decidir, una puntuació incompleta, un document d'identitat), EMS t'indica de qui es tracta. Mentre sigui un esborrany, la pots tornar a preparar tantes vegades com calgui.
-3. Omple l'aprovació de la Comissió: **Aprovada per la Comissió el** i **Actes**. En una rectificació, explica a **Notes per als sol·licitants** què corregeix.
-4. Fes clic a **Accions > Publica** i confirma-ho.
+3. En una rectificació, explica a **Notes per als sol·licitants** què corregeix.
+4. El coordinador o la coordinadora Erasmus revisa la llista i fa clic a **Accions > Publica**. EMS desa qui l'ha publicada i quan, i la llista publicada mostra aquesta data com a data d'aprovació.
 
 Quan es publica:
 

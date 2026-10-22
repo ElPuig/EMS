@@ -3,7 +3,7 @@
 import re
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tools.misc import formatLang
 
 from .application import RANKED_STATES, SCORE_FIELDS, STAFF_SCORE_FIELDS
@@ -34,9 +34,9 @@ def mask_document_id(value):
 
 
 class EmsErasmusResolution(models.Model):
-    """Issue #685 - a list the Erasmus+ Commission approves and the Erasmus team publishes:
-    admission, provisional, definitive or rectification. Preparing it freezes its lines; once
-    published it is never changed (a correction is a new rectification). See
+    """Issue #685 - a list the Erasmus team prepares and the Erasmus coordinator alone approves by
+    publishing it (issue #686): admission, provisional, definitive or rectification. Preparing it
+    freezes its lines; once published it is never changed (a correction is a new rectification). See
     docs/en/developers/erasmus/erasmus.md."""
     _name = 'ems.erasmus.resolution'
     _description = 'Erasmus+ resolution'
@@ -53,9 +53,6 @@ class EmsErasmusResolution(models.Model):
     line_ids = fields.One2many(string="Lines", comodel_name='ems.erasmus.resolution.line',
                                inverse_name='resolution_id', readonly=True)
     prepare_date = fields.Datetime(string="Lines frozen on", readonly=True, copy=False)
-    approval_date = fields.Date(string="Approved by the Commission on", tracking=True, copy=False)
-    approval_reference = fields.Char(string="Minutes", tracking=True, copy=False,
-                                     help="Reference of the Erasmus+ Commission minutes that approve it.")
     notes = fields.Text(string="Notes for applicants",
                         help="Published with the list. A rectification must explain what it corrects.")
     publish_date = fields.Datetime(string="Published on", readonly=True, copy=False)
@@ -94,14 +91,16 @@ class EmsErasmusResolution(models.Model):
 
     def action_publish(self):
         """Publish on the portal and email every applicant their result. A definitive resolution or
-        a rectification also sets each application's result and offers the place to the selected."""
+        a rectification also sets each application's result and offers the place to the selected.
+        Publishing is the coordinator's approval: who and when are kept in published_by_id/publish_date."""
+        if not self.env.user.has_group('ems.group_erasmus_coordinator') \
+                and not self.env.user.has_group('ems.group_academic_admin'):
+            raise AccessError(_("Only the Erasmus coordinator can publish a resolution."))
         for resolution in self:
             if resolution.state != 'draft':
                 raise UserError(_("The resolution is already published."))
             if not resolution.line_ids:
                 raise UserError(_("Prepare the lines first."))
-            if not (resolution.approval_date and (resolution.approval_reference or '').strip()):
-                raise UserError(_("Record the Commission's approval (date and minutes) before publishing."))
             if resolution.kind == 'rectification' and not (resolution.notes or '').strip():
                 raise UserError(_("Explain in the notes what the rectification corrects."))
             resolution._ems_check_can_prepare()

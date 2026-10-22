@@ -822,6 +822,11 @@ class EmsErasmusApplicationDocument(models.Model):
                                   index=True)
     stage = fields.Selection(string="When", related='call_document_id.stage', store=True)
     signers = fields.Char(string="Signed by", related='call_document_id.signers')
+    prepared_by_team = fields.Boolean(string="Filled in by the team", related='call_document_id.prepared_by_team')
+    prepared_attachment_ids = fields.Many2many(
+        string="Files to sign", comodel_name='ir.attachment', relation='ems_erasmus_application_document_prepared_rel',
+        help="The document filled in by the Erasmus team, for the participant to download and sign.")
+    deadline = fields.Date(string="Deadline", compute='_compute_deadline')
     description = fields.Text(string="Instructions", related='call_document_id.description')
     name = fields.Char(string="Document", related='call_document_id.name')
     sequence = fields.Integer(string="Sequence", related='call_document_id.sequence', store=True)
@@ -840,6 +845,17 @@ class EmsErasmusApplicationDocument(models.Model):
         for line in self:
             requirement = line.call_document_id.requirement
             line.is_required = requirement == 'required' or (requirement == 'minor' and line.application_id.is_minor)
+
+    @api.depends('call_document_id.due_basis', 'call_document_id.due_days', 'mobility_id.destination_date',
+                 'mobility_id.date_start', 'mobility_id.date_end')
+    def _compute_deadline(self):
+        """Issue #687: a mobility document's deadline, from its call document's rule."""
+        for line in self:
+            document, mobility = line.call_document_id, line.mobility_id
+            basis = {'destination': mobility.destination_date, 'before_start': mobility.date_start,
+                     'after_end': mobility.date_end}.get(document.due_basis)
+            sign = -1 if document.due_basis == 'before_start' else 1
+            line.deadline = basis and basis + timedelta(days=sign * document.due_days)
 
     def action_mark_valid(self):
         self.write({'review_state': 'valid'})

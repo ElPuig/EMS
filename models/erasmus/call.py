@@ -69,11 +69,6 @@ class EmsErasmusCall(models.Model):
                                        help="How long each selected student has to choose their destination when "
                                             "their turn comes. Without an answer in time, the turn passes on and "
                                             "they choose among what is left at the end (art. 15).")
-    preparation_days = fields.Integer(string="Days to hand in the documents before leaving", default=30,
-                                      help="Counted from the day each participant's destination is set. The team "
-                                           "reminds them every week of what is still missing (art. 17).")
-    return_days = fields.Integer(string="Days to hand in the return documents", default=30,
-                                 help="Counted from the end of the mobility.")
     application_ids = fields.One2many(string="Applications", comodel_name='ems.erasmus.application',
                                       inverse_name='call_id')
     resolution_ids = fields.One2many(string="Resolutions", comodel_name='ems.erasmus.resolution',
@@ -162,13 +157,20 @@ class EmsErasmusCall(models.Model):
 
     @api.model
     def _ems_preparation_documents(self, audience):
+        """Travel documents: a month after the destination is set. The agreements the Erasmus team
+        fills in: signed a month before leaving at the latest (ideally three). Return documents: a
+        month after the end."""
         health_card = {'name': _("European Health Insurance Card"),
                        'description': _("Requested at the Social Security's electronic office.")}
-        grant = {'name': _("Grant agreement"), 'sign_participant': True, 'sign_centre': True}
+        agreement = {'due_basis': 'before_start', 'prepared_by_team': True, 'sign_participant': True,
+                     'sign_centre': True, 'description': _(
+                         "The Erasmus team uploads it filled in. Ideally signed three months before leaving.")}
         if audience == 'staff':
             documents = [
-                health_card, grant,
-                {'name': _("Mobility programme"), 'sign_participant': True, 'sign_centre': True, 'sign_host': True,
+                health_card,
+                {**agreement, 'name': _("Grant agreement")},
+                {'name': _("Mobility programme"), 'due_basis': 'before_start', 'sign_participant': True,
+                 'sign_centre': True, 'sign_host': True,
                  'description': _("Activities, dates and expected results, agreed with the host entity.")},
                 {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True},
                 {'stage': 'return', 'name': _("Report with evidence"), 'sign_participant': True,
@@ -177,12 +179,20 @@ class EmsErasmusCall(models.Model):
         else:
             documents = [
                 health_card,
+                {'name': _("Commitment letter"), 'sign_participant': True, 'sign_guardian': True,
+                 'description': _("Annex 3 of the call.")},
                 {'name': _("Family authorisation to travel"), 'requirement': 'minor', 'sign_guardian': True},
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
                  'description': _("Processed with the Mossos d'Esquadra.")},
+                {**agreement, 'name': _("Grant agreement")},
+                {**agreement, 'name': _("Learning agreement"), 'sign_host': True,
+                 'description': _("GM: learning agreement. GS: Learning Agreement for Traineeships. The Erasmus "
+                                  "team uploads it filled in. Ideally signed three months before leaving.")},
                 {'stage': 'return', 'name': _("Certificate of stay"), 'sign_host': True},
             ]
-        return [(0, 0, {'sequence': index, 'stage': 'preparation', 'requirement': 'required', **vals})
+        defaults = {'preparation': 'destination', 'return': 'after_end'}
+        return [(0, 0, {'sequence': index, 'stage': vals.get('stage', 'preparation'), 'requirement': 'required',
+                        'due_days': 30, 'due_basis': defaults[vals.get('stage', 'preparation')], **vals})
                 for index, vals in enumerate(documents, 1)]
 
     @api.model
@@ -462,6 +472,13 @@ class EmsErasmusCallDocument(models.Model):
     sign_centre = fields.Boolean(string="Signed by the centre")
     sign_host = fields.Boolean(string="Signed by the host entity")
     signers = fields.Char(string="Signed by", compute='_compute_signers')
+    due_basis = fields.Selection(string="Due", selection=[
+        ('destination', "After the destination is set"), ('before_start', "Before leaving"),
+        ('after_end', "After returning")], help="Mobility documents: what the deadline counts from.")
+    due_days = fields.Integer(string="Days", help="Mobility documents: days counted from the Due point.")
+    prepared_by_team = fields.Boolean(string="Filled in by the team",
+                                      help="The Erasmus team uploads it filled in; the participant downloads it, signs "
+                                           "it and uploads it signed. They are not asked for it before.")
     panel_visible = fields.Boolean(string="Shown to the panel",
                                    help="Staff call: the panel members see these files when they rate (the mobility "
                                         "plan), and nothing else of the application.")

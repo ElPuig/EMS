@@ -133,11 +133,8 @@
                                 </field>
                             </page>
                             <page string="Mobility documents" name="preparation_documents">
-                                <group>
-                                    <field name="preparation_days"/>
-                                    <field name="return_days"/>
-                                </group>
-                                <field name="preparation_document_ids" context="{'default_stage': 'preparation'}">
+                                <field name="preparation_document_ids"
+                                       context="{'default_stage': 'preparation', 'default_due_basis': 'destination', 'default_due_days': 30}">
                                     <list editable="bottom">
                                         <field name="call_id" column_invisible="1"/>
                                         <field name="sequence" widget="handle"/>
@@ -149,6 +146,9 @@
                                         <field name="sign_guardian" string="Legal guardian"/>
                                         <field name="sign_centre" string="Centre"/>
                                         <field name="sign_host" string="Host entity"/>
+                                        <field name="due_basis"/>
+                                        <field name="due_days"/>
+                                        <field name="prepared_by_team"/>
                                         <field name="description"/>
                                     </list>
                                 </field>

@@ -389,13 +389,12 @@ section differs, these win (and the dev doc describes what ships):**
   organisation) and sets it with *Set the agreed destination*.
 - The staff activity is validated by the Direction: the Director or the Head of Studies.
 - No identity document among the mobility documents (EMS already has it).
-- Students' documents before leaving are the European Health Insurance Card and, for minors, the
-  family authorisation and the Mossos' authorisation to travel abroad: due within a month of getting
-  the destination (`preparation_days`), with a weekly reminder email while any is missing (art. 17
-  and annex 1 updated in the draft).
-- Staff complete their proposal with the exact dates and send it; once the Direction validates
-  activity, destination and dates, they request the absence for training from the portal with their
-  responsible declaration, approved as any absence.
+- Deadlines per document: travel documents (health card, commitment letter, minors' authorisations)
+  a month after the destination is set; the grant agreement and the learning agreement, filled in by
+  the team and then signed, a month before leaving at the latest (ideally three); return documents a
+  month after returning. Weekly reminder email while any is missing (art. 17 and annex 1 updated).
+- Staff complete their proposal with the exact dates and the responsible declaration; when the
+  Direction validates it, EMS requests the absence for training on its own, approved as any absence.
 
 ### 10.1. Models
 

@@ -564,13 +564,19 @@ of the students' call, art. 15 of the staff call), editable. `_ems_sync_requirem
 the mobility's modality needs and is missing, never removing a line: on creation, when a staff
 member's modality is assigned (`application.write`), and from *Update documents and checklist*.
 
-New call fields: `choice_turn_hours` (default 72), `choice_open`, `preparation_days` (default 30;
-the mobility's `preparation_deadline` = `destination_date` + days, art. 17: within a month of getting
-the destination) and `return_days` (default 30; `return_deadline` = end date + days).
-`destination_date` is stamped when the mobility moves to *preparing* (`_ems_set_state`). Defaults:
-students, the European Health Insurance Card, and for minors the family authorisation and the Mossos
-d'Esquadra's authorisation to travel abroad, plus the certificate of stay on return; staff, the
-health card, grant agreement, mobility programme, certificate and report. No identity document: EMS
+New call fields: `choice_turn_hours` (default 72) and `choice_open`.
+
+**Deadlines, per document:** `due_basis` (`destination`: after the destination is set,
+`before_start`: before leaving, `after_end`: after returning) and `due_days`; each line computes its
+`deadline` from the mobility's `destination_date` (stamped when it moves to *preparing*,
+`_ems_set_state`), `date_start` or `date_end`. **Filled in by the team** (`prepared_by_team`): the
+team attaches the filled-in document to the line's `prepared_attachment_ids`; the participant
+downloads it from the portal, signs it and uploads it signed, and is not asked for it until then.
+Defaults (art. 17 and annex 1): students, the European Health Insurance Card, the commitment letter
+and, for minors, the family's and the Mossos d'Esquadra's authorisations (30 days after the
+destination); the grant agreement and the learning agreement, filled in by the team (30 days before
+leaving at the latest, ideally 90); the certificate of stay (30 days after returning). Staff: health
+card, grant agreement (team), mobility programme, certificate and report. No identity document: EMS
 already holds it on the contact or employee file.
 
 ### Mobility states
@@ -620,7 +626,7 @@ The same fields serve a student's **own destination** and a staff member's **act
 
 | | Student | Staff |
 |---|---|---|
-| Sent | From the portal while choosing, with the host's written commitment (required) | Filled from the application when the mobility is created (`proposal_state` empty); the staff member completes it with the exact dates (`proposal_date_start`/`_end`, required) and sends it from the portal, again after a rejection |
+| Sent | From the portal while choosing, with the host's written commitment (required) | Filled from the application when the mobility is created (`proposal_state` empty); the staff member completes it with the exact dates (`proposal_date_start`/`_end`) and the responsible declaration for the absence (`leave_declaration`), both required, and sends it from the portal, again after a rejection |
 | Validated by (`_ems_can_validate`) | Erasmus team | **Direction**: the Director or a Head of Studies (`ems.group_head_of_studies`, which the Director implies); the Erasmus team cannot |
 | Validated | Preparing, country, city and dates from the proposal | Same |
 | Rejected (needs `decision_note`) | Back to choosing the centre's destinations | Proposes another activity on the portal |
@@ -633,18 +639,18 @@ always validate.
 
 - *Notify pending documents* emails `email_template_erasmus_mobility_documents` with the lines
   missing or needing changes (`_ems_documents_to_correct`: before leaving, and on return once the
-  end date has passed). The weekly cron `ems.ir_cron_erasmus_remind_documents`
+  end date has passed; one filled in by the team only once it is uploaded to sign). The weekly cron `ems.ir_cron_erasmus_remind_documents`
   (`_cron_remind_documents`) sends the same email to every mobility in preparation with any.
 - `preparation_complete` / `return_complete`: every required line of the stage valid and every
   step done. **Close** needs `return_complete`.
 - **Cancel** (team) needs `cancel_reason`; the participant can renounce from the portal.
-- **Staff absence for training:** once the Direction has validated the proposal (dates included),
-  the staff member requests it from the portal with their responsible declaration
-  (`action_request_training_leave`, portal step `leave`): an `hr.leave` of `ems.leave_type_training`
-  for those whole days (`leave_id`), submitted, so it follows the usual approval of that employee's
-  absences. `_ems_sync_training_leave` (run when the dates or the state change) keeps a request not
-  decided yet on the mobility's dates and withdraws it (unlink) if the mobility is cancelled; once
-  decided, a change or a cancellation only leaves a note on the mobility for the team.
+- **Staff absence for training** (`_ems_sync_training_leave`, run when the dates or the state
+  change): once the Direction has validated the proposal, dates included, EMS files an `hr.leave` of
+  `ems.leave_type_training` for those whole days (`leave_id`), submitted with the declaration the
+  staff member gave with the proposal, so it follows the usual approval of that employee's absences.
+  A request not decided yet follows the mobility's dates and is withdrawn (unlink) if the mobility is
+  cancelled; once decided, a change or a cancellation only leaves a note on the mobility for the
+  team.
 
 ### Graduates
 
@@ -656,9 +662,11 @@ mobility left, as the transition would have (`res.partner._ems_retire_graduate`,
 ### Portal (phase 5)
 
 `POST /my/erasmus/call/<id>/mobility/<step>` acts on the logged-in user's own mobility of that
-call: `choose` (`destination_id`), `leave` (`declaration`), `propose` (the `proposal_*` fields and
+call: `choose` (`destination_id`), `propose` (the `proposal_*` fields and
 `proposal_files`), `upload` (`document_<call document id>`) and `renounce` (`reason`). The call page
 shows the *Your mobility* card (`ems.portal_erasmus_mobility`).
+`GET /my/erasmus/call/<id>/mobility/file/<attachment id>` downloads a file to sign of their own
+mobility (`prepared_attachment_ids`).
 
 ### Access (phase 5)
 

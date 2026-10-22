@@ -197,7 +197,7 @@ class EmsPortalErasmusController(CustomerPortal):
                 website=True)
     def portal_erasmus_mobility(self, call_id, step, **post):
         """The participant's own mobility of this call: choose a destination in their turn, send a
-        proposal, upload documents, request the training absence (staff) or renounce the place."""
+        proposal, upload documents or renounce the place."""
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
@@ -221,7 +221,7 @@ class EmsPortalErasmusController(CustomerPortal):
                                for name in ('proposal_date_start', 'proposal_date_end')})
                 files = [(upload.filename, upload.read())
                          for upload in request.httprequest.files.getlist('proposal_files') if upload.filename]
-                mobility._ems_portal_propose(values, files)
+                mobility._ems_portal_propose(values, files, declaration=bool(post.get('leave_declaration')))
             elif step == 'upload':
                 uploads = {}
                 for line in mobility.document_ids:
@@ -231,8 +231,6 @@ class EmsPortalErasmusController(CustomerPortal):
                     if files:
                         uploads[line.call_document_id.id] = files
                 mobility._ems_portal_upload(uploads)
-            elif step == 'leave':
-                mobility.action_request_training_leave(bool(post.get('declaration')))
             elif step == 'renounce':
                 mobility.action_renounce((post.get('reason') or '').strip()[:2000] or False)
             else:
@@ -240,3 +238,16 @@ class EmsPortalErasmusController(CustomerPortal):
         except UserError:
             return request.redirect(f'{page}?error=1')
         return request.redirect(f'{page}?saved=1')
+
+    @http.route('/my/erasmus/call/<int:call_id>/mobility/file/<int:attachment_id>', type='http', auth='user',
+                website=True)
+    def portal_erasmus_mobility_file(self, call_id, attachment_id, **kwargs):
+        """Download a document the Erasmus team filled in for the logged-in user's own mobility."""
+        call = self._ems_erasmus_call(call_id)
+        mobility = call and request.env['ems.erasmus.mobility'].sudo().search([
+            ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)], limit=1)
+        attachment = mobility and mobility.document_ids.prepared_attachment_ids.filtered(
+            lambda attachment: attachment.id == attachment_id)
+        if not attachment:
+            return request.redirect(self._redirect)
+        return request.env['ir.binary']._get_stream_from(attachment).get_response(as_attachment=True)

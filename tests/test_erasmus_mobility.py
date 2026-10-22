@@ -200,12 +200,18 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.call.action_open_destination_choice()
         today = self.env['ems.datetime_utils'].get_local_today()
         self.assertEqual(first.destination_date, today)
-        self.assertEqual(first.preparation_deadline, today + timedelta(days=30))
-        names = first.document_ids.filtered(lambda line: line.stage == 'preparation').mapped('name')
-        self.assertIn('European Health Insurance Card', names)
-        self.assertNotIn('Identity document', names, "EMS already holds it.")
-        self.assertNotIn('Certificate of stay', first._ems_documents_to_correct().mapped('name'),
-                         "Return documents are not asked for before the mobility ends.")
+        lines = {line.name: line for line in first.document_ids}
+        self.assertNotIn('Identity document', lines, "EMS already holds it.")
+        self.assertEqual(lines['European Health Insurance Card'].deadline, today + timedelta(days=30))
+        self.assertEqual(lines['Commitment letter'].deadline, today + timedelta(days=30))
+        self.assertEqual(lines['Grant agreement'].deadline, date(2027, 5, 2), "A month before leaving.")
+        self.assertEqual(lines['Certificate of stay'].deadline, date(2027, 7, 30), "A month after returning.")
+        due = first._ems_documents_to_correct()
+        self.assertNotIn(lines['Certificate of stay'], due, "Return documents are not asked for before the end.")
+        self.assertNotIn(lines['Grant agreement'], due, "Not asked for before the team uploads it filled in.")
+        lines['Grant agreement'].prepared_attachment_ids = self.env['ir.attachment'].create(
+            {'name': 'grant_filled.pdf', 'raw': PDF})
+        self.assertIn(lines['Grant agreement'], first._ems_documents_to_correct())
         sent = len(self._mails(first))
         self.env['ems.erasmus.mobility']._cron_remind_documents()
         self.assertEqual(len(self._mails(first)), sent + 1)
@@ -286,11 +292,12 @@ class ErasmusStaffMobilityCase(ErasmusStaffCase):
         applications[0].offer_ids.action_accept()
         return applications[0].mobility_ids
 
-    def _send_proposal(self, mobility, **values):
+    def _send_proposal(self, mobility, declaration=True, **values):
         mobility._ems_portal_propose({'proposal_activity': mobility.proposal_activity,
                                       'proposal_host': mobility.proposal_host, 'proposal_city': mobility.proposal_city,
                                       'proposal_country_id': self.env.ref('base.pt').id,
-                                      'proposal_date_start': '2027-06-14', 'proposal_date_end': '2027-06-18', **values})
+                                      'proposal_date_start': '2027-06-14', 'proposal_date_end': '2027-06-18', **values},
+                                     declaration=declaration)
 
 
 @tagged('post_install', '-at_install')
@@ -333,25 +340,22 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         mobility.with_user(self.director_user).action_validate_proposal()
         self.assertEqual((mobility.state, mobility.date_start), ('preparing', date(2027, 7, 5)))
 
-    def test_the_teacher_requests_the_training_absence_for_the_validated_dates(self):
+    def test_the_training_absence_is_requested_when_the_direction_validates(self):
         mobility = self._accepted_staff()
+        with self.assertRaises(UserError):
+            self._send_proposal(mobility, declaration=False)
         self._send_proposal(mobility)
-        with self.assertRaises(UserError):
-            mobility.action_request_training_leave(True)
+        self.assertTrue(mobility.leave_declaration)
+        self.assertFalse(mobility.leave_id, "Not before the Direction validates the dates.")
         mobility.with_user(self.director_user).action_validate_proposal()
-        self.assertFalse(mobility.leave_id, "The teacher confirms it.")
-        with self.assertRaises(UserError):
-            mobility.action_request_training_leave(False)
-        mobility.action_request_training_leave(True)
         leave = mobility.leave_id
         self.assertEqual(leave.holiday_status_id, self.env.ref('ems.leave_type_training'))
         self.assertEqual(leave.employee_id, mobility.application_id.employee_id)
         self.assertEqual((leave.request_date_from, leave.request_date_to), (date(2027, 6, 14), date(2027, 6, 18)))
         self.assertIn(leave.state, ('confirm', 'validate1'), "Approved as any other absence.")
-        with self.assertRaises(UserError):
-            mobility.action_request_training_leave(True)
         mobility.with_user(self.erasmus_user).date_end = date(2027, 6, 19)
         self.assertEqual(leave.request_date_to, date(2027, 6, 19), "A request not decided yet follows the dates.")
+        self.assertEqual(mobility.leave_id, leave, "Only one request.")
         mobility.with_user(self.erasmus_user).cancel_reason = 'Cannot go'
         mobility.with_user(self.erasmus_user).action_cancel()
         self.assertFalse(leave.exists(), "A request not decided yet is withdrawn with the mobility.")
@@ -416,3 +420,16 @@ class TestPortalErasmusMobility(HttpCase, ErasmusMobilityCase):
         self.assertIn('o_ems_erasmus_proposal_pending', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
         self._post('renounce', reason='Personal reasons')
         self.assertEqual(first.state, 'cancelled')
+
+    def test_download_the_document_the_team_filled_in(self):
+        first, second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        line = first.document_ids.filtered(lambda line: line.name == 'Grant agreement')
+        line.prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'grant_filled.pdf', 'raw': PDF})
+        url = f'/my/erasmus/call/{self.call.id}/mobility/file/{line.prepared_attachment_ids.id}'
+        self.authenticate(self.second_user.login, self.second_user.login)
+        self.assertNotEqual(self.url_open(url).content, PDF, "Only the participant downloads it.")
+        self.authenticate(self.student_user.login, self.student_user.login)
+        self.assertIn('o_ems_erasmus_prepared_file', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        self.assertEqual(self.url_open(url).content, PDF)

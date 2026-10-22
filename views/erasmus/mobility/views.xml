@@ -128,6 +128,7 @@
                                         <field name="proposal_date"/>
                                         <field name="proposal_attachment_ids" widget="many2many_binary"/>
                                         <field name="proposal_notes"/>
+                                        <field name="leave_declaration" invisible="audience != 'staff'"/>
                                         <field name="decision_note" readonly="not can_validate or proposal_state != 'pending'"/>
                                         <field name="decided_by_id"/>
                                         <field name="decision_date"/>
@@ -136,8 +137,6 @@
                             </page>
                             <page string="Documents" name="documents">
                                 <group>
-                                    <field name="preparation_deadline"/>
-                                    <field name="return_deadline"/>
                                     <field name="preparation_complete"/>
                                     <field name="return_complete"/>
                                 </group>
@@ -146,7 +145,11 @@
                                         <field name="stage"/>
                                         <field name="name"/>
                                         <field name="signers"/>
+                                        <field name="deadline"/>
                                         <field name="is_required"/>
+                                        <field name="prepared_by_team" column_invisible="1"/>
+                                        <field name="prepared_attachment_ids" widget="many2many_binary"
+                                               readonly="not prepared_by_team"/>
                                         <field name="attachment_ids" widget="many2many_binary"/>
                                         <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
                                                decoration-danger="review_state == 'needs_change'"/>

@@ -72,6 +72,12 @@
                     <strong t-out="call.subsanation_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></t>.
                 </div>
 
+                <!-- Issue #684: the interview the Erasmus team called the applicant to. -->
+                <div t-if="application.state == 'admitted' and application.interview_call_date" class="alert alert-info mb-3 o_ems_erasmus_interview">
+                    <i class="fa fa-calendar me-1"/> Your interview:
+                    <strong t-out="application.interview_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/><t t-if="application.interview_place">, <t t-esc="application.interview_place"/></t>.
+                    Part of it is in English. Please arrive 15 minutes early.
+                </div>
                 <div t-if="call.description" class="mb-3" t-out="call.description"/>
 
                 <form t-attf-action="/my/erasmus/call/#{call.id}/save" method="post" enctype="multipart/form-data"

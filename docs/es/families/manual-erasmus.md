@@ -39,7 +39,11 @@ Hasta la fecha de cierre todavía puedes modificarla y volver a enviarla: cada v
 
 Si falta un documento o hay que corregirlo, recibirás un correo con la lista y el plazo. Abre tu solicitud en el portal: los documentos que hay que corregir aparecen marcados en rojo. Adjunta los archivos nuevos y vuelve a hacer clic en **Enviar la solicitud**. Si no la subsanas a tiempo, la solicitud quedará excluida.
 
-## 5. Seguir la solicitud
+## 5. La entrevista
+
+Si tu solicitud es admitida, recibirás un correo con la fecha y el lugar de la entrevista personal, como mínimo 24 horas antes. También los verás en tu solicitud en el portal. Una parte de la entrevista es en inglés. Llega 15 minutos antes: no presentarse supone la exclusión, salvo por causa de fuerza mayor justificada.
+
+## 6. Seguir la solicitud
 
 La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida* o *Excluida*.
 

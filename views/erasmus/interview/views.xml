@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #684 - Erasmus+ interviews: each evaluator scores annex 4's rubric. See
+             docs/en/developers/erasmus/erasmus.md. -->
+        <record id="view_erasmus_interview_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.interview.list</field>
+            <field name="model">ems.erasmus.interview</field>
+            <field name="arch" type="xml">
+                <list string="Interviews" create="false" decoration-muted="state == 'submitted'">
+                    <field name="interview_date"/>
+                    <field name="partner_id"/>
+                    <field name="call_name" optional="show"/>
+                    <field name="modality_name"/>
+                    <field name="evaluator_id" optional="show"/>
+                    <field name="general_score"/>
+                    <field name="english_score"/>
+                    <field name="state" widget="badge" decoration-info="state == 'draft'"
+                           decoration-success="state == 'submitted'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_interview_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.interview.search</field>
+            <field name="model">ems.erasmus.interview</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="partner_id"/>
+                    <field name="evaluator_id"/>
+                    <filter name="to_score" string="To score" domain="[('state', '=', 'draft')]"/>
+                    <filter name="submitted" string="Submitted" domain="[('state', '=', 'submitted')]"/>
+                    <group>
+                        <filter name="group_evaluator" string="Evaluator" context="{'group_by': 'evaluator_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_interview_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.interview.form</field>
+            <field name="model">ems.erasmus.interview</field>
+            <field name="arch" type="xml">
+                <form string="Interview" create="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_submit" type="object" string="Submit" class="btn-primary"
+                                    invisible="state != 'draft'"/>
+                            <button name="action_reopen" type="object" string="Reopen"
+                                    invisible="state != 'submitted'"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="partner_id" readonly="1"/></h1>
+                        </div>
+                        <field name="is_locked" invisible="1"/>
+                        <div class="alert alert-warning" role="alert" invisible="not is_locked">
+                            The review deadline has passed: only the Erasmus team can reopen this interview.
+                        </div>
+                        <group>
+                            <group>
+                                <field name="call_name"/>
+                                <field name="modality_name"/>
+                                <field name="evaluator_id" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="interview_date"/>
+                                <field name="interview_place"/>
+                                <field name="submit_date"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group string="General part (0-5 each)">
+                                <field name="motivation" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                                <field name="maturity" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                                <field name="difficulties" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                                <field name="adaptation" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                                <field name="general_score"/>
+                            </group>
+                            <group string="English part (0-5 each)">
+                                <field name="comprehension" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                                <field name="fluency" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                                <field name="accuracy" widget="radio" options="{'horizontal': true}" readonly="state != 'draft'"/>
+                                <field name="english_score"/>
+                            </group>
+                        </group>
+                        <group>
+                            <field name="notes" readonly="state != 'draft'"/>
+                            <field name="rectification_note" invisible="not is_locked"
+                                   groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_my_interviews" model="ir.actions.act_window">
+            <field name="name">My evaluations</field>
+            <field name="res_model">ems.erasmus.interview</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('evaluator_id', '=', uid)]</field>
+            <field name="context">{'search_default_to_score': 1}</field>
+            <field name="search_view_id" ref="view_erasmus_interview_search"/>
+        </record>
+
+        <record id="action_erasmus_interview" model="ir.actions.act_window">
+            <field name="name">Interviews</field>
+            <field name="res_model">ems.erasmus.interview</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="view_erasmus_interview_search"/>
+        </record>
+    </data>
+</odoo>

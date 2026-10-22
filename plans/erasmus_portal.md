@@ -1,6 +1,6 @@
 # Erasmus+ calls and mobilities inside EMS
 
-**Status: design, current as of 2026-10-22. Phase 1 (#683) implemented on its branch, not merged yet: what it
+**Status: design, current as of 2026-10-22. Phases 1 (#683) and 2 (#684) implemented on their branches, not merged yet: what it
 ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Design of record for the
 umbrella issue #682 and its phase issues (#683-#687); keep it current as each phase lands, then delete it once the
 last phase ships (its contents folded into `docs/en/developers/erasmus/` and the role manuals).
@@ -65,7 +65,7 @@ the students' and the staff member does not need any backend menu just to apply.
 |---|---|---|
 | Portal request circuit | `controllers/portal_convalidation.py`, `views/portal/portal_convalidations.xml` | Pattern to copy: sudo with the student resolved server-side, no ids in forms, period open/closed. |
 | Student's level and year | `res.partner.main_group_id` → `ems.group.level_id` (CFGM/CFGS) and `ems.group.course` (1/2) | Eligibility for the student call and modality (GM/GS). |
-| Grades | `ems.grade_subject_line`, `ems.student.year_record(.subject)` (`final_grade`, `is_convalidated`) | Shown to whoever validates the average. **No ready-made record average exists**: the average is validated by hand (5.1). |
+| Grades | `ems.grade_subject_line`, `ems.student.year_record(.subject)` (`final_grade`, `is_convalidated`) | Criterion A, computed by EMS and frozen at closing (5.1). |
 | Conduct warnings | `ems.strike` (`student_id`, `date`, stored `group_id`) | Criterion F, counted and frozen at closing (5.1). |
 | Serious sanctions | Nothing structured (`contact_type='expelled'` is a permanent exit only) | Manual check by Director / Head of Studies (4.4). |
 | Role → group | `ems.role.group_id` adds the role's holders to a group | `ems.role_erasmus` gets the new Erasmus group (7). |
@@ -293,7 +293,11 @@ graph LR
   student application on `/my/erasmus` (apply, upload, edit until close, receipt), admission
   checks, subsanation, admitted/excluded list. Creates the *Erasmus+* root menu and
   `ems.group_erasmus`. Useful on its own: the call is received in EMS instead of a web form.
-- **F2 - Student scoring and interviews** *(medium-large)*. Criteria A-F with freezing at close,
+- **F2 - Student scoring and interviews** *(medium-large; implemented on `684-erasmus-phase-2`, see the
+  dev doc. Decided 2026-10-22: a repeated module counts once with its latest grade; A and F freeze when the
+  team clicks "Close applications"; evaluators see only their own interview, not the CV or video; an
+  automatic hidden group `ems.group_erasmus_evaluator` shows them *My evaluations*; the Secretariat opens
+  the applications to type a certificate's average).* Criteria A-F with freezing at close,
   average validation, strike count, interview assignment with two evaluators, rubric, review
   deadline and locking, ranking and tie-breaks.
 - **F3 - Resolutions, claims and offers** *(medium)*. Provisional and definitive resolutions with

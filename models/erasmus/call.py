@@ -5,6 +5,8 @@ from pytz import UTC
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from .application import SUBMITTED_STATES
+
 
 class EmsErasmusCall(models.Model):
     """Issue #683 - one Erasmus+ call: who can apply (its modalities' levels), when, and which
@@ -23,6 +25,10 @@ class EmsErasmusCall(models.Model):
     date_close = fields.Datetime(string="Applications close", required=True, tracking=True)
     subsanation_deadline = fields.Datetime(string="Corrections deadline", tracking=True, copy=False,
                                            help="Until when applicants can upload the corrections asked for.")
+    interview_deadline = fields.Datetime(string="Interview review deadline", tracking=True, copy=False,
+                                         help="Until when evaluators can reopen and change their interviews.")
+    min_score = fields.Float(string="Minimum score", default=50.0, tracking=True,
+                             help="Score needed to be eligible.")
     description = fields.Html(string="Information for applicants",
                               help="Shown on the portal above the application form.")
     rules_document = fields.Binary(string="Published call", attachment=True, copy=False)
@@ -78,10 +84,19 @@ class EmsErasmusCall(models.Model):
         self._ems_set_state('published', 'draft')
 
     def action_close(self):
-        """Close the applications: those never submitted stay as not submitted."""
+        """Close the applications: those never submitted stay as not submitted, and the scoring
+        data of the submitted ones is frozen (issue #684)."""
         self._ems_set_state('published', 'closed')
         drafts = self.application_ids.filtered(lambda application: application.state == 'draft')
         drafts._ems_set_state('not_submitted')
+        self.application_ids.filtered(
+            lambda application: application.state in SUBMITTED_STATES)._ems_freeze_scoring_data()
+
+    def action_view_ranking(self):
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_ranking')
+        action['domain'] = [('call_id', '=', self.id), ('state', '=', 'admitted')]
+        return action
 
     def action_view_applications(self):
         self.ensure_one()
@@ -104,11 +119,15 @@ class EmsErasmusCall(models.Model):
     def _ems_local_deadline(self):
         """The corrections deadline as the applicant reads it: in the centre's timezone."""
         self.ensure_one()
-        if not self.subsanation_deadline:
+        return self._ems_local_format(self.subsanation_deadline)
+
+    @api.model
+    def _ems_local_format(self, value):
+        """A stored (UTC) datetime as the centre reads it, for the emails."""
+        if not value:
             return ''
-        local = self.env['ems.datetime_utils'].utc_datetime_to_local(
-            self.subsanation_deadline.replace(tzinfo=UTC))
-        return local.strftime('%d/%m/%Y %H:%M')
+        return self.env['ems.datetime_utils'].utc_datetime_to_local(value.replace(tzinfo=UTC)).strftime(
+            '%d/%m/%Y %H:%M')
 
     def _ems_modality_for(self, partner):
         """The modality `partner` competes in: the one whose levels include their main group's."""

@@ -39,7 +39,11 @@ Until the closing date you can still change it and submit it again: each time yo
 
 If a document is missing or needs changes, you will receive an email with the list and the deadline. Open your application on the portal: the documents to correct are marked in red. Attach the new files and click **Submit application** again. If you don't correct it in time, the application will be excluded.
 
-## 5. Follow your application
+## 5. The interview
+
+If your application is admitted, you will receive an email with the date and place of your personal interview, at least 24 hours ahead. You will also see them on your application in the portal. Part of the interview is in English. Arrive 15 minutes early: not attending excludes you, unless for a justified reason of force majeure.
+
+## 6. Follow your application
 
 The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted* or *Excluded*.
 

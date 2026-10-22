@@ -1,15 +1,26 @@
 # -*- coding: utf-8 -*-
 
 import base64
+from datetime import timedelta
 
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 
 CHECK_STATES = [('pending', "Pending"), ('met', "Met"), ('not_met', "Not met")]
+YES_NO = [('yes', "Yes"), ('no', "No")]
+# Criterion C (art. 12): the highest language certificate.
+LANGUAGE_SCORES = {'none': 0.0, 'b1': 2.5, 'b2': 5.0, 'c1': 7.5, 'c2': 10.0}
 # What a Head of Studies who is not in the Erasmus team may write: the check reserved to them.
 SANCTION_FIELDS = {'sanction_check', 'sanction_check_note'}
+# The record average typed from a certificate (criterion A): Erasmus team, Secretariat or Head of Studies.
+AVERAGE_FIELDS = {'grade_average_manual', 'grade_average_manual_note'}
+# Values set by hand that keep who set them and when (<field>_user_id, <field>_date).
+STAMPED_FIELDS = ('requirements_check', 'sanction_check', 'language_level', 'fewer_opportunities_check',
+                  'first_mobility', 'grade_average_manual')
+# Application states whose data is frozen when the call closes.
+SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
 # Answers of the portal form, editable by the applicant while the call accepts applications.
 ANSWER_FIELDS = ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
                  'image_consent', 'applicant_notes')
@@ -68,6 +79,81 @@ class EmsErasmusApplication(models.Model):
                                 help="Erasmus team or administrator: everything but the sanction check.")
     exclusion_reason = fields.Text(string="Exclusion reason", tracking=True, copy=False)
 
+    # --- scoring (issue #684, art. 12 of the call) ---
+    scoring_frozen_date = fields.Datetime(string="Scoring data frozen on", readonly=True, copy=False,
+                                          help="When the call was closed: the record average and the conduct "
+                                               "warnings are the ones EMS had then.")
+    grade_line_ids = fields.One2many(string="Modules used for the average", comodel_name='ems.erasmus.application.grade',
+                                     inverse_name='application_id', readonly=True)
+    grade_average_ems = fields.Float(string="Average from EMS", digits=(4, 2), readonly=True, copy=False)
+    grade_average_from_ems = fields.Boolean(string="Average from EMS found", readonly=True, copy=False)
+    grade_average_manual = fields.Float(string="Average from certificate", digits=(4, 2), tracking=True, copy=False,
+                                        help="Only when EMS has no grade for the applicant: the average of the "
+                                             "certificate of previous studies.")
+    grade_average_manual_note = fields.Char(string="Certificate", copy=False)
+    grade_average_manual_user_id = fields.Many2one(string="Average typed by", comodel_name='res.users',
+                                                   readonly=True, copy=False)
+    grade_average_manual_date = fields.Datetime(string="Average typed on", readonly=True, copy=False)
+    grade_average = fields.Float(string="Record average", digits=(4, 2), compute='_compute_scores', store=True)
+    language_level = fields.Selection(string="Language certificate", tracking=True, copy=False, selection=[
+        ('none', "None"), ('b1', "B1"), ('b2', "B2"), ('c1', "C1"), ('c2', "C2")],
+        help="The highest official foreign-language certificate the applicant uploaded.")
+    language_level_user_id = fields.Many2one(string="Language checked by", comodel_name='res.users',
+                                             readonly=True, copy=False)
+    language_level_date = fields.Datetime(string="Language checked on", readonly=True, copy=False)
+    fewer_opportunities_check = fields.Selection(
+        string="Fewer opportunities accredited", selection=YES_NO, tracking=True, copy=False,
+        groups='ems.group_erasmus,ems.group_academic_admin')
+    fewer_opportunities_check_user_id = fields.Many2one(
+        string="Fewer opportunities checked by", comodel_name='res.users', readonly=True, copy=False,
+        groups='ems.group_erasmus,ems.group_academic_admin')
+    fewer_opportunities_check_date = fields.Datetime(
+        string="Fewer opportunities checked on", readonly=True, copy=False,
+        groups='ems.group_erasmus,ems.group_academic_admin')
+    first_mobility = fields.Selection(string="First mobility", selection=YES_NO, tracking=True, copy=False,
+                                      help="GM: no previous Erasmus+ mobility. GS: no previous higher-education one.")
+    first_mobility_user_id = fields.Many2one(string="First mobility checked by", comodel_name='res.users',
+                                             readonly=True, copy=False)
+    first_mobility_date = fields.Datetime(string="First mobility checked on", readonly=True, copy=False)
+    strike_ids = fields.Many2many(string="Conduct warnings", comodel_name='ems.strike',
+                                  relation='ems_erasmus_application_strike_rel', readonly=True, copy=False)
+    strike_count = fields.Integer(string="Number of conduct warnings", readonly=True, copy=False)
+
+    interview_ids = fields.One2many(string="Interviews", comodel_name='ems.erasmus.interview',
+                                    inverse_name='application_id', groups='ems.group_erasmus,ems.group_academic_admin')
+    interview_date = fields.Datetime(string="Interview date", tracking=True, copy=False)
+    interview_place = fields.Char(string="Interview place", tracking=True, copy=False)
+    interview_call_date = fields.Datetime(string="Interview call sent on", readonly=True, copy=False)
+    single_interview_reason = fields.Text(string="Reason for a single evaluation", tracking=True, copy=False,
+                                          help="Only one evaluator could score the interview (annex 4).")
+    interview_general = fields.Float(string="Interview, general part", digits=(4, 2),
+                                     compute='_compute_interview', store=True)
+    interview_english = fields.Float(string="Interview, English part", digits=(4, 2),
+                                     compute='_compute_interview', store=True)
+    interview_complete = fields.Boolean(string="Interview scored", compute='_compute_interview', store=True)
+
+    score_a = fields.Float(string="A. Record", digits=(5, 2), compute='_compute_scores', store=True)
+    score_a_pending = fields.Boolean(string="Record average pending", compute='_compute_scores', store=True)
+    score_b = fields.Float(string="B. Interview", digits=(5, 2), compute='_compute_scores', store=True)
+    score_c = fields.Float(string="C. Languages", digits=(5, 2), compute='_compute_scores', store=True)
+    score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2), compute='_compute_scores', store=True,
+                           groups='ems.group_erasmus,ems.group_academic_admin')
+    score_e = fields.Float(string="E. First mobility", digits=(5, 2), compute='_compute_scores', store=True)
+    score_f = fields.Float(string="F. Conduct", digits=(5, 2), compute='_compute_scores', store=True)
+    score_total = fields.Float(string="Total score", digits=(5, 2), compute='_compute_scores', store=True)
+    score_complete = fields.Boolean(string="Score complete", compute='_compute_scores', store=True,
+                                    help="Every criterion is in: a pending one never counts as zero.")
+    is_eligible = fields.Boolean(string="Eligible", compute='_compute_scores', store=True,
+                                 help="Complete score, at least the call's minimum.")
+    draw_order = fields.Integer(string="Draw", tracking=True, copy=False,
+                                help="Result of the draw between applications tied after every tie-break "
+                                     "(lower goes first).")
+    rank = fields.Integer(string="Rank", compute='_compute_rank', store=True,
+                          help="Position in the modality among the admitted applications. 0 until every one "
+                               "of them has a complete score.")
+    needs_draw = fields.Boolean(string="Needs a draw", compute='_compute_rank', store=True)
+    can_type_average = fields.Boolean(string="Can type the average", compute='_compute_permissions')
+
     @api.depends('partner_id.birth_date')
     def _compute_is_minor(self):
         for application in self:
@@ -77,13 +163,86 @@ class EmsErasmusApplication(models.Model):
     def _compute_permissions(self):
         can_check_sanction = self._ems_can_check_sanction()
         can_manage = self._ems_can_manage()
+        can_type_average = self._ems_can_type_average()
         for application in self:
             application.can_check_sanction = can_check_sanction
             application.can_manage = can_manage
+            application.can_type_average = can_type_average
+
+    @api.depends('interview_ids.state', 'interview_ids.general_score', 'interview_ids.english_score',
+                 'single_interview_reason')
+    def _compute_interview(self):
+        """Mean of the submitted interviews; complete with two of them, or one and a reason."""
+        for application in self:
+            interviews = application.interview_ids
+            submitted = interviews.filtered(lambda interview: interview.state == 'submitted')
+            count = len(submitted)
+            application.interview_complete = bool(submitted) and count == len(interviews) and (
+                count >= 2 or bool(application.single_interview_reason))
+            application.interview_general = sum(submitted.mapped('general_score')) / count if count else 0.0
+            application.interview_english = sum(submitted.mapped('english_score')) / count if count else 0.0
+
+    @api.depends('grade_average_ems', 'grade_average_from_ems', 'grade_average_manual', 'scoring_frozen_date',
+                 'interview_general', 'interview_english', 'interview_complete', 'language_level',
+                 'fewer_opportunities_check', 'first_mobility', 'strike_count', 'call_id.min_score')
+    def _compute_scores(self):
+        """Art. 12: A + B + C + D + E + F, no floor at zero. A pending criterion leaves it incomplete."""
+        for application in self:
+            average = application.grade_average_ems if application.grade_average_from_ems \
+                else application.grade_average_manual
+            application.grade_average = average
+            application.score_a_pending = not (application.scoring_frozen_date and average)
+            application.score_a = average * 4
+            application.score_b = application.interview_general + application.interview_english
+            application.score_c = LANGUAGE_SCORES.get(application.language_level, 0.0)
+            application.score_d = 10.0 if application.fewer_opportunities_check == 'yes' else 0.0
+            application.score_e = 5.0 if application.first_mobility == 'yes' else 0.0
+            application.score_f = -min(3 * application.strike_count, 9)
+            application.score_total = sum(application[f'score_{criterion}'] for criterion in 'abcdef')
+            application.score_complete = not application.score_a_pending and application.interview_complete and all(
+                application[name] for name in ('language_level', 'fewer_opportunities_check', 'first_mobility'))
+            application.is_eligible = application.score_complete and \
+                application.score_total >= application.call_id.min_score
+
+    @api.depends('state', 'modality_id', 'score_total', 'score_complete', 'score_d', 'score_e',
+                 'interview_english', 'grade_average', 'draw_order',
+                 'call_id.application_ids.state', 'call_id.application_ids.modality_id',
+                 'call_id.application_ids.score_total', 'call_id.application_ids.score_complete',
+                 'call_id.application_ids.score_d', 'call_id.application_ids.score_e',
+                 'call_id.application_ids.interview_english', 'call_id.application_ids.grade_average',
+                 'call_id.application_ids.draw_order')
+    def _compute_rank(self):
+        """Rank among the admitted applications of the same modality, by total and art. 12's
+        tie-breaks, then the draw. Only once every one of them has a complete score."""
+        self.rank = 0
+        self.needs_draw = False
+        for (call, modality), applications in self.grouped(lambda application: (
+                application.call_id, application.modality_id)).items():
+            ranked = call.application_ids.filtered(
+                lambda application: application.state == 'admitted' and application.modality_id == modality)
+            if not ranked or not all(ranked.mapped('score_complete')):
+                continue
+            keys = {application: (-application.score_total, -application.score_d, -application.score_e,
+                                  -application.interview_english, -application.grade_average,
+                                  application.draw_order)
+                    for application in ranked}
+            ordered = sorted(keys.values())
+            for application in applications & ranked:
+                application.rank = ordered.index(keys[application]) + 1
+                application.needs_draw = ordered.count(keys[application]) > 1
 
     def _compute_display_name(self):
         for application in self:
             application.display_name = f"{application.partner_id.name} - {application.call_id.name}"
+
+    @api.constrains('grade_average_manual', 'grade_average_from_ems')
+    def _check_grade_average_manual(self):
+        for application in self:
+            if not 0 <= application.grade_average_manual <= 10:
+                raise ValidationError(_("The record average goes from 0 to 10."))
+            if application.grade_average_manual and application.grade_average_from_ems:
+                raise ValidationError(_("The average of %s comes from EMS: a certificate's average is only "
+                                        "for applicants with no grades in EMS.", application.partner_id.name))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -102,12 +261,15 @@ class EmsErasmusApplication(models.Model):
             touched = set(vals)
             if touched & SANCTION_FIELDS and not self._ems_can_check_sanction():
                 raise AccessError(_("Only the Head of Studies or the Director record the serious sanction check."))
-            if touched - SANCTION_FIELDS and not self._ems_can_manage():
+            if touched & AVERAGE_FIELDS and not self._ems_can_type_average():
+                raise AccessError(_("Only the Erasmus team, the Secretariat or the Head of Studies type the "
+                                    "record average."))
+            if touched - SANCTION_FIELDS - AVERAGE_FIELDS and not self._ems_can_manage():
                 raise AccessError(_("Only the Erasmus team changes an application."))
         now = fields.Datetime.now()
-        for check in ('requirements_check', 'sanction_check'):
-            if check in vals:
-                vals.update({f'{check}_user_id': self.env.uid, f'{check}_date': now})
+        for name in STAMPED_FIELDS:
+            if name in vals:
+                vals.update({f'{name}_user_id': self.env.uid, f'{name}_date': now})
         return super().write(vals)
 
     # --- team actions ----------------------------------------------------------------------
@@ -135,8 +297,9 @@ class EmsErasmusApplication(models.Model):
         self._ems_set_state('admitted')
 
     def action_exclude(self):
+        """Also on an admitted application: not attending the interview excludes (art. 11)."""
         for application in self:
-            application._ems_check_state(('submitted', 'subsanation'))
+            application._ems_check_state(('submitted', 'subsanation', 'admitted'))
             if not (application.exclusion_reason or '').strip():
                 raise UserError(_("Write the exclusion reason first."))
         self._ems_set_state('excluded')
@@ -145,6 +308,87 @@ class EmsErasmusApplication(models.Model):
         for application in self:
             application._ems_check_state(('admitted', 'excluded'))
         self._ems_set_state('submitted')
+
+    def action_send_interview_call(self):
+        """Email the applicant the interview's date and place, at least 24 hours ahead (art. 11)."""
+        limit = self.call_id._ems_now() + timedelta(hours=24)
+        for application in self:
+            application._ems_check_state(('admitted',))
+            if not application.interview_date:
+                raise UserError(_("Set the interview date of %s first.", application.partner_id.name))
+            if application.interview_date < limit:
+                raise UserError(_("The interview call must be sent at least 24 hours before the interview."))
+        self._ems_send('ems.email_template_erasmus_interview_call')
+        self.sudo().write({'interview_call_date': fields.Datetime.now()})
+
+    def _ems_freeze_scoring_data(self):
+        """Copy the record average (A) and the conduct warnings (F) as EMS has them now: what the
+        selection is based on, never recomputed afterwards."""
+        Grade = self.env['ems.erasmus.application.grade']
+        for application in self.sudo():
+            grades = application._ems_grade_values()
+            hours = sum(vals['hours'] for vals in grades)
+            study = application.partner_id.main_group_id.study_id
+            strikes = self.env['ems.strike'].sudo().search([
+                ('student_id', '=', application.partner_id.id), ('group_id.study_id', '=', study.id),
+                ('date', '<=', application.call_id.date_close)]) if study else self.env['ems.strike']
+            application.grade_line_ids.unlink()
+            Grade.create([{**vals, 'application_id': application.id} for vals in grades])
+            application.write({
+                'scoring_frozen_date': fields.Datetime.now(),
+                'grade_average_ems': round(sum(vals['grade'] * vals['hours'] for vals in grades) / hours, 2)
+                if hours else 0.0,
+                'grade_average_from_ems': bool(hours),
+                'strike_ids': [(6, 0, strikes.ids)],
+                'strike_count': len(strikes),
+            })
+
+    def _ems_grade_values(self):
+        """The modules of the applicant's current cycle for the record average, as values of
+        ems.erasmus.application.grade: one per module, its most recent grade (this course's
+        grade lines, then the year records from the latest course). Convalidated and recognised
+        modules are left out, and so are modules with nothing evaluated."""
+        self.ensure_one()
+        partner = self.partner_id
+        study = partner.main_group_id.study_id
+        if not study:
+            return []
+        found = {}  # module -> its values, None when it is left out
+        lines = self.env['ems.grade_subject_line'].sudo().search([
+            ('student_id', '=', partner.id), ('grade_session_id.subject_id.study_ids', 'in', study.ids)])
+        course_name = self.call_id.course_id.name or self.env.company.current_course_id.name
+        for subject, subject_lines in lines.grouped(lambda line: line.grade_session_id.subject_id).items():
+            last = max(subject_lines, key=lambda line: line.grade_session_id.round)
+            if last.is_convalidated:
+                found[('subject', subject.id)] = None
+            elif last.computed_is_scored or last.internal_is_scored:
+                grade = last.computed_score if last.computed_is_scored else last.internal_score
+                found[('subject', subject.id)] = self._ems_grade_vals(subject, subject.display_name, course_name, grade)
+        records = self.env['ems.student.year_record'].sudo().search([
+            ('student_id', '=', partner.id), ('study_id', '=', study.id), ('is_provisional', '=', False)])
+        for record in records.sorted(lambda record: record.course_id.start, reverse=True):
+            for subject_record in record.subject_record_ids:
+                key = ('subject', subject_record.subject_id.id) if subject_record.subject_id \
+                    else ('name', subject_record.subject_name)
+                if key in found:
+                    continue
+                if subject_record.is_convalidated or subject_record.is_recognized:
+                    found[key] = None
+                elif subject_record.has_final:
+                    grade = subject_record.final_grade
+                elif subject_record.is_overridden or subject_record.outcome_record_ids.filtered('final_is_scored'):
+                    grade = subject_record.internal_grade
+                else:
+                    continue
+                if key not in found:
+                    found[key] = self._ems_grade_vals(subject_record.subject_id, subject_record.subject_name,
+                                                      record.course_id.name, grade)
+        return [vals for vals in found.values() if vals]
+
+    @api.model
+    def _ems_grade_vals(self, subject, subject_name, course_name, grade):
+        return {'subject_id': subject.id, 'subject_name': subject_name, 'course_name': course_name,
+                'grade': grade, 'hours': subject.total_hours}
 
     # --- portal ----------------------------------------------------------------------------
 
@@ -234,6 +478,11 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_can_check_sanction(self):
         return self.env.su or self.env.user.has_group('ems.group_head_of_studies')
+
+    def _ems_can_type_average(self):
+        user = self.env.user
+        return self._ems_can_manage() or user.has_group('ems.group_secretary') \
+            or user.has_group('ems.group_head_of_studies')
 
     def _ems_can_manage(self):
         user = self.env.user

@@ -60,12 +60,12 @@ When a document needs changes or a required one is missing, mark it and click **
 ## 5. Admit or exclude
 
 - **Admit**: both admission checks must be *Met* and every required document *Valid*.
-- **Exclude**: write the exclusion reason first.
+- **Exclude**: write the exclusion reason first. It also works on an admitted application, for example when the student does not attend the interview.
 - **Back to review** undoes either decision.
 
 ## 6. Close the call
 
-When the application period is over, click **Actions > Close applications**. Applications that were never submitted are marked as *Not submitted*.
+When the application period is over, click **Actions > Close applications**. Applications that were never submitted are marked as *Not submitted*, and EMS saves the record average and the conduct warnings of the others for the scoring: see [Scoring and interviews](scoring-and-interviews.md).
 
 ---
 

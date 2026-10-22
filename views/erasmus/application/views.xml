@@ -14,6 +14,8 @@
                     <field name="submit_date"/>
                     <field name="requirements_check" optional="show"/>
                     <field name="sanction_check" optional="show"/>
+                    <field name="score_total" optional="hide"/>
+                    <field name="score_complete" optional="hide"/>
                     <field name="state" widget="badge"
                            decoration-info="state == 'submitted'"
                            decoration-warning="state == 'subsanation'"
@@ -58,7 +60,10 @@
                                     invisible="state != 'submitted'" groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Emails the applicant the documents marked as needing changes, and the corrections deadline of the call."/>
                             <button name="action_exclude" type="object" string="Exclude"
-                                    invisible="state not in ('submitted', 'subsanation')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="state not in ('submitted', 'subsanation', 'admitted')" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_send_interview_call" type="object" string="Send interview call"
+                                    invisible="state != 'admitted' or not interview_date" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Emails the applicant the interview's date and place. At least 24 hours ahead."/>
                             <button name="action_back_to_review" type="object" string="Back to review"
                                     invisible="state not in ('admitted', 'excluded')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         </div>
@@ -115,6 +120,85 @@
                                     <field name="exclusion_reason" readonly="not can_manage"/>
                                 </group>
                             </page>
+                            <page string="Interview" name="interview" invisible="state not in ('admitted', 'excluded')">
+                                <group>
+                                    <group>
+                                        <field name="interview_date" readonly="not can_manage"/>
+                                        <field name="interview_place" readonly="not can_manage"/>
+                                        <field name="interview_call_date"/>
+                                    </group>
+                                    <group>
+                                        <field name="interview_general"/>
+                                        <field name="interview_english"/>
+                                        <field name="interview_complete"/>
+                                    </group>
+                                </group>
+                                <field name="interview_ids" readonly="not can_manage" groups="ems.group_erasmus,ems.group_academic_admin">
+                                    <list editable="bottom">
+                                        <field name="evaluator_id" options="{'no_create': True}"/>
+                                        <field name="state" widget="badge" decoration-success="state == 'submitted'"/>
+                                        <field name="general_score"/>
+                                        <field name="english_score"/>
+                                    </list>
+                                </field>
+                                <group>
+                                    <field name="single_interview_reason" readonly="not can_manage"/>
+                                </group>
+                            </page>
+                            <page string="Scoring" name="scoring" invisible="not scoring_frozen_date">
+                                <group>
+                                    <group string="Total">
+                                        <field name="score_total"/>
+                                        <field name="score_complete"/>
+                                        <field name="is_eligible"/>
+                                        <field name="rank"/>
+                                        <field name="needs_draw" invisible="not needs_draw"/>
+                                        <field name="draw_order" readonly="not can_manage" invisible="not needs_draw and not draw_order"/>
+                                        <field name="scoring_frozen_date"/>
+                                    </group>
+                                    <group string="Criteria">
+                                        <field name="score_a"/>
+                                        <field name="score_b"/>
+                                        <field name="score_c"/>
+                                        <field name="score_d" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="score_e"/>
+                                        <field name="score_f"/>
+                                    </group>
+                                </group>
+                                <group>
+                                    <group string="A. Record average">
+                                        <field name="grade_average"/>
+                                        <field name="grade_average_from_ems" invisible="1"/>
+                                        <field name="can_type_average" invisible="1"/>
+                                        <field name="grade_average_manual" invisible="grade_average_from_ems" readonly="not can_type_average"/>
+                                        <field name="grade_average_manual_note" invisible="grade_average_from_ems" readonly="not can_type_average"/>
+                                        <field name="grade_average_manual_user_id" invisible="not grade_average_manual_user_id"/>
+                                        <field name="grade_average_manual_date" invisible="not grade_average_manual_user_id"/>
+                                    </group>
+                                    <group string="Checked by the Erasmus team">
+                                        <field name="language_level" readonly="not can_manage"/>
+                                        <field name="fewer_opportunities_check" readonly="not can_manage"/>
+                                        <field name="first_mobility" readonly="not can_manage"/>
+                                        <field name="strike_count"/>
+                                    </group>
+                                </group>
+                                <field name="grade_line_ids">
+                                    <list>
+                                        <field name="course_name"/>
+                                        <field name="subject_name"/>
+                                        <field name="hours"/>
+                                        <field name="grade"/>
+                                    </list>
+                                </field>
+                                <field name="strike_ids" groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"
+                                       invisible="not strike_ids">
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="group_id"/>
+                                        <field name="reason_id"/>
+                                    </list>
+                                </field>
+                            </page>
                             <page string="Answers" name="answers">
                                 <group>
                                     <field name="previous_mobility" readonly="not can_manage"/>
@@ -130,6 +214,42 @@
                     <chatter/>
                 </form>
             </field>
+        </record>
+
+        <!-- Issue #684: the admitted applications of a call, per modality, in ranking order. -->
+        <record id="view_erasmus_ranking_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.ranking.list</field>
+            <field name="model">ems.erasmus.application</field>
+            <field name="priority">20</field>
+            <field name="arch" type="xml">
+                <list string="Ranking" create="false" default_order="modality_id, rank, score_total desc"
+                      decoration-muted="not score_complete" decoration-danger="score_complete and not is_eligible"
+                      decoration-warning="needs_draw">
+                    <field name="modality_id"/>
+                    <field name="rank"/>
+                    <field name="partner_id"/>
+                    <field name="score_a"/>
+                    <field name="score_b"/>
+                    <field name="score_c"/>
+                    <field name="score_d" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="score_e"/>
+                    <field name="score_f"/>
+                    <field name="score_total"/>
+                    <field name="score_complete"/>
+                    <field name="is_eligible"/>
+                    <field name="needs_draw" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="action_erasmus_ranking" model="ir.actions.act_window">
+            <field name="name">Ranking</field>
+            <field name="res_model">ems.erasmus.application</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('state', '=', 'admitted')]</field>
+            <field name="context">{}</field>
+            <field name="search_view_id" ref="view_erasmus_application_search"/>
+            <field name="view_ids" eval="[(5, 0, 0), (0, 0, {'view_mode': 'list', 'view_id': ref('view_erasmus_ranking_list')})]"/>
         </record>
 
         <record id="action_erasmus_application" model="ir.actions.act_window">

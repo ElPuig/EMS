@@ -2,14 +2,29 @@
 <odoo>
     <data>
         <!-- Issue #683: the Erasmus team manages calls and applications; the Head of Studies and
-             the Director open the applications for the serious-sanction check. -->
+             the Director open the applications for the serious-sanction check. Issue #684: the
+             Secretariat opens them to type a record average from a certificate, and whoever has an
+             interview to score (ems.group_erasmus_evaluator) sees only "My evaluations". -->
         <menuitem name="Erasmus+" sequence="9" id="menu_erasmus"
-                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_secretary,ems.group_erasmus_evaluator,ems.group_academic_admin"/>
 
         <menuitem name="Applications" sequence="1" id="menu_erasmus_applications"
-                  parent="menu_erasmus" action="action_erasmus_application"/>
+                  parent="menu_erasmus" action="action_erasmus_application"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
 
-        <menuitem name="Calls" sequence="2" id="menu_erasmus_calls"
+        <menuitem name="Ranking" sequence="2" id="menu_erasmus_ranking"
+                  parent="menu_erasmus" action="action_erasmus_ranking"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+
+        <menuitem name="Interviews" sequence="3" id="menu_erasmus_interviews"
+                  parent="menu_erasmus" action="action_erasmus_interview"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+
+        <menuitem name="My evaluations" sequence="4" id="menu_erasmus_my_interviews"
+                  parent="menu_erasmus" action="action_erasmus_my_interviews"
+                  groups="ems.group_erasmus_evaluator"/>
+
+        <menuitem name="Calls" sequence="5" id="menu_erasmus_calls"
                   parent="menu_erasmus" action="action_erasmus_call"
                   groups="ems.group_erasmus,ems.group_academic_admin"/>
     </data>

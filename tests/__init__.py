@@ -255,5 +255,7 @@ from . import test_mail_reply_to
 from . import test_title_registration
 from . import test_title_registration_tour
 from . import test_erasmus
+from . import test_erasmus_scoring
 from . import test_portal_erasmus
 from . import test_erasmus_tour
+from . import test_erasmus_scoring_tour

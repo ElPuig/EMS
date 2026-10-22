@@ -60,12 +60,12 @@ Cuando hay que corregir un documento o falta uno obligatorio, márcalo y haz cli
 ## 5. Admitir o excluir
 
 - **Admitir**: las dos comprobaciones de admisión deben estar en *Cumple* y todos los documentos obligatorios en *Válido*.
-- **Excluir**: primero escribe el motivo de exclusión.
+- **Excluir**: primero escribe el motivo de exclusión. También funciona con una solicitud admitida, por ejemplo cuando el alumno no se presenta a la entrevista.
 - **Volver a revisión** deshace cualquiera de las dos decisiones.
 
 ## 6. Cerrar la convocatoria
 
-Cuando termine el plazo de solicitud, haz clic en **Acciones > Cerrar las solicitudes**. Las solicitudes que nunca se enviaron quedan como *No presentada*.
+Cuando termine el plazo de solicitud, haz clic en **Acciones > Cerrar las solicitudes**. Las solicitudes que nunca se enviaron quedan como *No presentada*, y EMS guarda la nota media del expediente y los avisos de conducta del resto para la baremación: consulta [Baremación y entrevistas](scoring-and-interviews.md).
 
 ---
 

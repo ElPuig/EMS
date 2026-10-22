@@ -383,6 +383,15 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
+        <!-- Issue #684: whoever has an Erasmus+ interview to score (ems.erasmus.interview). Managed by
+             EMS itself when interviews are assigned or removed (res.users._ems_sync_erasmus_evaluator_group),
+             never by hand, hence hidden. Its record rule shows each evaluator only their own interviews. -->
+        <record model="res.groups" id="group_erasmus_evaluator">
+            <field name="name">Erasmus+ evaluator</field>
+            <field name="comment">Has Erasmus+ interviews to score.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
         <record model="res.groups" id="group_academic_admin">
             <field name="name">Administrator</field>
             <field name="comment">All access rights for the Academic block.</field>

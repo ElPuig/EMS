@@ -110,3 +110,17 @@ class TestPortalErasmus(HttpCase):
         self._login(self.outsider_user)
         response = self.url_open(f'/my/erasmus/call/{self.call.id}/rules')
         self.assertNotEqual(response.content, b'%PDF-1.4')
+
+    def test_admitted_applicant_sees_the_interview_call(self):
+        """Issue #684: once called, the portal shows the interview's date and place."""
+        self._login(self.student_user)
+        self._save(submit=True)
+        application = self._application()
+        application._ems_set_state('admitted')
+        application.write({'interview_date': fields.Datetime.now() + timedelta(days=3),
+                           'interview_place': 'Room E12'})
+        self.assertNotIn('o_ems_erasmus_interview', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        application.action_send_interview_call()
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_interview', page)
+        self.assertIn('Room E12', page)

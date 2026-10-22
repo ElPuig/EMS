@@ -39,7 +39,11 @@ Fins a la data de tancament encara la pots modificar i tornar a enviar: cada veg
 
 Si falta un document o cal corregir-lo, rebràs un correu amb la llista i el termini. Obre la teva sol·licitud al portal: els documents que cal corregir surten marcats en vermell. Adjunta els fitxers nous i torna a fer clic a **Envia la sol·licitud**. Si no l'esmenes a temps, la sol·licitud quedarà exclosa.
 
-## 5. Seguir la sol·licitud
+## 5. L'entrevista
+
+Si la teva sol·licitud és admesa, rebràs un correu amb la data i el lloc de l'entrevista personal, com a mínim 24 hores abans. També els veuràs a la teva sol·licitud al portal. Una part de l'entrevista es fa en anglès. Arriba-hi 15 minuts abans: no presentar-s'hi suposa l'exclusió, excepte per causa de força major justificada.
+
+## 6. Seguir la sol·licitud
 
 La pàgina Erasmus+ mostra l'estat de la teva sol·licitud: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa* o *Exclosa*.
 

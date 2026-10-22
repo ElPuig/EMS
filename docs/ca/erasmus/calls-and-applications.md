@@ -60,12 +60,12 @@ Quan un document s'ha de corregir o en falta un d'obligatori, marca'l i fes clic
 ## 5. Admetre o excloure
 
 - **Admet**: les dues comprovacions d'admissió han de ser *Compleix* i tots els documents obligatoris, *Vàlid*.
-- **Exclou**: primer escriu el motiu d'exclusió.
+- **Exclou**: primer escriu el motiu d'exclusió. També funciona amb una sol·licitud admesa, per exemple quan l'alumne no es presenta a l'entrevista.
 - **Torna a revisió** desfà qualsevol de les dues decisions.
 
 ## 6. Tancar la convocatòria
 
-Quan s'acabi el termini de sol·licitud, fes clic a **Accions > Tanca les sol·licituds**. Les sol·licituds que no s'han enviat mai queden com a *No presentada*.
+Quan s'acabi el termini de sol·licitud, fes clic a **Accions > Tanca les sol·licituds**. Les sol·licituds que no s'han enviat mai queden com a *No presentada*, i l'EMS desa la mitjana de l'expedient i els avisos de conducta de la resta per a la baremació: vegeu [Baremació i entrevistes](scoring-and-interviews.md).
 
 ---
 

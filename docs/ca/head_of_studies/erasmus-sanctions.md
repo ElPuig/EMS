@@ -17,6 +17,8 @@ La convocatòria Erasmus+ exclou l'alumnat amb una sanció per conductes greumen
 
 Pots obrir les sol·licituds i els seus documents no confidencials, però només pots modificar aquesta comprovació: la resta de la sol·licitud la gestiona l'equip Erasmus.
 
+També pots introduir la mitjana de l'expedient d'un alumne sense notes a l'EMS, a partir del certificat dels estudis anteriors: vegeu [Erasmus+: introduir la mitjana de l'expedient](../secretary/erasmus-record-average.md).
+
 ---
 
 [← Tornar a l'índex de Cap d'Estudis](index.md)

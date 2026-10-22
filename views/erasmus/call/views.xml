@@ -41,6 +41,8 @@
                             <button name="action_view_applications" type="object" class="oe_stat_button" icon="fa-users">
                                 <field name="application_count" widget="statinfo" string="Applications"/>
                             </button>
+                            <button name="action_view_ranking" type="object" class="oe_stat_button" icon="fa-trophy"
+                                    string="Ranking" invisible="state != 'closed'"/>
                         </div>
                         <div class="oe_title">
                             <h1><field name="name" placeholder="e.g. Erasmus+ internships 2026-27"/></h1>
@@ -55,6 +57,8 @@
                                 <field name="date_open"/>
                                 <field name="date_close"/>
                                 <field name="subsanation_deadline"/>
+                                <field name="interview_deadline"/>
+                                <field name="min_score"/>
                                 <field name="is_accepting"/>
                             </group>
                         </group>

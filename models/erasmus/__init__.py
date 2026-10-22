@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from . import (call, application, partner)
+from . import (call, application, interview, partner)

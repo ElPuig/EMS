@@ -348,6 +348,7 @@
 
         'views/erasmus/call/views.xml',
         'views/erasmus/application/views.xml',
+        'views/erasmus/interview/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',

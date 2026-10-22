@@ -12,10 +12,26 @@
         </record>
 
         <record id="rule_erasmus_application_document_not_confidential" model="ir.rule">
-            <field name="name">Erasmus application document: not confidential (Head of Studies)</field>
+            <field name="name">Erasmus application document: not confidential (Head of Studies, Secretariat)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
-            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies')), (4, ref('ems.group_secretary'))]"/>
             <field name="domain_force">[('confidential', '=', False)]</field>
+        </record>
+
+        <!-- Issue #684: an evaluator sees only the interviews assigned to them, never the other
+             evaluator's score; the Erasmus team and the administrator see them all. -->
+        <record id="rule_erasmus_interview_all" model="ir.rule">
+            <field name="name">Erasmus interview: all (team, admin)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_interview"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_erasmus_interview_evaluator" model="ir.rule">
+            <field name="name">Erasmus interview: own (evaluator)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_interview"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_evaluator'))]"/>
+            <field name="domain_force">[('evaluator_id', '=', user.id)]</field>
         </record>
     </data>
 </odoo>

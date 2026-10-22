@@ -166,8 +166,8 @@ stateDiagram-v2
 |---|---|---|---|
 | (before sending for approval) Send the call | `action_send_call` | whoever can write it | emails the convened; no change of state |
 | (in draft) Delete | `action_delete` (`unlink`) | whoever can write it (`rule_minute_teacher_unlink`, draft only) | its agenda, lines and agreements go with it, and its NFC session while still a draft; `_unlink_only_draft` refuses any other state, for every role |
-| Start the meeting | `action_start_meeting` | whoever can write it | the minute opens for writing |
-| Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | — |
+| Start the meeting | `action_start_meeting` | whoever can write it | the minute opens for writing; with the NFC tag, its kiosk can be opened |
+| Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
 | Send for approval | `action_submit` | whoever can write it | NFC attendance copied into the lists; the development composed from the items |
 | Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; irreversible |
 

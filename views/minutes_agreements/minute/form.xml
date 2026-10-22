@@ -18,10 +18,10 @@
                                  minute on, and approving cannot be undone. -->
                             <button name="action_start_meeting" string="Start the meeting" type="object" invisible="not can_edit or state != 'draft' or type_kind == 'record'"
                                     confirm="The meeting starts and its minute opens for writing. Start it?"/>
-                            <button name="action_back_to_draft" string="Back to preparing the meeting" type="object" invisible="not can_edit or state != 'meeting'"
+                            <button name="action_back_to_draft" string="Back to preparing the meeting" type="object" invisible="not can_edit or state != 'meeting' or presence_state in ('open', 'closed')"
                                     confirm="The meeting goes back to being prepared. Go back?"/>
                             <button name="action_correct_attendance" string="Correct the attendance" type="object"
-                                    invisible="not can_edit or not presence_id or attendance_mode != 'nfc' or state == 'approved' or type_kind == 'record'"
+                                    invisible="not can_edit or not presence_id or attendance_mode != 'nfc' or state in ('draft', 'approved') or type_kind == 'record'"
                                     help="Mark by hand whoever left their tag at home or had it fail, or justify an absence."/>
                             <button name="action_submit" string="Send for approval" type="object"
                                     invisible="not can_edit or state != 'meeting' and (state != 'draft' or type_kind != 'record')"
@@ -100,13 +100,7 @@
                                 <field name="presence_state" invisible="1"/>
                                 <div class="alert alert-info d-flex align-items-center gap-3" role="status" invisible="attendance_mode != 'nfc'">
                                     <span invisible="presence_id">Save the minute to prepare its attendance kiosk.</span>
-                                    <span invisible="not presence_id or presence_state == 'closed'">The lists below fill in by themselves from the tags passed at the kiosk.</span>
-                                    <span invisible="presence_state != 'closed'">Attendance is closed: these are the people who passed their tag.</span>
-                                    <button name="action_open_attendance_kiosk" string="Open the kiosk" type="object" class="btn-primary"
-                                            invisible="not can_edit or not presence_id or presence_state == 'closed' or state == 'approved'"/>
-                                    <button name="action_close_attendance" string="Close attendance" type="object" class="btn-secondary"
-                                            invisible="not can_edit or presence_state != 'open' or state == 'approved'"
-                                            confirm="Whoever has not passed the tag will be recorded as absent. Close attendance?"/>
+                                    <span invisible="not presence_id">The kiosk opens once the meeting starts: then the lists fill in by themselves from the tags passed at it.</span>
                                 </div>
                                 <group>
                                     <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
@@ -204,9 +198,9 @@
                                     <span invisible="not presence_id or presence_state == 'closed'">The lists below fill in by themselves from the tags passed at the kiosk.</span>
                                     <span invisible="presence_state != 'closed'">Attendance is closed: these are the people who passed their tag.</span>
                                     <button name="action_open_attendance_kiosk" string="Open the kiosk" type="object" class="btn-primary"
-                                            invisible="not can_edit or not presence_id or presence_state == 'closed' or state == 'approved'"/>
+                                            invisible="not can_edit or not presence_id or presence_state == 'closed' or state != 'meeting'"/>
                                     <button name="action_close_attendance" string="Close attendance" type="object" class="btn-secondary"
-                                            invisible="not can_edit or presence_state != 'open' or state == 'approved'"
+                                            invisible="not can_edit or presence_state != 'open' or state != 'meeting'"
                                             confirm="Whoever has not passed the tag will be recorded as absent. Close attendance?"/>
                                 </div>
                                 <group>

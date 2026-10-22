@@ -108,6 +108,7 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
                                        'organisation': 'Tècnica de la planta de tractament', 'send_call': True})]
         # The same meeting with the NFC tag, for its attendance box.
         cls.nfc = _minute(datetime(2026, 11, 4, 16, 0), attendance_mode='nfc')
+        cls.nfc.action_start_meeting()  # the kiosk is offered once the meeting has started
 
         # A meeting being held, with an agreement of its own.
         cls.held = _minute(datetime(2026, 11, 4, 16, 0))
@@ -156,9 +157,9 @@ class TestDocsScreenshotsMinutes(DocsScreenshotMixin, HttpCase):
         self._capture(self._minute_url(self.draft), '.o_notebook', 'actes-03-assistencia.png', login=login,
                       wait_for='.o_field_widget[name=guest_ids] .o_data_row', run=self._room('.o_notebook .tab-content'), wait_after='.o_notebook',
                       marks=[('label[for^=attendee_ids]', 1, 'left'), ('.o_field_widget[name=guest_ids]', 2, 'top')])
-        self._capture(self._minute_url(self.nfc), '.o_notebook', 'actes-04-nfc.png', login=login,
-                      wait_for="button[name=action_open_attendance_kiosk]", run=self.HIDE_CHATTER, wait_after='.o_notebook',
-                      max_height=260)
+        self._capture(self._minute_url(self.nfc), "div[name=block_attendance]", 'actes-04-nfc.png', login=login,
+                      wait_for="button[name=action_open_attendance_kiosk]", run=self._show("div[name=block_attendance]"),
+                      wait_after="div[name=block_attendance]", max_height=260, beyond_viewport=False)
         self._capture(self._minute_url(self.draft), '.o_notebook', 'actes-05-punts.png', login=login,
                       wait_for=".o_notebook a.nav-link[name=agenda]", click=".o_notebook a.nav-link[name=agenda]",
                       wait_after='.o_field_widget[name=agenda_ids] .o_data_row')

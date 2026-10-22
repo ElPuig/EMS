@@ -232,10 +232,32 @@ class TestQualityMinute(TransactionCase):
         with self.assertRaises(UserError):
             self._minute(attendance_mode='nfc')
 
+    def test_attendance_waits_for_the_meeting_to_start(self):
+        """While the meeting is being prepared its session can be neither opened nor closed, from
+        the minute or from the session's own screen; once attendance is taken at the kiosk the
+        meeting no longer goes back to being prepared."""
+        minute = self._nfc_minute()
+        presence = minute.presence_id.sudo()
+        self.assertTrue(presence.waits_for_meeting)
+        for refused in (minute.action_open_attendance_kiosk, minute.action_close_attendance,
+                        minute.action_correct_attendance, presence.action_open):
+            with self.assertRaises(UserError):
+                refused()
+        self.assertEqual(presence.state, 'draft')
+        minute.action_start_meeting()
+        self.assertFalse(presence.waits_for_meeting)
+        minute.action_back_to_draft()  # nothing taken yet: still possible
+        minute.action_start_meeting()
+        minute.action_open_attendance_kiosk()
+        with self.assertRaises(UserError):
+            minute.action_back_to_draft()
+        self.assertEqual(minute.state, 'meeting')
+
     def test_the_lists_are_filled_from_the_tags(self):
         colleague_user = create_role_user(self, 'teacher', 'minute.colleague@example.com', name='Minute Colleague')
         colleague = create_role_employee(self, colleague_user, department_id=self.department.id)
         minute = self._nfc_minute()
+        minute.action_start_meeting()
         action = minute.action_open_attendance_kiosk()
         presence = minute.presence_id.sudo()
         self.assertEqual(presence.state, 'open')
@@ -250,6 +272,7 @@ class TestQualityMinute(TransactionCase):
 
     def test_closing_the_session_from_its_own_screen_fills_the_minute_too(self):
         minute = self._nfc_minute()
+        minute.action_start_meeting()
         presence = minute.presence_id.sudo()
         presence.action_open()
         presence.line_ids.filtered(lambda line: line.employee_id.id == self.employee.id).state = 'present'

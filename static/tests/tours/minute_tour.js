@@ -77,8 +77,9 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             run: "click",
         },
         {
-            trigger: "button[name='action_open_attendance_kiosk']",
-            content: "The kiosk of the meeting is ready to be opened",
+            // While the meeting is prepared the kiosk is not offered: it opens once the meeting starts.
+            trigger: ".o_notebook .alert-info:not(:has(button[name='action_open_attendance_kiosk']))",
+            content: "The kiosk waits for the meeting to start",
         },
         ...checkActions({ offered: ["action_send_call", "action_start_meeting", "action_delete"], notOffered: ["action_submit", "action_approve"] },
             "While it is prepared, a meeting offers to send its call, to start and to be deleted"),
@@ -87,6 +88,10 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: ".o_dialog .modal-footer .btn-primary",
             content: "Confirm the change of state",
             run: "click",
+        },
+        {
+            trigger: "div[name='block_attendance'] button[name='action_open_attendance_kiosk']",
+            content: "Once the meeting has started, its kiosk is ready to be opened",
         },
         {
             // The type lays the minute out: its text sections are there, each with its own box

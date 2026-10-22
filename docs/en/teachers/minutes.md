@@ -52,10 +52,11 @@ a meeting you attended, one of your department) opens **read-only**, with no act
    (1) The minute type, (2) whose meeting it is, (3) the date and time, (4) the room and (5) how attendance is taken.
 5. Choose how **attendance** is taken:
    - **Written by hand:** the **Attendance** tab already holds the list **filled in**, taken from the
-     scope (the department's members, the workgroup's, or the teachers of the group). Just move whoever
+     scope (the department's members, the workgroup's, or the group's teachers and its tutor). Just move whoever
      did not come to **Absentees**.
-   - **With the NFC tag:** set the **duration** and save the minute. In the **Attendance** tab, **Open
-     the kiosk** opens the screen where each person passes their tag; **Close attendance** ends it and
+   - **With the NFC tag:** set the **duration** and save the minute. The kiosk is offered once the meeting
+     has started (see "Holding the meeting and writing the minute" below): then, in the **Attendance** block, **Open the kiosk** opens the
+     screen where each person passes their tag; **Close attendance** ends it and
      fills both lists: whoever passed the tag attended, everybody else is recorded as absent. If someone
      left their tag at home or it failed, **Actions → Correct the attendance** opens the session: if it
      is already closed, **Reopen** it, mark them by hand (present, or justified with a note) and close it

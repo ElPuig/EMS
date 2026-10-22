@@ -152,6 +152,9 @@ class EmsMeetingPresence(models.Model):
     # The minute that asked for this session, if any: whoever may write it may correct its
     # attendance by hand (security/rules/quality.xml), and a correction updates its lists.
     minute_ids = fields.One2many(string="Minutes", comodel_name="ems.minute", inverse_name="presence_id")
+    waits_for_meeting = fields.Boolean(
+        string="Waits for the meeting", compute="_compute_waits_for_meeting", compute_sudo=True,
+        help="The session of a minute still being prepared: it opens when its meeting starts.")
 
     convened_count = fields.Integer(string="Convened", compute="_compute_counts")
     present_count = fields.Integer(string="Present", compute="_compute_counts")
@@ -202,6 +205,11 @@ class EmsMeetingPresence(models.Model):
             presence.pending_count = states.count('pending')
             presence.justified_count = states.count('justified')
             presence.absent_count = states.count('absent')
+
+    @api.depends('minute_ids.state')
+    def _compute_waits_for_meeting(self):
+        for presence in self:
+            presence.waits_for_meeting = any(minute.state == 'draft' for minute in presence.minute_ids)
 
     @api.constrains('date', 'date_end', 'duration')
     def _check_ends_after_start(self):
@@ -276,6 +284,8 @@ class EmsMeetingPresence(models.Model):
         for presence in self:
             if presence.state != 'draft':
                 raise UserError(_("Only a draft meeting attendance can be opened."))
+            if presence.waits_for_meeting:
+                raise UserError(_("This attendance belongs to a minute: it opens when its meeting starts."))
             presence.state = 'open'
         return True
 

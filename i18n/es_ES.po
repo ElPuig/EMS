@@ -26251,3 +26251,37 @@ msgstr "El equipo docente de un grupo"
 #: code:addons/ems/models/meetings/presence.py:0
 msgid "Choose the group whose teaching team is convened."
 msgstr "Seleccione el grupo cuyo equipo docente se convoca."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
+msgid "This attendance belongs to a minute: it opens when its meeting starts."
+msgstr "Esta asistencia es de un acta: se abre cuando empieza la reunión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Attendance is taken once the meeting has started."
+msgstr "La asistencia se recoge una vez ha empezado la reunión."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Attendance has already been taken at the kiosk: the meeting can no longer go back to being prepared."
+msgstr "Ya se ha recogido la asistencia en el quiosco: la reunión ya no puede volver a la preparación."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The kiosk opens once the meeting starts: then the lists fill in by themselves from the tags passed at it."
+msgstr "El quiosco se abre una vez empieza la reunión: entonces las listas se rellenan solas con los tags que se pasan en él."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__waits_for_meeting
+msgid "Waits for the meeting"
+msgstr "Espera a la reunión"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_meeting_presence__waits_for_meeting
+msgid "The session of a minute still being prepared: it opens when its meeting starts."
+msgstr "La sesión de un acta que todavía se prepara: se abre cuando empieza la reunión."

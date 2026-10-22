@@ -207,6 +207,7 @@ class TestQualityMinuteAttendanceCorrection(MinuteRulesFixtures, TransactionCase
 
     def test_whoever_writes_the_minute_corrects_its_attendance(self):
         minute = self._nfc_minute()
+        minute.action_start_meeting()
         action = minute.with_user(self.user_a).action_correct_attendance()
         self.assertEqual((action['res_model'], action['res_id']), ('ems.meeting.presence', minute.presence_id.id))
         line = minute.presence_id.line_ids.filtered(lambda item: item.employee_id.id == self.employee_b.id)

@@ -52,9 +52,10 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 5. Elegid cómo se recoge la **asistencia**:
    - **Anotada a mano:** en la pestaña **Asistencia** ya encontraréis la lista **rellenada**, sacada del
      ámbito (los miembros del departamento, los del equipo de trabajo o el profesorado que da clase al
-     grupo). Solo hay que mover a **Personas que faltan** a quien no haya venido.
-   - **Con el tag NFC:** indicad la **duración** y guardad el acta. En la pestaña **Asistencia**, **Abrir
-     el quiosco** abre la pantalla donde cada persona pasa su tag; **Cerrar la asistencia** termina la
+     grupo y su tutor). Solo hay que mover a **Personas que faltan** a quien no haya venido.
+   - **Con el tag NFC:** indicad la **duración** y guardad el acta. El quiosco se ofrece una vez ha empezado
+     la reunión (véase «Hacer la reunión y redactar el acta», más abajo): entonces, en el bloque **Asistencia**, **Abrir el quiosco**
+     abre la pantalla donde cada persona pasa su tag; **Cerrar la asistencia** termina la
      recogida y rellena las dos listas: quien ha pasado el tag ha asistido, el resto consta como ausente.
      Si alguien se ha dejado el tag o no le ha funcionado, **Acciones → Corregir la asistencia** abre la
      sesión: si ya está cerrada, **Reabrir**, marcadlo a mano (presente, o justificado con la nota) y

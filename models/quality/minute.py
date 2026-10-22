@@ -803,6 +803,7 @@ class EmsMinute(models.Model):
         presence = self.presence_id.sudo()
         if not presence:
             raise UserError(_("This minute does not take attendance with the NFC tag."))
+        self._ems_check_meeting_held()
         if presence.state == 'draft':
             presence.action_open()
         return {'type': 'ir.actions.act_url', 'url': presence.kiosk_url, 'target': 'new'}
@@ -814,6 +815,8 @@ class EmsMinute(models.Model):
         self.check_access('write')
         if not self.presence_id:
             raise UserError(_("This minute does not take attendance with the NFC tag."))
+        if self.state == 'draft':
+            raise UserError(_("Attendance is taken once the meeting has started."))
         return {
             'type': 'ir.actions.act_window',
             'name': _("Correct the attendance"),
@@ -828,11 +831,17 @@ class EmsMinute(models.Model):
         """Stop taking attendance: whoever has not passed the tag by now was absent."""
         self.ensure_one()
         self.check_access('write')
+        self._ems_check_meeting_held()
         presence = self.presence_id.sudo()
         if presence.state == 'open':
             presence.action_close()
         self._ems_sync_attendance()
         return True
+
+    def _ems_check_meeting_held(self):
+        """The kiosk opens and closes only while the meeting is being held."""
+        if self.state != 'meeting':
+            raise UserError(_("Attendance is taken once the meeting has started."))
 
     def action_start_meeting(self):
         """From preparing the meeting to holding it: the minute opens for writing."""
@@ -855,6 +864,8 @@ class EmsMinute(models.Model):
     def action_back_to_draft(self):
         """Back to draft takes back the sending for approval too: the minute is no longer what
         was sent."""
+        if any(minute.state == 'meeting' and minute.presence_id and minute.presence_id.sudo().state != 'draft' for minute in self):
+            raise UserError(_("Attendance has already been taken at the kiosk: the meeting can no longer go back to being prepared."))
         result = super().action_back_to_draft()
         self.write({'submission_date': False, 'submitted_by_id': False})
         return result

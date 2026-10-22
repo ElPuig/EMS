@@ -6,8 +6,9 @@
             <field name="arch" type="xml">
                 <form string="Meeting attendance">
                     <header>
+                        <field name="waits_for_meeting" invisible="1"/>
                         <button name="action_open" string="Start attendance" type="object" class="btn-primary"
-                                invisible="state != 'draft'"/>
+                                invisible="state != 'draft' or waits_for_meeting"/>
                         <button name="action_open_kiosk" string="Open kiosk" type="object" class="btn-primary"
                                 invisible="state != 'open'"/>
                         <button name="action_load_convened" string="Load convened people" type="object"
@@ -21,6 +22,9 @@
                         <field name="state" widget="statusbar" statusbar_visible="draft,open,closed"/>
                     </header>
                     <sheet>
+                        <div class="alert alert-info" role="status" invisible="not waits_for_meeting">
+                            This attendance belongs to a minute: it opens when its meeting starts.
+                        </div>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="1"/>
                         <div class="oe_title">

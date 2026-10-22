@@ -3211,6 +3211,7 @@ msgstr "Delegat/da"
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/attachments_field.xml:0
 #: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.view_employee_public_kanban
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Delete"
 msgstr "Suprimeix"
 
@@ -25029,8 +25030,8 @@ msgstr "Persones a qui s'ha enviat la convocatòria"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "A call can only be sent for a meeting whose minute is not approved yet."
-msgstr "Només es pot enviar la convocatòria d'una reunió amb l'acta encara sense aprovar."
+msgid "A call can only be sent for a meeting whose minute has not been sent for approval yet."
+msgstr "Només es pot enviar la convocatòria d'una reunió amb l'acta encara sense enviar a aprovar."
 
 #. module: ems
 #. odoo-python
@@ -25594,3 +25595,13 @@ msgstr ""
 "                                    <span invisible=\"not presence_id or presence_state == 'closed'\">Les llistes de sota s'omplen soles amb els tags que es passen pel quiosc.</span>\n"
 "                                    <span invisible=\"presence_state != 'closed'\">L'assistència està tancada: aquestes són les persones que han passat el tag.</span>"
 
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The minute and everything written in it are deleted for good. Delete it?"
+msgstr "Se suprimirà definitivament l'acta i tot el que s'hi ha escrit. La voleu suprimir?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Only a minute still in draft can be deleted."
+msgstr "Només es pot suprimir una acta que encara sigui un esborrany."

@@ -110,9 +110,17 @@ files as usual.
 
 # Fixes
 
+## A meeting created by mistake can be deleted while in draft:
+
+Minutes had no way to be deleted. Whoever can write a minute now finds Actions → Delete while it is still a draft (it takes its agenda, lines, agreements and draft NFC attendance session with it); from the meeting on, deleting is refused for every role, administrators included.
+
 ## The NFC attendance box of a minute was in English:
 
 The three messages of the minute's NFC attendance box (save the minute first, the lists fill in by themselves, attendance is closed) are rendered by Odoo as a single translatable term, which had no Catalan or Spanish translation.
+
+## The call could still be sent once the minute was sent for approval:
+
+Actions → Send the call (and Send the call again) stayed available while the minute was "To approve". It now disappears as soon as the minute is sent for approval, and the server refuses it in that state too.
 
 # Internal changes
 

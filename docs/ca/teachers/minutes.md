@@ -85,7 +85,7 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 
 ## Convocar la reunió
 
-Mentre l'acta no estigui aprovada, **Accions → Envia la convocatòria** envia un correu a totes les persones
+Mentre l'acta no s'hagi enviat a aprovar, **Accions → Envia la convocatòria** envia un correu a totes les persones
 convocades (les de la llista d'assistents) amb la data, l'hora, el lloc, la modalitat, l'ordre del dia i un
 enllaç a l'acta de la reunió anterior, perquè la puguin llegir abans d'aprovar-la.
 
@@ -94,6 +94,9 @@ convocatòria** l'envia de nou, indicant que substitueix l'anterior. La data del
 l'acta.
 
 ![Desplegable Accions d'una acta en preparació, amb Envia la convocatòria i Comença la reunió](../../assets/teachers/actes-06-accions.png)
+
+Si heu creat una reunió per error, **Accions → Suprimeix** l'esborra amb tot el que s'hi ha escrit. Només
+es pot fer mentre l'acta és un esborrany: un cop comença la reunió, ja no es pot suprimir.
 
 
 ## Fer la reunió i redactar l'acta

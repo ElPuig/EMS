@@ -85,7 +85,7 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 
 ## Convocar la reunión
 
-Mientras el acta no esté aprobada, **Acciones → Enviar la convocatoria** envía un correo a todas las personas
+Mientras el acta no se haya enviado a aprobar, **Acciones → Enviar la convocatoria** envía un correo a todas las personas
 convocadas (las de la lista de asistentes) con la fecha, la hora, el lugar, la modalidad, el orden del día y
 un enlace al acta de la reunión anterior, para que puedan leerla antes de aprobarla.
 
@@ -94,6 +94,9 @@ la convocatoria** la envía de nuevo, indicando que sustituye a la anterior. La 
 en el acta.
 
 ![Desplegable Acciones de un acta en preparación, con Enviar la convocatoria y Empezar la reunión](../../assets/teachers/actes-06-accions.png)
+
+Si ha creado una reunión por error, **Acciones → Borrar** la elimina con todo lo que se ha escrito en ella.
+Solo se puede hacer mientras el acta es un borrador: una vez empieza la reunión, ya no se puede borrar.
 
 
 ## Hacer la reunión y redactar el acta

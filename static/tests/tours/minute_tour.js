@@ -80,8 +80,8 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: "button[name='action_open_attendance_kiosk']",
             content: "The kiosk of the meeting is ready to be opened",
         },
-        ...checkActions({ offered: ["action_send_call", "action_start_meeting"], notOffered: ["action_submit", "action_approve"] },
-            "While it is prepared, a meeting offers to send its call and to start"),
+        ...checkActions({ offered: ["action_send_call", "action_start_meeting", "action_delete"], notOffered: ["action_submit", "action_approve"] },
+            "While it is prepared, a meeting offers to send its call, to start and to be deleted"),
         ...clickAction("action_start_meeting", "Start the meeting"),
         {
             trigger: ".o_dialog .modal-footer .btn-primary",
@@ -178,6 +178,8 @@ registry.category("web_tour.tours").add("ems_minute_write", {
             trigger: ".o_statusbar_status .o_arrow_button_current",
             content: "The state moved on",
         },
+        ...checkActions({ offered: ["action_back_to_meeting"], notOffered: ["action_send_call", "action_delete"] },
+            "Sent for approval, it can no longer be called nor deleted"),
     ],
 });
 

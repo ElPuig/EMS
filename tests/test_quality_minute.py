@@ -4,7 +4,7 @@ from datetime import datetime
 from unittest.mock import patch
 
 from odoo import fields
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
 from .common import create_role_employee, create_role_user, mock_outgoing_email
@@ -375,17 +375,42 @@ class TestQualityMinute(TransactionCase):
         self.assertIn('replaces the one sent before', mails[1].body_html)
         self.assertIn('10:00', mails[1].body_html)
 
-    def test_no_call_for_an_approved_minute_or_without_recipients(self):
+    def test_no_call_once_sent_for_approval_or_without_recipients(self):
         self.employee.work_email = False
         minute = self._nfc_minute(attendance_mode='manual')
         with self.assertRaises(UserError):
             minute.action_send_call()
         self.mail_transport.reset_mock()
         self.employee.work_email = 'minute.writer@example.com'
-        minute.sudo().state = 'approved'
-        with self.assertRaises(UserError):
-            minute.action_send_call()
+        for state in ('to_approve', 'approved'):
+            minute.sudo().state = state
+            with self.assertRaises(UserError):
+                minute.action_send_call()
         self.mail_transport.assert_not_called()
+
+    # --- Deleting ---------------------------------------------------------------------------------
+
+    def test_the_writer_deletes_a_draft_minute_with_its_attendance_session(self):
+        minute = self._nfc_minute()
+        presence = minute.presence_id.sudo()
+        self.assertTrue(presence)
+        minute.action_delete()
+        self.assertFalse(minute.exists())
+        self.assertFalse(presence.exists())
+
+    def test_only_a_draft_minute_can_be_deleted(self):
+        minute = self._minute()
+        minute.state = 'meeting'
+        with self.assertRaises(UserError):
+            minute.unlink()
+
+    def test_somebody_outside_the_minute_cannot_delete_it(self):
+        outsider = create_role_user(self, 'teacher', 'minute.outsider@example.com')
+        create_role_employee(self, outsider, name='Minute Outsider')
+        minute = self._minute()
+        with self.assertRaises(AccessError):
+            minute.with_user(outsider).unlink()
+        self.assertTrue(minute.exists())
 
     # --- Holding the meeting ---------------------------------------------------------------------
 

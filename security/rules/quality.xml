@@ -50,6 +50,22 @@
                 ('redactor_employee_id', '=', False)]</field>
         </record>
 
+        <!-- Deleting: whoever writes it, only while it is a draft (one created by mistake). -->
+        <record model="ir.rule" id="rule_minute_teacher_unlink">
+            <field name="name">Minutes: the staff deletes its own, while in draft</field>
+            <field name="model_id" ref="ems.model_ems_minute"/>
+            <field name="groups" eval="[(4, ref('ems.group_teacher')), (4, ref('ems.group_secretary'))]"/>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="True"/>
+            <field name="domain_force">[('state', '=', 'draft'), '|', '|', '|',
+                ('approver_scope_user_ids', '=', user.id),
+                ('redactor_scope_user_ids', '=', user.id),
+                ('approver_role_id.employee_ids.user_id', '=', user.id),
+                ('redactor_employee_id', '=', False)]</field>
+        </record>
+
         <record model="ir.rule" id="rule_minute_oversight">
             <field name="name">Minutes: the quality committee, quality coordination and the administrator see them all</field>
             <field name="model_id" ref="ems.model_ems_minute"/>

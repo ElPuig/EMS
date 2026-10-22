@@ -9,10 +9,10 @@
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_send_call" string="Send the call" type="object"
-                                    invisible="not can_edit or state == 'approved' or type_kind == 'record' or call_sent_datetime"
+                                    invisible="not can_edit or state in ('to_approve', 'approved') or type_kind == 'record' or call_sent_datetime"
                                     confirm="The call will be emailed to everybody convened, with the date, time and place of the meeting and its agenda. Send it?"/>
                             <button name="action_send_call" string="Send the call again" type="object"
-                                    invisible="not can_edit or state == 'approved' or type_kind == 'record' or not call_sent_datetime"
+                                    invisible="not can_edit or state in ('to_approve', 'approved') or type_kind == 'record' or not call_sent_datetime"
                                     confirm="Everybody convened will receive the call again, as an update of the one already sent. Send it?"/>
                             <!-- Every change of state asks first: a click in the wrong place must not move a
                                  minute on, and approving cannot be undone. -->
@@ -33,6 +33,8 @@
                                     confirm="The minute goes back to the meeting to be corrected. Go back?"/>
                             <button name="action_back_to_draft" string="Back to draft" type="object" invisible="not can_edit or state != 'to_approve' or type_kind != 'record'"
                                     confirm="The record goes back to draft to be corrected. Go back?"/>
+                            <button name="action_delete" string="Delete" type="object" invisible="not can_edit or state != 'draft'"
+                                    confirm="The minute and everything written in it are deleted for good. Delete it?"/>
                         </div>
                         <field name="call_sent_datetime" invisible="1"/>
                         <field name="can_edit" invisible="1"/>

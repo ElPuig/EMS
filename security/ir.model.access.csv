@@ -132,8 +132,8 @@ ems.access_ems_subject_teacher,ems.access_ems_subject_teacher,ems.model_ems_subj
 ems.access_ems_subject_secretary,ems.access_ems_subject_secretary,ems.model_ems_subject,ems.group_secretary,1,0,0,0
 
 ems.access_ems_minute_admin,ems.access_ems_minute_admin,ems.model_ems_minute,ems.group_academic_admin,1,1,1,1
-ems.access_ems_minute_teacher,ems.access_ems_minute_teacher,ems.model_ems_minute,ems.group_teacher,1,1,1,0
-ems.access_ems_minute_secretary,ems.access_ems_minute_secretary,ems.model_ems_minute,ems.group_secretary,1,1,1,0
+ems.access_ems_minute_teacher,ems.access_ems_minute_teacher,ems.model_ems_minute,ems.group_teacher,1,1,1,1
+ems.access_ems_minute_secretary,ems.access_ems_minute_secretary,ems.model_ems_minute,ems.group_secretary,1,1,1,1
 
 ems.access_ems_content_admin,ems.access_ems_content_admin,ems.model_ems_content,ems.group_academic_admin,1,1,1,1
 ems.access_ems_content_teacher,ems.access_ems_content_teacher,ems.model_ems_content,ems.group_teacher,1,0,0,0

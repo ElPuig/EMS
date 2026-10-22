@@ -86,7 +86,7 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 
 ## Calling the meeting
 
-While the minute is not approved, **Actions → Send the call** emails everybody convened (the people in the
+Until the minute is sent for approval, **Actions → Send the call** emails everybody convened (the people in the
 attendee list) the date, time, place and modality of the meeting, its agenda and a link to the minute of
 the previous meeting, so they can read it before approving it.
 
@@ -94,6 +94,9 @@ If anything changes afterwards (the date, the time, the place or the items), **A
 again** sends it once more, saying it replaces the earlier one. The minute keeps the date it was last sent.
 
 ![Actions dropdown of a minute being prepared, with Send the call and Start the meeting](../../assets/teachers/actes-06-accions.png)
+
+If you created a meeting by mistake, **Actions → Delete** removes it with everything written in it. This
+only works while the minute is a draft: once the meeting starts, it can no longer be deleted.
 
 
 ## Holding the meeting and writing the minute

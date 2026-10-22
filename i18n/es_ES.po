@@ -3211,6 +3211,7 @@ msgstr "Delegado/a"
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/attachments_field.xml:0
 #: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.view_employee_public_kanban
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 msgid "Delete"
 msgstr "Borrar"
 
@@ -25033,8 +25034,8 @@ msgstr "Personas a las que se ha enviado la convocatoria"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
-msgid "A call can only be sent for a meeting whose minute is not approved yet."
-msgstr "Solo se puede enviar la convocatoria de una reunión cuya acta aún no está aprobada."
+msgid "A call can only be sent for a meeting whose minute has not been sent for approval yet."
+msgstr "Solo se puede enviar la convocatoria de una reunión cuya acta aún no se ha enviado a aprobar."
 
 #. module: ems
 #. odoo-python
@@ -25598,3 +25599,13 @@ msgstr ""
 "                                    <span invisible=\"not presence_id or presence_state == 'closed'\">Las listas de abajo se rellenan solas con los tags que se pasan por el quiosco.</span>\n"
 "                                    <span invisible=\"presence_state != 'closed'\">La asistencia está cerrada: estas son las personas que han pasado el tag.</span>"
 
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_minute_form
+msgid "The minute and everything written in it are deleted for good. Delete it?"
+msgstr "Se borrará definitivamente el acta y todo lo que se ha escrito en ella. ¿Quiere borrarla?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+msgid "Only a minute still in draft can be deleted."
+msgstr "Solo se puede borrar un acta que aún sea un borrador."

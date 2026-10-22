@@ -393,6 +393,15 @@ class EmsMinute(models.Model):
             self._ems_sync_presence()
         return result
 
+    @api.ondelete(at_uninstall=False)
+    def _unlink_only_draft(self):
+        """Only a minute still in draft can be deleted (one created by mistake): from the meeting on,
+        it is a record of what happened. Its attendance session goes with it while nobody has
+        passed a tag yet."""
+        if any(minute.state != 'draft' for minute in self):
+            raise UserError(_("Only a minute still in draft can be deleted."))
+        self.mapped('presence_id').sudo().filtered(lambda presence: presence.state == 'draft').unlink()
+
     def _scope_label(self):
         self.ensure_one()
         if self.department_id:
@@ -668,8 +677,8 @@ class EmsMinute(models.Model):
         self.ensure_one()
         self.check_access('write')
         self = self.with_context(lang=self._ems_centre_lang())
-        if self.state == 'approved' or self.type_kind == 'record':
-            raise UserError(_("A call can only be sent for a meeting whose minute is not approved yet."))
+        if self.state in ('to_approve', 'approved') or self.type_kind == 'record':
+            raise UserError(_("A call can only be sent for a meeting whose minute has not been sent for approval yet."))
         if not self.start_datetime:
             raise UserError(_("Set the date and time of the meeting before sending its call."))
         recipients = self.attendee_ids.filtered('work_email')
@@ -815,6 +824,11 @@ class EmsMinute(models.Model):
             if minute.state != 'to_approve':
                 raise UserError(_("Only a minute waiting for approval can go back to the meeting."))
             minute.write({'state': 'meeting', 'submission_date': False, 'submitted_by_id': False})
+
+    def action_delete(self):
+        """Delete the minute from its own form and go back to the list it was opened from."""
+        self.unlink()
+        return self.env['ir.actions.act_window']._for_xml_id('ems.action_minute')
 
     def action_back_to_draft(self):
         """Back to draft takes back the sending for approval too: the minute is no longer what

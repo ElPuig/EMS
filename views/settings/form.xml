@@ -113,6 +113,18 @@
                             </setting>
                         </block>
 
+                         <block title="Guard Duty Board Settings" name="ems_guard_duty_board_settings">
+                            <setting string="Come in later" help="When the first lessons of a group's day have no teacher, the guard duty board offers to tell the students and their families that they can come in later (or that they have no classes at all, if no lesson has a teacher)." id="ems_absence_change_late_entry">
+                                <field name="ems_absence_change_late_entry"/>
+                            </setting>
+                            <setting string="Leave earlier" help="When the last lessons of a group's day have no teacher, the guard duty board offers to tell the students and their families that they can leave earlier." id="ems_absence_change_early_leave">
+                                <field name="ems_absence_change_early_leave"/>
+                            </setting>
+                            <setting string="Longer break" help="When the lessons right before or after a break have no teacher, the guard duty board offers to make the break longer. Only the students are told, and students under 18 still cannot leave the centre, so those lessons keep needing a guard teacher." id="ems_absence_change_long_break">
+                                <field name="ems_absence_change_long_break"/>
+                            </setting>
+                        </block>
+
                          <block title="Student's Attendance Settings" name="ems_attendance_settings">
                             <setting string="Issue notification delay" help="Some attendance statuses (like miss or issue) will be notified (if not adult or authorized) to their families almost inmediatly. This setting setups how many delay is wanted between the assistance creation and its notification." id="attendance_issue_status_delay">
                                 <field name="attendance_issue_status_delay" class="text-center" style="width: 5ch;"/>

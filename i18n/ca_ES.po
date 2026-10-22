@@ -23157,6 +23157,7 @@ msgstr "%(group)s | el %(date)s algunes classes canvien d'hora"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
 #: code:addons/ems/models/communications/notice_arrangement.py:0
 msgid "Dear students,"
 msgstr "Benvolgut alumnat,"
@@ -23548,19 +23549,6 @@ msgid "Joins with"
 msgstr "S'uneix amb"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
-msgid ""
-"The other halves of the same split group. When a teacher is away, the guard "
-"duty board can propose that a teacher who teaches them the same subject "
-"teaches both halves together. Setting it on one half sets it on the other "
-"too, and both halves share their tutor, delegate and sub-delegate."
-msgstr ""
-"Les altres meitats del mateix grup desdoblat. Quan falta un docent, l'horari"
-" de guàrdies pot proposar que un docent que els fa la mateixa matèria faci "
-"classe a les dues meitats alhora. Si s'indica en una meitat, l'altra també "
-"el té, i les dues meitats comparteixen tutor, delegat i sotsdelegat."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/group.py:0
 msgid ""
@@ -23577,21 +23565,263 @@ msgid "%(group)s: %(field)s %(current)s will be replaced by %(new)s."
 msgstr "%(group)s: %(field)s %(current)s serà substituït per %(new)s."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/group.py:0
-msgid ""
-"The halves of a split group share their tutor, delegate and sub-delegate:"
-msgstr ""
-"Les meitats d'un grup desdoblat comparteixen tutor, delegat i sotsdelegat:"
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__stayed_employee_ids
+msgid "Co-teachers left on guard"
+msgstr "Docents en codocència que es queden de guàrdia"
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/contacts/group.py:0
-msgid "Do you want to link them anyway?"
-msgstr "Les vols enllaçar igualment?"
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "lesson moved"
+msgstr "classe moguda"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid ""
+"Swap (%(groups)s): %(teacher)s teach at %(target)s and %(absent)s at "
+"%(lesson)s."
+msgstr ""
+"Intercanvi (%(groups)s): %(teacher)s fan classe a les %(target)s i "
+"%(absent)s a les %(lesson)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s move their %(lesson)s lesson to %(target)s (%(groups)s)."
+msgstr ""
+"%(teacher)s passen la seva classe de les %(lesson)s a les %(target)s "
+"(%(groups)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "away then"
+msgstr "absent en aquella hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "busy then"
+msgstr "ocupat en aquella hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "their working day would get longer"
+msgstr "se li allargaria la jornada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid ""
+"%(teacher)s cannot follow the lesson (%(reason)s): on guard at %(time)s "
+"instead."
+msgstr ""
+"%(teacher)s no pot moure's amb la classe (%(reason)s): es queda de guàrdia a"
+" les %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Swap: %(teacher)s teach at %(time)s and %(absent)s at %(other_time)s."
+msgstr ""
+"Intercanvi: %(teacher)s fan classe a les %(time)s i %(absent)s a les "
+"%(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(teacher)s move their %(other_time)s lesson to %(time)s."
+msgstr ""
+"%(teacher)s passen la seva classe de les %(other_time)s a les %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "On guard at %(other_time)s instead: %(teachers)s."
+msgstr "De guàrdia a les %(other_time)s: %(teachers)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_late_entry
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_late_entry
+msgid "Groups may come in later"
+msgstr "Els grups poden entrar més tard"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_early_leave
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_early_leave
+msgid "Groups may leave earlier"
+msgstr "Els grups poden sortir abans"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_long_break
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_long_break
+msgid "Groups may have a longer break"
+msgstr "Els grups poden tenir un pati més llarg"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Guard Duty Board Settings"
+msgstr "Configuració del quadre de guàrdies"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Come in later"
+msgstr "Entrar més tard"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Leave earlier"
+msgstr "Sortir abans"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Longer break"
+msgstr "Pati més llarg"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "When the first lessons of a group's day have no teacher, the guard duty board offers to tell the students and their families that they can come in later (or that they have no classes at all, if no lesson has a teacher)."
+msgstr "Quan les primeres classes del dia d'un grup no tenen docent, el quadre de guàrdies proposa avisar l'alumnat i les famílies que poden entrar més tard (o que no tenen classe, si cap classe té docent)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "When the last lessons of a group's day have no teacher, the guard duty board offers to tell the students and their families that they can leave earlier."
+msgstr "Quan les últimes classes del dia d'un grup no tenen docent, el quadre de guàrdies proposa avisar l'alumnat i les famílies que poden sortir abans."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "When the lessons right before or after a break have no teacher, the guard duty board offers to make the break longer. Only the students are told, and students under 18 still cannot leave the centre, so those lessons keep needing a guard teacher."
+msgstr "Quan les classes just abans o després d'un pati no tenen docent, el quadre de guàrdies proposa allargar el pati. Només s'avisa l'alumnat, i els menors de 18 anys continuen sense poder sortir del centre, de manera que aquestes classes continuen necessitant un professor de guàrdia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Students under 18 cannot leave the centre during the break."
+msgstr "Els alumnes menors de 18 anys no poden sortir del centre durant el pati."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s: the students were told \"%(told)s\", which no longer matches the absences (now: %(change)s)."
+msgstr "%(group)s: es va comunicar «%(told)s» a l'alumnat, però ja no coincideix amb les absències (ara: %(change)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Notice to the students of %(groups)s: %(change)s."
+msgstr "Avís a l'alumnat de %(groups)s: %(change)s."
 
 #. module: ems
 #. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Only tell the students"
+msgstr "Només avisar l'alumnat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid ""
+"Joined groups: %(teacher)s teach %(groups)s together with %(joined)s at "
+"%(target)s, instead of at %(lesson)s."
+msgstr ""
+"Grups units: %(teacher)s fan classe a %(groups)s juntament amb %(joined)s a "
+"les %(target)s, en lloc de fer-ho a les %(lesson)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid ""
+"%(teacher)s teach the group together with %(joined)s at %(time)s, instead of"
+" at %(other_time)s."
+msgstr ""
+"%(teacher)s fan classe al grup juntament amb %(joined)s a les %(time)s, en "
+"lloc de fer-ho a les %(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "not with the other half then"
+msgstr "no és amb l'altra meitat en aquella hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Correction to the students of %(groups)s: %(change)s."
+msgstr "Rectificació a l'alumnat de %(groups)s: %(change)s."
+
+#. module: ems
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
+msgid ""
+"The other halves of the same split group. When a teacher is away, the guard "
+"duty board can propose that a teacher who teaches them the same subject "
+"teaches both halves together. Setting it on one half sets it on the other "
+"too. A half with no tutor, delegate or sub-delegate takes the other half's; "
+"replacing one it already has is asked first."
+msgstr ""
+"Les altres meitats del mateix grup desdoblat. Quan falta un docent, l'horari"
+" de guàrdies pot proposar que un docent que els fa la mateixa matèria faci "
+"classe a les dues meitats alhora. Si s'indica en una meitat, l'altra també "
+"el té. Una meitat sense tutor, delegat o sotsdelegat agafa els de l'altra "
+"meitat; abans de substituir-ne un que ja té, es demana confirmació."
+
+#. module: ems
+#. odoo-python
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"The halves of a split group usually share their tutor, delegate and sub-"
+"delegate. If you replicate them:"
+msgstr ""
+"Les meitats d'un grup desdoblat solen compartir tutor, delegat i "
+"sotsdelegat. Si els repliques:"
+
+#. module: ems
+#. odoo-python
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"Replicate them, or keep each half's own (co-tutors, a delegate per half)?"
+msgstr ""
+"Vols replicar-los o que cada meitat mantingui els seus (cotutors, un delegat"
+" per meitat)?"
+
+#. module: ems
+#. odoo-python
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"Only the tutor, delegate and sub-delegate of a group's other halves can be "
+"replicated."
+msgstr ""
+"Només es poden replicar el tutor, el delegat i el sotsdelegat a les altres "
+"meitats d'un grup."
+
+#. module: ems
+#. odoo-javascript
+#. module: ems
+#. odoo-javascript
 #: code:addons/ems/static/src/js/backend/group_form_controller.js:0
-msgid "Link these halves?"
-msgstr "Enllaçar aquestes meitats?"
+msgid "Replicate to the other halves?"
+msgstr "Vols replicar-ho a les altres meitats?"
+
+#. module: ems
+#. odoo-javascript
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Replicate"
+msgstr "Replicar"
+
+#. module: ems
+#. odoo-javascript
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Keep each half's own"
+msgstr "Cada meitat manté els seus"

@@ -234,3 +234,70 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_change", {
         },
     ],
 });
+
+// Issue #678, as the absent teacher's Department Chief: the 12:00 lesson is co-taught and one of
+// its teachers has another class at 9:00. The plan moves it with the other teacher and warns that
+// this one stays on guard; applied without the notice to the families, they show in the guard
+// column at 12:00. Seed data comes from TestAbsenceCoverageTour.test_absence_arrangement_co_teaching_tour.
+registry.category("web_tour.tours").add("ems_absence_arrangement_co_teaching", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
+            content: "Open the 9:00 lesson",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher moves their 12:00 lesson to 09:00'):contains('Tour Co-Teacher cannot follow the lesson (busy then): on guard at 12:00 instead.')",
+            content: "The step warns that the co-teacher who cannot follow the lesson stays on guard",
+        },
+        {
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Notice to the families') input:checked",
+            content: "Leave the notice to the families out",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Notice to the families') input:not(:checked)",
+            content: "The notice is unchecked",
+        },
+        {
+            trigger: ".o_guard_cover_assign:enabled",
+            content: "Apply the move",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='group_ids']:contains('TABTG')",
+            content: "The students' notice opens: the group has no students to send it to",
+        },
+        {
+            trigger: ".o_breadcrumb .o_back_button a, .o_breadcrumb li.breadcrumb-item:first-child a",
+            content: "Back to the board",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('12:00-13:00')) .o_guard_board_guard_badge:contains('Tour Co-Teacher'):contains('lesson moved')",
+            content: "The co-teacher is on guard at 12:00, tagged",
+        },
+    ],
+});

@@ -208,10 +208,11 @@ class EmsNoticeArrangement(models.Model):
         if lessons:
             paragraphs.append(Markup("<p>{}</p>").format(
                 _("Because a teacher is absent, these lessons of group %(group)s will be at a different time on %(date)s:", **values)))
-            paragraphs.append(self.env['ems.base'].build_html_list([moved(lesson) for lesson in lessons]))
+            # A co-taught lesson is one line per teacher in `lessons`, one for the students (issue #678).
+            paragraphs.append(self.env['ems.base'].build_html_list(list(dict.fromkeys(moved(lesson) for lesson in lessons))))
         if back:
             paragraphs.append(Markup("<p>{}</p>").format(
                 _("These lessons of group %(group)s will be at their usual time on %(date)s:", **values)))
-            paragraphs.append(self.env['ems.base'].build_html_list([
-                _("%(subject)s: %(time)s", subject=label(lesson), time=span(*lesson[2:4])) for lesson in back]))
+            paragraphs.append(self.env['ems.base'].build_html_list(list(dict.fromkeys(
+                _("%(subject)s: %(time)s", subject=label(lesson), time=span(*lesson[2:4])) for lesson in back))))
         return subject, Markup("").join(paragraphs)

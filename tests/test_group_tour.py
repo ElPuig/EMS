@@ -83,14 +83,14 @@ class TestGroupFillParentGroupsTour(HttpCase):
 class TestGroupJoinsWithTour(HttpCase):
     """Issue #676: the Department Chief (the least-privileged role that can edit a group) says on
     one half of a split group which group is its other half. That half had another tutor: the form
-    asks before replacing it. Then the delegate is chosen among the other half's students, and both
-    halves share tutor and delegate."""
+    asks, and the chief keeps it (issue #688). The delegate, chosen among the other half's students,
+    reaches the other half too (it had none); a new tutor reaches it when the chief replicates it."""
 
     def test_group_joins_with_tour(self):
         chief = create_role_user(self, 'department_chief', 'test_tour_joins_with_chief')
         level, study = create_level_study(self, 'TJWG', level={'name': 'Tour Joins With Level'})
-        tutor, other_tutor = self.env['hr.employee'].create([
-            {'name': f'Tour Joins With Tutor {n}', 'employee_type': 'teacher'} for n in (1, 2)])
+        tutor, other_tutor, new_tutor = self.env['hr.employee'].create([
+            {'name': f'Tour Joins With Tutor {n}', 'employee_type': 'teacher'} for n in (1, 2, 3)])
         half_a, half_b = self.env['ems.group'].create([
             {'course': 1, 'acronym': acronym, 'level_id': level.id, 'study_id': study.id, 'tutor_id': tutor_id}
             for acronym, tutor_id in (('A', tutor.id), ('B', other_tutor.id))])
@@ -102,4 +102,4 @@ class TestGroupJoinsWithTour(HttpCase):
 
         self.assertEqual((half_a.joinable_group_ids, half_b.joinable_group_ids), (half_b, half_a))
         for half in half_a | half_b:
-            self.assertEqual((half.tutor_id, half.delegate_id), (tutor, student), half.name)
+            self.assertEqual((half.tutor_id, half.delegate_id), (new_tutor, student), half.name)

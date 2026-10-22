@@ -46,8 +46,6 @@ const VIEWS = [
     { key: "schedule", label: _t("Guard duty schedule") },
 ];
 
-const MS_PER_DAY = 24 * 60 * 60 * 1000;
-
 // How often the current-time line moves down the grid: once a minute, its own resolution.
 const NOW_LINE_REFRESH_MS = 60 * 1000;
 
@@ -82,13 +80,20 @@ function fromIsoDate(iso) {
     return new Date(year, month - 1, day);
 }
 
+// `days` calendar days after `date` (before, if negative), at midnight. Never by adding
+// milliseconds: the day the clocks go back has 25 hours, so a week of 7 x 24h from a Monday landed
+// on Sunday 23:00, and Monday and Tuesday both showed as the 25th (issue #678, 25/10/2026).
+function addDays(date, days) {
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate() + days);
+}
+
 // The Monday of whichever week `date` falls in. A weekend date belongs to the week that just
 // happened (Saturday and Sunday follow their own Monday), which is also what makes picking a
 // weekend in the date input land on a real, showable weekday instead of nothing at all.
 function mondayOf(date) {
     const jsDay = date.getDay();
     const offset = jsDay === 0 ? 6 : jsDay - 1;
-    return new Date(date.getTime() - offset * MS_PER_DAY);
+    return addDays(date, -offset);
 }
 
 // Read-only, centre-wide board: one weekday visible at a time (tabs), morning/afternoon are
@@ -216,7 +221,7 @@ export class GuardDutyBoard extends Component {
     get days() {
         const monday = fromIsoDate(this.state.weekStart);
         return dayLabels().map((label, index) => {
-            const date = new Date(monday.getTime() + index * MS_PER_DAY);
+            const date = addDays(monday, index);
             return { index, label, date: toIsoDate(date), dayOfMonth: date.getDate() };
         });
     }
@@ -414,7 +419,7 @@ export class GuardDutyBoard extends Component {
 
     async shiftWeek(weeks) {
         const monday = fromIsoDate(this.state.weekStart);
-        this.state.weekStart = toIsoDate(new Date(monday.getTime() + weeks * 7 * MS_PER_DAY));
+        this.state.weekStart = toIsoDate(addDays(monday, weeks * 7));
         await this.loadBoard();
     }
 
@@ -459,6 +464,7 @@ export class GuardDutyBoard extends Component {
             arrangementsTitle: _t("Proposals for the absences"),
             arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
             noticeOnly: _t("Only tell the families"),
+            noticeOnlyStudents: _t("Only tell the students"),
             correctionsTitle: _t("Corrections to absences already organised"),
             correctionsHelp: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."),
             applyPlan: _t("Apply the checked steps"),
@@ -645,6 +651,13 @@ export class GuardDutyBoard extends Component {
     // The timetable change alone comes after the section's arrangement plans, numbered with them.
     noticePlanTitle(section) {
         return _t("Proposal %s:", section.plans.length + 1);
+    }
+
+    // A break is only told to the students (issue #679).
+    noticeOnlyLabel(section) {
+        return section.notices.every((action) => action.students_only)
+            ? this.actionLabels.noticeOnlyStudents
+            : this.actionLabels.noticeOnly;
     }
 
     arrangementCountLabel(absence) {

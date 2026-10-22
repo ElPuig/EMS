@@ -77,6 +77,11 @@ class ems_company(models.Model):
         string="Supporting document reminder (days)", default=1)
     ems_absence_document_escalation_days = fields.Integer(
         string="Missing supporting document report (days)", default=3)
+    # Issue #679: which timetable changes the guard duty board may propose when a teacher is away
+    # (see ems.course._enabled_absence_changes). All off unless the centre opts in.
+    ems_absence_change_late_entry = fields.Boolean(string="Groups may come in later", default=False)
+    ems_absence_change_early_leave = fields.Boolean(string="Groups may leave earlier", default=False)
+    ems_absence_change_long_break = fields.Boolean(string="Groups may have a longer break", default=False)
 
     schedule_import_first_entry_time = fields.Float(default=8.0)
     schedule_import_last_entry_time  = fields.Float(default=21.0)

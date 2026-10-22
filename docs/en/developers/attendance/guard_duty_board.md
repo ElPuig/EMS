@@ -999,8 +999,9 @@ lesson the teacher had with it at another hour is left free, exactly as a moved 
 (a notice can then free the group from it: typically both halves leave an hour earlier, each told by
 its own notice when its own day changes; the half that only receives the other one is told nothing).
 
-- **Halves** (`ems.course._split_partners(context)`): two groups sharing some lesson in the **weekly**
-  timetable (any day: nothing to configure, the timetable says it), restricted to those a teacher
+- **Halves** (`ems.course._split_partners(context)`): two groups set as halves of each other on their forms
+  (`ems.group.joinable_group_ids`, "Joins with", issue #676: sharing a lesson is not enough, DAM2A and
+  DAM2B share some without being halves), restricted to those a teacher
   teaches the same subject at different hours on the board's day. Read once per board load, lazily
   (only when plans are computed). `_linked_groups()` links them too, so both halves are planned
   together and `board_apply_plan()` accepts them.

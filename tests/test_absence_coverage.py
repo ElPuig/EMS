@@ -1497,23 +1497,25 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._absence(self.teacher_a, self.day)
         return both
 
-    def _split_groups_day(self, weekly_partners=True):
+    def _split_groups_day(self, halves=True):
         """group_a and group_b as the two halves of a split group (issue #660). Monday: teacher_b
         teaches both the same subject, group_a at 9 and group_b at 12, its last lesson; teacher_a,
         away all day, has group_b at 9, in the middle of its day, and group_a at 12, its last one;
         teacher_c (group_b at 8, a WC duty at 9, group_a 10-12) and teacher_guard (group_b 10-12)
-        fill the rest. The halves share a lesson on Tuesday: that is what makes them partners.
+        fill the rest. Their forms say they are halves of the same group (issue #676); they also
+        share a lesson on Tuesday, which alone does not make them halves.
         Without arrangements group_b needs a guard at 9; joining it to group_a's lesson with
         teacher_b frees its 12:00 lesson, and both halves leave at 12."""
         self._calendar_rows(self.teacher_a, ((9, 10, self.group_b), (12, 13, self.group_a)))
         self._calendar_rows(self.teacher_b, ((9, 10, self.group_a), (12, 13, self.group_b)))
         self._calendar_rows(self.teacher_c, ((8, 9, self.group_b), (9, 10, 'wc'), (10, 11, self.group_a), (11, 12, self.group_a)))
         self._calendar_rows(self.teacher_guard, ((10, 11, self.group_b), (11, 12, self.group_b)))
-        if weekly_partners:
-            self._new_calendar(self.teacher_guard_2, 'TABC 660 Tuesday').apply_schedule_changes([{
-                'dayofweek': '1', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'subject_id': self.subject.id,
-                'group_ids': (self.group_a | self.group_b).ids, 'name': 'TGDB', 'space_id': self.space.id,
-            }])
+        self._new_calendar(self.teacher_guard_2, 'TABC 660 Tuesday').apply_schedule_changes([{
+            'dayofweek': '1', 'hour_from': 8, 'hour_to': 9, 'day_period': 'morning', 'subject_id': self.subject.id,
+            'group_ids': (self.group_a | self.group_b).ids, 'name': 'TGDB', 'space_id': self.space.id,
+        }])
+        if halves:
+            self.group_a.joinable_group_ids = self.group_b
         self._absence(self.teacher_a, self.day)
 
     def _join_plan(self):
@@ -1532,8 +1534,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['label']
         self.assertIn(f"together with {self.group_a.name} at 09:00, instead of at 12:00", label)
 
-    def test_only_halves_sharing_a_weekly_lesson_are_joined(self):
-        self._split_groups_day(weekly_partners=False)
+    def test_groups_sharing_a_lesson_are_not_joined_unless_set_as_halves(self):
+        """Issue #676: DAM2A and DAM2B share lessons without being halves of a split group."""
+        self._split_groups_day(halves=False)
 
         self.assertFalse([step for plan in self._plans(self.group_b) for step in plan['steps']
                           if step['kind'] == 'join' and step['teacher'] == self.teacher_b])

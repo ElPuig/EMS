@@ -77,3 +77,29 @@ class TestGroupFillParentGroupsTour(HttpCase):
         self.start_tour("/odoo", "ems_group_fill_parent_groups", login=chief.login)
 
         self.assertEqual(group.parent_group_ids, main_groups)
+
+
+@tagged('post_install', '-at_install')
+class TestGroupJoinsWithTour(HttpCase):
+    """Issue #676: the Department Chief (the least-privileged role that can edit a group) says on
+    one half of a split group which group is its other half. That half had another tutor: the form
+    asks before replacing it. Then the delegate is chosen among the other half's students, and both
+    halves share tutor and delegate."""
+
+    def test_group_joins_with_tour(self):
+        chief = create_role_user(self, 'department_chief', 'test_tour_joins_with_chief')
+        level, study = create_level_study(self, 'TJWG', level={'name': 'Tour Joins With Level'})
+        tutor, other_tutor = self.env['hr.employee'].create([
+            {'name': f'Tour Joins With Tutor {n}', 'employee_type': 'teacher'} for n in (1, 2)])
+        half_a, half_b = self.env['ems.group'].create([
+            {'course': 1, 'acronym': acronym, 'level_id': level.id, 'study_id': study.id, 'tutor_id': tutor_id}
+            for acronym, tutor_id in (('A', tutor.id), ('B', other_tutor.id))])
+        student = self.env['res.partner'].create({
+            'name': 'Tour Joins With Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': half_b.id})
+
+        self.start_tour("/odoo", "ems_group_joins_with", login=chief.login)
+
+        self.assertEqual((half_a.joinable_group_ids, half_b.joinable_group_ids), (half_b, half_a))
+        for half in half_a | half_b:
+            self.assertEqual((half.tutor_id, half.delegate_id), (tutor, student), half.name)

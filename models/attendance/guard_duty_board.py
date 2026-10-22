@@ -1011,19 +1011,16 @@ class EmsCourseGuardDutyBoard(models.Model):
 
     def _split_partners(self, context):
         """`{group id: frozenset(group ids)}`: the other halves each group could be joined with on
-        the board's day (issue #660). Two groups are halves of the same one when they share some
-        lesson in the weekly timetable (no configuration: the timetable says it), and they can be
-        joined that day when a teacher teaches both the same subject at different hours. Read once
-        per board load, and only when arrangements are planned."""
+        the board's day (issue #660). Two groups are halves of the same one when their forms say so
+        ('Joins with', issue #676: sharing a lesson is not enough), and they can be joined that day
+        when a teacher teaches both the same subject at different hours. Read once per board load,
+        and only when arrangements are planned."""
         if 'partners' not in context:
-            week = self._get_guard_duty_board_attendance_ids().filtered(lambda attendance: len(attendance.group_ids) > 1)
-            weekly = defaultdict(set)
-            for attendance in week:
-                for group_id in attendance.group_ids.ids:
-                    weekly[group_id] |= set(attendance.group_ids.ids) - {group_id}
+            halves = {group.id: frozenset(group.joinable_group_ids.ids)
+                      for group in context['entries'].group_ids if group.joinable_group_ids}
             lessons = defaultdict(list)
             for attendance in context['entries']:
-                if attendance.subject_id and attendance.group_ids:
+                if attendance.subject_id and halves.keys() & set(attendance.group_ids.ids):
                     lessons[(attendance.employee_id.id, attendance.subject_id.id)].append(attendance)
             partners = defaultdict(set)
             for same_subject in lessons.values():
@@ -1032,7 +1029,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                         if overlaps(first.hour_from, first.hour_to, second.hour_from, second.hour_to):
                             continue
                         for group_id in first.group_ids.ids:
-                            partners[group_id] |= weekly.get(group_id, set()) & set(second.group_ids.ids)
+                            partners[group_id] |= halves.get(group_id, frozenset()) & set(second.group_ids.ids)
             context['partners'] = {group_id: frozenset(ids) for group_id, ids in partners.items() if ids}
         return context['partners']
 

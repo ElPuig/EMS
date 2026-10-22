@@ -23328,6 +23328,8 @@ msgstr "Mes de cierre de la preinscripción"
 msgid "Preenrollment End Time"
 msgstr "Hora de cierre de la preinscripción"
 
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "%s student(s) justified."
 msgstr "Alumnos justificados: %s."
@@ -23399,6 +23401,7 @@ msgstr ""
 "Estos alumnos ya tienen un justificante que se solapa con este periodo y se "
 "omitirán:"
 
+#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation__student_document_id
 msgid "The student's identity document, to look them up in other applications."
 msgstr "El documento de identidad del alumno, para encontrarlo en otras aplicaciones."
@@ -23409,6 +23412,8 @@ msgstr "El documento de identidad del alumno, para encontrarlo en otras aplicaci
 msgid "The resolution comments cannot be changed once the resolution is issued."
 msgstr "Los comentarios de la resolución no se pueden modificar una vez emitida la resolución."
 
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "Notice cancelled: %(subject)s"
 msgstr "Comunicado cancelado: %(subject)s"

@@ -23325,6 +23325,8 @@ msgstr "Mes de tancament de la preinscripció"
 msgid "Preenrollment End Time"
 msgstr "Hora de tancament de la preinscripció"
 
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/attendance/attendance_justification_wizard.py:0
 msgid "%s student(s) justified."
 msgstr "Alumnes justificats: %s."
@@ -23397,6 +23399,7 @@ msgstr ""
 "Aquests alumnes ja tenen un justificant que se superposa amb aquest període i "
 "s'ometran:"
 
+#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation__student_document_id
 msgid "The student's identity document, to look them up in other applications."
 msgstr "El document d'identitat de l'alumne, per trobar-lo en altres aplicacions."
@@ -23407,6 +23410,8 @@ msgstr "El document d'identitat de l'alumne, per trobar-lo en altres aplicacions
 msgid "The resolution comments cannot be changed once the resolution is issued."
 msgstr "Els comentaris de la resolució no es poden modificar un cop emesa la resolució."
 
+#. module: ems
+#. odoo-python
 #: code:addons/ems/models/communications/notice_absence_change.py:0
 msgid "Notice cancelled: %(subject)s"
 msgstr "Comunicat cancel·lat: %(subject)s"

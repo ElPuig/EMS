@@ -8,3 +8,9 @@
 - Review by the Erasmus team: each document marked valid or needing changes, requirements check, corrections request by email with the call's deadline (the student can then upload only what was asked for), admit (both checks met and every required document valid) or exclude (with a reason). Closing the call marks unsent drafts as not submitted.
 - The serious-sanction check is reserved to the Head of Studies or the Director, who can open the applications but change nothing else; confidential documents are only visible to the Erasmus team.
 - Manuals: new `erasmus/` role folder (team), an applicant manual for students and the sanction check for the Head of Studies, in Catalan, Spanish and English. Developer doc in `docs/en/developers/erasmus/erasmus.md`.
+
+# Fixes
+
+## Changing a role's security group now reaches the people who already hold it:
+
+- Linking a group to a role (or changing it) only took effect for people assigned the role afterwards; its current holders kept their old permissions. Now they gain the new group and lose the old one. Needed so the Erasmus coordinator gets the new Erasmus+ group when this version is deployed.

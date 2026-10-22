@@ -64,3 +64,21 @@ class TestRole(TransactionCase):
         roles = self.env['ems.role'].search([])
         colors = roles.mapped('color')
         self.assertEqual(len(colors), len(set(colors)), "Two or more roles share the exact same color.")
+
+    def test_linking_a_group_grants_it_to_the_current_holders(self):
+        # Issue #683: role_erasmus got its security group in an upgrade, while already assigned
+        # to the Erasmus coordinator - linking the group must reach the people who already hold
+        # the role, and unlinking it must take it away again.
+        role = self.env['ems.role'].create({'name': 'Test Role (Group Link)', 'employee_type': 'teacher',
+                                            'unipersonal': False})
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Role Group Link User', 'login': 'test_role_group_link'})
+        employee = self.env['hr.employee'].create({'name': 'Test Role Group Link', 'employee_type': 'teacher',
+                                                   'user_id': user.id})
+        role.write({'employee_ids': [(4, employee.id)]})
+        group = self.env.ref('ems.group_erasmus')
+        self.assertNotIn(group, user.groups_id)
+        role.group_id = group
+        self.assertIn(group, user.groups_id)
+        role.group_id = False
+        self.assertNotIn(group, user.groups_id)

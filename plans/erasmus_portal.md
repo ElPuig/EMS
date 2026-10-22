@@ -207,7 +207,7 @@ deadline. Never automatic.
 
 | | Criterion | Source in EMS |
 |---|---|---|
-| A | Record average × 4 (max 40) | **Validated by hand** by Secretariat, Erasmus team or Head of Studies: value, source (EMS / previous-studies certificate), date, author. The form shows the student's subject grades as help. Convalidated / exempt subjects excluded. No average = pending, never 0. |
+| A | Record average × 4 (max 40) | **Computed by EMS** (agreed 2026-10-22 with the coordinator, after Juan and Fer pointed out EMS holds every grade since 2024-25 and the RA ponderations): every module of the applicant's current cycle, all its years. Past years: `ems.student.year_record.subject.final_grade`. Current course: `ems.grade_subject_line.computed_score` when `internal_is_scored` - a provisional grade from the RAs evaluated so far (`_internal_from_outcomes`: RA-weighted, whole number, capped at 4 if an evaluated RA failed). Failed modules count with their grade; a module with nothing evaluated yet is left out (never 0); convalidated / exempt modules excluded. **Open: plain mean or weighted by module hours** (`ems.subject.total_hours`). Frozen at closing with the list of modules used. Manual value (certificate of previous studies, validated by Secretariat, Erasmus team or Head of Studies) only for applicants with no grades in EMS. |
 | B | Interview: general 20 + English 15 | 4.5. Both parts kept (English breaks ties). |
 | C | Language certificate, highest only: B1 2.5, B2 5, C1 7.5, C2 10 | Team, from the uploaded certificate. |
 | D | Fewer opportunities: 10 or 0 | Team, from the confidential evidence. |

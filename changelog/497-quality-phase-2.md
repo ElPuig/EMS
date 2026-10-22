@@ -132,7 +132,7 @@ The three messages of the minute's NFC attendance box (save the minute first, th
 
 ## A minute's NFC attendance waits for its meeting:
 
-While a meeting was still being prepared, its attendance kiosk could already be opened and closed, from the minute or from the session's own screen, so attendance could be taken (and closed) before the meeting existed. The kiosk is now offered, and accepted by the server, only once the meeting has started; until then the minute says the kiosk opens when the meeting starts, and the session cannot be started on its own. Once attendance has been taken at the kiosk, the meeting can no longer go back to being prepared.
+While a meeting was still being prepared, its attendance kiosk could already be opened and closed, from the minute or from the session's own screen, so attendance could be taken (and closed) before the meeting existed. The kiosk is now offered, and accepted by the server, only once the meeting has started; until then the minute says (in Catalan and Spanish too) that the kiosk opens when the meeting starts, and the session cannot be started on its own. Once attendance has been taken at the kiosk, the meeting can no longer go back to being prepared.
 
 ## The call could still be sent once the minute was sent for approval:
 

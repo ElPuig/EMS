@@ -26273,8 +26273,12 @@ msgstr "Ya se ha recogido la asistencia en el quiosco: la reunión ya no puede v
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
-msgid "The kiosk opens once the meeting starts: then the lists fill in by themselves from the tags passed at it."
-msgstr "El quiosco se abre una vez empieza la reunión: entonces las listas se rellenan solas con los tags que se pasan en él."
+msgid ""
+"<span invisible=\"presence_id\">Save the minute to prepare its attendance kiosk.</span>\n"
+"                                    <span invisible=\"not presence_id\">The kiosk opens once the meeting starts: then the lists fill in by themselves from the tags passed at it.</span>"
+msgstr ""
+"<span invisible=\"presence_id\">Guardad el acta para preparar el quiosco de asistencia.</span>\n"
+"                                    <span invisible=\"not presence_id\">El quiosco se abre una vez empieza la reunión: entonces las listas se rellenan solas con los tags que se pasan en él.</span>"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__waits_for_meeting

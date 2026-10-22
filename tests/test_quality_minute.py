@@ -253,6 +253,13 @@ class TestQualityMinute(TransactionCase):
             minute.action_back_to_draft()
         self.assertEqual(minute.state, 'meeting')
 
+    def test_the_nfc_box_is_translated(self):
+        """The box's messages are plain spans side by side, which Odoo extracts as one term: a
+        .po entry for a single sentence never matches it and the box stays in English."""
+        arch = self.env.ref('ems.view_minute_form').with_context(lang='ca_ES').arch_db
+        for sentence in ("El quiosc s'obre un cop comença la reunió", "Les llistes de sota s'omplen soles"):
+            self.assertIn(sentence, arch)
+
     def test_the_lists_are_filled_from_the_tags(self):
         colleague_user = create_role_user(self, 'teacher', 'minute.colleague@example.com', name='Minute Colleague')
         colleague = create_role_employee(self, colleague_user, department_id=self.department.id)

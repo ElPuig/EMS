@@ -23597,3 +23597,79 @@ msgstr "¿Quieres enlazarlas igualmente?"
 #: code:addons/ems/static/src/js/backend/group_form_controller.js:0
 msgid "Link these halves?"
 msgstr "¿Enlazar estas mitades?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_cover__stayed_employee_ids
+msgid "Co-teachers left on guard"
+msgstr "Codocentes que se quedan de guardia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "lesson moved"
+msgstr "clase movida"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid ""
+"Swap (%(groups)s): %(teacher)s teach at %(target)s and %(absent)s at "
+"%(lesson)s."
+msgstr ""
+"Intercambio (%(groups)s): %(teacher)s dan clase a las %(target)s y "
+"%(absent)s a las %(lesson)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(teacher)s move their %(lesson)s lesson to %(target)s (%(groups)s)."
+msgstr ""
+"%(teacher)s pasan su clase de las %(lesson)s a las %(target)s (%(groups)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "away then"
+msgstr "ausente a esa hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "busy then"
+msgstr "ocupado a esa hora"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "their working day would get longer"
+msgstr "se le alargaría la jornada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid ""
+"%(teacher)s cannot follow the lesson (%(reason)s): on guard at %(time)s "
+"instead."
+msgstr ""
+"%(teacher)s no puede moverse con la clase (%(reason)s): se queda de guardia "
+"a las %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Swap: %(teacher)s teach at %(time)s and %(absent)s at %(other_time)s."
+msgstr ""
+"Intercambio: %(teacher)s dan clase a las %(time)s y %(absent)s a las "
+"%(other_time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(teacher)s move their %(other_time)s lesson to %(time)s."
+msgstr "%(teacher)s pasan su clase de las %(other_time)s a las %(time)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "On guard at %(other_time)s instead: %(teachers)s."
+msgstr "De guardia a las %(other_time)s: %(teachers)s."

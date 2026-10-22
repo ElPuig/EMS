@@ -308,3 +308,30 @@ class TestAbsenceCoverageTour(HttpCase):
         self._board_fixture()
 
         self.start_tour("/odoo", "ems_not_on_guard", login=user.login)
+
+    def test_absence_arrangement_co_teaching_tour(self):
+        """Issue #678: the 12:00 lesson is co-taught, and one co-teacher has a class of another
+        group at 9:00. The plan moves the lesson with the other one, warning that this one stays on
+        guard; applied without the notice, they show in the guard column at 12:00."""
+        teacher, _guard, group = self._board_fixture(away=(9, 10))
+        mover = self._arrangement_teacher('Tour Move Teacher', (12, 13), group)
+        other_group = self.env['ems.group'].create({
+            'course': 1, 'acronym': 'TABTH', 'level_id': group.level_id.id, 'study_id': group.study_id.id,
+            'shift': 'morning'})
+        co_teacher = self.env['hr.employee'].create({'name': 'Tour Co-Teacher', 'employee_type': 'teacher'})
+        subject = self.env['ems.subject'].search([('code', '=', 'TABT001')])
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Tour Co-Teacher calendar', 'employee_id': co_teacher.id, 'attendance_ids': [(5, 0, 0)]})
+        co_teacher.resource_calendar_id = calendar
+        calendar.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_from + 1, 'day_period': 'morning',
+            'subject_id': subject.id, 'group_ids': [lesson_group.id], 'name': f'{lesson_group.acronym}: TABT',
+        } for hour_from, lesson_group in ((9, other_group), (12, group))])
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        step = self.env['ems.course']._get_arrangement_plans(day, group)[0]['steps'][0]
+        self.assertEqual((step['teacher'], step['stays']), (mover, co_teacher))
+
+        self.start_tour("/odoo", "ems_absence_arrangement_co_teaching", login=self.department_chief.login)
+
+        cover = self.env['ems.absence_cover'].search([('group_id', '=', group.id)])
+        self.assertEqual((cover.guard_employee_id, cover.stayed_employee_ids, cover.notice_id), (mover, co_teacher, cover.notice_id.browse()))

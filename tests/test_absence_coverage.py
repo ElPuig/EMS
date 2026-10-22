@@ -1212,11 +1212,13 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             'group_ids': [self.group_a.id], 'name': 'TGDBA: TGDB',
         }])
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
-        self.assertIn(('swap', self.teacher_guard, 11), self._summary(self._options()))
+        # teacher_guard co-teaches teacher_b's 11:00 lesson: the swap takes both (issue #678).
+        self.assertIn(('swap', self.teacher_b | self.teacher_guard, 11), self._summary(self._options()))
 
         cover, _notice_action = self._arrange('swap', self.teacher_guard, lesson=(11.0, 12.0))
+        cover = cover._decision_pack().filtered(lambda other: other.guard_employee_id == self.teacher_guard)
 
-        self.assertEqual(self._teaching_line(self.day, 8, 9)['guard_busy'], {self.teacher_guard.id: cover})
+        self.assertEqual(self._teaching_line(self.day, 8, 9)['guard_busy'][self.teacher_guard.id], cover)
         self.assertNotIn(self.teacher_guard, self.env['ems.course']._get_guard_candidates(self.day, 8, 9))
         data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))
@@ -1379,6 +1381,142 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             ('move', self.teacher_a, 8, 11, self.group_a),
             ('move', self.teacher_c, 8, 11, self.group_b),
         ])
+
+    # Co-teaching (issue #678): the teachers who give a lesson together are a pack. Moving or
+    # swapping it takes all of them; one who cannot follow it stays on guard while it is gone.
+
+    def _co_taught_last_lesson(self, *rows):
+        """_morning, with teacher_c co-teaching teacher_b's 11:00 lesson (same subject and room),
+        plus `rows` of teacher_c's own (see _calendar_rows)."""
+        self._morning()
+        self._calendar_rows(self.teacher_c, ((11, 12, self.group_a), *rows))
+
+    def _cell(self, hour_from, hour_to):
+        return next(cell for cell in self._teaching_line(self.day, hour_from, hour_to)['cells'] if cell['group'] == self.group_a)
+
+    def test_a_co_taught_lesson_moves_with_all_its_teachers(self):
+        self._co_taught_last_lesson()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+        both = self.teacher_b | self.teacher_c
+
+        plan = self._plans()[0]
+
+        self.assertEqual(self._plan_summary(plan), [
+            ('move', both, 11, 10, self.group_a), ('notice', ('early_leave', 11), self.group_a)])
+        self.assertFalse(plan['steps'][0]['stays'])
+        label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['label']
+        self.assertEqual(label, f"{self.teacher_b.name} and {self.teacher_c.name} move their 11:00 lesson to 10:00 ({self.group_a.name}).")
+
+        covers, notice_action = self._apply(plan)
+        self.Notice.browse(notice_action['res_id']).state = 'scheduled'
+
+        self.assertEqual(covers.guard_employee_id, both, "one cover per teacher who moves the lesson")
+        message = str(covers.student_notice_id.message)
+        self.assertEqual(message.count(f"{self.subject.name}: from 11:00-12:00 to 10:00-11:00"), 1,
+                         "the students are told about the lesson once, not once per teacher")
+        self.assertEqual(covers[0]._arrangement_label(),
+                         f"{self.teacher_b.name} and {self.teacher_c.name} move their 11:00 lesson to 10:00.")
+        self.assertEqual(self._cell(10, 11)['substitutes'], both)
+        self.assertEqual(self._cell(11, 12)['moved'], both, "nobody stays behind at 11")
+        self.assertFalse(self._teaching_line(self.day, 11, 12)['absences'], "the group has already left")
+        for teacher in both:
+            self.assertEqual(len(self._messages(teacher, 'Timetable arrangement')), 1)
+
+        self.Cover.with_user(self.department_chief).board_release(covers[0].id)
+
+        self.assertEqual(set(covers.mapped('state')), {'released'}, "the pack is one decision")
+
+    def test_an_absent_co_teacher_does_not_hold_the_lesson_back(self):
+        self._co_taught_last_lesson()
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+        self._absence(self.teacher_c, self.day)
+
+        plan = self._plans()[0]
+
+        self.assertEqual(self._plan_summary(plan)[0], ('move', self.teacher_b, 11, 10, self.group_a))
+        self.assertFalse(plan['steps'][0]['stays'], "away anyway: nobody is left on guard")
+
+    def test_a_co_teacher_who_cannot_follow_the_lesson_stays_on_guard(self):
+        # teacher_c teaches group_b at 10: they cannot bring the 11:00 lesson forward.
+        self._co_taught_last_lesson((10, 11, self.group_b))
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+
+        plan = self._plans()[0]
+
+        self.assertEqual(self._plan_summary(plan)[0], ('move', self.teacher_b, 11, 10, self.group_a),
+                         "better than losing the 10:00 lesson")
+        self.assertEqual(plan['steps'][0]['stays'], self.teacher_c)
+        self.assertEqual(self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['warnings'], [
+            f"{self.teacher_c.name} cannot follow the lesson (busy then): on guard at 11:00 instead."])
+
+        covers, _notice_action = self._apply(plan, keep=[0])
+
+        self.assertEqual((covers.guard_employee_id, covers.stayed_employee_ids), (self.teacher_b, self.teacher_c))
+        self.assertIn(f"On guard at 11:00 instead: {self.teacher_c.name}.", covers._arrangement_label())
+        self.assertTrue(self._messages(self.teacher_c, 'Timetable arrangement'), "they are told too")
+        self.assertEqual(self._cell(11, 12)['moved'], self.teacher_b | self.teacher_c)
+        self.assertEqual(self._teaching_line(self.day, 11, 12)['stayed_guards'], self.teacher_c)
+        data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+        guard = next(guard for line in data['lines'] if line['hour_from'] == 11
+                     for guard in line['guards'] if guard['id'] == self.teacher_c.id)
+        self.assertEqual(guard['stayed'], 'lesson moved')
+        self.assertIn(self.teacher_c, self.env['ems.course']._get_guard_candidates(self.day, 11, 12))
+        self.assertNotIn(self.teacher_c, self.env['ems.course']._get_guard_candidates(self.day, 10, 11))
+
+        # Without the notice the group is still in at 11, with nobody: teacher_c can stay with it.
+        guard_cover = self.Cover.browse(self.Cover.with_user(self.department_chief).board_assign(
+            str(self.day), 11, 12, self.teacher_b.id, self.group_a.id, self.teacher_c.id, 'Stay with them'))
+        self.assertEqual(self._row(11, 12, teacher=self.teacher_b)['covers'], guard_cover)
+
+        self.Cover.with_user(self.department_chief).board_release(covers.id)
+
+        self.assertEqual(guard_cover.state, 'released', "back at their own lesson, which is there again")
+        self.assertNotIn(self.teacher_c, self.env['ems.course']._get_guard_candidates(self.day, 11, 12))
+
+    def test_a_whole_pack_comes_before_one_left_on_guard(self):
+        """teacher_c is on guard at 10 (a regular guard does not hold anybody back): the whole pack
+        can move, and that is the proposal, with nobody left behind."""
+        self._co_taught_last_lesson((10, 11, 'guard'))
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+
+        steps = self._plans()[0]['steps']
+
+        self.assertEqual((steps[0]['teacher'], steps[0]['stays']), (self.teacher_b | self.teacher_c, self.env['hr.employee']))
+
+    def test_a_co_taught_lesson_is_swapped_with_all_its_teachers(self):
+        self._co_taught_last_lesson()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        both = self.teacher_b | self.teacher_c
+
+        plan = self._plans()[0]
+
+        self.assertEqual(self._plan_summary(plan), [('swap', both, 11, 8, self.group_a)])
+        covers, _notice_action = self._apply(plan)
+
+        self.assertEqual(covers.guard_employee_id, both)
+        self.assertIn(self._row()['arrangement'], covers)
+        self.assertEqual((self._cell(11, 12)['substitutes'], self._cell(11, 12)['moved']), (self.teacher_a, both))
+        self.assertEqual(self._cell(8, 9)['substitutes'], both)
+
+        self.Cover.with_user(self.department_chief).board_release(covers[0].id)
+
+        self.assertEqual(set(covers.mapped('state')), {'released'})
+
+    def test_a_swap_needs_every_absent_teacher_at_the_other_lesson(self):
+        """teacher_c co-teaches teacher_a's 8:00 lesson: both away then, both teach at 11 instead,
+        and no swap once one of them cannot."""
+        self._morning()
+        self._calendar_rows(self.teacher_c, ((8, 9, self.group_a),))
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._absence(self.teacher_c, self.day, hour_from=8, hour_to=9)
+
+        swaps = [step for plan in self._plans() for step in plan['steps'] if step['kind'] == 'swap']
+        self.assertEqual(swaps[0]['absent'], self.teacher_a | self.teacher_c)
+
+        self._absence(self.teacher_c, self.day, hour_from=11, hour_to=12)
+
+        self.assertFalse([step for plan in self._plans() for step in plan['steps'] if step['kind'] == 'swap'])
 
     def test_only_a_detected_arrangement_can_be_applied(self):
         self._morning()
@@ -1589,6 +1727,43 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(self._messages(self.teacher_b, 'Arrangement cancelled'))
         cell = next(cell for cell in self._teaching_line(self.day, 9, 10)['cells'] if cell['group'] == self.group_a)
         self.assertFalse(cell['joined'])
+
+    def _co_taught_join_plan(self, with_other_half):
+        """_split_groups_day, with teacher_guard_wc co-teaching group_b's 12:00 lesson with
+        teacher_b (issue #678) and, `with_other_half`, group_a's 9:00 one too: the plan joining
+        group_b to group_a at 9."""
+        self._split_groups_day()
+        self._calendar_rows(self.teacher_guard_wc, ((12, 13, self.group_b),) + (((9, 10, self.group_a),) if with_other_half else ()))
+        return next(plan for plan in self._plans(self.group_b) if plan['steps'][0]['kind'] == 'join')
+
+    def test_a_co_taught_lesson_joins_the_other_half_with_all_its_teachers(self):
+        both = self.teacher_b | self.teacher_guard_wc
+        plan = self._co_taught_join_plan(with_other_half=True)
+
+        self.assertEqual(self._plan_summary(plan)[0], ('join', both, 12, 9, self.group_b))
+        self.assertFalse(plan['steps'][0]['stays'])
+
+        covers, _notice_action = self._apply(plan)
+
+        join = covers.filtered('joined_group_ids')
+        self.assertEqual(join.guard_employee_id, both, "one cover per teacher who brings the lesson")
+        self.assertFalse(join.stayed_employee_ids)
+        self.assertIn(f"teach the group together with {self.group_a.name} at 09:00, instead of at 12:00",
+                      join[0]._arrangement_label())
+
+    def test_a_co_teacher_not_with_the_other_half_stays_on_guard_in_a_join(self):
+        plan = self._co_taught_join_plan(with_other_half=False)
+
+        self.assertEqual(self._plan_summary(plan)[0], ('join', self.teacher_b, 12, 9, self.group_b))
+        self.assertEqual(plan['steps'][0]['stays'], self.teacher_guard_wc)
+        self.assertEqual(self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['warnings'], [
+            f"{self.teacher_guard_wc.name} cannot follow the lesson (not with the other half then): on guard at 12:00 instead."])
+
+        covers, _notice_action = self._apply(plan, keep=[0])
+
+        self.assertEqual((covers.guard_employee_id, covers.stayed_employee_ids, covers.joined_group_ids),
+                         (self.teacher_b, self.teacher_guard_wc, self.group_a))
+        self.assertIn(f"On guard at 12:00 instead: {self.teacher_guard_wc.name}.", covers._arrangement_label())
 
     def test_a_chain_of_moved_lessons_frees_the_end_of_the_day(self):
         both = self._two_groups_day()
@@ -2346,7 +2521,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         with self.assertRaises(UserError):
             self.Cover.with_user(self.department_chief).board_apply_plan(str(self.day), [
-                {'kind': 'move', 'teacher_id': self.teacher_b.id, 'absent_id': False, 'lesson': [11, 12],
+                {'kind': 'move', 'teacher_ids': self.teacher_b.ids, 'absent_ids': [], 'lesson': [11, 12],
                  'target': [8, 9], 'group_ids': self.group_a.ids},
                 {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': ['early_leave', 11.0]},
                 {'kind': 'notice', 'group_ids': self.group_a.ids, 'change': ['normal_entry', 0.0]}])

@@ -173,7 +173,7 @@ least 24 h before, art. 11); `no_show` (excludes, unless force majeure recorded)
 ### 4.6. Staff plan ratings (`ems.erasmus.plan_rating`) - staff
 
 The panel is **configured per call** (a list of users with their post), not hard-coded: for
-2026-27, Director, Head of Studies (FP), Head of the IT department, IT seminar chief and two Heads
+2026-27, Director, Head of Studies (FP), Head of the IT department, IT seminar chief, and the Head and the seminar chief
 of the Administration department. Every member rates every plan with annex 2's rubric (two
 aspects, 0 / 0.5 / 1 each). Plan score = arithmetic mean of all ratings. **All six are required**;
 a pending one blocks. An abstention (conflict of interest, or the member is a candidate) is
@@ -207,7 +207,7 @@ deadline. Never automatic.
 
 | | Criterion | Source in EMS |
 |---|---|---|
-| A | Record average × 4 (max 40) | **Computed by EMS** (agreed 2026-10-22 with the coordinator, after Juan and Fer pointed out EMS holds every grade since 2024-25 and the RA ponderations): every module of the applicant's current cycle, all its years. Past years: `ems.student.year_record.subject.final_grade`. Current course: `ems.grade_subject_line.computed_score` when `internal_is_scored` - a provisional grade from the RAs evaluated so far (`_internal_from_outcomes`: RA-weighted, whole number, capped at 4 if an evaluated RA failed). Failed modules count with their grade; a module with nothing evaluated yet is left out (never 0); convalidated / exempt modules excluded. **Open: plain mean or weighted by module hours** (`ems.subject.total_hours`). Frozen at closing with the list of modules used. Manual value (certificate of previous studies, validated by Secretariat, Erasmus team or Head of Studies) only for applicants with no grades in EMS. |
+| A | Record average × 4 (max 40) | **Computed by EMS** (agreed 2026-10-22 with the coordinator, after Juan and Fer pointed out EMS holds every grade since 2024-25 and the RA ponderations): every module of the applicant's current cycle, all its years. Past years: `ems.student.year_record.subject.final_grade`. Current course: `ems.grade_subject_line.computed_score` when `internal_is_scored` - a provisional grade from the RAs evaluated so far (`_internal_from_outcomes`: RA-weighted, whole number, capped at 4 if an evaluated RA failed). Failed modules count with their grade; a module with nothing evaluated yet is left out (never 0); convalidated / exempt modules excluded. Mean **weighted by module hours** (`ems.subject.total_hours`; decided 2026-10-22). Frozen at closing with the list of modules used. Manual value (certificate of previous studies, validated by Secretariat, Erasmus team or Head of Studies) only for applicants with no grades in EMS. |
 | B | Interview: general 20 + English 15 | 4.5. Both parts kept (English breaks ties). |
 | C | Language certificate, highest only: B1 2.5, B2 5, C1 7.5, C2 10 | Team, from the uploaded certificate. |
 | D | Fewer opportunities: 10 or 0 | Team, from the confidential evidence. |

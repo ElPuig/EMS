@@ -1,9 +1,10 @@
 id,code,name,procedure_id/id,is_process_map,active
 __import__.quality_doc_process_map,,Mapa de processos,,1,1
+__import__.quality_doc_pe3_01_17,PE3.01.17,Model d'acta i de registre d'evidències,__import__.quality_procedure_pe3_01,0,1
 __import__.quality_doc_pe1_09_01,PE1.09.01,Model de Revisió per la Direcció,__import__.quality_procedure_pe1_09,0,1
 __import__.quality_doc_pe1_09_02,PE1.09.02,Model de Revisió per la Direcció (gener),__import__.quality_procedure_pe1_09,0,1
 __import__.quality_doc_pe1_09_03,PE1.09.03,Model de Revisió per la Direcció (full de càlcul),__import__.quality_procedure_pe1_09,0,1
-__import__.quality_doc_pe3_01_02,PE3.01.02,Acta de reunió genèrica (plantilla),__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_02,PE3.01.02,Acta de reunió genèrica (plantilla),__import__.quality_procedure_pe3_01,0,0
 __import__.quality_doc_pe3_01_03,PE3.01.03,Manual de redacció d'actes,__import__.quality_procedure_pe3_01,0,1
 __import__.quality_doc_pe3_01_04,PE3.01.04,Manual del document d'anàlisis i seguiment,__import__.quality_procedure_pe3_01,0,1
 __import__.quality_doc_pe3_01_05,PE3.01.05,Guia bàsica per a la documentació del docent,__import__.quality_procedure_pe3_01,0,1
@@ -15,11 +16,11 @@ __import__.quality_doc_pe3_01_10,PE3.01.10,Programació del Mòdul Professional 
 __import__.quality_doc_pe3_01_11,PE3.01.11,Manual de preparació de la RxD,__import__.quality_procedure_pe3_01,0,1
 __import__.quality_doc_pe3_01_12,PE3.01.12,Guia programacio LOE (juny 2024 - v1),__import__.quality_procedure_pe3_01,0,1
 __import__.quality_doc_pe3_01_13,PE3.01.13,Programació del Mòdul Professional (a partir del 2024-2025),__import__.quality_procedure_pe3_01,0,1
-__import__.quality_doc_pe3_01_14,PE3.01.14,Acta de reunió de departament (plantilla ESO/BTX),__import__.quality_procedure_pe3_01,0,1
-__import__.quality_doc_pe3_01_15,PE3.01.15,Acta de reunió de departament (plantilla CCFF),__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_01_14,PE3.01.14,Acta de reunió de departament (plantilla ESO/BTX),__import__.quality_procedure_pe3_01,0,0
+__import__.quality_doc_pe3_01_15,PE3.01.15,Acta de reunió de departament (plantilla CCFF),__import__.quality_procedure_pe3_01,0,0
 __import__.quality_doc_pe3_01_16,PE3.01.16,Logotip del Departament d'Educació i Formació Professional,__import__.quality_procedure_pe3_01,0,1
-__import__.quality_doc_pe3_02_02,PE3.02.02,Acta de constitució equip de millora (plantilla),__import__.quality_procedure_pe3_02,0,1
-__import__.quality_doc_ps23_2_1,PS23.2.1,Model d'acta,__import__.quality_procedure_pe3_01,0,1
+__import__.quality_doc_pe3_02_02,PE3.02.02,Acta de constitució equip de millora (plantilla),__import__.quality_procedure_pe3_02,0,0
+__import__.quality_doc_ps23_2_1,PS23.2.1,Model d'acta,__import__.quality_procedure_pe3_01,0,0
 __import__.quality_doc_pe3_03_01,PE3.03.01,Informes i plans d'auditoria,__import__.quality_procedure_pe3_03,0,1
 __import__.quality_doc_pe3_03_02,PE3.03.02,Model de pla d'auditoria interna (ISO 9001:2015),__import__.quality_procedure_pe3_03,0,1
 __import__.quality_doc_pe3_03_03,PE3.03.03,Model de pla de preauditoria (ISO 9001:2015),__import__.quality_procedure_pe3_03,0,1

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_minute">
+            <field name="name">Minutes and records</field>
+            <field name="res_model">ems.minute</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="ems.view_minute_search"/>
+            <field name="context">{'search_default_meetings': 1, 'search_default_mine': 1, 'search_default_to_approve_by_me': 1, 'search_default_current_course': 1}</field>
+        </record>
+
+        <menuitem name="Minutes and records" sequence="1" id="menu_minutes_list"
+                  parent="menu_minutes" action="action_minute"/>
+    </data>
+</odoo>

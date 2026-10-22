@@ -20,6 +20,29 @@ items, or earlier years.
 Other useful facets: **Overdue** (past their deadline and still open), and by type: meeting agreements,
 improvement actions, or corrective and preventive ones.
 
+![List of actions and agreements with the facets Open and Current course](../../assets/quality/acords-01-llistat.png)
+
+## Who sees and who changes an agreement
+
+An agreement tells apart three ways of being in it:
+
+- **Whoever manages its content** (what was agreed, its scope, the responsible people, the people
+  involved, the deadline): the chain of command of the department or of the group's tutor (Department
+  or Seminar Chief, Head or Deputy Head of Studies, Director) and, while the minute is not approved,
+  whoever writes or approves it. An action that comes from no minute, also whoever created it.
+- **The responsible people** and whoever holds the **responsible post**: they carry its progress.
+  They add follow-up entries with **Actions → Add follow-up** and write its **description** (how to
+  carry it out: links, instructions), but do not change what was agreed. Their
+  chain of command may also do it in their place. Anyone can be responsible, with or without a post.
+- **The people involved**: those who have to do something about the agreement (for instance, the whole
+  department updates its syllabuses). They can read it, with its follow-up, and are notified every
+  time an entry is added.
+
+Whoever can read the minute it comes from, or those of its scope, can read it too. The **quality
+committee**, **quality coordination** and the **administrator** see and change them all.
+
+An agreement you may not change opens in read-only mode.
+
 ## Creating an agreement
 
 1. **New**.
@@ -33,6 +56,10 @@ improvement actions, or corrective and preventive ones.
 6. The **deadline**: put a date if you have one. If the agreement said "by the final meeting of the
    year", write that in **Deadline (as agreed)** and leave the date empty.
 7. Save. The **code** is issued automatically: `ACORD-<scope>-<course>-<number>`.
+
+![Form of an agreement: responsibility, deadline, scope and the description in the tab below](../../assets/quality/acords-02-formulari.png)
+
+(1) The responsible people, who carry its progress; (2) the people involved, who only read it and get the notices; (3) the deadline and (4) the scope.
 
 ## The code and the numbering
 
@@ -52,6 +79,12 @@ An agreement's state is **not picked from a dropdown**. It comes from the latest
 So moving an agreement forward means adding a follow-up entry in the **Follow-up** tab: the date, the
 state it leaves it in, and what happened. This is deliberate: it forces the **reason** for the change to
 be written down, which is exactly what an audit asks for.
+
+![Follow-up tab of an agreement with an entry in progress](../../assets/quality/acords-03-seguiment.png)
+
+![Add follow-up dialog with the date, the state and what happened](../../assets/quality/acords-04-afegeix-seguiment.png)
+
+A responsible person adds the follow-up with **Add follow-up**, without being able to change what was agreed.
 
 ## Closing an agreement
 

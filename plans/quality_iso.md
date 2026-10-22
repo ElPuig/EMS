@@ -1,7 +1,10 @@
 # ISO 9001 quality management inside EMS
 
-**Status: design, current as of 2026-09-21. Phase 1 and phase 2 implemented on their branches, not yet
-merged; phase 1's scope was reduced on 2026-09-21 (see "One owner per piece of information" below).** Every open design question was
+**Status: design, current as of 2026-10-22. Phase 1 and phase 2 implemented on their branches and handed
+over to be merged into `main` ("Ready to merge"); phase 1's scope was reduced on 2026-09-21 (see "One owner per piece of information" below).
+Both branches are up to date with `main` v18.0.0.39.1 (2026-10-22).
+**To pick the work up, read section 12 first**: it is the current state and the to-do list, and section 7
+says how permissions were actually implemented (it supersedes the original two-new-groups idea).** Every open design question was
 closed with the developer between 2026-09-19 and 2026-09-20; this file is the design of record for the
 work and should be kept current as each phase lands, then deleted once the last one ships (its contents
 folded into `docs/en/developers/quality/` and the role manuals).
@@ -231,12 +234,14 @@ flag and a default derived from the scope, `previous_minute_id`, `agenda_ids`, `
 `agreement_ids` (actions of type `agreement`), `followed_agreement_ids` (still-open agreements from
 earlier minutes, **preloaded**), `pending_topic_ids`, `annex_document_ids`, `redactor_employee_id`,
 `approver_role_id` / `approver_employee_id` / `approval_date`, `state` (draft → to approve → approved),
-`template_document_id` + `template_version`, `drive_file_id`, `pdf_attachment_id`.
+`template_document_id`, `drive_file_id`, `pdf_attachment_id`.
 
 **Optional sections through a catalogue, not booleans.** `ems.minute.section` holds the catalogue, each
 with a `kind` that drives rendering: `text`, `agenda`, `previous_approval`, `agreement_followup`,
-`agreements`, `pending_topics`, `annexes`, `signature`, plus four that carry a table of their own:
-`harmonisation`, `gep` (CLIL), `team_constitution`, `objectives`, `meeting_calendar`.
+`agreements`, `pending_topics`, `annexes`, `signature`, plus those that carry a table of their own:
+`team_constitution`, `objectives`, `meeting_calendar`. Harmonisation between groups and CLIL, two fixed
+tables of the old vocational-department template, are deliberately not sections: when a meeting deals
+with them they are items of its agenda.
 `ems.minute.type` declares `name`, `code`, `kind` (`meeting` / `record`), `scope_kind`, `document_id`,
 `approver_role_id`, `print_identification`, and `section_ids` (order, section, intro text, required).
 
@@ -245,10 +250,9 @@ Adding a minute type must be configuration, not development: there are well over
 three variants, generic, tutors, coordinations, guidance, evaluation boards, assembly, delegate
 election, key handover, cash count, disciplinary hearing).
 
-The four table sections exist because they are **not free text**: they are data EMS already knows and
-should preload — groups and subjects of the department for harmonisation, subjects and teachers for
-CLIL, workgroup members with post and speciality for team constitution, objectives for the objectives
-section.
+The table sections exist because they are **not free text**: they are data EMS already knows and
+should preload — workgroup members with post and speciality for team constitution, objectives for the
+objectives section.
 
 **`ems.minute.preset`** — a user-owned (or shared) prefill: type, usual place, usual attendees, recurring
 agenda, default approver. It only prefills content; it never alters the structure or the controlled
@@ -266,7 +270,7 @@ Whether a record also **writes its fact where it belongs** is decided per type: 
 document), a key handover marks the assignment on the space or the employee, a cash count writes nothing.
 
 **`ems.signed.record`** — abstract mixin with `code`, `date`, `state`, `signatory_ids`,
-`template_document_id` + `template_version`, `pdf_attachment_id`, `drive_file_id` and the PDF
+`template_document_id`, `pdf_attachment_id`, `drive_file_id` and the PDF
 generation/upload methods, inherited by `ems.minute`, `ems.quality.audit` (its report) and
 `ems.quality.review`.
 
@@ -390,7 +394,7 @@ Two root menus, and **as few entries as possible**: with many menus users get lo
 click.
 
 ```
-Minutes and agreements                       [seq 4 · all staff]
+Meetings                                     [seq 9 · all staff]
 ├── Minutes and records
 ├── My proposals          → own improvement proposals, simplified view
 ├── Agreements
@@ -442,8 +446,9 @@ main workgroup action stays under *Educational Community*.
 
 PDF for minutes, evidence records, audit reports and the management review; PDF plus optionally `.xlsx`
 for work plans and reports; **no file at all** for the registries — EMS is the registry, exported on
-demand. QWeb for the PDF, with the institutional header and a footer carrying the controlled document's
-code and version, which are exactly the two things that go stale when copied by hand.
+demand. QWeb for the PDF, with the institutional header and a footer carrying the controlled template's
+code, which is what goes stale when a template is copied by hand. Its version is not quoted: the document
+registry no longer keeps versions (see the top of this file).
 
 ### 6.2. File names and folders
 
@@ -487,8 +492,16 @@ Two standing principles: escalation follows the **real hierarchy**, not flat gro
 `tutor_scope_user_ids` / `find_head_of_studies()` patterns rather than an `ir.rule` with
 `domain_force=[]`); and a teacher should see little and clear — theirs, and what they owe.
 
-Two new groups are needed: **`ems.group_quality_coordinator`** (responsible for drafting and maintaining
-most of the system's documentation) and **`ems.group_quality_committee`**.
+**As implemented (2026-10-19), no new groups:** quality coordination is the existing
+`ems.group_quality_admin` ("Administrator" in the Quality selector of the user form), and the committee is
+the existing `ems.group_quality`, renamed "Committee member" (it was "Manager", the Surveys team). Its users
+are given by hand in the user form, or by being a member of the committee workgroup, the catalogue's
+`ems.quality` ("Quality Comission"); `ems.workgroup._ems_sync_quality_committee()` adds whoever joins and
+removes whoever leaves (never quality coordination, never someone given it by hand without being a member),
+and `data/main/sync_quality_committee.xml` runs it add-only on every install and upgrade. No flag on the
+workgroup model (the developer: "es directamente ese grupo de trabajo la comisión"). The table below is the
+original target; where the code differs, the code and `docs/en/developers/quality/quality_overview.md`
+("Access control") are right.
 
 | | Teacher | Tutor | Dept. head | Head of studies | Secretariat | Quality coord. | Committee | Management |
 |---|---|---|---|---|---|---|---|---|
@@ -519,7 +532,7 @@ Notes:
 - The catalogue is administered by quality coordination **and** management. Because two hands maintain
   it: tracking and chatter on types and sections, and **archive, never delete**, so older minutes never
   point at nothing. Minutes already approved are unaffected by later catalogue changes, since their PDF
-  is immutable and they store the template version they were generated with.
+  is immutable.
 - The DNI printed on improvement-team minutes is deliberate (see 9, D15) and is read from
   `hr.employee.identification_id` with a **narrow `sudo()`**: that native field carries
   `groups="hr.group_hr_user"`, which neither teaching staff nor quality coordination nor the secretariat
@@ -675,7 +688,7 @@ Execution notes, all phases:
   CSVs, the step-by-step import procedure and its data files outside the repository, the loader for
   anything a CSV cannot carry, and the post-deploy verification checklist.
 - **Root menus are created by the phase that makes them useful, not earlier.** F1 creates only *Quality*,
-  visible to quality coordination and management; *Minutes and agreements*, which the whole staff sees,
+  visible to quality coordination and management; *Meetings* (shared with the meeting attendance sessions of #521), which the whole staff sees,
   does not exist until F2. Merging a phase deploys it, so no half-built application should ever be
   visible to the staff.
 - `TransactionCase` per model and a tour per screen, including the per-role smoke tours. Tours log in as
@@ -748,3 +761,144 @@ implementation:
   F3.
 - Supplier homologation criteria to be confirmed against the current procedure before F7.
 - Whether the improvement-team **closure** minute also prints the DNI, as the constitution one does.
+
+## 12. State of the work (2026-10-22)
+
+Read this to resume without the old session. Everything below is committed and pushed on
+`497-quality-phase-2` (269a7a12), which contains `496-quality-phase-1` (a87c6401); both are up to date with
+`main` v18.0.0.39.1 and were reviewed against the project's rules on 2026-10-22 before going to "Ready to
+merge" (see 12.2 bis). Nothing is in flight; the items in 12.3 are follow-up work, not part of these two
+issues. `.claude/settings.json` is the developer's personal file: it was taken out of both branches and is
+excluded locally (`.git/info/exclude`); never commit it again.
+
+### 12.1. The dev database
+
+- The quality work's database is the `quality` slot of `emsdb` (`/usr/local/bin/emsdb`, outside the repo):
+  `emsdb` shows which slot is live, `emsdb quality -c -u` switches to it (checkout of its branch plus
+  `./upgrade.sh`). The other slot, `main`, is parked as `ems__main`.
+- `ems` was restored on 2026-10-19 from production's dump of that day (after `demo.sh` was launched by
+  accident and reverted the frozen `data/custom/` records; see memory `reference_demo_sh_reinstall_revierte_custom`),
+  then `devel.sh`, password `demoems` for every user, `./upgrade.sh` on 497.
+- The quality structure is seeded from the CSVs (8 processes, 48 procedures, 66 documents); their Drive
+  links are loaded with the link wizard from `temp/qualitat/produccio/enllacos_{processos,documents}.csv`
+  (116 links; only PE3.01.17, PS23.2.1 and the four service charters have none). After a new restore,
+  load them again (scratchpad script pattern: base64 each CSV into
+  `ems.quality.document.link.import`, `action_import()`, commit).
+- Test data: the real Informàtica department minute of 2026-09-02 (Google Doc
+  `1RfNA3o8tDlIqeOSqdSkHbI6cajRZKJjIkIRFR5cewJ4`) is minute id 1, ACTA-INFOR-2026-27-001, in "To approve",
+  approver Oscar Torrente, writer Juan Morote, with agreement ACORD-INFOR-2026-27-001 and 7 pending topics.
+  The developer wrote the second one against it: minute id 585, ACTA-INFOR-2026-27-002, in draft, attendance
+  with the NFC tag, session id 48. That session is **open** while its minute is still a draft: it was opened
+  before the rule of 12.2 bis existed, which no longer allows it. Starting the meeting (Actions → Start the
+  meeting) puts the pair back in step; nothing else needs fixing. Import any further real minute with
+  `odoo shell` **with `lang=ca_ES` in the context**, or its stored title and scope come out in English (see
+  12.3).
+- Old copies kept until the developer says otherwise: `ems_dev_20261010` (the previous quality dev DB),
+  `ems_antes_restore_20261015`, `ems_antes_restore_20261019`.
+
+### 12.2. Decided and implemented on 2026-10-19/20
+
+- **Quality menu**: the committee (`group_quality`), quality coordination and the Director. Only
+  coordination edits the structure and loads links. The head of studies and the secretariat no longer see
+  it (they keep minutes and agreements under Meetings). See section 7.
+- **Who sees which minutes** (`security/rules/quality.xml`): everybody (teachers and the secretariat, which
+  needed the narrow rule too, or it would see everything) sees the minutes of their own scopes (department,
+  workgroups, staff meetings, written, approved or attended), plus the chain of command: a department's
+  minutes reach its Department/Seminar Chief, the Head or Deputy Head of Studies it hangs from and the
+  Director (`department_id.manager_id/seminar_chief_id.tutor_scope_user_ids`), a teaching team's the chain
+  of its group's tutor. Every minute: only the committee, quality coordination and the administrator. The
+  oversight rule uses `(6, 0, ...)` so an upgrade drops the posts it used to list.
+- **Lifecycle** (diagram and table in the developer doc, "`ems.minute` — lifecycle"): draft → meeting →
+  to approve → approved; an evidence record goes draft → to approve. Every change of state asks for
+  confirmation. Editing: the writer, the approver and their chain of command, the approver post's holders,
+  coordination, the administrator, while not approved; the approver can change the writer at any point
+  before approval (one writer at a time is enough: the chief prepares and sends the call, then names the
+  person taking the minute).
+- **Approving** (`_ems_user_may_approve`, field `can_approve`, `approver_scope_user_ids`): the person in
+  "Approved by" or anybody above them in the chain of command (stands in when they are away; for the
+  Informàtica minute: Oscar, Victor Carceler, Fernando Porrino, Dori Cañal), or with nobody named the
+  approver post's holders, plus the administrator. Never the writer for having written it. Checked before
+  anything is written; "Approved by" then records who actually approved. The PDF is attached with `sudo()`
+  (an approved minute is no longer writable, which used to make approval fail for anybody but an admin).
+- **Read-only form** for whoever may only read a minute: mixin `ems.quality.can.edit` (`can_edit`), an
+  `onRootLoaded` hook in `ems_minute_form` switching to readonly mode, and `not can_edit` on every action.
+- **PDF** (`reports/minute_report.xml`): paper format `paperformat_minute` (top margin 42 mm, sides 5 mm),
+  header as a 3x2 table with faded brand-colour title cells, justified text, larger underlined section
+  titles, no table split across pages, signatures as a headed table with room under each name for a
+  validation stamp. The stamp is the shared template `ems.report_validation_stamp`
+  (`reports/shared/report_validation_stamp.xml`), also used by the convalidation resolution: "Sent for
+  approval in EMS" (new fields `submitted_by_id`, `submission_date`, cleared when the minute goes back) and
+  "Approved in EMS".
+
+### 12.2 bis. Decided and implemented on 2026-10-21/22
+
+- **People from outside EMS in a minute** (`ems.minute.guest`): first name, surname, optional email
+  (validated), organisation, *Present*; they count as attendees and appear in the PDF without their email.
+  The table stays behind an *Add people from outside EMS* switch (`show_guests`). Each guest can be sent the
+  call (`send_call`), in a message of their own without the link to the previous minute. Decided
+  2026-10-22: **external people stay in the minute only**; an NFC session (with or without a minute) only
+  holds employees, who have a tag.
+- **The writer's chain of command** (`redactor_scope_user_ids`, `compute_sudo`) writes the minute and
+  everything hanging from it (agreements, follow-up, NFC session), not only the approver's chain.
+- **NFC attendance corrected by hand** from the minute (*Actions → Correct the attendance* opens the
+  session); teachers reach the sessions of the minutes they may write (rule on `minute_ids`), and every
+  manual change of a line updates the minute's lists at once.
+- **Delete a minute while in draft** (*Actions → Delete*, with its lines, agreements and draft session);
+  refused from the meeting on, for every role. The call can no longer be sent once the minute is sent for
+  approval.
+- **One rule for who is convened**, shared by the minute and the attendance session
+  (`ems.meeting.presence._ems_convened_employees()`, step 4 of the integration plan): a department convenes
+  its members and those of the departments under it (`child_of`, so an area such as VET convenes all of its
+  departments), a workgroup its members, a group whoever teaches it plus **its tutor even without a
+  subject in it** (developer, 2026-10-22: the tutor nearly always teaches the group, but the rule covers the
+  exception), all teachers / all staff by company. Sessions gained the scope *A group's teaching team*
+  (`group_id`), and a session prepared from a minute copies the minute's scope, so *Load convened people*
+  finds the same list. Both lists still take anybody else by hand (developer: always leave that open).
+- **The NFC kiosk waits for the meeting** (developer, 2026-10-22): while the minute is a draft its session
+  can be neither opened nor closed, from the minute (*Open the kiosk*, *Close attendance* and *Correct the
+  attendance* only in the `meeting` state, `_ems_check_meeting_held()`) or from the session's own screen
+  (`waits_for_meeting` hides *Start attendance* and `action_open()` refuses it). Once the session has been
+  opened, *Back to preparing the meeting* is hidden and refused (decided autonomously as the consequence of
+  that rule; the developer may revisit it).
+- **Translation gotcha met again:** the minute form's NFC box is made of plain `<span>`s side by side, which
+  Odoo extracts as **one** view term; a `.po` entry for a single sentence never matches it, `upgrade.sh` stays
+  clean and the text stays in English. Translate the merged term exactly as `xml_translate` returns it
+  (`odoo shell`: `xml_translate(lambda t: out.append(t) or t, view.arch_db)`); `test_the_nfc_box_is_translated`
+  guards it.
+- **Review for "Ready to merge" (2026-10-22)**, fixed on both branches: *Open document* moved inside the
+  *Actions* dropdown on the process, procedure and document forms; `fields.Date.today()` replaced by
+  `get_local_today()`; the developer doc linked from `docs/en/developers/index.md`; "before/now" wording
+  taken out of the manuals; CLAUDE.md lists `views/quality/` ↔ *Quality*; `ACCESS_MATRIX` covers the
+  minute catalogue, the minute's line models and the link wizard; `TestQualityAction` mocks outgoing
+  email and the other quality tests use `mock_outgoing_email`. Both branches merged `main` v18.0.0.39.1
+  (the `.po` conflicts resolved block by block, three-way, and checked entry by entry).
+- **Screenshots**: `TestDocsScreenshotsMinutes` (tagged `-standard`; run it with
+  `./test.sh "-at_install,*/ems:TestDocsScreenshotsMinutes"`) writes the 9 minute and 4 agreement
+  screenshots to `/tmp/ems_doc_screenshots`; `actes-04-nfc.png` now shows the attendance block of a meeting
+  already started.
+
+### 12.3. To do
+
+1. ~~Message to Fer about surveys~~: done 2026-10-20. Fer agreed that committee members read every survey
+   and edit only their own, with the administrator in full control; the read-all/edit-own rules in
+   `security/rules/communications.xml` moved from `group_quality_admin` to `group_quality` (which it implies).
+2. ~~Agreements' record rules~~: done 2026-10-20, they follow the chain of command like the minutes'
+   (see `docs/en/developers/quality/quality_overview.md`, Access control); the follow-up now has rules too.
+   Split decided with the developer the same day: content managers, responsible people (progress only, via
+   follow-up entries) and the new *People involved* (read and notified only); the deadline is content.
+3. ~~Stored title in the writer's language~~: done 2026-10-22. Developer's decision: for now a minute's
+   title is always in Catalan; `name`/`scope_name` are computed in `_ems_centre_lang()` (`ca_ES`), like the
+   PDF and the call (`test_title_is_in_the_centre_language_whoever_writes_it`). Declaring the
+   installation's main language is future work (issue #620, with the departments' own acronyms); for this
+   centre it is Catalan.
+4. **Simultaneous editing** (two people writing one minute): Odoo 18's collaborative HTML
+   (`options="{'collaborative': true}"`) only covers plain HTML fields of the record; the minute's texts live
+   in line records under a custom widget. Left as a future study; today the last save wins on the same item.
+5. **Integration with meeting attendance** (`plans/meeting_presence_minute_integration.md`): steps 1-4 done
+   (one root menu, `presence_id`, attendee lists derived from the session, one convened rule). Left: step 5,
+   quality coordination (`group_quality_admin`) as a session manager with the read ACLs it needs on courses,
+   rooms, departments and workgroups. Delete that plan when it lands.
+6. Three shared translations to review (*Closed* = *Tancada*, *Attendees* = *Assistents*, *Room* = *Sala*),
+   and a LanguageTool pass over this branch's Catalan/Spanish texts in the release close review (no key on
+   this box).
+7. Next design step after that: section 9's phase 3.

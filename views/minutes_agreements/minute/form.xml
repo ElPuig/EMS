@@ -1,0 +1,389 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_minute_form">
+            <field name="name">ems.minute.form</field>
+            <field name="model">ems.minute</field>
+            <field name="arch" type="xml">
+                <form js_class="ems_minute_form">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_send_call" string="Send the call" type="object"
+                                    invisible="not can_edit or state in ('to_approve', 'approved') or type_kind == 'record' or call_sent_datetime"
+                                    confirm="The call will be emailed to everybody convened, with the date, time and place of the meeting and its agenda. Send it?"/>
+                            <button name="action_send_call" string="Send the call again" type="object"
+                                    invisible="not can_edit or state in ('to_approve', 'approved') or type_kind == 'record' or not call_sent_datetime"
+                                    confirm="Everybody convened will receive the call again, as an update of the one already sent. Send it?"/>
+                            <!-- Every change of state asks first: a click in the wrong place must not move a
+                                 minute on, and approving cannot be undone. -->
+                            <button name="action_start_meeting" string="Start the meeting" type="object" invisible="not can_edit or state != 'draft' or type_kind == 'record'"
+                                    confirm="The meeting starts and its minute opens for writing. Start it?"/>
+                            <button name="action_back_to_draft" string="Back to preparing the meeting" type="object" invisible="not can_edit or state != 'meeting' or presence_state in ('open', 'closed')"
+                                    confirm="The meeting goes back to being prepared. Go back?"/>
+                            <button name="action_correct_attendance" string="Correct the attendance" type="object"
+                                    invisible="not can_edit or not presence_id or attendance_mode != 'nfc' or state in ('draft', 'approved') or type_kind == 'record'"
+                                    help="Mark by hand whoever left their tag at home or had it fail, or justify an absence."/>
+                            <button name="action_submit" string="Send for approval" type="object"
+                                    invisible="not can_edit or state != 'meeting' and (state != 'draft' or type_kind != 'record')"
+                                    confirm="The minute is sent to whoever approves it, and can no longer be written until it comes back. Send it?"/>
+                            <!-- Only for whoever gives the approval (can_approve), not for whoever can edit. -->
+                            <button name="action_approve" string="Approve" type="object" invisible="not can_approve or state != 'to_approve'"
+                                    confirm="Once approved, the minute can no longer be changed and its PDF is filed. Approve it?"/>
+                            <button name="action_back_to_meeting" string="Back to the meeting" type="object" invisible="not can_edit or state != 'to_approve' or type_kind == 'record'"
+                                    confirm="The minute goes back to the meeting to be corrected. Go back?"/>
+                            <button name="action_back_to_draft" string="Back to draft" type="object" invisible="not can_edit or state != 'to_approve' or type_kind != 'record'"
+                                    confirm="The record goes back to draft to be corrected. Go back?"/>
+                            <button name="action_delete" string="Delete" type="object" invisible="not can_edit or state != 'draft'"
+                                    confirm="The minute and everything written in it are deleted for good. Delete it?"/>
+                        </div>
+                        <field name="call_sent_datetime" invisible="1"/>
+                        <field name="can_edit" invisible="1"/>
+                        <field name="can_approve" invisible="1"/>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <!-- The code is the title: it builds up as the type, the scope and the
+                                 date are filled in, and becomes the real one on saving. -->
+                            <h1><field name="code_preview"/></h1>
+                            <field name="code" invisible="1"/>
+                            <field name="name" class="text-muted" placeholder="Title of the minute" invisible="not type_id"/>
+                        </div>
+                        <button name="action_open_draft_pdf" string="Open the draft of the minute" type="object" class="oe_link ps-0" icon="fa-file-pdf-o"
+                                invisible="state not in ('meeting', 'to_approve')"/>
+                        <!-- Laid out in the order a meeting is actually set up: what it is, whose it
+                             is, then when and where. -->
+                        <group invisible="state != 'draft' and type_kind != 'record'">
+                            <group string="Which meeting" name="which">
+                                <field name="type_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"
+                                       domain="[('can_start', '=', True)]"/>
+                                <field name="start_scope_restricted" invisible="1"/>
+                                <field name="start_department_ids" invisible="1"/>
+                                <field name="start_group_ids" invisible="1"/>
+                                <field name="start_workgroup_ids" invisible="1"/>
+                                <field name="type_kind" invisible="1"/>
+                                <field name="scope_kind" invisible="1"/>
+                                <field name="scope_choice" invisible="scope_kind != 'generic'"/>
+                                <field name="department_id" options="{'no_create': True}"
+                                       domain="[('id', 'in', start_department_ids)] if start_scope_restricted else []"
+                                       invisible="scope_kind != 'department' and (scope_kind != 'generic' or scope_choice != 'department')"
+                                       required="scope_kind == 'department' or (scope_kind == 'generic' and scope_choice == 'department')"/>
+                                <field name="workgroup_id" options="{'no_create': True}"
+                                       domain="[('id', 'in', start_workgroup_ids)] if start_scope_restricted else []"
+                                       invisible="scope_kind != 'workgroup' and (scope_kind != 'generic' or scope_choice != 'workgroup')"
+                                       required="scope_kind == 'workgroup' or (scope_kind == 'generic' and scope_choice == 'workgroup')"/>
+                                <field name="group_id" options="{'no_create': True}"
+                                       domain="[('id', 'in', start_group_ids)] if start_scope_restricted else []"
+                                       invisible="scope_kind != 'teaching_team' and (scope_kind != 'generic' or scope_choice != 'group')"
+                                       required="scope_kind == 'teaching_team' or (scope_kind == 'generic' and scope_choice == 'group')"/>
+                                <field name="is_centre" invisible="1"/>
+                            </group>
+                            <group string="When and where" name="when" invisible="not type_id">
+                                <field name="start_datetime" required="type_id"/>
+                                <field name="duration" widget="float_time" invisible="type_kind == 'record'" required="attendance_mode == 'nfc' and type_kind != 'record'"/>
+                                <field name="date" invisible="1"/>
+                                <field name="time" invisible="1"/>
+                                <field name="course_id" invisible="1"/>
+                                <field name="nature" widget="radio" options="{'horizontal': true}" invisible="type_kind == 'record'"/>
+                                <field name="modality" widget="radio" options="{'horizontal': true}" invisible="type_kind == 'record'"/>
+                                <field name="space_id" options="{'no_create': True}" invisible="modality == 'online' and type_kind != 'record'"/>
+                                <field name="place_text" placeholder="A video call, a mailing list..." invisible="modality == 'in-person' and type_kind != 'record'"/>
+                                <field name="call_sent_datetime" invisible="not call_sent_datetime"/>
+                                <field name="attendance_mode" widget="radio" options="{'horizontal': true}" invisible="type_kind == 'record'"/>
+                            </group>
+                        </group>
+                        <!-- Preparing the meeting (and every evidence record): who is convened, what is
+                             going to be discussed, what comes from the previous minute. -->
+                        <notebook invisible="not type_id or (state != 'draft' and type_kind != 'record')">
+                            <page string="Attendance" name="attendance" invisible="type_kind == 'record'">
+                                <field name="presence_id" invisible="1"/>
+                                <field name="presence_state" invisible="1"/>
+                                <div class="alert alert-info d-flex align-items-center gap-3" role="status" invisible="attendance_mode != 'nfc'">
+                                    <span invisible="presence_id">Save the minute to prepare its attendance kiosk.</span>
+                                    <span invisible="not presence_id">The kiosk opens once the meeting starts: then the lists fill in by themselves from the tags passed at it.</span>
+                                </div>
+                                <group>
+                                    <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                </group>
+                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none).
+                                     Only a switch until somebody is added, so the block stays short. -->
+                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state == 'approved'">
+                                    <field name="show_guests" widget="boolean_toggle" nolabel="1"/>
+                                    <label for="show_guests" class="mb-0"/>
+                                </div>
+                                <separator string="People from outside EMS" invisible="not show_guests and not guest_ids"/>
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1" invisible="not show_guests and not guest_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <field name="email" widget="email"/>
+                                        <field name="organisation" placeholder="A student's mother, another school..."/>
+                                        <field name="attended"/>
+                                        <field name="send_call" readonly="not email"/>
+                                    </list>
+                                </field>
+                                <group>
+                                    <field name="attendee_count"/>
+                                </group>
+                            </page>
+                            <page string="Items to discuss" name="agenda" invisible="type_kind == 'record'">
+                                <!-- Only the meeting's own items are typed in. The agenda itself,
+                                     the one sent with the call, is put together below from them and
+                                     from what the minute already knows. -->
+                                <field name="agenda_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                                <separator string="Agenda"/>
+                                <field name="agenda_html" nolabel="1" readonly="1"/>
+                            </page>
+                            <page string="Previous minute" name="previous" invisible="type_kind == 'record'">
+                                <group>
+                                    <field name="previous_minute_id" readonly="1"/>
+                                    <button name="action_open_previous_pdf" string="Open the previous minute's PDF" type="object" class="oe_link"
+                                            icon="fa-file-pdf-o" colspan="2" invisible="not previous_minute_id"/>
+                                </group>
+                                <separator string="Agreements still open, carried over"/>
+                                <field name="followed_agreement_ids" widget="many2many" readonly="1">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="responsible_role_id"/>
+                                        <field name="deadline_date"/>
+                                        <field name="state"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Content" name="content" invisible="type_kind != 'record'">
+                                <field name="section_value_ids" readonly="state == 'approved'">
+                                    <list editable="bottom" create="0">
+                                        <field name="sequence" widget="handle"/>
+                                        <!-- Present on purpose: the layout is filled in by an onchange,
+                                             and the web client only sends back fields the view knows
+                                             about - without this the section of every row arrives null. -->
+                                        <field name="section_id" column_invisible="1"/>
+                                        <field name="name"/>
+                                        <field name="kind" optional="hide"/>
+                                        <field name="required" optional="hide"/>
+                                        <field name="content" widget="html"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+
+                        <!-- The meeting itself, written from top to bottom in the order of its agenda. -->
+                        <div name="meeting" invisible="state == 'draft' or type_kind == 'record'">
+                            <group>
+                                <group>
+                                    <field name="start_datetime" readonly="1"/>
+                                    <field name="place_name" readonly="1" invisible="not place_name"/>
+                                </group>
+                                <group>
+                                    <field name="modality" readonly="1"/>
+                                    <field name="nature" readonly="1"/>
+                                </group>
+                            </group>
+
+                            <div class="o_ems_minute_block" name="block_attendance">
+                                <h3>Attendance</h3>
+                                <field name="presence_id" invisible="1"/>
+                                <field name="presence_state" invisible="1"/>
+                                <div class="alert alert-info d-flex align-items-center gap-3" role="status" invisible="attendance_mode != 'nfc'">
+                                    <span invisible="presence_id">Save the minute to prepare its attendance kiosk.</span>
+                                    <span invisible="not presence_id or presence_state == 'closed'">The lists below fill in by themselves from the tags passed at the kiosk.</span>
+                                    <span invisible="presence_state != 'closed'">Attendance is closed: these are the people who passed their tag.</span>
+                                    <button name="action_open_attendance_kiosk" string="Open the kiosk" type="object" class="btn-primary"
+                                            invisible="not can_edit or not presence_id or presence_state == 'closed' or state != 'meeting'"/>
+                                    <button name="action_close_attendance" string="Close attendance" type="object" class="btn-secondary"
+                                            invisible="not can_edit or presence_state != 'open' or state != 'meeting'"
+                                            confirm="Whoever has not passed the tag will be recorded as absent. Close attendance?"/>
+                                </div>
+                                <group>
+                                    <field name="attendee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absentee_ids" widget="many2many_tags" options="{'no_create': True}" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                    <field name="absence_notes" placeholder="For example, which of them were justified" readonly="attendance_mode == 'nfc' or state == 'approved'"/>
+                                </group>
+                                <!-- People from outside EMS: written by hand even with the NFC tag (they have none).
+                                     Only a switch until somebody is added, so the block stays short. -->
+                                <div class="d-flex align-items-center gap-2 mt-2" invisible="guest_ids or state == 'approved'">
+                                    <field name="show_guests" widget="boolean_toggle" nolabel="1"/>
+                                    <label for="show_guests" class="mb-0"/>
+                                </div>
+                                <separator string="People from outside EMS" invisible="not show_guests and not guest_ids"/>
+                                <field name="guest_ids" readonly="state == 'approved'" nolabel="1" invisible="not show_guests and not guest_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="surname"/>
+                                        <field name="email" widget="email"/>
+                                        <field name="organisation" placeholder="A student's mother, another school..."/>
+                                        <field name="attended"/>
+                                        <field name="send_call" readonly="not email"/>
+                                    </list>
+                                </field>
+                                <group>
+                                    <field name="attendee_count"/>
+                                </group>
+                            
+                            </div>
+
+                            <div class="o_ems_minute_block" name="block_previous" invisible="not previous_minute_id">
+                                <h3>Approval of the previous minute</h3>
+                                <group>
+                                    <field name="previous_minute_id" readonly="1"/>
+                                    <button name="action_open_previous_pdf" string="Open the previous minute's PDF" type="object" class="oe_link"
+                                            icon="fa-file-pdf-o" colspan="2"/>
+                                    <field name="previous_approved" widget="radio" options="{'horizontal': true}" readonly="state == 'approved'"/>
+                                    <field name="previous_approval_notes" readonly="state == 'approved'" placeholder="Amendments, or why it was not approved"/>
+                                </group>
+                            </div>
+
+                            <div class="o_ems_minute_block" name="block_reviews" invisible="not agreement_review_ids">
+                                <h3>Follow-up of the agreements</h3>
+                                <field name="agreement_review_ids" readonly="state == 'approved'" widget="ems_record_cards"
+                                       options="{'header_fields': ['code', 'deadline_date', 'responsible_employee_ids', 'new_deadline_date', 'is_closed'], 'body_fields': ['name', 'note']}">
+                                    <list>
+                                        <field name="action_id"/>
+                                        <field name="code"/>
+                                        <field name="deadline_date" string="Deadline"/>
+                                        <field name="responsible_employee_ids" string="Responsible" widget="ems_people_summary"
+                                               options="{'limit': 3, 'open_field': 'action_id', 'open_model': 'ems.quality.action'}"/>
+                                        <field name="new_deadline_date"/>
+                                        <field name="is_closed"/>
+                                        <field name="name" string="Content of the agreement"/>
+                                        <field name="note" placeholder="What was said about it"/>
+                                    </list>
+                                </field>
+                            </div>
+
+                            <div class="o_ems_minute_block" name="block_items">
+                                <h3>Items to discuss</h3>
+                                <field name="agenda_ids" widget="ems_text_blocks" readonly="state == 'approved'"
+                                       options="{'body_field': 'notes', 'title_editable': true, 'can_add': true, 'can_delete': true, 'numbered': true}">
+                                    <list>
+                                        <field name="sequence"/>
+                                        <field name="name" placeholder="Item"/>
+                                        <field name="notes" widget="html" placeholder="What is said about this item"/>
+                                    </list>
+                                </field>
+                            </div>
+
+                            <div class="o_ems_minute_block" name="block_texts">
+                                <!-- Any other business and whatever other text the type asks for.
+                                     The development of the session is not here when the minute has
+                                     items: it is put together from them. -->
+                                <field name="section_value_ids" widget="ems_text_blocks" readonly="state == 'approved'"
+                                       options="{'body_field': 'content', 'filter_field': 'is_written'}">
+                                    <list>
+                                        <field name="section_id"/>
+                                        <field name="sequence"/>
+                                        <field name="name"/>
+                                        <field name="is_written"/>
+                                        <field name="content" widget="html"/>
+                                    </list>
+                                </field>
+                            </div>
+
+                            <div class="o_ems_minute_block" name="block_agreements">
+                                <h3>Agreements</h3>
+                                <field name="agreement_ids" readonly="state == 'approved'" widget="ems_record_cards" context="{'default_type': 'agreement', 'default_course_id': course_id, 'default_department_id': department_id, 'default_workgroup_id': workgroup_id, 'default_group_id': group_id, 'default_is_centre': is_centre}"
+                                       options="{'header_fields': ['code', 'deadline_date', 'deadline_text', 'responsible_role_id', 'responsible_employee_ids', 'involved_employee_ids', 'state'], 'body_fields': ['name', 'description'], 'can_add': true, 'can_delete': true}">
+                                    <list>
+                                        <field name="code" readonly="1"/>
+                                        <field name="deadline_date" string="Deadline"/>
+                                        <field name="deadline_text" string="or" placeholder="When, in words"/>
+                                        <field name="responsible_role_id" string="Responsible post" options="{'no_create': True, 'no_open': True}" placeholder="Post"/>
+                                        <field name="responsible_employee_ids" string="Responsible people" widget="many2many_tags" options="{'no_create': True}" placeholder="People"/>
+                                        <field name="involved_employee_ids" string="People involved" widget="many2many_tags" options="{'no_create': True}" placeholder="People"/>
+                                        <field name="state" readonly="1"/>
+                                        <field name="name" string="Content of the agreement" widget="text" placeholder="What is agreed"/>
+                                        <!-- Written here by whoever writes the minute; afterwards, by the responsible people in the agreement's form. -->
+                                        <field name="description" placeholder="How to carry it out: links, instructions"/>
+                                    </list>
+                                </field>
+                            </div>
+
+                            <div class="o_ems_minute_block" name="block_pending">
+                                <h3>Pending topics</h3>
+                                <field name="pending_topic_ids" readonly="state == 'approved'">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="is_done"/>
+                                        <field name="carried_from_minute_id" readonly="1" optional="show"/>
+                                    </list>
+                                </field>
+                            
+                            </div>
+                        </div>
+
+                        <div class="o_ems_minute_block" name="block_team" invisible="not member_line_ids and not objective_line_ids">
+                            <h3>Team</h3>
+                                <group>
+                                    <field name="team_date_from"/>
+                                    <field name="team_date_to"/>
+                                </group>
+                                <separator string="Members"/>
+                                <field name="member_line_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="employee_id"/>
+                                        <field name="team_role"/>
+                                        <field name="speciality"/>
+                                        <field name="identification"/>
+                                    </list>
+                                </field>
+                                <separator string="Objectives and indicators"/>
+                                <field name="objective_line_ids">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="name"/>
+                                        <field name="indicator"/>
+                                        <field name="acceptance_value"/>
+                                        <field name="target_value"/>
+                                    </list>
+                                </field>
+                            
+                        </div>
+
+                        <div class="o_ems_minute_block" name="block_annexes" invisible="not type_id">
+                            <h3>Annexes</h3>
+                                <field name="annex_document_ids" widget="many2many">
+                                    <list>
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="url" widget="url"/>
+                                    </list>
+                                </field>
+                            
+                        </div>
+                        <group string="Signatures">
+                            <group>
+                                <field name="redactor_employee_id"/>
+                                <field name="template_document_id" readonly="1"/>
+                            </group>
+                            <group>
+                                <field name="approver_role_id" invisible="1"/>
+                                <field name="approver_candidate_ids" invisible="1"/>
+                                <field name="approver_employee_id" readonly="state == 'approved'" options="{'no_create': True}"
+                                       context="{'ems_first_ids': approver_candidate_ids}"/>
+                                <field name="approval_date" readonly="1" invisible="state != 'approved'"/>
+                                <field name="pdf_attachment_id" invisible="1"/>
+                                <button name="action_open_pdf" string="Open the PDF" type="object" class="oe_link" icon="fa-file-pdf-o"
+                                        colspan="2" invisible="not pdf_attachment_id"/>
+                                <button name="action_open_draft_pdf" string="Open the draft of the minute" type="object" class="oe_link" icon="fa-file-pdf-o"
+                                        colspan="2" invisible="state not in ('meeting', 'to_approve')"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

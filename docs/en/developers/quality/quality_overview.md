@@ -88,11 +88,23 @@ link is changed from its own form. A constraint keeps a single one marked. Seede
 ### Read-only until "Edit"
 
 The three models inherit `ems.quality.edit.mode` (`models/quality/edit_mode.py`): a non-stored
-`edit_mode` that always loads False (True for a record being created) and `can_edit`
-(`has_access('write')`). Every field of their forms is `readonly="not edit_mode"`, and the header shows
+`edit_mode` that always loads False (True for a record being created) and, through
+`ems.quality.can.edit`, `can_edit` (`has_access('write')`, non-stored, `@api.depends_context('uid')`). Every field of their forms is `readonly="not edit_mode"`, and the header shows
 an **Edit** button (field widget `ems_quality_edit_mode`) only when `can_edit`. Pressing it sets
 `edit_mode` on the client; saving or discarding reloads the record, so it comes back read-only. Record
 access is unchanged: this is only about not presenting every field as editable by default.
+
+### Minutes: read-only for whoever may only read them
+
+`ems.minute` inherits `ems.quality.can.edit` too, without the "Edit" step: a minute is written live,
+so whoever may write it gets it editable straight away. Whoever may only read it (an attendee, a
+department colleague: see `rule_minute_teacher` vs `rule_minute_teacher_write` in
+`security/rules/quality.xml`) gets it read-only. The form's `js_class="ems_minute_form"`
+(`static/src/js/backend/minute_form.js`) adds an `onRootLoaded` hook that switches the record to
+`readonly` mode when `can_edit` is False, and back to `edit` when it is True, on every load (the pager
+moves between minutes the user may and may not write); its autosave skips a read-only record. Every
+header action and the attendance kiosk buttons are also `invisible="not can_edit or ..."`, since each
+of them writes the minute. The record rules stay the only real guarantee.
 
 The three forms use `js_class="ems_quality_form"` (`QualityFormRenderer` in
 `static/src/js/backend/quality_document_fields.js`), which always opens them on their first tab, the
@@ -131,6 +143,99 @@ reader sees, whatever their language, so it has to be the wording the centre act
 
 Module strings (field labels, menus, buttons, report headings, selection values) are unaffected: they
 stay English in the source and are translated through `i18n/ca_ES.po` and `i18n/es_ES.po` as usual.
+
+## `ems.minute` — lifecycle
+
+**Language.** The title (`name`) and the scope (`scope_name`) are stored computes, so they are built in
+the centre's language (`_ems_centre_lang()`, `common.SCOPE_CODE_LANG` = `ca_ES`, falling back to the
+user's when Catalan is not installed) rather than in the language of whoever creates the minute; the PDF
+and the call use the same language. Making it a setting of the installation is future work (issue #620).
+
+A meeting minute goes through four states; an evidence record (a minute type of kind `record`) skips the
+meeting and goes straight from draft to approval.
+
+```mermaid
+stateDiagram-v2
+    [*] --> draft: created
+    draft --> meeting: Start the meeting
+    meeting --> draft: Back to preparing the meeting
+    meeting --> to_approve: Send for approval
+    draft --> to_approve: Send for approval (evidence record)
+    to_approve --> meeting: Back to the meeting
+    to_approve --> draft: Back to draft (evidence record)
+    to_approve --> approved: Approve
+    approved --> [*]
+```
+
+| Change | Method | Who | What else happens |
+|---|---|---|---|
+| (before sending for approval) Send the call | `action_send_call` | whoever can write it | emails the convened; no change of state |
+| (in draft) Delete | `action_delete` (`unlink`) | whoever can write it (`rule_minute_teacher_unlink`, draft only) | its agenda, lines and agreements go with it, and its NFC session while still a draft; `_unlink_only_draft` refuses any other state, for every role |
+| Start the meeting | `action_start_meeting` | whoever can write it | the minute opens for writing; with the NFC tag, its kiosk can be opened |
+| Back to preparing / to the meeting / to draft | `action_back_to_draft`, `action_back_to_meeting` | whoever can write it | back to preparing is refused once its NFC session has been opened |
+| Send for approval | `action_submit` | whoever can write it | NFC attendance copied into the lists; the development composed from the items |
+| Approve | `action_approve` | **whoever gives the approval** (`can_approve`) | approval date set, PDF rendered and attached; irreversible |
+
+"Whoever can write it" is the write rule (`rule_minute_teacher_write`): the writer and their chain of
+command (`redactor_scope_user_ids`: a Seminar Chief above the teacher who writes it edits it even when a
+Department Chief above both approves it), the person named to approve it and their chain of command, and
+the holders of its approver post, while it is not approved, plus quality coordination and the
+administrator. The rules that depend on "whoever can write the minute" (its agreements, their follow-up, its
+NFC attendance session) use the same two chains. Approving is narrower (`_ems_user_may_approve`): the
+person named in **Approved by** or anybody above them in the chain of command, who stands in when they are
+away (`approver_scope_user_ids`, non-stored and searchable: that employee's `tutor_scope_user_ids`, so
+their Department or Seminar Chief, Head or Deputy Head of Studies and the Director, never a chief of
+another branch); while nobody is named, a holder of the post in **Approved by (post)**; plus the
+administrator (`group_academic_admin`, top of the pyramid) and the superuser. Never the writer just for
+having written it. The check runs in `action_approve` before anything is written, since approving then records the
+approving employee as **Approved by** (which differs from the person named only when the administrator
+approves on their behalf). Every change of state asks for confirmation (`confirm=` on its button).
+
+Sending for approval records who did it and when (`submitted_by_id`, `submission_date`), cleared again
+when the minute goes back to the meeting or to draft. In the PDF, each signature cell carries, under the
+name, the stamp of its side once it has happened: "Sent for approval in EMS" (who sent it, when, the
+minute's code) under the writer, "Approved in EMS" (who approved it, `approval_date`, the code) under the
+approver; until then the same room is left blank. The stamp is the shared QWeb template
+`ems.report_validation_stamp` (`reports/shared/report_validation_stamp.xml`), the same one the
+convalidation resolution prints; like there, it is EMS's record of who did it, not a qualified electronic
+signature (issue #530).
+
+**People from outside EMS** (`ems.minute.guest`, the minute's `guest_ids`): a student's family, a teacher
+from another school, a speaker. No employee record and no account: first name, surname, an optional email
+(validated with `email_normalize`), an optional organisation or relationship, and *Present* (ticked by
+default; unticked for somebody invited who did not come). They are written by hand whatever the attendance
+mode (they have no tag), count in `attendee_count` when present, and the PDF lists them with the attendees
+or the absentees by name and organisation. Their email is never printed. The call (`action_send_call`) goes
+to the staff as a single message with every recipient in view, so a guest is only sent it when *Send them
+the call* (`send_call`, which needs an email) is ticked, and then in a message of their own
+(`_ems_call_mail`), without the backend link to the previous minute, which they could not open; they count
+in `call_recipient_count`. Access is the same as the minute's other line models (ACL, no rule of their own). The form keeps the table hidden behind a switch (`show_guests`, non-stored, computed from
+`guest_ids` and editable) until somebody is added, so the attendance block stays short.
+
+### Who can start each kind of minute
+
+`ems.minute.type` declares it with two fields, set per type in **Meetings → Configuration → Minute
+types**: `starter_role_ids` (the posts whose holders can start it for any scope) and `starter_scope`
+(also the people of its own scope, only for that scope). With neither set, anybody can.
+
+| Scope | Its people (`_ems_scope_records()`) |
+|---|---|
+| department | the department's Department and Seminar Chiefs and those above them (`manager_id`/`seminar_chief_id.tutor_scope_user_ids`) |
+| teaching_team | the group's tutor and those above them (`tutor_id.tutor_scope_user_ids`), and whoever teaches the group (`ems.teaching`) |
+| workgroup | its members |
+
+Academic and quality administrators can always start any kind (`_ems_starts_anywhere()`).
+
+- The type dropdown only offers `can_start` types (non-stored, `depends_context('uid')`, searchable).
+- When the user can only start the chosen type for their own scope, `start_scope_restricted` and
+  `start_department_ids`/`start_group_ids`/`start_workgroup_ids` narrow the scope dropdown.
+- `_check_can_start` (constraint on type and scope) refuses the rest, as the user making the change;
+  minutes created by the system (`sudo`) are not checked.
+
+Seeded values (`data/custom/quality/ems.minute.type.csv`): generic open to all; department and
+teaching team by their scope; claustre by Director, Head of Studies, Deputy Head of Studies and
+Secretary; improvement team constitution and closing by the quality coordinator, its meetings also
+by the team's members.
 
 ## `ems.quality.action` — agreements and improvement actions
 
@@ -199,21 +304,77 @@ never appear in a data file.
 
 ## Access control
 
-Two new groups: `ems.group_quality_coordinator` (quality coordination) and
-`ems.group_quality_committee` (the quality committee).
+Quality coordination is `ems.group_quality_admin` and the quality committee is `ems.group_quality`
+("Committee member", implied by coordination; see below for how it is kept in step with the committee
+workgroup).
 
 | Model | Teacher | Dept. head | Head of studies | Secretariat | Quality coord. | Committee | Management |
 |---|---|---|---|---|---|---|---|
 | `ems.quality.process` | — | R | R | R | R+W | R | R+W |
 | `ems.quality.procedure` | — | R | R | R | R+W | R | R+W |
 | `ems.quality.document` | R | R+W | R | R | R+W | R | R+W |
-| `ems.quality.action` | R+W own | R+W in scope | R in their line | R | R+W | R+W | R+W |
-| `ems.quality.followup` | R+W own actions | R+W in scope | R | R | R+W | R+W | R+W |
+| `ems.quality.action` | R own scopes, W content of their actions out of a minute | R own scopes, W content in their line | R+W content in their line | R own scopes | R+W all | R+W all | R+W content in their line |
+| `ems.quality.followup` | R as its action, W when responsible | R as its action, W when responsible or in their line | R as its action, W in their line | R as its action | R+W all | R+W all | R as its action, W in their line |
+| `ems.minute` | R own scopes, W own | R+W own, R their departments | R their line | R own scopes, W own | R all, W | R all | R their line |
+
+`ems.minute` (`security/rules/quality.xml`): "own scopes" are the minutes of the user's departments,
+workgroups and staff meetings, the ones they write, approve or attended, and, along the chain of command,
+those of every department whose Department or Seminar Chief they are above (the department's chief's
+`tutor_scope_user_ids`: the chief, every chief above them through `parent_id`, which is how the Deputy Head
+of Studies for VET reaches the VET departments and the Head of Studies the ESO/BTX ones, and the Director)
+and of every group whose tutor they are above. The secretariat goes by the same rule (a user in no rule
+group of the model would see every record). Only the committee, quality coordination and the
+administrator see every minute. Writing stays with whoever writes or approves the minute, while it is not
+approved.
+
+`ems.quality.action` and `ems.quality.followup` (same file; the follow-up uses its action's domains through
+`action_id`) go by the same chain of command, with three ways of being in an agreement:
+
+- **Content managers** write the action itself (what was agreed, scope, responsible and involved people,
+  deadline): the chain of the department's Department or Seminar Chief and of the group's tutor; while its
+  minute is not approved, whoever writes or approves the minute and whoever added the agreement to it; the
+  creator of an action from no minute.
+- **Responsible people** (`responsible_employee_ids`), the holders of `responsible_role_id` and everybody
+  above those people (`responsible_scope_user_ids`, non-stored and searchable, built on
+  `tutor_scope_user_ids` like the minute's `approver_scope_user_ids`) create follow-up entries, which drive
+  the state, and write the `description` (how to carry it out), nothing else: their own write rule
+  (`rule_quality_action_progress_write`) lets them write the record and `write()` refuses any field outside
+  `PROGRESS_FIELDS` to whoever `_ems_content_managed()` leaves out (it evaluates the content rule
+  `rule_quality_action_teacher_write` itself rather than repeating it in Python). The form locks every other
+  field with `can_manage_content`, and *Actions → Add follow-up* (`action_add_followup`, a dialog on
+  `view_quality_followup_form`) is gated by `can_follow_up`. In the agreement's form the description
+  itself is editable only for `is_responsible` (the responsible people, the post's holders, their chain and the
+  administrator); the minute's writers edit it from the minute's agreement cards instead, and the minute's PDF
+  prints it under each agreement.
+- **People involved** (`involved_employee_ids`) only read it and its follow-up.
+
+Reading also reaches whoever reads a minute of the same scope (its department, workgroup or group, a staff
+meeting; the minute's attendees, writer and approver). The committee, quality coordination and the
+administrator see and write them all. Responsible and involved people are subscribed as followers
+(`_ems_subscribe_people`, sudo) and every follow-up entry is posted to the agreement as a comment
+(`ems.quality.followup._ems_notify_followers`), which is how they hear of its progress. The scope is one at a
+time: `is_centre` empties department, group and workgroup in the form, and the other way round. The form uses
+`ems_can_edit_form` (`static/src/js/backend/can_edit_form.js`, also the base of the minute's form controller)
+to open read-only for whoever may not write it.
 
 Escalation follows the **real hierarchy**, not flat group membership: a department head sees their own
 department's scope, and above them their own head of studies and management — not every holder of those
 posts. Reuse the `tutor_scope_user_ids` / `find_head_of_studies()` patterns rather than an `ir.rule` with
 `domain_force=[]`.
 
-The *Quality* root menu is restricted to quality coordination, the committee, management, the head of
-studies and the secretariat. The staff-facing menu does not exist in this phase.
+The *Quality* root menu is restricted to the quality committee (`ems.group_quality`, "Committee member"),
+quality coordination (`ems.group_quality_admin`, which implies it) and management (`ems.group_director`);
+the head of studies and the secretariat reach minutes and agreements from the *Meetings* menu. The same
+committee group opens the Surveys section (LimeSurvey), where each member reads every survey but
+only edits the ones they created (`security/rules/communications.xml`). Only quality coordination maintains the structure
+and loads its links.
+
+A committee member is given the group either by hand (the *Quality* selector of the user form) or by
+being a member of the committee workgroup, the catalogue's `ems.quality` ("Quality Comission",
+`data/cat/ems.workgroup.csv`; no flag on the workgroup model). `ems.workgroup._ems_sync_quality_committee()`
+adds the group to whoever joins it and takes it from whoever leaves it, on every change of its
+`employee_ids` and on its unlink, following the role sync's rule (`hr.employee._sync_security_groups`):
+someone given the group by hand without being a member is never touched, and quality coordination keeps
+it on leaving. `data/main/sync_quality_committee.xml` runs it (add-only) on every install and upgrade, for
+an installation whose committee already had members. Only `group_academic_admin` may write workgroups. A
+change to an employee's user is not followed until the workgroup changes again.

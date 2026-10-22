@@ -61,6 +61,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/quality.xml',
         'security/rules/coexistence.xml',
         'security/rules/communications.xml',
         'security/rules/contacts.xml',
@@ -75,6 +76,15 @@
 
         'views/menu.xml',
         'views/quality/menu.xml',
+        'reports/shared/report_validation_stamp.xml',
+        'reports/minute_report.xml',
+        'views/minutes_agreements/minute/call_email.xml',
+        'views/minutes_agreements/menu.xml',
+            'views/minutes_agreements/minute/search.xml',
+            'views/minutes_agreements/minute/list.xml',
+            'views/minutes_agreements/minute/form.xml',
+            'views/minutes_agreements/minute/menu.xml',
+            'views/minutes_agreements/minute_type/menu.xml',
             'views/quality/process/list.xml',
             'views/quality/process/form.xml',
             'views/quality/process/menu.xml',
@@ -87,10 +97,13 @@
             'views/quality/document/form.xml',
             'views/quality/document/search.xml',
             'views/quality/document/menu.xml',
+            'views/quality/followup/form.xml',
             'views/quality/action/list.xml',
             'views/quality/action/form.xml',
             'views/quality/action/search.xml',
             'views/quality/action/menu.xml',
+            # After views/quality/action/: its action uses view_quality_action_search.
+            'views/minutes_agreements/agreement/menu.xml',
             'views/quality/process_map/menu.xml',
 
         # Before form.xml: the settings button references this action by XML ID.
@@ -303,7 +316,6 @@
 
         # Report first: the form's Print button references it.
         'reports/meetings/report_meeting_presence.xml',
-        'views/minutes_agreements/menu.xml',
             'views/minutes_agreements/presence/search.xml',
             'views/minutes_agreements/presence/list.xml',
             'views/minutes_agreements/presence/form.xml',
@@ -383,10 +395,6 @@
             'views/portal/portal_convalidations.xml',
             'views/portal/portal_under_construction.xml',
 
-        'views/documentation/menu.xml',       
-            'views/documentation/minutes/menu.xml',       
-            'views/documentation/minutes/list.xml',       
-            'views/documentation/minutes/form.xml',   
 
         'views/shared/attachment/form.xml',  
 
@@ -469,6 +477,7 @@
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
         'data/cat/ems.workgroup.csv',
+        'data/main/sync_quality_committee.xml',
         'data/cat/hr.job.csv',
         'data/cat/hr.leave.type.csv',
         'data/cat/product.template-generic.csv',
@@ -515,6 +524,9 @@
         'data/custom/quality/ems.quality.process.csv',
         'data/custom/quality/ems.quality.procedure.csv',
         'data/custom/quality/ems.quality.document.csv',
+        'data/custom/quality/ems.minute.section.csv',
+        'data/custom/quality/ems.minute.type.csv',
+        'data/custom/quality/ems.minute.type.section.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        
@@ -589,6 +601,7 @@
         ],
         'web.assets_tests': [
             'ems/static/tests/tours/quality_tour.js',
+            'ems/static/tests/tours/minute_tour.js',
             'ems/static/tests/tours/**/*',
         ],
     },

@@ -3,9 +3,9 @@
 from datetime import timedelta
 
 from odoo import fields
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import Form, TransactionCase
 
-from .common import create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 class TestQualityAction(TransactionCase):
@@ -13,11 +13,13 @@ class TestQualityAction(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # A follow-up notifies the agreement's followers: no real email may leave a test.
+        mock_outgoing_email(cls)
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)
         if not cls.course:
             cls.course = cls.env['ems.course'].create({'start': 2026, 'end': 2027, 'is_current': True})
         cls.department = cls.env['hr.department'].create({'name': 'Quality Test Department'})
-        cls.other_department = cls.env['hr.department'].create({'name': 'Quality Other Department'})
+        cls.other_department = cls.env['hr.department'].create({'name': 'Another Section'})
 
     def _action(self, **overrides):
         vals = {'name': 'Test agreement', 'type': 'agreement', 'course_id': self.course.id}
@@ -113,3 +115,28 @@ class TestQualityAction(TransactionCase):
             'description': 'Getting on with it',
         })
         self.assertEqual(action.state, 'in_progress')
+
+    def test_a_department_agreement_is_its_chiefs_to_answer_for(self):
+        """Nobody named: the Department Chief and the Seminar Chief are responsible by default."""
+        chief = create_role_employee(self, create_role_user(self, 'teacher', 'quality.chief@example.com', name='Quality Chief'))
+        seminar = create_role_employee(self, create_role_user(self, 'teacher', 'quality.seminar@example.com', name='Quality Seminar Chief'))
+        self.department.write({'manager_id': chief.id, 'seminar_chief_id': seminar.id})
+        action = self._action(department_id=self.department.id)
+        self.assertEqual(set(action.responsible_employee_ids.ids), {chief.id, seminar.id})
+        self.assertEqual(action.state, 'analysed')
+        defaults = self.env['ems.quality.action'].with_context(default_department_id=self.department.id).default_get(
+            ['type', 'department_id', 'responsible_employee_ids'])
+        self.assertEqual(set(defaults['responsible_employee_ids'][0][2]), {chief.id, seminar.id})
+        named = self._action(department_id=self.department.id, responsible_employee_ids=[(6, 0, [seminar.id])])
+        self.assertEqual(named.responsible_employee_ids.ids, [seminar.id], "whoever was named stays as named")
+        self.assertFalse(self._action(department_id=self.other_department.id).responsible_employee_ids)
+
+    def test_one_scope_at_a_time(self):
+        """Marking it centre-wide empties the department, and choosing a department unmarks it."""
+        form = Form(self.env['ems.quality.action'])
+        form.name = 'Scope agreement'
+        form.department_id = self.department
+        form.is_centre = True
+        self.assertFalse(form.department_id)
+        form.department_id = self.department
+        self.assertFalse(form.is_centre)

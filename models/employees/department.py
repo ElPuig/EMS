@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+import unicodedata
+
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.osv import expression
 
 
 class ems_department(models.Model):
     _name = "hr.department"
-    _inherit = ["hr.department", "ems.hex_color_mixin"]
+    _inherit = ["hr.department", "ems.hex_color_mixin", "ems.mine_first_mixin"]
 
     # A change to any of these re-runs '_cascade_department_heads()' (see write()).
     _EMS_HEAD_CASCADE_FIELDS = (
@@ -46,6 +49,64 @@ class ems_department(models.Model):
         help="If set, this department has no Manager of its own - every member (and, if this "
              "department itself has children, their own Chief's Manager too) uses the nearest "
              "ancestor department's Manager instead, walking up the hierarchy until one is found.")
+
+    @api.depends('name', 'parent_id')
+    @api.depends_context('hierarchical_naming', 'lang')
+    def _compute_display_name(self):
+        """The path from the top department, in the reader's language. The native one shows the
+        stored complete_name, which is not translatable: it keeps the language of whoever last
+        changed the department, so a dropdown mixed Catalan, Spanish and English."""
+        if not self.env.context.get('hierarchical_naming', True):
+            return super()._compute_display_name()
+        for department in self:
+            names = []
+            current = department
+            while current:
+                names.append(current.name or '')
+                current = current.parent_id
+            department.display_name = " / ".join(reversed(names))
+
+    @api.model
+    def _search_display_name(self, operator, value):
+        """Typing a department's name in the reader's language finds it and the departments under
+        it ("FP" offers every VET department), not only the stored complete_name."""
+        domain = super()._search_display_name(operator, value)
+        if operator in ('ilike', 'like', '=ilike', '=like') and isinstance(value, str) and value.strip():
+            matching = self.search([('name', operator, value)])
+            if matching:
+                domain = expression.OR([domain, [('id', 'child_of', matching.ids)]])
+        return domain
+
+    @api.model
+    def _ems_name_search(self, name, args, operator, limit):
+        """A dropdown lists the departments by their path as the reader reads it, so each stage's
+        departments go together under it. There are few of them: they are sorted here."""
+        results = super()._ems_name_search(name, args, operator, None)
+
+        def sort_key(result):
+            decomposed = unicodedata.normalize('NFKD', result[1] or '')
+            return ''.join(char for char in decomposed if not unicodedata.combining(char)).casefold()
+
+        return sorted(results, key=sort_key)[:limit]
+
+    @api.model
+    def _ems_my_ids(self):
+        """The departments the user belongs to or heads, as a Department or Seminar Chief."""
+        uid = self.env.uid
+        return self.sudo().search(['|', '|',
+                                   ('member_ids.user_id', '=', uid),
+                                   ('manager_id.user_id', '=', uid),
+                                   ('seminar_chief_id.user_id', '=', uid)]).ids
+
+    @api.model
+    def _ems_near_ids(self, first_ids):
+        """The other departments of the same area: everything under the top department of each
+        of the first ones (a VET Computer Science teacher gets the other VET departments next)."""
+        Department = self.sudo()
+        roots = {path.split('/')[0] for path in Department.browse(first_ids).mapped('parent_path') if path}
+        if not roots:
+            return []
+        return Department.search(expression.OR([[('parent_path', '=like', f'{root}/%')] for root in roots])).ids
 
     @api.onchange('is_top_level')
     def _onchange_is_top_level(self):

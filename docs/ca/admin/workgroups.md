@@ -4,7 +4,7 @@
 
 # Grups de treball
 
-Els grups de treball són agrupacions lliures d'empleats — un equip de projecte, una comissió interdepartamental, o qualsevol grup de professors, proveïdors o personal PAS que necessitis seguir conjuntament. No tenen cap efecte a la resta del sistema; són purament organitzatius.
+Els grups de treball són agrupacions lliures d'empleats — un equip de projecte, una comissió interdepartamental, o qualsevol grup de professors, proveïdors o personal PAS que necessitis seguir conjuntament. Un d'ells, **Quality Comission**, és la comissió de qualitat: els seus membres veuen el menú **Qualitat**, i el deixen de veure quan surten del grup de treball.
 
 **Rol necessari:** Administrador
 

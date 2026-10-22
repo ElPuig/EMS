@@ -31,6 +31,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Programaciones: consultar las ponderaciones de tus módulos](planning.md) | Consultar de dónde sale el reparto entre nota del centro y estancia, y la ponderación por resultado de aprendizaje, de los módulos que impartes |
 | [Notas públicas y notas privadas del alumno](student-notes.md) | Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría |
 | [El punto de presencia en la pantalla de Profesores](staff-presence.md) | Qué significa el punto verde, amarillo o gris junto al nombre de cada compañero, y en qué se basa |
+| [Actas de reunión](minutes.md) | Redactar actas de departamento, claustro, equipo docente o equipo de mejora, con los asistentes y los acuerdos arrastrados automáticamente |
 
 ---
 

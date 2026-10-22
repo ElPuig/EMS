@@ -19,7 +19,7 @@ Navega a **Reunions → Assistència** i fes clic a **Nou**.
 1. Escriu el nom de la reunió (1).
 2. A **Comença** i **Durada** (2) indica quan comença la reunió i quant dura (per defecte, 2 hores). El camp **Acaba** es calcula sol; també el pots escriure tu i la durada s'ajusta.
 3. A **Convocant** (3) apareixes tu. Si crees la reunió en nom d'una altra persona, tria-la. A **Gestors** afegeix, si cal, altres persones que també hagin de poder obrir el quiosc (vegeu «Pàgina de reunions»).
-4. A **Qui es convoca** (4) tria **Tot el professorat**, **Tot el personal**, **Un departament**, **Un grup de treball** o **Triat a mà**. Si tries un departament o un grup de treball, selecciona'l.
+4. A **Qui es convoca** (4) tria **Tot el professorat**, **Tot el personal**, **Un departament** (inclou els departaments que en depenen), **Un grup de treball**, **L'equip docent d'un grup** (el professorat del grup i el seu tutor) o **Triat a mà**. Si tries un departament, un grup de treball o un grup, selecciona'l.
 5. A **Idioma del quiosc** (5) tria l'idioma de la pantalla de l'entrada.
 6. Si cal, omple la sala i el curs.
 7. Desa. La pestanya **Persones** (6) es carrega amb les persones convocades.

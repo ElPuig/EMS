@@ -4,7 +4,7 @@
 
 # Surveys: LimeSurvey Integration
 
-**Required role:** Administrator or Quality coordinator (see [Visibility](#visibility-who-sees-which-surveys) below for the difference between the two)
+**Required role:** Administrator, Quality coordinator or quality committee member (see [Visibility](#visibility-who-sees-which-surveys) below for the difference)
 
 ---
 
@@ -42,7 +42,7 @@ at any point before it's closed.
 
 ## Visibility: Who Sees Which Surveys
 
-Everyone with access to Surveys — Administrators and the Quality coordinator alike — sees
+Everyone with access to Surveys (Administrators, the Quality coordinator and quality committee members) sees
 every survey centre-wide, but the list always opens filtered to **"Show only mine"** by
 default (a tag in the search bar), so day to day everyone comfortably works with just their
 own. Removing that filter reveals every survey centre-wide, for whenever you need to check on
@@ -50,10 +50,9 @@ someone else's work.
 
 - **Administrators** can fully manage every survey regardless of the filter — it only affects
   what's *shown* by default, not what they're allowed to do.
-- The **Quality coordinator** can only **create, edit or delete the surveys they personally
-  created** — someone else's survey opens in read-only mode even with the filter removed.
-- A plain **Quality team member** (not the coordinator) keeps unrestricted create/edit access
-  to every survey, same as before — this distinction only applies to the coordinator role.
+- The **Quality coordinator** and **quality committee members** can only **create, edit or
+  delete the surveys they personally created**: someone else's survey opens in read-only mode
+  even with the filter removed.
 
 If your account isn't linked to a teacher and you'd rather never see "Show only mine" checked,
 remove it once and use the search bar's **Favorites → Save current search**, ticking

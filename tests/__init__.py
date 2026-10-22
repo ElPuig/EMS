@@ -54,6 +54,7 @@ from . import test_employee_display_fields
 from . import test_employee_archived_reason_tour
 from . import test_employee_tour
 from . import test_workgroup
+from . import test_mine_first
 from . import test_job
 from . import test_teaching
 from . import test_teaching_tour
@@ -205,7 +206,6 @@ from . import test_attendance_template_tour
 from . import test_attendance_archived_filter_tour
 from . import test_attendance_issue
 from . import test_strike_reason
-from . import test_minute
 from . import test_notice
 from . import test_notice_tour
 from . import test_notice_hierarchy_tour
@@ -237,6 +237,7 @@ from . import test_user_profile_tour
 from . import test_quality_process
 from . import test_quality_document
 from . import test_quality_action
+from . import test_quality_action_rules
 from . import test_quality_tour
 from . import test_quality_document_link_import
 from . import test_user_menu_documentation_tour
@@ -250,6 +251,7 @@ from . import test_student_benefit_access
 from . import test_meeting_presence
 from . import test_meeting_presence_tour
 from . import test_docs_screenshots_meeting_presence
+from . import test_docs_screenshots_minutes
 from . import test_employee_identity_visibility
 from . import test_employee_identity_visibility_tour
 from . import test_timezone
@@ -260,5 +262,10 @@ from . import test_dev_mail_guard
 from . import test_employee_presence_tour
 from . import test_student_chatter_replies
 from . import test_mail_reply_to
+from . import test_quality_minute
+from . import test_quality_minute_start
+from . import test_quality_minute_tour
+from . import test_quality_minute_rules
+from . import test_quality_minute_guest
 from . import test_title_registration
 from . import test_title_registration_tour

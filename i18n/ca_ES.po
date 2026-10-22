@@ -23510,7 +23510,7 @@ msgid ""
 "of at %(other_time)s."
 msgstr ""
 "%(teacher)s fa classe al grup juntament amb %(joined)s a les %(time)s, en "
-"lloc de a les %(other_time)s."
+"lloc de fer-ho a les %(other_time)s."
 
 #. module: ems
 #. odoo-python
@@ -23520,7 +23520,7 @@ msgid ""
 "%(target)s, instead of at %(lesson)s."
 msgstr ""
 "Grups units: %(teacher)s fa classe a %(groups)s juntament amb %(joined)s a "
-"les %(target)s, en lloc de a les %(lesson)s."
+"les %(target)s, en lloc de fer-ho a les %(lesson)s."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__joined_group_ids

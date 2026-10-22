@@ -287,7 +287,7 @@ class EmsQualityAction(models.Model):
         Two entries can share a date (a meeting that reviews several agreements at once), so id
         breaks the tie rather than leaving the state dependent on insertion order."""
         self.ensure_one()
-        return self.followup_ids.sorted(key=lambda line: (line.date or fields.Date.today(), line.id))[-1:]
+        return self.followup_ids.sorted(key=lambda line: (line.date or self.env['ems.datetime_utils'].get_local_today(), line.id))[-1:]
 
     def _scope_label(self):
         """Short label of the scope this action belongs to, used in codes and lists."""

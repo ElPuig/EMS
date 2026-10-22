@@ -33,10 +33,11 @@ Navigate to: **Educational Community → Groups**
    - **Delegate**: a student representative (only selectable once the group has students).
    - **Sub-delegate**: the student who stands in for the delegate. Chosen from the same students, and it can't be the delegate.
    - **Shift**, **Reference classroom**, **External ID** (Esfera/SAGA code) as needed.
+   - **Joins with**: for one half of a split group, its other half (e.g. `AIF2B` on `AIF2A`). When a teacher is away, the guard duty board can then propose that the teacher who teaches both halves the same subject teaches them together. Set it on one half and the other gets it too. Both halves must be of the same type (two main groups or two reinforcement groups). Two main halves usually share their **Tutor**, **Delegate** and **Sub-delegate**, and the delegates are chosen among the students of both, but each half can also have its own (co-tutors, a delegate per half). When you link them, or later change one of these on a half, the other half takes it only if it has none. If it already has a different one, the form asks before saving: **Replicate** gives it the same one, **Keep each half's own** saves without touching the other half, and closing the dialog does not save. Leave it empty for groups that only share some lessons without being halves (e.g. `DAM2A` and `DAM2B`).
    - **Managed by the departments** (read-only, shown when there is one): the department set on the group's study or, for a reinforcement group, on the studies of its main groups. Its chiefs can also organise the absences of the group's classes. It is changed on the study's form (see [Studies](curriculum-studies.md)).
 4. Click **Save**.
 
-![A main group's form: level, study, course, acronym, tutor, delegate and sub-delegate, with its students](../../assets/admin/admin-groups-form.png)
+![A main group's form: level, study, course, acronym, tutor, delegate, sub-delegate and the other half it joins with, with its students](../../assets/admin/admin-groups-form.png)
 
 Students aren't added from here — see the **Students** tab to review who's assigned, but a student's own record (or the enrolment flow) is what actually assigns them to a group.
 

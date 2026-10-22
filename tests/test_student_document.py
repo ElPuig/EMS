@@ -472,9 +472,10 @@ class TestStudentDocumentTacAccess(TransactionCase):
 
 
 class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
-    """Issue #483: Head of Studies and Director read the Google credentials of the students whose
-    tutor sits below them, through the tutor rule itself - still read only, and still nothing
-    else from the Documentation tab."""
+    """Issue #483: Department/Seminar Chiefs read the Google credentials of the students whose
+    tutor sits below them, through the tutor rule itself. Issue #654: Head of Studies/Deputy Head
+    of Studies and the Director read every document of those students, from Academic management >
+    Student Documents too - always read only, and never another chain's students."""
 
     @classmethod
     def setUpClass(cls):
@@ -486,8 +487,8 @@ class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
         return self.env['ems.student.document'].with_user(user).search(
             [('id', 'in', (self.credentials | self.dni | self.other_credentials).ids)])
 
-    def test_head_of_studies_reads_their_branch_credentials_only(self):
-        self.assertEqual(self._documents_seen_by(self.head_of_studies), self.credentials)
+    def test_head_of_studies_reads_every_document_of_their_branch_only(self):
+        self.assertEqual(self._documents_seen_by(self.head_of_studies), self.credentials | self.dni)
 
     def test_other_head_of_studies_reads_no_credentials(self):
         self.assertFalse(self._documents_seen_by(self.other_head_of_studies))
@@ -499,11 +500,24 @@ class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
     def test_director_reads_every_tutored_students_credentials(self):
         director = create_role_user(self, 'director', 'test_director_student_document', name='HSD Director')
         self.env.company.director_id = create_role_employee(self, director)
-        self.assertEqual(self._documents_seen_by(director), self.credentials)
+        self.assertEqual(self._documents_seen_by(director), self.credentials | self.dni)
 
-    def test_head_of_studies_cannot_modify_credentials(self):
+    def test_head_of_studies_cannot_modify_documents(self):
+        for document in (self.credentials, self.dni):
+            with self.subTest(doc_type=document.doc_type), self.assertRaises(AccessError):
+                document.with_user(self.head_of_studies).write({'status': 'pending'})
         with self.assertRaises(AccessError):
-            self.credentials.with_user(self.head_of_studies).write({'status': 'pending'})
+            self.dni.with_user(self.head_of_studies).unlink()
+        with self.assertRaises(AccessError):
+            self.env['ems.student.document'].with_user(self.head_of_studies).create({
+                'partner_id': self.student.id, 'doc_type': 'dni',
+            })
+
+    def test_student_documents_menu_for_head_of_studies_not_department_chief(self):
+        menu = self.env.ref('ems.menu_student_documents')
+        Menu = self.env['ir.ui.menu']
+        self.assertIn(menu.id, Menu.with_user(self.head_of_studies)._visible_menu_ids())
+        self.assertNotIn(menu.id, Menu.with_user(self.department_chief)._visible_menu_ids())
 
     def test_head_of_studies_downloads_their_branch_credentials(self):
         students = (self.student | self.other_student).with_user(self.head_of_studies)

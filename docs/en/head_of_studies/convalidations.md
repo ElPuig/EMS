@@ -49,6 +49,8 @@ The list opens with the **Pending for me** filter on, which shows the requests w
 
 Requests waiting for the applicant's documentation are never among them: use the **Pending documentation** filter to see them. Remove the **Pending for me** filter to see every request, or use the filter of a specific state (**Pending the Director**, **Completed**, **Rejected**, **Cancelled**...) to follow the ones that are in somebody else's hands.
 
+The list shows the oldest request first, by registration number, so requests are dealt with in the order they arrived.
+
 ![Convalidation request list](../../assets/head_of_studies/convalidations-list.png)
 
 To see a student's requests, open their record and click the **Convalidations** button.
@@ -68,14 +70,16 @@ Open the request from the list. The form shows:
 
 - The **registration number** (e.g. CONV-2026-27-0001), above the student's name.
 - The student's IDALU (**Student ID**), under *Requested by*, with a button that copies it so you can paste it into Esfera to look up their academic record. You can also type an IDALU in the list's search bar, under *Student*, to find their requests.
+- The student's identity document (**Document ID**), right under the IDALU and with the same copy button, to look the student up in other applications. You can also search for it under *Student*.
 - **Study**, **Course** and **Grounds**. These, the student and the applicant's comments come from the request and cannot be changed.
 - **Studies passed** (prior studies only): at this centre or at another centre or university. A request from the portal for studies passed elsewhere, or on any other grounds, always comes with supporting documents; only studies passed here may come without them.
 - Under the student's name, the notice **Holds a title obtained at this centre** when the academic history records a title obtained here.
 - **Subjects** tab: one line for each module requested.
+- **Academic history** tab (Head of Studies, Deputy, Director, secretariat and administrator): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades.
 - **Supporting documents** tab: the attached files.
 - **Applicant's comments** tab: what the student or the family wrote.
 - **Documentation requested** tab: the last documentation you asked for, if any.
-- **Resolution** tab: comments for the student, sent with the resolution.
+- **Resolution** tab: how the request was resolved, as each step happens (proposal date and who sent it, date filed with the Ministry, resolution date and who issued it, the resolution PDF, registration date and who registered it), and the comments for the student, which the resolution PDF and the resolution email include. The comments can be changed until the Director issues the resolution; from then on they are fixed, so the PDF, the email and the portal always say the same.
 
 ![Convalidation request form](../../assets/head_of_studies/convalidations-form.png)
 
@@ -90,7 +94,7 @@ On each line of the **Subjects** tab, use the buttons on the right:
 | ↺ (Back to pending) | Undoes the line's decision. |
 
 - **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for it: with **Mode** set to **With grade** (the default), write the grade, 5 by default or the one the previous studies hold (from 5 to 10). Choose **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat**, the grades as **CV**, and it does not count towards the average. Until you send the proposal, you can still change the **Grade** and **Without grade** columns on the line.
-- **Reason for refusal:** when you click ✖, a dialog asks for the **Reason**, with the most usual one already selected, and optional **Details**. Both appear on the resolution. They can still be changed on the line until you send the proposal. The list of reasons is maintained by the EMS administrator (see [Convalidation settings](../admin/convalidation-settings.md)).
+- **Reason for refusal:** when you click ✖, a dialog asks for the **Reason**, with the most usual one already selected, and optional **Details**. Both appear on the resolution. They can still be changed on the line until you send the proposal. You maintain the list of reasons yourself, together with the EMS administrator, from **Academic management > Configuration > Convalidations** (see [Convalidation settings](../admin/convalidation-settings.md)).
 
 ![Convalidating a module: its grade](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -112,7 +116,7 @@ The request moves to **Pending documentation** until the documentation arrives:
 
 Meanwhile you can still decide the modules, but you cannot send the proposal or file the request with the Ministry. The **Documentation requested** tab shows the date, the reason and the details of the last request.
 
-Documentation can be requested while the request is **Pending**, **Pending documentation** or **In process at the Ministry**. The list of reasons is maintained by the EMS administrator (see [Convalidation settings](../admin/convalidation-settings.md)).
+Documentation can be requested while the request is **Pending**, **Pending documentation** or **In process at the Ministry**. You maintain the list of reasons yourself, together with the EMS administrator, from **Academic management > Configuration > Convalidations** (see [Convalidation settings](../admin/convalidation-settings.md)).
 
 ---
 
@@ -129,7 +133,7 @@ Both options are in the form's **Actions** menu.
 
 ![Proposal pending the Director](../../assets/head_of_studies/convalidations-director.png)
 
-- **Resolve:** issues the official resolution as proposed. The resolution PDF is generated and the request moves to **Pending the secretariat**. The PDF appears in the form's **Resolution** field: click the file name to open it.
+- **Resolve:** issues the official resolution as proposed. The resolution PDF is generated and the request moves to **Pending the secretariat**. The PDF appears in the **Resolution** field of the **Resolution** tab: click the file name to open it. If you want to add comments for the student, write them in that tab before resolving: they are printed on the PDF and cannot be changed afterwards.
 - **Return to the Head of Studies:** write the reason and click **Return**. The request goes back to **Pending**, with the reason in a yellow notice at the top of the form, and the Head of Studies gets the task again. The student does not see the reason. When the Head of Studies sends the proposal again, the notice disappears.
 
 ### The resolution PDF
@@ -152,7 +156,7 @@ The grounds-of-law and appeal texts, and signing by delegation, are configured i
 1. File the request with the Ministry.
 2. In **Actions**, choose **In process at the Ministry** and confirm. The request stays in your hands: the student can no longer cancel it, but you can still ask them for documentation.
 3. When the Ministry's answer arrives, decide each module as it resolved, with the reason for the rejected ones.
-4. If you have the Ministry's resolution, upload it to the **Ministry resolution** field. It is optional.
+4. If you have the Ministry's resolution, upload it to the **Ministry resolution** field, on the **Resolution** tab. It is optional.
 5. In **Actions**, choose **Ministry resolution received**.
 
 The request moves straight to **Pending the secretariat**, without going through the Director. If you uploaded the Ministry's resolution, that is the one the student receives.

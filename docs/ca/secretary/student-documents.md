@@ -46,7 +46,7 @@ Aprovar un document de bonificació/exempció crea l'entrada corresponent als be
 
 ## Notificacions
 
-L'alumne rep un correu quan el seu document s'aprova o es rebutja. Els revisors (configurats a *Gestió acadèmica > Configuració > Assignació de tasques*) reben una tasca pendent en lloc d'un correu per cada nova tramitació pendent — consulta les teves Activitats per veure "Review document: ...".
+L'alumne rep un correu quan el seu document s'aprova o es rebutja. Els revisors (configurats a *Gestió acadèmica > Configuració > Matrícula > Assignació de tasques*) reben una tasca pendent en lloc d'un correu per cada nova tramitació pendent — consulta les teves Activitats per veure "Review document: ...".
 
 ## Descarregar les credencials de Google
 

@@ -372,8 +372,9 @@ class EmsAuthorization(models.Model):
 
     @api.model
     def action_open_follow_up(self):
-        """The Responses screen: every authorization for the staff above, a tutor's own
-        students' ones otherwise.
+        """The Responses screen: every authorization for the staff above; otherwise those of the
+        students the user acts as tutor of - their own, or those of the tutors below them in the
+        chain of command (hr.employee.tutor_scope_user_ids, issue #483).
 
         The filter lives here and not in a record rule because rule_ems_authorization_teacher
         already lets any teacher read every authorization (it predates issue #443, and the
@@ -382,7 +383,7 @@ class EmsAuthorization(models.Model):
         """
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_ems_authorizations')
         if not self._ems_sees_every_student():
-            action['domain'] = [('partner_id.tutor_id.user_id', '=', self.env.uid)]
+            action['domain'] = [('partner_id.tutor_id.tutor_scope_user_ids', '=', self.env.uid)]
         return action
 
     def _fill_target_from_enrollment(self, vals, force=False):

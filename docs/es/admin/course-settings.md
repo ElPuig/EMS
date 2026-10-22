@@ -50,4 +50,15 @@ Si el año que necesitas no está en la lista, escríbelo en cualquiera de los d
 
 ---
 
+## Periodo de preinscripción
+
+Los tutores solo usan **Gestión académica → Matrícula → Propuestas de matrícula** durante la preinscripción, así que fuera del **Periodo de preinscripción** no la ven. Tampoco la ven los jefes de departamento y de seminario, ni orientación ni convivencia, que ya tienen toda la información del alumno en su ficha. La administración académica, la secretaría, los jefes de estudios, los jefes de estudios adjuntos y el director siempre la ven.
+
+1. En **Periodo de preinscripción**, indica el día, el mes y la hora de **Apertura** y de **Cierre**, en hora local del centro. No hay año: las mismas fechas se repiten cada año.
+2. Guarda. El menú aparece y desaparece solo en esos momentos.
+
+Por defecto va del 1 de mayo a las 08:00 al 31 de julio a las 23:59. Si un tutor abre las propuestas desde un enlace guardado fuera del periodo, un mensaje le indica cuándo se volverá a abrir.
+
+---
+
 [← Volver al índice de Administrador](index.md)

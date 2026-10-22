@@ -7,12 +7,26 @@ import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 // tests/test_convalidation_tour.py and uses structural selectors (button names, CSS classes),
 // so the logged-in user's language does not matter.
 
+// Issue #657: the list puts the oldest request on top, so the test's own requests (course
+// 2094-95) can fall past the first page wherever the database already holds others. Each tour
+// looks them up by the registry number's course part; Enter searches the first field of the
+// search view, the registration number, whatever the user's language.
+const searchTestCourse = [
+    {
+        trigger: ".o_searchview_input",
+        content: "Look for the test course's requests",
+        run: "edit CONV-2094-95",
+    },
+    { trigger: ".o_searchview_input", content: "Confirm the search", run: "press Enter" },
+];
+
 // The Head of Studies reviews a request from Academic management > Convalidations: grants the
 // subject, grades it and sends the resolution proposal to the Director.
 registry.category("web_tour.tours").add("ems_convalidation_resolve", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
     steps: () => [
+        ...searchTestCourse,
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
             content: "The pending request is listed under the default filters",
@@ -26,6 +40,26 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             // Issue #576: the student's IDALU, with a button to copy it into Esfera.
             trigger: ".o_form_view .o_field_widget[name='student_idalu']:contains('TEST') .o_clipboard_button",
             content: "The student's IDALU is shown, ready to copy",
+        },
+        {
+            // Issue #657: and their identity document, the same way.
+            trigger: ".o_form_view .o_field_widget[name='student_document_id']:contains('00000657T') .o_clipboard_button",
+            content: "The student's document ID is shown, ready to copy",
+        },
+        {
+            // Issue #657: the academic history, for whoever decides the subjects.
+            trigger: ".o_form_view .o_notebook .nav-link[name='academic_history']",
+            content: "Open the student's academic history",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_year_record_ids'] .o_data_row td[name='study_name']:contains('Previous Study (Convalidation)')",
+            content: "What the student studied before is listed",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='subjects']",
+            content: "Back to the subjects",
+            run: "click",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_grant']",
@@ -89,6 +123,7 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
     steps: () => [
+        ...searchTestCourse,
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
             content: "Open the pending request",
@@ -105,8 +140,19 @@ registry.category("web_tour.tours").add("ems_convalidation_ministry", {
             content: "The request waits for the Ministry",
         },
         {
+            // Issue #657: on the Resolution tab, with the rest of the circuit's outcome.
+            trigger: ".o_form_view .o_notebook .nav-link[name='resolution']",
+            content: "Open the resolution tab",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='ministry_resolution']",
             content: "The Ministry's resolution can be attached",
+        },
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='subjects']",
+            content: "Back to the subjects",
+            run: "click",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='line_ids'] .o_data_row button[name='action_open_reject']",
@@ -146,6 +192,7 @@ registry.category("web_tour.tours").add("ems_convalidation_request_info", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
     steps: () => [
+        ...searchTestCourse,
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
             content: "Open the pending request",
@@ -188,6 +235,7 @@ registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
     steps: () => [
+        ...searchTestCourse,
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
             content: "The proposal is listed for the Director",
@@ -196,6 +244,17 @@ registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
         {
             trigger: ".o_form_view .o_statusbar_status button[data-value='direction'].o_arrow_button_current",
             content: "It is waiting for the Director",
+        },
+        {
+            // Issue #657: the Director can still add comments before resolving...
+            trigger: ".o_form_view .o_notebook .nav-link[name='resolution']",
+            content: "Open the resolution tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='resolution_notes'] textarea",
+            content: "Write a comment for the student",
+            run: "edit Bring the original certificate",
         },
         ...clickAction("action_resolve", "Resolve it"),
         {
@@ -208,8 +267,18 @@ registry.category("web_tour.tours").add("ems_convalidation_director_resolves", {
             content: "The request goes on to the secretariat",
         },
         {
+            trigger: ".o_form_view .o_notebook .nav-link[name='resolution']",
+            content: "Back on the resolution tab",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='resolution_pdf_link'] a[href^='/web/content/'][target='_blank']",
             content: "with the resolution PDF",
+        },
+        {
+            // ...which the PDF prints, so they no longer change.
+            trigger: ".o_form_view .o_field_widget[name='resolution_notes'].o_readonly_modifier:contains('Bring the original certificate'):not(:has(textarea))",
+            content: "The resolution comments are frozen",
         },
     ],
 });
@@ -219,6 +288,7 @@ registry.category("web_tour.tours").add("ems_convalidation_director_returns", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
     steps: () => [
+        ...searchTestCourse,
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
             content: "Open the proposal",
@@ -251,6 +321,7 @@ registry.category("web_tour.tours").add("ems_convalidation_complete", {
     test: true,
     url: "/odoo/action-ems.action_convalidation",
     steps: () => [
+        ...searchTestCourse,
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Convalidation Student')",
             content: "The resolved request is listed for the secretariat too",
@@ -259,6 +330,16 @@ registry.category("web_tour.tours").add("ems_convalidation_complete", {
         {
             trigger: ".o_form_view .o_statusbar_status button[data-value='in_progress'].o_arrow_button_current",
             content: "It is waiting for the secretariat",
+        },
+        {
+            // Issue #657: the secretariat, who keeps the academic history, sees it too.
+            trigger: ".o_form_view .o_notebook .nav-link[name='academic_history']",
+            content: "Open the student's academic history",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='student_year_record_ids'] .o_data_row td[name='study_name']:contains('Previous Study (Convalidation)')",
+            content: "What the student studied before is listed",
         },
         ...clickAction("action_complete", "Complete it"),
         {
@@ -502,9 +583,36 @@ registry.category("web_tour.tours").add("ems_convalidation_default_filter", {
             content: "Remove the default filter",
             run: "click",
         },
+        ...searchTestCourse,
         {
             trigger: ".o_list_view .o_data_row td[name='student_id']:contains('Still Under Review Student')",
             content: "Every request is there",
+        },
+        {
+            // Issue #657: first come, first served - the oldest request on top.
+            trigger: ".o_list_view .o_data_row:nth-child(1) td[name='student_id']:contains('Convalidation Student')",
+            content: "The oldest request comes first",
+        },
+        {
+            trigger: ".o_searchview .o_searchview_facet .o_facet_remove",
+            content: "Clear the search",
+            run: "click",
+        },
+        {
+            // Issue #657: the identity document finds the student's requests from Student (the
+            // search view's second field, hence its position in the suggestions).
+            trigger: ".o_searchview_input",
+            content: "Type the student's identity document",
+            run: "edit 00000657T",
+        },
+        {
+            trigger: ".o_searchview_autocomplete .o_menu_item:nth-child(2)",
+            content: "Search it under Student",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view:has(.o_data_row td[name='student_id']:contains('Convalidation Student')):not(:has(.o_data_row td[name='student_id']:contains('Still Under Review Student')))",
+            content: "Only that student's request is listed",
         },
     ],
 });

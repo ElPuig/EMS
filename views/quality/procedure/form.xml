@@ -9,8 +9,10 @@
                 <form class="o_quality_wide_form" js_class="ems_quality_form">
                     <header>
                         <field name="edit_mode" widget="ems_quality_edit_mode" invisible="edit_mode or not can_edit"/>
-                        <button name="action_open_document" type="object" string="Open document" icon="fa-external-link"
-                                class="btn-primary" invisible="not url"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_open_document" type="object" string="Open document" icon="fa-external-link"
+                                    class="btn-primary" invisible="not url"/>
+                        </div>
                         <field name="can_edit" invisible="1"/>
                     </header>
                     <sheet>

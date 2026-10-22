@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #656: justify several students, or whole groups, at once. One justification per
+             student is created (ems.attendance_justification_wizard.action_justify). -->
+        <record id="view_attendance_justification_wizard_form" model="ir.ui.view">
+            <field name="name">ems.attendance_justification_wizard.form</field>
+            <field name="model">ems.attendance_justification_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Justify absences">
+                    <field name="student_domain" invisible="1"/>
+                    <field name="group_domain" invisible="1"/>
+                    <field name="user_is_admin" invisible="1"/>
+                    <div class="alert alert-warning o_justification_wizard_overlap" role="alert" invisible="not overlap_student_ids">
+                        These students already have a justification overlapping this period and will be skipped:
+                        <field name="overlap_student_ids" widget="many2many_tags" readonly="1"/>
+                    </div>
+                    <group>
+                        <group>
+                            <field string="Period" name="start_date" widget="daterange" options='{"end_date_field": "end_date"}'/>
+                            <!-- Needed in order to fire 'onchange' for the 'end_date' field -->
+                            <field name="end_date" invisible="1"/>
+                            <field name="mode"/>
+                            <field name="student_ids" widget="many2many_tags" domain="student_domain"
+                                   invisible="mode != 'students'" options="{'no_create': True}"/>
+                            <field name="group_ids" widget="many2many_tags" domain="group_domain"
+                                   invisible="mode != 'groups'" options="{'no_create': True}"/>
+                        </group>
+                        <group>
+                            <field name="teacher_id" widget="many2one_avatar_employee" readonly="not user_is_admin"
+                                   options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Students to justify" name="students">
+                            <field name="target_student_ids" readonly="1">
+                                <list create="0" edit="0" delete="0" no_open="1">
+                                    <field name="name"/>
+                                    <field name="main_group_id"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Attached files" name="attachments">
+                            <field name="attachment_ids" widget="ems_attachments" nolabel="1"/>
+                        </page>
+                        <page string="Notes" name="notes">
+                            <field name="notes"/>
+                        </page>
+                    </notebook>
+                    <footer>
+                        <button name="action_justify" type="object" string="Justify" class="btn-primary o_justification_wizard_justify" data-hotkey="q"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary" data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_attendance_justification_wizard" model="ir.actions.act_window">
+            <field name="name">Justify absences</field>
+            <field name="res_model">ems.attendance_justification_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>

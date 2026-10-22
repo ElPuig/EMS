@@ -115,6 +115,8 @@ If you are on guard duty in a time block, you don't have to wait for somebody to
 
 The class is then struck through with your name next to it, the same as when you are sent to it. Nobody receives a message: the board itself shows who covers what. If your guard duty only coincides with part of the class, you take that part (the dialog tells you which), and someone else can cover the rest. Only a class, or your part of it, with no guard yet can be taken, and only in a time block you are on an ordinary guard duty (not a WC or break guard, and not while you are away yourself). The same goes for the line of a WC or break guard who is away: you can take it yourself the same way.
 
+Lines you cannot take because you are not on guard duty at that time show the hand pointer too, with the tooltip **You cannot cover this teacher: you are not on guard duty at this time** (and the same when you click them), so you know why you cannot take them.
+
 If you change your mind, click the line again and then **Stop covering this class**: the class is left without a guard again. You can only do this with a class you took yourself; if somebody sent you to it, ask them to change it. Whoever organises the absence can still change or remove a guard who took a class on their own.
 
 ## Entering an expected absence
@@ -154,7 +156,7 @@ Everything is done from the **Absences table**, and nothing happens on its own: 
 
 The guard teacher receives an Odoo message (in their inbox, or by email, depending on their own notification preference) with the date, time, group, subject, classroom, the absent teacher and your message. If they reply to that email, the answer reaches you.
 
-The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. The colour belongs to the class covered: when several guards cover different classes at the same time, each class has its own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take the same colour.
+The class is then struck through, the guard's name appears next to it, and the line and the guard's box in the Guard duty column share the same colour. The colour belongs to the class covered: when several guards cover different classes at the same time, each class has its own colour, so you can see at a glance who is covering what. A guard can cover more than one class: all of them take the same colour. Their box only takes it in the hours they are covering a class: on guard from 10 to 12 and covering a class from 10 to 11, their 11-12 box stays uncoloured.
 
 To change the guard, click the line and then **Change or remove the guard** (only shown to whoever organises the absence), and choose another one: the previous guard is told they are no longer needed. To write a new message to the same guard, choose them again and click **Assign and notify**. To take a guard off the class, click **Remove assignment** next to their name, at the top of the dialog: they are told so.
 
@@ -176,7 +178,9 @@ When the teacher of a WC or break guard is away, their guard duty appears as a l
 
 Often no guard is needed, because the teachers can rearrange their lessons that day. The board works this out for every class still left without anybody and proposes it in the **Proposals for the absences** box, above the table (only visible to whoever can organise the absence); those lines also show a tag such as **3 possible arrangements**.
 
-The box has one section per group, headed with its name. Groups that share a lesson that day (two groups taught together) share their section, because rearranging a shared lesson changes all their days. In each section come first what is waiting (an arrangement waiting for its notice, a notice to correct), then the proposals, numbered from the best one, and last **Only tell the families** (see [Late entry, early leave or no classes](#late-entry-early-leave-or-no-classes)).
+The box has one section per group, headed with its name. Groups that share a lesson that day (two groups taught together) share their section, because rearranging a shared lesson changes all their days. In each section come first what is waiting (an arrangement waiting for its notice), then the proposals, numbered from the best one, and last **Only tell the families** (see [Late entry, early leave or no classes](#late-entry-early-leave-or-no-classes)).
+
+A group whose families must be told a correction is not in this box but in a red one above it: **Corrections to absences already organised** (see **When the absence changes afterwards**).
 
 ![Proposals for the absences box: the section of two groups, with three numbered proposals, each a list of steps with its checkbox and, in orange, the entry and exit times they change, and last the option of only telling the families](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
@@ -184,9 +188,12 @@ Each proposal is a list of steps, one per line, always between teachers of those
 
 - **Moved lesson**: a teacher who is free at that time teaches then one of their lessons with the group from another time. The lesson they leave becomes a gap, which another step can fill in turn: one teacher brings a lesson forward, another fills the gap it leaves, and so on, until what is left free is at the start or the end of the day (or next to a break).
 - **Swap**: another teacher of the group teaches then, and the absent teacher, who is in at another time, teaches that teacher's lesson with the group.
-- **Notice to the families**: the group comes in later, leaves earlier or has a longer break, for the lessons left free at the start or the end of the day.
+- **Joined groups**: for the two halves of a split group. The teacher who teaches the same subject to the other half at that time teaches both halves together, in the other half's room, and the lesson they had with this half at another time is left free, as in a moved lesson. It often lets both halves leave an hour earlier. Two groups are halves when the **Joins with** field of their form says so (see [Groups](../admin/groups.md)): sharing a lesson is not enough, since two whole groups can also share some. If the lesson has several teachers, those who are not with the other half at that time stay on guard at its usual time.
+- **Notice to the families**: the group comes in later, leaves earlier or has a longer break, for the lessons left free at the start or the end of the day. A notice that only makes the break longer goes to the students alone.
 
 A lesson shared by several groups is moved for all of them, as long as all of them have the same gap, and the notice then goes to each group.
+
+A lesson given by two teachers together (co-teaching) moves with both of them: they both teach it at the new time. If one of them cannot (they have a class or a duty then, they are away, or their working day would get longer), the proposal is still offered, after any that moves both, with a warning such as **⚠ Anna cannot follow the lesson (busy then): on guard at 11:00 instead.** If you apply it, that teacher has no class at the lesson's usual time: they appear in the **Guard duty** column of that time with the tag **(lesson moved)**, and you can send them to cover a class like any other guard teacher. If you remove the arrangement, they go back to their lesson and whatever they had been sent to cover is released. **Other arrangement (described by hand)** is how to split the two teachers on purpose (one covers a guard while the other stays with the group).
 
 Proposals come in this order: first those where the students lose fewer lessons; among those, the ones where they spend fewer hours in the centre without class (with a guard or in a longer break); then those that need fewer notices and fewer teachers moving lessons, that keep two hours of the same subject together, and that change fewer entry or exit times. Up to three proposals per group are shown.
 
@@ -203,7 +210,9 @@ Proposals come in this order: first those where the students lose fewer lessons;
 
 **The students are told which lessons change time.** A swap or a moved lesson changes when the group has a subject, which the notice to the families does not say (it only says when the group starts or finishes). So applying one also sends a notice **to the group's students only** (never their families), one per group and day, listing every lesson that changes time that day: *"Mathematics: from 11:00-12:00 to 08:00-09:00"*. It is sent straight away too, and if it cannot be sent it stays as a draft that opens for you to review and send (you also find it in **Communications → Notices**); the arrangement does not wait for it, it is already in effect. Until it is sent, the board keeps that draft up to date: applying another arrangement for the same group and day adds its lessons, and removing one takes them out (or deletes the draft, if nothing is left). If the notice was already sent and you remove an arrangement afterwards, a new draft starting with **Correction:** lists the lessons as they are now and those back at their usual time. That correction is not sent on its own: review it and send it from its form.
 
-Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own.
+**The group's tutor gets a copy.** When a notice from the board is sent, to the families (comes in later, leaves earlier, longer break, no classes) or to the students (lessons that change time), the group's tutor receives an Odoo message with a copy of it, so they know how their group's day changes. For a reinforcement group, which has no tutor, the tutors of its main groups receive it. If a scheduled notice is cancelled before it goes out, they are told too.
+
+Once an arrangement is in effect, the **Guard duty schedule** shows who really teaches each lesson involved, and a teacher who was on guard duty at a time they now teach is struck out of the **Guard duty** column there: they cannot be sent to cover anything else then, and nobody can take that class on their own. With joined groups, both halves show **Together with** and the other one's name.
 
 **Other arrangement (described by hand)**, the last option of the dialog, is for whatever the board cannot work out, so that it is on record: two groups joined for the same subject, a teacher of another group... Describe it and, if a teacher is involved, choose them (they receive a message). No guard is then needed for that class.
 
@@ -211,15 +220,17 @@ To change your mind, click the line and then **Change or remove the arrangement*
 
 ### Late entry, early leave or no classes
 
+The schedule only proposes these changes, and the longer break below, if the administrator has switched them on (each one separately, see [Configuring staff absences](../admin/absences.md#timetable-changes-on-the-guard-duty-schedule)). With them off, the lessons without a teacher are covered with a guard, as any other.
+
 When the lessons without a teacher are the first ones of the group's day (one, two or more in a row), the students could come in later; when they are the last ones, they could leave earlier; when every lesson of the day is without a teacher, the group could have no classes. A lesson where somebody is with the students (a co-teacher who is not away, the other half of a split group, an optional subject or a guard already sent) breaks the run.
 
 Those lines show a dashed tag such as **Could start at 10:00**, and the group's section of the **Proposals for the absences** box, above the table (only visible to whoever can organise the absence), offers that change as its last proposal, **Only tell the families**. Sending the notice strikes those lessons off the table, so no guard teacher has to cover them.
 
-The selector next to each proposal lets you tell the families about less than the absences allow: with two lessons without a teacher, you can choose **Starts at 09:00** instead of **Starts at 10:00**. Only the first lesson is then struck out; the second still needs a guard, sent as usual. Choosing the smaller change is your decision: nothing will ask you to correct it.
+The selector next to each step lets you tell the families about less than the absences allow: with two lessons without a teacher, you can choose **Starts at 09:00** instead of **Starts at 10:00**. Only the first lesson is then struck out; the second still needs a guard, sent as usual. Choosing the smaller change is your decision: nothing will ask you to correct it.
 
 On the current day, the board only proposes changes still to come: from 09:00 on, it no longer offers **Starts at 09:00** (the families would find out too late), and a proposal or a correction whose time has passed disappears. If the board has been open for a while, reload it to see the current proposals.
 
-**Send notice** sends a notice to that group's students and families straight away, with the text the board suggests: clicking it is the confirmation. If it cannot be sent (the group has nobody to send it to, for example), it stays as a draft and opens with a message saying why: check it and send it from that form as any other notice (the groups of a timetable change notice cannot be changed). While it stays a draft, the button reads **Open draft**.
+Each change is a step with its checkbox, checked by default, like those of an arrangement: uncheck the ones you do not want and click **Apply the checked steps**. **One notice per group** goes to its students and families straight away, with the text the board suggests: applying the steps is the confirmation. If it cannot be sent (the group has nobody to send it to, for example), it stays as a draft and opens with a message saying why: check it and send it from that form as any other notice (the groups of a timetable change notice cannot be changed). While it stays a draft, the step shows an **Open draft** button.
 
 ![Notice prepared by the board, with the timetable change and the suggested text](../../assets/teachers/guard-duty-05-comunicat.png)
 
@@ -227,9 +238,23 @@ Once the notice is sent (or scheduled), those lines are struck through with a ta
 
 ### A longer break
 
-When the empty lessons are right before and/or right after a break of the group's level, with class further out on that side, the students could have a longer break instead. With the break at 18:00-18:20 and the 17:00 lesson empty, for example, the break could start at 17:00; with the 18:20 lesson empty, it could end at 19:20. The selector offers every combination (earlier, later, or both, hour by hour), and the notice reads *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Sending it strikes those lessons off, like any other change.
+When the empty lessons are right before or right after a break (or on both sides) of the group's level, with class further out on that side, the students could have a longer break instead. With the break at 18:00-18:20 and the 17:00 lesson empty, for example, the break could start at 17:00; with the 18:20 lesson empty, it could end at 19:20. The selector offers every combination (earlier, later, or both, hour by hour), and the notice reads *"…group X will have a longer break, from 17:00 to 19:20, on …"*. Only the **students** receive it (never their families), and it reminds them that those under 18 cannot leave the centre during the break. That is why, unlike the other changes, it does **not** strike those lessons off: they show the break as a tag (*"Break from 17:00 to 19:20"*) and still need a guard teacher, who looks after the students in the centre. If the same notice also changes when the group comes in or leaves, it goes to the families too, break included. In the proposals box, a group whose only possible change is a longer break shows it as **Only tell the students**.
 
 This is never confused with coming in or leaving: if the empty lessons reach the start of the day, it is a late entry (e.g. coming in after the break, at 18:20); if they reach the end, an early leave (e.g. going home at the break, at 18:00).
+
+### Changing a notice already sent
+
+A notice already sent cannot be taken back, but it can be changed until its time comes: for instance, if the families were told the group starts at 10:00 and a guard turns out to be free for the first lesson, or if you would rather rearrange the lessons than have a longer break.
+
+1. In the **Absences table**, on the line the notice struck out, click **Change proposal** (next to the green tag with what was told). Only whoever organises the absence sees it.
+2. Choose what to change it for:
+   - **Change it for**: another change the absences allow (starting at another time, a shorter break...) or the **Usual timetable**, the option chosen by default.
+   - **Or rearrange the lessons**: the possible arrangements of the group's day, planned as if nothing had been told, with their steps checked (you can uncheck some). Each one includes the correction to the families as a step.
+3. Click **Send correction**.
+
+Whichever you choose, the group's students and families get **one correction notice** with the new situation, never a cancellation and a new notice apart. The lessons that take place again are no longer struck out, and you can send a guard to them as usual.
+
+![Change proposal dialog: what was told, the other possible changes and two arrangements, each with its correction step](../../assets/teachers/guard-duty-09-canviar-proposta.png)
 
 ### When the absence changes afterwards
 
@@ -237,7 +262,9 @@ If an absence is refused, cancelled or shortened, or a co-teacher turns out to b
 
 - **A guard who is no longer needed** (box **Guards no longer needed**): click **Release guard**. They are told they no longer need to cover the class.
 - **An arrangement that no longer applies** (same box): the class no longer needs covering, or one of the teachers it relies on is now away at that time. Click **Remove arrangement**; the teachers are told.
-- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the proposals box offers **Send correction**, which sends the same group a new notice with the corrected situation (a different time, or back to the usual timetable) straight away, like **Send notice**.
+- **A notice that no longer matches** (more was told than the absences now allow): a notice already sent cannot be taken back, so the group moves to the red box **Corrections to absences already organised**, above the proposals box, because it is urgent. Every proposal of the group there includes the correction as a step, and so does **Only tell the families**. What you apply goes out in **one notice per group**: for instance, that the group leaves at 11:00 and starts at the usual time. To send only the correction, uncheck the other steps.
+
+![Red corrections box: a proposal with its correction step and, last, only telling the families](../../assets/teachers/guard-duty-10-correccions.png)
 
 ---
 

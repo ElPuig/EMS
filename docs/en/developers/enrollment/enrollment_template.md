@@ -54,7 +54,7 @@ Pure `_inherit` xpath extensions of the native `sale.order.template` views — n
 |------|------|-------|
 | List/Search | `views/academic_management/enrollment_configuration/enrollment_template_view.xml` | Adds `study_year`/`ems_level_id`/`ems_study_id` columns and group-by filters; `action_ems_enrollment_template` ("Enrollment Templates") |
 | Form | `views/academic_management/enrollment_configuration/enrollment_template_form.xml` | Adds the "Academic Information" group; hides several native fields not relevant here (`number_of_days`, `mail_template_id`, `journal_id`, `require_signature`, `require_payment`, the *Optional Products*/*Terms & Conditions* pages); restricts the line product picker's domain to products matching the template's study/level (`ems_study_ids`/`ems_level_ids` on `product.template`, excluding `ems_existing_product_ids`) |
-| Menu | `views/academic_management/enrollment_configuration/menu.xml` | `menu_ems_enrollment_templates`, under Academic Management → Configuration |
+| Menu | `views/academic_management/enrollment_configuration/menu.xml` | `menu_ems_enrollment_templates`, under Academic Management → Configuration → Enrollment (`menu_ems_configuration_enrollment`, a section header of the dropdown, academic admin and secretary only) |
 
 ## Data
 

@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 import werkzeug.urls
 
+from odoo import fields
 from odoo.tests.common import ChromeBrowser
 
 
@@ -172,6 +173,29 @@ def create_level_study_group(cls, prefix, **overrides):
         **overrides.get('group', {}),
     })
     return level, study, group
+
+
+def set_yearly_period(env, prefix, start, end):
+    """A yearly period of res.company (the convalidation request one, the pre-enrollment one), as
+    (day, month, time) tuples for its opening and its closing."""
+    (start_day, start_month, start_time), (end_day, end_month, end_time) = start, end
+    env.company.write({
+        f'{prefix}_start_day': start_day, f'{prefix}_start_month': str(start_month),
+        f'{prefix}_start_time': start_time,
+        f'{prefix}_end_day': end_day, f'{prefix}_end_month': str(end_month),
+        f'{prefix}_end_time': end_time,
+    })
+
+
+def open_yearly_period(env, prefix):
+    """The whole year, so the period is open whenever the suite runs."""
+    set_yearly_period(env, prefix, (1, 1, 0.0), (31, 12, 23 + 59 / 60))
+
+
+def close_yearly_period(env, prefix):
+    """Two days six months away from today, so the period is closed whenever the suite runs."""
+    month = (fields.Date.today().month + 5) % 12 + 1
+    set_yearly_period(env, prefix, (1, month, 0.0), (2, month, 0.0))
 
 
 def mock_outgoing_email(cls):

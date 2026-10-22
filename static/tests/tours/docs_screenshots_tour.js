@@ -29,39 +29,49 @@ registry.category("web_tour.tours").add("ems_doc_shot_tutor_send", {
     ],
 });
 
-// Tutors' justification manual: a new justification with its student and period filled in, so
-// the day's affected sessions (the tutor's own and a colleague's) are listed. The capture opens
-// the empty form itself; the dates are typed in ca_ES format, as a Catalan tutor would.
+// Tutors' justification manual: the "Justify absences" assistant (issue #656) on the tutor's
+// whole group, so the students to justify are listed and Pau, already justified that morning, is
+// flagged as skipped. The capture opens the assistant itself; the dates are typed in ca_ES format,
+// as a Catalan tutor would.
 registry.category("web_tour.tours").add("ems_doc_shot_tutor_justification", {
     test: true,
     steps: () => [
         {
-            trigger: ".o_form_view div[name='student_id'] input",
-            content: "Type one of the tutor's students",
-            run: "edit Marina",
+            trigger: ".modal div[name='mode'] select",
+            content: "Justify by groups",
+            run: "selectByLabel Grups",
         },
         {
-            trigger: ".o-autocomplete--dropdown-item a:contains(Marina Exemple)",
+            trigger: ".modal div[name='group_ids'] input",
+            content: "Type the tutor's group",
+            run: "edit DAM1A",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item a:contains(DAM1A)",
             run: "click",
         },
         {
-            trigger: ".o_form_view div[name='start_date'] input[data-field='start_date']",
+            trigger: ".modal div[name='start_date'] input[data-field='start_date']",
             content: "Start of the period",
-            run: "edit 02/03/2026 07:00:00",
+            run: "edit 02/03/2026 08:00:00",
         },
         {
-            trigger: ".o_form_view div[name='start_date'] input[data-field='end_date']",
+            trigger: ".modal div[name='start_date'] input[data-field='end_date']",
             content: "End of the period",
-            run: "edit 02/03/2026 13:00:00",
+            run: "edit 02/03/2026 14:00:00",
         },
         {
-            trigger: ".o_notebook .nav-item:first-child .nav-link",
-            content: "Leave the date picker, back on the affected sessions",
+            trigger: ".modal .o_notebook .nav-item:first-child .nav-link",
+            content: "Leave the date picker, back on the students to justify",
             run: "click",
         },
         {
-            trigger: ".o_form_view div[name='attendance_session_line_ids'] .o_data_row:nth-child(2)",
-            content: "Both of the day's sessions are listed",
+            trigger: ".modal div[name='target_student_ids'] .o_data_row:nth-child(3)",
+            content: "The group's three students are listed",
+        },
+        {
+            trigger: ".modal .o_justification_wizard_overlap:visible:contains(Pau Mostra)",
+            content: "Pau, already justified, is flagged as skipped",
         },
     ],
 });

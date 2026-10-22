@@ -23,6 +23,18 @@ El crèdit **avisa, no bloqueja**: qui el supera rep un avís i la sol·licitud 
 
 ![Bloc de configuració d'absències del personal, amb els camps de dia sencer, crèdit de salut i recordatoris del justificant](../../assets/admin/admin-absences-settings.png)
 
+### Canvis d'horari al quadre de guàrdies
+
+**Ajustos > EMS > Configuració del quadre de guàrdies** decideix quins canvis pot proposar el quadre de guàrdies quan falta un docent. Tots tres estan **desactivats per defecte**: amb tots desactivats, les classes sense docent sempre es cobreixen amb una guàrdia.
+
+| Paràmetre | Què proposa el quadre quan està activat |
+|---|---|
+| Entrar més tard | Si les primeres classes del dia d'un grup no tenen docent, avisar l'alumnat i les famílies que poden entrar més tard (o que no tenen classe, si cap classe té docent) |
+| Sortir abans | Si les últimes classes del dia no tenen docent, avisar l'alumnat i les famílies que poden sortir abans |
+| Pati més llarg | Si les classes just abans o després d'un pati no tenen docent, allargar el pati. Només s'avisa l'alumnat, i els menors de 18 anys continuen sense poder sortir del centre, de manera que aquestes classes continuen necessitant un professor de guàrdia |
+
+Desactivar-ne un no desfà el que ja s'ha comunicat: si l'absència canvia després, el quadre continua oferint la correcció.
+
 ---
 
 ## El catàleg de tipus d'absència

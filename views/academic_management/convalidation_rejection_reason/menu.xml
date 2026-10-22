@@ -8,12 +8,13 @@
         </record>
 
         <!-- The catalog the Head of Studies picks from when refusing to convalidate a subject;
-             maintained by the EMS administrator, like the documentation request reasons. -->
+             maintained by the EMS administrator and the Heads of Studies, like the documentation
+             request reasons. -->
         <menuitem id="menu_ems_convalidation_rejection_reasons"
                   name="Refusal reasons per subject"
                   parent="menu_ems_configuration_convalidations"
                   action="action_convalidation_rejection_reason_list"
-                  groups="ems.group_academic_admin"
+                  groups="ems.group_academic_admin,ems.group_head_of_studies"
                   sequence="20"/>
     </data>
 </odoo>

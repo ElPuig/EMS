@@ -46,7 +46,7 @@ Aprobar un documento de bonificación/exención crea la entrada correspondiente 
 
 ## Notificaciones
 
-El alumno recibe un correo cuando su documento se aprueba o rechaza. Los revisores (configurados en *Gestión académica > Configuración > Asignación de tareas*) reciben una tarea pendiente en lugar de un correo por cada nueva tramitación pendiente — consulta tus Actividades para ver "Review document: ...".
+El alumno recibe un correo cuando su documento se aprueba o rechaza. Los revisores (configurados en *Gestión académica > Configuración > Matrícula > Asignación de tareas*) reciben una tarea pendiente en lugar de un correo por cada nueva tramitación pendiente — consulta tus Actividades para ver "Review document: ...".
 
 ## Descargar las credenciales de Google
 

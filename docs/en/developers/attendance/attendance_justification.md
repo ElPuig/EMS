@@ -3,7 +3,8 @@
 ## Overview
 
 An `ems.attendance_justification` is a tutor-entered proof-of-attendance covering a
-date/time range for one student (e.g. "medical appointment, 2026-03-02 09:00–11:00") — it
+date/time range for one student (e.g. "medical appointment, 2026-03-02 09:00–11:00"; several
+students or whole groups are justified at once through the assistant, see below) — it
 retroactively re-marks any `miss` line within that range as `justified` and any
 `delayed_severe` line (a severe delay, which counts as an absence) as `delayed` (a minor
 delay, issue #578), and going forward
@@ -16,10 +17,42 @@ for how the prevision side is consumed.
 
 **Only the student's own tutor (or an admin) can create/edit/remove a justification** —
 enforced by `_check_permissions()` (`get_user_is_admin()` OR `get_user_is_tutor_of_self()`,
-from the `ems.base` mixin), called from `default_get()` (blocks the form's "New" button
+from the `ems.base` mixin), called from `default_get()` (blocks opening an empty form
 outright), `create()`, `write()` (only when `start_date`/`end_date` actually change — a
 session linking itself to an existing justification also calls `write()`, and shouldn't be
 gated the same way), and `unlink()`.
+
+---
+
+## Creating justifications: the assistant (issue #656)
+
+A justification always covers **one student**, but it is created from an assistant,
+`ems.attendance_justification_wizard` (`models/attendance/attendance_justification_wizard.py`),
+that justifies several at once. The list's "New" button opens it (the list and form carry
+`create="0"`, so the standard "New" never opens an empty form); opening an existing
+justification still shows its own form, to edit or delete it.
+
+| Field | Notes |
+|-------|-------|
+| `mode` | "Students" (pick them by hand, any number) or "Groups" (every active student whose main group is one of the picked groups). |
+| `start_date` / `end_date`, `teacher_id`, `notes`, `attachment_ids` | Copied to every justification created. Each one gets its own copy of the files (same content, the filestore keeps it once), so each file follows the access rights of the justification it belongs to. |
+| `allowed_student_ids` / `allowed_group_ids` | What the pickers offer, from the justifying teacher (`teacher_id`): an administrator, everything; anyone else, the students (and main groups) of the groups they act as tutor of (`tutor_scope_user_ids`), the same rule as the form's own `allowed_student_ids`. |
+| `target_student_ids` | Preview: the students the selection resolves to that will really be justified (without the skipped ones below). |
+| `overlap_student_ids` | Preview: those already holding a justification overlapping the period. They are **skipped**, not an error, and the closing notification names them. |
+
+```mermaid
+flowchart TD
+    A["action_justify()"] --> B["_check_permissions per student\n(admin, or acts as their tutor) or raise"]
+    B --> C["skip students with an overlapping justification"]
+    C --> D["_justifiable_lines(students, period)\none search for every student"]
+    D --> E["create() one justification per student\nwith its lines and its own copy of the files"]
+    E --> F["notification: N justified, M skipped (names)"]
+```
+
+`EmsAttendanceJustification._justifiable_lines(students, start_date, end_date)` is the one place
+that finds the session lines a period covers (shared with the form's onchange): a single search
+for all the students, grouped per student afterwards, so justifying a group of 30 costs one query,
+not 30.
 
 ---
 

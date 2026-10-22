@@ -50,4 +50,15 @@ Si l'any que necessites no és a la llista, escriu-lo a qualsevol dels dos despl
 
 ---
 
+## Període de preinscripció
+
+Els tutors només fan servir **Gestió acadèmica → Matrícula → Propostes de matrícula** durant la preinscripció, així que fora del **Període de preinscripció** no la veuen. Tampoc no la veuen els caps de departament i de seminari, ni orientació ni convivència, que ja tenen tota la informació de l'alumne a la seva fitxa. L'administració acadèmica, la secretaria, els caps d'estudis, els caps d'estudis adjunts i el director sempre la veuen.
+
+1. A **Període de preinscripció**, indica el dia, el mes i l'hora d'**Obertura** i de **Tancament**, en hora local del centre. No hi ha any: les mateixes dates es repeteixen cada any.
+2. Desa. El menú apareix i desapareix tot sol en aquests moments.
+
+Per defecte va de l'1 de maig a les 08:00 al 31 de juliol a les 23:59. Si un tutor obre les propostes des d'un enllaç desat fora del període, un missatge li indica quan es tornarà a obrir.
+
+---
+
 [← Tornar a l'índex d'Administrador](index.md)

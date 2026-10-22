@@ -4,7 +4,7 @@ from datetime import date
 
 from dateutil.relativedelta import relativedelta
 
-from odoo.exceptions import UserError
+from odoo.exceptions import AccessError, UserError
 from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
@@ -324,6 +324,18 @@ class TestAuthorizationSendWizard(TransactionCase):
         self._wizard(user=self.head, student_ids=[(6, 0, self.adult.ids)]).action_apply()
         self.assertTrue(self._auths(self.adult, self.template))
 
+    def test_head_of_studies_deletes_only_pending_authorizations(self):
+        # Issue #654: "Remove from Pre-Enrollments" deletes a form's pending authorizations.
+        self._wizard(student_ids=[(6, 0, (self.adult | self.other_student).ids)]).action_apply()
+        pending = self._auths(self.adult, self.template)
+        answered = self._auths(self.other_student, self.template)
+        answered.write({'status': 'yes', 'signed_document': FAKE_PDF,
+                        'signed_document_name': 'signed.pdf'})
+        pending.with_user(self.head).unlink()
+        self.assertFalse(pending.exists())
+        with self.assertRaises(AccessError):
+            answered.with_user(self.head).unlink()
+
     def test_staff_are_not_restricted_to_their_own_students(self):
         Authorization = self.env['ems.authorization']
         self.assertTrue(Authorization.with_user(self.sender)._ems_sees_every_student())
@@ -369,6 +381,18 @@ class TestAuthorizationSendWizard(TransactionCase):
         self.assertNotIn(self._auths(self.other_student, self.template), seen)
         staff_action = Authorization.with_user(self.sender).action_open_follow_up()
         self.assertFalse(staff_action.get('domain'))
+
+    def test_a_chief_above_the_tutor_follows_up_their_students(self):
+        """The Department/Seminar Chief above the tutor (parent_id) follows the tutor's students
+        too, never anyone else's (tutor_scope_user_ids, issue #483)."""
+        chief = create_role_user(self, 'department_chief', 'test_chief_send_wizard')
+        self.tutor_employee.parent_id = create_role_employee(self, chief)
+        self._wizard(student_ids=[(6, 0, (self.adult | self.other_student).ids)]).action_apply()
+        Authorization = self.env['ems.authorization']
+        seen = Authorization.with_user(chief).search(
+            Authorization.with_user(chief).action_open_follow_up()['domain'])
+        self.assertIn(self._auths(self.adult, self.template), seen)
+        self.assertNotIn(self._auths(self.other_student, self.template), seen)
 
     def test_a_plain_teacher_cannot_send(self):
         with self.assertRaises(Exception):

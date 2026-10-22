@@ -4,7 +4,7 @@ from datetime import date
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group, next_student_id
+from .common import create_level_study, create_level_study_group, create_role_user, next_student_id
 
 FAKE_PDF = base64.b64encode(b'%PDF-1.4 fake test content')
 
@@ -464,3 +464,48 @@ class TestAuthorizationStandalone(TransactionCase):
         with self.assertRaises(Exception):
             self._standalone()
             self.env.flush_all()
+
+
+class TestAuthorizationMenus(TransactionCase):
+    """Issue #654 - Authorizations is a single entry of Academic management, and its catalogue
+    sits in Academic management > Configuration, where the Heads of Studies reach nothing else."""
+
+    def _visible(self, user):
+        return self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()
+
+    def test_head_of_studies_gets_authorizations_and_enrollment_in_configuration(self):
+        # Enrollment and Convalidations too (issue #654): they read the enrollment set-up and
+        # maintain the convalidation reasons.
+        visible = self._visible(create_role_user(self, 'head_of_studies', 'test_auth_menu_hos'))
+        for xmlid in ('ems.menu_ems_configuration', 'ems.menu_ems_configuration_authorizations',
+                      'ems.menu_ems_authorization_forms', 'ems.menu_ems_configuration_enrollment',
+                      'ems.menu_ems_enrollment_items', 'ems.menu_ems_enrollment_templates',
+                      'ems.menu_ems_task_assignment', 'ems.menu_ems_configuration_convalidations',
+                      'ems.menu_ems_convalidation_info_reasons', 'ems.menu_ems_convalidation_rejection_reasons'):
+            with self.subTest(menu=xmlid):
+                self.assertIn(self.env.ref(xmlid).id, visible)
+
+    def test_catalogue_buttons_only_for_who_maintains_it(self):
+        """Apply/Remove from Pre-Enrollments act centre-wide: a tutor opening a form from the send
+        assistant doesn't get them; the Head of Studies does, and can remove pending ones."""
+        view = self.env.ref('ems.view_ems_authorization_template_form', raise_if_not_found=False) \
+            or self.env['ir.ui.view'].search([('model', '=', 'ems.authorization.template'), ('type', '=', 'form')], limit=1)
+        for role, expected in (('tutor', False), ('head_of_studies', True)):
+            user = create_role_user(self, role, f'test_auth_buttons_{role}')
+            arch = self.env['ems.authorization.template'].with_user(user).get_views([(view.id, 'form')])['views']['form']['arch']
+            with self.subTest(role=role):
+                self.assertEqual('action_apply_to_open_enrollments' in arch, expected)
+                self.assertEqual('action_remove_from_open_enrollments' in arch, expected)
+
+    def test_secretary_keeps_the_whole_configuration(self):
+        visible = self._visible(create_role_user(self, 'secretary', 'test_auth_menu_secretary'))
+        for xmlid in ('ems.menu_ems_authorization_forms', 'ems.menu_ems_enrollment_items',
+                      'ems.menu_ems_enrollment_templates'):
+            with self.subTest(menu=xmlid):
+                self.assertIn(self.env.ref(xmlid).id, visible)
+
+    def test_tutor_gets_authorizations_but_not_the_forms(self):
+        visible = self._visible(create_role_user(self, 'tutor', 'test_auth_menu_tutor'))
+        self.assertIn(self.env.ref('ems.menu_ems_authorization_root').id, visible)
+        self.assertNotIn(self.env.ref('ems.menu_ems_authorization_forms').id, visible)
+        self.assertNotIn(self.env.ref('ems.menu_ems_configuration').id, visible)

@@ -111,7 +111,7 @@ class EmsStudentDocument(models.Model):
     def _schedule_review_activities(self):
         """Schedule a 'to-do' review activity for each configured reviewer.
 
-        Recipients come from Academic Management > Configuration > Task Assignment,
+        Recipients come from Academic Management > Configuration > Enrollment > Task Assignment,
         not from a security group: who reviews documents is a matter of
         organisation, not of access rights.
 

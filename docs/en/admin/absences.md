@@ -23,6 +23,18 @@ The allowance **warns, it does not block**: someone going over it is warned and 
 
 ![Staff Absence Settings block, with the whole-day, health allowance and supporting document reminder fields](../../assets/admin/admin-absences-settings.png)
 
+### Timetable changes on the guard duty schedule
+
+**Settings > EMS > Guard Duty Board Settings** decides which changes the guard duty schedule may propose when a teacher is away. The three are **off by default**: with all of them off, the lessons without a teacher are always covered with a guard.
+
+| Setting | What the schedule proposes when it is on |
+|---|---|
+| Come in later | If the first lessons of a group's day have no teacher, telling the students and families that they can come in later (or that they have no classes, if no lesson has a teacher) |
+| Leave earlier | If the last lessons of the day have no teacher, telling the students and families that they can leave earlier |
+| Longer break | If the lessons right before or after a break have no teacher, making the break longer. Only the students are told, and those under 18 still cannot leave the centre, so those lessons keep needing a guard teacher |
+
+Switching one off does not undo what was already communicated: if the absence changes afterwards, the schedule still offers the correction.
+
 ---
 
 ## The absence type catalogue

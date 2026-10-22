@@ -66,7 +66,7 @@ Los cambios se aplican a las resoluciones que se emitan a partir de ese momento.
 
 Cuando Jefatura de Estudios pide más documentación a un solicitante, elige un motivo de una lista. Tú mantienes esa lista.
 
-**Rol necesario:** Administrador del EMS
+**Rol necesario:** administrador del EMS, o jefe de estudios, jefe de estudios adjunto o dirección (pueden crear, editar y archivar motivos, no borrarlos)
 
 Navega a: **Gestión académica → Configuración → Convalidaciones → Motivos de petición de documentación**
 
@@ -80,7 +80,7 @@ Navega a: **Gestión académica → Configuración → Convalidaciones → Motiv
 
 Cuando Jefatura de Estudios deniega la convalidación de un módulo, elige el motivo de una lista. Tú mantienes esa lista.
 
-**Rol necesario:** Administrador del EMS
+**Rol necesario:** administrador del EMS, o jefe de estudios, jefe de estudios adjunto o dirección (pueden crear, editar y archivar motivos, no borrarlos)
 
 Navega a: **Gestión académica → Configuración → Convalidaciones → Motivos de denegación por módulo**
 

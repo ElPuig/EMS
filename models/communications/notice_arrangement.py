@@ -6,7 +6,7 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
-from odoo.tools import format_date
+from odoo.tools import format_date, format_list
 
 from ..attendance.absence_coverage import COMMUNICATED_NOTICE_STATES, overlaps
 
@@ -59,7 +59,9 @@ class EmsNoticeArrangement(models.Model):
         the lessons `covers` (swaps and moved lessons) make change time. A moved lesson is its
         teacher's lesson left free, now in the gap; a swap is that same one plus the absent
         teacher's lesson, now where the other one was. Co-taught gaps give one cover per absent
-        teacher for the same moved lesson: the set keeps it once."""
+        teacher for the same moved lesson: the set keeps it once. A lesson joined with the other
+        half of a split group (issue #660) also carries the room and that half's name: `(..., room
+        id, other half)`, since the students go to where the other half is."""
         if not covers:
             return {}
         # The subject of each teacher's lesson left free, from one read of the timetable.
@@ -79,8 +81,10 @@ class EmsNoticeArrangement(models.Model):
         for cover in covers:
             usual, new = (cover.vacated_hour_from, cover.vacated_hour_to), (cover.hour_from, cover.hour_to)
             pair = (cover.group_id.id, cover.date)
+            joined = ((cover.space_id.id, format_list(self.env, cover.joined_group_ids.mapped('name')))
+                      if cover.joined_group_ids else ())
             lessons[pair].add((subject_id(cover.guard_employee_id, cover.group_id, cover.date, *usual),
-                               cover.guard_employee_id.id, *usual, *new))
+                               cover.guard_employee_id.id, *usual, *new, *joined))
             if cover.arrangement_type == 'swap':
                 lessons[pair].add((cover.subject_id.id, cover.absent_employee_id.id, *new, *usual))
         return lessons
@@ -183,6 +187,17 @@ class EmsNoticeArrangement(models.Model):
         def span(hour_from, hour_to):
             return f"{course._format_report_time(hour_from)}-{course._format_report_time(hour_to)}"
 
+        rooms = {space.id: space.display_name for space in self.env['ems.space'].sudo().browse(
+            {lesson[6] for lesson in everything if len(lesson) > 6 and lesson[6]})}
+
+        def moved(lesson):
+            values = {'subject': label(lesson), 'usual': span(*lesson[2:4]), 'new': span(*lesson[4:6])}
+            if len(lesson) > 6:
+                # Joined with the other half of the group (issue #660): with whom, and where.
+                return _("%(subject)s: from %(usual)s to %(new)s, together with %(joined)s in %(room)s",
+                         joined=lesson[7], room=rooms.get(lesson[6], ''), **values)
+            return _("%(subject)s: from %(usual)s to %(new)s", **values)
+
         values = {'group': group.name, 'date': format_date(self.env, day)}
         subject = _("%(group)s | lessons at a different time on %(date)s", **values)
         paragraphs = [Markup("<p>{}</p>").format(_("Dear students,"))]
@@ -193,12 +208,11 @@ class EmsNoticeArrangement(models.Model):
         if lessons:
             paragraphs.append(Markup("<p>{}</p>").format(
                 _("Because a teacher is absent, these lessons of group %(group)s will be at a different time on %(date)s:", **values)))
-            paragraphs.append(self.env['ems.base'].build_html_list([
-                _("%(subject)s: from %(usual)s to %(new)s", subject=label(lesson), usual=span(*lesson[2:4]), new=span(*lesson[4:6]))
-                for lesson in lessons]))
+            # A co-taught lesson is one line per teacher in `lessons`, one for the students (issue #678).
+            paragraphs.append(self.env['ems.base'].build_html_list(list(dict.fromkeys(moved(lesson) for lesson in lessons))))
         if back:
             paragraphs.append(Markup("<p>{}</p>").format(
                 _("These lessons of group %(group)s will be at their usual time on %(date)s:", **values)))
-            paragraphs.append(self.env['ems.base'].build_html_list([
-                _("%(subject)s: %(time)s", subject=label(lesson), time=span(*lesson[2:4])) for lesson in back]))
+            paragraphs.append(self.env['ems.base'].build_html_list(list(dict.fromkeys(
+                _("%(subject)s: %(time)s", subject=label(lesson), time=span(*lesson[2:4])) for lesson in back))))
         return subject, Markup("").join(paragraphs)

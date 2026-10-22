@@ -2,6 +2,7 @@
 # acronyms and names of the centre, the Catalan school administration and the tools EMS uses.
 # Add a word only when it is genuinely correct, never to silence a real error.
 Castellano
+EMS
 Esfer@
 GEDAC
 IDALU
@@ -9,3 +10,4 @@ NUSS
 RALC
 csv
 xlsx
+cotutores

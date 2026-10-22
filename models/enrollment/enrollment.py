@@ -8,6 +8,8 @@ from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date
 from odoo.addons.mail.tools.discuss import Store
 
+from ..shared import base
+
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
@@ -213,6 +215,17 @@ class SaleOrder(models.Model):
             "academic year. Someone else may have just created one — please refresh "
             "and check.")) from error
 
+    @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        """Academic management > Enrollment > Enrollments is read only for whoever does not edit
+        enrollments (issue #654): the Heads of Studies only read it, and handle their chain's
+        proposals from Enrollment proposal. Its own views, so native Sales screens are left
+        untouched."""
+        return base.EmsBase.view_read_only_for_non_enrollment_editors(
+            self, super().get_view(view_id, view_type, **options),
+            ('ems.view_ems_enrollments_list', 'ems.view_ems_enrollments_kanban', 'ems.view_ems_enrollments_form'),
+            ('create', 'edit', 'delete'))
+
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
@@ -295,7 +308,7 @@ class SaleOrder(models.Model):
         "view all activities". Skips orders that already have a pending one so
         repeated comments don't pile up tasks.
 
-        Recipients come from Academic Management > Configuration > Task Assignment,
+        Recipients come from Academic Management > Configuration > Enrollment > Task Assignment,
         not from a security group: who handles enrollments is a matter of
         organisation, not of access rights.
 

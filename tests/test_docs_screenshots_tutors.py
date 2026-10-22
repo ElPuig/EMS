@@ -23,7 +23,7 @@ from odoo.addons.ems.models.shared.attendance_mixin import EMS_BYPASS_TEMPLATE_L
 
 from .common import (
     DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
-    draw_invented_student_photo, mock_outgoing_email, next_student_id,
+    draw_invented_student_photo, mock_outgoing_email, next_student_id, open_yearly_period,
 )
 from .test_contact_data_request import valid_dni
 
@@ -303,6 +303,8 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
         )
 
     def test_capture_enrollment_proposals(self):
+        # A tutor only reaches the proposals during the pre-enrollment period (issue #654).
+        open_yearly_period(self.env, 'preenrollment')
         # Next year's group and a template for it, with the subjects it enrolls in.
         self.env['ems.group'].create({
             'course': 2, 'acronym': 'A', 'level_id': self.level.id, 'study_id': self.study.id,

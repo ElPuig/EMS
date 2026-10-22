@@ -14,7 +14,7 @@ Registra en Esfera las convalidaciones ya resueltas y ciérralas en el EMS, para
 
 Una solicitud llega a secretaría cuando ya está resuelta y pasa al estado **Pendiente de secretaría**. Puede llegar por dos caminos:
 
-- **Resuelta por el centro:** Dirección ha emitido la resolución oficial. El PDF de la resolución está en el campo **Resolución** del formulario.
+- **Resuelta por el centro:** Dirección ha emitido la resolución oficial. El PDF de la resolución está en el campo **Resolución** de la pestaña **Resolución** del formulario.
 - **Resuelta por el Ministerio:** Jefatura de Estudios ha registrado el resultado del Ministerio. Si la ha subido, la resolución del Ministerio también está en el campo **Resolución**.
 
 Cada solicitud resuelta aparece en la bandeja de actividades (🕒) de todo el personal de secretaría. Cuando alguien la registra, la tarea desaparece de la bandeja de todos.
@@ -23,7 +23,7 @@ Cada solicitud resuelta aparece en la bandeja de actividades (🕒) de todo el p
 
 ## Acceso
 
-Navega a: **Gestión académica → Convalidaciones**. La lista se abre con el filtro **Pendientes de mí** activado, que para secretaría muestra las solicitudes en estado **Pendiente de secretaría**; quítalo para ver todas las solicitudes. También puedes buscar una solicitud por su **número de registro** (por ejemplo CONV-2026-27-0001).
+Navega a: **Gestión académica → Convalidaciones**. La lista se abre con el filtro **Pendientes de mí** activado, que para secretaría muestra las solicitudes en estado **Pendiente de secretaría**; quítalo para ver todas las solicitudes. También puedes buscar una solicitud por su **número de registro** (por ejemplo CONV-2026-27-0001). La solicitud más antigua aparece primero.
 
 Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **Convalidaciones**.
 
@@ -32,9 +32,11 @@ Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **C
 ## Registrar una resolución
 
 1. Abre la solicitud.
-2. Haz clic en el nombre del fichero del campo **Resolución** para abrir el PDF en una pestaña nueva, y comprueba en la pestaña **Asignaturas** qué módulos están convalidados y con qué nota.
+2. En la pestaña **Resolución**, haz clic en el nombre del fichero del campo **Resolución** para abrir el PDF en una pestaña nueva, y comprueba en la pestaña **Asignaturas** qué módulos están convalidados y con qué nota.
 3. Registra la resolución en Esfera.
 4. Haz clic en **Registrada en Esfera**, arriba del formulario, y confirma.
+
+La pestaña **Histórico académico** muestra el histórico del alumno en el centro, una línea por curso, el mismo que muestra su ficha.
 
 ![Solicitud pendiente de secretaría](../../assets/secretary/convalidations-secretary.png)
 

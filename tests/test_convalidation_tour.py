@@ -20,6 +20,12 @@ class TestConvalidationTour(HttpCase):
         super().setUpClass()
         mock_outgoing_email(cls)
         create_portal_convalidation_fixtures(cls)
+        # Issue #657: the request shows both, to the Head of Studies and the secretariat.
+        cls.student.document_id = '00000657T'
+        cls.env['ems.student.year_record'].create({
+            'student_id': cls.student.id, 'course_id': cls.env['ems.course'].create({'start': 2092, 'end': 2093}).id,
+            'study_name': 'Previous Study (Convalidation)', 'is_external': True,
+        })
         cls.request = cls.env['ems.convalidation'].create({
             'student_id': cls.student.id, 'study_id': cls.study.id, 'course_id': cls.course.id,
             'line_ids': [(0, 0, {'subject_id': cls.subject.id})],
@@ -84,6 +90,7 @@ class TestConvalidationTour(HttpCase):
         self.start_tour("/odoo", "ems_convalidation_director_resolves", login=self.director.login)
         self.assertEqual(self.request.state, 'in_progress')
         self.assertTrue(self.request.resolution_pdf_id)
+        self.assertEqual(self.request.resolution_notes, 'Bring the original certificate')
 
     def test_director_returns(self):
         self._propose()

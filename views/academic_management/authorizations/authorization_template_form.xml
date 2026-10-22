@@ -15,10 +15,13 @@
                                 help="Send this authorization to students during the course, without going through an enrollment."/>
 
                         <!-- Both buttons act on open enrollments, which a form that does not
-                             apply to the enrollment deliberately never touches. -->
+                             apply to the enrollment deliberately never touches. Only for whoever
+                             maintains the catalogue: a tutor opening a form from the send
+                             assistant must not apply it centre-wide (issue #654). -->
                         <button name="action_apply_to_open_enrollments" 
                                 type="object" 
-                                string="Apply to Pre-Enrollments" 
+                                string="Apply to Pre-Enrollments"
+                                groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                                 class="oe_highlight" 
                                 invisible="not apply_on_enrollment" 
                                 confirm="Are you sure you want to add this authorization to all Pre-enrollments matching the criteria?"
@@ -26,7 +29,8 @@
                         
                         <button name="action_remove_from_open_enrollments" 
                                 type="object" 
-                                string="Remove from Pre-Enrollments" 
+                                string="Remove from Pre-Enrollments"
+                                groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                                 invisible="not apply_on_enrollment" 
                                 confirm="Are you sure you want to remove this authorization from all Pre-enrollments? (It is recommended to only remove unsigned ones)."
                                 help="Search for pre-enrollments that have this authorization and remove it."/>

@@ -16,10 +16,13 @@ ACCESS_MATRIX = {
     'ems.absence_cover': {'teacher': 'r', 'department_chief': 'r', 'head_of_studies': 'r'},
     # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
+    # Issue #656: tutors justify absences from it; the secretariat only reads justifications.
+    'ems.attendance_justification_wizard': {'teacher': 'rwcu', 'secretary': ''},
     'ems.attendance_status': {'teacher': 'r'},
     'ems.content': {'teacher': 'r', 'secretary': 'r'},
-    'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
-    'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
+    # Heads of Studies maintain the reasons they pick from, archiving instead of deleting (issue #654).
+    'ems.convalidation.info_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
+    'ems.convalidation.rejection_reason': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
     'ems.course': {'teacher': 'r', 'secretary': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},

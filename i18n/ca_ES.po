@@ -4121,6 +4121,7 @@ msgstr "Famílies"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_notice_line__recipient_type__family model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__family model:res.partner.category,name:ems.partner_category_family
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Family"
 msgstr "Familia"
 
@@ -28161,6 +28162,7 @@ msgstr "Obre l'elecció de destinació"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Participant"
 msgstr "Participant"
 
@@ -28874,6 +28876,7 @@ msgstr "Després de fixar la destinació"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid "Commitment letter"
 msgstr "Carta de compromís"
 
@@ -28970,6 +28973,9 @@ msgid ""
 "                        <p t-if=\"object.commitment_pending\">\n"
 "                            You have to accept and sign the commitment letter on the portal.\n"
 "                        </p>\n"
+"                        <p t-if=\"object.commitment_guardian_pending\">\n"
+"                            Your family has to sign the commitment letter too, from its own access to the portal.\n"
+"                        </p>\n"
 "                        <p>\n"
 "                            You will find everything on the school portal\n"
 "                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>), with the team's\n"
@@ -28995,6 +29001,9 @@ msgstr ""
 "                        <p t-if=\"object.commitment_pending\">\n"
 "                            Has d'acceptar i signar la carta de compromís al portal.\n"
 "                        </p>\n"
+"                        <p t-if=\"object.commitment_guardian_pending\">\n"
+"                            La teva família també ha de signar la carta de compromís, des del seu propi accés al portal.\n"
+"                        </p>\n"
 "                        <p>\n"
 "                            Ho trobaràs tot al portal de l'institut\n"
 "                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>), amb els comentaris\n"
@@ -29015,6 +29024,7 @@ msgstr "<i class=\"fa fa-check-circle me-1\"/>La vas acceptar i signar el"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid "Accept and sign"
 msgstr "Accepta i signa"
 
@@ -29251,3 +29261,144 @@ msgstr "El que l'equip Erasmus puja per al participant: el document per signar, 
 #: model:ir.model.fields,help:ems.field_ems_erasmus_project__name
 msgid "e.g. 2026-1-ES01-KA121-VET-000123456"
 msgstr "p. ex. 2026-1-ES01-KA121-VET-000123456"
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_commitment_guardian
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello,</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.partner_id.name\"/> is preparing an Erasmus+ stay\n"
+"                            (<strong t-out=\"object.call_id.name\"/>). As they are a minor, the family has to accept\n"
+"                            and sign the commitment letter too.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            You will find it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>). Until it is signed,\n"
+"                            you will receive this reminder every week.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola,</p>\n"
+"                        <p>\n"
+"                            <t t-out=\"object.partner_id.name\"/> està preparant una estada Erasmus+\n"
+"                            (<strong t-out=\"object.call_id.name\"/>). Com que és menor d'edat, la família també ha\n"
+"                            d'acceptar i signar la carta de compromís.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            La trobareu al portal de l'institut\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>). Fins que no estigui\n"
+"                            signada, rebreu aquest recordatori cada setmana.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid "<i class=\"fa fa-check-circle me-1\"/>Signed by the family on"
+msgstr "<i class=\"fa fa-check-circle me-1\"/>La família la va signar el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "<i class=\"fa fa-check-circle me-1\"/>Your family signed it on"
+msgstr "<i class=\"fa fa-check-circle me-1\"/>La teva família la va signar el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"<i class=\"fa fa-exclamation-circle me-1\"/>As you are a minor, your family "
+"has to sign it too, from its own access to the portal (Erasmus+)."
+msgstr ""
+"<i class=\"fa fa-exclamation-circle me-1\"/>Com que ets menor, la teva "
+"família també l'ha de signar, des del seu propi accés al portal (Erasmus+)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> It could not be signed: tick "
+"that you accept the commitments."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> No s'ha pogut signar: marqueu"
+" que accepteu els compromisos."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__commitment_guardian_pending
+msgid ""
+"A minor student's commitment letter is signed by their family too, on its "
+"own portal."
+msgstr ""
+"La carta de compromís d'un alumne menor també la signa la seva família, des "
+"del seu portal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid "As the family, we have read these commitments and we accept them."
+msgstr "Com a família, hem llegit aquests compromisos i els acceptem."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Commitment letter accepted and signed in EMS by the family."
+msgstr "Carta de compromís acceptada i signada a l'EMS per la família."
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_commitment_guardian
+msgid "EMS: Erasmus+, commitment letter for the family to sign"
+msgstr "EMS: Erasmus+, carta de compromís per signar per la família"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_commitment_guardian
+msgid "Erasmus+: commitment letter to sign - {{ object.partner_id.name }}"
+msgstr ""
+"Erasmus+: carta de compromís per signar - {{ object.partner_id.name }}"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__commitment_guardian_pending
+msgid "Family signature pending"
+msgstr "Signatura de la família pendent"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__commitment_guardian_signed_ip
+msgid "Family signed from IP address"
+msgstr "La família va signar des de l'adreça IP"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__commitment_guardian_signed_by_id
+msgid "Signed by the family member"
+msgstr "Signada pel familiar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__commitment_guardian_signed_date
+msgid "Signed by the family on"
+msgstr "Signada per la família el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid ""
+"The Erasmus team uploads it for your tutor at the host company to sign at "
+"the end of the stay. Upload it signed within a month of your return."
+msgstr ""
+"L'equip Erasmus el puja perquè el signi el teu tutor a l'empresa d'acollida "
+"en acabar l'estada. Puja'l signat dins del mes següent a la tornada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid ""
+"is a minor, so the family signs the commitment letter of the Erasmus+ stay "
+"too."
+msgstr ""
+"és menor d'edat, així que la família també signa la carta de compromís de "
+"l'estada Erasmus+."

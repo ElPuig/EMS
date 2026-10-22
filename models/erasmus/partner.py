@@ -36,9 +36,21 @@ class ResPartner(models.Model):
 
     def _ems_erasmus_portal_visible(self):
         """The portal's Erasmus+ card: for whoever can apply to a published call or already applied
-        to one. Families do not see it."""
+        to one, and for the family of a minor going on a mobility, which signs its commitment letter."""
         self.ensure_one()
-        return bool(self._ems_erasmus_calls() or self._ems_erasmus_applications())
+        return bool(self._ems_erasmus_calls() or self._ems_erasmus_applications()
+                    or self._ems_erasmus_guardian_mobilities())
+
+    def _ems_erasmus_guardian_mobilities(self):
+        """Issue #687: the mobilities in preparation of the minors this family acts for, whose
+        commitment letter it signs too (pending or already signed)."""
+        self.ensure_one()
+        Mobility = self.env['ems.erasmus.mobility'].sudo()
+        if self.contact_type != 'family':
+            return Mobility
+        students = self.get_portal_students().filtered(self._ems_portal_can_act_for)
+        return Mobility.search([('partner_id', 'in', students.ids), ('state', '=', 'preparing')]).filtered(
+            lambda mobility: mobility.commitment_guardian_pending or mobility.commitment_guardian_signed_date)
 
     def _ems_erasmus_open_mobility(self):
         """Issue #687: an Erasmus+ mobility of this person not closed nor cancelled yet."""

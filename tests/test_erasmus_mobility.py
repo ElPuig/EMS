@@ -33,7 +33,7 @@ class ErasmusMobilityCase(ErasmusResolutionCase):
             'date_start': date(2027, 6, 1), 'date_end': date(2027, 6, 30),
         } for index, count in enumerate(places, 1)])
 
-    def _complete_stage(self, mobility, stage):
+    def _complete_stage(self, mobility, stage, guardian=True):
         lines = mobility.document_ids.filtered(lambda line: line.stage == stage and line.is_required)
         provided = lines.filtered(lambda line: line.handled_by == 'team')
         provided.prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'policy.pdf', 'raw': PDF})
@@ -42,6 +42,18 @@ class ErasmusMobilityCase(ErasmusResolutionCase):
         mobility.task_ids.filtered(lambda task: task.stage == stage).write({'done': True})
         if stage == 'preparation' and mobility.commitment_pending:
             mobility.action_sign_commitment(True, '127.0.0.1')
+        if stage == 'preparation' and guardian and mobility.commitment_guardian_pending:
+            mobility.action_sign_commitment(True, '127.0.0.1', guardian=True)
+
+    def _minor_with_family(self):
+        """The first student becomes a minor with a family contact."""
+        self.student.birth_date = date(self.env['ems.datetime_utils'].get_local_today().year - 16, 1, 1)
+        family = self.env['res.partner'].create({
+            'name': 'Erasmus Test Family', 'contact_type': 'family', 'email': 'erasmus.family@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': self.student.id})
+        return family
 
 
 @tagged('post_install', '-at_install')
@@ -208,10 +220,12 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertNotIn('Identity document', lines, "EMS already holds it.")
         self.assertEqual(lines['European Health Insurance Card'].deadline, today + timedelta(days=30))
         self.assertNotIn('Commitment letter', lines, "Signed in EMS, not uploaded.")
-        self.assertEqual(lines['OLS certificate'].deadline, date(2027, 5, 25), "A week before leaving.")
+        self.assertEqual(lines['OLS certificate'].deadline, today + timedelta(days=30))
+        self.assertEqual(lines['Insurance policy'].deadline, date(2027, 5, 2), "A month before leaving.")
         self.assertTrue(lines['Inclusion documentation'].confidential)
         self.assertEqual(lines['Grant agreement'].deadline, date(2027, 5, 2), "A month before leaving.")
         self.assertEqual(lines['Certificate of stay'].deadline, date(2027, 7, 30), "A month after returning.")
+        self.assertEqual(lines['Certificate of stay'].handled_by, 'team_to_sign', "The host tutor signs the team's.")
         due = first._ems_documents_to_correct()
         self.assertNotIn(lines['Certificate of stay'], due, "Return documents are not asked for before the end.")
         self.assertNotIn(lines['Grant agreement'], due, "Not asked for before the team uploads it filled in.")
@@ -240,6 +254,35 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertIn('OLS', first.commitment_signed_text, "A later change does not alter what was signed.")
         with self.assertRaises(UserError):
             first.action_sign_commitment(True)
+
+    def test_the_family_of_a_minor_signs_the_commitment_letter_too(self):
+        first, _second = self._accepted()
+        family = self._minor_with_family()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        self.assertEqual(first.state, 'preparing')
+        self.assertTrue(first.commitment_guardian_pending)
+        to_family = self._mails(first).filtered(lambda mail: mail.email_to == family.email)
+        self.assertEqual(len(to_family), 1, "The family is told when the destination is set.")
+        self.assertEqual(family._ems_erasmus_guardian_mobilities(), first)
+        self.assertTrue(family._ems_erasmus_portal_visible())
+        self._complete_stage(first, 'preparation', guardian=False)
+        self.assertFalse(first.preparation_complete, "Not ready to leave without the family's signature.")
+        self.env['ems.erasmus.mobility']._cron_remind_documents()
+        self.assertEqual(len(self._mails(first).filtered(lambda mail: mail.email_to == family.email)), 2)
+        first.action_sign_commitment(True, '10.0.0.8', guardian=True)
+        self.assertTrue(first.preparation_complete)
+        self.assertEqual(first.commitment_guardian_signed_ip, '10.0.0.8')
+        with self.assertRaises(UserError):
+            first.action_sign_commitment(True, guardian=True)
+
+    def test_an_adult_signs_alone(self):
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        self.assertFalse(first.commitment_guardian_pending)
+        with self.assertRaises(UserError):
+            first.action_sign_commitment(True, guardian=True)
 
     def test_the_insurance_policy_is_provided_by_the_team(self):
         first, _second = self._accepted()
@@ -490,3 +533,25 @@ class TestPortalErasmusMobility(HttpCase, ErasmusMobilityCase):
         self.assertEqual(first.commitment_signed_by_id, self.student_user)
         self.assertTrue(first.commitment_signed_ip)
         self.assertIn('o_ems_erasmus_commitment_signed', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+
+    def test_the_family_signs_the_commitment_letter_on_its_portal(self):
+        first, _second = self._accepted()
+        family = self._minor_with_family()
+        family_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': family.name, 'login': 'test_erasmus_mob_family', 'password': 'test_erasmus_mob_family',
+            'partner_id': family.id, 'lang': 'en_US', 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        url = f'/my/erasmus/commitment/{first.id}'
+
+        def sign(**data):
+            return self.url_open(url, data={'csrf_token': Request.csrf_token(self), **data})
+        self.authenticate(self.student_user.login, self.student_user.login)
+        self.assertIn('o_ems_erasmus_guardian_pending', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        self.assertIn('error=1', sign(accepted='on').url, "The student does not sign for the family.")
+        self.authenticate(family_user.login, family_user.login)
+        self.assertIn('o_ems_erasmus_guardian_commitment', self.url_open('/my/erasmus').text)
+        self.assertIn('error=1', sign().url, "Not without ticking the acceptance.")
+        sign(accepted='on')
+        self.assertEqual(first.commitment_guardian_signed_by_id, family_user)
+        self.assertIn('o_ems_erasmus_guardian_signed', self.url_open('/my/erasmus').text)

@@ -576,10 +576,11 @@ asked for it until then) or `team` (the team provides it, e.g. the insurance pol
 only downloads it, can't upload to it, is never reminded of it, and the line counts as complete once
 `prepared_attachment_ids` has a file). Defaults (art. 17 and annex 1): students, the European Health
 Insurance Card and, for minors, the family's and the Mossos d'Esquadra's authorisations (30 days
-after the destination), the inclusion documentation (optional, confidential), the OLS certificate
-with the English level (7 days before leaving), the grant agreement and the learning agreement
-(`team_to_sign`, 30 days before leaving at the latest, ideally 90), the insurance policy (`team`, 7
-days before leaving) and the certificate of stay (30 days after returning). Staff: health card,
+after the destination), the OLS certificate with the English level (30 days after the destination),
+the inclusion documentation (optional, confidential), the grant agreement and the learning agreement
+(`team_to_sign`, 30 days before leaving at the latest, ideally 90), the insurance policy (`team`, 30
+days before leaving) and the certificate of stay (`team_to_sign`, signed by the tutor at the host
+company, 30 days after returning). Staff: health card,
 grant agreement, insurance policy, mobility programme, certificate and report. Not asked for, EMS
 already has them: identity document, bank account, personal details, emergency contact.
 
@@ -588,7 +589,16 @@ already has them: identity document, bank account, personal details, emergency c
 on the portal (`action_sign_commitment`, portal step `commitment`): EMS keeps a copy of the text
 (`commitment_signed_text`), who (`commitment_signed_by_id`), when and the IP address.
 `commitment_pending` (text on the call, not signed yet) blocks `preparation_complete` and is part of
-the weekly reminder.
+the weekly reminder. A minor student's family signs it too (`commitment_guardian_*` fields,
+`action_sign_commitment(guardian=True)`), in either order and over the same text: the first signature
+stamps `commitment_signed_text` and the second signs that copy (`_ems_commitment_text()`).
+`commitment_guardian_pending` (students' call, partner not adult, not signed by the family) also
+blocks `preparation_complete`. The family signs on `/my/erasmus` (route
+`/my/erasmus/commitment/<mobility_id>`), which lists `res.partner._ems_erasmus_guardian_mobilities()`:
+the mobilities in preparation of the minors it acts for (`_ems_portal_can_act_for`); that also makes
+the portal's Erasmus+ card visible to it. `_ems_remind_guardians()` emails every family contact with
+an address (template `email_template_erasmus_commitment_guardian`) when the mobility moves to
+*preparing* and in the weekly reminder cron.
 
 **Projects** (`ems.erasmus.project`, menu *Erasmus+ > Projects*): the centre's active projects
 (agreement number, `kind` KA121-VET / KA131-HED, dates, `active`). Each mobility's `project_id` must

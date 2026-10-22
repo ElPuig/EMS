@@ -167,10 +167,18 @@
                             </page>
                             <page string="Commitment letter" name="commitment" invisible="not commitment_signed_date and not commitment_pending">
                                 <field name="commitment_pending" invisible="1"/>
+                                <field name="commitment_guardian_pending" invisible="1"/>
                                 <group>
-                                    <field name="commitment_signed_date"/>
-                                    <field name="commitment_signed_by_id"/>
-                                    <field name="commitment_signed_ip"/>
+                                    <group string="Participant">
+                                        <field name="commitment_signed_date"/>
+                                        <field name="commitment_signed_by_id"/>
+                                        <field name="commitment_signed_ip"/>
+                                    </group>
+                                    <group string="Family" invisible="not commitment_guardian_pending and not commitment_guardian_signed_date">
+                                        <field name="commitment_guardian_signed_date"/>
+                                        <field name="commitment_guardian_signed_by_id"/>
+                                        <field name="commitment_guardian_signed_ip"/>
+                                    </group>
                                 </group>
                                 <field name="commitment_signed_text" invisible="not commitment_signed_date"/>
                             </page>

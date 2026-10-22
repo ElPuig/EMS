@@ -394,7 +394,9 @@ section differs, these win (and the dev doc describes what ships):**
   the team and then signed, a month before leaving at the latest (ideally three); return documents a
   month after returning. Weekly reminder email while any is missing (art. 17 and annex 1 updated).
 - More documents: OLS certificate (English level), inclusion documentation (confidential, optional),
-  insurance policy provided by the team. The commitment letter is signed in EMS (text accepted, who,
+  insurance policy provided by the team (a month before leaving); OLS certificate due a month after the
+  destination; the certificate of stay uploaded by the team for the host tutor to sign. A minor's family
+  signs the commitment letter too, on its portal. The commitment letter is signed in EMS (text accepted, who,
   when, IP). Projects (`ems.erasmus.project`): CFGM mobilities on VET projects, CFGS on HED.
 - Staff complete their proposal with the exact dates and the responsible declaration; when the
   Direction validates it, EMS requests the absence for training on its own, approved as any absence.

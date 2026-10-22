@@ -10,7 +10,36 @@
                     <i class="fa fa-check-circle me-1"/> Your application has been submitted. You will receive a receipt by email.
                 </div>
 
-                <p t-if="not calls" class="text-muted">There are no Erasmus+ calls for you right now.</p>
+                <p t-if="not calls and not guardian_mobilities" class="text-muted">There are no Erasmus+ calls for you right now.</p>
+
+                <!-- Issue #687: the family of a minor signs their commitment letter too. -->
+                <div t-if="guardian_error" class="alert alert-danger mb-3 o_ems_erasmus_error">
+                    <i class="fa fa-exclamation-triangle me-1"/> It could not be signed: tick that you accept the commitments.
+                </div>
+                <div t-foreach="guardian_mobilities" t-as="mobility" class="card shadow-sm mb-4 o_ems_erasmus_guardian_commitment">
+                    <div class="card-header bg-ems-primary text-white">
+                        <strong t-esc="mobility.call_id.name"/> - <t t-esc="mobility.partner_id.name"/>
+                    </div>
+                    <div class="card-body">
+                        <h6>Commitment letter</h6>
+                        <div t-if="mobility.commitment_guardian_signed_date" class="alert alert-success small mb-0 o_ems_erasmus_guardian_signed">
+                            <i class="fa fa-check-circle me-1"/>Signed by the family on
+                            <t t-out="mobility.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                        </div>
+                        <form t-else="" t-attf-action="/my/erasmus/commitment/#{mobility.id}" method="post">
+                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                            <p class="small">
+                                <t t-esc="mobility.partner_id.name"/> is a minor, so the family signs the commitment letter of the Erasmus+ stay too.
+                            </p>
+                            <div class="border rounded p-3 mb-2 small" t-out="mobility._ems_commitment_text()"/>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="accepted" t-attf-id="guardian_accepted_#{mobility.id}" required="required"/>
+                                <label class="form-check-label" t-attf-for="guardian_accepted_#{mobility.id}">As the family, we have read these commitments and we accept them.</label>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_guardian_sign">Accept and sign</button>
+                        </form>
+                    </div>
+                </div>
 
                 <t t-foreach="calls" t-as="call">
                     <t t-set="application" t-value="applications.get(call)"/>
@@ -483,9 +512,16 @@
                         <i class="fa fa-check-circle me-1"/>You accepted and signed it on
                         <t t-out="mobility.commitment_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
                     </div>
+                    <div t-if="mobility.commitment_guardian_pending" class="alert alert-warning small o_ems_erasmus_guardian_pending">
+                        <i class="fa fa-exclamation-circle me-1"/>As you are a minor, your family has to sign it too, from its own access to the portal (Erasmus+).
+                    </div>
+                    <div t-elif="mobility.commitment_guardian_signed_date" class="alert alert-success small">
+                        <i class="fa fa-check-circle me-1"/>Your family signed it on
+                        <t t-out="mobility.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
                     <form t-elif="mobility.state == 'preparing'" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <div class="border rounded p-3 mb-2 small" t-out="call.commitment_text"/>
+                        <div class="border rounded p-3 mb-2 small" t-out="mobility._ems_commitment_text()"/>
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
                             <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>

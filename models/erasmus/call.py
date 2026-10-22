@@ -167,12 +167,13 @@ class EmsErasmusCall(models.Model):
 
     @api.model
     def _ems_preparation_documents(self, audience):
-        """Travel documents: a month after the destination is set. The agreements the Erasmus team
-        fills in: signed a month before leaving at the latest (ideally three). Return documents: a
-        month after the end."""
+        """Travel documents and the OLS certificate: a month after the destination is set. The
+        agreements the Erasmus team fills in: signed a month before leaving at the latest (ideally
+        three); the insurance policy, uploaded a month before leaving. Return documents: a month
+        after the end."""
         health_card = {'name': _("European Health Insurance Card"),
                        'description': _("Requested at the Social Security's electronic office.")}
-        insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start', 'due_days': 7,
+        insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start',
                      'description': _("The Erasmus team uploads it for you to keep.")}
         agreement = {'due_basis': 'before_start', 'handled_by': 'team_to_sign', 'sign_participant': True,
                      'sign_centre': True, 'description': _(
@@ -194,7 +195,7 @@ class EmsErasmusCall(models.Model):
                 {**health_card, 'description': _(
                     "Both sides, valid for the whole stay. Requested at the Social Security's electronic office: upload "
                     "it as soon as you have it.")},
-                {'name': _("OLS certificate"), 'due_basis': 'before_start', 'due_days': 7,
+                {'name': _("OLS certificate"),
                  'description': _("The certificate of the online language course (OLS), with your English level.")},
                 {'name': _("Inclusion documentation"), 'requirement': 'optional', 'confidential': True,
                  'description': _("Only if it applies to you: evidence of fewer opportunities, grants, special needs. "
@@ -207,7 +208,9 @@ class EmsErasmusCall(models.Model):
                  'description': _("GM: learning agreement. GS: Learning Agreement for Traineeships. The Erasmus "
                                   "team uploads it filled in. Ideally signed three months before leaving.")},
                 insurance,
-                {'stage': 'return', 'name': _("Certificate of stay"), 'sign_host': True},
+                {'stage': 'return', 'name': _("Certificate of stay"), 'handled_by': 'team_to_sign', 'sign_host': True,
+                 'description': _("The Erasmus team uploads it for your tutor at the host company to sign at the end "
+                                  "of the stay. Upload it signed within a month of your return.")},
             ]
         defaults = {'preparation': 'destination', 'return': 'after_end'}
         return [(0, 0, {'sequence': index, 'stage': vals.get('stage', 'preparation'), 'requirement': 'required',

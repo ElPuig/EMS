@@ -47,8 +47,24 @@ class EmsPortalErasmusController(CustomerPortal):
             'state_labels': dict(applications._fields['state'].selection),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'submitted': kwargs.get('submitted'),
+            'guardian_mobilities': partner._ems_erasmus_guardian_mobilities(),
+            'guardian_error': kwargs.get('error'),
         })
         return request.render('ems.portal_erasmus', values)
+
+    @http.route('/my/erasmus/commitment/<int:mobility_id>', type='http', auth='user', methods=['POST'], website=True)
+    def portal_erasmus_guardian_commitment(self, mobility_id, **post):
+        """Issue #687: the family of a minor signs their commitment letter, only for a mobility of a
+        child it acts for."""
+        mobility = request.env.user.partner_id._ems_erasmus_guardian_mobilities().filtered(
+            lambda mobility: mobility.id == mobility_id)
+        if not mobility:
+            return request.redirect(f'{self._redirect}?error=1')
+        try:
+            mobility.action_sign_commitment(bool(post.get('accepted')), request.httprequest.remote_addr, guardian=True)
+        except UserError:
+            return request.redirect(f'{self._redirect}?error=1')
+        return request.redirect(self._redirect)
 
     @http.route('/my/erasmus/call/<int:call_id>', type='http', auth='user', website=True)
     def portal_erasmus_application(self, call_id, **kwargs):

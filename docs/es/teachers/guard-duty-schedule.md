@@ -106,6 +106,32 @@ Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el 
 
 ---
 
+## Docentes que no han fichado
+
+Hoy, en cuanto empieza una clase, si su docente no ha fichado aparece en la **Tabla de ausencias** como una ausencia, para que un docente de guardia la pueda cubrir. Su nombre se muestra en rojo subrayado con puntos y con la etiqueta **Sin fichar**. Lo mismo pasa con un docente de guardia: queda marcado en la columna de guardia y no se le puede enviar a cubrir nada hasta que fiche.
+
+- La clase sale de la tabla en cuanto el docente ficha, y también sus clases siguientes. Las clases que han terminado antes de que fichara se quedan, de modo que una guardia que ya se haya enviado sigue siendo correcta.
+- Una ausencia (aprobada, solicitada o prevista) siempre tiene preferencia: entonces la línea muestra la ausencia.
+- Estas clases solo se cubren con una guardia. El horario no propone avisar a las familias ni reorganizar clases, porque puede que el docente esté en el centro.
+- Solo cuentan las clases de hoy. Otro día todavía no ha fichado nadie.
+
+### El docente está en el aula
+
+A veces el docente está en el aula y solo se ha olvidado de fichar. Si estás de guardia en esa franja, u organizas las ausencias de ese docente (su jefe de departamento o de seminario, JE, JEA, Dirección o el administrador), puedes indicarlo:
+
+1. En la **Tabla de ausencias**, haz clic en la línea de la clase en curso (la indicación dice que el docente **aún no ha fichado. Haz clic si está en el aula, o para cubrir la clase.**).
+2. Haz clic en el botón **Está en el aula**.
+
+Se registra la entrada del docente a la hora actual, la clase sale de la tabla y el docente recibe un mensaje que dice quién la ha registrado. En la ficha del fichaje, **Entrada registrada por** muestra tu nombre. Si la hora no es correcta, el docente puede solicitar una corrección como con cualquier otro fichaje.
+
+El mismo diálogo también ofrece lo que podrías hacer con la línea: **Cubrirla yo** si estás de guardia, o **Enviar un docente de guardia** si organizas la ausencia. Una clase que ya ha terminado no se puede resolver así: registrar ahora la entrada del docente no la cambiaría.
+
+### El horario se actualiza solo
+
+Mientras está abierto, el horario se actualiza solo cada 30 segundos (el administrador lo puede cambiar), de modo que una clase cuyo docente no ha fichado aparece en cuanto empieza, sin volver a cargar la página. No se actualiza mientras hay un diálogo abierto o la pestaña del navegador está en segundo plano.
+
+---
+
 ## Cubrir tú mismo una clase
 
 Si estás de guardia en una franja, no hace falta que esperes a que alguien te envíe: puedes coger tú mismo una clase que todavía está sin docente.

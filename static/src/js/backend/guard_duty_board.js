@@ -10,6 +10,7 @@ import { serverNow, syncServerClock } from "./server_clock";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { GuardChangeProposalDialog } from "./guard_change_proposal_dialog";
 import { GuardCoverDialog } from "./guard_cover_dialog";
+import { GuardUncheckedDialog } from "./guard_unchecked_dialog";
 import { GuardArrangementPlan, fullPlanSelection, selectedPlanSteps, toggledPlanSelection } from "./guard_arrangement_plan";
 
 // The reason a struck-out line needs no guard, opened by clicking its info icon - the same text
@@ -175,7 +176,10 @@ export class GuardDutyBoard extends Component {
         onMounted(() => {
             this.nowLineTimer = setInterval(() => this.placeNowLine(), NOW_LINE_REFRESH_MS);
         });
-        onWillUnmount(() => clearInterval(this.nowLineTimer));
+        onWillUnmount(() => {
+            clearInterval(this.nowLineTimer);
+            clearInterval(this.refreshTimer);
+        });
     }
 
     // What the planner is looking at - week and day, shift, view and areas - kept in the URL
@@ -423,17 +427,54 @@ export class GuardDutyBoard extends Component {
         await this.loadBoard();
     }
 
+    get boardArgs() {
+        return [String(this.state.activeDay), this.state.activeShift, this.state.activeAreaIds, this.activeDate];
+    }
+
     async loadBoard() {
         this.state.loading = true;
         this.state.planSelections = {};
         this.state.noticeSelections = {};
-        this.state.board = await this.orm.call(
-            "ems.course",
-            "get_guard_duty_board_data",
-            [String(this.state.activeDay), this.state.activeShift, this.state.activeAreaIds, this.activeDate]
-        );
+        this.state.board = await this.orm.call("ems.course", "get_guard_duty_board_data", this.boardArgs);
         this.state.loading = false;
         this.syncNavigation();
+        this.scheduleRefresh();
+    }
+
+    // Issue #692: the board updates itself every 'refresh_seconds' (a company setting, 0 = never),
+    // so a class whose teacher has not checked in shows up as it starts without anybody reloading.
+    // Quietly: no spinner, the planner's checked steps are kept, and nothing is redrawn unless
+    // something changed. Skipped while the tab is hidden, a dialog or popover is open, or the day
+    // shown is already over.
+    scheduleRefresh() {
+        clearInterval(this.refreshTimer);
+        const seconds = this.state.board && this.state.board.refresh_seconds;
+        if (seconds > 0) {
+            this.refreshTimer = setInterval(() => this.refreshBoard(), seconds * 1000);
+        }
+    }
+
+    async refreshBoard() {
+        if (this.state.loading || this.refreshing || document.visibilityState !== "visible"
+                || this.activeDate < serverNow().toISODate()
+                // A tooltip is a popover too, but only shows what the pointer is over.
+                || document.querySelector(".o_dialog, .o_popover:not(:has(.o-tooltip))")) {
+            return;
+        }
+        const args = this.boardArgs;
+        this.refreshing = true;
+        try {
+            const board = await this.orm.silent.call("ems.course", "get_guard_duty_board_data", args);
+            // The planner moved to another day, shift or area meanwhile: that load wins.
+            if (JSON.stringify(args) === JSON.stringify(this.boardArgs) && !this.state.loading
+                    && JSON.stringify(board) !== JSON.stringify(this.state.board)) {
+                this.state.board = board;
+            }
+        } catch {
+            // A network hiccup: the next tick tries again.
+        } finally {
+            this.refreshing = false;
+        }
     }
 
     // Bold red for an absence that is going to happen, a lighter italic for one still waiting
@@ -445,6 +486,10 @@ export class GuardDutyBoard extends Component {
         if (absence === "moved") {
             // Issue #645: not away, their lesson went elsewhere - nobody is with the group then.
             return "o_guard_board_absent_moved";
+        }
+        if (absence === "unchecked") {
+            // Issue #692: not checked in yet - maybe in the building, maybe not.
+            return "o_guard_board_absent_unchecked";
         }
         return absence === "pending" ? "o_guard_board_absent_pending" : "";
     }
@@ -478,7 +523,8 @@ export class GuardDutyBoard extends Component {
         const classes = {
             o_guard_board_absence_covered: absence.covered,
             o_guard_board_absence_struck: !absence.covered && Boolean(this.isFullyCovered(absence) || absence.authorized || this.isArranged(absence)),
-            o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || Boolean(absence.self_cover_id),
+            o_guard_board_absence_manageable: this.isAssignable(absence) || absence.can_self_assign || Boolean(absence.self_cover_id)
+                || absence.can_mark_present,
             o_guard_board_absence_not_on_guard: Boolean(this.notOnGuardReason(absence)),
         };
         if (absence.covers.length) {
@@ -499,6 +545,9 @@ export class GuardDutyBoard extends Component {
     // The line's tooltip: why it is struck out (the same as its info icon), or, on a line still
     // to be covered, how to send a guard to it.
     absenceRowTooltip(absence) {
+        if (absence.can_mark_present) {
+            return _t("%s has not checked in yet. Click if they are in the classroom, or to cover the class.", absence.teacher);
+        }
         if (this.struckReason(absence)) {
             return this.struckReason(absence);
         }
@@ -528,7 +577,7 @@ export class GuardDutyBoard extends Component {
     // they are not on guard duty then, says so too - every line answers the pointer, not only some.
     notOnGuardReason(absence) {
         if (!this.state.board.editable || absence.self_label || absence.can_self_assign || absence.self_cover_id
-                || absence.arrangement || this.struckReason(absence) || this.isAssignable(absence)) {
+                || absence.arrangement || this.struckReason(absence) || this.isAssignable(absence) || absence.can_mark_present) {
             return false;
         }
         return _t("You cannot cover this teacher: you are not on guard duty at this time.");
@@ -566,6 +615,10 @@ export class GuardDutyBoard extends Component {
     // Clicking a struck-out line (anywhere on it, not only its icon) explains it, anchored to the
     // icon; clicking a line still to be covered sends a guard to it.
     onAbsenceClick(ev, line, absence) {
+        if (absence.can_mark_present) {
+            this.openUncheckedDialog(line, absence);
+            return;
+        }
         const reason = this.struckReason(absence);
         if (!reason) {
             const notOnGuard = this.notOnGuardReason(absence);
@@ -781,6 +834,36 @@ export class GuardDutyBoard extends Component {
                 ? () => this.openNotice(absence.arrangement.notice_id) : undefined,
             onRelease: async (coverId) => {
                 await this.orm.call("ems.absence_cover", "board_release", [coverId || absence.arrangement.id]);
+                await this.loadBoard();
+            },
+        });
+    }
+
+    // Issue #692: the teacher of a class in progress has not checked in. The dialog offers to say
+    // they are in the classroom, and whatever the user could otherwise do with the row.
+    openUncheckedDialog(line, absence) {
+        let onCover;
+        let coverLabel;
+        if (this.isAssignable(absence)) {
+            coverLabel = absence.covers.length ? _t("Change or remove the guard") : _t("Send a guard teacher");
+            onCover = () => this.openCoverDialog(line, absence);
+        } else if (absence.self_cover_id) {
+            coverLabel = _t("Stop covering this class");
+            onCover = () => this.confirmSelfRelease(absence);
+        } else if (absence.can_self_assign) {
+            coverLabel = _t("Cover it myself");
+            onCover = () => this.confirmSelfAssign(line, absence);
+        }
+        this.dialog.add(GuardUncheckedDialog, {
+            row: absence,
+            line,
+            coverLabel,
+            onCover,
+            onMarkPresent: async () => {
+                await this.orm.call("ems.absence_cover", "board_mark_present", [
+                    this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
+                ], { duty_id: absence.duty_id });
+                this.notification.add(_t("%s is now checked in.", absence.teacher), { type: "success" });
                 await this.loadBoard();
             },
         });

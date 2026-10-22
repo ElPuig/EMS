@@ -177,8 +177,9 @@ distinctions that matter to whoever assigns guards: `validate` → `'approved'` 
 around), `confirm`/`validate1` → `'pending'` (a request nobody has decided on yet). The two
 pre-approval states are collapsed deliberately — "waiting for the first approver" vs "the
 second" changes nothing here. Refused and cancelled requests are not in the mapping at all,
-which is what keeps them off the board entirely. When the same teacher has both an approved and
-a pending absence overlapping one period, approved wins: the period needs covering either way,
+which is what keeps them off the board entirely. (A third state, `'unchecked'`, is not an absence
+at all: a teacher who has not checked in today, see "Teachers who have not checked in" below.) When
+the same teacher has both an approved and a pending absence overlapping one period, approved wins: the period needs covering either way,
 and reporting it as merely requested would understate it.
 
 **Co-taught classes: listed, but marked as covered.** Every row of `line['absences']` carries
@@ -1356,6 +1357,7 @@ vocational families work and leaves ESO/BTX blank.
 | See and apply detected arrangements, record a manual one, remove one (`board_arrange`, `board_release`) | No | Yes |
 | Send a timetable change or correction (`board_send_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
+| Check in a teacher who has not (`board_mark_present`, issue #692) | Only a guard on duty then | Yes |
 
 Department and Seminar chiefs use Communications > Notices limited to the groups their department
 teaches or manages (see the access table in [notice.md](../communications/notice.md)); a
@@ -1373,6 +1375,71 @@ which check who manages the class and then write with `sudo()`.
 
 The day comes from the board (a calendar date); the server refuses to manage a day before
 `ems.datetime_utils.get_local_today()` - what is over is over.
+
+## Teachers who have not checked in (issue #692)
+
+A class whose teacher has not checked in is left without anybody as surely as an absent teacher's,
+so from the moment it starts it is on the absences table, to be covered with a guard. Whoever is on
+guard then, or manages the absence, can also say the teacher is in the classroom after all, which
+checks them in.
+
+```mermaid
+flowchart TD
+    ATT["hr.attendance: first check_in of today, per employee<br/>(one _read_group)"] --> UI["_get_unchecked_intervals(day, employees)<br/>{employee: (now, arrival, 'unchecked')}"]
+    UI -->|"unchecked=True only"| INT["_get_guard_duty_absence_intervals"]
+    INT --> ST["_guard_duty_absence_state<br/>approved > pending > unchecked"]
+    ST --> ROWS["board rows, guard column, guard candidates,<br/>_get_group_day_blocks (assign / obsolete cover)"]
+    ROWS -->|"row in progress, can_mark_present"| MP["ems.absence_cover.board_mark_present<br/>hr.attendance sudo create, ems_checked_in_by_id"]
+    MP --> MSG["_notify_checked_in_by(): message to the teacher"]
+```
+
+**The rule.** `_get_unchecked_intervals()` only answers for today (`get_local_today()`), with one
+query: the first check-in of each employee that company day. Its interval is not an overlap like an
+absence's but `(now, arrival)`: a period counts as unchecked when it has started (`hour_from <= now`)
+and the teacher had not arrived before it ended (`hour_to <= arrival`, `arrival` = 24.0 without a
+check-in). Checking in at 10:05 clears the 10-11 class and the next ones, while the 8-9 one stays: a
+guard sent to it was the right decision and must not turn into a "no longer needed" action.
+`_guard_duty_absence_state()` applies that test to `'unchecked'` intervals and ranks it below an
+absence: an approved or pending one on the same period wins.
+
+**Who sees it, who doesn't.** `_get_guard_duty_absence_intervals(..., unchecked=True)` is passed only
+by the guard side of the board: its own lines (classes and the guard column), `_get_group_day_blocks`
+(so `board_assign`, `_get_needed_absence_block` and the obsolete-cover action treat it like an
+absence), `_get_needed_duty_entry` (a WC or break guard not checked in is a post to cover, issue #606)
+and `_get_guard_candidates` (a guard not checked in cannot be sent). A teacher who has not checked
+in may still be in the building, so nothing else reacts to it:
+- A block's `empty` ignores them, so `_all_absence_changes()` never proposes telling the families.
+- The arrangement planner's `away` excludes them, `_board_row_arrangement_plans()` returns nothing
+  for an `'unchecked'` row, `_arrangement_context()` does not ask for them, and `board_arrange`
+  refuses such a class (the dialog hides the manual arrangement too).
+
+**"The teacher is in the classroom".** `board_mark_present(day, hour_from, hour_to, absent, group_id |
+duty_id)` checks that the current user may (`_can_mark_present`: `_is_absence_manager()`, which
+already covers the chain of command, Direction and the administrator, or a guard duty of their own
+overlapping the period, `_is_on_guard`), then that the class is going on now and the teacher is
+still unchecked (`_is_unchecked_in_progress`). A class already over is refused: checking the teacher
+in at this hour would not take it off the table. The check-in is created with `sudo()`, `check_in =
+fields.Datetime.now()` (naive UTC without microseconds, as `_auto_checkin_teacher` does, for
+`last_attendance_id`), `in_mode='manual'` and `ems_checked_in_by_id` = the user, its own field since
+`create_uid` would be the superuser. The attendance form shows it when set (the list does not), and
+`hr.attendance._notify_checked_in_by()` tells the teacher in their language, with the time in the
+company's timezone. The board sends `can_mark_present` per row: the row is `'unchecked'`, its line
+is in progress (`_in_progress`) and the user manages it or is among the line's guards.
+
+On screen the row shows the name in red with a dotted underline and the tag "Not checked in" (the
+PDF prints the tag too). Clicking a row with `can_mark_present` opens `GuardUncheckedDialog`
+(`guard_unchecked_dialog.js`): "They are in the classroom" and, when the user can, the usual next
+step (send a guard, cover it themselves, stop covering it).
+
+**Automatic refresh.** `res.company.ems_guard_board_refresh_seconds` (Settings > Guard Duty Board
+Settings, 30 by default, 0 = off) comes with every `get_guard_duty_board_data()` as
+`refresh_seconds`. The client action reloads the same data on that interval without a spinner and
+keeps the planner's checked steps; it only replaces `state.board` when the JSON differs, so nothing is
+redrawn when nothing changed. It skips a tick while the tab is hidden, a dialog or a popover (not a
+tooltip) is open, a load is running, or the day shown is over, and drops a result if the user moved
+to another day, shift or area meanwhile. Measured on the dev database (2026-10-22, `odoo shell`,
+cold): 0.15-0.24 s per load, the same as before the extra query (0.06 s for every employee of the
+centre), so a 30-second refresh per open screen is cheap. The guard room TV (#591/#642) will reuse it.
 
 ## Related docs
 

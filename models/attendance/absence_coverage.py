@@ -535,6 +535,9 @@ class EmsAbsenceCover(models.Model):
         block = course._get_needed_absence_block(day, group, absent, hour_from, hour_to)
         if not block:
             raise UserError(_("This class no longer needs covering: the absence or the class has changed. Reload the board."))
+        if block['absences'].get(absent.id) == 'unchecked':
+            # Issue #692: they may still be in the building - a guard, or checking them in.
+            raise UserError(_("%s has not checked in yet: send a guard teacher, or say they are in the classroom.", absent.name))
         # Teachers rearrange a group's lessons: an arrangement is always about a class, never a
         # guard duty (issue #606), which only a guard can cover.
         duty = self.env['ems.non_teaching_type']
@@ -781,3 +784,37 @@ class EmsAbsenceCover(models.Model):
         self.env['ems.course']._check_board_day_not_past(cover.date)
         cover.write({'state': 'released'})
         return True
+
+    # "The teacher is in the classroom" (issue #692): a class on the table only because its teacher
+    # has not checked in, resolved by checking them in at the current time.
+
+    @api.model
+    def board_mark_present(self, day, hour_from, hour_to, absent_employee_id, group_id=False, duty_id=False):
+        """Checks `absent_employee_id` in now, on behalf of the current user - on guard in the period
+        or managing the absence (ems.course._can_mark_present) - because they are in the classroom
+        after all, and tells them. Only while their class (of `group_id`, or their guard duty
+        `duty_id`) is going on and they have still not checked in."""
+        day = fields.Date.to_date(day)
+        absent = self.env['hr.employee'].browse(absent_employee_id).exists()
+        group = self.env['ems.group'].browse(group_id).exists() if group_id else self.env['ems.group']
+        if not absent or bool(group_id) == bool(duty_id) or (group_id and not group):
+            raise UserError(_("The class or the teacher no longer exists."))
+        course = self.env['ems.course']
+        course._check_board_day_not_past(day)
+        if not course._can_mark_present(day, absent, group, hour_from, hour_to):
+            raise AccessError(_("Only a guard teacher on duty then, or whoever manages the absences of %s, can "
+                                "register their check-in.", absent.name))
+        if not course._is_unchecked_in_progress(day, absent, hour_from, hour_to):
+            raise UserError(_("%s can no longer be checked in from here: the class is not going on now, or they "
+                              "have already checked in. Reload the board.", absent.name))
+        # Naive UTC with no microseconds, as the automatic check-in does (see
+        # ems.attendance_session_header._auto_checkin_teacher): hr.employee's last_attendance_id is
+        # computed against exactly that "now".
+        attendance = self.env['hr.attendance'].sudo().create({
+            'employee_id': absent.id,
+            'check_in': fields.Datetime.now(),
+            'in_mode': 'manual',
+            'ems_checked_in_by_id': self.env.uid,
+        })
+        attendance._notify_checked_in_by()
+        return attendance.id

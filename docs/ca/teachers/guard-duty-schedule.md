@@ -106,6 +106,32 @@ Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el
 
 ---
 
+## Docents que no han fitxat
+
+Avui, tan bon punt comença una classe, si el docent no ha fitxat surt a la **Taula d'absències** com una absència, perquè un docent de guàrdia la pugui cobrir. El seu nom es mostra en vermell subratllat amb punts i amb l'etiqueta **Sense fitxar**. El mateix passa amb un docent de guàrdia: queda marcat a la columna de guàrdia i no se'l pot enviar a cobrir res fins que fitxi.
+
+- La classe surt de la taula tan bon punt el docent fitxa, i també les classes següents. Les classes que han acabat abans que fitxés s'hi queden, de manera que una guàrdia que ja s'hi hagi enviat continua sent correcta.
+- Una absència (aprovada, sol·licitada o prevista) sempre té preferència: llavors la línia mostra l'absència.
+- Aquestes classes només es cobreixen amb una guàrdia. L'horari no proposa avisar les famílies ni reorganitzar classes, perquè potser el docent és al centre.
+- Només compten les classes d'avui. Un altre dia encara no ha fitxat ningú.
+
+### El docent és a l'aula
+
+De vegades el docent és a l'aula i només s'ha oblidat de fitxar. Si estàs de guàrdia en aquella franja, o organitzes les absències d'aquest docent (el seu cap de departament o de seminari, cap d'estudis, cap d'estudis adjunt, direcció o l'administrador), ho pots indicar:
+
+1. A la **Taula d'absències**, fes clic a la línia de la classe en curs (la indicació diu que el docent **encara no ha fitxat. Fes clic si és a l'aula, o per cobrir la classe.**).
+2. Fes clic a **És a l'aula**.
+
+Es registra l'entrada del docent a l'hora actual, la classe surt de la taula i el docent rep un missatge que diu qui l'ha registrada. A la fitxa del fitxatge, **Entrada registrada per** mostra el teu nom. Si l'hora no és correcta, el docent en pot sol·licitar una correcció com amb qualsevol altre fitxatge.
+
+El mateix diàleg també ofereix el que podries fer amb la línia: **Cobrir-la jo** si estàs de guàrdia, o **Enviar un docent de guàrdia** si organitzes l'absència. Una classe que ja ha acabat no es pot resoldre així: registrar ara l'entrada del docent no la canviaria.
+
+### L'horari s'actualitza sol
+
+Mentre està obert, l'horari s'actualitza sol cada 30 segons (l'administrador ho pot canviar), de manera que una classe el docent de la qual no ha fitxat hi apareix tan bon punt comença, sense tornar a carregar la pàgina. No s'actualitza mentre hi ha un diàleg obert o la pestanya del navegador és en segon pla.
+
+---
+
 ## Cobrir tu mateix una classe
 
 Si estàs de guàrdia en una franja, no cal que esperis que algú t'hi enviï: pots agafar tu mateix una classe que encara és sense docent.

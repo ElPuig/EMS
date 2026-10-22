@@ -106,6 +106,32 @@ Only the fact that somebody is away is shown here. The type of absence, its reas
 
 ---
 
+## Teachers who have not checked in
+
+Today, as soon as a class starts, if its teacher has not checked in it appears in the **Absences table** like an absence, so a guard teacher can cover it. Their name is shown in red with a dotted underline and the tag **Not checked in**. The same goes for a teacher on guard duty: they are marked in the Guard duty column and cannot be sent to cover anything until they check in.
+
+- The class leaves the table as soon as the teacher checks in, and so do their next classes. The classes that ended before they checked in stay, so a guard already sent to them is still correct.
+- An absence (approved, requested or expected) always takes precedence: the line then shows the absence.
+- Such a class is only covered with a guard. The schedule does not propose telling the families or rearranging lessons, because the teacher may still be in the centre.
+- Only today's classes count. On another day nobody is checked in or out yet.
+
+### The teacher is in the classroom
+
+Sometimes the teacher is in the classroom and has only forgotten to check in. If you are on guard duty at that time, or you organise that teacher's absences (their department or seminar chief, Head of Studies, Deputy Head of Studies, Direction or the administrator), you can say so:
+
+1. In the **Absences table**, click the line of the class in progress (its tooltip says that the teacher **has not checked in yet. Click if they are in the classroom, or to cover the class.**).
+2. Click **They are in the classroom**.
+
+The teacher's check-in is registered at the current time, the class leaves the table, and the teacher receives a message saying who registered it. On the check-in's own form, **Check-in registered by** shows your name. If the time is not right, the teacher can request a correction as with any other check-in.
+
+The same dialog also offers what you could otherwise do with the line: **Cover it myself** if you are on guard duty, or **Send a guard teacher** if you organise the absence. A class that has already ended cannot be resolved this way: checking the teacher in now would not change it.
+
+### The schedule updates itself
+
+While it is open, the schedule updates itself every 30 seconds (the administrator can change this), so a class whose teacher has not checked in appears as soon as it starts without reloading the page. It does not update while a dialog is open or the browser tab is in the background.
+
+---
+
 ## Covering a class yourself
 
 If you are on guard duty in a time block, you don't have to wait for somebody to send you: you can take a class that is still left without a teacher yourself.

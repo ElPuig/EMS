@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_action_form">
+            <field name="name">ems.quality.action.form</field>
+            <field name="model">ems.quality.action</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <!-- Readonly on purpose: the state is derived from the follow-up entries, so
+                             moving this forward means adding one and saying why. -->
+                        <field name="state" widget="statusbar" readonly="1"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Overdue" bg_color="text-bg-danger" invisible="not is_late"/>
+                        <div class="oe_title">
+                            <h2><field name="code" readonly="1"/></h2>
+                            <h1><field name="name" placeholder="What was agreed, or the action to take"/></h1>
+                        </div>
+                        <group>
+                            <group string="Responsibility">
+                                <field name="type"/>
+                                <field name="responsible_role_id"/>
+                                <field name="responsible_employee_ids" widget="many2many_tags"/>
+                                <field name="resources"/>
+                            </group>
+                            <group string="Deadline">
+                                <field name="deadline_date"/>
+                                <field name="deadline_text" placeholder="By the final meeting of the year"/>
+                                <field name="course_id"/>
+                                <field name="is_late" invisible="1"/>
+                            </group>
+                        </group>
+                        <group string="Scope">
+                            <group>
+                                <field name="department_id"/>
+                                <field name="workgroup_id"/>
+                            </group>
+                            <group>
+                                <field name="group_id"/>
+                                <field name="is_centre"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Description" name="description">
+                                <field name="description" placeholder="What has to be done, and why"/>
+                            </page>
+                            <page string="Follow-up" name="followup">
+                                <field name="followup_ids">
+                                    <list editable="bottom" default_order="date desc">
+                                        <field name="date"/>
+                                        <field name="state"/>
+                                        <field name="description"/>
+                                        <field name="author_employee_id"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Closure" name="closure">
+                                <group>
+                                    <field name="completion_criteria" placeholder="When will it be finished"/>
+                                    <field name="efficacy_criteria" placeholder="How will efficacy be measured"/>
+                                </group>
+                            </page>
+                        </notebook>
+                        <field name="active" invisible="1"/>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -94,6 +94,14 @@ Technical reference for developers working on the EMS module.
 
 ---
 
+## Quality
+
+| Model | Description |
+|-------|-------------|
+| [Quality management](quality/quality_overview.md) | `ems.quality.*`: the process map, procedures and controlled documents with their Drive links, agreements and improvement actions with their follow-up, numbering, states and access control |
+
+---
+
 ## Enrollment
 
 | Model | Description |

@@ -1,0 +1,13 @@
+/* The forms of the quality structure (processes, procedures, documents) show a Drive file inside
+   them (ems_quality_document_preview), which needs the whole window to be readable: those forms,
+   marked class="o_quality_wide_form", drop the sheet's usual maximum width, and the preview takes
+   the full row. Every other form keeps Odoo's own layout. */
+.o_form_renderer.o_quality_wide_form,
+.o_form_renderer.o_quality_wide_form .o_form_sheet_bg > .o_form_sheet {
+    max-width: none;
+}
+
+.o_field_widget.o_field_ems_quality_document_preview {
+    display: block;
+    width: 100%;
+}

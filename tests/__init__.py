@@ -234,6 +234,11 @@ from . import test_role_smoke_secretary_tour
 from . import test_role_smoke_tac_tour
 from . import test_role_smoke_admin_tour
 from . import test_user_profile_tour
+from . import test_quality_process
+from . import test_quality_document
+from . import test_quality_action
+from . import test_quality_tour
+from . import test_quality_document_link_import
 from . import test_user_menu_documentation_tour
 from . import test_contact_data_request
 from . import test_contact_data_request_send_wizard

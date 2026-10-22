@@ -1371,6 +1371,7 @@ msgstr "Acrònim"
 #: model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard__mode
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__action
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__action
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__action_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__action
 msgid "Action"
 msgstr "Acció"
@@ -1382,6 +1383,7 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_needaction model:ir.model.fields,field_description:ems.field_ems_group__message_needaction model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction model:ir.model.fields,field_description:ems.field_ems_space__message_needaction model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1394,6 +1396,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__active
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__active
 #: model:ir.model.fields,field_description:ems.field_hr_attendance__active
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__active model:ir.model.fields,field_description:ems.field_ems_quality_document__active model:ir.model.fields,field_description:ems.field_ems_quality_procedure__active model:ir.model.fields,field_description:ems.field_ems_quality_process__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1462,6 +1465,7 @@ msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_ids model:ir.model.fields,field_description:ems.field_ems_group__activity_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_ids model:ir.model.fields,field_description:ems.field_ems_space__activity_ids model:ir.model.fields,field_description:ems.field_ems_strike__activity_ids
 msgid "Activities"
 msgstr "Activitats"
 
@@ -1475,6 +1479,7 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_group__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_space__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_strike__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepció a una activitad"
 
@@ -1483,6 +1488,7 @@ msgstr "Decorador de la excepció a una activitad"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_state model:ir.model.fields,field_description:ems.field_ems_group__activity_state model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_state model:ir.model.fields,field_description:ems.field_ems_space__activity_state model:ir.model.fields,field_description:ems.field_ems_strike__activity_state
 msgid "Activity State"
 msgstr "Estat de l'activitat"
 
@@ -1491,6 +1497,7 @@ msgstr "Estat de l'activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_group__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_space__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_strike__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
@@ -1553,6 +1560,7 @@ msgstr "Administrador/a"
 #. module: ems
 #: model:res.groups,name:ems.group_coexistence model:res.groups,name:ems.group_quality model:res.groups,name:ems.group_settings model:res.groups,name:ems.group_tac model:res.groups,name:ems.group_orientation
 #: model:ir.model.fields,field_description:ems.field_hr_department__manager_id
+#: model:res.groups,name:ems.group_secretary
 msgid "Manager"
 msgstr "Gestor/a"
 
@@ -1694,12 +1702,14 @@ msgstr "Marc horari predeterminat"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 code:addons/ems/static/src/xml/backend/schedule_grid_readonly_field.xml:0 model_terms:ir.ui.view,arch_db:ems.view_attendance_template_form
+#: code:addons/ems/static/src/xml/backend/quality_document_fields.xml:0
 msgid "Edit"
 msgstr "Edita"
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_link_import_form
 msgid "Load"
 msgstr "Carrega"
 
@@ -1807,6 +1817,7 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form model_terms:ir.ui.view,arch_db:ems.view_quality_document_search model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -1913,6 +1924,7 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_group__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_quality_action__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_space__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_strike__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -2383,6 +2395,7 @@ msgstr "Pot cancel·lar-se"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_grade_session__can_edit
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_edit_mode__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_procedure__can_edit model:ir.model.fields,field_description:ems.field_ems_quality_process__can_edit
 msgid "Can edit"
 msgstr "Pot editar"
 
@@ -2569,6 +2582,7 @@ msgstr "Aula de referència:"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0 model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.view_attendance_issue_status_exception_popup model_terms:ir.ui.view,arch_db:ems.view_course_transition_wizard_form model_terms:ir.ui.view,arch_db:ems.view_limesurvey_recipient_error_popup model_terms:ir.ui.view,arch_db:ems.view_notice_line_exception_popup model_terms:ir.ui.view,arch_db:ems.view_student_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_student_update_wizard_form model_terms:ir.ui.view,arch_db:ems.view_grade_import_wizard_form model_terms:ir.ui.view,arch_db:ems.view_applicant_import_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_link_import_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_import_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
 msgid "Close"
@@ -2587,6 +2601,7 @@ msgstr "Tancant enquestes"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_content__code model:ir.model.fields,field_description:ems.field_ems_criteria__code model:ir.model.fields,field_description:ems.field_ems_outcome__code model:ir.model.fields,field_description:ems.field_ems_space__code model:ir.model.fields,field_description:ems.field_ems_study__code model:ir.model.fields,field_description:ems.field_ems_subject__code model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__code model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__code
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__code model:ir.model.fields,field_description:ems.field_ems_quality_document__code model:ir.model.fields,field_description:ems.field_ems_quality_procedure__code model:ir.model.fields,field_description:ems.field_ems_quality_process__code
 msgid "Code"
 msgstr "Codi"
 
@@ -2817,6 +2832,8 @@ msgstr "País"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__course_id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__course_id
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__course_id
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__course_id
 #: code:addons/ems/models/grades/title_import_wizard.py:0
@@ -2892,6 +2909,39 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_strike__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_uid
@@ -2913,6 +2963,39 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_strike__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__create_date
@@ -2981,6 +3064,7 @@ msgstr "Accés actual"
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 msgid "Current course"
 msgstr "Curs actual"
 
@@ -3021,6 +3105,7 @@ msgstr "Dades descarregades"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__date
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__date
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Date"
@@ -3112,6 +3197,7 @@ msgstr "Esborrant"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__department_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__department_id
+#: model:ir.model,name:ems.model_hr_department model:ir.model.fields,field_description:ems.field_ems_quality_action__department_id
 msgid "Department"
 msgstr "Departament"
 
@@ -3147,6 +3233,7 @@ msgstr ""
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__description
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__description model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 msgid "Description"
 msgstr "Descripció"
 
@@ -3203,6 +3290,39 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_strike__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__display_name
@@ -3222,6 +3342,7 @@ msgstr "Nom del fitxer"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__signed_document model:ir.model.fields,field_description:ems.field_ems_student_benefit__document model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
 msgid "Document"
 msgstr "Document"
 
@@ -3284,11 +3405,13 @@ msgstr "Tipus de document"
 #. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: code:addons/ems/static/src/js/backend/user_menu_documentation.js:0
+#: model:ir.ui.menu,name:ems.menu_quality_documentation
 msgid "Documentation"
 msgstr "Documentació"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__document_ids model:ir.model.fields,field_description:ems.field_res_users__document_ids
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__document_ids model_terms:ir.ui.view,arch_db:ems.view_quality_process_form model:ir.actions.act_window,name:ems.action_quality_document model:ir.model.fields,field_description:ems.field_ems_quality_procedure__document_ids model:ir.ui.menu,name:ems.menu_quality_documents model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
 msgid "Documents"
 msgstr "Documents"
 
@@ -3873,6 +3996,7 @@ msgstr "Camp per emmagatzemar el color que s'utilitzarà a la vista de calendari
 #. odoo-javascript
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_file model_terms:ir.ui.view,arch_db:ems.view_contact_form
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__file_data
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__file
 #, python-format
 msgid "File"
@@ -3939,6 +4063,7 @@ msgstr "Nom"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_study__follow_ids
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__followup_ids model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 msgid "Follow-up"
 msgstr "Seguiment"
 
@@ -3949,6 +4074,7 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_group__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_space__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -3959,6 +4085,7 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_group__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_space__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -3966,6 +4093,7 @@ msgstr "Seguidors (Companys)"
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_type_icon model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_type_icon model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_type_icon model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_type_icon model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_type_icon model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_type_icon model:ir.model.fields,help:ems.field_ems_attendance_template__activity_type_icon model:ir.model.fields,help:ems.field_ems_base__activity_type_icon model:ir.model.fields,help:ems.field_ems_enrollment__activity_type_icon model:ir.model.fields,help:ems.field_ems_grade_session__activity_type_icon model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_type_icon model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_type_icon model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_type_icon model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_type_icon model:ir.model.fields,help:ems.field_ems_notice__activity_type_icon model:ir.model.fields,help:ems.field_ems_notice_line__activity_type_icon model:ir.model.fields,help:ems.field_ems_student_document__activity_type_icon model:ir.model.fields,help:ems.field_ems_teaching__activity_type_icon model:ir.model.fields,help:ems.field_hr_employee__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__activity_type_icon model:ir.model.fields,help:ems.field_ems_group__activity_type_icon model:ir.model.fields,help:ems.field_ems_quality_action__activity_type_icon model:ir.model.fields,help:ems.field_ems_space__activity_type_icon model:ir.model.fields,help:ems.field_ems_strike__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icona de font impressionant, p. ex. tasques-fa"
 
@@ -4234,6 +4362,7 @@ msgstr "Atorgar accés"
 #: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__group_id
 #: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__group_id model_terms:ir.ui.view,arch_db:ems.view_group_search
 msgid "Group"
 msgstr "Grup"
 
@@ -4254,6 +4383,11 @@ msgstr "Dades de grup"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model_terms:ir.ui.view,arch_db:ems.view_applicant_search
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_search
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 msgid "Group by"
 msgstr "Agrupar per"
 
@@ -4318,6 +4452,7 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__has_message model:ir.model.fields,field_description:ems.field_ems_group__has_message model:ir.model.fields,field_description:ems.field_ems_quality_action__has_message model:ir.model.fields,field_description:ems.field_ems_space__has_message model:ir.model.fields,field_description:ems.field_ems_strike__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -4431,6 +4566,39 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__id
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__id
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__id
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__id
+#: model:ir.model.fields,field_description:ems.field_ems_strike__id
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__id
+#: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__id
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__id
@@ -4449,6 +4617,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_group__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_space__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_strike__activity_exception_icon
 msgid "Icon"
 msgstr "Icona"
 
@@ -4456,6 +4625,7 @@ msgstr "Icona"
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_exception_icon model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_exception_icon model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_exception_icon model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_exception_icon model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_exception_icon model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_exception_icon model:ir.model.fields,help:ems.field_ems_attendance_template__activity_exception_icon model:ir.model.fields,help:ems.field_ems_base__activity_exception_icon model:ir.model.fields,help:ems.field_ems_enrollment__activity_exception_icon model:ir.model.fields,help:ems.field_ems_grade_session__activity_exception_icon model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_exception_icon model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_exception_icon model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_exception_icon model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_exception_icon model:ir.model.fields,help:ems.field_ems_notice__activity_exception_icon model:ir.model.fields,help:ems.field_ems_notice_line__activity_exception_icon model:ir.model.fields,help:ems.field_ems_student_document__activity_exception_icon model:ir.model.fields,help:ems.field_ems_teaching__activity_exception_icon model:ir.model.fields,help:ems.field_hr_employee__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__activity_exception_icon model:ir.model.fields,help:ems.field_ems_group__activity_exception_icon model:ir.model.fields,help:ems.field_ems_quality_action__activity_exception_icon model:ir.model.fields,help:ems.field_ems_space__activity_exception_icon model:ir.model.fields,help:ems.field_ems_strike__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icona per indicar una activitat d'excepció."
 
@@ -4470,6 +4640,7 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_needaction model:ir.model.fields,help:ems.field_ems_group__message_needaction model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction model:ir.model.fields,help:ems.field_ems_space__message_needaction model:ir.model.fields,help:ems.field_ems_strike__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -4483,6 +4654,7 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_error model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_sms_error model:ir.model.fields,help:ems.field_ems_group__message_has_error model:ir.model.fields,help:ems.field_ems_group__message_has_sms_error model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error model:ir.model.fields,help:ems.field_ems_quality_action__message_has_sms_error model:ir.model.fields,help:ems.field_ems_space__message_has_error model:ir.model.fields,help:ems.field_ems_space__message_has_sms_error model:ir.model.fields,help:ems.field_ems_strike__message_has_error model:ir.model.fields,help:ems.field_ems_strike__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -4753,6 +4925,7 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_is_follower model:ir.model.fields,field_description:ems.field_ems_group__message_is_follower model:ir.model.fields,field_description:ems.field_ems_quality_action__message_is_follower model:ir.model.fields,field_description:ems.field_ems_space__message_is_follower model:ir.model.fields,field_description:ems.field_ems_strike__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -4879,6 +5052,39 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_strike__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_uid
@@ -4900,6 +5106,39 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_status__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_grade_import_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard_conflict_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_strike__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_strike_reason__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_outcome__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_teaching_reduction_type__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_subject_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__write_date
@@ -5127,6 +5366,7 @@ msgstr "Usuari de LimeSurvey"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__url model:ir.model.fields,field_description:ems.field_ems_quality_link__url model:ir.model.fields,field_description:ems.field_ems_quality_procedure__url model:ir.model.fields,field_description:ems.field_ems_quality_process__url
 msgid "Link"
 msgstr "Enllaç"
 
@@ -5250,6 +5490,7 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_error model:ir.model.fields,field_description:ems.field_ems_group__message_has_error model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error model:ir.model.fields,field_description:ems.field_ems_space__message_has_error model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -5260,6 +5501,7 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_ids model:ir.model.fields,field_description:ems.field_ems_group__message_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_ids model:ir.model.fields,field_description:ems.field_ems_space__message_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -5344,6 +5586,7 @@ msgstr "Mare"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_planning__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_group__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_quality_action__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_space__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_strike__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Data límit de la meva activitat"
 
@@ -5360,6 +5603,9 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__label
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__name
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__name
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__name
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__name
 #: code:addons/ems/models/grades/title_import_wizard.py:0
 msgid "Name"
@@ -5397,6 +5643,7 @@ msgstr "Nou contacte d'alumne/a"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_group__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_space__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_strike__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Data límit de la següent activitat"
 
@@ -5405,6 +5652,7 @@ msgstr "Data límit de la següent activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_summary model:ir.model.fields,field_description:ems.field_ems_group__activity_summary model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_summary model:ir.model.fields,field_description:ems.field_ems_space__activity_summary model:ir.model.fields,field_description:ems.field_ems_strike__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resum de l'activitat següent"
 
@@ -5413,6 +5661,7 @@ msgstr "Resum de l'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_type_id model:ir.model.fields,field_description:ems.field_ems_group__activity_type_id model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_type_id model:ir.model.fields,field_description:ems.field_ems_space__activity_type_id model:ir.model.fields,field_description:ems.field_ems_strike__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipus d'activitat següent"
 
@@ -5614,6 +5863,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_group__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_space__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -5624,6 +5874,7 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_group__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_space__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -5633,6 +5884,7 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_needaction_counter model:ir.model.fields,help:ems.field_ems_group__message_needaction_counter model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction_counter model:ir.model.fields,help:ems.field_ems_space__message_needaction_counter model:ir.model.fields,help:ems.field_ems_strike__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -5642,6 +5894,7 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_error_counter model:ir.model.fields,help:ems.field_ems_group__message_has_error_counter model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error_counter model:ir.model.fields,help:ems.field_ems_space__message_has_error_counter model:ir.model.fields,help:ems.field_ems_strike__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -5752,6 +6005,7 @@ msgstr "Només els tutors poden justificar les faltes dels alumnes."
 #. odoo-python
 #: code:addons/ems/models/communications/limesurvey.py:0 model:ir.model.fields.selection,name:ems.selection__ems_grade_session__state__open model:ir.model.fields.selection,name:ems.selection__ems_grade_session_state_wizard__target_state__open model_terms:ir.ui.view,arch_db:ems.view_grade_session_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__open model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 msgid "Open"
 msgstr "Oberta"
 
@@ -6288,6 +6542,7 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__rating_ids model:ir.model.fields,field_description:ems.field_ems_group__rating_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__rating_ids model:ir.model.fields,field_description:ems.field_ems_space__rating_ids model:ir.model.fields,field_description:ems.field_ems_strike__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -6586,6 +6841,7 @@ msgstr "Detalls de la resposta"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_user_id model:ir.model.fields,field_description:ems.field_ems_group__activity_user_id model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_user_id model:ir.model.fields,field_description:ems.field_ems_space__activity_user_id model:ir.model.fields,field_description:ems.field_ems_strike__activity_user_id
 msgid "Responsible User"
 msgstr "Usuari responsable"
 
@@ -6728,6 +6984,7 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_group__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_space__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_strike__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -6866,7 +7123,7 @@ msgid "Signature"
 msgstr "Signatura"
 
 #. module: ems
-#: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary model:project.project,name:ems.project_secretary model:res.groups,name:ems.group_secretary model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ems.role,name:ems.role_secretary model:hr.job,name:ems.job_secretary model:ir.model.fields.selection,name:ems.selection__hr_department__top_level_role__secretary model:project.project,name:ems.project_secretary model_terms:ir.ui.view,arch_db:ems.view_contact_form
 msgid "Secretary"
 msgstr "Secretaria"
 
@@ -7014,6 +7271,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -7248,6 +7506,7 @@ msgstr "Iniciant procés en segon pla; rebràs una notificació en finalitzar (p
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__state model:ir.model.fields,field_description:ems.field_ems_meeting_presence_line__state model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard__state
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__state
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__state model:ir.model.fields,field_description:ems.field_ems_quality_followup__state model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 msgid "State"
 msgstr "Estat"
 
@@ -7516,6 +7775,7 @@ msgstr "Estudi: El tipus d'estudi concret (tipus de batxillerat, grau universita
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__subject_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__line_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__line_id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__name
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Subject"
 msgstr "Assignatura"
@@ -8245,6 +8505,7 @@ msgstr "Tutories"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__field_type model:ir.model.fields,field_description:ems.field_ems_minute__type model:ir.model.fields,field_description:ems.field_ems_notice_line__recipient_type model:ir.model.fields,field_description:ems.field_ems_space__space_type_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__benefit_type model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__kind
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__type model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 msgid "Type"
 msgstr "Tipus"
 
@@ -8259,6 +8520,7 @@ msgstr "Conflicte"
 #: model:ir.model.fields,help:ems.field_ems_attendance_issue_status__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_attendance_issue_student__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_attendance_issue_tutor__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_attendance_justification__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_attendance_schedule__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_attendance_session_header__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_attendance_template__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_base__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_enrollment__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_grade_session__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_limesurvey_block__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_limesurvey_enrollment__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_limesurvey_header__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_limesurvey_recipient__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_notice__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_notice_line__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_student_document__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_teaching__activity_exception_decoration model:ir.model.fields,help:ems.field_hr_employee__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_group__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_quality_action__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_space__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_strike__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipus de l'activitat d'excepció registrada."
 
@@ -8530,6 +8792,7 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__website_message_ids model:ir.model.fields,field_description:ems.field_ems_group__website_message_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__website_message_ids model:ir.model.fields,field_description:ems.field_ems_space__website_message_ids model:ir.model.fields,field_description:ems.field_ems_strike__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -8539,6 +8802,7 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_attendance_correction__website_message_ids model:ir.model.fields,help:ems.field_ems_group__website_message_ids model:ir.model.fields,help:ems.field_ems_quality_action__website_message_ids model:ir.model.fields,help:ems.field_ems_space__website_message_ids model:ir.model.fields,help:ems.field_ems_strike__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -8632,6 +8896,7 @@ msgstr "Formació a Llocs de Treball (si matriculat)"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_minute__workgroup_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__workgroup_id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__workgroup_id
 msgid "Workgroup"
 msgstr "Grup de treball"
 
@@ -10020,6 +10285,7 @@ msgstr "Això expulsa immediatament els estudiants seleccionats. Vols continuar?
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_kind
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__kind
 msgid "Kind"
 msgstr "Tipus"
 
@@ -12179,6 +12445,7 @@ msgstr "Previsualitzar"
 #. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard__result_html
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__result
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__outcome
 #: code:addons/ems/models/grades/title_import_wizard.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard__result_html
@@ -15230,6 +15497,7 @@ msgstr "Marqueu els mòduls que ja heu superat en altres estudis."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_base__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_grade_session__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_group__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_notice__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_notice_line__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_space__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_strike__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_student_document__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_teaching__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Esdeveniment de calendari de la següent activitat"
 
@@ -17696,6 +17964,7 @@ msgstr "Tanca l'assistència"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__closed model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__closed model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__closed
 msgid "Closed"
 msgstr "Tancada"
 
@@ -19874,6 +20143,592 @@ msgstr "Ubicació de la feina"
 #: model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__student_domain
 msgid "Student domain"
 msgstr "Domini de l'alumne"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_quality
+msgid "Access rights for the Quality team (EMS Surveys section)."
+msgstr "Permisos d'accés per a l'equip de qualitat (secció d'enquestes de l'EMS)."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_quality_action
+#: model:ir.ui.menu,name:ems.menu_quality_actions
+msgid "Actions and agreements"
+msgstr "Accions i acords"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__agreement
+msgid "Agreement"
+msgstr "Acord"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__analysed
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__analysed
+msgid "Analysed (planning)"
+msgstr "Analitzat (planificació)"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_quality_action_unique_code
+msgid "Another action already uses this code."
+msgstr "Ja hi ha una altra acció amb aquest codi."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_quality_document_unique_code
+msgid "Another document already uses this code."
+msgstr "Ja hi ha un altre document amb aquest codi."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_quality_procedure_unique_code
+msgid "Another procedure already uses this code."
+msgstr "Ja hi ha un altre procediment amb aquest codi."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_quality_process_unique_code
+msgid "Another process already uses this code."
+msgstr "Ja hi ha un altre procés amb aquest codi."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_procedure__code
+msgid "As in the centre's documentation: PE3.01, PC1.02..."
+msgstr "Com a la documentació del centre: PE3.01, PC1.02..."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_process__code
+msgid "As in the centre's process map: PE1, PC2, PS1..."
+msgstr "Com al mapa de processos del centre: PE1, PC2, PS1..."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "By the final meeting of the year"
+msgstr "Quan es faci la reunió final de curs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_centre
+msgid "Centre-wide"
+msgstr "De centre"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__change
+msgid "Change plan"
+msgstr "Planificació de canvis"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "Closure"
+msgstr "Tancament"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__corrective
+msgid "Corrective action"
+msgstr "Acció correctiva"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Corrective and preventive"
+msgstr "Correctives i preventives"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__deadline_date
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "Deadline"
+msgstr "Data limit"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__deadline_text
+msgid "Deadline (as agreed)"
+msgstr "Termini (tal com es va acordar)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__state
+msgid "Derived from the latest follow-up entry: to move it forward, add one."
+msgstr "Es deriva de la darrera entrada de seguiment: per fer-la avançar, afegiu-ne una."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
+msgid "Document name"
+msgstr "Nom del document"
+
+#. module: ems
+#: model:ir.module.category,description:ems.category_quality
+msgid "Educational Management System - Quality"
+msgstr "Educational Management System - Qualitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__efficacy_criteria
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "How will efficacy be measured"
+msgstr "Com es mesurarà l'eficàcia"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__immediate
+msgid "Immediate action"
+msgstr "Acció immediata"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__improvement
+msgid "Improvement action"
+msgstr "Acció de millora"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Improvement actions"
+msgstr "Accions de millora"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__in_progress
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__in_progress
+msgid "In progress (implementation)"
+msgstr "En procés (implantació)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__key
+msgid "Key"
+msgstr "Clau"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Meeting agreements"
+msgstr "Acords de reunió"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__new
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__new
+msgid "New (pending)"
+msgstr "Nou (pendent)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+msgid "No link"
+msgstr "Sense enllaç"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+msgid "Not coded yet"
+msgstr "Encara sense codi"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__procedure_count
+msgid "Number of procedures"
+msgstr "Nombre de procediments"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__is_late
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Overdue"
+msgstr "Fora de termini"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+msgid "PE1"
+msgstr "PE1"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+msgid "PE3.01"
+msgstr "PE3.01"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
+msgid "PE3.01.15"
+msgstr "PE3.01.15"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__preventive
+msgid "Preventive action"
+msgstr "Acció preventiva"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__procedure_id
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+msgid "Procedure"
+msgstr "Procediment"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+msgid "Procedure name"
+msgstr "Nom del procediment"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_quality_procedure
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__procedure_ids
+#: model:ir.ui.menu,name:ems.menu_quality_procedures
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+msgid "Procedures"
+msgstr "Procediments"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__process_id
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__process_id
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_search
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_search
+msgid "Process"
+msgstr "Procés"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+msgid "Process name"
+msgstr "Nom del procés"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_quality_process
+#: model:ir.ui.menu,name:ems.menu_quality_processes
+msgid "Processes"
+msgstr "Processos"
+
+#. module: ems
+#: model:ir.module.category,name:ems.category_quality
+#: model:ir.ui.menu,name:ems.menu_quality
+msgid "Quality"
+msgstr "Qualitat"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_process
+msgid "Quality process: one process of the centre's process map (PE1..PS2)."
+msgstr "Procés de qualitat: un procés del mapa de processos del centre (PE1..PS2)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__type__repair
+msgid "Repair action"
+msgstr "Acció reparadora"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__resources
+msgid "Resources"
+msgstr "Recursos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "Responsibility"
+msgstr "Responsabilitat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__responsible_employee_ids
+msgid "Responsible people"
+msgstr "Persones responsables"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__responsible_role_id
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Responsible post"
+msgstr "Càrrec responsable"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_action__state__review
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_followup__state__review
+msgid "Review (measuring efficacy)"
+msgstr "Revisió (mesura de l'eficàcia)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__scope_name
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
+msgid "Scope"
+msgstr "Àmbit"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__strategic
+msgid "Strategic"
+msgstr "Estratègic"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_quality_process__kind__support
+msgid "Support"
+msgstr "Suport"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__description
+msgid "What happened"
+msgstr "Què ha passat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "What has to be done, and why"
+msgstr "Què s'ha de fer i per què"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "What was agreed, or the action to take"
+msgstr "Què s'ha acordat, o l'acció a emprendre"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__deadline_text
+msgid "When the deadline was agreed as a description rather than a date."
+msgstr "Quan el termini es va acordar com una descripció i no com una data."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_action__completion_criteria
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+msgid "When will it be finished"
+msgstr "Quan estarà finalitzada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_followup__author_employee_id
+msgid "Written by"
+msgstr "Escrit per"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_quality_admin
+msgid ""
+"Access rights for the Quality coordinator. Currently identical to Manager."
+msgstr "Permisos d'accés per al coordinador o coordinadora de qualitat. Ara mateix idèntics als de Gestor."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_followup
+msgid ""
+"Follow-up entry: what happened, when, and which state it left the record in."
+msgstr "Entrada de seguiment: què ha passat, quan, i en quin estat ha deixat el registre."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_action__is_centre
+msgid ""
+"For agreements of a staff meeting or of the management review, which hang "
+"off no department."
+msgstr "Per als acords d'un claustre o de la revisió per la direcció, que no depenen de cap departament."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_action
+msgid ""
+"Quality action: a meeting agreement or an improvement action, which are the "
+"same thing."
+msgstr "Acció de qualitat: un acord de reunió o una acció de millora, que són el mateix."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_procedure
+msgid ""
+"Quality procedure: how one part of a process is carried out (PE3.01, "
+"PE3.04...)."
+msgstr "Procediment de qualitat: com es duu a terme una part d'un procés (PE3.01, PE3.04...)."
+
+#. module: ems
+#. odoo-python
+#: model:ir.ui.menu,name:ems.menu_quality_process_map
+#: code:addons/ems/models/quality/document.py:0
+#: model:ir.actions.server,name:ems.action_quality_process_map_open
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__is_process_map
+msgid "Process map"
+msgstr "Mapa de processos"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_document
+msgid ""
+"Controlled document: where it sits in the documentary structure and its link"
+" in Drive."
+msgstr ""
+"Document controlat: on se situa dins l'estructura documental i el seu enllaç"
+" al Drive."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__code
+msgid ""
+"As in the centre's documentation: PE3.01.15. Empty while the document has no"
+" code."
+msgstr ""
+"Com a la documentació del centre: PE3.01.15. Buit mentre el document no "
+"tingui codi."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__process_id
+msgid ""
+"Taken from the procedure when there is one, and editable for documents that "
+"hang straight off a process."
+msgstr ""
+"S'agafa del procediment quan n'hi ha, i és editable per als documents que "
+"depenen directament d'un procés."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__file_name
+#: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__file_name
+msgid "File name"
+msgstr "Nom del fitxer"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document_link_import__has_header
+msgid "First line is a header"
+msgstr "La primera línia és una capçalera"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_quality_document_link_import
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_link_import_form
+msgid "Load document links"
+msgstr "Carrega els enllaços dels documents"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_list
+msgid "Load links"
+msgstr "Carrega enllaços"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%(count)s codes or names are not in the registry: %(codes)s"
+msgstr "%(count)s codis o noms no hi són: %(codes)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%s lines were skipped for having no code or name, or no link."
+msgstr "S'han omès %s línies per no tenir codi o nom, o enllaç."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%s links loaded."
+msgstr "%s enllaços carregats."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid ""
+"Every line needs two columns, the code and the link. Offending line: %s"
+msgstr ""
+"Cada línia necessita dues columnes, el codi i l'enllaç. Línia incorrecta: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "The file could not be read as UTF-8 text: %s"
+msgstr "No s'ha pogut llegir el fitxer com a text UTF-8: %s"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__embed_url
+#: model:ir.model.fields,help:ems.field_ems_quality_link__embed_url
+#: model:ir.model.fields,help:ems.field_ems_quality_procedure__embed_url
+#: model:ir.model.fields,help:ems.field_ems_quality_process__embed_url
+msgid ""
+"Built from the link for Google Docs, Sheets, Slides and Drive files. Empty "
+"for any other address."
+msgstr ""
+"Es construeix a partir de l'enllaç per a Google Docs, Fulls de càlcul, "
+"Presentacions i fitxers del Drive. Buit per a qualsevol altra adreça."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__edit_mode
+#: model:ir.model.fields,field_description:ems.field_ems_quality_edit_mode__edit_mode
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__edit_mode
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__edit_mode
+msgid "Editing"
+msgstr "En edició"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document.py:0
+msgid ""
+"No document is marked as the process map yet. Mark one in Quality > "
+"Configuration > Documents."
+msgstr ""
+"Encara no hi ha cap document marcat com a mapa de processos. Marqueu-ne un a"
+" Qualitat > Configuració > Documents."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document.py:0
+msgid "Only one document can be marked as the process map."
+msgstr "Només un document pot estar marcat com a mapa de processos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+msgid "Open document"
+msgstr "Obre el document"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_quality_document__embed_url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_link__embed_url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_procedure__embed_url
+#: model:ir.model.fields,field_description:ems.field_ems_quality_process__embed_url
+msgid "Preview address"
+msgstr "Adreça de la vista prèvia"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_edit_mode
+msgid "Quality edit mode: forms that open read-only until 'Edit' is pressed."
+msgstr ""
+"Mode d'edició de qualitat: formularis que s'obren només en lectura fins que "
+"es prem 'Edita'."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__is_process_map
+msgid ""
+"The document shown in Quality > Process map. Only one document can be "
+"marked."
+msgstr ""
+"El document que es mostra a Qualitat > Mapa de processos. Només se'n pot "
+"marcar un."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__url
+#: model:ir.model.fields,help:ems.field_ems_quality_link__url
+#: model:ir.model.fields,help:ems.field_ems_quality_procedure__url
+#: model:ir.model.fields,help:ems.field_ems_quality_process__url
+msgid ""
+"The document's ordinary address, as copied from the browser. It is what "
+"'Open document' opens."
+msgstr ""
+"L'adreça normal del document, tal com es copia del navegador. És la que obre"
+" 'Obre el document'."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/link.py:0
+msgid "This document has no link yet."
+msgstr "Aquest document encara no té enllaç."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/xml/backend/quality_document_fields.xml:0
+msgid "This link cannot be shown inside EMS. Use Open document to see it."
+msgstr ""
+"Aquest enllaç no es pot mostrar dins de l'EMS. Feu servir Obre el document "
+"per veure'l."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_edit_mode__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_procedure__can_edit
+#: model:ir.model.fields,help:ems.field_ems_quality_process__can_edit
+msgid "Whether the current user may write this record."
+msgstr "Si l'usuari actual pot modificar aquest registre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/document_link_import.py:0
+msgid "%s processes, procedures and documents still have no link."
+msgstr "%s processos, procediments i documents encara no tenen enllaç."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_quality_document_link_import__file_data
+msgid "A CSV with two columns: the code of a process, procedure or document (or the exact name of a document that has no code), and its link."
+msgstr "Un CSV amb dues columnes: el codi d'un procés, procediment o document (o el nom exacte d'un document sense codi) i el seu enllaç."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_document_link_import
+msgid "Load the Drive links of the quality structure from a code,url file."
+msgstr ""
+"Carrega els enllaços al Drive de l'estructura de qualitat des d'un fitxer "
+"codi,url."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_quality_link
+msgid ""
+"Quality link: a record whose content is a file in Drive, previewed in its "
+"form."
+msgstr ""
+"Enllaç de qualitat: un registre el contingut del qual és un fitxer del "
+"Drive, que es mostra al seu formulari."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form
+#: model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+msgid "This record has no document to show yet. Add its link with Edit."
+msgstr ""
+"Aquest registre encara no té cap document per mostrar. Afegiu-ne l'enllaç "
+"amb Edita."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_course__short_code
+msgid "Short code"
+msgstr "Codi curt"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_employee__google_ws_creation_pending
@@ -22581,11 +23436,6 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__effect
 msgid "Effect on the student"
 msgstr "Efecte sobre l'alumne"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard__file_name
-msgid "File name"
-msgstr "Nom del fitxer"
 
 #. module: ems
 #. odoo-python

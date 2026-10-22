@@ -74,6 +74,24 @@
 
 
         'views/menu.xml',
+        'views/quality/menu.xml',
+            'views/quality/process/list.xml',
+            'views/quality/process/form.xml',
+            'views/quality/process/menu.xml',
+            'views/quality/procedure/list.xml',
+            'views/quality/procedure/form.xml',
+            'views/quality/procedure/search.xml',
+            'views/quality/procedure/menu.xml',
+            'views/quality/document_link_import/form.xml',
+            'views/quality/document/list.xml',
+            'views/quality/document/form.xml',
+            'views/quality/document/search.xml',
+            'views/quality/document/menu.xml',
+            'views/quality/action/list.xml',
+            'views/quality/action/form.xml',
+            'views/quality/action/search.xml',
+            'views/quality/action/menu.xml',
+            'views/quality/process_map/menu.xml',
 
         # Before form.xml: the settings button references this action by XML ID.
         'views/settings/course.xml',
@@ -492,6 +510,12 @@
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
 
+        # Quality management system: the centre's process map. Load order matters - a procedure
+        # references its process, and a document references its procedure.
+        'data/custom/quality/ems.quality.process.csv',
+        'data/custom/quality/ems.quality.procedure.csv',
+        'data/custom/quality/ems.quality.document.csv',
+
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        
         #'data/custom/ems.teaching.csv',
@@ -564,6 +588,7 @@
             #'ems/static/src/css/**/*',
         ],
         'web.assets_tests': [
+            'ems/static/tests/tours/quality_tour.js',
             'ems/static/tests/tours/**/*',
         ],
     },

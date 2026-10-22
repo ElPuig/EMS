@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Read-only until 'Edit' is pressed: see ems.quality.edit.mode. -->
+        <record model="ir.ui.view" id="view_quality_process_form">
+            <field name="name">ems.quality.process.form</field>
+            <field name="model">ems.quality.process</field>
+            <field name="arch" type="xml">
+                <form class="o_quality_wide_form" js_class="ems_quality_form">
+                    <header>
+                        <field name="edit_mode" widget="ems_quality_edit_mode" invisible="edit_mode or not can_edit"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_open_document" type="object" string="Open document" icon="fa-external-link"
+                                    class="btn-primary" invisible="not url"/>
+                        </div>
+                        <field name="can_edit" invisible="1"/>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <div class="oe_title">
+                            <h1><field name="code" placeholder="PE1" readonly="not edit_mode"/></h1>
+                            <h2><field name="name" placeholder="Process name" readonly="not edit_mode"/></h2>
+                        </div>
+                        <group>
+                            <field name="kind" readonly="not edit_mode"/>
+                            <field name="url" widget="url" readonly="not edit_mode" invisible="not edit_mode"/>
+                            <field name="active" invisible="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Document" name="document">
+                                <field name="embed_url" widget="ems_quality_document_preview" nolabel="1" class="w-100"
+                                       invisible="not url"/>
+                                <div class="text-muted" invisible="url">
+                                    This record has no document to show yet. Add its link with Edit.
+                                </div>
+                            </page>
+                            <page string="Procedures" name="procedures">
+                                <field name="procedure_ids" widget="ems_quality_linked_rows" readonly="not edit_mode">
+                                    <list editable="bottom">
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Documents" name="documents">
+                                <field name="document_ids" widget="ems_quality_linked_rows" readonly="not edit_mode">
+                                    <list editable="bottom">
+                                        <field name="code"/>
+                                        <field name="name"/>
+                                        <field name="procedure_id"/>
+                                        <field name="url" widget="url"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

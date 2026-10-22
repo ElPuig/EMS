@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_action_list">
+            <field name="name">ems.quality.action.list</field>
+            <field name="model">ems.quality.action</field>
+            <field name="arch" type="xml">
+                <list decoration-danger="is_late == True" decoration-muted="state == 'closed'">
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="type"/>
+                    <field name="scope_name"/>
+                    <field name="responsible_role_id"/>
+                    <field name="responsible_employee_ids" widget="many2many_tags" optional="show"/>
+                    <field name="deadline_date"/>
+                    <field name="deadline_text" optional="hide"/>
+                    <field name="state"/>
+                    <field name="course_id" optional="hide"/>
+                    <field name="is_late" column_invisible="1"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

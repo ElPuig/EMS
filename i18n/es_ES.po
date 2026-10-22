@@ -1711,7 +1711,6 @@ msgstr "Cargar"
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 #: code:addons/ems/models/employees/absence_pending.py:0
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list
-
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_list
 msgid "New"
 msgstr "Nuevo"

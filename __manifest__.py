@@ -331,9 +331,9 @@
             'views/academic_management/authorizations/authorization_template_view.xml',
             'views/academic_management/authorizations/authorization_template_form.xml',
             'views/academic_management/authorizations/authorization_search.xml',
+            'views/academic_management/authorizations/authorization_send_wizard.xml',  # before authorization_view.xml: its list's New button opens this wizard's action
             'views/academic_management/authorizations/authorization_view.xml',
             'views/academic_management/authorizations/authorization_form.xml',
-            'views/academic_management/authorizations/authorization_send_wizard.xml',
             'views/academic_management/authorizations/menu.xml',
             'views/academic_management/task_assignment/view.xml',
             'views/academic_management/task_assignment/menu.xml',

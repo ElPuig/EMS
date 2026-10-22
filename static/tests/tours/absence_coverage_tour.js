@@ -328,3 +328,37 @@ registry.category("web_tour.tours").add("ems_not_on_guard", {
         },
     ],
 });
+
+// Issue #679: a longer break the students were told about still needs a guard (the ones under 18
+// cannot leave the centre), so its lesson shows the break but is not struck out. Seed data comes
+// from TestAbsenceCoverageTour.test_absence_long_break_tour.
+registry.category("web_tour.tours").add("ems_absence_long_break", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_absence_row:contains('Tour Absent Teacher'):has(.o_guard_board_break_change_tag):not(.o_guard_board_absence_struck)",
+            content: "The lesson shows the longer break and still waits for a guard",
+        },
+    ],
+});

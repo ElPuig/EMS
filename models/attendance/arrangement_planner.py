@@ -79,6 +79,7 @@ class ArrangementPlanner:
         self.free = free
         self.swaps = list(swaps)
         self.partners = partners or {}
+        self.enabled = course._enabled_absence_changes()
 
     # The state a sequence of steps leaves the groups' day in.
 
@@ -109,7 +110,7 @@ class ArrangementPlanner:
     def _side_options(self, group_id, blocks):
         """`{side: (options, communicated)}` of one group's simulated day: the changes still to come
         it allows, from the smallest to the largest, and what the families were told on that side."""
-        allowed = self.course._allowed_absence_changes(blocks, self.breaks.get(group_id, ()))
+        allowed = self.course._allowed_absence_changes(blocks, self.breaks.get(group_id, ()), self.enabled)
         return {side: ([option for option in options if not self._is_past(option, blocks)],
                        self.communicated.get(group_id, {}).get(side))
                 for side, options in allowed.items()}
@@ -120,7 +121,8 @@ class ArrangementPlanner:
         1. lessons the students lose;
         2. of those, the hours they spend in the centre without class: with a guard, or in a
            longer break - coming in later or leaving earlier is what avoids them;
-        3. of those, the ones that need a guard;
+        3. of those, the ones that need a guard - a longer break still does: the students under 18
+           cannot leave the centre (issue #679);
         4. notices to the families;
         5. co-taught lessons moved without all of their teachers (issue #678);
         6. teachers who move a lesson;
@@ -148,10 +150,9 @@ class ArrangementPlanner:
                     lost += 1
                     freeing = [window for window in windows
                                if self.course._change_window_contains(window, block['hour_from'], block['hour_to'])]
-                    if not freeing:
-                        guards += 1
                     if all(window[0] == 'long_break' for window in freeing):
                         idle += 1
+                        guards += 1
         shifts = self._shifts(steps)
         broken = sum(1 for step in steps if step[6])
         moves = len(frozenset().union(*(step[1] for step in steps)))

@@ -187,8 +187,9 @@ Un grupo a cuyas familias hay que rectificar algo no aparece en este recuadro, s
 Cada propuesta es una lista de pasos, uno por línea, siempre entre docentes de esos grupos y dentro del mismo día:
 
 - **Clase movida**: un docente que está libre a esa hora da entonces una clase suya con el grupo de otra hora. La clase que deja se convierte en un hueco, que otro paso puede llenar a su vez: un docente adelanta una clase, otro llena el hueco que deja, y así sucesivamente, hasta que lo que queda libre está al principio o al final del día (o junto a un patio).
+- **Intercambio**: otro docente del grupo da clase entonces, y el docente ausente, que está en el centro a otra hora, da la clase de ese docente con el grupo.
 - **Grupos unidos**: para las dos mitades de un grupo desdoblado. El docente que da la misma materia a la otra mitad a esa hora da clase a las dos mitades a la vez, en el aula de la otra mitad, y la clase que tenía con esta mitad a otra hora queda libre, como en una clase movida. A menudo sirve para que las dos mitades salgan una hora antes. Dos grupos son mitades cuando lo dice el campo **Se une con** de su ficha (ver [Grupos](../admin/groups.md)): no basta con que compartan una clase, porque dos grupos enteros también pueden compartir alguna.
-- **Aviso a las familias**: el grupo entra más tarde, sale antes o tiene un patio más largo, por las clases que quedan libres al principio o al final del día.
+- **Aviso a las familias**: el grupo entra más tarde, sale antes o tiene un patio más largo, por las clases que quedan libres al principio o al final del día. Un aviso que solo alarga el patio va solo al alumnado.
 
 Una clase compartida por varios grupos se mueve para todos, siempre que todos tengan el mismo hueco, y entonces el aviso va a cada grupo.
 
@@ -219,6 +220,8 @@ Para cambiar de idea, haz clic en la línea y después en **Cambiar o quitar la 
 
 ### Entrada tarde, salida anticipada o sin clases
 
+El cuadro solo propone estos cambios, y el de alargar el patio que viene después, si el administrador los ha activado (cada uno por separado, consulta [Configurar las ausencias del personal](../admin/absences.md#cambios-de-horario-en-el-cuadro-de-guardias)). Si están desactivados, las clases sin docente se cubren con una guardia, como cualquier otra.
+
 Cuando las clases sin docente son las primeras del día del grupo (una, dos o más seguidas), el alumnado podría entrar más tarde; cuando son las últimas, podría salir antes; cuando todas las clases del día quedan sin docente, el grupo podría no tener clases. Una clase donde hay alguien con el alumnado (otro docente que no está ausente, la otra mitad de un grupo desdoblado, una optativa o un docente de guardia ya enviado) corta la secuencia.
 
 Esas líneas muestran una etiqueta discontinua como **Puede entrar a las 10:00**, y la sección del grupo en el recuadro **Propuestas para las ausencias**, encima de la tabla (solo lo ve quien puede organizar la ausencia), ofrece ese cambio como última propuesta, **Solo avisar a las familias**. Enviar el comunicado tacha esas clases de la tabla, para que ningún docente de guardia tenga que cubrirlas.
@@ -235,7 +238,7 @@ Una vez enviado (o programado) el comunicado, esas líneas quedan tachadas con u
 
 ### Alargar el patio
 
-Cuando las clases sin docente están justo antes y/o justo después de un patio del nivel del grupo, y más allá hay clase, el alumnado podría alargar el patio. Por ejemplo, con el patio de 18:00 a 18:20 y la clase de las 17:00 vacía, el patio podría empezar a las 17:00; con la de las 18:20 vacía, podría acabar a las 19:20. El selector ofrece todas las combinaciones (antes, después o ambas, hora a hora), y el comunicado dice *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Enviarlo tacha esas clases, como cualquier otro cambio.
+Cuando las clases sin docente están justo antes y/o justo después de un patio del nivel del grupo, y más allá hay clase, el alumnado podría alargar el patio. Por ejemplo, con el patio de 18:00 a 18:20 y la clase de las 17:00 vacía, el patio podría empezar a las 17:00; con la de las 18:20 vacía, podría acabar a las 19:20. El selector ofrece todas las combinaciones (antes, después o ambas, hora a hora), y el comunicado dice *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Solo lo recibe el **alumnado** (nunca las familias), y recuerda que los menores de 18 años no pueden salir del centro durante el patio. Por eso, a diferencia de los otros cambios, **no** tacha esas clases: muestran el patio como etiqueta (*"Patio de 17:00 a 19:20"*) y siguen necesitando un docente de guardia, que se ocupa del alumnado en el centro. Si el mismo comunicado también cambia la hora de entrada o de salida del grupo, también lo reciben las familias, patio incluido. En el recuadro de propuestas, un grupo que solo puede alargar el patio lo muestra como **Solo avisar al alumnado**.
 
 Nunca se confunde con entrar o salir: si las clases vacías llegan al inicio del día, es una entrada tarde (por ejemplo, entrar después del patio, a las 18:20); si llegan al final, una salida anticipada (por ejemplo, irse a casa a la hora del patio, a las 18:00).
 

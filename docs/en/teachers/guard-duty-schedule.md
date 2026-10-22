@@ -187,8 +187,9 @@ A group whose families must be told a correction is not in this box but in a red
 Each proposal is a list of steps, one per line, always between teachers of those groups and within the same day:
 
 - **Moved lesson**: a teacher who is free at that time teaches then one of their lessons with the group from another time. The lesson they leave becomes a gap, which another step can fill in turn: one teacher brings a lesson forward, another fills the gap it leaves, and so on, until what is left free is at the start or the end of the day (or next to a break).
+- **Swap**: another teacher of the group teaches then, and the absent teacher, who is in at another time, teaches that teacher's lesson with the group.
 - **Joined groups**: for the two halves of a split group. The teacher who teaches the same subject to the other half at that time teaches both halves together, in the other half's room, and the lesson they had with this half at another time is left free, as in a moved lesson. It often lets both halves leave an hour earlier. Two groups are halves when the **Joins with** field of their form says so (see [Groups](../admin/groups.md)): sharing a lesson is not enough, since two whole groups can also share some.
-- **Notice to the families**: the group comes in later, leaves earlier or has a longer break, for the lessons left free at the start or the end of the day.
+- **Notice to the families**: the group comes in later, leaves earlier or has a longer break, for the lessons left free at the start or the end of the day. A notice that only makes the break longer goes to the students alone.
 
 A lesson shared by several groups is moved for all of them, as long as all of them have the same gap, and the notice then goes to each group.
 
@@ -219,6 +220,8 @@ To change your mind, click the line and then **Change or remove the arrangement*
 
 ### Late entry, early leave or no classes
 
+The schedule only proposes these changes, and the longer break below, if the administrator has switched them on (each one separately, see [Configuring staff absences](../admin/absences.md#timetable-changes-on-the-guard-duty-schedule)). With them off, the lessons without a teacher are covered with a guard, as any other.
+
 When the lessons without a teacher are the first ones of the group's day (one, two or more in a row), the students could come in later; when they are the last ones, they could leave earlier; when every lesson of the day is without a teacher, the group could have no classes. A lesson where somebody is with the students (a co-teacher who is not away, the other half of a split group, an optional subject or a guard already sent) breaks the run.
 
 Those lines show a dashed tag such as **Could start at 10:00**, and the group's section of the **Proposals for the absences** box, above the table (only visible to whoever can organise the absence), offers that change as its last proposal, **Only tell the families**. Sending the notice strikes those lessons off the table, so no guard teacher has to cover them.
@@ -235,7 +238,7 @@ Once the notice is sent (or scheduled), those lines are struck through with a ta
 
 ### A longer break
 
-When the empty lessons are right before and/or right after a break of the group's level, with class further out on that side, the students could have a longer break instead. With the break at 18:00-18:20 and the 17:00 lesson empty, for example, the break could start at 17:00; with the 18:20 lesson empty, it could end at 19:20. The selector offers every combination (earlier, later, or both, hour by hour), and the notice reads *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Sending it strikes those lessons off, like any other change.
+When the empty lessons are right before and/or right after a break of the group's level, with class further out on that side, the students could have a longer break instead. With the break at 18:00-18:20 and the 17:00 lesson empty, for example, the break could start at 17:00; with the 18:20 lesson empty, it could end at 19:20. The selector offers every combination (earlier, later, or both, hour by hour), and the notice reads *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Only the **students** receive it (never their families), and it reminds them that those under 18 cannot leave the centre during the break. That is why, unlike the other changes, it does **not** strike those lessons off: they show the break as a tag (*"Break from 17:00 to 19:20"*) and still need a guard teacher, who looks after the students in the centre. If the same notice also changes when the group comes in or leaves, it goes to the families too, break included. In the proposals box, a group whose only possible change is a longer break shows it as **Only tell the students**.
 
 This is never confused with coming in or leaving: if the empty lessons reach the start of the day, it is a late entry (e.g. coming in after the break, at 18:20); if they reach the end, an early leave (e.g. going home at the break, at 18:00).
 

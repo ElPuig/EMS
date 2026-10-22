@@ -580,8 +580,27 @@ class EmsCourseGuardDutyBoard(models.Model):
             blocks_by_group[group.id] = blocks
         return blocks_by_group
 
+    def _enabled_absence_changes(self):
+        """The change types the centre lets the board propose (issue #679, see the company's
+        ems_absence_change_* settings): a day with no classes goes with coming in later, being
+        the start of the day stretched over all of it."""
+        company = self.env.company
+        return frozenset(change_type for change_type, enabled in (
+            ('late_entry', company.ems_absence_change_late_entry),
+            ('no_classes', company.ems_absence_change_late_entry),
+            ('early_leave', company.ems_absence_change_early_leave),
+            ('long_break', company.ems_absence_change_long_break),
+        ) if enabled)
+
+    @classmethod
+    def _allowed_absence_changes(cls, blocks, breaks, enabled):
+        """`_all_absence_changes` without the change types the centre disabled (`enabled`, see
+        _enabled_absence_changes)."""
+        return {side: [option for option in options if option[0] in enabled]
+                for side, options in cls._all_absence_changes(blocks, breaks).items()}
+
     @staticmethod
-    def _allowed_absence_changes(blocks, breaks=()):
+    def _all_absence_changes(blocks, breaks=()):
         """Every change the absences allow the group's day, per side and from the smallest to the
         largest: `{'entry': [...], 'leave': [...], break_side: [...]}`, a `(change_type, hour)`
         tuple each, or `('long_break', hour_from, hour_to)` for a break. Every option is offered,
@@ -664,6 +683,13 @@ class EmsCourseGuardDutyBoard(models.Model):
             return hour_from >= hour - HOUR_EPSILON and hour_to <= change[2] + HOUR_EPSILON
         return False
 
+    @classmethod
+    def _change_frees_guard(cls, change, hour_from, hour_to):
+        """Whether `change` makes a guard unnecessary for the period: it frees the group from it,
+        and the students are not in the centre - a longer break keeps them in, and the students
+        under 18 cannot leave it, so it still needs a guard (issue #679)."""
+        return bool(change) and change[0] != 'long_break' and cls._change_window_contains(change, hour_from, hour_to)
+
     @staticmethod
     def _notice_change(change):
         """The change a notice communicates on one side of the day; None for a rectification back
@@ -736,6 +762,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         now_hour = self._board_day_hour(day)
         breaks_by_level = {}
         states = {}
+        enabled = self._enabled_absence_changes()
         for group in groups:
             blocks = blocks_by_group[group.id]
 
@@ -746,7 +773,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             if level not in breaks_by_level:
                 breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
                     [level], weekday, 0, 24)) if level else []
-            allowed = self._allowed_absence_changes(blocks, breaks_by_level[level])
+            allowed = self._allowed_absence_changes(blocks, breaks_by_level[level], enabled)
             states[group.id] = {}
             for side in allowed:
                 side_told = [(notice, change) for notice, change in told[group.id] if self._change_side(change, side)]
@@ -806,7 +833,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             return None
         sides = self._get_absence_change_states(day, group)[group.id]
         # A side being changed (issue #659) frees nothing: its lessons are planned again.
-        if any(self._change_window_contains(sides[side]['communicated'], block['hour_from'], block['hour_to'])
+        if any(self._change_frees_guard(sides[side]['communicated'], block['hour_from'], block['hour_to'])
                for side in sides if self._reopened_side() != (group.id, side)):
             return None
         return block
@@ -1303,7 +1330,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         its notices frees the group from it."""
         return any(
             group in step['groups'] and (
-                cls._change_window_contains(step['change'], hour_from, hour_to) if step['kind'] == 'notice'
+                cls._change_frees_guard(step['change'], hour_from, hour_to) if step['kind'] == 'notice'
                 else overlaps(*step['target'], hour_from, hour_to))
             for step in plan['steps'] if step['kind'] != 'correction')
 
@@ -1762,7 +1789,8 @@ class EmsCourseGuardDutyBoard(models.Model):
     def _board_absence_row_management(self, management, teacher, group, hour_from, hour_to, duty=None):
         """The management part of one absences-table row - a class of `group`, or the teacher's
         guard duty `duty` (issue #606): the guard 'covers' assigned to it (see below), the timetable change already communicated for its period ('authorized', which
-        makes a guard unnecessary and strikes the row out) or one the absences allow but nobody
+        makes a guard unnecessary and strikes the row out; a longer break, which still needs one,
+        comes as 'break_change' instead, issue #679) or one the absences allow but nobody
         has communicated yet ('proposed') - neither of which ever applies to a guard duty - and
         whether the current user may act on it ('can_manage'). An internal arrangement (issue
         #605), which only a class can have, comes as 'arrangement' instead of 'cover', in effect
@@ -1771,13 +1799,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         comes in later or leaves earlier), shown next to it so the row says both (issue #623).
         'covers' are the guard covers of the row - several when each covers part of the class
         (issue #637) - and 'missing' the parts none covers yet (empty without any cover).
-        'change_side' is the side of the group's day whose communicated change strikes the row out,
-        while it can still be changed (issue #659, see get_change_proposal_options), else False."""
+        'change_side' is the side of the group's day whose communicated change strikes the row out
+        (or, a longer break, tags it: 'break_change'), while it can still be changed (issue #659,
+        see get_change_proposal_options), else False."""
         duty = duty or self.env['ems.non_teaching_type']
         no_cover = self.env['ems.absence_cover']
         if not management:
             return {'covers': no_cover, 'missing': [], 'arrangement': no_cover, 'arrangement_change': None,
-                    'authorized': None, 'change_side': False, 'proposed': None, 'can_manage': False}
+                    'authorized': None, 'break_change': None, 'change_side': False, 'proposed': None, 'can_manage': False}
         resolved = management['covers'].filtered(
             lambda cover: cover.absent_employee_id == teacher and cover.group_id == group and cover.duty_id == duty
                 and overlaps(cover.hour_from, cover.hour_to, hour_from, hour_to))
@@ -1787,13 +1816,16 @@ class EmsCourseGuardDutyBoard(models.Model):
         arrangement = (resolved - covers)[:1]
         missing = _uncovered_periods((hour_from, hour_to), [(cover.hour_from, cover.hour_to) for cover in covers]) if covers else []
         moved = arrangement.filtered(lambda cover: cover.arrangement_type == 'move' and cover.is_effective)
-        authorized = proposed = arrangement_change = None
+        authorized = proposed = arrangement_change = break_change = None
         change_side = False
         for side, state in management['states'].get(group.id, {}).items() if group else ():
             if moved and self._change_window_contains(state['communicated'], moved.vacated_hour_from, moved.vacated_hour_to):
                 arrangement_change = state['communicated']
-            if self._change_window_contains(state['communicated'], hour_from, hour_to):
+            if self._change_frees_guard(state['communicated'], hour_from, hour_to):
                 authorized = state['communicated']
+                change_side = side if state['change_options'] else False
+            elif self._change_window_contains(state['communicated'], hour_from, hour_to):
+                break_change = state['communicated']
                 change_side = side if state['change_options'] else False
             elif state['status'] == 'proposal' and self._change_window_contains(state['expected'], hour_from, hour_to):
                 proposed = state['expected']
@@ -1803,6 +1835,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             'arrangement': arrangement,
             'arrangement_change': arrangement_change,
             'authorized': authorized,
+            'break_change': break_change,
             'change_side': change_side,
             'proposed': proposed,
             'can_manage': management['can_manage'](
@@ -2042,6 +2075,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     # The lesson a move left free (issue #645): where it went.
                     'moved': self._moved_label(row['moved_cover']),
                     'authorized': self._absence_change_label(row['authorized']),
+                    'break_change': self._absence_change_label(row['break_change']),
                     'change_side': editable and row['change_side'],
                     'proposed': self._absence_change_label(row['proposed'], proposed=True),
                     'can_manage': row['can_manage'],
@@ -2072,8 +2106,13 @@ class EmsCourseGuardDutyBoard(models.Model):
             groups = format_list(self.env, step['groups'].mapped('name'))
             if step['kind'] in ('notice', 'correction'):
                 values = {'groups': groups, 'change': self._absence_change_label(step['change'])}
-                label = (_("Notice to the families of %(groups)s: %(change)s.", **values) if step['kind'] == 'notice'
-                         else _("Correction to the families of %(groups)s: %(change)s.", **values))
+                # A longer break is only the students' business (issue #679).
+                if self.env['ems.notice']._absence_change_students_only([step['change']]):
+                    label = (_("Notice to the students of %(groups)s: %(change)s.", **values) if step['kind'] == 'notice'
+                             else _("Correction to the students of %(groups)s: %(change)s.", **values))
+                else:
+                    label = (_("Notice to the families of %(groups)s: %(change)s.", **values) if step['kind'] == 'notice'
+                             else _("Correction to the families of %(groups)s: %(change)s.", **values))
                 payload = {'kind': step['kind'], 'group_ids': step['groups'].ids, 'change': list(step['change'])}
             else:
                 values = {'teacher': format_list(self.env, step['teacher'].mapped('name')),
@@ -2225,6 +2264,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             else:
                 data['label'] = _("%(guard)s no longer needs to cover %(group)s at %(time)s (%(teacher)s).", **values)
             return data
+        # Only the students hear about a break (issue #679).
+        students_only = BoardBreakSide.is_break(action['side'])
         if action['type'] == 'proposal':
             values['change'] = self._absence_change_label(action['expected'], proposed=True)
             label = _("%(group)s: %(change)s.", **values)
@@ -2232,13 +2273,17 @@ class EmsCourseGuardDutyBoard(models.Model):
             # Nothing allowed any more: the usual timetable, always the last option then.
             values['change'] = self._absence_change_label(action['expected'] or action['options'][-1])
             values['told'] = self._absence_change_label(action['communicated'])
-            label = _("%(group)s: the families were told \"%(told)s\", which no longer matches the absences "
-                      "(now: %(change)s).", **values)
+            if students_only:
+                label = _("%(group)s: the students were told \"%(told)s\", which no longer matches the absences "
+                          "(now: %(change)s).", **values)
+            else:
+                label = _("%(group)s: the families were told \"%(told)s\", which no longer matches the absences "
+                          "(now: %(change)s).", **values)
         # Every change that can be communicated, from the smallest to the largest: the planner may
         # tell the families about part of the empty lessons and send a guard to the rest.
         options = [self._change_option_data(change) for change in action['options']]
         draft = action['draft']
-        data.update(label=label, options=options, default=action['options'].index(action['target']),
+        data.update(label=label, options=options, default=action['options'].index(action['target']), students_only=students_only,
                     draft_id=draft.id or False, draft_label=self._absence_change_label(action['draft_change']))
         return data
 

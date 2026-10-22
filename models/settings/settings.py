@@ -38,6 +38,9 @@ class ems_settings(models.TransientModel):
    ems_health_allowance_hours = fields.Float(related="company_id.ems_health_allowance_hours", readonly=False)
    ems_absence_document_reminder_days = fields.Integer(related="company_id.ems_absence_document_reminder_days", readonly=False)
    ems_absence_document_escalation_days = fields.Integer(related="company_id.ems_absence_document_escalation_days", readonly=False)
+   ems_absence_change_late_entry = fields.Boolean(related="company_id.ems_absence_change_late_entry", readonly=False)
+   ems_absence_change_early_leave = fields.Boolean(related="company_id.ems_absence_change_early_leave", readonly=False)
+   ems_absence_change_long_break = fields.Boolean(related="company_id.ems_absence_change_long_break", readonly=False)
    schedule_import_first_entry_time = fields.Float(related="company_id.schedule_import_first_entry_time", readonly=False)
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 

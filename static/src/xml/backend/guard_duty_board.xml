@@ -41,13 +41,16 @@
                   class="o_guard_board_absence_tag o_guard_board_authorized_tag o_guard_board_arrangement_change_tag"
                   t-esc="absence.arrangement.change"/>
             <span t-if="absence.authorized" class="o_guard_board_absence_tag o_guard_board_authorized_tag" t-esc="absence.authorized"/>
+            <!-- Issue #679: a longer break was told, but the students stay in: it still needs a guard. -->
+            <span t-elif="absence.break_change" class="o_guard_board_absence_tag o_guard_board_authorized_tag o_guard_board_break_change_tag"
+                  t-esc="absence.break_change"/>
+            <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
             <!-- Issue #659: what the families were told can still be changed, with one correction. -->
-            <button t-if="absence.authorized and absence.change_side and absence.can_manage" type="button"
+            <button t-if="(absence.authorized or absence.break_change) and absence.change_side and absence.can_manage" type="button"
                     class="btn btn-sm btn-link p-0 o_guard_board_change_proposal"
                     t-on-click.stop="() => this.openChangeProposalDialog(absence)">
                 <i class="fa fa-pencil-square-o me-1"/><t t-esc="actionLabels.changeProposal"/>
             </button>
-            <span t-elif="absence.proposed" class="o_guard_board_absence_tag o_guard_board_proposed_tag" t-esc="absence.proposed"/>
             <!-- Issue #645: a lesson an arrangement moved elsewhere leaves the group without anybody. -->
             <span t-if="absence.moved" class="o_guard_board_absence_tag o_guard_board_moved_tag">
                 <i class="fa fa-arrows-v me-1"/><t t-esc="absence.moved"/>
@@ -105,7 +108,7 @@
                     <div t-if="section.notices.length" class="o_guard_board_plan o_guard_board_notice_plan">
                         <div class="o_guard_board_plan_title">
                             <strong t-esc="noticePlanTitle(section)"/>
-                            <span class="ms-1" t-esc="actionLabels.noticeOnly"/>
+                            <span class="ms-1" t-esc="noticeOnlyLabel(section)"/>
                         </div>
                         <div class="o_guard_board_plan_steps">
                             <t t-foreach="section.notices" t-as="action" t-key="action_index">

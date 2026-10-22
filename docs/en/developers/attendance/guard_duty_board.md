@@ -657,7 +657,9 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 1. **Send a guard** to a class left without its teacher, with a message for them (#571).
 2. **Tell the families** that the students can come in later, leave earlier or have no classes,
    when the empty lessons are at the start or the end of the group's day (#539). Once told, those
-   lessons need no guard and are struck out (#581).
+   lessons need no guard and are struck out (#581). A longer break is told to the students only
+   and still needs a guard (#679, see "A longer break" below). Each kind of change can be switched
+   off, and all of them are off by default (#679, see "Which changes the board may propose").
 3. **Apply an internal arrangement** instead of a guard (#605, #645): the board detects how the
    teachers of the group (and of the groups sharing lessons with it) could swap or move their
    lessons, in chains, so that the students lose as few lessons as possible and nobody has to cover
@@ -670,11 +672,12 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 flowchart TD
     ABS["hr.leave / ems.absence_pending<br/>(same intervals as the board)"] --> BLK["ems.course._get_group_day_blocks(day, groups)<br/>each group's whole day, block by block:<br/>teachers, who is away, covers, empty?"]
     COV["ems.absence_cover (state assigned)"] --> BLK
-    BLK --> EXP["_allowed_absence_changes(blocks)<br/>every late_entry / early_leave / no_classes option"]
+    CFG["res.company ems_absence_change_*<br/>(_enabled_absence_changes)"] --> EXP
+    BLK --> EXP["_allowed_absence_changes(blocks, breaks, enabled)<br/>every enabled late_entry / early_leave / no_classes / long_break option"]
     NOT["ems.notice with absence_changes<br/>(scheduled / sent / failed = communicated)"] --> ST
     EXP --> ST["_get_absence_change_states(day, groups)<br/>per side (entry/leave): expected vs communicated<br/>status: proposal / communicated / rectification"]
     ST --> MGT["_get_board_absence_management()<br/>covers + states + day's pending actions"]
-    MGT --> ROWS["each absence row: cover, authorized, proposed, can_manage"]
+    MGT --> ROWS["each absence row: cover, authorized, break_change, proposed, can_manage"]
     MGT --> ACT["actions: proposal / rectification / obsolete_cover"]
     ROWS --> UI["absences table: colours, strike-through, guard dialog"]
     ACT --> UI
@@ -696,13 +699,26 @@ teacher, date, period and group, so nothing is redone, and the days or hours the
 come up as new, uncovered rows. Whatever the request no longer covers shows up as a pending action
 instead (below).
 
+### Which changes the board may propose (issue #679)
+
+Three company settings (Settings > EMS Management > Guard Duty Board Settings, `res.company`
+`ems_absence_change_late_entry`, `ems_absence_change_early_leave`, `ems_absence_change_long_break`,
+all `False` by default) decide which kinds of change the board and the arrangement planner propose;
+`no_classes` goes with the late entry, being the start of the day stretched over all of it.
+`_enabled_absence_changes()` reads them once per request into a set of change types, which
+`_allowed_absence_changes(blocks, breaks, enabled)` filters `_all_absence_changes()` (the rules
+below) with; `ArrangementPlanner` reads it once when built. A disabled kind is simply never
+offered, so its empty lessons only get guards. What was already communicated keeps counting, and
+its correction (`normal_*`) is still offered if the absences change, whatever the setting is now:
+a notice already sent has to be put right.
+
 ### Late entry, early leave, no classes
 
 `_get_group_day_blocks()` reads each group's **whole day** (both shifts: a group starts its day at
 its first lesson and ends it at its last), one block per period, merged the same way the board's
 rows are. A block is **empty** when every teacher in it is away and no guard covers it: a
 co-teacher who is in, the other half of a split group, an optional subject with its own teacher or
-a guard already sent all mean somebody is with the students. `_allowed_absence_changes()` then
+a guard already sent all mean somebody is with the students. `_all_absence_changes()` then
 lists, per side, every change the run of empty blocks allows, from the smallest to the largest: at
 the start of the day, starting at the `hour_from` of the 2nd, 3rd... block up to the first
 non-empty one; at the end, leaving at the `hour_to` of the block before the last, the one before
@@ -713,7 +729,7 @@ absences count as much as approved ones: the planner sees the state on the row a
 
 ### A longer break
 
-`_allowed_absence_changes(blocks, breaks)` also gets the group's level's break periods for that
+`_all_absence_changes(blocks, breaks)` also gets the group's level's break periods for that
 weekday (`_get_guard_duty_board_break_periods([level])`; none for a group without a level). A break
 that falls between two of the group's lessons is its own side (`BoardBreakSide.key()`,
 `break@<from>-<to>`), whose options are every `('long_break', start, end)` combination of the break
@@ -724,6 +740,18 @@ break, so "coming in after the break" and "going home at the break" stay what th
 change carries its span (`('long_break', from, to)` in the notice's `absence_changes`); the
 correction back is `('normal_break', from, to)`. A free lesson in the middle of the day that is not
 next to a break is not proposed (developer decision, 2026-10-07): it is covered with a guard.
+
+**A longer break still needs a guard, and only the students are told (issue #679).** The students
+under 18 cannot leave the centre, so during the lessons a longer break takes in they are in the
+playground and somebody has to watch them. `_change_frees_guard()` (a change that frees the group
+from the period and is not a `long_break`) is what decides "no guard needed": in
+`_get_needed_absence_block()`, in a row's `authorized` (which strikes it out) and in
+`_plan_resolves()`. A communicated longer break comes on the row as `break_change` instead: shown
+as a tag (`o_guard_board_break_change_tag`), but the row is not struck out and a guard can still be
+sent. Its notice goes to the students only and reminds those under 18 that they cannot leave the
+centre (see [notice.md](../communications/notice.md)); a notice that also changes the entry or the
+leave goes to the families too, break included. A break proposal carries `students_only` (`_board_action_data()`), so the proposals box titles a
+group's notice-only section **Only tell the students** when all of its proposals are breaks.
 
 ### What was communicated, and the sides of the day
 
@@ -1001,7 +1029,7 @@ returns it with the groups' timetable-change states it was built from.
   better:
   1. lessons the students lose;
   2. of those, hours they spend in the centre without class (a guard, or a longer break);
-  3. of those, the ones needing a guard;
+  3. of those, the ones needing a guard (a longer break does too, #679);
   4. notices to the families;
   5. co-taught lessons moved without all their teachers (#678);
   6. teachers who move a lesson;

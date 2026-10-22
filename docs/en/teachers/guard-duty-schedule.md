@@ -128,7 +128,7 @@ Sometimes the teacher is in the classroom and has only forgotten to check in. If
 
 The teacher's check-in is registered at the current time, the class leaves the table, and the teacher receives a message saying who registered it. On the check-in's own form, **Check-in registered by** shows your name. If the time is not right, the teacher can request a correction as with any other check-in.
 
-The same dialog also offers what you could otherwise do with the line: **Cover it myself** if you are on guard duty, or **Send a guard teacher** if you organise the absence. A class that has already ended cannot be resolved this way: checking the teacher in now would not change it.
+The same dialog also offers what you could otherwise do with the line: **Cover it myself** if you are on guard duty (the class is covered in your name straight away, with no further confirmation, as with **They are in the classroom**), or **Send a guard teacher** if you organise the absence. A class that has already ended cannot be resolved this way: checking the teacher in now would not change it.
 
 ### The schedule updates itself
 

@@ -485,7 +485,7 @@
                 <button type="button" class="btn btn-primary o_guard_unchecked_present" t-att-disabled="state.saving"
                         t-on-click="markPresent">They are in the classroom</button>
                 <button t-if="props.onCover" type="button" class="btn btn-secondary o_guard_unchecked_cover"
-                        t-on-click="cover" t-esc="props.coverLabel"/>
+                        t-att-disabled="state.saving" t-on-click="cover" t-esc="props.coverLabel"/>
                 <button type="button" class="btn btn-link" t-on-click="props.close">Cancel</button>
             </t>
         </Dialog>

@@ -128,7 +128,7 @@ A veces el docente está en el aula y solo se ha olvidado de fichar. Si estás d
 
 Se registra la entrada del docente a la hora actual, la clase sale de la tabla y el docente recibe un mensaje que dice quién la ha registrado. En la ficha del fichaje, **Entrada registrada por** muestra tu nombre. Si la hora no es correcta, el docente puede solicitar una corrección como con cualquier otro fichaje.
 
-El mismo diálogo también ofrece lo que podrías hacer con la línea: **Cubrirla yo** si estás de guardia, o **Enviar un docente de guardia** si organizas la ausencia. Una clase que ya ha terminado no se puede resolver así: registrar ahora la entrada del docente no la cambiaría.
+El mismo diálogo también ofrece lo que podrías hacer con la línea: **Cubrirla yo** si estás de guardia (la clase queda cubierta con tu nombre enseguida, sin ninguna otra confirmación, igual que con **Está en el aula**), o **Enviar un docente de guardia** si organizas la ausencia. Una clase que ya ha terminado no se puede resolver así: registrar ahora la entrada del docente no la cambiaría.
 
 ### El horario se actualiza solo
 

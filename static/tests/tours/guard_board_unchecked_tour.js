@@ -98,3 +98,27 @@ registry.category("web_tour.tours").add("ems_guard_board_unchecked_form", {
         },
     ],
 });
+
+// The guard covers the class themselves from the same dialog: straight away, with no second
+// confirmation (as for "They are in the classroom").
+registry.category("web_tour.tours").add("ems_guard_board_unchecked_cover", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        ...openAbsencesTable,
+        {
+            trigger: `${currentLesson} .o_guard_board_absence_manageable:contains('${teacher}')`,
+            content: "Open the class",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_guard_unchecked_cover",
+            content: "Cover it myself",
+            run: "click",
+        },
+        {
+            trigger: `body:not(:has(.modal)) ${currentLesson} .o_guard_board_absence_row:contains('${teacher}') .o_guard_board_cover_tag:contains('Tour Unchecked Guard')`,
+            content: "Covered at once, with no confirmation dialog in between",
+        },
+    ],
+});

@@ -907,8 +907,9 @@ export class GuardDutyBoard extends Component {
             coverLabel = _t("Stop covering this class");
             onCover = () => this.confirmSelfRelease(absence);
         } else if (absence.can_self_assign) {
+            // Choosing it in this dialog is the confirmation, as for "They are in the classroom".
             coverLabel = _t("Cover it myself");
-            onCover = () => this.confirmSelfAssign(line, absence);
+            onCover = () => this.selfAssign(line, absence);
         }
         this.addDialog(GuardUncheckedDialog, {
             row: absence,
@@ -946,14 +947,16 @@ export class GuardDutyBoard extends Component {
                 group: absence.group, time: absence.self_label, teacher: absence.teacher,
             }),
             confirmLabel: _t("Cover it"),
-            confirm: async () => {
-                await this.orm.call("ems.absence_cover", "board_self_assign", [
-                    this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
-                ], { duty_id: absence.duty_id });
-                await this.loadBoard();
-            },
+            confirm: () => this.selfAssign(line, absence),
             cancel: () => {},
         });
+    }
+
+    async selfAssign(line, absence) {
+        await this.orm.call("ems.absence_cover", "board_self_assign", [
+            this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id,
+        ], { duty_id: absence.duty_id });
+        await this.loadBoard();
     }
 
     confirmSelfRelease(absence) {

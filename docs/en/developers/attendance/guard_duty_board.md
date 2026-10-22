@@ -1438,7 +1438,10 @@ is in progress (`_in_progress`) and the user manages it or is among the line's g
 On screen the row shows the name in red with a dotted underline and the tag "Not checked in" (the
 PDF prints the tag too). Clicking a row with `can_mark_present` opens `GuardUncheckedDialog`
 (`guard_unchecked_dialog.js`): "They are in the classroom" and, when the user can, the usual next
-step (send a guard, cover it themselves, stop covering it).
+step (send a guard, cover it themselves, stop covering it). Both "They are in the classroom" and
+"Cover it myself" act straight away: choosing them in the dialog is the confirmation, so "Cover it
+myself" calls `selfAssign()` directly instead of `confirmSelfAssign()`, the confirmation a plain
+click on a free line still asks for (there the click is the only step).
 
 **Live updates, only when something changes.** The board never polls. It reloads in two cases:
 - **The server says so.** `ems.guard_board_notifier` (`models/shared/guard_board_notifier.py`), an

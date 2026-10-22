@@ -44,8 +44,15 @@ export class GuardUncheckedDialog extends Component {
         }
     }
 
-    cover() {
-        this.props.close();
-        this.props.onCover();
+    // Covering it yourself happens straight away (no second confirmation); the other options open
+    // their own dialog.
+    async cover() {
+        this.state.saving = true;
+        try {
+            await this.props.onCover();
+            this.props.close();
+        } finally {
+            this.state.saving = false;
+        }
     }
 }

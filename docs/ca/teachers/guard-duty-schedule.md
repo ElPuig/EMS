@@ -128,7 +128,7 @@ De vegades el docent és a l'aula i només s'ha oblidat de fitxar. Si estàs de 
 
 Es registra l'entrada del docent a l'hora actual, la classe surt de la taula i el docent rep un missatge que diu qui l'ha registrada. A la fitxa del fitxatge, **Entrada registrada per** mostra el teu nom. Si l'hora no és correcta, el docent en pot sol·licitar una correcció com amb qualsevol altre fitxatge.
 
-El mateix diàleg també ofereix el que podries fer amb la línia: **Cobrir-la jo** si estàs de guàrdia, o **Enviar un docent de guàrdia** si organitzes l'absència. Una classe que ja ha acabat no es pot resoldre així: registrar ara l'entrada del docent no la canviaria.
+El mateix diàleg també ofereix el que podries fer amb la línia: **Cobrir-la jo** si estàs de guàrdia (la classe queda coberta amb el teu nom de seguida, sense cap altra confirmació, igual que amb **És a l'aula**), o **Enviar un docent de guàrdia** si organitzes l'absència. Una classe que ja ha acabat no es pot resoldre així: registrar ara l'entrada del docent no la canviaria.
 
 ### L'horari s'actualitza sol
 

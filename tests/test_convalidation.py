@@ -471,6 +471,29 @@ class TestConvalidation(TransactionCase):
         with self.assertRaises(UserError):
             request.with_user(self.head_of_studies).action_complete()
 
+    def test_academic_history_on_the_request(self):
+        """Issue #657: the request shows the student's academic history to whoever decides the
+        subjects (the Head of Studies, and the Director and the administrator above them) and to
+        the secretariat, who keeps it."""
+        request = self._request()
+        record = self.env['ems.student.year_record'].create({
+            'student_id': self.student.id, 'course_id': self.course.id})
+        admin = create_role_user(self, 'academic_admin', 'test_convalidation_history_admin')
+        for user in (self.head_of_studies, self.director, self.secretary, admin):
+            self.assertEqual(request.with_user(user).student_year_record_ids, record)
+
+    def test_resolution_comments_frozen_once_resolved(self):
+        """Issue #657: the resolution's PDF prints the comments, so they can change until the
+        Director issues it - the Director too, right before - and never afterwards, so the PDF,
+        the email and the portal say the same."""
+        request = self._proposed()
+        request.with_user(self.director).write({'resolution_notes': "Bring the original certificate"})
+        request.with_user(self.director).action_resolve()
+        for user in (self.secretary, self.head_of_studies, self.director):
+            with self.assertRaises(UserError):
+                request.with_user(user).write({'resolution_notes': "Rewritten"})
+        self.assertEqual(request.resolution_notes, "Bring the original certificate")
+
     def test_director_can_review(self):
         request = self._request()
         self._line(request).with_user(self.director).action_grant()
@@ -624,7 +647,9 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(mails.attachment_ids, request.resolution_pdf_id)
         self.assertTrue(request.message_ids.filtered(lambda message: self.student.email in (message.body or '')))
         # Editing a completed request does not notify again.
-        request.with_user(self.secretary).resolution_notes = 'See you in September'
+        # (Not its resolution comments, frozen since the Director resolved it - issue #657.)
+        request.with_user(self.secretary).write({'attachment_ids': [(0, 0, {
+            'name': 'esfera.pdf', 'datas': base64.b64encode(b'%PDF-1.4 esfera')})]})
         self.assertEqual(len(self._resolution_mails(request)), 1)
 
     def _minor_with_family(self):

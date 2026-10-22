@@ -49,6 +49,8 @@ La lista se abre con el filtro **Pendientes de mí** activado, que muestra las s
 
 Las que esperan la documentación del solicitante no aparecen nunca: usa el filtro **Pendiente de documentación** para verlas. Quita el filtro **Pendientes de mí** para ver todas las solicitudes, o usa el filtro de un estado concreto (**Pendiente de dirección**, **Completadas**, **Rechazadas**, **Anuladas**...) para seguir las que están en manos de otra persona.
 
+La lista muestra primero la solicitud más antigua, por número de registro, para que las solicitudes se atiendan en el orden en que han llegado.
+
 ![Lista de solicitudes de convalidación](../../assets/head_of_studies/convalidations-list.png)
 
 Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **Convalidaciones**.
@@ -68,14 +70,16 @@ Abre la solicitud desde la lista. El formulario muestra:
 
 - El **número de registro** (por ejemplo CONV-2026-27-0001), encima del nombre del alumno.
 - El IDALU del alumno (**ID de estudiante**), bajo *Solicitada por*, con un botón que lo copia para pegarlo en Esfera y consultar su expediente académico. También puedes escribir un IDALU en el buscador de la lista, en *Alumno*, para encontrar sus solicitudes.
+- El documento de identidad del alumno (**Documento de identidad (DNI/NIE)**), justo debajo del IDALU y con el mismo botón de copiar, para encontrar al alumno en otras aplicaciones. También puedes buscarlo en *Alumno*.
 - **Estudio**, **Curso** y **Motivo**. Estos datos, el alumno y las observaciones del solicitante son los de la solicitud y no se pueden modificar.
 - **Estudios superados** (solo estudios previos): en este centro o en otro centro o en la universidad. Una solicitud del portal por estudios superados en otro sitio, o por cualquier otro motivo, siempre llega con documentación justificativa; solo los estudios superados aquí pueden llegar sin ella.
 - Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico consta un título obtenido aquí.
 - Pestaña **Asignaturas**: una línea por cada módulo solicitado.
+- Pestaña **Histórico académico** (JE, JEA, dirección, secretaría y administrador): el histórico del alumno en el centro, una línea por curso, el mismo que muestra su ficha. Abre una línea para ver sus asignaturas y notas.
 - Pestaña **Documentación justificativa**: los ficheros adjuntados.
 - Pestaña **Observaciones del solicitante**: lo que ha escrito el alumno o la familia.
 - Pestaña **Documentación solicitada**: la última documentación que has pedido, si has pedido alguna.
-- Pestaña **Resolución**: observaciones para el alumno, que se envían con la resolución.
+- Pestaña **Resolución**: cómo se ha resuelto la solicitud, a medida que avanza (fecha de la propuesta y quién la ha enviado, fecha de tramitación en el Ministerio, fecha de resolución y quién la ha emitido, el PDF de la resolución, fecha de registro y quién la ha registrado), y las observaciones para el alumno, que se incluyen en el PDF y en el correo de la resolución. Las observaciones se pueden modificar hasta que dirección emite la resolución; a partir de ese momento quedan fijadas, para que el PDF, el correo y el portal digan siempre lo mismo.
 
 ![Formulario de solicitud de convalidación](../../assets/head_of_studies/convalidations-form.png)
 
@@ -129,7 +133,7 @@ Las dos opciones están en el menú **Acciones** del formulario.
 
 ![Propuesta pendiente de dirección](../../assets/head_of_studies/convalidations-director.png)
 
-- **Resolver:** emite la resolución oficial tal como se ha propuesto. Se genera el PDF de la resolución y la solicitud pasa a **Pendiente de secretaría**. El PDF aparece en el campo **Resolución** del formulario: haz clic en el nombre del fichero para abrirlo.
+- **Resolver:** emite la resolución oficial tal como se ha propuesto. Se genera el PDF de la resolución y la solicitud pasa a **Pendiente de secretaría**. El PDF aparece en el campo **Resolución** de la pestaña **Resolución**: haz clic en el nombre del fichero para abrirlo. Si quieres añadir observaciones para el alumno, escríbelas en esa pestaña antes de resolver: se imprimen en el PDF y después ya no se pueden modificar.
 - **Devolver al jefe de estudios:** escribe el motivo y haz clic en **Devolver**. La solicitud vuelve a **Pendiente**, con el motivo en un aviso amarillo arriba del formulario, y Jefatura de Estudios vuelve a recibir la tarea. El alumno no ve el motivo. Cuando Jefatura de Estudios vuelve a enviar la propuesta, el aviso desaparece.
 
 ### La resolución en PDF
@@ -152,7 +156,7 @@ Los textos de los fundamentos de derecho y del recurso, y la firma por delegaci�
 1. Tramita la solicitud con el Ministerio.
 2. En **Acciones**, elige **En proceso Ministerio** y confirma. La solicitud sigue en tus manos: el alumno ya no puede anularla, pero puedes seguir pidiéndole documentación.
 3. Cuando llegue la respuesta del Ministerio, decide cada módulo según lo que resuelva, con el motivo de los rechazados.
-4. Si tienes la resolución del Ministerio, súbela al campo **Resolución del Ministerio**. Es opcional.
+4. Si tienes la resolución del Ministerio, súbela al campo **Resolución del Ministerio**, en la pestaña **Resolución**. Es opcional.
 5. En **Acciones**, elige **Resolución del Ministerio recibida**.
 
 La solicitud pasa directamente a **Pendiente de secretaría**, sin pasar por Dirección. Si has subido la resolución del Ministerio, es la que recibe el alumno.

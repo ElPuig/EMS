@@ -3233,7 +3233,7 @@ msgid "Document approved:"
 msgstr "Document aprovat:"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_partner__document_id model:ir.model.fields,field_description:ems.field_res_users__document_id model_terms:ir.ui.view,arch_db:ems.view_family_search
+#: model:ir.model.fields,field_description:ems.field_res_partner__document_id model:ir.model.fields,field_description:ems.field_res_users__document_id model:ir.model.fields,field_description:ems.field_ems_convalidation__student_document_id model_terms:ir.ui.view,arch_db:ems.view_family_search
 msgid "Document ID"
 msgstr "Document d'identitat (DNI/NIE)"
 
@@ -11516,7 +11516,7 @@ msgid "A year record already exists for this student and course!"
 msgstr "Ja existeix un registre d'històric per a aquest/a alumne/a i aquest curs!"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_year_record_list model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids model:ir.model.fields,field_description:ems.field_res_users__year_record_ids model:ir.ui.menu,name:ems.menu_year_record model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.actions.act_window,name:ems.action_year_record_list model:ir.model.fields,field_description:ems.field_res_partner__year_record_ids model:ir.model.fields,field_description:ems.field_res_users__year_record_ids model:ir.ui.menu,name:ems.menu_year_record model:ir.model.fields,field_description:ems.field_ems_convalidation__student_year_record_ids model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Academic history"
 msgstr "Històric acadèmic"
 
@@ -23401,3 +23401,13 @@ msgid ""
 msgstr ""
 "Aquests alumnes ja tenen un justificant que se superposa amb aquest període i "
 "s'ometran:"
+
+#: model:ir.model.fields,help:ems.field_ems_convalidation__student_document_id
+msgid "The student's identity document, to look them up in other applications."
+msgstr "El document d'identitat de l'alumne, per trobar-lo en altres aplicacions."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "The resolution comments cannot be changed once the resolution is issued."
+msgstr "Els comentaris de la resolució no es poden modificar un cop emesa la resolució."

@@ -82,9 +82,6 @@ class ems_company(models.Model):
     ems_absence_change_late_entry = fields.Boolean(string="Groups may come in later", default=False)
     ems_absence_change_early_leave = fields.Boolean(string="Groups may leave earlier", default=False)
     ems_absence_change_long_break = fields.Boolean(string="Groups may have a longer break", default=False)
-    # Issue #692: how often the guard duty board reloads itself, so a class whose teacher has not
-    # checked in shows up as it starts without anybody reloading (0 = never).
-    ems_guard_board_refresh_seconds = fields.Integer(string="Guard duty board refresh (seconds)", default=30)
 
     schedule_import_first_entry_time = fields.Float(default=8.0)
     schedule_import_last_entry_time  = fields.Float(default=21.0)

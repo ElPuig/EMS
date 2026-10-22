@@ -35,10 +35,6 @@ El crèdit **avisa, no bloqueja**: qui el supera rep un avís i la sol·licitud 
 
 Desactivar-ne un no desfà el que ja s'ha comunicat: si l'absència canvia després, el quadre continua oferint la correcció.
 
-### Actualització automàtica de l'horari de guàrdies
-
-Al mateix bloc, **Actualització automàtica** fixa cada quants segons s'actualitza sol l'horari de guàrdies mentre està obert (30 per defecte). És el que fa que una classe el docent de la qual no ha fitxat hi aparegui tan bon punt comença, sense que ningú hagi de tornar a carregar la pàgina. **0** la desactiva.
-
 ---
 
 ## El catàleg de tipus d'absència

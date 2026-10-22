@@ -1,8 +1,11 @@
 from datetime import timedelta
+from unittest.mock import patch
 
 from pytz import UTC
 
 from odoo.exceptions import AccessError, UserError
+
+from odoo.addons.ems.models.shared.guard_board_notifier import GUARD_BOARD_CHANGED, GUARD_BOARD_CHANNEL
 
 from .common import create_head_of_studies_branch, create_role_employee, create_role_user, make_working_day, shift_ems_clock
 from .test_guard_duty_board import GuardDutyBoardCase
@@ -119,6 +122,31 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
             guard_duty_view='table')._render_qweb_html('ems.report_guard_duty_board', [self.course.id])
         self.assertIn(b'Not checked in', content)
 
+    # Open boards are told (bus) when what they show changes
+
+    def _board_notifications(self, action):
+        with patch.object(type(self.env['bus.bus']), '_sendone') as sendone:
+            action()
+        return [call.args for call in sendone.call_args_list if call.args[0] == GUARD_BOARD_CHANNEL]
+
+    def test_open_boards_are_told_when_the_day_changes(self):
+        day = {'date_from': str(self.today), 'date_to': str(self.today)}
+        expected = [(GUARD_BOARD_CHANNEL, GUARD_BOARD_CHANGED, day)]
+        # A check-in.
+        self.assertEqual(self._board_notifications(lambda: self._check_in(self.teacher_a, 10.4)), expected)
+        # A guard sent to a class.
+        self.Attendance.search([('employee_id', '=', self.teacher_a.id)]).unlink()
+        sent = self._board_notifications(lambda: self.Cover.with_user(self.department_chief).board_assign(
+            str(self.today), 10, 11, self.teacher_a.id, self.group_a.id, self.teacher_guard.id, False))
+        self.assertIn(expected[0], sent)
+        # An absence, for every day it spans.
+        leave = self._absence(self.teacher_b, self.today + timedelta(days=7), approve=False)
+        week = {'date_from': str(leave.request_date_from), 'date_to': str(leave.request_date_to)}
+        self.assertIn((GUARD_BOARD_CHANNEL, GUARD_BOARD_CHANGED, week), self._board_notifications(leave.action_approve))
+        # Nothing the board shows: no message.
+        attendance = self.Attendance.search([('employee_id', '=', self.teacher_b.id)])
+        self.assertEqual(self._board_notifications(lambda: attendance.write({'check_out': attendance.check_in})), [])
+
     # Who can cover it
 
     def test_a_guard_sent_to_it_is_released_once_the_teacher_checks_in(self):
@@ -201,8 +229,3 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
         self.assertFalse(self._data_row(8, 9, self.guard_user)['can_mark_present'])
         self.assertTrue(self._data_row(10, 11, self.department_chief)['can_mark_present'])
         self.assertFalse(self._data_row(10, 11, self.other_teacher)['can_mark_present'])
-
-    def test_the_board_says_how_often_it_refreshes(self):
-        self.env.company.ems_guard_board_refresh_seconds = 45
-        data = self.env['ems.course'].get_guard_duty_board_data(self.weekday, 'morning', None, str(self.today))
-        self.assertEqual(data['refresh_seconds'], 45)

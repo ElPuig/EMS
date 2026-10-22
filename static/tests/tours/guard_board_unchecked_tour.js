@@ -61,8 +61,8 @@ registry.category("web_tour.tours").add("ems_guard_board_unchecked", {
     ],
 });
 
-// No reload: someone else checks the teacher in meanwhile (here, a direct call), and the board,
-// refreshing itself every second, takes the class off the table.
+// No reload: someone else checks the teacher in meanwhile (here, a direct call), the server tells
+// every open board through the bus, and this one takes the class off the table.
 registry.category("web_tour.tours").add("ems_guard_board_unchecked_refresh", {
     test: true,
     url: "/odoo/action-ems.action_guard_duty_board",

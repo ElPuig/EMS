@@ -35,10 +35,6 @@ El crédito **avisa, no bloquea**: quien lo supera recibe un aviso y la solicitu
 
 Desactivar uno no deshace lo que ya se ha comunicado: si la ausencia cambia después, el cuadro sigue ofreciendo la corrección.
 
-### Actualización automática del horario de guardias
-
-En el mismo bloque, **Actualización automática** fija cada cuántos segundos se actualiza solo el horario de guardias mientras está abierto (30 por defecto). Es lo que hace que una clase cuyo docente no ha fichado aparezca en cuanto empieza, sin que nadie tenga que volver a cargar la página. **0** la desactiva.
-
 ---
 
 ## El catálogo de tipos de ausencia

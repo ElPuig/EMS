@@ -1431,15 +1431,32 @@ PDF prints the tag too). Clicking a row with `can_mark_present` opens `GuardUnch
 (`guard_unchecked_dialog.js`): "They are in the classroom" and, when the user can, the usual next
 step (send a guard, cover it themselves, stop covering it).
 
-**Automatic refresh.** `res.company.ems_guard_board_refresh_seconds` (Settings > Guard Duty Board
-Settings, 30 by default, 0 = off) comes with every `get_guard_duty_board_data()` as
-`refresh_seconds`. The client action reloads the same data on that interval without a spinner and
-keeps the planner's checked steps; it only replaces `state.board` when the JSON differs, so nothing is
-redrawn when nothing changed. It skips a tick while the tab is hidden, a dialog or a popover (not a
-tooltip) is open, a load is running, or the day shown is over, and drops a result if the user moved
-to another day, shift or area meanwhile. Measured on the dev database (2026-10-22, `odoo shell`,
-cold): 0.15-0.24 s per load, the same as before the extra query (0.06 s for every employee of the
-centre), so a 30-second refresh per open screen is cheap. The guard room TV (#591/#642) will reuse it.
+**Live updates, only when something changes.** The board never polls. It reloads in two cases:
+- **The server says so.** `ems.guard_board_notifier` (`models/shared/guard_board_notifier.py`), an
+  abstract mixin, is added to every model whose records the board shows: `hr.attendance` (check-in),
+  `ems.absence_cover`, `hr.leave`, `ems.absence_pending` and `ems.notice` (the timetable changes told
+  to the families). On create, unlink and any write touching its `_guard_board_fields`, it sends
+  `ems.guard_duty_board/changed` on the bus channel `ems.guard_duty_board` with the days affected
+  (`_guard_board_spans()`, before and after a write, so moving an absence tells both days). Sent on
+  commit (`bus.bus._sendone`), so a rolled-back change says nothing. The channel is a plain string
+  any client can subscribe to, the guard room kiosk (#591/#642) included, and the message only
+  carries dates, never who or what.
+- **A lesson starts or ends today.** The client sets one timer for the next `hour_from`/`hour_to`
+  of the lines on screen (plus a second): that is when a class whose teacher has not checked in
+  appears, and when a row stops offering "They are in the classroom".
+
+Client side (`guard_duty_board.js`): `onBoardChanged` only reacts to the day on screen, and
+`requestRefresh` groups a burst of messages (applying a plan writes several covers) into one reload
+after 500 ms. The reload has no spinner, keeps the planner's checked steps and only replaces
+`state.board` when the JSON differs. It waits (stays pending) while a load is running, the tab is
+hidden, or a dialog or a popover (not a tooltip) is open, and runs as soon as that ends: every
+dialog and popover the board opens goes through `addDialog`/`addPopover`, whose `onClose` flushes it,
+and so does `visibilitychange`. A result for another day, shift or area than the one now on screen
+is dropped. The current-time line keeps its own once-a-minute timer, independent of all this.
+
+Cost: nothing while nothing changes. Each reload costs the same as opening the board, measured on the
+dev database (2026-10-22, `odoo shell`, cold) at 0.15-0.24 s, the extra check-in query included (0.06
+s for every employee of the centre).
 
 ## Related docs
 

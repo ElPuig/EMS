@@ -128,7 +128,7 @@ El mismo diálogo también ofrece lo que podrías hacer con la línea: **Cubrirl
 
 ### El horario se actualiza solo
 
-Mientras está abierto, el horario se actualiza solo cada 30 segundos (el administrador lo puede cambiar), de modo que una clase cuyo docente no ha fichado aparece en cuanto empieza, sin volver a cargar la página. No se actualiza mientras hay un diálogo abierto o la pestaña del navegador está en segundo plano.
+Mientras está abierto, el horario se actualiza solo, sin volver a cargar la página, únicamente cuando cambia algo que muestra: cuando empieza o termina una clase, cuando alguien ficha, envía o retira una guardia, o cuando cambia una ausencia o un comunicado a las familias. Así ves al instante lo que un compañero acaba de organizar. Si hay un diálogo abierto o la pestaña del navegador está en segundo plano, espera y se actualiza en cuanto lo cierras o vuelves a ella.
 
 ---
 

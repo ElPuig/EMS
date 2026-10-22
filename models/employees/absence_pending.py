@@ -24,7 +24,9 @@ class EmsAbsencePending(models.Model):
     linked for good and the real one is all that counts from then on."""
     _name = "ems.absence_pending"
     _description = "Expected absence"
-    _inherit = ["mail.thread", "ems.datetime_utils"]
+    # The guard duty board reloads when an expected absence changes (issue #692).
+    _inherit = ["mail.thread", "ems.datetime_utils", "ems.guard_board_notifier"]
+    _guard_board_fields = ("employee_id", "date_from", "date_to", "state")
     _order = "date_from desc, id desc"
 
     employee_id = fields.Many2one(
@@ -127,9 +129,17 @@ class EmsAbsencePending(models.Model):
         return tuple(self.datetime_to_odoo(self.time_float_to_utc_datetime(when, hour))
                      for when, hour in ((day, hour_from), (stop_day, hour_to)))
 
+    def _guard_board_spans(self):
+        return {(self._guard_board_local_date(absence.date_from), self._guard_board_local_date(absence.date_to))
+                for absence in self}
+
 
 class EmsAbsencePendingLeave(models.Model):
-    _inherit = "hr.leave"
+    _name = "hr.leave"
+    # The guard duty board reloads when an absence changes (issue #692).
+    _inherit = ["hr.leave", "ems.guard_board_notifier"]
+    _guard_board_fields = ("employee_id", "state", "request_date_from", "request_date_to", "request_hour_from",
+                           "request_hour_to", "request_unit_hours", "ems_full_day")
 
     ems_pending_absence_ids = fields.One2many(
         string="Expected absences", comodel_name="ems.absence_pending", inverse_name="leave_id",
@@ -161,3 +171,6 @@ class EmsAbsencePendingLeave(models.Model):
                           'request_hour_from', 'request_hour_to', 'ems_full_day'}:
             self.env['ems.absence_pending']._link_to_leaves(self)
         return result
+
+    def _guard_board_spans(self):
+        return {(leave.request_date_from, leave.request_date_to) for leave in self}

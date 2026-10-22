@@ -128,7 +128,7 @@ El mateix diàleg també ofereix el que podries fer amb la línia: **Cobrir-la j
 
 ### L'horari s'actualitza sol
 
-Mentre està obert, l'horari s'actualitza sol cada 30 segons (l'administrador ho pot canviar), de manera que una classe el docent de la qual no ha fitxat hi apareix tan bon punt comença, sense tornar a carregar la pàgina. No s'actualitza mentre hi ha un diàleg obert o la pestanya del navegador és en segon pla.
+Mentre està obert, l'horari s'actualitza sol, sense tornar a carregar la pàgina, només quan canvia alguna cosa que mostra: quan comença o acaba una classe, quan algú fitxa, envia o retira una guàrdia, o quan canvia una absència o un comunicat a les famílies. Així veus a l'instant el que un company acaba d'organitzar. Si hi ha un diàleg obert o la pestanya del navegador és en segon pla, espera i s'actualitza tan bon punt el tanques o hi tornes.
 
 ---
 

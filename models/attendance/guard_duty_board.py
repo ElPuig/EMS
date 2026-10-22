@@ -2185,9 +2185,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'actions': [self._board_action_data(action) for action in data['actions'] if action['can_manage']],
                 # Whether anybody can still act on this day (from today on): the board then explains
                 # every line still to be covered, also to whoever cannot cover it.
-                'editable': editable,
-                # How often the screen reloads itself, in seconds (issue #692, 0 = never).
-                'refresh_seconds': self.env.company.ems_guard_board_refresh_seconds}
+                'editable': editable}
 
     def _arrangement_plan_data(self, plan):
         """JSON-safe version of a detected arrangement plan (see _get_arrangement_plans): its

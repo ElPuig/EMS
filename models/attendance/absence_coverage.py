@@ -98,7 +98,8 @@ class EmsAbsenceCover(models.Model):
     the decision) stays on guard at the lesson's usual time while it is gone."""
     _name = 'ems.absence_cover'
     _description = "Absence cover: a guard teacher sent to a class left without its teacher"
-    _inherit = ['mail.thread']
+    # The guard duty board reloads on every change of a cover (issue #692).
+    _inherit = ['mail.thread', 'ems.guard_board_notifier']
     _order = 'date desc, hour_from, id'
     _sql_constraints = [
         ('class_or_duty', 'CHECK((group_id IS NULL) != (duty_id IS NULL))',
@@ -233,6 +234,9 @@ class EmsAbsenceCover(models.Model):
             if any(overlaps(other.hour_from, other.hour_to, cover.hour_from, cover.hour_to)
                    and not self._same_decision(cover, other) for other in others):
                 raise ValidationError(_("This class already has a guard teacher assigned."))
+
+    def _guard_board_spans(self):
+        return {(day, day) for day in self.mapped('date')}
 
     def _time_label(self):
         course = self.env['ems.course']

@@ -281,7 +281,10 @@ class ems_attendance_correction(models.Model):
 
 
 class ems_attendance(models.Model):
-    _inherit = "hr.attendance"
+    _name = "hr.attendance"
+    # The guard duty board reloads when a check-in changes (issue #692).
+    _inherit = ["hr.attendance", "ems.guard_board_notifier"]
+    _guard_board_fields = ("employee_id", "check_in")
 
     correction_ids = fields.One2many(string="Correction requests", comodel_name="ems.attendance_correction", inverse_name="attendance_id")
     correction_count = fields.Integer(string="Correction requests count", compute="_compute_correction_count")
@@ -301,6 +304,9 @@ class ems_attendance(models.Model):
         action["domain"] = [("attendance_id", "=", self.id)]
         action["context"] = {}
         return action
+
+    def _guard_board_spans(self):
+        return {(day, day) for day in map(self._guard_board_local_date, self.mapped("check_in"))}
 
     def _notify_checked_in_by(self):
         """Tells the employee that someone else checked them in (issue #692), and who: an Odoo

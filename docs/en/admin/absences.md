@@ -35,10 +35,6 @@ The allowance **warns, it does not block**: someone going over it is warned and 
 
 Switching one off does not undo what was already communicated: if the absence changes afterwards, the schedule still offers the correction.
 
-### Automatic refresh of the guard duty schedule
-
-In the same block, **Automatic refresh** sets how often, in seconds, the guard duty schedule updates itself while it is open (30 by default). This is what makes a class whose teacher has not checked in appear as soon as it starts, without anybody reloading the page. **0** turns it off.
-
 ---
 
 ## The absence type catalogue

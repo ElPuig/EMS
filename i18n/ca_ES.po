@@ -23907,27 +23907,6 @@ msgid "%(user)s registered your check-in at %(time)s from the guard duty board, 
 msgstr "%(user)s ha registrat la teva entrada a les %(time)s des del quadrant de guàrdies, perquè eres a l'aula, però no havies fitxat. Si no és correcte, sol·licita'n una correcció."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_res_company__ems_guard_board_refresh_seconds
-#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_guard_board_refresh_seconds
-msgid "Guard duty board refresh (seconds)"
-msgstr "Actualització del quadrant de guàrdies (segons)"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_hr_attendance__ems_checked_in_by_id
 msgid "Check-in registered by"
 msgstr "Entrada registrada per"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "Automatic refresh"
-msgstr "Actualització automàtica"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "How often the guard duty board updates itself while it is open, so a class whose teacher has not checked in shows up as soon as it starts. 0 turns it off."
-msgstr "Cada quant s'actualitza sol el quadrant de guàrdies mentre està obert, perquè una classe el docent de la qual no ha fitxat hi aparegui tan bon punt comença. 0 la desactiva."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
-msgid "<span class=\"ms-2\">seconds</span>"
-msgstr "<span class=\"ms-2\">segons</span>"

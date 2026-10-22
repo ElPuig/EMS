@@ -128,7 +128,7 @@ The same dialog also offers what you could otherwise do with the line: **Cover i
 
 ### The schedule updates itself
 
-While it is open, the schedule updates itself every 30 seconds (the administrator can change this), so a class whose teacher has not checked in appears as soon as it starts without reloading the page. It does not update while a dialog is open or the browser tab is in the background.
+While it is open, the schedule updates itself, without reloading the page, only when something it shows changes: when a lesson starts or ends, when somebody checks in, sends or releases a guard, or when an absence or a notice to the families changes. So you see at once what a colleague has just organised. If a dialog is open or the browser tab is in the background, it waits and updates as soon as you close it or come back.
 
 ---
 

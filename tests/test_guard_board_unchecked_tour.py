@@ -73,6 +73,6 @@ class TestGuardBoardUncheckedTour(HttpCase):
                         login=self.teacher_user.login)
 
     def test_the_board_refreshes_itself(self):
-        self.env.company.ems_guard_board_refresh_seconds = 1
+        """Someone else checks the teacher in: the board hears it through the bus and reloads."""
         self.start_tour("/odoo", "ems_guard_board_unchecked_refresh", login=self.guard_user.login)
         self.assertEqual(self._teacher_check_in().ems_checked_in_by_id, self.guard_user)

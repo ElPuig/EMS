@@ -49,6 +49,11 @@ const VIEWS = [
 
 // How often the current-time line moves down the grid: once a minute, its own resolution.
 const NOW_LINE_REFRESH_MS = 60 * 1000;
+// Issue #692: the bus channel and notification the server sends when a day of the board changes
+// (see models/shared/guard_board_notifier.py), and how long to wait for the rest of a burst.
+const GUARD_BOARD_CHANNEL = "ems.guard_duty_board";
+const GUARD_BOARD_CHANGED = "ems.guard_duty_board/changed";
+const REFRESH_DEBOUNCE_MS = 500;
 
 // Mirrors ems.course's own SHIFT_HOURS (models/attendance/guard_duty_board.py): the afternoon
 // shift starts at 15:00, kept in sync by hand since a plain JS constant can't share the Python
@@ -178,8 +183,17 @@ export class GuardDutyBoard extends Component {
         });
         onWillUnmount(() => {
             clearInterval(this.nowLineTimer);
-            clearInterval(this.refreshTimer);
+            clearTimeout(this.lessonTimer);
+            clearTimeout(this.refreshDebounce);
+            this.busService.unsubscribe(GUARD_BOARD_CHANGED, this.onBoardChanged);
+            this.busService.deleteChannel(GUARD_BOARD_CHANNEL);
         });
+        // Issue #692: reload when the server says the day on screen changed (see onBoardChanged).
+        this.busService = useService("bus_service");
+        this.onBoardChanged = this.onBoardChanged.bind(this);
+        this.busService.subscribe(GUARD_BOARD_CHANGED, this.onBoardChanged);
+        this.busService.addChannel(GUARD_BOARD_CHANNEL);
+        useExternalListener(document, "visibilitychange", () => this.flushRefresh());
     }
 
     // What the planner is looking at - week and day, shift, view and areas - kept in the URL
@@ -437,30 +451,43 @@ export class GuardDutyBoard extends Component {
         this.state.noticeSelections = {};
         this.state.board = await this.orm.call("ems.course", "get_guard_duty_board_data", this.boardArgs);
         this.state.loading = false;
+        this.refreshPending = false;
         this.syncNavigation();
-        this.scheduleRefresh();
+        this.scheduleLessonRefresh();
     }
 
-    // Issue #692: the board updates itself every 'refresh_seconds' (a company setting, 0 = never),
-    // so a class whose teacher has not checked in shows up as it starts without anybody reloading.
-    // Quietly: no spinner, the planner's checked steps are kept, and nothing is redrawn unless
-    // something changed. Skipped while the tab is hidden, a dialog or popover is open, or the day
-    // shown is already over.
-    scheduleRefresh() {
-        clearInterval(this.refreshTimer);
-        const seconds = this.state.board && this.state.board.refresh_seconds;
-        if (seconds > 0) {
-            this.refreshTimer = setInterval(() => this.refreshBoard(), seconds * 1000);
+    // Issue #692: the board reloads itself only when something it shows may have changed, never on
+    // a fixed interval: when the server says so through the bus (a check-in, a guard sent or
+    // released, an absence, a timetable change told to the families - see
+    // ems.guard_board_notifier) for the day on screen, and when a lesson starts or ends today
+    // (a class whose teacher has not checked in shows up as it starts). Quietly: no spinner, the
+    // planner's checked steps are kept, and nothing is redrawn unless something changed. A burst
+    // of notifications is one reload. While a dialog or popover is open, or the tab is hidden, the
+    // reload waits and happens as soon as it is closed or shown again.
+    onBoardChanged(payload) {
+        const date = this.activeDate;
+        if (date && payload.date_from <= date && date <= payload.date_to) {
+            this.requestRefresh();
         }
     }
 
-    async refreshBoard() {
-        if (this.state.loading || this.refreshing || document.visibilityState !== "visible"
-                || this.activeDate < serverNow().toISODate()
-                // A tooltip is a popover too, but only shows what the pointer is over.
-                || document.querySelector(".o_dialog, .o_popover:not(:has(.o-tooltip))")) {
+    requestRefresh() {
+        this.refreshPending = true;
+        clearTimeout(this.refreshDebounce);
+        this.refreshDebounce = setTimeout(() => this.flushRefresh(), REFRESH_DEBOUNCE_MS);
+    }
+
+    get refreshBlocked() {
+        return this.state.loading || this.refreshing || document.visibilityState !== "visible"
+            // A tooltip is a popover too, but only shows what the pointer is over.
+            || Boolean(document.querySelector(".o_dialog, .o_popover:not(:has(.o-tooltip))"));
+    }
+
+    async flushRefresh() {
+        if (!this.refreshPending || this.refreshBlocked) {
             return;
         }
+        this.refreshPending = false;
         const args = this.boardArgs;
         this.refreshing = true;
         try {
@@ -469,12 +496,41 @@ export class GuardDutyBoard extends Component {
             if (JSON.stringify(args) === JSON.stringify(this.boardArgs) && !this.state.loading
                     && JSON.stringify(board) !== JSON.stringify(this.state.board)) {
                 this.state.board = board;
+                this.scheduleLessonRefresh();
             }
         } catch {
-            // A network hiccup: the next tick tries again.
+            // A network hiccup: the next change or lesson tries again.
         } finally {
             this.refreshing = false;
         }
+        if (this.refreshPending) {
+            this.flushRefresh();
+        }
+    }
+
+    // The next start or end of a lesson today, plus a second: rows appear (a class whose teacher
+    // has not checked in) or stop offering "They are in the classroom" then.
+    scheduleLessonRefresh() {
+        clearTimeout(this.lessonTimer);
+        const now = serverNow();
+        if (!this.state.board || this.activeDate !== now.toISODate()) {
+            return;
+        }
+        const hour = now.hour + now.minute / 60 + now.second / 3600;
+        const next = Math.min(...this.state.board.lines.flatMap((line) => [line.hour_from, line.hour_to])
+            .filter((boundary) => boundary > hour));
+        if (Number.isFinite(next)) {
+            this.lessonTimer = setTimeout(() => this.requestRefresh(), (next - hour) * 3600 * 1000 + 1000);
+        }
+    }
+
+    // Dialogs and popovers opened from the board flush a reload that waited for them on close.
+    addDialog(component, props) {
+        return this.dialog.add(component, props, { onClose: () => setTimeout(() => this.flushRefresh()) });
+    }
+
+    addPopover(target, component, props) {
+        return this.popover.add(target, component, props, { onClose: () => setTimeout(() => this.flushRefresh()) });
     }
 
     // Bold red for an absence that is going to happen, a lighter italic for one still waiting
@@ -624,7 +680,7 @@ export class GuardDutyBoard extends Component {
             const notOnGuard = this.notOnGuardReason(absence);
             if (notOnGuard) {
                 const anchor = ev.currentTarget.querySelector(".o_guard_board_absence_info") || ev.currentTarget;
-                this.popover.add(anchor, GuardBoardReasonPopover, { reason: notOnGuard });
+                this.addPopover(anchor, GuardBoardReasonPopover, { reason: notOnGuard });
             } else if (absence.arrangement && absence.can_manage) {
                 // Waiting for its notice: the planner either sends it or changes their mind.
                 this.openCoverDialog(line, absence);
@@ -653,7 +709,7 @@ export class GuardDutyBoard extends Component {
             props.onAction = () => this.confirmSelfRelease(absence);
         }
         const icon = ev.currentTarget.querySelector(".o_guard_board_absence_info") || ev.currentTarget;
-        this.popover.add(icon, GuardBoardReasonPopover, props);
+        this.addPopover(icon, GuardBoardReasonPopover, props);
     }
 
     // A co-taught class or one the families were told about needs nobody, so it offers nothing.
@@ -818,7 +874,7 @@ export class GuardDutyBoard extends Component {
             return;
         }
         const classArgs = [this.activeDate, line.hour_from, line.hour_to, absence.teacher_id, absence.group_id];
-        this.dialog.add(GuardCoverDialog, {
+        this.addDialog(GuardCoverDialog, {
             row: absence,
             line,
             onAssign: async (guardId, message) => {
@@ -854,7 +910,7 @@ export class GuardDutyBoard extends Component {
             coverLabel = _t("Cover it myself");
             onCover = () => this.confirmSelfAssign(line, absence);
         }
-        this.dialog.add(GuardUncheckedDialog, {
+        this.addDialog(GuardUncheckedDialog, {
             row: absence,
             line,
             coverLabel,
@@ -872,7 +928,7 @@ export class GuardDutyBoard extends Component {
     // Issue #659: changes what the families were told for a struck-out row, with one correction
     // sent at once: choosing it in the dialog is the confirmation.
     openChangeProposalDialog(absence) {
-        this.dialog.add(GuardChangeProposalDialog, {
+        this.addDialog(GuardChangeProposalDialog, {
             loadOptions: () => this.orm.call("ems.course", "get_change_proposal_options", [
                 this.activeDate, absence.group_id, absence.change_side,
             ]),
@@ -884,7 +940,7 @@ export class GuardDutyBoard extends Component {
     // Issue #601: a teacher on guard duty takes a class nobody covers yet, or leaves one they
     // took themselves. Nobody is notified - the board itself shows it to whoever organises it.
     confirmSelfAssign(line, absence) {
-        this.dialog.add(ConfirmationDialog, {
+        this.addDialog(ConfirmationDialog, {
             title: _t("Cover this class"),
             body: _t("You will cover %(group)s (%(time)s) instead of %(teacher)s.", {
                 group: absence.group, time: absence.self_label, teacher: absence.teacher,
@@ -901,7 +957,7 @@ export class GuardDutyBoard extends Component {
     }
 
     confirmSelfRelease(absence) {
-        this.dialog.add(ConfirmationDialog, {
+        this.addDialog(ConfirmationDialog, {
             title: _t("Stop covering this class"),
             body: _t("%(group)s will be left without a guard teacher again.", { group: absence.group }),
             confirmLabel: _t("Stop covering"),

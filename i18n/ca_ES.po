@@ -4434,6 +4434,7 @@ msgstr "Atorgar accés"
 #: model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__group_id model_terms:ir.ui.view,arch_db:ems.view_group_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__group_id
+#: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__group_id
 msgid "Group"
 msgstr "Grup"
 
@@ -26239,3 +26240,14 @@ msgstr "No podeu iniciar una acta del tipus \"%(type)s\" per a %(scope)s."
 #, python-format
 msgid "You cannot start a minute of type \"%s\"."
 msgstr "No podeu iniciar una acta del tipus \"%s\"."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__scope__group
+msgid "A group's teaching team"
+msgstr "L'equip docent d'un grup"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/meetings/presence.py:0
+msgid "Choose the group whose teaching team is convened."
+msgstr "Seleccioneu el grup l'equip docent del qual es convoca."

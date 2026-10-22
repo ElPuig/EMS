@@ -19,6 +19,7 @@ erDiagram
     "ems.meeting.presence" }o--o| "ems.course" : "course_id"
     "ems.meeting.presence" }o--o| "hr.department" : "department_id (scope)"
     "ems.meeting.presence" }o--o| "ems.workgroup" : "workgroup_id (scope)"
+    "ems.meeting.presence" }o--o| "ems.group" : "group_id (scope)"
     "ems.meeting.presence.line" }o--|| "hr.employee.public" : "employee_id"
     "ems.meeting.presence" }o--o| "hr.employee.public" : "convener_id"
     "ems.meeting.presence" }o--o{ "hr.employee.public" : "manager_ids"
@@ -37,8 +38,8 @@ erDiagram
 | `company_id` | `Many2one → res.company` | Defaults to the current company; the scanned tag is only looked up among this company's employees |
 | `convener_id` | `Many2one → hr.employee.public` | Who convenes the meeting. Defaults to the creator's employee, editable (the secretariat may create a meeting on someone else's behalf). Decides who can open the kiosk from the meetings page, see below |
 | `manager_ids` | `Many2many → hr.employee.public` | Other people who can also open the kiosk from the meetings page |
-| `scope` | `Selection` | Who is convened: `all_teachers` (default), `all_staff`, `department`, `workgroup`, `manual` |
-| `department_id` / `workgroup_id` | `Many2one` | The target of the `department` / `workgroup` scope (required by a constraint for those scopes) |
+| `scope` | `Selection` | Who is convened: `all_teachers` (default), `all_staff`, `department`, `workgroup`, `group` (a group's teaching team), `manual` |
+| `department_id` / `workgroup_id` / `group_id` | `Many2one` | The target of the `department` / `workgroup` / `group` scope (required by a constraint for those scopes) |
 | `state` | `Selection` | `draft` → `open` → `closed`, tracked |
 | `access_token` | `Char` | Random, unique, `copy=False`; the kiosk's only credential |
 | `kiosk_lang` | `Selection` | The language the kiosk page speaks. The visitor is anonymous (the public user is `en_US`), so the session decides: the language of whoever created it, editable |
@@ -65,7 +66,7 @@ erDiagram
 ## Rules
 
 - **Convened list.** Created from the scope by `action_load_convened()`, which runs on `create()` for every scope but `manual` and can be run again from the form. It only **adds** people who are missing: it never removes a line, so a scan is never lost when the scope is changed afterwards.
-  - `all_teachers`: `employee_type = 'teacher'`; `all_staff`: every active employee; `department`: the department and its children; `workgroup`: its members. All limited to the session's company.
+  - `all_teachers`: `employee_type = 'teacher'`; `all_staff`: every active employee; `department`: the department and its children; `workgroup`: its members; `group`: whoever teaches the group plus its tutor. All limited to the session's company. The rule is `_ems_convened_employees()`, shared with the minutes (see below).
 - **Scan** (`_ems_register_scan(barcode)`, called by the controller with `sudo()`):
   1. If the session is not taking tags (`_ems_kiosk_status()`): `not_open` / `closed`. Nothing changes.
   2. Look the employee up by `barcode` in the session's company. No match: `unknown`.
@@ -155,11 +156,12 @@ The roles above that convene sessions see them all (`rule_meeting_presence_overs
 A session can be created on its own (Head of Studies, secretariat) or **by a minute**: whoever sets a minute up chooses, in the form, whether attendance is written by hand or taken with the NFC tag (`ems.minute.attendance_mode`). With the tag, saving the minute creates its session (`ems.minute.presence_id`, `_ems_sync_presence()`):
 
 - **With sudo.** A teacher writes minutes but only reaches a session through one of them (see Access control). The session of a minute is created for them, with the writer as `convener_id`, so the meetings page opens its kiosk with their own tag and the minute's *Open the kiosk* button does the same from the form.
-- **One convened list, the minute's.** The session's lines are the attendees the minute preloaded from its scope, not a second list worked out by the session's own scope rules.
+- **One convened list, the minute's.** The session's lines are the attendees the minute preloaded from its scope, and its scope (`_ems_presence_scope()`: department, workgroup, group, centre or by hand) and target are copied over, so *Load convened people* on the session finds the same people.
+- **One rule for who a scope convenes.** `ems.meeting.presence._ems_convened_employees(scope, company, department, workgroup, group)` (`@api.model`) is used by both the session (`_ems_scope_employees()`) and the minute (`_ems_preload_attendees()`): a department convenes its members and those of the departments under it (`child_of`, so an area such as VET convenes all of its departments), a workgroup its members, a group whoever teaches it (`ems.teaching`) plus its tutor even without a subject in it, `all_teachers`/`all_staff` the company's teachers or staff. Either list still takes anybody else by hand, and the minute also takes people from outside EMS (`ems.minute.guest`); a session does not, since they have no tag.
 - **The session follows the minute while it is a draft** (start, duration, room, name), and is deleted if the minute goes back to a hand-written list before anybody opened it. Once opened it is left alone.
 - **The result goes back to the minute** (`ems.minute._ems_sync_attendance()`): lines `present` become `attendee_ids`, every other line `absentee_ids`, and justified absences are written to `absence_notes` with their reason. It runs when the session is closed, from the minute's *Close attendance* button or from the session's own screen, when a line is changed by hand (`ems.meeting.presence.line._ems_sync_minutes()`, so a correction reaches the minute without closing the session again), and again when the minute is sent for approval. An approved minute is never touched.
 
-Still to do, in `plans/meeting_presence_minute_integration.md`: a single implementation of the scope rules, and the quality roles as session managers.
+Still to do, in `plans/meeting_presence_minute_integration.md`: the quality roles as session managers.
 
 ## The agenda and the call (`ems.minute`)
 

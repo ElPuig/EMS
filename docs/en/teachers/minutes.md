@@ -89,7 +89,9 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 
 ## What fills in by itself
 
-- **The attendee list.** It comes from the scope.
+- **The attendee list.** It comes from the scope: the department's members (including the departments
+  under it), the workgroup's, the teachers of the group together with its tutor, or the whole teaching staff.
+  You can add or remove anybody by hand, and add people from outside EMS.
 - **Copying the open agreements of the previous meeting.** The **Previous minute** tab already holds the
   agreements that are not closed yet, ready to review.
 - **The pending topics.** Whatever the previous minute left unticked arrives loaded too. Tick **Dealt

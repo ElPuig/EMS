@@ -14,7 +14,7 @@ from odoo.tests.common import HttpCase, TransactionCase
 
 from odoo.addons.ems.models.meetings.presence import kiosk_short_name
 
-from .common import create_head_of_studies_branch, create_role_employee, create_role_user, mock_outgoing_email
+from .common import create_head_of_studies_branch, create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
 
 class MeetingPresenceFixtures:
@@ -105,6 +105,15 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
         session = self._session(scope='workgroup', workgroup_id=self.workgroup.id)
         self.assertEqual(session.line_ids.employee_id, self._public(self.teacher) | self._public(self.asp))
 
+    def test_group_scope_convenes_its_teachers_and_tutor(self):
+        # The tutor counts even without a subject of their own in the group.
+        _level, study, group = create_level_study_group(self, 'TPG', group={'tutor_id': self.child_teacher.id})
+        subject = self.env['ems.subject'].create({
+            'code': 'TPG001', 'acronym': 'TPG', 'name': 'TPG Subject', 'study_ids': [(6, 0, study.ids)]})
+        self.env['ems.teaching'].create({'teacher_id': self.teacher.id, 'group_id': group.id, 'subject_id': subject.id})
+        session = self._session(scope='group', group_id=group.id)
+        self.assertEqual(session.line_ids.employee_id, self._public(self.teacher) | self._public(self.child_teacher))
+
     def test_manual_scope_starts_empty(self):
         self.assertFalse(self._session(scope='manual').line_ids)
 
@@ -113,6 +122,8 @@ class TestMeetingPresence(MeetingPresenceFixtures, TransactionCase):
             self._session(scope='department')
         with self.assertRaises(ValidationError):
             self._session(scope='workgroup')
+        with self.assertRaises(ValidationError):
+            self._session(scope='group')
 
     def test_load_convened_only_adds_never_removes(self):
         session = self._session(scope='department', department_id=self.department.id)

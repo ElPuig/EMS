@@ -88,7 +88,9 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 
 ## El que s'omple sol
 
-- **La llista d'assistents.** Ve de l'àmbit.
+- **La llista d'assistents.** Ve de l'àmbit: els membres del departament (també dels departaments que en
+  depenen), els del grup de treball, el professorat del grup amb el seu tutor o tot el professorat. Hi podeu
+  afegir o treure qualsevol persona a mà, i afegir-hi persones externes a l'EMS.
 - **Copiar els acords oberts de la reunió anterior.** A la pestanya **Acta anterior** hi trobareu els
   acords que encara no s'han tancat, ja carregats, per repassar-los.
 - **Els temes pendents.** Els que l'acta anterior va deixar sense marcar com a tractats arriben també

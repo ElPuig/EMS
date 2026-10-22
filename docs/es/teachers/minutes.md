@@ -88,7 +88,9 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 
 ## Lo que se rellena solo
 
-- **La lista de asistentes.** Viene del ámbito.
+- **La lista de asistentes.** Viene del ámbito: los miembros del departamento (también de los departamentos
+  que dependen de él), los del grupo de trabajo, el profesorado del grupo con su tutor o todo el profesorado.
+  Podéis añadir o quitar a cualquier persona a mano, y añadir personas externas a EMS.
 - **Copiar los acuerdos abiertos de la reunión anterior.** En la pestaña **Acta anterior** encontraréis
   los acuerdos que todavía no se han cerrado, ya cargados, para repasarlos.
 - **Los temas pendientes.** Los que el acta anterior dejó sin marcar como tratados llegan también

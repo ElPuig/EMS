@@ -19,7 +19,7 @@ Go to **Meetings → Attendance** and click **New**.
 1. Type the name of the meeting (1).
 2. In **Starts** and **Duration** (2) set when the meeting starts and how long it lasts (2 hours by default). **Ends** is worked out for you; you can also type it and the duration adjusts.
 3. **Convener** (3) shows you. If you are creating the meeting on someone else's behalf, choose them. In **Managers**, add any other people who also need to be able to open the kiosk (see "Meetings page").
-4. In **Who is convened** (4) choose **All teachers**, **All staff**, **A department**, **A workgroup** or **Chosen by hand**. If you choose a department or a workgroup, select it.
+4. In **Who is convened** (4) choose **All teachers**, **All staff**, **A department** (it includes the departments under it), **A workgroup**, **A group's teaching team** (the group's teachers and its tutor) or **Chosen by hand**. If you choose a department, a workgroup or a group, select it.
 5. In **Kiosk language** (5) choose the language of the screen at the door.
 6. If needed, fill in the room and the course.
 7. Save. The **People** tab (6) is filled with the convened people.

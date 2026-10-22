@@ -7,7 +7,7 @@ from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
-from .common import create_role_employee, create_role_user, mock_outgoing_email
+from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email
 
 
 class TestQualityMinute(TransactionCase):
@@ -71,6 +71,25 @@ class TestQualityMinute(TransactionCase):
         """The single biggest saving of the feature: nobody types the attendee list again."""
         minute = self._minute()
         self.assertIn(self.employee.name, minute.attendee_ids.mapped('name'))
+
+    def test_teaching_team_attendees_are_its_teachers_and_tutor(self):
+        """Same rule as an attendance session's: whoever teaches the group, plus its tutor even
+        without a subject of their own in it. The NFC session keeps the group as its scope."""
+        tutor_user = create_role_user(self, 'teacher', 'minute.tutor@example.com', name='Minute Tutor')
+        tutor = create_role_employee(self, tutor_user)
+        _level, study, group = create_level_study_group(self, 'MTT', group={'tutor_id': tutor.id})
+        subject = self.env['ems.subject'].create({
+            'code': 'MTT001', 'acronym': 'MTT', 'name': 'MTT Subject', 'study_ids': [(6, 0, study.ids)]})
+        self.env['ems.teaching'].create({'teacher_id': self.employee.id, 'group_id': group.id, 'subject_id': subject.id})
+        minute = self._minute(type_id=self.env.ref('__import__.minute_type_teaching_team').id, department_id=False,
+                              group_id=group.id, date=False, start_datetime=datetime(2027, 1, 14, 11, 30),
+                              duration=1.0, attendance_mode='nfc')
+        self.assertEqual(set(minute.attendee_ids.ids), {self.employee.id, tutor.id})
+        presence = minute.presence_id.sudo()
+        self.assertEqual((presence.scope, presence.group_id), ('group', group))
+        presence.action_load_convened()
+        self.assertEqual(set(presence.line_ids.employee_id.ids), {self.employee.id, tutor.id},
+                         "loading the convened again finds the same people the minute preloaded")
 
     def test_open_agreements_of_the_previous_minute_are_carried_over(self):
         previous = self._minute()

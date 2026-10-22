@@ -47,6 +47,9 @@
                                 <field name="workgroup_id" invisible="scope != 'workgroup'"
                                        required="scope == 'workgroup'" readonly="state == 'closed'"
                                        options="{'no_create': True}"/>
+                                <field name="group_id" invisible="scope != 'group'"
+                                       required="scope == 'group'" readonly="state == 'closed'"
+                                       options="{'no_create': True}"/>
                                 <field name="kiosk_lang" readonly="state == 'closed'"/>
                             </group>
                         </group>

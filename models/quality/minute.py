@@ -518,25 +518,13 @@ class EmsMinute(models.Model):
 
     def _ems_preload_attendees(self):
         """Fill the attendee list from the scope, which is the single biggest saving of this whole
-        feature: a staff meeting has around a hundred attendees and they are typed by hand today."""
+        feature: a staff meeting has around a hundred attendees. Same rule as an attendance
+        session's convened list (ems.meeting.presence._ems_convened_employees)."""
         self.ensure_one()
-        employees = self.env['hr.employee.public']
-        if self.department_id:
-            employees = employees.search([('department_id', '=', self.department_id.id)])
-        elif self.workgroup_id:
-            employees = self.workgroup_id.employee_ids
-        elif self.group_id:
-            employees = self.env['hr.employee.public'].browse(self._ems_teaching_team_ids())
-        elif self.is_centre:
-            employees = employees.search([('employee_type', '=', 'teacher')])
+        employees = self.env['ems.meeting.presence']._ems_convened_employees(
+            self._ems_presence_scope(), self.env.company, self.department_id, self.workgroup_id, self.group_id)
         if employees:
             self.attendee_ids = [(6, 0, employees.ids)]
-
-    def _ems_teaching_team_ids(self):
-        """The teachers who teach the group, through the teaching assignment EMS already holds."""
-        self.ensure_one()
-        teachings = self.env['ems.teaching'].search([('group_id', '=', self.group_id.id)])
-        return teachings.mapped('teacher_id').ids
 
     def _ems_preload_previous(self):
         """Point at the previous minute of the same type and scope, and pull its still-open
@@ -746,6 +734,8 @@ class EmsMinute(models.Model):
             return 'department'
         if self.workgroup_id:
             return 'workgroup'
+        if self.group_id:
+            return 'group'
         return 'all_teachers' if self.is_centre else 'manual'
 
     def _ems_presence_vals(self):
@@ -784,6 +774,7 @@ class EmsMinute(models.Model):
                     'scope': minute._ems_presence_scope(),
                     'department_id': minute.department_id.id,
                     'workgroup_id': minute.workgroup_id.id,
+                    'group_id': minute.group_id.id,
                     'convener_id': minute.redactor_employee_id.id,
                     'line_ids': [(0, 0, {'employee_id': employee.id}) for employee in minute.attendee_ids],
                 })

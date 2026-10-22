@@ -1,5 +1,5 @@
-Status: CURRENT as of 2026-10-22. Steps 1-3 and the tests for them are done and ship with issue #497
-(branch `497-quality-phase-2`); steps 4 and 5 are still open. Delete this file once they land (the real
+Status: CURRENT as of 2026-10-22. Steps 1-4 and the tests for them are done and ship with issue #497
+(branch `497-quality-phase-2`); step 5 is still open. Delete this file once it lands (the real
 docs, `docs/en/developers/meetings/meeting_presence.md`, become the reference).
 
 # Joining meeting attendance (#521) and the minutes (#497)
@@ -20,7 +20,10 @@ independently of `ems.minute`, on purpose aligned with it. What is left to do on
    `docs/en/developers/meetings/meeting_presence.md`.
 3. **Derive the attendee lists.** *Done 2026-10-12:* filled when the session closes and when the
    minute is sent for approval (`ems.minute._ems_sync_attendance()`).
-4. **One preloading implementation.** `ems.minute._ems_preload_attendees()` and
+4. **One preloading implementation.** *Done 2026-10-22:* both call
+   `ems.meeting.presence._ems_convened_employees()`, which joins both sets of rules (sub-departments,
+   company, the group's teaching team plus its tutor) and adds the `group` scope to sessions. Originally:
+   `ems.minute._ems_preload_attendees()` and
    `ems.meeting.presence._ems_scope_employees()` implement the same rules. Make the minute call the
    session's helper (or extract both into an abstract mixin) instead of keeping two copies.
 5. **Quality roles.** `ems.group_quality_admin` is not among the managers of a session today: it

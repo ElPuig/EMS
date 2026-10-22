@@ -107,6 +107,7 @@
                                        invisible="not host_partner_id"/>
                                 <field name="date_start"/>
                                 <field name="date_end"/>
+                                <field name="destination_date" invisible="not destination_date"/>
                                 <field name="leave_id" invisible="audience != 'staff' or not leave_id"/>
                             </group>
                         </group>
@@ -120,7 +121,8 @@
                                         <field name="proposal_contact"/>
                                         <field name="proposal_country_id"/>
                                         <field name="proposal_city"/>
-                                        <field name="proposal_dates"/>
+                                        <field name="proposal_date_start"/>
+                                        <field name="proposal_date_end"/>
                                     </group>
                                     <group>
                                         <field name="proposal_date"/>

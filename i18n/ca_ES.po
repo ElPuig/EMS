@@ -3808,6 +3808,7 @@ msgstr "Activa els comportaments especials del bloc."
 #: model:ir.model.fields,field_description:ems.field_ems_course__end
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__date_end
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__date_end
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "End"
 msgstr "Final"
 
@@ -8014,6 +8015,7 @@ msgstr "Comportament especial"
 #: model:ir.model.fields,field_description:ems.field_ems_course__start
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__date_start
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__date_start
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Start"
 msgstr "Inici"
 
@@ -14509,6 +14511,7 @@ msgstr "Hores que aquesta persona ja ha consumit del seu crèdit per motius de s
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_responsible_declaration
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid ""
 "I declare, under my own responsibility, that the details and the reason "
 "given for this absence are true."
@@ -25611,11 +25614,6 @@ msgid "Interview place"
 msgstr "Lloc de l'entrevista"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__interview_deadline
-msgid "Interview review deadline"
-msgstr "Termini de revisió de les entrevistes"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__interview_complete
 msgid "Interview scored"
 msgstr "Entrevista puntuada"
@@ -25807,11 +25805,6 @@ msgid "Score every criterion first: %s"
 msgstr "Primer puntua tots els criteris: %s"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__min_score
-msgid "Score needed to be eligible."
-msgstr "Puntuació necessària per ser elegible."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/interview.py:0
 #: code:addons/ems/models/erasmus/interview.py:0
@@ -25923,12 +25916,6 @@ msgstr "Per puntuar"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "Total score"
 msgstr "Puntuació total"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
-msgid "Until when evaluators can reopen and change their interviews."
-msgstr ""
-"Fins quan els avaluadors poden reobrir i canviar les seves entrevistes."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__scoring_frozen_date
@@ -26822,7 +26809,6 @@ msgid "2 to less than 5 years"
 msgstr "De 2 a menys de 5 anys"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_last_mobility model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_last_mobility
 msgid "2. Last mobility"
 msgstr "2. Última mobilitat"
 
@@ -26896,7 +26882,6 @@ msgid "Annex 2 (0, 0.5 or 1 each)"
 msgstr "Annex 2 (0, 0,5 o 1 cadascun)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__audience model:ir.model.fields,field_description:ems.field_ems_erasmus_call__audience model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__audience model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__audience
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__audience
 msgid "Applicants"
 msgstr "Sol·licitants"
@@ -27171,7 +27156,6 @@ msgid "Only the students' call has interviews."
 msgstr "Només la convocatòria de l'alumnat té entrevistes."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__panel_ids model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Panel"
 msgstr "Tribunal"
 
@@ -27258,7 +27242,6 @@ msgid "Shown to the panel"
 msgstr "Visible per al tribunal"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__audience__staff model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_search
 msgid "Staff"
 msgstr "Personal"
 
@@ -27294,7 +27277,6 @@ msgid "Structured course"
 msgstr "Curs estructurat"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__audience model:ir.model.fields,help:ems.field_ems_erasmus_call__audience model:ir.model.fields,help:ems.field_ems_erasmus_offer_wizard__audience model:ir.model.fields,help:ems.field_ems_erasmus_resolution_line__audience
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__audience
 msgid "Students apply in the modality of their level. Staff apply once, are ranked in one list, and the Erasmus team assigns each selected person a modality (project and period) afterwards."
 msgstr "L'alumnat es presenta a la modalitat del seu nivell. El personal sol·licita una sola vegada, es classifica en una sola llista i, després, l'equip Erasmus assigna a cada persona seleccionada una modalitat (projecte i període)."
@@ -27566,7 +27548,6 @@ msgid "Only the panel member rates their plans."
 msgstr "Només el membre del tribunal valora els seus plans."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__last_staff_mobility model:ir.model.fields,help:ems.field_ems_erasmus_application__seniority
 msgid "Only when what the applicant declared is wrong: this counts instead."
 msgstr "Només quan el que ha declarat la persona sol·licitant no és correcte: això compta en el seu lloc."
 
@@ -27825,17 +27806,11 @@ msgstr "Una sol·licitud només té una mobilitat."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "Annex 3 of the call."
-msgstr "Annex 3 de la convocatòria."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
 msgid "Authorisation for minors to travel abroad"
 msgstr "Autorització de sortida de menors a l'estranger"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__stage__preparation model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__stage__preparation model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Before leaving"
 msgstr "Abans de marxar"
 
@@ -27877,7 +27852,6 @@ msgid "Certificate of stay or attendance"
 msgstr "Certificat d'estada o d'assistència"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__task_ids model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__task_ids model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Checklist"
 msgstr "Llista de passos"
 
@@ -27900,12 +27874,6 @@ msgstr "Triant la destinació"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Close the mobility"
 msgstr "Tanca la mobilitat"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Commitment letter"
-msgstr "Carta de compromís"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
@@ -27955,7 +27923,6 @@ msgid "Dissemination session"
 msgstr "Sessió de difusió"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__preparation_deadline model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__preparation_deadline
 msgid "Documents before leaving by"
 msgstr "Documents abans de marxar fins al"
 
@@ -28061,12 +28028,6 @@ msgstr "Informe final (EU Survey)"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "GM: learning agreement. GS: Learning Agreement for Traineeships."
-msgstr "GM: acord d'aprenentatge. GS: Learning Agreement for Traineeships."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
 msgid "Grant agreement"
 msgstr "Conveni de subvenció"
 
@@ -28086,7 +28047,7 @@ msgid "Host entities"
 msgstr "Entitats d'acollida"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__host_partner_id model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Host entity"
 msgstr "Entitat d'acollida"
 
@@ -28107,28 +28068,19 @@ msgid "It is your turn to choose your destination, before"
 msgstr "Et toca triar la destinació, abans del"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Learning agreement"
-msgstr "Acord d'aprenentatge"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Legal guardian"
 msgstr "Tutor legal"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_erasmus_mobility model:ir.model.fields,field_description:ems.field_ems_erasmus_call__mobility_ids model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__mobility_ids model:ir.ui.menu,name:ems.menu_erasmus_mobilities model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_list model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 msgid "Mobilities"
 msgstr "Mobilitats"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__mobility_ids model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__mobility_id model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__mobility_id model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Mobility"
 msgstr "Mobilitat"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__preparation_document_ids model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Mobility documents"
 msgstr "Documents de la mobilitat"
 
@@ -28165,7 +28117,7 @@ msgid "Notify pending documents"
 msgstr "Avisa dels documents pendents"
 
 #. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__stage__return model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__stage__return model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "On return"
 msgstr "En tornar"
 
@@ -28227,7 +28179,6 @@ msgid "Open destination choice"
 msgstr "Obre l'elecció de destinació"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__partner_id model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Participant"
 msgstr "Participant"
 
@@ -28260,7 +28211,6 @@ msgid "Processed with the Mossos d'Esquadra."
 msgstr "Es tramita amb els Mossos d'Esquadra."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_state model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Proposal"
 msgstr "Proposta"
 
@@ -28308,11 +28258,6 @@ msgstr "Ciutat proposada"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_country_id
 msgid "Proposed country"
 msgstr "País proposat"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_dates
-msgid "Proposed dates"
-msgstr "Dates proposades"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_host
@@ -28399,7 +28344,6 @@ msgid "Set while it is this participant's turn to choose the destination."
 msgstr "Té valor mentre és el torn d'aquest participant per triar la destinació."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call_task__description model:ir.model.fields,help:ems.field_ems_erasmus_mobility_task__description
 msgid "Shown to the participant on the portal."
 msgstr "Es mostra al participant al portal."
 
@@ -28414,7 +28358,6 @@ msgid "Sign them outside EMS as indicated and upload the signed copy."
 msgstr "Signa'ls fora de l'EMS com s'indica i puja la còpia signada."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__signers model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__signers
 msgid "Signed by"
 msgstr "Signat per"
 
@@ -28561,7 +28504,6 @@ msgid "What the participants hand in before leaving and on return, once their pl
 msgstr "El que lliuren els participants abans de marxar i en tornar, un cop acceptada la plaça."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__stage model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__stage model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__stage model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__stage
 msgid "When"
 msgstr "Quan"
 
@@ -28602,11 +28544,6 @@ msgstr "Busques pel teu compte l'empresa o entitat d'acollida, amb el seu compro
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Your own destination is waiting for the Erasmus team's validation."
 msgstr "La teva destinació pròpia està pendent de la validació de l'equip Erasmus."
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-msgid "Your proposal is waiting for the Director's validation."
-msgstr "La teva proposta està pendent de la validació de la direcció."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
@@ -28781,11 +28718,6 @@ msgstr ""
 "les destinacions que queden."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__preparation_days
-msgid "Days before leaving to hand in the documents"
-msgstr "Dies abans de marxar per lliurar els documents"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
 msgid "Erasmus+ mobility: %s"
@@ -28820,15 +28752,6 @@ msgid "Set the agreed destination"
 msgstr "Fixa la destinació acordada"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__leave_id
-msgid ""
-"Staff: the absence for training EMS requests for the mobility's dates, "
-"approved as any other absence."
-msgstr ""
-"Personal: l'absència per formació que l'EMS sol·licita per a les dates de la"
-" mobilitat, que s'aprova com qualsevol altra absència."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0
 msgid "The dates of the mobility changed: correct its training absence too."
@@ -28849,17 +28772,6 @@ msgid "The mobility was cancelled: cancel its training absence too."
 msgstr ""
 "La mobilitat s'ha cancel·lat: cancel·leu també la seva absència per "
 "formació."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__preparation_days
-msgid ""
-"The travel and preparation documents are due this many days before the start"
-" of each mobility at the latest; better as soon as the place is accepted "
-"(art. 17)."
-msgstr ""
-"Els documents de viatge i de preparació s'han de lliurar com a mínim aquests"
-" dies abans de l'inici de cada mobilitat; millor tan bon punt s'accepta la "
-"plaça (art. 17)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__leave_id
@@ -28883,5 +28795,137 @@ msgstr "Primer escriu el país de la destinació."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
-msgid "at the latest, but better as soon as you can."
-msgstr "com a màxim, però millor com més aviat millor."
+msgid ""
+"<i class=\"fa fa-calendar-check-o me-1\"/>Your absence for training has been"
+" requested; whoever approves your absences will decide on it."
+msgstr ""
+"<i class=\"fa fa-calendar-check-o me-1\"/>La teva absència per formació ja "
+"està sol·licitada; qui aprova les teves absències hi decidirà."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Accept the responsible declaration first."
+msgstr "Primer accepta la declaració responsable."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"Complete your proposal with the exact dates and send it: the Direction "
+"validates the activity, the host entity or course, the destination and the "
+"dates."
+msgstr ""
+"Completa la proposta amb les dates exactes i envia-la: la direcció valida "
+"l'activitat, l'entitat d'acollida o el curs, la destinació i les dates."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__preparation_days
+msgid ""
+"Counted from the day each participant's destination is set. The team reminds"
+" them every week of what is still missing (art. 17)."
+msgstr ""
+"Comptats des del dia que es fixa la destinació de cada participant. Cada "
+"setmana se li recorda el que encara falta (art. 17)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__preparation_days
+msgid "Days to hand in the documents before leaving"
+msgstr "Dies per lliurar els documents abans de marxar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__destination_date
+msgid "Destination set on"
+msgstr "Destinació fixada el"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_erasmus_remind_documents_ir_actions_server
+msgid "EMS: Erasmus+, weekly reminder of the mobility documents"
+msgstr "EMS: Erasmus+, recordatori setmanal dels documents de la mobilitat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Family authorisation to travel"
+msgstr "Autorització de la família per viatjar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_date_end
+msgid "Proposed end"
+msgstr "Final proposat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_date_start
+msgid "Proposed start"
+msgstr "Inici proposat"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Request the absence"
+msgstr "Sol·licita l'absència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Request your absence for training for the days of the mobility,"
+msgstr ""
+"Sol·licita la teva absència per formació per als dies de la mobilitat,"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Say the exact start and end dates."
+msgstr "Indica les dates exactes d'inici i de final."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__leave_id
+msgid ""
+"Staff: the absence for training the staff member requests from the portal "
+"for the validated dates, approved as any other absence."
+msgstr ""
+"Personal: l'absència per formació que la persona sol·licita des del portal "
+"per a les dates validades, que s'aprova com qualsevol altra absència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The absence for this mobility has already been requested."
+msgstr "L'absència d'aquesta mobilitat ja està sol·licitada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The absence is requested once the Direction has validated the dates."
+msgstr "L'absència se sol·licita quan la direcció ha validat les dates."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The end date cannot be before the start date."
+msgstr "La data de final no pot ser anterior a la d'inici."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__destination_date
+msgid ""
+"When the destination was chosen, agreed or validated: the documents before "
+"leaving are due counting from it."
+msgstr ""
+"Quan es va triar, acordar o validar la destinació: el termini dels documents"
+" abans de marxar es compta des d'aquest dia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Your proposal"
+msgstr "La teva proposta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Your proposal is waiting for the Direction's validation."
+msgstr "La teva proposta està pendent de la validació de la direcció."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"at the latest, but better as soon as you can: you will receive a reminder "
+"every week while any is missing."
+msgstr ""
+"com a màxim, però millor com més aviat millor: mentre en falti algun, rebràs"
+" un recordatori cada setmana."

@@ -70,7 +70,7 @@ Cuando aceptas la plaza, tu solicitud muestra **Tu movilidad**.
 
 **Documentos y pasos.** Cuando tienes destino, la tarjeta muestra el lugar, la entidad de acogida y las fechas, y también:
 
-- Los **documentos** que hay que entregar antes de salir y a la vuelta, quién tiene que **firmar** cada uno y los plazos (como mínimo un mes antes de salir, pero mejor en cuanto aceptes la plaza). Fírmalos fuera de EMS, adjunta la copia firmada y haz clic en **Subir los documentos**. Si el equipo Erasmus te pide un cambio, verás su comentario en rojo.
+- Los **documentos** que hay que entregar antes de salir y a la vuelta (la tarjeta sanitaria europea y, si eres menor, la autorización de tu familia y la autorización de salida al extranjero tramitada con los Mossos d'Esquadra), quién tiene que **firmar** cada uno y los plazos: dentro del mes siguiente a tener el destino, pero mejor cuanto antes. Mientras falte alguno, recibirás un recordatorio cada semana. Fírmalos fuera de EMS, adjunta la copia firmada y haz clic en **Subir los documentos**. Si el equipo Erasmus te pide un cambio, verás su comentario en rojo.
 - Los **pasos** que hay que seguir (sesiones de preparación, el curso de idiomas en línea, el informe final...). El equipo Erasmus los marca cuando están hechos.
 
 Si tienes que renunciar, abre **Quiero renunciar a la plaza**. Renunciar sin una causa justificada puede suponer pagar los gastos ya comprometidos (billetes, reservas).

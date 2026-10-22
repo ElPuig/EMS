@@ -353,7 +353,7 @@
                     </div>
                     <p t-if="mobility.proposal_state == 'pending'" class="o_ems_erasmus_proposal_pending">
                         <i class="fa fa-hourglass-half me-1"/>
-                        <t t-if="mobility.audience == 'staff'">Your proposal is waiting for the Director's validation.</t>
+                        <t t-if="mobility.audience == 'staff'">Your proposal is waiting for the Direction's validation.</t>
                         <t t-else="">Your own destination is waiting for the Erasmus team's validation.</t>
                     </p>
 
@@ -390,9 +390,13 @@
                     </t>
 
                     <!-- Own proposal (students) or a new activity after the Director's rejection (staff). -->
-                    <details t-if="mobility.proposal_state != 'pending' and (mobility.audience == 'student' or mobility.proposal_state == 'rejected')"
+                    <p t-if="mobility.audience == 'staff' and not mobility.proposal_state" class="o_ems_erasmus_staff_proposal">
+                        Complete your proposal with the exact dates and send it: the Direction validates the activity, the host entity or course, the destination and the dates.
+                    </p>
+                    <details t-if="mobility.proposal_state != 'pending'"
                              class="mt-3" t-att-open="'open' if mobility.audience == 'staff' else None">
-                        <summary t-if="mobility.audience == 'staff'">Propose another activity</summary>
+                        <summary t-if="mobility.audience == 'staff' and mobility.proposal_state == 'rejected'">Propose another activity</summary>
+                        <summary t-elif="mobility.audience == 'staff'">Your proposal</summary>
                         <summary t-else="">Propose my own destination</summary>
                         <form t-att-action="action + 'propose'" method="post" enctype="multipart/form-data" class="mt-2 ems-loading-form o_ems_erasmus_propose">
                             <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
@@ -428,9 +432,19 @@
                                     <input class="form-control" name="proposal_city" id="proposal_city" t-att-value="mobility.proposal_city or ''"/>
                                 </div>
                             </div>
-                            <div class="mb-2">
-                                <label class="form-label" for="proposal_dates">Dates</label>
-                                <input class="form-control" name="proposal_dates" id="proposal_dates" t-att-value="mobility.proposal_dates or ''"/>
+                            <div class="row g-2 mb-2">
+                                <div class="col-sm-6">
+                                    <label class="form-label" for="proposal_date_start">Start</label>
+                                    <input class="form-control" type="date" name="proposal_date_start" id="proposal_date_start"
+                                           t-att-required="'required' if mobility.audience == 'staff' else None"
+                                           t-att-value="mobility.proposal_date_start or ''"/>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label" for="proposal_date_end">End</label>
+                                    <input class="form-control" type="date" name="proposal_date_end" id="proposal_date_end"
+                                           t-att-required="'required' if mobility.audience == 'staff' else None"
+                                           t-att-value="mobility.proposal_date_end or ''"/>
+                                </div>
                             </div>
                             <div class="mb-2">
                                 <label class="form-label" for="proposal_notes">Notes</label>
@@ -461,7 +475,7 @@
                     <h6>Documents</h6>
                     <p class="small text-muted mb-2">
                         Sign them outside EMS as indicated and upload the signed copy.
-                        <t t-if="mobility.preparation_deadline">Before leaving, by <t t-out="mobility.preparation_deadline" t-options="{'widget': 'date'}"/> at the latest, but better as soon as you can.</t>
+                        <t t-if="mobility.preparation_deadline">Before leaving, by <t t-out="mobility.preparation_deadline" t-options="{'widget': 'date'}"/> at the latest, but better as soon as you can: you will receive a reminder every week while any is missing.</t>
                         <t t-if="mobility.return_deadline">On return, by <t t-out="mobility.return_deadline" t-options="{'widget': 'date'}"/>.</t>
                     </p>
                     <form t-att-action="action + 'upload'" method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_erasmus_mobility_documents">
@@ -497,6 +511,23 @@
                             <span t-if="task.description" class="d-block text-muted ms-3" t-esc="task.description"/>
                         </li>
                     </ul>
+                </t>
+
+                <!-- Staff: the absence for training, requested by the staff member for the validated dates. -->
+                <t t-if="mobility.audience == 'staff' and mobility.state == 'preparing' and mobility.date_start">
+                    <div t-if="mobility.leave_id and mobility.leave_id.state not in ('refuse', 'cancel')" class="alert alert-info mt-3 mb-0 o_ems_erasmus_leave_requested">
+                        <i class="fa fa-calendar-check-o me-1"/>Your absence for training has been requested; whoever approves your absences will decide on it.
+                    </div>
+                    <form t-else="" t-att-action="action + 'leave'" method="post" class="mt-3 o_ems_erasmus_request_leave">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <p class="mb-2">Request your absence for training for the days of the mobility,
+                            <t t-out="mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.date_end" t-options="{'widget': 'date'}"/>.</p>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="declaration" id="leave_declaration" required="required"/>
+                            <label class="form-check-label" for="leave_declaration">I declare, under my own responsibility, that the details and the reason given for this absence are true.</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_request_leave_submit">Request the absence</button>
+                    </form>
                 </t>
 
                 <details t-if="mobility.state in ('choosing', 'preparing')" class="mt-3">

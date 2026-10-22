@@ -70,7 +70,7 @@ When you accept the place, your application shows **Your mobility**.
 
 **Documents and steps.** Once you have a destination, the card shows the place, the host entity and the dates, and:
 
-- The **documents** to hand in before leaving and on return, who must **sign** each one and the deadlines (at least a month before you leave, but better as soon as you accept the place). Sign them outside EMS, attach the signed copy and click **Upload the documents**. If the Erasmus team asks for a change, you will see its comment in red.
+- The **documents** to hand in before leaving and on return (the European Health Insurance Card and, if you are a minor, your family's authorisation and the authorisation to travel abroad processed with the Mossos d'Esquadra), who must **sign** each one and the deadlines: within a month of getting your destination, but better as soon as you can. While any is missing you will receive a reminder every week. Sign them outside EMS, attach the signed copy and click **Upload the documents**. If the Erasmus team asks for a change, you will see its comment in red.
 - The **steps** to follow (preparation sessions, the online language course, the final report...). The Erasmus team ticks them when they are done.
 
 If you have to renounce, open **I want to renounce the place**. Renouncing without a justified cause may mean paying the expenses already committed (tickets, bookings).

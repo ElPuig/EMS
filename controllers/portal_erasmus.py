@@ -197,7 +197,7 @@ class EmsPortalErasmusController(CustomerPortal):
                 website=True)
     def portal_erasmus_mobility(self, call_id, step, **post):
         """The participant's own mobility of this call: choose a destination in their turn, send a
-        proposal, upload documents or renounce the place."""
+        proposal, upload documents, request the training absence (staff) or renounce the place."""
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
@@ -217,6 +217,8 @@ class EmsPortalErasmusController(CustomerPortal):
                 country = request.env['res.country'].sudo().browse(int(post.get('proposal_country_id') or 0)).exists()
                 values = {name: (post.get(name) or '').strip()[:2000] or False for name in PROPOSAL_FIELDS}
                 values['proposal_country_id'] = country.id
+                values.update({name: re.fullmatch(r'\d{4}-\d{2}-\d{2}', values[name] or '') and values[name] or False
+                               for name in ('proposal_date_start', 'proposal_date_end')})
                 files = [(upload.filename, upload.read())
                          for upload in request.httprequest.files.getlist('proposal_files') if upload.filename]
                 mobility._ems_portal_propose(values, files)
@@ -229,6 +231,8 @@ class EmsPortalErasmusController(CustomerPortal):
                     if files:
                         uploads[line.call_document_id.id] = files
                 mobility._ems_portal_upload(uploads)
+            elif step == 'leave':
+                mobility.action_request_training_leave(bool(post.get('declaration')))
             elif step == 'renounce':
                 mobility.action_renounce((post.get('reason') or '').strip()[:2000] or False)
             else:

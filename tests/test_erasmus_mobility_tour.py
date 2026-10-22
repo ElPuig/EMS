@@ -44,6 +44,7 @@ class TestErasmusStaffMobilityTour(HttpCase, ErasmusStaffMobilityCase):
 
     def test_director_validates_tour(self):
         mobility = self._accepted_staff()
+        self._send_proposal(mobility)
         self.start_tour('/odoo/action-ems.action_erasmus_mobility', 'ems_erasmus_mobility_director',
                         login=self.director_user.login)
         self.assertEqual(mobility.state, 'preparing')

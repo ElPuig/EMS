@@ -70,7 +70,7 @@ Quan acceptes la plaça, la teva sol·licitud mostra **La teva mobilitat**.
 
 **Documents i passos.** Quan tens destinació, la targeta mostra el lloc, l'entitat d'acollida i les dates, i també:
 
-- Els **documents** que cal lliurar abans de marxar i en tornar, qui ha de **signar** cadascun i els terminis (com a mínim un mes abans de marxar, però millor tan bon punt acceptis la plaça). Signa'ls fora de l'EMS, adjunta la còpia signada i fes clic a **Puja els documents**. Si l'equip Erasmus et demana un canvi, en veuràs el comentari en vermell.
+- Els **documents** que cal lliurar abans de marxar i en tornar (la targeta sanitària europea i, si ets menor, l'autorització de la teva família i l'autorització de sortida a l'estranger tramitada amb els Mossos d'Esquadra), qui ha de **signar** cadascun i els terminis: dins del mes següent a tenir la destinació, però millor com més aviat millor. Mentre en falti algun, rebràs un recordatori cada setmana. Signa'ls fora de l'EMS, adjunta la còpia signada i fes clic a **Puja els documents**. Si l'equip Erasmus et demana un canvi, en veuràs el comentari en vermell.
 - Els **passos** que cal seguir (sessions de preparació, el curs de llengua en línia, l'informe final...). L'equip Erasmus els marca quan estan fets.
 
 Si has de renunciar, obre **Vull renunciar a la plaça**. Renunciar sense una causa justificada pot comportar pagar les despeses ja compromeses (bitllets, reserves).

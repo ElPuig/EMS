@@ -565,9 +565,13 @@ the mobility's modality needs and is missing, never removing a line: on creation
 member's modality is assigned (`application.write`), and from *Update documents and checklist*.
 
 New call fields: `choice_turn_hours` (default 72), `choice_open`, `preparation_days` (default 30;
-the mobility's `preparation_deadline` = start date - days, art. 17: "at least a month before") and
-`return_days` (default 30; `return_deadline` = end date + days). There is no identity document among
-the defaults: EMS already holds it on the contact or employee file.
+the mobility's `preparation_deadline` = `destination_date` + days, art. 17: within a month of getting
+the destination) and `return_days` (default 30; `return_deadline` = end date + days).
+`destination_date` is stamped when the mobility moves to *preparing* (`_ems_set_state`). Defaults:
+students, the European Health Insurance Card, and for minors the family authorisation and the Mossos
+d'Esquadra's authorisation to travel abroad, plus the certificate of stay on return; staff, the
+health card, grant agreement, mobility programme, certificate and report. No identity document: EMS
+already holds it on the contact or employee file.
 
 ### Mobility states
 
@@ -616,9 +620,9 @@ The same fields serve a student's **own destination** and a staff member's **act
 
 | | Student | Staff |
 |---|---|---|
-| Sent | From the portal while choosing, with the host's written commitment (required) | Copied from the application when the mobility is created; again from the portal only after a rejection |
+| Sent | From the portal while choosing, with the host's written commitment (required) | Filled from the application when the mobility is created (`proposal_state` empty); the staff member completes it with the exact dates (`proposal_date_start`/`_end`, required) and sends it from the portal, again after a rejection |
 | Validated by (`_ems_can_validate`) | Erasmus team | **Direction**: the Director or a Head of Studies (`ems.group_head_of_studies`, which the Director implies); the Erasmus team cannot |
-| Validated | Preparing, country and city from the proposal | Same |
+| Validated | Preparing, country, city and dates from the proposal | Same |
 | Rejected (needs `decision_note`) | Back to choosing the centre's destinations | Proposes another activity on the portal |
 
 A pending proposal schedules a to-do (`mail.activity`) for every validator, marked done on the
@@ -628,16 +632,19 @@ always validate.
 ### Preparation, return and closing
 
 - *Notify pending documents* emails `email_template_erasmus_mobility_documents` with the lines
-  missing or needing changes.
+  missing or needing changes (`_ems_documents_to_correct`: before leaving, and on return once the
+  end date has passed). The weekly cron `ems.ir_cron_erasmus_remind_documents`
+  (`_cron_remind_documents`) sends the same email to every mobility in preparation with any.
 - `preparation_complete` / `return_complete`: every required line of the stage valid and every
   step done. **Close** needs `return_complete`.
 - **Cancel** (team) needs `cancel_reason`; the participant can renounce from the portal.
-- **Staff absence for training** (`_ems_sync_training_leave`, run when the dates or the state
-  change): once a staff mobility is preparing with both dates, EMS files an `hr.leave` of
-  `ems.leave_type_training` for those whole days (`leave_id`), submitted, so it follows the usual
-  approval of that employee's absences. While it is not decided it follows the dates and is
-  withdrawn (unlinked) if the mobility is cancelled; once decided, a change or a cancellation only
-  leaves a note on the mobility for the team to correct it by hand.
+- **Staff absence for training:** once the Direction has validated the proposal (dates included),
+  the staff member requests it from the portal with their responsible declaration
+  (`action_request_training_leave`, portal step `leave`): an `hr.leave` of `ems.leave_type_training`
+  for those whole days (`leave_id`), submitted, so it follows the usual approval of that employee's
+  absences. `_ems_sync_training_leave` (run when the dates or the state change) keeps a request not
+  decided yet on the mobility's dates and withdraws it (unlink) if the mobility is cancelled; once
+  decided, a change or a cancellation only leaves a note on the mobility for the team.
 
 ### Graduates
 
@@ -649,7 +656,7 @@ mobility left, as the transition would have (`res.partner._ems_retire_graduate`,
 ### Portal (phase 5)
 
 `POST /my/erasmus/call/<id>/mobility/<step>` acts on the logged-in user's own mobility of that
-call: `choose` (`destination_id`), `propose` (the `proposal_*` fields and
+call: `choose` (`destination_id`), `leave` (`declaration`), `propose` (the `proposal_*` fields and
 `proposal_files`), `upload` (`document_<call document id>`) and `renounce` (`reason`). The call page
 shows the *Your mobility* card (`ems.portal_erasmus_mobility`).
 

@@ -10,9 +10,9 @@ La convocatòria del personal estableix que la direcció valida l'activitat, l'e
 
 ---
 
-1. Quan una persona del personal accepta la plaça, rebeu una tasca pendent. Aneu a **Erasmus+ > Mobilitats** i feu servir el filtre **Proposta per validar**.
+1. Quan una persona del personal envia la proposta amb les dates exactes, rebeu una tasca pendent. Aneu a **Erasmus+ > Mobilitats** i feu servir el filtre **Proposta per validar**.
 2. Obriu la mobilitat i reviseu la pestanya **Proposta**: activitat, entitat d'acollida o curs, contacte, país, ciutat, dates i notes.
-3. Per validar-la, feu clic a **Accions > Valida la proposta**. La mobilitat passa a *En preparació* i l'equip Erasmus la prepara amb la persona interessada. Quan té dates, l'EMS sol·licita l'absència per formació de la persona, que s'aprova com qualsevol altra absència.
+3. Per validar-la, feu clic a **Accions > Valida la proposta**. La mobilitat passa a *En preparació* amb aquestes dates, i l'equip Erasmus la prepara amb la persona interessada, que llavors sol·licita l'absència per formació des del portal.
 4. Si no la valideu, escriviu abans el **Motiu de la decisió** i feu clic a **Accions > Rebutja la proposta**. La persona rep el motiu per correu i proposa una altra activitat al portal; rebeu una tasca pendent nova.
 
 L'EMS registra qui ha decidit i quan. Podeu consultar la resta de la mobilitat, però la gestiona l'equip Erasmus.

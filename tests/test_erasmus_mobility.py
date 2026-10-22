@@ -53,7 +53,7 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertNotIn(first.document_ids, first.application_id.document_ids,
                          "The application keeps only the documents it was submitted with.")
         minors_only = first.document_ids.filtered(lambda line: line.call_document_id.requirement == 'minor')
-        self.assertFalse(minors_only.is_required, "The student is an adult.")
+        self.assertFalse(any(minors_only.mapped("is_required")), "The student is an adult.")
         self.assertIn('host entity', first.document_ids.filtered(
             lambda line: line.call_document_id.sign_host)[:1].signers)
 
@@ -194,6 +194,25 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertEqual(line.review_state, 'pending')
         self.assertEqual(len(line.attachment_ids), 2, "Every version is kept.")
 
+    def test_documents_due_a_month_after_the_destination_and_reminded_weekly(self):
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        today = self.env['ems.datetime_utils'].get_local_today()
+        self.assertEqual(first.destination_date, today)
+        self.assertEqual(first.preparation_deadline, today + timedelta(days=30))
+        names = first.document_ids.filtered(lambda line: line.stage == 'preparation').mapped('name')
+        self.assertIn('European Health Insurance Card', names)
+        self.assertNotIn('Identity document', names, "EMS already holds it.")
+        self.assertNotIn('Certificate of stay', first._ems_documents_to_correct().mapped('name'),
+                         "Return documents are not asked for before the mobility ends.")
+        sent = len(self._mails(first))
+        self.env['ems.erasmus.mobility']._cron_remind_documents()
+        self.assertEqual(len(self._mails(first)), sent + 1)
+        self._complete_stage(first, 'preparation')
+        self.env['ems.erasmus.mobility']._cron_remind_documents()
+        self.assertEqual(len(self._mails(first)), sent + 1, "Nothing missing: no reminder.")
+
     def test_notify_pending_documents(self):
         first, _second = self._accepted()
         self._destinations(2)
@@ -267,46 +286,70 @@ class ErasmusStaffMobilityCase(ErasmusStaffCase):
         applications[0].offer_ids.action_accept()
         return applications[0].mobility_ids
 
+    def _send_proposal(self, mobility, **values):
+        mobility._ems_portal_propose({'proposal_activity': mobility.proposal_activity,
+                                      'proposal_host': mobility.proposal_host, 'proposal_city': mobility.proposal_city,
+                                      'proposal_country_id': self.env.ref('base.pt').id,
+                                      'proposal_date_start': '2027-06-14', 'proposal_date_end': '2027-06-18', **values})
+
 
 @tagged('post_install', '-at_install')
 class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
 
-    def test_staff_activity_waits_for_the_director(self):
+    def test_staff_complete_their_proposal_with_the_dates_for_the_direction(self):
         mobility = self._accepted_staff()
-        self.assertEqual((mobility.state, mobility.proposal_state), ('choosing', 'pending'))
-        self.assertEqual((mobility.proposal_activity, mobility.proposal_host, mobility.proposal_city),
-                         ('job_shadowing', 'Test VET School', 'Porto'))
+        self.assertEqual((mobility.state, mobility.proposal_state), ('choosing', False))
+        self.assertEqual((mobility.proposal_activity, mobility.proposal_host, mobility.proposal_city,
+                          mobility.proposal_notes), ('job_shadowing', 'Test VET School', 'Porto', 'June 2027'))
+        self.assertFalse(mobility.activity_ids, "Nothing to validate until the proposal is sent.")
+        with self.assertRaises(UserError):
+            self._send_proposal(mobility, proposal_date_start=False)
+        with self.assertRaises(UserError):
+            self._send_proposal(mobility, proposal_date_end='2027-06-01')
+        self._send_proposal(mobility)
+        self.assertEqual(mobility.proposal_state, 'pending')
         self.assertIn(self.director_user, mobility.activity_ids.user_id)
         self.assertIn(self.hos_user, mobility.activity_ids.user_id)
         with self.assertRaises(AccessError):
             mobility.with_user(self.erasmus_user).action_validate_proposal()
         with self.assertRaises(AccessError):
             mobility.with_user(self.director_user).city = 'Lisbon'
+        mobility.with_user(self.hos_user).action_validate_proposal()
+        self.assertEqual((mobility.state, mobility.decided_by_id, mobility.date_start, mobility.date_end),
+                         ('preparing', self.hos_user, date(2027, 6, 14), date(2027, 6, 18)))
 
-    def test_director_rejects_with_a_reason_and_the_teacher_proposes_again(self):
+    def test_direction_rejects_with_a_reason_and_the_teacher_proposes_again(self):
         mobility = self._accepted_staff()
+        self._send_proposal(mobility)
         with self.assertRaises(UserError):
-            mobility._ems_portal_propose({'proposal_host': 'Other', 'proposal_country_id': self.env.ref('base.pt').id})
+            self._send_proposal(mobility)
         mobility.with_user(self.director_user).decision_note = 'The dates leave the second-year groups uncovered.'
         mobility.with_user(self.director_user).action_reject_proposal()
         self.assertEqual(mobility.proposal_state, 'rejected')
-        mobility._ems_portal_propose({'proposal_activity': 'course', 'proposal_host': 'Test Course Provider',
-                                      'proposal_country_id': self.env.ref('base.pt').id, 'proposal_dates': 'July 2027'})
+        self._send_proposal(mobility, proposal_activity='course', proposal_host='Test Course Provider',
+                            proposal_date_start='2027-07-05', proposal_date_end='2027-07-09')
         self.assertEqual((mobility.proposal_state, mobility.proposal_activity), ('pending', 'course'))
         self.assertFalse(mobility.decision_note)
-        mobility.with_user(self.hos_user).action_validate_proposal()
-        self.assertEqual((mobility.state, mobility.decided_by_id), ('preparing', self.hos_user))
-
-    def test_the_training_absence_follows_the_mobility(self):
-        mobility = self._accepted_staff()
         mobility.with_user(self.director_user).action_validate_proposal()
-        self.assertFalse(mobility.leave_id, "No dates yet.")
-        mobility.with_user(self.erasmus_user).write({'date_start': date(2027, 6, 14), 'date_end': date(2027, 6, 18)})
+        self.assertEqual((mobility.state, mobility.date_start), ('preparing', date(2027, 7, 5)))
+
+    def test_the_teacher_requests_the_training_absence_for_the_validated_dates(self):
+        mobility = self._accepted_staff()
+        self._send_proposal(mobility)
+        with self.assertRaises(UserError):
+            mobility.action_request_training_leave(True)
+        mobility.with_user(self.director_user).action_validate_proposal()
+        self.assertFalse(mobility.leave_id, "The teacher confirms it.")
+        with self.assertRaises(UserError):
+            mobility.action_request_training_leave(False)
+        mobility.action_request_training_leave(True)
         leave = mobility.leave_id
         self.assertEqual(leave.holiday_status_id, self.env.ref('ems.leave_type_training'))
         self.assertEqual(leave.employee_id, mobility.application_id.employee_id)
         self.assertEqual((leave.request_date_from, leave.request_date_to), (date(2027, 6, 14), date(2027, 6, 18)))
         self.assertIn(leave.state, ('confirm', 'validate1'), "Approved as any other absence.")
+        with self.assertRaises(UserError):
+            mobility.action_request_training_leave(True)
         mobility.with_user(self.erasmus_user).date_end = date(2027, 6, 19)
         self.assertEqual(leave.request_date_to, date(2027, 6, 19), "A request not decided yet follows the dates.")
         mobility.with_user(self.erasmus_user).cancel_reason = 'Cannot go'

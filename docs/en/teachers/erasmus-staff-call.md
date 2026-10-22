@@ -38,9 +38,9 @@ If you are selected, **accept or renounce the place** on the portal before the d
 
 ## 4. Prepare your mobility
 
-When you accept the place, the page shows **Your mobility**. The Direction (the Director or the Head of Studies) validates the activity you proposed in the application (activity, host entity or course, destination and dates). If it is not validated, you will receive the reason by email: open **Propose another activity**, change what is needed and click **Send the proposal**.
+When you accept the place, the page shows **Your mobility** with your proposal, filled in from your application. Complete it with the **exact start and end dates** and click **Send the proposal**: the Direction (the Director or the Head of Studies) validates the activity, the host entity or course, the destination and the dates. If it is not validated, you will receive the reason by email: open **Propose another activity**, change what is needed and send it again.
 
-Once validated, the card shows the documents to hand in before leaving and on return (grant agreement, mobility programme signed by you, the centre and the host entity, certificate of attendance, a short report with evidence within a month of your return...), who signs each one and the deadlines, and the steps to follow (preparation meetings, activities left for your groups, final report, dissemination session). Sign the documents outside EMS, attach them and click **Upload the documents**. When your mobility has dates, EMS requests your absence for training for those days; it is approved as any other absence.
+Once validated, the card shows the documents to hand in before leaving and on return (European Health Insurance Card, grant agreement, mobility programme signed by you, the centre and the host entity, certificate of attendance, a short report with evidence within a month of your return...), who signs each one and the deadlines, and the steps to follow (preparation meetings, activities left for your groups, final report, dissemination session). Sign the documents outside EMS, attach them and click **Upload the documents**. Then request your **absence for training** for the validated dates: accept the responsible declaration and click **Request the absence**. Whoever approves your absences approves it as usual.
 
 ---
 

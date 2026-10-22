@@ -69,10 +69,9 @@ class EmsErasmusCall(models.Model):
                                        help="How long each selected student has to choose their destination when "
                                             "their turn comes. Without an answer in time, the turn passes on and "
                                             "they choose among what is left at the end (art. 15).")
-    preparation_days = fields.Integer(string="Days before leaving to hand in the documents", default=30,
-                                      help="The travel and preparation documents are due this many days before the "
-                                           "start of each mobility at the latest; better as soon as the place is "
-                                           "accepted (art. 17).")
+    preparation_days = fields.Integer(string="Days to hand in the documents before leaving", default=30,
+                                      help="Counted from the day each participant's destination is set. The team "
+                                           "reminds them every week of what is still missing (art. 17).")
     return_days = fields.Integer(string="Days to hand in the return documents", default=30,
                                  help="Counted from the end of the mobility.")
     application_ids = fields.One2many(string="Applications", comodel_name='ems.erasmus.application',
@@ -178,13 +177,9 @@ class EmsErasmusCall(models.Model):
         else:
             documents = [
                 health_card,
+                {'name': _("Family authorisation to travel"), 'requirement': 'minor', 'sign_guardian': True},
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
                  'description': _("Processed with the Mossos d'Esquadra.")},
-                {'name': _("Commitment letter"), 'sign_participant': True, 'sign_guardian': True,
-                 'description': _("Annex 3 of the call.")},
-                grant,
-                {'name': _("Learning agreement"), 'sign_participant': True, 'sign_centre': True, 'sign_host': True,
-                 'description': _("GM: learning agreement. GS: Learning Agreement for Traineeships.")},
                 {'stage': 'return', 'name': _("Certificate of stay"), 'sign_host': True},
             ]
         return [(0, 0, {'sequence': index, 'stage': 'preparation', 'requirement': 'required', **vals})

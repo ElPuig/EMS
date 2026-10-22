@@ -8,8 +8,7 @@ Un **acuerdo de reunión** y una **acción de mejora** son lo mismo: alguien se 
 para una fecha, y alguien tiene que hacer el seguimiento. Por eso en EMS son la misma pantalla:
 **Calidad → Acciones y acuerdos**.
 
-Eso permite responder de una sola vez la pregunta que antes había que ir a buscar dentro de ocho
-documentos: **qué tengo pendiente y para cuándo**.
+En ella encontraréis en un solo lugar **qué tengo pendiente y para cuándo**.
 
 ---
 

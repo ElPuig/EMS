@@ -8,8 +8,7 @@ A **meeting agreement** and an **improvement action** are the same thing: somebo
 something, by a date, and somebody has to follow it up. That is why in EMS they are one screen:
 **Quality → Actions and agreements**.
 
-It means the question that used to require opening eight documents — **what do I owe and by when** — is
-answered in one place.
+It answers in one place **what do I owe and by when**.
 
 ---
 

@@ -8,8 +8,7 @@ Un **acord de reunió** i una **acció de millora** són el mateix: algú es com
 per a una data, i algú n'ha de fer el seguiment. Per això a l'EMS són la mateixa pantalla:
 **Qualitat → Accions i acords**.
 
-Això permet respondre d'una sola vegada la pregunta que abans calia anar a buscar dins de vuit
-documents: **què tinc pendent i per quan**.
+Hi trobareu en un sol lloc **què tinc pendent i per quan**.
 
 ---
 

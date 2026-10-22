@@ -235,7 +235,7 @@ against the applicant's study; changes of cycle are checked before implementing.
 | 6 | Internationalisation: 0.5 per activity, max 1 | Team, merits listed. |
 
 Tie-break: never had a staff mobility, plan score, seniority, recorded draw. One place per person
-unless places are left over (exception recorded). Assigning a selected person to project and
+(decided 2026-10-22: no extra places). Assigning a selected person to project and
 period is coordination's, checking the project's conditions.
 
 ## 6. Menus
@@ -322,7 +322,9 @@ graph LR
 - **F4 - Staff call** *(medium; implemented on `686-erasmus-phase-4`, see the dev doc. Decided 2026-10-22: the
   staff lists show no names either; the panel sees only the mobility plan; Género stays empty in the
   export; the staff's identity document and export data come from their employee file; one ranking for the
-  whole call, the team assigns project and period after selection).* Staff application on the same portal page, mobility plan upload,
+  whole call, the team assigns project and period after selection; no work-life balance question in the
+  form (the applicant proposes the dates in the plan); no extra places; criterion 4 scores the certificate the
+  applicant declares, the team corrects it only if the uploaded one does not match).* Staff application on the same portal page, mobility plan upload,
   panel configuration and ratings, manual merits, staff scoring and tie-breaks, project/period
   assignment, one place per person. Reuses F1-F3, including "Export to spreadsheet": for staff,
   Ciclo formativo, Curso and the legal guardian columns stay empty (decided 2026-10-22).

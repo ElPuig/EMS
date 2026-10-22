@@ -236,7 +236,7 @@ stateDiagram-v2
 - **Evaluators see only their own interviews** (record rule `evaluator_id = user`), never the
   other evaluator's, nor anything else of the application. Being assigned adds them to
   `ems.group_erasmus_evaluator` (*Erasmus+ > My evaluations*); losing every interview removes it.
-- After the call's `interview_deadline` (label *Evaluation review deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
+- After the call's `interview_deadline` (label *Score correction deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
   can still reopen, writing a rectification note (`rectification_note`), posted in the chatter.
 - The application's interview score is the mean of the submitted interviews, complete when every
   assigned interview is submitted and there are two of them, or one with a recorded reason
@@ -443,9 +443,9 @@ erDiagram
 
 The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`): activity
 (`staff_activity`), host entity or course, "host not found yet", destination, preferred dates,
-previous mobilities, centre projects, interest in accompanying students, support needs and family
-or care responsibilities (both confidential: `groups` Erasmus team and administrator), image
-consent, notes. The controller saves only the answers of the call's audience;
+previous mobilities, centre projects, interest in accompanying students, support needs
+(confidential: `groups` Erasmus team and administrator), the declared language certificate
+(`declared_language_level`), image consent, notes. The controller saves only the answers of the call's audience;
 `_ems_portal_save` refuses an activity outside the selection. `employee_id` is set when the
 application is created. `is_minor` is always false for staff.
 
@@ -475,12 +475,13 @@ read only); the rating shows those files (`plan_attachment_ids`). Nothing else o
 | 1 | Mobility plan | `plan_score` → `score_plan` | max 2 |
 | 2 | Last staff mobility | `last_staff_mobility` → `score_last_mobility` | never / older 1.5, two courses ago 0.5, recent 0 |
 | 3 | Centre projects | `merit_ids` (project kinds) → `score_projects` | sum, max 1.5 |
-| 4 | Languages | `language_level` → `score_staff_language` | B2 1, C1 1.5, C2 2 (B1 0) |
+| 4 | Languages | `language_level` (checked by the team) else `declared_language_level` (the applicant's) → `score_staff_language` | B2 1, C1 1.5, C2 2 (B1 0) |
 | 5 | Seniority | `seniority` → `score_seniority` | < 1 year 0, 1-2 1, 2-5 1.5, ≥ 5 2 |
 | 6 | Internationalisation | `merit_ids` (internationalisation) → `score_internationalisation` | sum, max 1 |
 
-`score_complete` needs the plan complete, `last_staff_mobility`, `language_level`, `seniority` and
+`score_complete` needs the plan complete, `last_staff_mobility`, `seniority` and
 `merits_checked` (stamped like every manual criterion, so "no merits" is an explicit answer).
+Criterion 4 never blocks: no declared certificate counts as none (`_ems_staff_language_level`).
 
 **Ranking** (`_compute_rank`, `_ems_rank_key`): one list per call, once every admitted application
 is complete. Tie-breaks: never had a staff mobility (`last_staff_mobility == 'never'`, which scores
@@ -498,8 +499,7 @@ the same as `older`), plan score, seniority, then the recorded draw. Result
   user's contact, identity document, private email (else work), private phone (else mobile),
   private address, birthday, nationality (`country_id`) and `bank_account_id`. Género, Ciclo
   formativo, Curso and the legal guardian columns stay empty.
-- One place per person: the unique (call, applicant) constraint gives it; an exception when places
-  are left over is recorded in `extra_place_note`.
+- One place per person: the unique (call, applicant) constraint gives it.
 
 ### Access (phase 4)
 

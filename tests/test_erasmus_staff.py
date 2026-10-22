@@ -106,6 +106,8 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         with self.assertRaises(UserError):
             application._ems_portal_save({'staff_activity': 'holidays'}, {})
         with self.assertRaises(UserError):
+            application._ems_portal_save({'declared_language_level': 'b1'}, {})
+        with self.assertRaises(UserError):
             self.env['ems.erasmus.application']._ems_portal_get_or_create(self.staff_call, self.student)
 
     def test_staff_is_admitted_without_the_sanction_check(self):
@@ -207,6 +209,18 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.assertEqual(first.score_staff_language, 1.5)
         first.merits_checked = False
         self.assertFalse(first.score_complete)
+
+    def test_languages_score_the_declared_certificate_unless_the_team_corrects_it(self):
+        first = self._sent_to_panel()[0]
+        first.write({'declared_language_level': 'c1'})  # what the applicant declared on the portal
+        self.assertEqual(first.score_staff_language, 1.5)
+        first.language_level = 'b2'
+        self.assertEqual(first.score_staff_language, 1.0)
+        first.write({'language_level': False, 'declared_language_level': False})
+        self._rate(first, '1', '1')
+        first.write({'last_staff_mobility': 'never', 'seniority': 'y5', 'merits_checked': True})
+        self.assertTrue(first.score_complete)  # no certificate declared: none, it never blocks
+        self.assertEqual(first.score_staff_language, 0.0)
 
     def test_one_ranking_for_the_whole_call_with_the_staff_tie_breaks(self):
         first, second, third = self._sent_to_panel()
@@ -315,11 +329,13 @@ class TestPortalErasmusStaff(HttpCase):
         self.assertIn(b'o_ems_erasmus_staff_form', self.url_open(url).content)
         response = self.url_open(f'{url}/save', data={
             'csrf_token': Request.csrf_token(self), 'staff_activity': 'course', 'host_entity': 'Test course',
-            'destination': 'Test city, Test country', 'support_needs': 'Test need', 'submit': '1',
+            'destination': 'Test city, Test country', 'support_needs': 'Test need', 'declared_language_level': 'c2',
+            'submit': '1',
         }, files=[(f'document_{self.id_document.id}', ('id.pdf', PDF, 'application/pdf')),
                   (f'document_{self.plan_document.id}', ('plan.pdf', PDF, 'application/pdf'))])
         self.assertTrue(response.url.endswith('/my/erasmus?submitted=1'))
         application = self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)])
         self.assertEqual(application.state, 'submitted')
         self.assertEqual(application.employee_id, self.staff_employees[0])
-        self.assertEqual((application.staff_activity, application.support_needs), ('course', 'Test need'))
+        self.assertEqual((application.staff_activity, application.support_needs, application.declared_language_level),
+                         ('course', 'Test need', 'c2'))

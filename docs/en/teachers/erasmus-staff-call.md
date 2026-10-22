@@ -20,10 +20,11 @@ Go to **Erasmus+** on the school portal (`/my/erasmus`; the Erasmus team shares 
 - **Host entity or course** and **Destination** (city and country). If you have not found one yet, tick the box and the Erasmus coordination will help you.
 - **Preferred dates or period** and the approximate duration.
 - Your previous Erasmus+ mobilities and the **centre projects** you take part in.
-- Optional: whether you want to accompany groups of students, the **support** you need and your **family or care responsibilities**. These two answers are confidential: only the Erasmus team reads them.
+- Your highest official **language certificate** (B2 or higher), if you have one. Attach it in the documents too.
+- Optional: whether you want to accompany groups of students, and the **support** you need to do the mobility. This answer is confidential: only the Erasmus team reads it.
 - The voluntary consent to use your image.
 
-Attach the documents the call asks for: identity document, Europass CV in English and the **mobility plan** (annex 1, two pages at most). The language certificates (B2 or higher) are optional.
+Attach the documents the call asks for: identity document, Europass CV in English and the **mobility plan** (annex 1, two pages at most). The language certificates are optional.
 
 Click **Save draft** to keep working on it later, or **Submit application** when everything is ready. You receive a receipt by email. Until the closing date you can change it and submit it again.
 

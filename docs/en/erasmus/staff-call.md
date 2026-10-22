@@ -24,7 +24,7 @@ Once published, every member of the staff with an employee file sees the call on
 
 ## 2. Review and admit
 
-The staff application has its own answers (activity, host entity or course, destination, preferred dates, projects of the centre, interest in accompanying students). The **support needs** and the **family or care responsibilities** are confidential: only the Erasmus team sees them.
+The staff application has its own answers (activity, host entity or course, destination, preferred dates, projects of the centre, interest in accompanying students). They also declare their highest language certificate. The **support needs** are confidential: only the Erasmus team sees them.
 
 Review the documents and admit or exclude as in the students' call. There is no serious-sanction check: admitting needs the **Requirements** check (staff of vocational training this course) and every required document valid.
 
@@ -45,7 +45,7 @@ On the application's **Scoring** tab:
 | 1. Mobility plan | The panel's mean | Up to 2 |
 | 2. Last staff mobility | **Last staff mobility** (accompanying students does not count) | Never or more than two courses ago 1.5; two courses ago 0.5; last course or this one 0 |
 | 3. Centre projects | **Merits**: each collaboration 0.5, each coordination 1 | Up to 1.5 |
-| 4. Languages | **Language certificate**, the highest | B2 1; C1 1.5; C2 2 |
+| 4. Languages | **Declared language certificate**, the highest. If the uploaded certificate does not match, record the right level in **Language certificate checked**, which counts instead | B2 1; C1 1.5; C2 2 |
 | 5. Seniority | **Seniority at the centre**, continuous at the closing date | Less than 1 year 0; 1 to 2 years 1; 2 to 5 years 1.5; 5 years or more 2 |
 | 6. Internationalisation | **Merits**: each activity 0.5 | Up to 1 |
 
@@ -57,9 +57,7 @@ The staff are ranked **in one list** for the whole call (**Ranking** button of t
 
 The resolutions are published as in the students' call, with the same rule: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it before preparing the list.
 
-The selected are those within the call's places (the sum of every modality). Then assign each one their project and period in the application's **Modality** field, checking the project's conditions.
-
-**One place per person**, unless places are left over: if someone gets a second one, explain why in **Additional place**.
+Each person gets one place at most. The selected are those within the call's places (the sum of every modality). Then assign each one their project and period in the application's **Modality** field, checking the project's conditions.
 
 ## 6. Offers and spreadsheet
 

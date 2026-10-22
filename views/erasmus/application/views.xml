@@ -182,7 +182,9 @@
                                     </group>
                                     <group string="Checked by the Erasmus team">
                                         <field name="last_staff_mobility" readonly="not can_manage"/>
-                                        <field name="language_level" readonly="not can_manage"/>
+                                        <field name="declared_language_level"/>
+                                        <field name="language_level" string="Language certificate checked" readonly="not can_manage"
+                                               help="Only when the certificate does not match what the applicant declared: this level counts instead."/>
                                         <field name="seniority" readonly="not can_manage"/>
                                         <field name="merits_checked" readonly="not can_manage"/>
                                     </group>
@@ -203,9 +205,6 @@
                                         <field name="points"/>
                                     </list>
                                 </field>
-                                <group>
-                                    <field name="extra_place_note" readonly="not can_manage"/>
-                                </group>
                             </page>
                             <page string="Scoring" name="scoring" invisible="audience != 'student' or not scoring_frozen_date">
                                 <group>
@@ -297,7 +296,6 @@
                                     <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="accompany_students" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
-                                    <field name="care_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     <field name="availability" readonly="not can_manage" invisible="audience != 'student'"/>
                                     <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     <field name="image_consent" readonly="not can_manage"/>

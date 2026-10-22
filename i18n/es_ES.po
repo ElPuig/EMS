@@ -6115,6 +6115,7 @@ msgstr "Importe de otros conceptos"
 msgid "Non-teaching"
 msgstr "No lectiva"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_language_level__none
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__res_partner__benefit_status__none
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
@@ -25265,6 +25266,7 @@ msgstr "B. Entrevista"
 msgid "B1"
 msgstr "B1"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_language_level__b2
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__language_level__b2
 msgid "B2"
@@ -25277,11 +25279,13 @@ msgstr "B2"
 msgid "C. Languages"
 msgstr "C. Idiomas"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_language_level__c1
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__language_level__c1
 msgid "C1"
 msgstr "C1"
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_language_level__c2
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__language_level__c2
 msgid "C2"
@@ -26791,11 +26795,6 @@ msgid "Add the panel members first."
 msgstr "Primero añade los miembros del tribunal."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__extra_place_note
-msgid "Additional place"
-msgstr "Plaza adicional"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/evaluation.py:0
 msgid "An evaluator only scores the rubric of their evaluations."
@@ -26911,11 +26910,6 @@ msgid "Erasmus+ staff mobilities. Accompanying students does not count."
 msgstr "Movilidades Erasmus+ de personal. Los acompañamientos de alumnado no cuentan."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__interview_deadline
-msgid "Evaluation review deadline"
-msgstr "Plazo de revisión de las evaluaciones"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
 msgid "Every admission check must be met to admit %s."
@@ -26942,16 +26936,6 @@ msgstr "Cada modalidad de una convocatoria de alumnado necesita los niveles del 
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_complete
 msgid "Every panel member (or their substitute) has submitted their rating."
 msgstr "Todos los miembros del tribunal (o las personas sustitutas) han enviado su valoración."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__care_needs
-msgid "Family or care responsibilities"
-msgstr "Responsabilidades familiares o de cuidado"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
-msgid "Family or care responsibilities to take into account for the dates (optional)"
-msgstr "Responsabilidades familiares o de cuidado que hay que tener en cuenta para las fechas (opcional)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__host_entity model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
@@ -27087,11 +27071,6 @@ msgstr "Mis valoraciones de planes"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__last_staff_mobility__never
 msgid "Never"
 msgstr "Nunca"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_application__extra_place_note
-msgid "One place per person, unless places are left over: why this person gets another one (art. 6 of the staff call)."
-msgstr "Una plaza por persona, salvo que sobren: por qué esta persona obtiene otra (art. 6 de la convocatoria del personal)."
 
 #. module: ems
 #. odoo-python
@@ -27348,3 +27327,44 @@ msgstr "Por qué forma parte del tribunal, p. ej. dirección, jefatura de depart
 #: code:addons/ems/models/erasmus/plan_rating.py:0
 msgid "Write the abstention reason before a substitute rates instead of the panel member."
 msgstr "Escribe el motivo de la abstención antes de que una persona sustituta valore en lugar del miembro del tribunal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Attach it in the documents below."
+msgstr "Adjúntalo en los documentos de más abajo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Choose one of the language levels."
+msgstr "Elige uno de los niveles de idioma."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_language_level
+msgid "Declared language certificate"
+msgstr "Certificado de idioma declarado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Highest official foreign-language certificate (B2 or higher)"
+msgstr "Certificado oficial de lengua extranjera más alto (B2 o superior)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Language certificate checked"
+msgstr "Certificado de idioma comprobado"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Only when the certificate does not match what the applicant declared: this level counts instead."
+msgstr "Solo cuando el certificado no coincide con lo que ha declarado la persona solicitante: este nivel cuenta en su lugar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__interview_deadline
+msgid "Score correction deadline"
+msgstr "Plazo para corregir puntuaciones"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__declared_language_level
+msgid "The highest certificate the staff applicant declares (B2 or higher). It scores criterion 4 unless the Erasmus team records another level after checking the certificate."
+msgstr "El certificado más alto que declara la persona solicitante (B2 o superior). Puntúa el criterio 4, salvo que el equipo Erasmus registre otro nivel después de comprobar el certificado."

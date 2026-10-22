@@ -24,7 +24,7 @@ Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en 
 
 ## 2. Revisar y admitir
 
-La solicitud del personal tiene sus propias respuestas (actividad, entidad de acogida o curso, destino, fechas preferentes, proyectos del centro, interés en acompañar alumnado). Las **necesidades de apoyo** y las **responsabilidades familiares o de cuidado** son confidenciales: solo las ve el equipo Erasmus.
+La solicitud del personal tiene sus propias respuestas (actividad, entidad de acogida o curso, destino, fechas preferentes, proyectos del centro, interés en acompañar alumnado). También declaran su certificado de idioma más alto. Las **necesidades de apoyo** son confidenciales: solo las ve el equipo Erasmus.
 
 Revisa los documentos y admite o excluye como en la convocatoria del alumnado. No hay comprobación de sanciones graves: para admitir hace falta la comprobación de **Requisitos** (personal de formación profesional este curso) y todos los documentos obligatorios válidos.
 
@@ -45,7 +45,7 @@ En la pestaña **Baremación** de la solicitud:
 | 1. Plan de movilidad | La media del tribunal | Hasta 2 |
 | 2. Última movilidad de personal | **Última movilidad de personal** (los acompañamientos de alumnado no cuentan) | Nunca o hace más de dos cursos 1,5; hace dos cursos 0,5; el curso pasado o el actual 0 |
 | 3. Proyectos del centro | **Méritos**: cada colaboración 0,5, cada coordinación 1 | Hasta 1,5 |
-| 4. Idiomas | **Certificado de idioma**, el más alto | B2 1; C1 1,5; C2 2 |
+| 4. Idiomas | **Certificado de idioma declarado**, el más alto. Si el certificado adjunto no coincide, registra el nivel correcto en **Certificado de idioma comprobado**, que cuenta en su lugar | B2 1; C1 1,5; C2 2 |
 | 5. Antigüedad | **Antigüedad en el centro**, continuada en la fecha de cierre | Menos de 1 año 0; de 1 a 2 años 1; de 2 a 5 años 1,5; 5 años o más 2 |
 | 6. Internacionalización | **Méritos**: cada actividad 0,5 | Hasta 1 |
 
@@ -57,9 +57,7 @@ El personal se clasifica **en una sola lista** para toda la convocatoria (botón
 
 Las resoluciones se publican como en la convocatoria del alumnado, con la misma norma: las listas solo muestran cuatro cifras del documento de identidad, nunca nombres. Para el personal se toma de su **ficha de empleado** (DNI o NIE; si no, el pasaporte); si alguien no lo tiene, pide a secretaría que lo añada antes de preparar la lista.
 
-Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de todas las modalidades). Después asigna a cada una su proyecto y periodo en el campo **Modalidad** de la solicitud, comprobando las condiciones del proyecto.
-
-**Una plaza por persona**, salvo que sobren: si alguien obtiene una segunda, explica el motivo en **Plaza adicional**.
+Cada persona obtiene como máximo una plaza. Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de todas las modalidades). Después asigna a cada una su proyecto y periodo en el campo **Modalidad** de la solicitud, comprobando las condiciones del proyecto.
 
 ## 6. Ofertas y hoja de cálculo
 

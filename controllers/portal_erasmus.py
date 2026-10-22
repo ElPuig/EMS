@@ -64,6 +64,8 @@ class EmsPortalErasmusController(CustomerPortal):
             'documents': call.document_ids,
             'lines': {line.call_document_id: line for line in application.document_ids},
             'is_minor': call.audience == 'student' and not partner.is_adult,
+            'language_labels': dict(request.env['ems.erasmus.application']._fields[
+                'declared_language_level']._description_selection(request.env)),
             'activity_labels': dict(request.env['ems.erasmus.application']._fields['staff_activity']._description_selection(
                 request.env)),
             'state_labels': dict(request.env['ems.erasmus.application']._fields['state'].selection),

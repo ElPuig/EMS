@@ -24,7 +24,7 @@ Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria al po
 
 ## 2. Revisar i admetre
 
-La sol·licitud del personal té les seves pròpies respostes (activitat, entitat d'acollida o curs, destinació, dates preferents, projectes del centre, interès a acompanyar alumnat). Les **necessitats de suport** i les **responsabilitats familiars o de cura** són confidencials: només les veu l'equip Erasmus.
+La sol·licitud del personal té les seves pròpies respostes (activitat, entitat d'acollida o curs, destinació, dates preferents, projectes del centre, interès a acompanyar alumnat). També hi declaren el seu certificat de llengua més alt. Les **necessitats de suport** són confidencials: només les veu l'equip Erasmus.
 
 Revisa els documents i admet o exclou com a la convocatòria de l'alumnat. No hi ha la comprovació de sancions greus: per admetre cal la comprovació de **Requisits** (personal de formació professional aquest curs) i tots els documents obligatoris vàlids.
 
@@ -45,7 +45,7 @@ A la pestanya **Baremació** de la sol·licitud:
 | 1. Pla de mobilitat | La mitjana del tribunal | Fins a 2 |
 | 2. Última mobilitat de personal | **Última mobilitat de personal** (els acompanyaments d'alumnat no compten) | Mai o fa més de dos cursos 1,5; fa dos cursos 0,5; el curs passat o l'actual 0 |
 | 3. Projectes del centre | **Mèrits**: cada col·laboració 0,5, cada coordinació 1 | Fins a 1,5 |
-| 4. Llengües | **Certificat de llengua**, el més alt | B2 1; C1 1,5; C2 2 |
+| 4. Llengües | **Certificat de llengua declarat**, el més alt. Si el certificat adjunt no hi coincideix, registra el nivell correcte a **Certificat de llengua comprovat**, que compta en el seu lloc | B2 1; C1 1,5; C2 2 |
 | 5. Antiguitat | **Antiguitat al centre**, continuada a la data de tancament | Menys d'1 any 0; d'1 a 2 anys 1; de 2 a 5 anys 1,5; 5 anys o més 2 |
 | 6. Internacionalització | **Mèrits**: cada activitat 0,5 | Fins a 1 |
 
@@ -57,9 +57,7 @@ El personal es classifica **en una sola llista** per a tota la convocatòria (bo
 
 Les resolucions es publiquen com a la convocatòria de l'alumnat, amb la mateixa norma: les llistes només mostren quatre xifres del document d'identitat, mai noms. Per al personal es treu de la seva **fitxa d'empleat** (DNI o NIE; si no, el passaport); si algú no en té, demana a la secretaria que l'afegeixi abans de preparar la llista.
 
-Són seleccionades les persones que entren dins de les places de la convocatòria (la suma de totes les modalitats). Després assigna a cadascuna el projecte i el període al camp **Modalitat** de la sol·licitud, comprovant les condicions del projecte.
-
-**Una plaça per persona**, excepte si en sobren: si algú n'obté una segona, explica'n el motiu a **Plaça addicional**.
+Cada persona obté com a màxim una plaça. Són seleccionades les persones que entren dins de les places de la convocatòria (la suma de totes les modalitats). Després assigna a cadascuna el projecte i el període al camp **Modalitat** de la sol·licitud, comprovant les condicions del projecte.
 
 ## 6. Ofertes i full de càlcul
 

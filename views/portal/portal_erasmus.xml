@@ -229,14 +229,19 @@
                                 <label class="form-check-label" for="accompany_students">I am interested in accompanying groups of students in their mobilities (optional)</label>
                             </div>
                             <div class="mb-3">
+                                <label class="form-label" for="declared_language_level">Highest official foreign-language certificate (B2 or higher)</label>
+                                <select class="form-select" name="declared_language_level" id="declared_language_level">
+                                    <t t-foreach="language_labels.items()" t-as="level">
+                                        <option t-att-value="level[0]" t-att-selected="application.declared_language_level == level[0] or None"
+                                                t-esc="level[1]"/>
+                                    </t>
+                                </select>
+                                <div class="form-text">Attach it in the documents below.</div>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label" for="support_needs">Support or adaptations you need to do the mobility (confidential, optional)</label>
                                 <textarea class="form-control" name="support_needs" id="support_needs" rows="2"
                                           t-esc="application.support_needs or ''"/>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label" for="care_needs">Family or care responsibilities to take into account for the dates (optional)</label>
-                                <textarea class="form-control" name="care_needs" id="care_needs" rows="2"
-                                          t-esc="application.care_needs or ''"/>
                             </div>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" name="image_consent" id="image_consent"

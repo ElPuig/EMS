@@ -48,7 +48,7 @@ ANSWER_FIELDS = {
                 'image_consent', 'applicant_notes'),
     'staff': ('staff_activity', 'host_entity', 'host_not_identified', 'destination', 'preferred_dates',
               'previous_mobility', 'previous_mobility_details', 'centre_projects', 'accompany_students',
-              'support_needs', 'care_needs', 'image_consent', 'applicant_notes'),
+              'declared_language_level', 'support_needs', 'image_consent', 'applicant_notes'),
 }
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
@@ -102,8 +102,10 @@ class EmsErasmusApplication(models.Model):
     centre_projects = fields.Text(string="Centre projects")
     accompany_students = fields.Boolean(string="Interested in accompanying students")
     support_needs = fields.Text(string="Support needs", groups='ems.group_erasmus,ems.group_academic_admin')
-    care_needs = fields.Text(string="Family or care responsibilities",
-                             groups='ems.group_erasmus,ems.group_academic_admin')
+    declared_language_level = fields.Selection(string="Declared language certificate", selection=[
+        ('none', "None"), ('b2', "B2"), ('c1', "C1"), ('c2', "C2")],
+        help="The highest certificate the staff applicant declares (B2 or higher). It scores criterion 4 unless the "
+             "Erasmus team records another level after checking the certificate.")
 
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.application.document',
                                    inverse_name='application_id')
@@ -234,9 +236,6 @@ class EmsErasmusApplication(models.Model):
     score_seniority = fields.Float(string="5. Seniority", digits=(4, 2), compute='_compute_scores', store=True)
     score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2),
                                               compute='_compute_scores', store=True)
-    extra_place_note = fields.Text(string="Additional place", tracking=True, copy=False,
-                                   help="One place per person, unless places are left over: why this person gets "
-                                        "another one (art. 6 of the staff call).")
 
     @api.depends('partner_id.birth_date', 'audience')
     def _compute_is_minor(self):
@@ -280,6 +279,7 @@ class EmsErasmusApplication(models.Model):
                  'interview_general', 'interview_english', 'interview_complete', 'language_level',
                  'fewer_opportunities_check', 'first_mobility', 'strike_count', 'call_id.min_score', 'audience',
                  'plan_score', 'plan_complete', 'last_staff_mobility', 'seniority', 'merits_checked',
+                 'declared_language_level',
                  'merit_ids.kind')
     def _compute_scores(self):
         """Art. 12: A + B + C + D + E + F, no floor at zero. A pending criterion leaves it incomplete.
@@ -314,15 +314,20 @@ class EmsErasmusApplication(models.Model):
             'score_last_mobility': LAST_MOBILITY_SCORES.get(self.last_staff_mobility, 0.0),
             'score_projects': min(sum(merits.filtered(lambda merit: merit.kind in PROJECT_MERITS).mapped('points')),
                                   1.5),
-            'score_staff_language': STAFF_LANGUAGE_SCORES.get(self.language_level, 0.0),
+            'score_staff_language': STAFF_LANGUAGE_SCORES.get(self._ems_staff_language_level(), 0.0),
             'score_seniority': SENIORITY_SCORES.get(self.seniority, 0.0),
             'score_internationalisation': min(
                 sum(merits.filtered(lambda merit: merit.kind == 'internationalisation').mapped('points')), 1.0),
         })
         self.score_total = sum(self[name] for name in STAFF_SCORE_FIELDS)
         self.score_complete = self.plan_complete and self.merits_checked and all(
-            self[name] for name in ('last_staff_mobility', 'language_level', 'seniority'))
+            self[name] for name in ('last_staff_mobility', 'seniority'))
         self.is_eligible = self.score_complete and self.score_total >= self.call_id.min_score
+
+    def _ems_staff_language_level(self):
+        """Criterion 4: the level the Erasmus team recorded after checking the certificate, else
+        the one the applicant declared (none if they declared nothing)."""
+        return self.language_level or self.declared_language_level or 'none'
 
     @api.depends('state', 'modality_id', 'score_total', 'score_complete', 'score_d', 'score_e',
                  'interview_english', 'grade_average', 'draw_order', 'last_staff_mobility', 'score_plan',
@@ -636,6 +641,9 @@ class EmsErasmusApplication(models.Model):
         answers = {key: value for key, value in answers.items() if key in ANSWER_FIELDS[self.audience]}
         if answers.get('staff_activity') not in (False, None, *dict(STAFF_ACTIVITIES)):
             raise UserError(_("Choose one of the activities of the call."))
+        if answers.get('declared_language_level') not in (
+                False, None, *dict(self._fields['declared_language_level'].selection)):
+            raise UserError(_("Choose one of the language levels."))
         if answers:
             if not self._ems_portal_editable():
                 raise UserError(_("The application can no longer be changed."))

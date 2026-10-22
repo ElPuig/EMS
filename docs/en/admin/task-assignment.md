@@ -15,7 +15,7 @@ When a student or a family does something from the portal that needs staff atten
 - **Review student document** — a student uploads their ID, medical card, IBAN or a benefit certificate and someone has to validate it.
 - **Review enrollment comment** — a family writes a comment on their enrollment.
 
-**Academic Management → Configuration → Task Assignment** is where you decide **who receives each of those tasks**.
+**Academic Management → Configuration → Enrollment → Task Assignment** is where you decide **who receives each of those tasks**.
 
 The screen is open to the **Secretary's Office Administrator** as well as to the Administrator: the office runs these tasks, so it also decides who handles them, without having to ask an administrator. Within it, they can only change EMS's own task types — no other part of the system.
 
@@ -36,7 +36,7 @@ This is deliberate. Before, tasks were sent to everyone in the Secretary's Offic
 
 ![The Task Assignment screen](../../assets/admin/Asignacio-de-tasques-01.png)
 
-1. **The menu** — Go to **Academic Management → Configuration → Task Assignment**.
+1. **The menu** — Go to **Academic Management → Configuration → Enrollment → Task Assignment**.
 2. **The task list** — One line per task type EMS creates on its own: *Review enrollment comment* and *Review student document*. Lines cannot be added or deleted: these are the tasks the system generates, not a free-form list.
 3. **The assigned users** — The people who receive that task. Click the cell to add or remove users, then save. Only internal staff can be added (portal users — students and families — cannot).
 

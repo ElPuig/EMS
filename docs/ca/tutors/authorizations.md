@@ -19,7 +19,7 @@ Aquesta guia explica com enviar autoritzacions del catàleg del centre al vostre
 
 ## Enviar autoritzacions
 
-Aneu a **Gestió acadèmica > Autoritzacions > Enviar autoritzacions**.
+Aneu a **Gestió acadèmica > Autoritzacions** i feu clic a **Nou**.
 
 ![Assistent Enviar autoritzacions per a un tutor](../../assets/tutors/authorizations-tutor-send.png)
 
@@ -48,7 +48,7 @@ L'alumne i la família responen des de **Matrícula i autoritzacions** al portal
 
 ## Seguiment de les respostes
 
-Aneu a **Gestió acadèmica > Autoritzacions > Seguiment**. La llista mostra les autoritzacions del vostre alumnat, tant les enviades durant el curs com les de la matrícula.
+Aneu a **Gestió acadèmica > Autoritzacions**. La llista mostra les autoritzacions del vostre alumnat, tant les enviades durant el curs com les de la matrícula. Si sou cap de departament o de seminari, també hi veieu les de l'alumnat dels tutors del vostre departament.
 
 - Filtreu per **Pendent**, **Acceptat** o **Rebutjat**, i per **Enviada durant el curs** o **D'una matrícula**.
 - Agrupeu per autorització, alumne o estat.
@@ -56,7 +56,7 @@ Aneu a **Gestió acadèmica > Autoritzacions > Seguiment**. La llista mostra les
 
 ## Respondre en nom d'una família
 
-Quan una família lliura el formulari signat en paper, obriu l'autorització des de **Seguiment**, indiqueu l'**Estat** i adjunteu el document escanejat al camp **Document**. L'estat no es pot canviar sense adjuntar-lo.
+Quan una família lliura el formulari signat en paper, obriu l'autorització des de la llista d'**Autoritzacions**, indiqueu l'**Estat** i adjunteu el document escanejat al camp **Document**. L'estat no es pot canviar sense adjuntar-lo.
 
 ---
 

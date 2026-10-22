@@ -66,7 +66,7 @@ Els canvis s'apliquen a les resolucions que s'emetin a partir d'aquell moment.
 
 Quan Cap d'Estudis demana més documentació a un sol·licitant, tria un motiu d'una llista. Tu mantens aquesta llista.
 
-**Rol necessari:** Administrador de l'EMS
+**Rol necessari:** administrador de l'EMS, o cap d'estudis, cap d'estudis adjunt o direcció (poden crear, editar i arxivar motius, no esborrar-los)
 
 Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius de petició de documentació**
 
@@ -80,7 +80,7 @@ Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius d
 
 Quan Cap d'Estudis denega la convalidació d'un mòdul, tria el motiu d'una llista. Tu mantens aquesta llista.
 
-**Rol necessari:** Administrador de l'EMS
+**Rol necessari:** administrador de l'EMS, o cap d'estudis, cap d'estudis adjunt o direcció (poden crear, editar i arxivar motius, no esborrar-los)
 
 Navega a: **Gestió acadèmica → Configuració → Convalidacions → Motius de denegació per mòdul**
 

@@ -90,7 +90,7 @@ A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta
 | ↺ (Torna a pendent) | Desfà la decisió de la línia. |
 
 - **Nota:** cada mòdul es revisa i es qualifica d'un en un. En clicar ✔, un diàleg la demana: amb el **Mode** a **Amb nota** (per defecte), escriu la nota, 5 per defecte o la que tenen els estudis previs (de 5 a 10). Tria **Sense nota** quan el mòdul es convalida sense nota: la resolució el mostra com a **Convalidat**, les notes com a **CV**, i no compta per a la mitjana. Fins que no enviïs la proposta, encara pots canviar les columnes **Nota** i **Sense nota** de la línia.
-- **Motiu de la denegació:** en clicar ✖, un diàleg demana el **Motiu**, amb el més habitual ja seleccionat, i uns **Detalls** opcionals. Tots dos surten a la resolució. Fins que no enviïs la proposta, encara els pots canviar a la línia. La llista de motius la manté l'administrador de l'EMS (vegeu [Configuració de les convalidacions](../admin/convalidation-settings.md)).
+- **Motiu de la denegació:** en clicar ✖, un diàleg demana el **Motiu**, amb el més habitual ja seleccionat, i uns **Detalls** opcionals. Tots dos surten a la resolució. Fins que no enviïs la proposta, encara els pots canviar a la línia. La llista de motius la mantens tu mateix, juntament amb l'administrador de l'EMS, des de **Gestió acadèmica > Configuració > Convalidacions** (vegeu [Configuració de les convalidacions](../admin/convalidation-settings.md)).
 
 ![Convalidar un mòdul: la nota](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -112,7 +112,7 @@ La sol·licitud passa a **Pendent de documentació** fins que arriba la document
 
 Mentrestant pots continuar decidint els mòduls, però no pots enviar la proposta ni tramitar-la amb el Ministeri. La pestanya **Documentació sol·licitada** mostra la data, el motiu i els detalls de l'última petició.
 
-Es pot demanar documentació mentre la sol·licitud és **Pendent**, **Pendent de documentació** o **En procés Ministeri**. La llista de motius la manté l'administrador de l'EMS (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)).
+Es pot demanar documentació mentre la sol·licitud és **Pendent**, **Pendent de documentació** o **En procés Ministeri**. La llista de motius la mantens tu mateix, juntament amb l'administrador de l'EMS, des de **Gestió acadèmica > Configuració > Convalidacions** (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)).
 
 ---
 

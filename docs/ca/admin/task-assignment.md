@@ -15,7 +15,7 @@ Quan un alumne o una família fa alguna cosa des del portal que requereix l'aten
 - **Revisar document d'alumne** — un alumne puja el DNI, la targeta sanitària, l'IBAN o un certificat de bonificació i algú l'ha de validar.
 - **Revisar comentari de matrícula** — una família escriu un comentari a la seva matrícula.
 
-**Gestió acadèmica → Configuració → Assignació de tasques** és on decidiu **qui rep cadascuna d'aquestes tasques**.
+**Gestió acadèmica → Configuració → Matrícula → Assignació de tasques** és on decidiu **qui rep cadascuna d'aquestes tasques**.
 
 La pantalla és accessible per a l'**Administrador de Secretaria**, a més de per a l'Administrador: és secretaria qui gestiona aquestes tasques, així que també decideix qui se n'encarrega, sense haver de demanar-ho a un administrador. Des d'aquí només pot modificar els tipus de tasca propis de l'EMS, cap altra part del sistema.
 
@@ -36,7 +36,7 @@ Això és intencionat. Abans les tasques s'enviaven a tothom qui fos al grup de 
 
 ![Pantalla d'assignació de tasques](../../assets/admin/Asignacio-de-tasques-01.png)
 
-1. **El menú** — Aneu a **Gestió acadèmica → Configuració → Assignació de tasques**.
+1. **El menú** — Aneu a **Gestió acadèmica → Configuració → Matrícula → Assignació de tasques**.
 2. **La llista de tasques** — Una línia per cada tipus de tasca que l'EMS crea pel seu compte: *Revisar comentari de matrícula* i *Revisar document d'alumne*. No s'hi poden afegir ni eliminar línies: són les tasques que genera el sistema, no una llista lliure.
 3. **Els usuaris assignats** — Les persones que reben aquella tasca. Feu clic a la cel·la per afegir-hi o treure'n usuaris i deseu. Només s'hi pot afegir personal intern (els usuaris del portal —alumnes i famílies— no).
 

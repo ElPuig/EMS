@@ -90,7 +90,7 @@ En cada línea de la pestaña **Asignaturas**, usa los botones de la derecha:
 | ↺ (Volver a pendiente) | Deshace la decisión de la línea. |
 
 - **Nota:** cada módulo se revisa y se califica de uno en uno. Al pulsar ✔, un diálogo la pide: con el **Modo** en **Con nota** (por defecto), escribe la nota, 5 por defecto o la que tienen los estudios previos (de 5 a 10). Elige **Sin nota** cuando el módulo se convalida sin nota: la resolución lo muestra como **Convalidat**, las notas como **CV**, y no cuenta para la media. Hasta que no envíes la propuesta, aún puedes cambiar las columnas **Nota** y **Sin nota** de la línea.
-- **Motivo de la denegación:** al pulsar ✖, un diálogo pide el **Motivo**, con el más habitual ya seleccionado, y unos **Detalles** opcionales. Ambos salen en la resolución. Hasta que no envíes la propuesta, aún puedes cambiarlos en la línea. La lista de motivos la mantiene el administrador del EMS (ver [Configuración de las convalidaciones](../admin/convalidation-settings.md)).
+- **Motivo de la denegación:** al pulsar ✖, un diálogo pide el **Motivo**, con el más habitual ya seleccionado, y unos **Detalles** opcionales. Ambos salen en la resolución. Hasta que no envíes la propuesta, aún puedes cambiarlos en la línea. La lista de motivos la mantienes tú mismo, junto con el administrador del EMS, desde **Gestión académica > Configuración > Convalidaciones** (ver [Configuración de las convalidaciones](../admin/convalidation-settings.md)).
 
 ![Convalidar un módulo: la nota](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -112,7 +112,7 @@ La solicitud pasa a **Pendiente de documentación** hasta que llega la documenta
 
 Mientras tanto puedes seguir decidiendo los módulos, pero no puedes enviar la propuesta ni tramitarla con el Ministerio. La pestaña **Documentación solicitada** muestra la fecha, el motivo y los detalles de la última petición.
 
-Se puede pedir documentación mientras la solicitud está **Pendiente**, **Pendiente de documentación** o **En proceso Ministerio**. La lista de motivos la mantiene el administrador del EMS (ver [Configuración de convalidaciones](../admin/convalidation-settings.md)).
+Se puede pedir documentación mientras la solicitud está **Pendiente**, **Pendiente de documentación** o **En proceso Ministerio**. La lista de motivos la mantienes tú mismo, junto con el administrador del EMS, desde **Gestión académica > Configuración > Convalidaciones** (ver [Configuración de convalidaciones](../admin/convalidation-settings.md)).
 
 ---
 

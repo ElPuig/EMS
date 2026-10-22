@@ -46,7 +46,7 @@ Approving a benefit/exemption document creates the corresponding entry in the st
 
 ## Notifications
 
-The student is notified by email when their document is approved or rejected. Reviewers (configured in *Academic Management > Configuration > Task Assignment*) get a to-do task instead of an email for each new pending submission — check your Activities for "Review document: ...".
+The student is notified by email when their document is approved or rejected. Reviewers (configured in *Academic Management > Configuration > Enrollment > Task Assignment*) get a to-do task instead of an email for each new pending submission — check your Activities for "Review document: ...".
 
 ## Downloading Google credentials
 

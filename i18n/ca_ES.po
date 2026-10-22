@@ -1709,6 +1709,7 @@ msgstr "Carrega"
 #: code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_teacher_line__create_new
 #: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list
 msgid "New"
 msgstr "Nou"
 
@@ -2168,7 +2169,7 @@ msgid "Authorization text"
 msgstr "Text d'autorització"
 
 #. module: ems
-#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorization_root model:ir.ui.menu,name:ems.menu_ems_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
+#: model:ir.actions.act_window,name:ems.action_ems_authorizations model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__template_ids model:ir.model.fields,field_description:ems.field_res_partner__ems_authorization_ids model:ir.model.fields,field_description:ems.field_res_users__ems_authorization_ids model:ir.model.fields,field_description:ems.field_sale_order__ems_authorization_ids model:ir.ui.menu,name:ems.menu_ems_authorization_root model:ir.ui.menu,name:ems.menu_ems_configuration_authorizations model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_list model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Authorizations"
 msgstr "Autoritzacions"
 
@@ -3556,7 +3557,7 @@ msgid "Enrolled Products (Technical)"
 msgstr "Productes matriculats (Tècnic)"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_applicant_list
+#: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model:ir.ui.menu,name:ems.menu_ems_configuration_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_applicant_list
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__enrollment_id
 msgid "Enrollment"
 msgstr "Matrícula"
@@ -11391,8 +11392,8 @@ msgstr "Ningú: aquesta tasca no es crearà"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_mail_activity_type__ems_task_assignment
-msgid "Set on the activity types EMS schedules automatically, so that they show up under Academic Management > Configuration > Task Assignment."
-msgstr "Es marca als tipus d'activitat que l'EMS programa automàticament, perquè apareguin a Gestió acadèmica > Configuració > Assignació de tasques."
+msgid "Set on the activity types EMS schedules automatically, so that they show up under Academic Management > Configuration > Enrollment > Task Assignment."
+msgstr "Es marca als tipus d'activitat que l'EMS programa automàticament, perquè apareguin a Gestió acadèmica > Configuració > Matrícula > Assignació de tasques."
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_task_assignment model:ir.ui.menu,name:ems.menu_ems_task_assignment model_terms:ir.ui.view,arch_db:ems.view_task_assignment_form model_terms:ir.ui.view,arch_db:ems.view_task_assignment_list
@@ -16514,34 +16515,6 @@ msgstr "Període de sol·licitud"
 #: model:ir.model.fields.selection,name:ems.selection__res_company__convalidation_start_month__9
 msgid "September"
 msgstr "Setembre"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period must open and close at different moments."
-msgstr ""
-"El període de sol·licitud de convalidacions s'ha d'obrir i tancar en moments"
-" diferents."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period uses a day that does not exist: %(day)s "
-"%(month)s."
-msgstr ""
-"El període de sol·licitud de convalidacions fa servir un dia que no "
-"existeix: %(day)s %(month)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/settings/company.py:0
-msgid ""
-"The convalidation request period's times must be between 00:00 and 23:59."
-msgstr ""
-"Les hores del període de sol·licitud de convalidacions han de ser entre les "
-"00:00 i les 23:59."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_planning_search
@@ -23244,3 +23217,90 @@ msgstr "No s'ha pogut enviar el comunicat i queda com a esborrany perquè el rev
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Notice sent."
 msgstr "Comunicat enviat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "convalidation request period"
+msgstr "període de sol·licitud de convalidacions"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "pre-enrollment period"
+msgstr "període de preinscripció"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The %(period)s uses a day that does not exist: %(day)s %(month)s."
+msgstr "El %(period)s fa servir un dia que no existeix: %(day)s %(month)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The times of the %(period)s must be between 00:00 and 23:59."
+msgstr "Les hores del %(period)s han de ser entre les 00:00 i les 23:59."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "The %(period)s must open and close at different moments."
+msgstr "El %(period)s s'ha d'obrir i tancar en moments diferents."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid "Enrollment proposals are only available during the pre-enrollment period. It opens on %(date)s."
+msgstr "Les propostes de matrícula només estan disponibles durant el període de preinscripció. S'obre el %(date)s."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Pre-enrollment period"
+msgstr "Període de preinscripció"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Every year, tutors, department and seminar chiefs, guidance and coexistence only see Academic management > Enrollment between these two moments, in the centre's local time. Academic administration, the secretary's office, the Heads of Studies and the Director always see it."
+msgstr "Cada any, els tutors, els caps de departament i de seminari, orientació i convivència només veuen Gestió acadèmica > Matrícula entre aquests dos moments, en hora local del centre. L'administració acadèmica, la secretaria, els caps d'estudis i el director la veuen sempre."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_preenrollment_period_ir_actions_server
+msgid "EMS: Pre-enrollment period opening and closing"
+msgstr "EMS: Obertura i tancament del període de preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_day
+msgid "Preenrollment Start Day"
+msgstr "Dia d'obertura de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_month
+msgid "Preenrollment Start Month"
+msgstr "Mes d'obertura de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_start_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_start_time
+msgid "Preenrollment Start Time"
+msgstr "Hora d'obertura de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_day
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_day
+msgid "Preenrollment End Day"
+msgstr "Dia de tancament de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_month
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_month
+msgid "Preenrollment End Month"
+msgstr "Mes de tancament de la preinscripció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__preenrollment_end_time
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__preenrollment_end_time
+msgid "Preenrollment End Time"
+msgstr "Hora de tancament de la preinscripció"

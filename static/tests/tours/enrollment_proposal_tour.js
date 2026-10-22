@@ -111,3 +111,45 @@ registry.category("web_tour.tours").add("ems_enrollment_proposal_graduation", {
         },
     ],
 });
+
+// Issue #654: outside the pre-enrollment period a tutor keeps Academic management, for the
+// authorizations, but its Enrollment section is gone: the app opens straight on the
+// authorizations list, whose New button opens the Send Authorizations assistant. Driven by a
+// tutor, with the period closed.
+registry.category("web_tour.tours").add("ems_enrollment_hidden_outside_preenrollment", {
+    test: true,
+    url: "/odoo",
+    steps: () => [
+        {
+            trigger: ".o_navbar_apps_menu button[data-hotkey='h']",
+            content: "Open the apps menu",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu .o_app[data-menu-xmlid='ems.menu_ems_academic_management']",
+            content: "Academic management is still there",
+            run: "click",
+        },
+        {
+            trigger: ".o_menu_sections [data-menu-xmlid='ems.menu_ems_authorization_root']",
+            content: "With its Authorizations entry",
+        },
+        {
+            trigger: ".o_menu_sections:not(:has([data-menu-xmlid='ems.menu_ems_enrollment']))",
+            content: "No Enrollment section while the pre-enrollment period is closed",
+        },
+        {
+            trigger: ".o_action_manager .o_list_view",
+            content: "The app opens on the authorizations list",
+        },
+        {
+            trigger: ".o_control_panel button.btn-primary:contains('New')",
+            content: "New opens the Send Authorizations assistant",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view [name='template_ids']",
+            content: "The assistant is open",
+        },
+    ],
+});

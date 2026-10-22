@@ -2,7 +2,8 @@ from datetime import date
 
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_level_study_group, force_user_language_to_english, next_student_id
+from .common import (close_yearly_period, create_level_study_group, create_role_user,
+                     force_user_language_to_english, next_student_id)
 
 
 @tagged('post_install', '-at_install')
@@ -49,3 +50,11 @@ class TestEnrollmentProposalTour(HttpCase):
         self.start_tour("/odoo", "ems_enrollment_proposal_graduation", login="admin")
 
         self.assertTrue(self.graduate_student.has_graduated)
+
+    def test_enrollment_hidden_outside_preenrollment_tour(self):
+        """Issue #654 - the menu as a tutor really gets it (TestPreenrollmentPeriod covers every
+        role on the server side)."""
+        close_yearly_period(self.env, 'preenrollment')
+        create_role_user(self, 'tutor', 'tour_preenrollment_tutor')
+        self.start_tour("/odoo", "ems_enrollment_hidden_outside_preenrollment",
+                        login="tour_preenrollment_tutor")

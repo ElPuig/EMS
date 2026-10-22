@@ -966,6 +966,16 @@ class ResPartner(models.Model):
             if partner.contact_type not in STUDENT_LIFECYCLE_TYPES:
                 partner._ems_raise_student_id_required(partner.display_name)
 
+    @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        """Academic management > Enrollment > Preinscription and Students without destination,
+        and the contact form they open, are read only for whoever does not edit enrollments
+        (issue #654): the Heads of Studies only read them, though they manage contacts
+        elsewhere."""
+        return base.EmsBase.view_read_only_for_non_enrollment_editors(
+            self, super().get_view(view_id, view_type, **options),
+            ('ems.view_applicant_list', 'ems.view_enrollment_contact_form'), ('create', 'edit', 'delete'))
+
     @api.model_create_multi
     def create(self, values):
         # Fired when the model is created (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)

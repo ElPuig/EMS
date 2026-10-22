@@ -17,6 +17,8 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 - [Gestión de contactos de alumnos y familias](../secretary/student-contacts.md) — tienes el mismo acceso completo de lectura/escritura que secretaría aquí, para cualquier alumno de todo el centro.
 - [Tramitar una baja o una expulsión](../secretary/graduation-withdrawal.md) — puedes tramitar la baja o la expulsión de un alumno, con los mismos pasos que secretaría (manual compartido).
 - [Credenciales de Google del alumnado](../tutors/google-credentials.md) — consultarlas, crear la cuenta y restablecer la contraseña, los mismos pasos que los tutores, para el alumnado de los tutores de tu área.
+- [Consulta de los documentos del alumnado](student-documents.md) — Todos los documentos que ha entregado el alumnado de los tutores de tu área, solo de consulta.
+- [Matriculación del alumnado de preinscripción](../secretary/manual-matriculacio-preinscripcio.md) — podéis consultar todas las pantallas de **Gestión académica > Matrícula** (matrículas, preinscripción, alumnado sin destino) y su configuración (elementos y plantillas de matrícula, asignación de tareas), de todo el centro, solo de consulta: los pasos de este manual son de secretaría (manual compartido).
 - [Decidir sobre solicitudes de corrección de fichajes](attendance-corrections.md)
 - [Strikes: menú Convivencia y correos de escalado](strike.md)
 - [El horario semanal de un grupo](../admin/group-schedule.md)

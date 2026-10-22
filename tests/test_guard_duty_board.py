@@ -3,7 +3,10 @@ from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group, mock_outgoing_email
+from .common import (
+    ROLE_GROUP_XMLIDS, create_level_study, create_level_study_group, create_role_user,
+    mock_outgoing_email,
+)
 
 class GuardDutyBoardCase(TransactionCase):
     """Fixtures and helpers shared by the guard duty board's own tests and the absence
@@ -1182,3 +1185,15 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertIn(b'gdb-duty-table', table_content)
         # Whoever needs covering is still named on the table tab, same as the live screen.
         self.assertIn(self.teacher_a.name.encode(), table_content)
+
+    def test_menu_visible_only_to_the_roles_that_can_open_the_board(self):
+        """Quality and Settings don't organise guards and can't read ems.group, which the board
+        needs, so its menu is hidden from them (issue #680). Every other role keeps it: they all
+        imply group_teacher or group_secretary."""
+        menu = self.env.ref('ems.menu_guard_duty_board')
+        hidden_roles = {'quality', 'quality_admin', 'settings', 'settings_admin'}
+        for role in ROLE_GROUP_XMLIDS:
+            user = create_role_user(self, role, f'test_guard_menu_{role}')
+            visible = menu.id in self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()
+            with self.subTest(role=role):
+                self.assertEqual(visible, role not in hidden_roles)

@@ -259,6 +259,15 @@ class docstring in `models/attendance/guard_duty_board.py` for why this replaced
 (which itself groups Overview/Correction Requests/Management) and "Time off" — deliberately not
 under "Working Schedules" (`menu_work_locations`), which only Head of Studies/Direction can see.
 
+The menu item is limited to `ems.group_teacher` and `ems.group_secretary`
+(`groups=` on `menu_guard_duty_board`). Every role that organises or looks up guards implies one of
+the two (Tutor, Department/Seminar Chief, Head of Studies/Deputy, Director, the academic
+administrator, Coexistence, TAC and Orientation all imply `group_teacher`). Quality and Settings
+(and their administrators) imply neither: they don't organise guards and have no read access to
+`ems.group`, which the board needs, so the menu is hidden from them rather than widening their
+access for this screen alone (issue #680). Covered per role by
+`test_menu_visible_only_to_the_roles_that_can_open_the_board`.
+
 ## Client action
 
 `static/src/js/backend/guard_duty_board.js` (`GuardDutyBoard`, registered as

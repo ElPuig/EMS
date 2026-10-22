@@ -1,8 +1,8 @@
 # ISO 9001 quality management inside EMS
 
-**Status: design, current as of 2026-10-20. Phase 1 and phase 2 implemented on their branches, not yet
-merged into `main`; phase 1's scope was reduced on 2026-09-21 (see "One owner per piece of information" below).
-Both branches are up to date with `main` v18.0.0.38.1; 497 was last pushed at 22f8ed33 on 2026-10-20.
+**Status: design, current as of 2026-10-22. Phase 1 and phase 2 implemented on their branches and handed
+over to be merged into `main` ("Ready to merge"); phase 1's scope was reduced on 2026-09-21 (see "One owner per piece of information" below).
+Both branches are up to date with `main` v18.0.0.39.1 (2026-10-22).
 **To pick the work up, read section 12 first**: it is the current state and the to-do list, and section 7
 says how permissions were actually implemented (it supersedes the original two-new-groups idea).** Every open design question was
 closed with the developer between 2026-09-19 and 2026-09-20; this file is the design of record for the
@@ -762,11 +762,12 @@ implementation:
 - Supplier homologation criteria to be confirmed against the current procedure before F7.
 - Whether the improvement-team **closure** minute also prints the DNI, as the constitution one does.
 
-## 12. State of the work (2026-10-20)
+## 12. State of the work (2026-10-22)
 
 Read this to resume without the old session. Everything below is committed and pushed on
-`497-quality-phase-2` (22f8ed33), which contains `496-quality-phase-1`; both are up to date with `main`
-v18.0.0.38.1. Nothing is in flight.
+`497-quality-phase-2`, which contains `496-quality-phase-1`; both are up to date with `main` v18.0.0.39.1
+and were reviewed against the project's rules on 2026-10-22 before going to "Ready to merge". Nothing is in
+flight; the items in 12.3 are follow-up work, not part of these two issues.
 
 ### 12.1. The dev database
 

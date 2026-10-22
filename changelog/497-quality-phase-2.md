@@ -144,7 +144,7 @@ The teachers' minutes manual (9 screenshots) and the quality manual on agreement
 
 `models/documentation/` and `views/documentation/` are gone: the minute belongs to the quality area now. The old free-text type field is kept in step with the new type catalogue rather than dropped, because dropping it would leave a not-null column behind and break every insert; it can be removed by a version that ships a migration.
 
-The date of a minute is now a date rather than a timestamp, with the time kept as the minute itself states it, matching how the real templates are written.
+A minute is set by one start date and time, from which its date, the time it prints and its course follow.
 
 ## Filing the PDF in Drive is deliberately not done yet:
 

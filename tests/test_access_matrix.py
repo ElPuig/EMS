@@ -46,6 +46,19 @@ ACCESS_MATRIX = {
     'ems.quality.procedure': {'teacher': '', 'quality': 'r'},
     'ems.quality.document': {'teacher': 'r', 'quality': 'r'},
     'ems.quality.followup': {'teacher': 'rwc', 'quality': 'rwc'},
+    'ems.quality.document.link.import': {'teacher': '', 'quality': '', 'quality_admin': 'rwcu'},
+    # The minute's catalogue: read by whoever writes minutes, maintained by quality coordination and the Director.
+    'ems.minute.section': {'teacher': 'r', 'secretary': 'r', 'quality': '', 'quality_admin': 'rwcu', 'director': 'rwcu'},
+    'ems.minute.type': {'teacher': 'r', 'secretary': 'r', 'quality': '', 'quality_admin': 'rwcu', 'director': 'rwcu'},
+    'ems.minute.type.section': {'teacher': 'r', 'secretary': 'r', 'quality': '', 'quality_admin': 'rwcu', 'director': 'rwcu'},
+    # A minute's own lines carry no record rule of their own: the minute's rules decide who reaches them.
+    'ems.minute.agenda': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.agreement.review': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.guest': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.member.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.objective.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.pending.topic': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.section.value': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'resource.calendar': {'teacher': 'r'},
     'resource.calendar.attendance': {'teacher': 'r'},
 }

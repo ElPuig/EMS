@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import patch
-
 from odoo import fields
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
-from .common import create_role_employee, create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 class TestQualityActionRules(TransactionCase):
@@ -20,9 +18,7 @@ class TestQualityActionRules(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # A follow-up notifies the agreement's followers: no real email may leave a test.
-        mail_patcher = patch('odoo.addons.base.models.ir_mail_server.IrMailServer.send_email')
-        mail_patcher.start()
-        cls.addClassCleanup(mail_patcher.stop)
+        mock_outgoing_email(cls)
         cls.type = cls.env.ref('__import__.minute_type_dep')
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)
         cls.dep_a = cls.env['hr.department'].create({'name': 'Action Rules Department A'})

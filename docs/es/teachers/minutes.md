@@ -86,7 +86,7 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 8. Guardad. El **código** del acta, que habéis visto formarse en la parte superior del formulario a medida
    que informabais el tipo, el ámbito y la fecha, queda asignado.
 
-## Lo que ya no tenéis que hacer a mano
+## Lo que se rellena solo
 
 - **La lista de asistentes.** Viene del ámbito.
 - **Copiar los acuerdos abiertos de la reunión anterior.** En la pestaña **Acta anterior** encontraréis

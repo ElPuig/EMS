@@ -86,7 +86,7 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 8. Deseu. El **codi** de l'acta, que heu vist formar-se a dalt del formulari a mesura que informàveu el
    tipus, l'àmbit i la data, queda assignat.
 
-## El que ja no heu de fer a mà
+## El que s'omple sol
 
 - **La llista d'assistents.** Ve de l'àmbit.
 - **Copiar els acords oberts de la reunió anterior.** A la pestanya **Acta anterior** hi trobareu els

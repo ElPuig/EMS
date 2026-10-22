@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import patch
-
 from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from .common import mock_outgoing_email
 from .test_quality_minute_rules import MinuteRulesFixtures
 
 
@@ -17,9 +16,7 @@ class TestQualityMinuteGuest(MinuteRulesFixtures, TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         # The call is an email: no real one may leave a test.
-        mail_patcher = patch('odoo.addons.base.models.ir_mail_server.IrMailServer.send_email')
-        mail_patcher.start()
-        cls.addClassCleanup(mail_patcher.stop)
+        mock_outgoing_email(cls)
 
     def _minute_with_guests(self):
         public_a = self.env['hr.employee.public'].browse(self.employee_a.id)

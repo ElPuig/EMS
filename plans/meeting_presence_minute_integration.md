@@ -1,8 +1,6 @@
-Status: CURRENT as of 2026-09-26 - written when issue #521 (meeting attendance with the NFC tag)
-was implemented, before the quality work's minutes (issue #497, branch `497-quality-phase-2`)
-were merged. Re-verify against the merged code before starting: `ems.minute`'s fields and the
-`views/minutes_agreements/` folder may have moved. Delete this file once the integration lands
-(the real docs, `docs/en/developers/meetings/meeting_presence.md`, become the reference).
+Status: CURRENT as of 2026-10-22. Steps 1-3 and the tests for them are done and ship with issue #497
+(branch `497-quality-phase-2`); steps 4 and 5 are still open. Delete this file once they land (the real
+docs, `docs/en/developers/meetings/meeting_presence.md`, become the reference).
 
 # Joining meeting attendance (#521) and the minutes (#497)
 

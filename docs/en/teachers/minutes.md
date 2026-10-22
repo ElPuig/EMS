@@ -87,7 +87,7 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 8. Save. The minute's **code**, which you saw build up at the top of the form as you filled in the type,
    the scope and the date, is now issued.
 
-## What you no longer do by hand
+## What fills in by itself
 
 - **The attendee list.** It comes from the scope.
 - **Copying the open agreements of the previous meeting.** The **Previous minute** tab already holds the

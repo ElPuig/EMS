@@ -5,7 +5,7 @@ from datetime import timedelta
 from odoo import fields
 from odoo.tests.common import Form, TransactionCase
 
-from .common import create_role_employee, create_role_user
+from .common import create_role_employee, create_role_user, mock_outgoing_email
 
 
 class TestQualityAction(TransactionCase):
@@ -13,6 +13,8 @@ class TestQualityAction(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # A follow-up notifies the agreement's followers: no real email may leave a test.
+        mock_outgoing_email(cls)
         cls.course = cls.env['ems.course'].search([('is_current', '=', True)], limit=1)
         if not cls.course:
             cls.course = cls.env['ems.course'].create({'start': 2026, 'end': 2027, 'is_current': True})

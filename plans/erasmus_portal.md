@@ -1,6 +1,6 @@
 # Erasmus+ calls and mobilities inside EMS
 
-**Status: design, current as of 2026-10-22. Phases 1 (#683), 2 (#684), 3 (#685) and 4 (#686) implemented on their branches, not merged yet: what it
+**Status: design, current as of 2026-10-22. Phase 5 (#687) designed in section 10. Phases 1 (#683), 2 (#684), 3 (#685) and 4 (#686) implemented on their branches, not merged yet: what it
 ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Design of record for the
 umbrella issue #682 and its phase issues (#683-#687); keep it current as each phase lands, then delete it once the
 last phase ships (its contents folded into `docs/en/developers/erasmus/` and the role manuals).
@@ -331,10 +331,10 @@ graph LR
   panel configuration and ratings, manual merits, staff scoring and tie-breaks, project/period
   assignment, one place per person. Reuses F1-F3, including "Export to spreadsheet": for staff,
   Ciclo formativo, Curso and the legal guardian columns stay empty (decided 2026-10-22).
-- **F5 - Mobility preparation** *(large; second delivery)*. Destination choice by rank, own
-  proposals, host entity, documents and signers (signed outside EMS and uploaded), checklist per
-  modality (OLS, virtual component for GS, return documents), Director validation of staff
-  activities.
+- **F5 - Mobility preparation** *(large; second delivery; design in section 10)*. Destination choice by rank
+  on the portal, own proposals, host entities, preparation and return documents with signers (signed
+  outside EMS and uploaded), checklist per modality, Director validation of staff activities, graduates
+  keep the portal until their mobility closes.
 - **Later (no issue yet):** integrated self-hosted e-signature (third delivery).
 
 Out of scope for all phases: grant calculation and payments, generating official documents,
@@ -359,12 +359,12 @@ Execution notes, all phases:
 
 ## 9. Open points (do not block F1)
 
-- **Any CFGM/CFGS student can apply, not only 2nd year** (coordinator, 2026-10-22). Art. 6 of the
-  student call still says "segon curs" and must be changed before publishing. Art. 4's note on
-  graduates doing the summer mobility is information for applicants only: it has no effect on EMS.
-- **Staff means FP staff, including those teaching only in PFI or CFGB** (coordinator, 2026-10-22).
-  Art. 6 of the staff call says "vinculació amb els cicles formatius de grau mitjà o de grau
-  superior"; if PFI/CFGB staff are meant to be included, the text should say so explicitly.
+- ~~Art. 6 of the student call said "segon curs"~~: fixed in the draft 2026-10-22 (also the last sentence
+  of art. 4's summer stays row, which said the same). Staff: "professorat de FP" already covers PFI and
+  CFGB (coordinator, 2026-10-22), no change.
+- Art. 15 of the student call says the coordination contacts the selected in rank order: with phase 5
+  the choice is made on the portal, by turns, with an email when the turn starts (section 10). The call
+  text should say so, with the turn's length.
 - Where the official call text says "the online form published on the centre's website" (art. 7):
   the calls must be updated to point to EMS before publishing.
 - Seniority < 1 year = 0 is agreed but not yet in the staff call text.
@@ -372,4 +372,135 @@ Execution notes, all phases:
   stated in the student call.
 - How to count repeated staff merits per year/role before automating criteria 3 and 6 (manual for
   now).
-- How EMS keeps graduates' portal accounts, needed for summer mobilities after graduation (F5).
+- ~~How EMS keeps graduates' portal accounts~~: decided for F5 (section 10.7).
+
+## 10. Phase 5 design: mobility preparation (#687)
+
+Decided with the coordinator 2026-10-22: students choose their destination **on the portal, by
+turns**; graduates **keep the portal until their mobility is closed**; a staff member whose proposal
+the Director rejects **proposes another one on the portal**; host entities are **reusable contacts**.
+The rest are proposals of this design, to confirm when testing.
+
+### 10.1. Models
+
+```mermaid
+erDiagram
+    ems_erasmus_call ||--o{ ems_erasmus_destination : "destination_ids"
+    ems_erasmus_destination }o--|| ems_erasmus_call_modality : "modality_id"
+    ems_erasmus_call ||--o{ ems_erasmus_call_task : "task_ids (checklist)"
+    ems_erasmus_application ||--o| ems_erasmus_mobility : "mobility_ids (one)"
+    ems_erasmus_mobility }o--o| ems_erasmus_destination : "destination_id"
+    ems_erasmus_mobility }o--o| res_partner : "host_partner_id, host_contact_id"
+    ems_erasmus_mobility ||--o{ ems_erasmus_application_document : "document_ids (preparation, return)"
+    ems_erasmus_mobility ||--o{ ems_erasmus_mobility_task : "task_ids"
+```
+
+- **`ems.erasmus.destination`** (students' call): modality, name, country, city, places, the levels it
+  suits (empty = every level of the modality; "places suitable for the profile", art. 15), period
+  (start/end dates, may be empty until agreed), host entities, notes. `free_places` = places minus the
+  mobilities on it not cancelled. Copied with the call.
+- **`ems.erasmus.mobility`** (`ems.base`, chatter and activities): one per application whose place is
+  accepted, created when the offer is accepted. Holds what happens after selection; the application
+  keeps the selection. Fields: destination, country, city, host entity (`res.partner` company tagged
+  *Erasmus+ host entity*) and its contact person, start/end dates, the proposal (own destination of a
+  student, or the staff activity) with its decision, preparation/return documents and checklist.
+- **`ems.erasmus.call.document`** gets `stage` (`application`, default / `preparation` / `return`),
+  `modality_ids` (empty = all) and who signs it (participant, legal guardian, centre, host entity:
+  four booleans, signed outside EMS and uploaded). Application lines are created only for
+  `application` documents; the mobility gets the `preparation` and `return` ones of its modality.
+  Same line model, same review (pending / valid / needs changes), every version kept. Uploaded by the
+  participant on the portal or by the team.
+- **`ems.erasmus.call.task`** / **`ems.erasmus.mobility.task`**: the checklist of things that are not
+  a document (preparation sessions, OLS, GS virtual component, EU Survey, dissemination session), per
+  stage and modality; the team ticks them (who and when stamped).
+- New call fields: `choice_turn_hours` (length of a choice turn, default 72), `choice_open` (set by
+  *Open destination choice*), `preparation_deadline` (travel and preparation documents, art. 17),
+  `return_days` (days after the end date to hand in the return documents, default 30, staff art. 15).
+- Defaults, added on create like the staff documents of phase 4 (editable): students' preparation
+  documents (identity document, European health insurance card, minors' travel authorisation, signed
+  commitment letter (annex 3), grant agreement, learning agreement GM / Learning Agreement for
+  Traineeships GS) and return (certificate of stay); staff preparation (identity document, health card,
+  grant agreement, mobility programme signed by participant, centre and host) and return (certificate
+  of stay or attendance, report with evidence). Tasks: students (preparation sessions, OLS course, GS
+  virtual component; return: EU Survey, dissemination); staff (preparation meetings, activities left
+  for their groups; return: EU Survey, dissemination session).
+
+### 10.2. Mobility states
+
+```mermaid
+stateDiagram-v2
+    [*] --> choosing: offer accepted
+    choosing --> preparing: destination chosen / proposal validated / only one destination
+    choosing --> cancelled: rejects every destination (back to reserve), no answer in turn, renounces
+    preparing --> done: Close (team, return documents and tasks complete)
+    preparing --> cancelled: renounces / team cancels with a reason
+```
+
+Cancelling frees the place: the offer becomes `renounced` (or `returned` when the student goes back
+to the reserve list) and the team offers it to the next reserve with the existing wizard (never
+automatic). A student back on the reserve list keeps their score and is proposed after the other
+reserves.
+
+### 10.3. Destination choice (students, art. 15)
+
+- The team configures the destinations, then clicks **Open destination choice** on the call.
+- A modality with **one destination**: every mobility of it is assigned directly (art. 15).
+- Otherwise, per modality, **one turn at a time**: EMS gives the turn to the best-ranked mobility
+  still choosing (and without an own proposal waiting), sets `turn_deadline` = now +
+  `choice_turn_hours` and emails it. On the portal they choose among the destinations with free
+  places that suit their level, or say none suits them / they are not available (back to the reserve
+  list). Choosing ends the turn and starts the next one.
+- No answer by the turn's deadline = they lose the place (art. 15): the hourly cron cancels the
+  mobility (application `renounced`) and starts the next turn.
+- A reserve who accepts later joins the queue by rank.
+
+### 10.4. Own proposal (students) and staff validation
+
+One proposal block on the mobility for both: country, city, host entity (text), contact email,
+dates, activity (staff), a file (the host's written commitment for students), `proposal_state`
+(`pending` / `validated` / `rejected`), reason, who decided and when.
+
+- **Student:** proposes it on the portal while choosing (art. 15: the host entity also writes to
+  coordination). The **Erasmus team** validates it (the place counts in its modality) or rejects it
+  with a reason; rejected, they go back to choosing the centre's destinations.
+- **Staff:** the mobility starts with the proposal copied from the application and `pending`; the
+  **Director** (`ems.group_director`, or the administrator) validates it or rejects it with a reason
+  (staff art. 4 and 14). Rejected, the staff member changes it on the portal and sends it again.
+  Validated: preparing. Pending proposals give the validator a to-do (`mail.activity`).
+- On validation the team links the host entity contact (creating it if new) and the dates.
+
+### 10.5. Documents, checklist and deadlines
+
+- The portal shows the mobility's documents with who signs each one and the deadline
+  (`preparation_deadline`, or end date + `return_days`), and the checklist (read only).
+- *Notify pending documents* (team) emails the list of missing or *needs changes* documents.
+- `preparation_complete` / `return_complete` (every required line valid, every task done) are shown
+  on the list; **Close** needs `return_complete`.
+
+### 10.6. Portal
+
+The call page gets a *Mobility* card for an accepted place: state, turn (destinations to choose,
+deadline), own proposal form, staff proposal (editable when rejected), documents to upload, checklist,
+and *Renounce the place* (warning about art. 18 costs). Same controller rules as before: the
+participant from the session, sudo, state checks in the model.
+
+### 10.7. Graduates (summer mobilities)
+
+The course transition (`_apply_graduates`) does not revoke the portal nor archive a graduate with a
+mobility `choosing` or `preparing`; it reports it. When that mobility is closed or cancelled, EMS
+revokes the portal and archives the contact as the transition would have.
+
+### 10.8. Access
+
+| | Participant | Erasmus team | Head of Studies | Director |
+|---|---|---|---|---|
+| Destinations, call tasks | - | rwcu | r | r |
+| Mobilities | own (portal) | rwcu | r | r + **validate staff proposals** |
+| Mobility tasks | own (portal, read) | rwcu | r | r |
+
+Menu *Erasmus+ > Mobilities* (team, Head of Studies, Director).
+
+### 10.9. Out of scope
+
+Grants and payments, leave registration (the staff mobility is still a training leave, entered as
+today), integrated e-signature, generating the documents.

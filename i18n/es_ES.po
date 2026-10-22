@@ -23554,13 +23554,14 @@ msgid ""
 "The other halves of the same split group. When a teacher is away, the guard "
 "duty board can propose that a teacher who teaches them the same subject "
 "teaches both halves together. Setting it on one half sets it on the other "
-"too, and both halves share their tutor, delegate and sub-delegate."
+"too. A half with no tutor, delegate or sub-delegate takes the other half's; "
+"replacing one it already has is asked first."
 msgstr ""
 "Las otras mitades del mismo grupo desdoblado. Cuando falta un docente, el "
 "horario de guardias puede proponer que un docente que les da la misma "
 "materia dé clase a las dos mitades a la vez. Si se indica en una mitad, la "
-"otra también lo tiene, y las dos mitades comparten tutor, delegado y "
-"subdelegado."
+"otra también lo tiene. Una mitad sin tutor, delegado o subdelegado toma los "
+"de la otra mitad; antes de sustituir uno que ya tiene, se pide confirmación."
 
 #. module: ems
 #. odoo-python
@@ -23582,18 +23583,45 @@ msgstr "%(group)s: %(field)s %(current)s será sustituido por %(new)s."
 #. odoo-python
 #: code:addons/ems/models/contacts/group.py:0
 msgid ""
-"The halves of a split group share their tutor, delegate and sub-delegate:"
+"The halves of a split group usually share their tutor, delegate and sub-"
+"delegate. If you replicate them:"
 msgstr ""
-"Las mitades de un grupo desdoblado comparten tutor, delegado y subdelegado:"
+"Las mitades de un grupo desdoblado suelen compartir tutor, delegado y "
+"subdelegado. Si los replicas:"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/group.py:0
-msgid "Do you want to link them anyway?"
-msgstr "¿Quieres enlazarlas igualmente?"
+msgid ""
+"Replicate them, or keep each half's own (co-tutors, a delegate per half)?"
+msgstr ""
+"¿Quieres replicarlos o que cada mitad mantenga los suyos (cotutores, un "
+"delegado por mitad)?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"Only the tutor, delegate and sub-delegate of a group's other halves can be "
+"replicated."
+msgstr ""
+"Solo se pueden replicar el tutor, el delegado y el subdelegado a las otras "
+"mitades de un grupo."
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/group_form_controller.js:0
-msgid "Link these halves?"
-msgstr "¿Enlazar estas mitades?"
+msgid "Replicate to the other halves?"
+msgstr "¿Replicar a las otras mitades?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Replicate"
+msgstr "Replicar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Keep each half's own"
+msgstr "Cada mitad mantiene los suyos"

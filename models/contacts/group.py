@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from odoo import models, fields, api, _
-from odoo.exceptions import RedirectWarning, ValidationError
+from odoo.exceptions import RedirectWarning, UserError, ValidationError
 
 from ..shared.attendance_mixin import EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
@@ -72,13 +72,15 @@ class EmsGroup(models.Model):
 		help="The main groups of this group's enrolled students that are not among its main groups.")
 	# Issue #676: the other halves of the same split group, which the guard duty board may teach
 	# together (issue #660). Set by hand: sharing a lesson is not enough (DAM2A and DAM2B share some
-	# without being halves). Always mutual, and the halves share their tutor, delegate and
-	# sub-delegate (JOINABLE_SHARED_FIELDS), see _mirror_joinable_groups.
+	# without being halves). Always mutual. The halves usually share their tutor, delegate and
+	# sub-delegate (JOINABLE_SHARED_FIELDS), but may have their own (issue #688): only blanks are
+	# filled on their own, see _mirror_joinable_groups.
 	joinable_group_ids = fields.Many2many(string="Joins with", comodel_name="ems.group", relation="ems_group_joinable_rel",
 		column1="group_id", column2="joinable_id", domain="[('id', '!=', id)]",
 		help="The other halves of the same split group. When a teacher is away, the guard duty board can propose "
 			"that a teacher who teaches them the same subject teaches both halves together. Setting it on one half "
-			"sets it on the other too, and both halves share their tutor, delegate and sub-delegate.")
+			"sets it on the other too. A half with no tutor, delegate or sub-delegate takes the other half's; "
+			"replacing one it already has is asked first.")
 	main_student_ids = fields.One2many(string="Students", comodel_name="res.partner", inverse_name="main_group_id", domain="[('contact_type', '=', 'student')]")
 	enrolled_student_ids = fields.Many2many(string="Enrolled", comodel_name="res.partner", compute="_compute_enrolled_student_ids")
 	enrollment_view_ids = fields.One2many(string="Enrollment", comodel_name="ems.enrollment_view", inverse_name="group_id", compute="_compute_enrollment_ids") # Contains the same data as enrolled_student_ids but filtered for the current group (sadly, it cannot be filtered on view...)
@@ -294,10 +296,10 @@ class EmsGroup(models.Model):
 
 	def _mirror_joinable_groups(self, before):
 		"""Keep 'Joins with' mutual (issue #676): every group added to (removed from) a group's
-		halves gets (loses) that group too. A half just added takes this group's tutor, delegate and
-		sub-delegate; where this group has none, it takes the half's instead (the form asks first
-		when both have one and they differ, see get_joinable_confirmation_message). `before`:
-		`{group id: its previous halves}`."""
+		halves gets (loses) that group too. Linking only fills blanks (issue #688): a half just added
+		takes this group's tutor, delegate and sub-delegate where it has none, and this group the
+		half's where it has none. Replacing a value either side already has is the form's question
+		(see get_joinable_confirmation_message). `before`: `{group id: its previous halves}`."""
 		Group = self.env['ems.group']
 		for group in self:
 			previous = before.get(group.id, Group)
@@ -306,35 +308,63 @@ class EmsGroup(models.Model):
 			blanks = {field: source[field].id for field, source in sources.items() if source}
 			if blanks:
 				group.with_context(ems_skip_joinable_mirror=True).write(blanks)
-			shared = {field: group[field].id for field in JOINABLE_SHARED_FIELDS}
 			for half in added:
-				half.with_context(ems_skip_joinable_mirror=True).write({'joinable_group_ids': [(4, group.id)], **shared})
+				half.with_context(ems_skip_joinable_mirror=True).write({
+					'joinable_group_ids': [(4, group.id)],
+					**{field: group[field].id for field in JOINABLE_SHARED_FIELDS if group[field] and not half[field]}})
 			for half in previous - group.joinable_group_ids:
 				half.with_context(ems_skip_joinable_mirror=True).write({'joinable_group_ids': [(3, group.id)]})
 
+	def _fill_joinable_blanks(self, fields_):
+		"""A later change of shared `fields_` reaches only the halves that have none (issue #688):
+		replacing a half's own (a co-tutor) is the form's question."""
+		for group in self:
+			for half in group.joinable_group_ids:
+				blanks = {field: group[field].id for field in fields_ if group[field] and not half[field]}
+				if blanks:
+					half.with_context(ems_skip_joinable_mirror=True).write(blanks)
+
 	def get_joinable_confirmation_message(self, joinable_ids, values):
-		"""RPC-callable from the group form before saving (issue #676): what the halves about to be
-		added to `self` (empty when new) in `joinable_ids` would lose, since they take this group's
-		tutor, delegate and sub-delegate (`values`, `{field: id or False}`, as on the form). False
-		when nothing is lost: a blank on either side or the same value."""
+		"""RPC-callable from the group form before saving (issue #688): which halves in
+		`joinable_ids` (the form's, `self` empty when new) would get a tutor, delegate or
+		sub-delegate of `values` (`{field: id or False}`, as on the form) in place of one of their
+		own: those being linked, for every shared value, and those already linked, for the values
+		this save changes (a difference already there, a co-tutor say, is kept). Saving never
+		replaces them by itself: the form asks, and replicates (action_replicate_joinable_fields)
+		only if told to. `{'message', 'replicate': [[half id, field]]}`, or False when nothing
+		would be lost."""
 		self.check_access('write')
-		added = self.browse(joinable_ids) - self.joinable_group_ids
-		lines = []
-		for half in added:
+		linked = self.joinable_group_ids
+		lines, replicate = [], []
+		for half in self.browse(joinable_ids):
 			for field in JOINABLE_SHARED_FIELDS:
-				current = half[field]
-				if values.get(field) and current and current.id != values[field]:
-					lines.append(_("%(group)s: %(field)s %(current)s will be replaced by %(new)s.",
-						group=half.name, field=self._fields[field].get_description(self.env)['string'],
-						current=current.display_name, new=current.browse(values[field]).display_name))
+				current, new = half[field], values.get(field)
+				if not new or not current or current.id == new or (half in linked and self[field].id == new):
+					continue
+				lines.append(_("%(group)s: %(field)s %(current)s will be replaced by %(new)s.",
+					group=half.name, field=self._fields[field].get_description(self.env)['string'],
+					current=current.display_name, new=current.browse(new).display_name))
+				replicate.append([half.id, field])
 		if not lines:
 			return False
-		return "\n".join([
-			_("The halves of a split group share their tutor, delegate and sub-delegate:"),
+		return {'message': "\n".join([
+			_("The halves of a split group usually share their tutor, delegate and sub-delegate. If you replicate them:"),
 			*lines,
 			"",
-			_("Do you want to link them anyway?"),
-		])
+			_("Replicate them, or keep each half's own (co-tutors, a delegate per half)?"),
+		]), 'replicate': replicate}
+
+	def action_replicate_joinable_fields(self, replicate):
+		"""Called by the group form after saving, when the user chose to replicate (issue #688):
+		gives each half of `replicate` (`[[half id, field]]`, see get_joinable_confirmation_message)
+		this group's value of that field."""
+		self.ensure_one()
+		self.check_access('write')
+		for half_id, field in replicate:
+			half = self.browse(half_id)
+			if half not in self.joinable_group_ids or field not in JOINABLE_SHARED_FIELDS:
+				raise UserError(_("Only the tutor, delegate and sub-delegate of a group's other halves can be replicated."))
+			half.with_context(ems_skip_joinable_mirror=True).write({field: self[field].id})
 
 	def _archive_confirmation_message(self):
 		# Archiving is always allowed (it never removes/unenrolls anyone) - this only builds the
@@ -416,10 +446,8 @@ class EmsGroup(models.Model):
 				self._raise_if_archived_duplicate(self)
 		if mirror:
 			self._mirror_joinable_groups(old_halves)
-		for group in self.filtered('joinable_group_ids') if shared else ():
-			# The halves just linked already took them from _mirror_joinable_groups.
-			halves = group.joinable_group_ids & old_halves.get(group.id, group.joinable_group_ids)
-			halves.with_context(ems_skip_joinable_mirror=True).write({field: group[field].id for field in shared})
+		if shared:
+			self.filtered('joinable_group_ids')._fill_joinable_blanks(shared)
 		new_tutor = self.tutor_id
 
 		if 'tutor_id' in vals:

@@ -1,4 +1,4 @@
-from odoo.exceptions import AccessError, RedirectWarning, ValidationError
+from odoo.exceptions import AccessError, RedirectWarning, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools.safe_eval import safe_eval
 
@@ -444,41 +444,79 @@ class TestGroup(TransactionCase):
         with self.assertRaises(ValidationError):
             self.test_group.joinable_group_ids = split
 
-    def test_halves_share_their_tutor_and_delegates(self):
-        """Issue #676: linking takes the edited group's tutor, delegate and sub-delegate onto the
-        new half, and the half's own where the edited group has none; from then on, changing one on
-        either half changes it on the other."""
+    def _halves_tutors(self, prefix):
+        return self.env['hr.employee'].create([{'name': f'{prefix} Tutor {n}', 'employee_type': 'teacher'} for n in (1, 2, 3)])
+
+    def test_linking_only_fills_the_blanks(self):
+        """Issue #688: the halves of a split group usually share their tutor, delegate and
+        sub-delegate, but may have their own (co-tutors, a delegate per half): linking only fills
+        what each side has empty, on create too, and never replaces anything on its own."""
         half_b, = self._halves('B')
-        tutor, other_tutor = self.env['hr.employee'].create([{'name': f'Test Halves Tutor {n}', 'employee_type': 'teacher'}
-                                                             for n in (1, 2)])
-        delegate = self._main_student('Test Halves Delegate A')
-        subdelegate = self._main_student('Test Halves Subdelegate B', half_b)
+        tutor, other_tutor, _third = self._halves_tutors('Test Blanks')
+        delegate = self._main_student('Test Blanks Delegate A')
+        subdelegate = self._main_student('Test Blanks Subdelegate B', half_b)
         self.test_group.write({'tutor_id': tutor.id, 'delegate_id': delegate.id})
         half_b.write({'tutor_id': other_tutor.id, 'subdelegate_id': subdelegate.id})
 
         self.test_group.joinable_group_ids = half_b
 
-        for group in self.test_group | half_b:
-            self.assertEqual((group.tutor_id, group.delegate_id, group.subdelegate_id), (tutor, delegate, subdelegate),
-                             group.name)
-        half_b.tutor_id = other_tutor
-        self.assertEqual(self.test_group.tutor_id, other_tutor)
+        self.assertEqual((self.test_group.tutor_id, self.test_group.delegate_id, self.test_group.subdelegate_id),
+                         (tutor, delegate, subdelegate))
+        self.assertEqual((half_b.tutor_id, half_b.delegate_id, half_b.subdelegate_id), (other_tutor, delegate, subdelegate),
+                         "half_b keeps its own tutor")
         created = self.env['ems.group'].create({'course': 1, 'acronym': 'C', 'level_id': self.test_level.id,
                                                 'study_id': self.test_study.id, 'joinable_group_ids': [(6, 0, half_b.ids)]})
         self.assertEqual((created.tutor_id, created.delegate_id), (other_tutor, delegate),
                          "a group created as a half takes the other half's where it has none")
 
-    def test_linking_asks_only_when_a_half_would_lose_its_own(self):
+    def test_a_later_change_only_fills_the_other_halves_blanks(self):
+        half_b, = self._halves('B')
+        tutor, _other, new_tutor = self._halves_tutors('Test Change')
+        delegate = self._main_student('Test Change Delegate B', half_b)
+        self.test_group.write({'tutor_id': tutor.id, 'joinable_group_ids': [(6, 0, half_b.ids)]})
+
+        self.test_group.write({'tutor_id': new_tutor.id, 'delegate_id': delegate.id})
+
+        self.assertEqual(half_b.tutor_id, tutor, "replacing it on the other half is the form's question (see below)")
+        self.assertEqual(half_b.delegate_id, delegate, "it had none")
+
+    def test_replicating_replaces_only_what_was_asked(self):
         half_b, half_c = self._halves('B', 'C')
-        tutor, other_tutor = self.env['hr.employee'].create([{'name': f'Test Ask Tutor {n}', 'employee_type': 'teacher'}
-                                                             for n in (1, 2)])
+        tutor, other_tutor, _third = self._halves_tutors('Test Replicate')
+        delegate, other_delegate = (self._main_student(f'Test Replicate Delegate {n}', half_b) for n in (1, 2))
+        self.test_group.write({'tutor_id': tutor.id, 'delegate_id': delegate.id})
+        (half_b | half_c).write({'tutor_id': other_tutor.id, 'delegate_id': other_delegate.id})
+        self.test_group.joinable_group_ids = half_b | half_c
+
+        self.test_group.action_replicate_joinable_fields([[half_b.id, 'tutor_id']])
+
+        self.assertEqual((half_b.tutor_id, half_b.delegate_id), (tutor, other_delegate))
+        self.assertEqual(half_c.tutor_id, other_tutor)
+        outsider, = self._halves('D')
+        with self.assertRaises(UserError):
+            self.test_group.action_replicate_joinable_fields([[outsider.id, 'tutor_id']])
+        with self.assertRaises(UserError):
+            self.test_group.action_replicate_joinable_fields([[half_b.id, 'name']])
+
+    def test_the_form_asks_before_a_half_would_lose_its_own(self):
+        """What the form asks before saving (issue #688): linking a half, or changing a shared value,
+        when the other half has a different one of its own; never for a difference already there
+        (co-tutors) when that value is not being changed."""
+        half_b, half_c = self._halves('B', 'C')
+        tutor, other_tutor, new_tutor = self._halves_tutors('Test Ask')
         half_b.tutor_id = tutor
         half_c.tutor_id = other_tutor
         values = {'tutor_id': tutor.id, 'delegate_id': False, 'subdelegate_id': False}
+        ask = self.test_group.get_joinable_confirmation_message
 
-        self.assertFalse(self.test_group.get_joinable_confirmation_message(half_b.ids, values), "the same tutor")
-        self.assertFalse(self.test_group.get_joinable_confirmation_message(
-            half_c.ids, dict(values, tutor_id=False)), "nothing set on the edited group")
-        message = self.test_group.get_joinable_confirmation_message((half_b | half_c).ids, values)
-        self.assertIn(f"{half_c.name}: Tutor {other_tutor.name} will be replaced by {tutor.name}.", message)
-        self.assertNotIn(f"{half_b.name}:", message)
+        self.assertFalse(ask(half_b.ids, values), "the same tutor")
+        self.assertFalse(ask(half_c.ids, dict(values, tutor_id=False)), "nothing set on the edited group")
+        question = ask((half_b | half_c).ids, values)
+        self.assertIn(f"{half_c.name}: Tutor {other_tutor.name} will be replaced by {tutor.name}.", question['message'])
+        self.assertNotIn(f"{half_b.name}:", question['message'])
+        self.assertEqual(question['replicate'], [[half_c.id, 'tutor_id']])
+
+        self.test_group.write({'tutor_id': tutor.id, 'joinable_group_ids': [(6, 0, (half_b | half_c).ids)]})
+        self.assertFalse(ask((half_b | half_c).ids, values), "half_c's own tutor, unchanged: a co-tutor")
+        question = ask((half_b | half_c).ids, dict(values, tutor_id=new_tutor.id))
+        self.assertEqual(question['replicate'], [[half_b.id, 'tutor_id'], [half_c.id, 'tutor_id']])

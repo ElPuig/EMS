@@ -23549,19 +23549,6 @@ msgid "Joins with"
 msgstr "S'uneix amb"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
-msgid ""
-"The other halves of the same split group. When a teacher is away, the guard "
-"duty board can propose that a teacher who teaches them the same subject "
-"teaches both halves together. Setting it on one half sets it on the other "
-"too, and both halves share their tutor, delegate and sub-delegate."
-msgstr ""
-"Les altres meitats del mateix grup desdoblat. Quan falta un docent, l'horari"
-" de guàrdies pot proposar que un docent que els fa la mateixa matèria faci "
-"classe a les dues meitats alhora. Si s'indica en una meitat, l'altra també "
-"el té, i les dues meitats comparteixen tutor, delegat i sotsdelegat."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/group.py:0
 msgid ""
@@ -23576,26 +23563,6 @@ msgstr ""
 #: code:addons/ems/models/contacts/group.py:0
 msgid "%(group)s: %(field)s %(current)s will be replaced by %(new)s."
 msgstr "%(group)s: %(field)s %(current)s serà substituït per %(new)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/group.py:0
-msgid ""
-"The halves of a split group share their tutor, delegate and sub-delegate:"
-msgstr ""
-"Les meitats d'un grup desdoblat comparteixen tutor, delegat i sotsdelegat:"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/contacts/group.py:0
-msgid "Do you want to link them anyway?"
-msgstr "Les vols enllaçar igualment?"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
-msgid "Link these halves?"
-msgstr "Enllaçar aquestes meitats?"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__stayed_employee_ids
@@ -23783,3 +23750,78 @@ msgstr "no és amb l'altra meitat en aquella hora"
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Correction to the students of %(groups)s: %(change)s."
 msgstr "Rectificació a l'alumnat de %(groups)s: %(change)s."
+
+#. module: ems
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_group__joinable_group_ids
+msgid ""
+"The other halves of the same split group. When a teacher is away, the guard "
+"duty board can propose that a teacher who teaches them the same subject "
+"teaches both halves together. Setting it on one half sets it on the other "
+"too. A half with no tutor, delegate or sub-delegate takes the other half's; "
+"replacing one it already has is asked first."
+msgstr ""
+"Les altres meitats del mateix grup desdoblat. Quan falta un docent, l'horari"
+" de guàrdies pot proposar que un docent que els fa la mateixa matèria faci "
+"classe a les dues meitats alhora. Si s'indica en una meitat, l'altra també "
+"el té. Una meitat sense tutor, delegat o sotsdelegat agafa els de l'altra "
+"meitat; abans de substituir-ne un que ja té, es demana confirmació."
+
+#. module: ems
+#. odoo-python
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"The halves of a split group usually share their tutor, delegate and sub-"
+"delegate. If you replicate them:"
+msgstr ""
+"Les meitats d'un grup desdoblat solen compartir tutor, delegat i "
+"sotsdelegat. Si els repliques:"
+
+#. module: ems
+#. odoo-python
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"Replicate them, or keep each half's own (co-tutors, a delegate per half)?"
+msgstr ""
+"Vols replicar-los o que cada meitat mantingui els seus (cotutors, un delegat"
+" per meitat)?"
+
+#. module: ems
+#. odoo-python
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/group.py:0
+msgid ""
+"Only the tutor, delegate and sub-delegate of a group's other halves can be "
+"replicated."
+msgstr ""
+"Només es poden replicar el tutor, el delegat i el sotsdelegat a les altres "
+"meitats d'un grup."
+
+#. module: ems
+#. odoo-javascript
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Replicate to the other halves?"
+msgstr "Vols replicar-ho a les altres meitats?"
+
+#. module: ems
+#. odoo-javascript
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Replicate"
+msgstr "Replicar"
+
+#. module: ems
+#. odoo-javascript
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/group_form_controller.js:0
+msgid "Keep each half's own"
+msgstr "Cada meitat manté els seus"

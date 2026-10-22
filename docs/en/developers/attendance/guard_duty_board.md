@@ -1071,6 +1071,13 @@ its own notice: the families of each group are told separately.
   `_notify_arrangements()` so that each teacher is told once per lesson of theirs that moves,
   whatever the number of covers - groups, absent teachers - of that move); for a move, its teacher's
   whole day with every lesson of theirs moved that day (`_cover_schedule_changes()`).
+- **The group's tutors get a copy of every board notice** (#658): when a families' timetable-change
+  notice (`absence_group_id`) or a students' moved-lessons notice (`arrangement_group_id`) enters a
+  communicated state, the state hook in `ems.notice.write()` calls `_notify_group_tutors()`, a
+  `message_notify()` on the notice to each tutor (`tutor_id` of the group and of its
+  `parent_group_ids`, since a reinforcement group has none) with the notice's own text; taken back
+  to draft (`action_cancel()`), they are told it was cancelled. It runs whatever
+  `ems_skip_arrangement_notify` says: that key only defers the teachers' messages.
 - **No longer valid** (`_is_cover_still_needed()`): shown under **Guards no longer needed** with
   **Remove arrangement**.
 

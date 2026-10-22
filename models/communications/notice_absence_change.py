@@ -67,7 +67,8 @@ class EmsNoticeAbsenceChange(models.Model):
         taken back to draft, that it no longer applies. Each teacher is told once, however many
         covers of the same move wait for the notice. A board action that sends notices itself
         (board_apply_plan) tells them afterwards, once for everything it applied, and skips this
-        with the 'ems_skip_arrangement_notify' context key."""
+        with the 'ems_skip_arrangement_notify' context key. The group's tutors get a copy of this
+        notice and of the students' one about moved lessons either way (issue #658)."""
         if 'state' not in vals:
             return super().write(vals)
         before = {notice.id: notice.state in COMMUNICATED_NOTICE_STATES for notice in self}
@@ -78,7 +79,34 @@ class EmsNoticeAbsenceChange(models.Model):
             effective = covers.filtered('is_effective')
             effective._notify_arrangements()
             (covers - effective)._notify_arrangements(cancelled=True)
+        for notice in changed:
+            notice._notify_group_tutors(cancelled=notice.state not in COMMUNICATED_NOTICE_STATES)
         return result
+
+    def _notify_group_tutors(self, cancelled=False):
+        """Tells the tutors of the group a guard duty board notice is about (issue #658) what its
+        students or families have been told - a shorter day, a longer break, lessons at a
+        different time - or, if it is taken back to draft before going out, that it was cancelled:
+        an Odoo message, as their own preference says, like the teachers an arrangement involves.
+        A reinforcement group has no tutor: those of its main groups are told."""
+        self.ensure_one()
+        group = self.absence_group_id or self.arrangement_group_id
+        if not group:
+            return
+        for tutor in (group | group.parent_group_ids).tutor_id:
+            partner = self.env['ems.absence_cover']._guard_partner(tutor)
+            if not partner:
+                continue
+            notice = self.with_context(lang=partner.lang or self.env.lang)
+            values = {'group': group.name, 'subject': self.subject}
+            if cancelled:
+                subject = notice.env._("Notice cancelled: %(subject)s", **values)
+                intro = notice.env._("This notice about group %(group)s has been cancelled:", **values)
+            else:
+                subject = notice.env._("Notice sent to %(group)s: %(subject)s", **values)
+                intro = notice.env._("As tutor, here is a copy of the notice sent about group %(group)s:", **values)
+            body = Markup("<p>{}</p>{}").format(intro, self.message)
+            notice.sudo().message_notify(partner_ids=partner.ids, subject=subject, body=body)
 
     def _absence_change_text(self, changes, group, day, rectification):
         """(subject, html message) proposed for the timetable changes `changes` of `group` on

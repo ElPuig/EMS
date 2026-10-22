@@ -23413,3 +23413,25 @@ msgstr "El documento de identidad del alumno, para encontrarlo en otras aplicaci
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "The resolution comments cannot be changed once the resolution is issued."
 msgstr "Los comentarios de la resolución no se pueden modificar una vez emitida la resolución."
+
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Notice cancelled: %(subject)s"
+msgstr "Comunicado cancelado: %(subject)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "This notice about group %(group)s has been cancelled:"
+msgstr "Se ha cancelado este comunicado sobre el grupo %(group)s:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Notice sent to %(group)s: %(subject)s"
+msgstr "Comunicado enviado a %(group)s: %(subject)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "As tutor, here is a copy of the notice sent about group %(group)s:"
+msgstr "Como tutor o tutora, aquí tienes una copia del comunicado enviado sobre el grupo %(group)s:"

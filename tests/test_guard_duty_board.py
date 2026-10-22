@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group, mock_outgoing_email
+from .common import create_level_study, create_level_study_group, create_role_user, mock_outgoing_email
 
 class GuardDutyBoardCase(TransactionCase):
     """Fixtures and helpers shared by the guard duty board's own tests and the absence
@@ -366,6 +366,19 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertTrue(data['lines'])
         json_data = self.env['ems.course'].with_user(self.teacher_user).get_guard_duty_board_data('0', 'morning')
         self.assertTrue(json_data['lines'])
+
+    def test_secretary_can_open_the_board(self):
+        """The Secretary sees the board's menu without being a teacher (they can be the Area
+        Manager who organises absences): opening it must not hit the covers' own access rights,
+        which only teachers have - the covers-per-guard count (issue #600) is read for everybody."""
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Secretary Access)')
+        calendar_guard.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+        secretary = create_role_user(self, 'secretary', 'test_secretary_for_guard_duty_board')
+        data = self.env['ems.course'].with_user(secretary).get_guard_duty_board_data('0', 'morning', None, str(self._monday()))
+        self.assertTrue(data['lines'])
 
     def test_report_guard_duty_board_renders(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF)')

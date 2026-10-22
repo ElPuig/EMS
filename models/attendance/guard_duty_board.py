@@ -927,10 +927,14 @@ class EmsCourseGuardDutyBoard(models.Model):
         same guard in the same room in the same period count once (issue #629): two groups put
         together in one room are a single guard, while two groups in two rooms are two, and so are
         two periods in a row with the same group. A cover with no room (a guard duty, a class the
-        timetable gives none) always counts by itself."""
+        timetable gives none) always counts by itself.
+
+        sudo: a count everybody who opens the board sees, the Secretary included, who reads it
+        without being a teacher (only teachers can read ems.absence_cover itself). Only the number
+        leaves this method, like the board's other reads of covers (_get_day_covers)."""
         self.ensure_one()
         start, end = self.date_range()
-        periods = self.env['ems.absence_cover']._read_group(
+        periods = self.env['ems.absence_cover'].sudo()._read_group(
             [('guard_employee_id', 'in', guards.ids), ('state', '=', 'assigned'),
              ('date', '>=', start), ('date', '<=', end)],
             ['guard_employee_id', 'date:day', 'space_id', 'hour_from', 'hour_to'], ['__count'])

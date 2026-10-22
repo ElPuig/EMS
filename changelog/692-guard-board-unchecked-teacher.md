@@ -7,3 +7,8 @@
 - "The teacher is in the classroom": the guard on duty in that period, or whoever manages the teacher's absences (chain of command, Direction, administrator), can register the teacher's check-in at the current time from the row of the class in progress. The check-in records who registered it (new "Check-in registered by" field, shown on the attendance form only) and the teacher receives a message saying so.
 - The board updates itself live, with no polling: the server tells every open board through the Odoo bus when a check-in, a guard cover, an absence, an expected absence or a notice to the families changes that day, and the board also reloads when a lesson starts or ends. No spinner, nothing redrawn when nothing changed, and it waits while a dialog is open or the tab is hidden. The same mechanism will serve the guard room TV (#591/#642). Each reload costs the same as opening the board (0.15-0.24 s on the dev database).
 - Teacher and Head of Studies manuals (ca/es/en) and the developer doc updated.
+
+# Fixes:
+
+## Guard duty board: the Secretary got an access error when opening it:
+- A user whose only EMS role is Secretary (or Secretary admin) sees the board's menu, but opening it failed with an access error on the guard covers: the covers-per-guard count (#600) read them with the user's own rights, which only teachers have. It is now read like the board's other cover data, exposing only the number. Found in #692's permission audit; the Quality and Settings roles' own error is a different one, still tracked in #680.

@@ -20,6 +20,7 @@
                            decoration-success="proposal_state == 'validated'" decoration-danger="proposal_state == 'rejected'"/>
                     <field name="preparation_complete" optional="show"/>
                     <field name="return_complete" optional="show"/>
+                    <field name="project_id" optional="show"/>
                     <field name="state" widget="badge" decoration-info="state == 'choosing'"
                            decoration-warning="state == 'preparing'" decoration-success="state == 'done'"/>
                 </list>
@@ -107,6 +108,8 @@
                                        invisible="not host_partner_id"/>
                                 <field name="date_start"/>
                                 <field name="date_end"/>
+                                <field name="project_kind" invisible="1"/>
+                                <field name="project_id" options="{'no_create': True}"/>
                                 <field name="destination_date" invisible="not destination_date"/>
                                 <field name="leave_id" invisible="audience != 'staff' or not leave_id"/>
                             </group>
@@ -147,19 +150,29 @@
                                         <field name="signers"/>
                                         <field name="deadline"/>
                                         <field name="is_required"/>
-                                        <field name="prepared_by_team" column_invisible="1"/>
+                                        <field name="handled_by" optional="hide"/>
                                         <field name="prepared_attachment_ids" widget="many2many_binary"
-                                               readonly="not prepared_by_team"/>
-                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                               readonly="handled_by == 'participant'"/>
+                                        <field name="attachment_ids" widget="many2many_binary"
+                                               readonly="handled_by == 'team'"/>
                                         <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
                                                decoration-danger="review_state == 'needs_change'"/>
                                         <field name="review_comment"/>
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
-                                                invisible="review_state == 'valid' or not attachment_ids"/>
+                                                invisible="handled_by == 'team' or review_state == 'valid' or not attachment_ids"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes"
-                                                icon="fa-pencil" invisible="review_state == 'needs_change'"/>
+                                                icon="fa-pencil" invisible="handled_by == 'team' or review_state == 'needs_change'"/>
                                     </list>
                                 </field>
+                            </page>
+                            <page string="Commitment letter" name="commitment" invisible="not commitment_signed_date and not commitment_pending">
+                                <field name="commitment_pending" invisible="1"/>
+                                <group>
+                                    <field name="commitment_signed_date"/>
+                                    <field name="commitment_signed_by_id"/>
+                                    <field name="commitment_signed_ip"/>
+                                </group>
+                                <field name="commitment_signed_text" invisible="not commitment_signed_date"/>
                             </page>
                             <page string="Checklist" name="checklist">
                                 <field name="task_ids">

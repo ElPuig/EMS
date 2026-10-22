@@ -197,7 +197,7 @@ class EmsPortalErasmusController(CustomerPortal):
                 website=True)
     def portal_erasmus_mobility(self, call_id, step, **post):
         """The participant's own mobility of this call: choose a destination in their turn, send a
-        proposal, upload documents or renounce the place."""
+        proposal, upload documents, sign the commitment letter or renounce the place."""
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
@@ -231,6 +231,8 @@ class EmsPortalErasmusController(CustomerPortal):
                     if files:
                         uploads[line.call_document_id.id] = files
                 mobility._ems_portal_upload(uploads)
+            elif step == 'commitment':
+                mobility.action_sign_commitment(bool(post.get('accepted')), request.httprequest.remote_addr)
             elif step == 'renounce':
                 mobility.action_renounce((post.get('reason') or '').strip()[:2000] or False)
             else:

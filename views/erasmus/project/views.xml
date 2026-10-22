@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #687 - the centre's Erasmus+ projects, to which each mobility is assigned. -->
+        <record id="view_erasmus_project_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.project.list</field>
+            <field name="model">ems.erasmus.project</field>
+            <field name="arch" type="xml">
+                <list string="Projects" editable="bottom" decoration-muted="not active">
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="date_start"/>
+                    <field name="date_end"/>
+                    <field name="active" widget="boolean_toggle"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_project_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.project.search</field>
+            <field name="model">ems.erasmus.project</field>
+            <field name="arch" type="xml">
+                <search string="Projects">
+                    <field name="name"/>
+                    <filter name="inactive" string="Archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_kind" string="Kind" context="{'group_by': 'kind'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_erasmus_project" model="ir.actions.act_window">
+            <field name="name">Projects</field>
+            <field name="res_model">ems.erasmus.project</field>
+            <field name="view_mode">list</field>
+        </record>
+    </data>
+</odoo>

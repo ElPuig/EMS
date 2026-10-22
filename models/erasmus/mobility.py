@@ -148,6 +148,18 @@ class EmsErasmusMobility(models.Model):
                                       domain="[('parent_id', '=', host_partner_id)]")
     date_start = fields.Date(string="Start", tracking=True)
     date_end = fields.Date(string="End", tracking=True)
+    project_kind = fields.Selection(string="Project of the modality", related='modality_id.project')
+    project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', tracking=True,
+                                 domain="[('kind', '=', project_kind)]",
+                                 help="The Erasmus+ project the mobility is charged to: CFGM on a KA121-VET project, "
+                                      "CFGS on a KA131-HED one.")
+    commitment_signed_date = fields.Datetime(string="Commitment letter signed on", readonly=True)
+    commitment_signed_by_id = fields.Many2one(string="Commitment letter signed by", comodel_name='res.users',
+                                              readonly=True)
+    commitment_signed_ip = fields.Char(string="Signed from IP address", readonly=True)
+    commitment_signed_text = fields.Html(string="Commitment letter signed", readonly=True, sanitize=True,
+                                         help="The text accepted, as it was when it was signed.")
+    commitment_pending = fields.Boolean(string="Commitment letter pending", compute='_compute_commitment_pending')
     destination_date = fields.Date(string="Destination set on", readonly=True,
                                    help="When the destination was chosen, agreed or validated: the documents before "
                                         "leaving are due counting from it.")
@@ -167,14 +179,32 @@ class EmsErasmusMobility(models.Model):
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
     can_validate = fields.Boolean(string="Can validate the proposal", compute='_compute_can_validate')
 
-    @api.depends('document_ids.review_state', 'document_ids.is_required', 'task_ids.done')
+    @api.depends('call_id.commitment_text', 'commitment_signed_date')
+    def _compute_commitment_pending(self):
+        for mobility in self:
+            mobility.commitment_pending = bool(mobility.call_id.commitment_text and not mobility.commitment_signed_date)
+
+    @api.depends('document_ids.review_state', 'document_ids.is_required', 'document_ids.prepared_attachment_ids',
+                 'task_ids.done', 'commitment_pending')
     def _compute_complete(self):
+        """A document the team provides is complete once it is uploaded; the others, once valid.
+        Before leaving, the commitment letter must be signed too."""
         for mobility in self:
             for stage in ('preparation', 'return'):
                 lines = mobility.document_ids.filtered(lambda line: line.stage == stage and line.is_required)
                 tasks = mobility.task_ids.filtered(lambda task: task.stage == stage)
-                mobility[f'{stage}_complete'] = (all(line.review_state == 'valid' for line in lines)
-                                                 and all(tasks.mapped('done')))
+                mobility[f'{stage}_complete'] = (
+                    all(line.prepared_attachment_ids if line.handled_by == 'team' else line.review_state == 'valid'
+                        for line in lines)
+                    and all(tasks.mapped('done')) and not (stage == 'preparation' and mobility.commitment_pending))
+
+    @api.constrains('project_id', 'modality_id')
+    def _check_project(self):
+        for mobility in self:
+            kind = mobility.modality_id.project
+            if mobility.project_id and kind and mobility.project_id.kind != kind:
+                raise ValidationError(_("The mobility of %(name)s goes on a %(kind)s project.", name=mobility.partner_id.name,
+                                        kind=dict(self.env['ems.erasmus.project']._fields['kind'].selection)[kind]))
 
     @api.depends_context('uid')
     @api.depends('audience')
@@ -391,10 +421,24 @@ class EmsErasmusMobility(models.Model):
     @api.model
     def _cron_remind_documents(self):
         """Weekly: remind every participant preparing a mobility of the documents still missing or
-        needing changes (the European Health Insurance Card above all)."""
+        needing changes (the European Health Insurance Card above all) and of the commitment letter
+        still to sign."""
         mobilities = self.sudo().search([('state', '=', 'preparing')])
-        mobilities.filtered(lambda mobility: mobility._ems_documents_to_correct())._ems_send(
+        mobilities.filtered(lambda mobility: mobility._ems_documents_to_correct() or mobility.commitment_pending)._ems_send(
             'ems.email_template_erasmus_mobility_documents')
+
+    def action_sign_commitment(self, accepted=False, ip_address=False):
+        """The participant accepts and signs the commitment letter (annex 3) in EMS, from the
+        portal. The text accepted is kept as it was, with who, when and from where."""
+        self.ensure_one()
+        if self.state not in OPEN_STATES or not self.commitment_pending:
+            raise UserError(_("There is no commitment letter to sign."))
+        if not accepted:
+            raise UserError(_("Tick that you accept the commitments first."))
+        self.with_context(ems_erasmus_state=True).sudo().write({
+            'commitment_signed_date': fields.Datetime.now(), 'commitment_signed_by_id': self.env.uid,
+            'commitment_signed_ip': ip_address, 'commitment_signed_text': self.call_id.commitment_text})
+        self.chatter(_("Commitment letter accepted and signed in EMS."))
 
     def action_notify_documents(self):
         """Email the participant the documents still missing or needing changes."""
@@ -412,7 +456,7 @@ class EmsErasmusMobility(models.Model):
         self.ensure_one()
         if self.state not in OPEN_STATES:
             raise UserError(_("The documents of this mobility can no longer be changed."))
-        lines = {line.call_document_id.id: line for line in self.document_ids}
+        lines = {line.call_document_id.id: line for line in self.document_ids if line.handled_by != 'team'}
         for document_id, files in uploads.items():
             if files and document_id in lines:
                 lines[document_id]._ems_add_files(files)
@@ -459,7 +503,8 @@ class EmsErasmusMobility(models.Model):
         self.ensure_one()
         ended = self.date_end and self.date_end <= self.env['ems.datetime_utils'].get_local_today()
         return self.document_ids.filtered(lambda line: (
-            (line.stage == 'preparation' or ended) and (not line.prepared_by_team or line.prepared_attachment_ids)
+            (line.stage == 'preparation' or ended) and line.handled_by != 'team'
+            and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)
             and (line.review_state == 'needs_change' or (line.is_required and not line.attachment_ids))))
 
     def action_close(self):

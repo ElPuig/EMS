@@ -115,14 +115,19 @@
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.partner_id.name"/>,</p>
                         <p>
-                            These documents of your Erasmus+ mobility (<strong t-out="object.call_id.name"/>) are
-                            missing or need changes:
+                            Your Erasmus+ mobility (<strong t-out="object.call_id.name"/>) still has things pending.
                         </p>
-                        <t t-out="object._ems_mail_document_list()"/>
+                        <t t-if="object._ems_documents_to_correct()">
+                            <p>These documents are missing or need changes:</p>
+                            <t t-out="object._ems_mail_document_list()"/>
+                        </t>
+                        <p t-if="object.commitment_pending">
+                            You have to accept and sign the commitment letter on the portal.
+                        </p>
                         <p>
-                            Upload them on the school portal
-                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>), where you will also
-                            find the team's comments and the deadlines.
+                            You will find everything on the school portal
+                            (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>), with the team's
+                            comments and the deadlines.
                         </p>
                         <p>
                             Kind regards,<br/>

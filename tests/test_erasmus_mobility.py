@@ -1,7 +1,7 @@
 from datetime import date, timedelta
 
 from odoo import fields
-from odoo.exceptions import AccessError, UserError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
@@ -35,9 +35,13 @@ class ErasmusMobilityCase(ErasmusResolutionCase):
 
     def _complete_stage(self, mobility, stage):
         lines = mobility.document_ids.filtered(lambda line: line.stage == stage and line.is_required)
-        mobility._ems_portal_upload({line.call_document_id.id: [('signed.pdf', PDF)] for line in lines})
-        lines.action_mark_valid()
+        provided = lines.filtered(lambda line: line.handled_by == 'team')
+        provided.prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'policy.pdf', 'raw': PDF})
+        mobility._ems_portal_upload({line.call_document_id.id: [('signed.pdf', PDF)] for line in lines - provided})
+        (lines - provided).action_mark_valid()
         mobility.task_ids.filtered(lambda task: task.stage == stage).write({'done': True})
+        if stage == 'preparation' and mobility.commitment_pending:
+            mobility.action_sign_commitment(True, '127.0.0.1')
 
 
 @tagged('post_install', '-at_install')
@@ -203,7 +207,9 @@ class TestErasmusMobility(ErasmusMobilityCase):
         lines = {line.name: line for line in first.document_ids}
         self.assertNotIn('Identity document', lines, "EMS already holds it.")
         self.assertEqual(lines['European Health Insurance Card'].deadline, today + timedelta(days=30))
-        self.assertEqual(lines['Commitment letter'].deadline, today + timedelta(days=30))
+        self.assertNotIn('Commitment letter', lines, "Signed in EMS, not uploaded.")
+        self.assertEqual(lines['OLS certificate'].deadline, date(2027, 5, 25), "A week before leaving.")
+        self.assertTrue(lines['Inclusion documentation'].confidential)
         self.assertEqual(lines['Grant agreement'].deadline, date(2027, 5, 2), "A month before leaving.")
         self.assertEqual(lines['Certificate of stay'].deadline, date(2027, 7, 30), "A month after returning.")
         due = first._ems_documents_to_correct()
@@ -218,6 +224,45 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self._complete_stage(first, 'preparation')
         self.env['ems.erasmus.mobility']._cron_remind_documents()
         self.assertEqual(len(self._mails(first)), sent + 1, "Nothing missing: no reminder.")
+
+    def test_commitment_letter_signed_in_ems(self):
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        self.assertTrue(first.commitment_pending)
+        with self.assertRaises(UserError):
+            first.action_sign_commitment(False)
+        first.action_sign_commitment(True, '10.0.0.7')
+        self.assertFalse(first.commitment_pending)
+        self.assertEqual(first.commitment_signed_ip, '10.0.0.7')
+        self.assertIn('OLS', first.commitment_signed_text, "The text accepted is kept.")
+        self.call.commitment_text = '<p>Changed later</p>'
+        self.assertIn('OLS', first.commitment_signed_text, "A later change does not alter what was signed.")
+        with self.assertRaises(UserError):
+            first.action_sign_commitment(True)
+
+    def test_the_insurance_policy_is_provided_by_the_team(self):
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        policy = first.document_ids.filtered(lambda line: line.name == 'Insurance policy')
+        self.assertEqual(policy.handled_by, 'team')
+        self.assertNotIn(policy, first._ems_documents_to_correct(), "The participant is never asked for it.")
+        first._ems_portal_upload({policy.call_document_id.id: [('mine.pdf', PDF)]})
+        self.assertFalse(policy.attachment_ids, "The participant cannot upload it.")
+        self._complete_stage(first, 'preparation')
+        self.assertTrue(first.preparation_complete)
+        policy.prepared_attachment_ids = False
+        self.assertFalse(first.preparation_complete, "Not ready to leave without the policy.")
+
+    def test_project_of_the_modality_kind(self):
+        first, _second = self._accepted()
+        vet, hed = self.env['ems.erasmus.project'].create([
+            {'name': 'TEST-KA121-VET-1', 'kind': 'ka121_vet'}, {'name': 'TEST-KA131-HED-1', 'kind': 'ka131_hed'}])
+        with self.assertRaises(ValidationError):
+            first.with_user(self.erasmus_user).project_id = hed
+        first.with_user(self.erasmus_user).project_id = vet
+        self.assertEqual(vet.mobility_ids, first)
 
     def test_notify_pending_documents(self):
         first, _second = self._accepted()
@@ -433,3 +478,15 @@ class TestPortalErasmusMobility(HttpCase, ErasmusMobilityCase):
         self.authenticate(self.student_user.login, self.student_user.login)
         self.assertIn('o_ems_erasmus_prepared_file', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
         self.assertEqual(self.url_open(url).content, PDF)
+
+    def test_sign_the_commitment_letter_on_the_portal(self):
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        self.authenticate(self.student_user.login, self.student_user.login)
+        self.assertIn('o_ems_erasmus_commitment', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        self.assertIn('error=1', self._post('commitment').url, "Not without ticking the acceptance.")
+        self._post('commitment', accepted='on')
+        self.assertEqual(first.commitment_signed_by_id, self.student_user)
+        self.assertTrue(first.commitment_signed_ip)
+        self.assertIn('o_ems_erasmus_commitment_signed', self.url_open(f'/my/erasmus/call/{self.call.id}').text)

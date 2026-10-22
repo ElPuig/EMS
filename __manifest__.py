@@ -355,6 +355,7 @@
         'views/erasmus/offer/views.xml',
         'views/erasmus/claim/views.xml',
         'views/erasmus/mobility/views.xml',
+        'views/erasmus/project/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',

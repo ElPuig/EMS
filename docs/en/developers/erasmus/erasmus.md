@@ -569,15 +569,30 @@ New call fields: `choice_turn_hours` (default 72) and `choice_open`.
 **Deadlines, per document:** `due_basis` (`destination`: after the destination is set,
 `before_start`: before leaving, `after_end`: after returning) and `due_days`; each line computes its
 `deadline` from the mobility's `destination_date` (stamped when it moves to *preparing*,
-`_ems_set_state`), `date_start` or `date_end`. **Filled in by the team** (`prepared_by_team`): the
-team attaches the filled-in document to the line's `prepared_attachment_ids`; the participant
-downloads it from the portal, signs it and uploads it signed, and is not asked for it until then.
-Defaults (art. 17 and annex 1): students, the European Health Insurance Card, the commitment letter
-and, for minors, the family's and the Mossos d'Esquadra's authorisations (30 days after the
-destination); the grant agreement and the learning agreement, filled in by the team (30 days before
-leaving at the latest, ideally 90); the certificate of stay (30 days after returning). Staff: health
-card, grant agreement (team), mobility programme, certificate and report. No identity document: EMS
-already holds it on the contact or employee file.
+`_ems_set_state`), `date_start` or `date_end`. **Handled by** (`handled_by`): `participant` (they
+upload it), `team_to_sign` (the team attaches the filled-in document to the line's
+`prepared_attachment_ids`; the participant downloads it, signs it and uploads it signed, and is not
+asked for it until then) or `team` (the team provides it, e.g. the insurance policy: the participant
+only downloads it, can't upload to it, is never reminded of it, and the line counts as complete once
+`prepared_attachment_ids` has a file). Defaults (art. 17 and annex 1): students, the European Health
+Insurance Card and, for minors, the family's and the Mossos d'Esquadra's authorisations (30 days
+after the destination), the inclusion documentation (optional, confidential), the OLS certificate
+with the English level (7 days before leaving), the grant agreement and the learning agreement
+(`team_to_sign`, 30 days before leaving at the latest, ideally 90), the insurance policy (`team`, 7
+days before leaving) and the certificate of stay (30 days after returning). Staff: health card,
+grant agreement, insurance policy, mobility programme, certificate and report. Not asked for, EMS
+already has them: identity document, bank account, personal details, emergency contact.
+
+**Commitment letter** (annex 3): the call's `commitment_text` (HTML, filled in with
+`_ems_commitment_text()` on a new students' call, translatable). The participant accepts and signs it
+on the portal (`action_sign_commitment`, portal step `commitment`): EMS keeps a copy of the text
+(`commitment_signed_text`), who (`commitment_signed_by_id`), when and the IP address.
+`commitment_pending` (text on the call, not signed yet) blocks `preparation_complete` and is part of
+the weekly reminder.
+
+**Projects** (`ems.erasmus.project`, menu *Erasmus+ > Projects*): the centre's active projects
+(agreement number, `kind` KA121-VET / KA131-HED, dates, `active`). Each mobility's `project_id` must
+be of its modality's `project` kind (`_check_project`; the field's domain offers only those).
 
 ### Mobility states
 

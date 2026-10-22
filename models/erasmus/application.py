@@ -822,10 +822,12 @@ class EmsErasmusApplicationDocument(models.Model):
                                   index=True)
     stage = fields.Selection(string="When", related='call_document_id.stage', store=True)
     signers = fields.Char(string="Signed by", related='call_document_id.signers')
-    prepared_by_team = fields.Boolean(string="Filled in by the team", related='call_document_id.prepared_by_team')
+    handled_by = fields.Selection(string="Handled by", related='call_document_id.handled_by')
     prepared_attachment_ids = fields.Many2many(
-        string="Files to sign", comodel_name='ir.attachment', relation='ems_erasmus_application_document_prepared_rel',
-        help="The document filled in by the Erasmus team, for the participant to download and sign.")
+        string="Files from the team", comodel_name='ir.attachment',
+        relation='ems_erasmus_application_document_prepared_rel',
+        help="What the Erasmus team uploads for the participant: the document to sign, or the one it provides (e.g. "
+             "the insurance policy).")
     deadline = fields.Date(string="Deadline", compute='_compute_deadline')
     description = fields.Text(string="Instructions", related='call_document_id.description')
     name = fields.Char(string="Document", related='call_document_id.name')

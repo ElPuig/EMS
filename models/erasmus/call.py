@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 
+from markupsafe import Markup
 from pytz import UTC
 
 from odoo import _, api, fields, models
@@ -9,6 +10,9 @@ from odoo.exceptions import UserError, ValidationError
 
 from .application import RANKED_STATES, SUBMITTED_STATES
 from .offer import HOLDING_STATES
+
+# The centre's two Erasmus+ projects: CFGM goes on KA121-VET, CFGS on KA131-HED.
+PROJECTS = [('ka121_vet', "KA121-VET"), ('ka131_hed', "KA131-HED")]
 
 
 class EmsErasmusCall(models.Model):
@@ -55,6 +59,10 @@ class EmsErasmusCall(models.Model):
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.call.document',
                                    inverse_name='call_id', copy=True, domain=[('stage', '=', 'application')])
     # Issue #687: mobility preparation.
+    commitment_text = fields.Html(
+        string="Commitment letter", sanitize=True,
+        help="Annex 3 of the call: what the selected accept and sign in EMS before leaving. Empty: no commitment "
+             "letter is asked for.")
     preparation_document_ids = fields.One2many(
         string="Mobility documents", comodel_name='ems.erasmus.call.document', inverse_name='call_id', copy=True,
         domain=[('stage', 'in', ('preparation', 'return'))],
@@ -139,6 +147,8 @@ class EmsErasmusCall(models.Model):
                 vals['preparation_document_ids'] = self._ems_preparation_documents(audience)
             if 'task_ids' not in vals:
                 vals['task_ids'] = self._ems_preparation_tasks(audience)
+            if audience == 'student' and 'commitment_text' not in vals:
+                vals['commitment_text'] = self._ems_commitment_text()
         return super().create(vals_list)
 
     @api.model
@@ -162,13 +172,16 @@ class EmsErasmusCall(models.Model):
         month after the end."""
         health_card = {'name': _("European Health Insurance Card"),
                        'description': _("Requested at the Social Security's electronic office.")}
-        agreement = {'due_basis': 'before_start', 'prepared_by_team': True, 'sign_participant': True,
+        insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start', 'due_days': 7,
+                     'description': _("The Erasmus team uploads it for you to keep.")}
+        agreement = {'due_basis': 'before_start', 'handled_by': 'team_to_sign', 'sign_participant': True,
                      'sign_centre': True, 'description': _(
                          "The Erasmus team uploads it filled in. Ideally signed three months before leaving.")}
         if audience == 'staff':
             documents = [
                 health_card,
                 {**agreement, 'name': _("Grant agreement")},
+                insurance,
                 {'name': _("Mobility programme"), 'due_basis': 'before_start', 'sign_participant': True,
                  'sign_centre': True, 'sign_host': True,
                  'description': _("Activities, dates and expected results, agreed with the host entity.")},
@@ -178,9 +191,14 @@ class EmsErasmusCall(models.Model):
             ]
         else:
             documents = [
-                health_card,
-                {'name': _("Commitment letter"), 'sign_participant': True, 'sign_guardian': True,
-                 'description': _("Annex 3 of the call.")},
+                {**health_card, 'description': _(
+                    "Both sides, valid for the whole stay. Requested at the Social Security's electronic office: upload "
+                    "it as soon as you have it.")},
+                {'name': _("OLS certificate"), 'due_basis': 'before_start', 'due_days': 7,
+                 'description': _("The certificate of the online language course (OLS), with your English level.")},
+                {'name': _("Inclusion documentation"), 'requirement': 'optional', 'confidential': True,
+                 'description': _("Only if it applies to you: evidence of fewer opportunities, grants, special needs. "
+                                  "Only the Erasmus team sees it.")},
                 {'name': _("Family authorisation to travel"), 'requirement': 'minor', 'sign_guardian': True},
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
                  'description': _("Processed with the Mossos d'Esquadra.")},
@@ -188,6 +206,7 @@ class EmsErasmusCall(models.Model):
                 {**agreement, 'name': _("Learning agreement"), 'sign_host': True,
                  'description': _("GM: learning agreement. GS: Learning Agreement for Traineeships. The Erasmus "
                                   "team uploads it filled in. Ideally signed three months before leaving.")},
+                insurance,
                 {'stage': 'return', 'name': _("Certificate of stay"), 'sign_host': True},
             ]
         defaults = {'preparation': 'destination', 'return': 'after_end'}
@@ -196,14 +215,35 @@ class EmsErasmusCall(models.Model):
                 for index, vals in enumerate(documents, 1)]
 
     @api.model
+    def _ems_commitment_text(self):
+        """Annex 3 of the students' call, accepted and signed in EMS by each selected student."""
+        commitments = [
+            _("Hand in the travel documents within the deadline."),
+            _("Attend the preparation sessions and take the online language course (OLS)."),
+            _("Comply with the timetable and rules of the host entity, the accommodation and the destination "
+              "country, and with the instructions of the Erasmus coordination."),
+            _("Complete the stay on the agreed dates."),
+            _("In case of early return, interruption or breaking off the relationship with the host entity by my own "
+              "will or for reasons attributable to me, bear the cost of the return trip and return the amounts that "
+              "cannot be justified to SEPIE and the expenses already paid that cannot be recovered, except in cases "
+              "of force majeure accepted by SEPIE."),
+            _("In case of renouncing without a justified cause before leaving, bear the expenses already committed "
+              "that cannot be recovered."),
+            _("Hand in the certificate of stay, answer the final report (EU Survey) and take part in the "
+              "dissemination activities."),
+        ]
+        return Markup("<p>{}</p>{}").format(
+            _("I declare that I know the rules of the call for Erasmus+ internship grants and I commit to:"),
+            Markup("<ol>{}</ol>").format(Markup().join(Markup("<li>{}</li>").format(item) for item in commitments)))
+
+    @api.model
     def _ems_preparation_tasks(self, audience):
         if audience == 'staff':
             names = [('preparation', _("Preparation meetings")),
                      ('preparation', _("Activities left for your groups")),
                      ('return', _("Final report (EU Survey)")), ('return', _("Dissemination session"))]
         else:
-            names = [('preparation', _("Preparation sessions")), ('preparation', _("Online language course (OLS)")),
-                     ('preparation', _("Virtual component (GS)")),
+            names = [('preparation', _("Preparation sessions")), ('preparation', _("Virtual component (GS)")),
                      ('return', _("Final report (EU Survey)")), ('return', _("Dissemination activities"))]
         return [(0, 0, {'sequence': index, 'stage': stage, 'name': name}) for index, (stage, name) in enumerate(names, 1)]
 
@@ -418,7 +458,7 @@ class EmsErasmusCallModality(models.Model):
     level_ids = fields.Many2many(string="Levels", comodel_name='ems.level',
                                  help="Students' call: students whose main group is of one of these levels apply in "
                                       "this modality.")
-    project = fields.Selection(string="Project", selection=[('ka121_vet', "KA121-VET"), ('ka131_hed', "KA131-HED")])
+    project = fields.Selection(string="Project", selection=PROJECTS)
     places = fields.Integer(string="Places")
     period = fields.Char(string="Period")
     destinations = fields.Char(string="Destinations")
@@ -476,9 +516,12 @@ class EmsErasmusCallDocument(models.Model):
         ('destination', "After the destination is set"), ('before_start', "Before leaving"),
         ('after_end', "After returning")], help="Mobility documents: what the deadline counts from.")
     due_days = fields.Integer(string="Days", help="Mobility documents: days counted from the Due point.")
-    prepared_by_team = fields.Boolean(string="Filled in by the team",
-                                      help="The Erasmus team uploads it filled in; the participant downloads it, signs "
-                                           "it and uploads it signed. They are not asked for it before.")
+    handled_by = fields.Selection(string="Handled by", default='participant', required=True, selection=[
+        ('participant', "The participant uploads it"), ('team_to_sign', "The team fills it in, the participant signs it"),
+        ('team', "The team provides it")],
+        help="Mobility documents. Filled in by the team: the Erasmus team uploads it filled in, the participant "
+             "downloads it, signs it and uploads it signed, and is not asked for it before. Provided by the team (e.g. "
+             "the insurance policy): the team uploads it and the participant only downloads it.")
     panel_visible = fields.Boolean(string="Shown to the panel",
                                    help="Staff call: the panel members see these files when they rate (the mobility "
                                         "plan), and nothing else of the application.")

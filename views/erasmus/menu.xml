@@ -50,6 +50,10 @@
                   parent="menu_erasmus" action="action_erasmus_claim"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
+        <menuitem name="Projects" sequence="9" id="menu_erasmus_projects"
+                  parent="menu_erasmus" action="action_erasmus_project"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+
         <menuitem name="Calls" sequence="8" id="menu_erasmus_calls"
                   parent="menu_erasmus" action="action_erasmus_call"
                   groups="ems.group_erasmus,ems.group_academic_admin"/>

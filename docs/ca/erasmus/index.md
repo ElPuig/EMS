@@ -16,7 +16,7 @@ Aquesta secció conté els manuals per a l'**equip Erasmus+**: la coordinació E
 | [Baremació i entrevistes](scoring-and-interviews.md) | Els criteris de la convocatòria, les entrevistes amb dues persones avaluadores i la classificació de cada modalitat |
 | [Resolucions, reclamacions i ofertes de plaça](resolutions-and-offers.md) | Publicar la llista d'admesos i les resolucions provisional i definitiva, registrar les reclamacions, oferir les places i exportar els participants |
 | [La convocatòria del personal](staff-call.md) | La convocatòria per al personal de formació professional: el tribunal que valora els plans de mobilitat, els criteris del personal, una sola classificació per a tota la convocatòria i les places |
-| [Preparar les mobilitats](mobility-preparation.md) | Destinacions triades per torns, destinacions pròpies, entitats d'acollida, documents amb qui els signa, la llista de passos i el tancament de cada mobilitat |
+| [Preparar les mobilitats](mobility-preparation.md) | Els projectes del centre, destinacions triades per torns, destinacions pròpies, entitats d'acollida, documents amb qui els signa i els terminis, la carta de compromís signada a l'EMS, la llista de passos i el tancament de cada mobilitat |
 
 ---
 

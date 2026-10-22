@@ -148,10 +148,13 @@
                                         <field name="sign_host" string="Host entity"/>
                                         <field name="due_basis"/>
                                         <field name="due_days"/>
-                                        <field name="prepared_by_team"/>
+                                        <field name="handled_by"/>
                                         <field name="description"/>
                                     </list>
                                 </field>
+                            </page>
+                            <page string="Commitment letter" name="commitment_letter" invisible="audience != 'student'">
+                                <field name="commitment_text"/>
                             </page>
                             <page string="Checklist" name="checklist">
                                 <field name="task_ids">

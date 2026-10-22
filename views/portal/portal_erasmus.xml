@@ -476,6 +476,23 @@
                         </tbody>
                     </table>
                 </t>
+                <!-- The commitment letter (annex 3), accepted and signed in EMS. -->
+                <t t-if="mobility.state in ('preparing', 'done') and (mobility.commitment_pending or mobility.commitment_signed_date)">
+                    <h6>Commitment letter</h6>
+                    <div t-if="mobility.commitment_signed_date" class="alert alert-success small o_ems_erasmus_commitment_signed">
+                        <i class="fa fa-check-circle me-1"/>You accepted and signed it on
+                        <t t-out="mobility.commitment_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
+                    <form t-elif="mobility.state == 'preparing'" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="border rounded p-3 mb-2 small" t-out="call.commitment_text"/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
+                            <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_commitment_sign">Accept and sign</button>
+                    </form>
+                </t>
                 <t t-if="mobility.state in ('preparing', 'done') and mobility.document_ids">
                     <h6>Documents</h6>
                     <p class="small text-muted mb-2">
@@ -496,16 +513,17 @@
                                 </div>
                                 <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
                                 <p t-if="line.signers" class="small mb-1">Signed by: <t t-esc="line.signers"/></p>
-                                <p t-if="line.prepared_attachment_ids" class="small mb-1">To download and sign:
+                                <p t-if="line.prepared_attachment_ids" class="small mb-1"><t t-if="line.handled_by == 'team'">To download:</t><t t-else="">To download and sign:</t>
                                     <t t-foreach="line.prepared_attachment_ids" t-as="prepared">
                                         <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{prepared.id}" class="o_ems_erasmus_prepared_file" t-esc="prepared.name"/><t t-if="not prepared_last">, </t>
                                     </t>
                                 </p>
-                                <p t-elif="line.prepared_by_team" class="small text-muted mb-1">The Erasmus team will upload it filled in for you to sign.</p>
+                                <p t-elif="line.handled_by == 'team_to_sign'" class="small text-muted mb-1">The Erasmus team will upload it filled in for you to sign.</p>
+                                <p t-elif="line.handled_by == 'team'" class="small text-muted mb-1">The Erasmus team will upload it for you.</p>
                                 <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
                                 <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
                                 <p t-if="line.attachment_ids" class="small mb-1">Received: <t t-esc="', '.join(line.attachment_ids.mapped('name'))"/></p>
-                                <input t-if="mobility.state == 'preparing' and line.review_state != 'valid' and (not line.prepared_by_team or line.prepared_attachment_ids)" class="form-control form-control-sm" type="file"
+                                <input t-if="mobility.state == 'preparing' and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)" class="form-control form-control-sm" type="file"
                                        t-attf-name="document_#{line.call_document_id.id}" multiple="multiple"/>
                             </li>
                         </ul>

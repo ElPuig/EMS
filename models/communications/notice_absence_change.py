@@ -92,13 +92,23 @@ class EmsNoticeAbsenceChange(models.Model):
             subject = self._absence_change_sentences(changes[0], values)[0]
         else:
             subject = _("%(group)s | timetable changes on %(date)s", **values)
-        paragraphs = [_("Dear students and families,")]
+        paragraphs = [_("Dear students,") if self._absence_change_students_only(changes) else _("Dear students and families,")]
         paragraphs += [self._absence_change_sentences(change, values)[1] for change in changes]
+        if any(change[0] == 'long_break' for change in changes):
+            # Issue #679: a longer break is still a break, with a guard teacher.
+            paragraphs.append(_("Students under 18 cannot leave the centre during the break."))
         if rectification:
             subject = _("Correction: %s", subject)
             paragraphs.insert(1, _("This message corrects the one we sent you earlier about this day."))
         message = Markup("").join(Markup("<p>{}</p>").format(paragraph) for paragraph in paragraphs)
         return subject, message
+
+    @staticmethod
+    def _absence_change_students_only(changes):
+        """Whether only the students are told `changes` (issue #679): a break, longer or back to
+        the usual one, keeps them in the centre, so it is none of the families' business. A notice
+        that also changes when they come in or leave goes to the families too, break included."""
+        return all(change[0] in BREAK_CHANGES for change in changes)
 
     def _absence_change_sentences(self, change, values):
         """(subject, sentence) telling one change, `values` being the group's and the day's."""
@@ -170,11 +180,14 @@ class EmsNoticeAbsenceChange(models.Model):
         Never sent from here."""
         subject, message = self._absence_change_text(changes, group, day, rectification=rectification)
         draft = self.new({'group_ids': [(6, 0, group.ids)]})
+        if self._absence_change_students_only(changes):
+            draft.recipient_type = 'students'
         lines, _skipped = draft._build_auto_lines(group, draft.recipient_type, draft.recipient_email_type, set())
         return self.create({
             'subject': subject,
             'message': message,
             'group_ids': [(6, 0, group.ids)],
+            'recipient_type': draft.recipient_type,
             'notice_line_ids': [(0, 0, {
                 'partner_id': line.partner_id.id, 'email': line.email, 'student_id': line.student_id.id,
                 'recipient_type': line.recipient_type, 'source_group_id': line.source_group_id.id,

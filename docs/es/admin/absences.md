@@ -23,6 +23,18 @@ El crédito **avisa, no bloquea**: quien lo supera recibe un aviso y la solicitu
 
 ![Bloque de configuración de ausencias del personal, con los campos de día entero, crédito de salud y recordatorios del justificante](../../assets/admin/admin-absences-settings.png)
 
+### Cambios de horario en el cuadro de guardias
+
+**Ajustes > EMS > Configuración del cuadro de guardias** decide qué cambios puede proponer el cuadro de guardias cuando falta un docente. Los tres están **desactivados por defecto**: con todos desactivados, las clases sin docente siempre se cubren con una guardia.
+
+| Parámetro | Qué propone el cuadro cuando está activado |
+|---|---|
+| Entrar más tarde | Si las primeras clases del día de un grupo no tienen docente, avisar al alumnado y a las familias de que pueden entrar más tarde (o de que no tienen clase, si ninguna clase tiene docente) |
+| Salir antes | Si las últimas clases del día no tienen docente, avisar al alumnado y a las familias de que pueden salir antes |
+| Patio más largo | Si las clases justo antes o después de un patio no tienen docente, alargar el patio. Solo se avisa al alumnado, y los menores de 18 años siguen sin poder salir del centro, así que esas clases siguen necesitando un profesor de guardia |
+
+Desactivar uno no deshace lo que ya se ha comunicado: si la ausencia cambia después, el cuadro sigue ofreciendo la corrección.
+
 ---
 
 ## El catálogo de tipos de ausencia

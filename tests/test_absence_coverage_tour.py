@@ -30,9 +30,13 @@ class TestAbsenceCoverageTour(HttpCase):
             'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning', **vals,
         } for hour_from, hour_to in periods])
 
-    def _board_fixture(self, guard=None, away=(8, 10)):
-        """Next Monday: 'Tour Absent Teacher' teaches TABTG 8-11 and is away 8-10 (or `away`), while
-        `guard` (a plain employee unless given) is on guard duty 8-11. Returns (teacher, guard, group)."""
+    def _board_fixture(self, guard=None, away=(8, 10), periods=((8, 9), (9, 10), (10, 11))):
+        """Next Monday: 'Tour Absent Teacher' teaches TABTG 8-11 (or `periods`) and is away 8-10 (or
+        `away`), while `guard` (a plain employee unless given) is on guard duty 8-11. Returns
+        (teacher, guard, group)."""
+        # Every timetable change is off by default (issue #679): these tours are about them.
+        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
+                                'ems_absence_change_long_break': True})
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1997, 'end': 1998})
         level, study = create_level_study(self, 'TABT', level={'name': 'Tour Absence Coverage Level'}, study={
@@ -58,8 +62,7 @@ class TestAbsenceCoverageTour(HttpCase):
         teacher.department_id = self.env['hr.department'].create({'name': 'Tour Shared Teacher Department'})
         teacher.parent_id = self.other_department_chief.employee_ids
         chief.parent_id = head
-        self._calendar(teacher, ((8, 9), (9, 10), (10, 11)),
-                       subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
+        self._calendar(teacher, periods, subject_id=subject.id, group_ids=[group.id], name='TABTG: TABT')
         self._calendar(guard, ((8, 9), (9, 10), (10, 11)),
                        non_teaching=self.env.ref('ems.non_teaching_g').id, name='Guard')
 
@@ -88,6 +91,22 @@ class TestAbsenceCoverageTour(HttpCase):
         self.assertEqual(cover.message, 'Exercises on page 12')
         notice = self.env['ems.notice'].search([('absence_group_id', '=', group.id)])
         self.assertEqual((notice._absence_change_tuples(), notice.state), ([('late_entry', 9.0)], 'draft'))
+
+    def test_absence_long_break_tour(self):
+        """Issue #679: the students were told about a longer break, but the ones under 18 stay in
+        the centre, so the lesson it took in keeps needing a guard - tagged, not struck out."""
+        teacher, _guard, group = self._board_fixture(away=(9, 10), periods=((8, 9), (9, 10), (10.5, 11.5)))
+        framework = self.env['resource.calendar'].create({
+            'name': 'TABT Framework (Break)', 'is_framework': True, 'level_id': group.level_id.id,
+            'full_time_required_hours': 24})
+        self.env['resource.calendar.attendance'].create({
+            'calendar_id': framework.id, 'name': 'BR: Break', 'dayofweek': '0', 'hour_from': 10, 'hour_to': 10.5,
+            'day_period': 'morning', 'non_teaching': self.env.ref('ems.non_teaching_br').id})
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        self.env['ems.notice']._create_absence_change_notice(
+            [('long_break', 9.0, 10.5)], group, day, rectification=False).state = 'scheduled'
+
+        self.start_tour("/odoo", "ems_absence_long_break", login=self.department_chief.login)
 
     def test_guard_self_assignment_tour(self):
         """Issue #601, as the guard on duty - a plain teacher, who manages nobody's absences."""

@@ -44,6 +44,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         # The teachers are notified in their own language: these assertions read English.
         for employee in cls.teacher_a | cls.teacher_b | cls.teacher_c:
             (employee.user_id.partner_id or employee.work_contact_id).lang = 'en_US'
+        # Every timetable change is off by default (issue #679): these tests are about them.
+        cls.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
+                               'ems_absence_change_long_break': True})
 
     def setUp(self):
         super().setUp()
@@ -1068,7 +1071,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(self._break_state()['options'], [])
         self.assertEqual(self._states()['leave']['options'], [('early_leave', 11.5), ('early_leave', 10)])
 
-    def test_a_communicated_longer_break_strikes_out_its_lessons(self):
+    def test_a_communicated_longer_break_still_needs_a_guard(self):
+        """Issue #679: only the students are told, the ones under 18 are reminded they cannot leave
+        the centre, and the lesson it took in stays on the table for a guard."""
         self._morning_with_break()
         self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
         notice = self.Notice.browse(self.Notice.with_user(self.department_chief)._board_absence_change_draft(
@@ -1077,12 +1082,66 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(notice._absence_change_tuples(), [('long_break', 9.0, 10.5)])
         self.assertIn('09:00', notice.message)
         self.assertIn('10:30', notice.message)
+        self.assertIn('under 18 cannot leave the centre', notice.message)
+        self.assertEqual(notice.recipient_type, 'students')
         notice.state = 'scheduled'
 
         self.assertEqual(self._break_state()['status'], 'communicated')
-        self.assertEqual(self._row(9, 10)['authorized'], ('long_break', 9, 10.5))
-        with self.assertRaises(UserError):
-            self._assign(hour_from=9, hour_to=10)
+        row = self._row(9, 10)
+        self.assertIsNone(row['authorized'])
+        self.assertEqual(row['break_change'], ('long_break', 9, 10.5))
+        self.assertTrue(self.env['ems.course']._get_needed_absence_block(self.day, self.group_a, self.teacher_a, 9, 10))
+        self._assign(hour_from=9, hour_to=10)
+
+    def test_a_longer_break_told_with_an_early_leave_also_reaches_the_families(self):
+        """One notice per group and day (issue #652): when it also changes when they leave, the
+        families are told everything, the break included."""
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        notice = self.Notice._create_absence_change_notice(
+            [('long_break', 9.0, 10.5), ('early_leave', 11.5)], self.group_a, self.day, rectification=False)
+
+        self.assertEqual(notice.recipient_type, 'both')
+        self.assertIn('families', notice.message)
+        self.assertIn('under 18 cannot leave the centre', notice.message)
+
+    def test_disabled_timetable_changes_are_never_proposed(self):
+        """Issue #679: each kind of change has its own switch; with them off, the empty lessons
+        only get guards, from the board and from the arrangement plans alike."""
+        self.env.company.write({'ems_absence_change_late_entry': False, 'ems_absence_change_early_leave': False,
+                                'ems_absence_change_long_break': False})
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._absence(self.teacher_b, self.day, hour_from=10.5, hour_to=11.5)
+
+        states = self._states()
+
+        self.assertTrue(all(not state['options'] and state['status'] is None for state in states.values()))
+        self.assertFalse([step for plan in self._plans() for step in plan['steps'] if step['kind'] == 'notice'])
+
+    def test_each_timetable_change_has_its_own_switch(self):
+        self.env.company.ems_absence_change_late_entry = False
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._absence(self.teacher_b, self.day, hour_from=10.5, hour_to=11.5)
+
+        states = self._states()
+
+        self.assertEqual(states['entry']['options'], [])
+        self.assertEqual(self._break_state()['options'], [('long_break', 10, 11.5)])
+
+    def test_a_correction_is_still_offered_once_its_change_is_switched_off(self):
+        """What was told before the switch went off still has to be put right."""
+        self._morning()
+        leave = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10, approve=False)
+        self._communicate('late_entry', 10.0)
+        self.env.company.ems_absence_change_late_entry = False
+        leave.action_refuse()
+
+        with self._at(7.5):
+            state = self._states()['entry']
+        self.assertEqual(state['status'], 'rectification')
+        self.assertEqual(state['options'], [('normal_entry', 0.0)])
 
     def test_a_cancelled_absence_after_a_longer_break_asks_for_the_usual_break(self):
         self._morning_with_break()

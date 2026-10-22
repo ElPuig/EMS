@@ -263,6 +263,12 @@ single change or correction sent from the board (`board_send_absence_change()`) 
 accepted arrangement plan are created pre-filled with the group's recipients and a suggested text,
 and sent at once (`action_send()`, through `_send_or_keep_draft()`); they only stay a draft to
 review and send from this same form, like any other notice, if sending fails.
+A notice that only tells break changes (a longer break, or its correction back to the usual one)
+goes to the group's **students only** (`recipient_type = 'students'`, `_absence_change_students_only()`,
+issue #679): the students stay in the centre, so it is none of the families' business. It opens
+with "Dear students," and, for a longer break, reminds the students under 18 that they cannot leave
+the centre during the break. A notice that also changes the entry or the leave goes to students and
+families as usual, break included.
 `_check_absence_change_recipients` keeps such a notice addressed to its own group only, and the
 form shows an information banner and locks its groups. The board reads these notices back to know
 what was communicated: see "Managing absences from the board" in

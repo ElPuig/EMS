@@ -184,7 +184,7 @@ Cada proposta és una llista de passos, un per línia, sempre entre docents d'aq
 
 - **Classe moguda**: un docent que està lliure en aquella hora hi fa una classe seva amb el grup d'una altra hora. La classe que deixa es converteix en un buit, que un altre pas pot omplir alhora: un docent avança una classe, un altre omple el buit que deixa, i així successivament, fins que el que queda lliure és al principi o al final del dia (o al costat d'un pati).
 - **Intercanvi**: un altre docent del grup fa classe aleshores, i el docent absent, que és al centre en una altra hora, fa la classe d'aquest docent amb el grup.
-- **Avís a les famílies**: el grup entra més tard, surt abans o té un pati més llarg, per les classes que queden lliures al principi o al final del dia.
+- **Avís a les famílies**: el grup entra més tard, surt abans o té un pati més llarg, per les classes que queden lliures al principi o al final del dia. Un avís que només allarga el pati el rep únicament l'alumnat.
 
 Una classe compartida per diversos grups es mou per a tots, sempre que tots tinguin el mateix buit, i aleshores l'avís va a cada grup.
 
@@ -213,6 +213,8 @@ Per canviar d'idea, fes clic a la línia i després a **Canviar o treure la reor
 
 ### Entrada tard, sortida abans d'hora o sense classes
 
+El quadre només proposa aquests canvis, i el d'allargar el pati que ve després, si l'administrador els ha activat (cadascun per separat, consulta [Configurar les absències del personal](../admin/absences.md#canvis-dhorari-al-quadre-de-guàrdies)). Si estan desactivats, les classes sense docent es cobreixen amb una guàrdia, com qualsevol altra.
+
 Quan les classes sense docent són les primeres del dia del grup (una, dues o més seguides), l'alumnat podria entrar més tard; quan són les últimes, podria sortir abans; quan totes les classes del dia queden sense docent, el grup podria no tenir classes. Una classe on hi ha algú amb l'alumnat (un altre docent que no és absent, l'altra meitat d'un grup desdoblat, una optativa o un docent de guàrdia ja enviat) talla la seqüència.
 
 Aquestes línies mostren una etiqueta discontínua com ara **Pot entrar a les 10:00**, i la secció del grup al quadre **Propostes per a les absències**, damunt la taula (només el veu qui pot organitzar l'absència), ofereix aquest canvi com a última proposta, **Només avisar les famílies**. Enviar el comunicat ratlla aquestes classes de la taula, perquè cap docent de guàrdia les hagi de cobrir.
@@ -229,7 +231,7 @@ Un cop enviat (o programat) el comunicat, aquestes línies queden ratllades amb 
 
 ### Allargar el pati
 
-Quan les classes sense docent són just abans i/o just després d'un pati del nivell del grup, i més enllà hi ha classe, l'alumnat podria allargar el pati. Per exemple, amb el pati de 18:00 a 18:20 i la classe de les 17:00 buida, el pati podria començar a les 17:00; amb la de les 18:20 buida, podria acabar a les 19:20. El selector ofereix totes les combinacions (abans, després o totes dues, hora a hora), i el comunicat diu *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Enviar-lo ratlla aquestes classes, com qualsevol altre canvi.
+Quan les classes sense docent són just abans i/o just després d'un pati del nivell del grup, i més enllà hi ha classe, l'alumnat podria allargar el pati. Per exemple, amb el pati de 18:00 a 18:20 i la classe de les 17:00 buida, el pati podria començar a les 17:00; amb la de les 18:20 buida, podria acabar a les 19:20. El selector ofereix totes les combinacions (abans, després o totes dues, hora a hora), i el comunicat diu *"…el grup X allargarà el pati de 17:00 a 19:20 el dia …"*. Només el rep l'**alumnat** (mai les famílies), i recorda que els menors de 18 anys no poden sortir del centre durant el pati. Per això, a diferència dels altres canvis, **no** ratlla aquestes classes: mostren el pati com a etiqueta (*"Pati de 17:00 a 19:20"*) i continuen necessitant un docent de guàrdia, que s'ocupa de l'alumnat al centre. Si el mateix comunicat també canvia l'hora d'entrada o de sortida del grup, també el reben les famílies, pati inclòs.
 
 No es confon mai amb entrar o sortir: si les classes buides arriben a l'inici del dia, és una entrada tard (per exemple, entrar després del pati, a les 18:20); si arriben al final, una sortida abans d'hora (per exemple, marxar a casa a l'hora del pati, a les 18:00).
 

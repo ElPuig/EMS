@@ -23168,6 +23168,7 @@ msgstr "%(group)s | el %(date)s algunas clases cambian de hora"
 
 #. module: ems
 #. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
 #: code:addons/ems/models/communications/notice_arrangement.py:0
 msgid "Dear students,"
 msgstr "Estimado alumnado,"
@@ -23312,3 +23313,74 @@ msgstr "%(teacher)s pasan su clase de las %(other_time)s a las %(time)s."
 #: code:addons/ems/models/attendance/absence_coverage.py:0
 msgid "On guard at %(other_time)s instead: %(teachers)s."
 msgstr "De guardia a las %(other_time)s: %(teachers)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_late_entry
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_late_entry
+msgid "Groups may come in later"
+msgstr "Los grupos pueden entrar más tarde"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_early_leave
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_early_leave
+msgid "Groups may leave earlier"
+msgstr "Los grupos pueden salir antes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_long_break
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_long_break
+msgid "Groups may have a longer break"
+msgstr "Los grupos pueden tener un patio más largo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Guard Duty Board Settings"
+msgstr "Configuración del cuadro de guardias"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Come in later"
+msgstr "Entrar más tarde"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Leave earlier"
+msgstr "Salir antes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Longer break"
+msgstr "Patio más largo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "When the first lessons of a group's day have no teacher, the guard duty board offers to tell the students and their families that they can come in later (or that they have no classes at all, if no lesson has a teacher)."
+msgstr "Cuando las primeras clases del día de un grupo no tienen docente, el cuadro de guardias propone avisar al alumnado y a las familias de que pueden entrar más tarde (o de que no tienen clase, si ninguna clase tiene docente)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "When the last lessons of a group's day have no teacher, the guard duty board offers to tell the students and their families that they can leave earlier."
+msgstr "Cuando las últimas clases del día de un grupo no tienen docente, el cuadro de guardias propone avisar al alumnado y a las familias de que pueden salir antes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "When the lessons right before or after a break have no teacher, the guard duty board offers to make the break longer. Only the students are told, and students under 18 still cannot leave the centre, so those lessons keep needing a guard teacher."
+msgstr "Cuando las clases justo antes o después de un patio no tienen docente, el cuadro de guardias propone alargar el patio. Solo se avisa al alumnado, y los menores de 18 años siguen sin poder salir del centro, así que esas clases siguen necesitando un profesor de guardia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/communications/notice_absence_change.py:0
+msgid "Students under 18 cannot leave the centre during the break."
+msgstr "Los alumnos menores de 18 años no pueden salir del centro durante el patio."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%(group)s: the students were told \"%(told)s\", which no longer matches the absences (now: %(change)s)."
+msgstr "%(group)s: se comunicó «%(told)s» al alumnado, pero ya no coincide con las ausencias (ahora: %(change)s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "Notice to the students of %(groups)s: %(change)s."
+msgstr "Aviso al alumnado de %(groups)s: %(change)s."

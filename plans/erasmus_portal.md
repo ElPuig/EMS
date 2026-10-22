@@ -16,7 +16,7 @@ file is updated. The calls are drafts; this plan adapts EMS to them, it does not
 
 The centre runs Erasmus+ mobilities under two projects: KA121-VET (CFGM) and KA131-HED (CFGS).
 Every year it publishes two calls: one for **CFGM/CFGS students, any year** (internships abroad)
-and one for **staff linked to CFGM/CFGS** (job shadowing, structured courses, teaching). Today the
+and one for **vocational training (FP) staff** (job shadowing, structured courses, teaching). Today the
 whole process lives in forms, spreadsheets and email.
 
 Goal: run the calls inside EMS. Each applicant sees their own application and what they still
@@ -142,7 +142,7 @@ Separate from the score. Each check stores result, author, date and note:
 | Students: no previous Erasmus+ internship in this cycle | Team | Declaration + team knowledge |
 | Students: no serious sanction this course | **Director / Head of Studies** | Manual, with reference; restricted |
 | Students: family authorization if minor | Team | Document |
-| Staff: linked to CFGM/CFGS in 2026-27 | Team | Manual |
+| Staff: FP staff in the current course (CFGM, CFGS, CFGB or PFI) | Team | Manual |
 | Required documents present | Team | Documents |
 
 "No previous internship in this cycle" (admission) and criterion E "first mobility" (score) are
@@ -329,6 +329,9 @@ Execution notes, all phases:
 - **Any CFGM/CFGS student can apply, not only 2nd year** (coordinator, 2026-10-22). Art. 6 of the
   student call still says "segon curs" and must be changed before publishing. Art. 4's note on
   graduates doing the summer mobility is information for applicants only: it has no effect on EMS.
+- **Staff means FP staff, including those teaching only in PFI or CFGB** (coordinator, 2026-10-22).
+  Art. 6 of the staff call says "vinculació amb els cicles formatius de grau mitjà o de grau
+  superior"; if PFI/CFGB staff are meant to be included, the text should say so explicitly.
 - Where the official call text says "the online form published on the centre's website" (art. 7):
   the calls must be updated to point to EMS before publishing.
 - Seniority < 1 year = 0 is agreed but not yet in the staff call text.

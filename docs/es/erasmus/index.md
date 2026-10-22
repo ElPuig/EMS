@@ -16,6 +16,7 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 | [Baremación y entrevistas](scoring-and-interviews.md) | Los criterios de la convocatoria, las entrevistas con dos personas evaluadoras y la clasificación de cada modalidad |
 | [Resoluciones, reclamaciones y ofertas de plaza](resolutions-and-offers.md) | Publicar la lista de admitidos y las resoluciones provisional y definitiva, registrar las reclamaciones, ofrecer las plazas y exportar los participantes |
 | [La convocatoria del personal](staff-call.md) | La convocatoria para el personal de formación profesional: el tribunal que valora los planes de movilidad, los criterios del personal, una sola clasificación para toda la convocatoria y las plazas |
+| [Preparar las movilidades](mobility-preparation.md) | Destinos elegidos por turnos, destinos propios, entidades de acogida, documentos con quién los firma, la lista de pasos y el cierre de cada movilidad |
 
 ---
 

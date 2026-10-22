@@ -36,6 +36,12 @@ En la misma página ves el estado de tu solicitud, las subsanaciones que te pida
 
 Si te seleccionan, **acepta o renuncia a la plaza** en el portal antes del plazo: sin respuesta, se considera que renuncias.
 
+## 4. Preparar la movilidad
+
+Cuando aceptas la plaza, la página muestra **Tu movilidad**. La dirección valida la actividad que propusiste en la solicitud (actividad, entidad de acogida o curso, destino y fechas). Si no la valida, recibirás el motivo por correo: abre **Proponer otra actividad**, cambia lo que haga falta y haz clic en **Enviar la propuesta**.
+
+Una vez validada, la tarjeta muestra los documentos que hay que entregar antes de salir y a la vuelta (convenio de subvención, programa de movilidad firmado por ti, por el centro y por la entidad de acogida, certificado de asistencia, una breve memoria con evidencias en el mes siguiente a la vuelta...), quién firma cada uno y los plazos, y los pasos que hay que seguir (reuniones de preparación, actividades preparadas para tus grupos, informe final, sesión de difusión). Firma los documentos fuera de EMS, adjúntalos y haz clic en **Subir los documentos**.
+
 ---
 
 [← Volver a los manuales del profesorado](index.md)

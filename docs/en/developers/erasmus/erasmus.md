@@ -1,8 +1,8 @@
 # Erasmus+ calls and applications
 
 Issues #682 (umbrella), #683 (phase 1: calls and applications), #684 (phase 2: scoring and
-interviews), #685 (phase 3: resolutions, claims and place offers) and #686 (phase 4: the staff
-call). Design of the whole project: `plans/erasmus_portal.md`.
+interviews), #685 (phase 3: resolutions, claims and place offers), #686 (phase 4: the staff
+call) and #687 (phase 5: mobility preparation). Design of the whole project: `plans/erasmus_portal.md`.
 This page describes what is implemented.
 
 The centre publishes a yearly Erasmus+ call for its vocational training students (CFGM/CFGS, any
@@ -13,7 +13,8 @@ languages, fewer opportunities, first mobility, conduct warnings) and ranks them
 The resolutions, approved by the Erasmus coordinator, are published on the portal, claims are recorded, and the places are
 offered to the selected and, when one is renounced, to the next reserve. The centre's vocational
 training staff apply to their own call through the same portal page; a panel rates their mobility
-plans (see "Staff call" at the end).
+plans (see "Staff call"). Once a place is accepted, the mobility is prepared in EMS: destination,
+host entity, documents and checklist (see "Mobility preparation" at the end).
 
 ## Models
 
@@ -525,3 +526,126 @@ recorded draw. Result
 | `ems.erasmus.application.document` | rwcu | r, not confidential | r, `panel_visible` lines of the plans they rate |
 
 Menus *Erasmus+ > Plan ratings* (team) and *My plan ratings* (evaluators).
+
+## Mobility preparation (phase 5, #687)
+
+Accepting a place offer (`ems.erasmus.offer.action_accept`) creates the participant's **mobility**.
+The application keeps the selection; the mobility holds everything after it.
+
+```mermaid
+erDiagram
+    ems_erasmus_call ||--o{ ems_erasmus_destination : "destination_ids (students)"
+    ems_erasmus_destination }o--|| ems_erasmus_call_modality : "modality_id"
+    ems_erasmus_call ||--o{ ems_erasmus_call_document : "preparation_document_ids (stage preparation / return)"
+    ems_erasmus_call ||--o{ ems_erasmus_call_task : "task_ids (checklist)"
+    ems_erasmus_application ||--o| ems_erasmus_mobility : "mobility_ids"
+    ems_erasmus_mobility }o--o| ems_erasmus_destination : "destination_id"
+    ems_erasmus_mobility }o--o| res_partner : "host_partner_id, host_contact_id"
+    ems_erasmus_mobility ||--o{ ems_erasmus_application_document : "document_ids"
+    ems_erasmus_mobility ||--o{ ems_erasmus_mobility_task : "task_ids"
+```
+
+| Model | Purpose |
+|---|---|
+| `ems.erasmus.destination` | A destination of a students' call, in one modality: country, city, places, the levels it suits (empty: all), dates, host entities, notes. `free_places` = places minus its mobilities not cancelled. Not copied with the call (destinations change every year). |
+| `ems.erasmus.mobility` | One per accepted application (`unique(application_id)`): destination, the proposal and its decision, country, city, host entity (a company contact) and its contact person, dates, documents and checklist. |
+| `ems.erasmus.call.task` | A checklist step of the call (not a document): when (`stage`: before leaving / on return), only for some modalities. |
+| `ems.erasmus.mobility.task` | That step for one mobility, ticked by the team (who and when stamped). |
+
+**Documents.** `ems.erasmus.call.document` has a `stage`: `application` (phases 1-4), `preparation`
+or `return`. The call's `document_ids` shows only the application ones (One2many domain), so the
+application's lines and every earlier rule are unchanged; `preparation_document_ids` holds the
+other two. Each one can be limited to some modalities (`modality_ids`) and says who signs it
+outside EMS (`sign_participant`, `sign_guardian` for minors, `sign_centre`, `sign_host`, shown as
+`signers`). The mobility's lines are `ems.erasmus.application.document` records with `mobility_id`
+set: same review, every version kept, a new upload goes back to review. A new call gets default
+documents and steps per audience (`_ems_preparation_documents`, `_ems_preparation_tasks`: art. 17
+of the students' call, art. 15 of the staff call), editable. `_ems_sync_requirements()` adds what
+the mobility's modality needs and is missing, never removing a line: on creation, when a staff
+member's modality is assigned (`application.write`), and from *Update documents and checklist*.
+
+New call fields: `choice_turn_hours` (default 72), `choice_open`, `preparation_deadline` and
+`return_days` (default 30; `return_deadline` = end date + days).
+
+### Mobility states
+
+```mermaid
+stateDiagram-v2
+    [*] --> choosing: offer accepted
+    choosing --> preparing: destination chosen / one destination / proposal validated
+    choosing --> cancelled: back to the reserve list / no answer in the turn / renounced / cancelled
+    preparing --> done: Close (return documents and steps complete)
+    preparing --> cancelled: renounced / cancelled by the team (with a reason)
+```
+
+The state changes only through the actions. Cancelling frees the place (`_ems_cancel`): the
+accepted offer becomes `renounced`, or `returned` when the student goes back to the reserve list
+(the application to `reserve`); the place is then offered with the existing wizard, never on its
+own. `_ems_next_reserve` puts a student who came back after the other reserves.
+
+### Destination choice (students, art. 15)
+
+`call.action_open_destination_choice()` (after the definitive resolution, with destinations) sets
+`choice_open` and runs `_ems_advance_choice()`, which runs again after every choice, proposal,
+rejection and cancellation. Per modality:
+
+- **One destination:** every mobility still choosing that it suits is assigned directly.
+- **Several:** if no turn is open, the best-ranked mobility still choosing (`_ems_choosing`: not
+  waiting for an own proposal) gets `turn_deadline` = now + `choice_turn_hours` and the email
+  `email_template_erasmus_choice_turn`. One turn at a time.
+- On the portal they choose among `_ems_choices()` (free and suitable for their `level_id`, the
+  level when the place was accepted), or go back to the reserve list.
+- No answer: the hourly cron `ems.ir_cron_erasmus_expire_turns` (`_cron_expire_turns`) cancels the
+  mobility (the place is lost) and the next one gets the turn.
+
+Assigning copies country, city and dates from the destination and emails
+`email_template_erasmus_mobility_assigned`.
+
+### Proposals and their decision
+
+The same fields serve a student's **own destination** and a staff member's **activity**:
+`proposal_*`, `proposal_state` (`pending` / `validated` / `rejected`), `decision_note`,
+`decided_by_id`, `decision_date`.
+
+| | Student | Staff |
+|---|---|---|
+| Sent | From the portal while choosing, with the host's written commitment (required) | Copied from the application when the mobility is created; again from the portal only after a rejection |
+| Validated by (`_ems_can_validate`) | Erasmus team | **Director** (`ems.group_director`); the Erasmus team cannot |
+| Validated | Preparing, country and city from the proposal | Same |
+| Rejected (needs `decision_note`) | Back to choosing the centre's destinations | Proposes another activity on the portal |
+
+A pending proposal schedules a to-do (`mail.activity`) for every validator, marked done on the
+decision; a rejection emails `email_template_erasmus_proposal_rejected`. The administrator can
+always validate.
+
+### Preparation, return and closing
+
+- *Notify pending documents* emails `email_template_erasmus_mobility_documents` with the lines
+  missing or needing changes.
+- `preparation_complete` / `return_complete`: every required line of the stage valid and every
+  step done. **Close** needs `return_complete`.
+- **Cancel** (team) needs `cancel_reason`; the participant can renounce from the portal.
+
+### Graduates
+
+The course transition (`_apply_graduates`) does not retire a graduate with an open mobility
+(`res.partner._ems_erasmus_open_mobility`): it is reported and keeps the portal. When the mobility
+is closed or cancelled, `_ems_erasmus_release_graduate()` retires an active alumnus with no open
+mobility left, as the transition would have (`res.partner._ems_retire_graduate`, shared with it).
+
+### Portal (phase 5)
+
+`POST /my/erasmus/call/<id>/mobility/<step>` acts on the logged-in user's own mobility of that
+call: `choose` (`destination_id`), `reserve`, `propose` (the `proposal_*` fields and
+`proposal_files`), `upload` (`document_<call document id>`) and `renounce` (`reason`). The call page
+shows the *Your mobility* card (`ems.portal_erasmus_mobility`).
+
+### Access (phase 5)
+
+| Model | Erasmus team | Head of Studies | Director | Portal |
+|---|---|---|---|---|
+| `ems.erasmus.destination`, `.call.task`, `.mobility.task` | rwcu | r | r | via controller |
+| `ems.erasmus.mobility` | rwcu | r | r + `decision_note` and validating staff proposals (`write()` guard) | via controller |
+
+Menu *Erasmus+ > Mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
+filter.

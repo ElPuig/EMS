@@ -60,9 +60,26 @@ Si quedas **seleccionado o seleccionada** en la resolución definitiva, tu solic
 
 Si no respondes dentro del plazo, se considera que renuncias. Si estás en **reserva** y queda una plaza libre, recibirás un correo y la oferta aparecerá en tu solicitud, con su propio plazo.
 
-## 8. Seguir la solicitud
+## 8. Preparar la movilidad
 
-La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*.
+Cuando aceptas la plaza, tu solicitud muestra **Tu movilidad**.
+
+**Elige el destino.** Si tu modalidad tiene varios destinos, las personas seleccionadas eligen por orden de la lista, empezando por la primera. Cuando te toca, recibes un correo: abre la solicitud, elige uno de los destinos con plazas libres para tu ciclo y haz clic en **Elegir este destino** antes del plazo que se indica. **Si no respondes a tiempo, pierdes la plaza.** Si ninguno te va bien, o no estás disponible para sus fechas, abre **Ningún destino me va bien** y haz clic en **Volver a la lista de reserva**: mantienes tu puntuación y la plaza pasa a la persona siguiente. Si tu modalidad solo tiene un destino, se te asigna directamente.
+
+**Un destino propio.** También puedes buscar por tu cuenta una empresa o entidad de otro país Erasmus+. Abre **Proponer mi propio destino**, rellena la entidad, la persona de contacto, el país, la ciudad y las fechas, adjunta su **compromiso por escrito** de acogerte y haz clic en **Enviar la propuesta**. La entidad también tiene que escribir a erasmus@elpuig.xeill.net. El equipo Erasmus la valida; si no, recibirás el motivo y podrás elegir entre los destinos del centro.
+
+**Documentos y pasos.** Cuando tienes destino, la tarjeta muestra el lugar, la entidad de acogida y las fechas, y también:
+
+- Los **documentos** que hay que entregar antes de salir y a la vuelta, quién tiene que **firmar** cada uno y los plazos. Fírmalos fuera de EMS, adjunta la copia firmada y haz clic en **Subir los documentos**. Si el equipo Erasmus te pide un cambio, verás su comentario en rojo.
+- Los **pasos** que hay que seguir (sesiones de preparación, el curso de idiomas en línea, el informe final...). El equipo Erasmus los marca cuando están hechos.
+
+Si tienes que renunciar, abre **Quiero renunciar a la plaza**. Renunciar sin una causa justificada puede suponer pagar los gastos ya comprometidos (billetes, reservas).
+
+Si te titulas este curso y haces la movilidad en verano, mantienes el acceso al portal hasta que termina.
+
+## 9. Seguir la solicitud
+
+La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*, y el estado de la movilidad: *Eligiendo el destino*, *En preparación*, *Cerrada* o *Cancelada*.
 
 Para cualquier duda, escribe a la coordinación Erasmus: **erasmus@elpuig.xeill.net**.
 

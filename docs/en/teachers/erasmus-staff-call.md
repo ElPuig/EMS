@@ -36,6 +36,12 @@ On the same page you see the state of your application, the corrections the Eras
 
 If you are selected, **accept or renounce the place** on the portal before the deadline: without an answer, the place is considered renounced.
 
+## 4. Prepare your mobility
+
+When you accept the place, the page shows **Your mobility**. The Director validates the activity you proposed in the application (activity, host entity or course, destination and dates). If it is not validated, you will receive the reason by email: open **Propose another activity**, change what is needed and click **Send the proposal**.
+
+Once validated, the card shows the documents to hand in before leaving and on return (grant agreement, mobility programme signed by you, the centre and the host entity, certificate of attendance, a short report with evidence within a month of your return...), who signs each one and the deadlines, and the steps to follow (preparation meetings, activities left for your groups, final report, dissemination session). Sign the documents outside EMS, attach them and click **Upload the documents**.
+
 ---
 
 [← Back to teachers' manuals](index.md)

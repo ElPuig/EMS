@@ -1,6 +1,6 @@
 # Erasmus+ calls and mobilities inside EMS
 
-**Status: design, current as of 2026-10-22. Phase 5 (#687) designed in section 10. Phases 1 (#683), 2 (#684), 3 (#685) and 4 (#686) implemented on their branches, not merged yet: what it
+**Status: design, current as of 2026-10-22. Phases 1 (#683), 2 (#684), 3 (#685), 4 (#686) and 5 (#687, section 10) implemented on their branches, not merged yet: what it
 ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Design of record for the
 umbrella issue #682 and its phase issues (#683-#687); keep it current as each phase lands, then delete it once the
 last phase ships (its contents folded into `docs/en/developers/erasmus/` and the role manuals).
@@ -331,7 +331,8 @@ graph LR
   panel configuration and ratings, manual merits, staff scoring and tie-breaks, project/period
   assignment, one place per person. Reuses F1-F3, including "Export to spreadsheet": for staff,
   Ciclo formativo, Curso and the legal guardian columns stay empty (decided 2026-10-22).
-- **F5 - Mobility preparation** *(large; second delivery; design in section 10)*. Destination choice by rank
+- **F5 - Mobility preparation** *(large; second delivery; design in section 10; implemented on `687-erasmus-phase-5`,
+  see the dev doc)*. Destination choice by rank
   on the portal, own proposals, host entities, preparation and return documents with signers (signed
   outside EMS and uploaded), checklist per modality, Director validation of staff activities, graduates
   keep the portal until their mobility closes.

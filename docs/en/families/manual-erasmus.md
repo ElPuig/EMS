@@ -60,9 +60,26 @@ If you are **selected** in the definitive resolution, your application shows the
 
 Without an answer by the deadline, the place is considered renounced. If you are on the **reserve list** and a place becomes free, you will receive an email and the offer will appear on your application, with its own deadline.
 
-## 8. Follow your application
+## 8. Prepare your mobility
 
-The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*.
+When you accept the place, your application shows **Your mobility**.
+
+**Choose your destination.** If your modality has several destinations, the selected choose in order of the list, starting with the first one. When it is your turn you receive an email: open your application, pick one of the destinations with free places for your cycle and click **Choose this destination** before the deadline shown. **If you don't answer in time, you lose the place.** If none of them suits you, or you are not available for their dates, open **None of the destinations suits me** and click **Go back to the reserve list**: you keep your score and your place goes to the next person. If your modality has only one destination, you are assigned to it directly.
+
+**Your own destination.** You can also find a company or entity in another Erasmus+ country yourself. Open **Propose my own destination**, fill in the entity, its contact person, the country, the city and the dates, attach its **written commitment** to take you, and click **Send the proposal**. The entity must also write to erasmus@elpuig.xeill.net. The Erasmus team validates it; if not, you will receive the reason and you can choose among the centre's destinations.
+
+**Documents and steps.** Once you have a destination, the card shows the place, the host entity and the dates, and:
+
+- The **documents** to hand in before leaving and on return, who must **sign** each one and the deadlines. Sign them outside EMS, attach the signed copy and click **Upload the documents**. If the Erasmus team asks for a change, you will see its comment in red.
+- The **steps** to follow (preparation sessions, the online language course, the final report...). The Erasmus team ticks them when they are done.
+
+If you have to renounce, open **I want to renounce the place**. Renouncing without a justified cause may mean paying the expenses already committed (tickets, bookings).
+
+If you graduate this course and do the mobility in the summer, you keep access to the portal until it ends.
+
+## 9. Follow your application
+
+The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*, and the state of your mobility: *Choosing the destination*, *Preparing*, *Closed* or *Cancelled*.
 
 For any question, write to the Erasmus coordination: **erasmus@elpuig.xeill.net**.
 

@@ -59,7 +59,7 @@
                             <button name="action_validate_proposal" type="object" string="Validate the proposal"
                                     class="btn-primary"
                                     invisible="not can_validate or state != 'choosing' or proposal_state != 'pending'"/>
-                            <button name="action_reject_proposal" type="object" string="Do not validate the proposal"
+                            <button name="action_reject_proposal" type="object" string="Reject the proposal"
                                     invisible="not can_validate or state != 'choosing' or proposal_state != 'pending'"
                                     help="Write the reason of the decision first: the participant reads it."/>
                             <button name="action_notify_documents" type="object" string="Notify pending documents"

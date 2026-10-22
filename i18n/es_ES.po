@@ -34,6 +34,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
+#: code:addons/ems/models/contacts/portal.py
 msgid "%(student)s: recipient %(name)s has no email"
 msgstr "%(student)s: el destinatario %(name)s no tiene correo electrónico"
 
@@ -1394,6 +1395,7 @@ msgstr "Acción"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_needaction
 msgid "Action Needed"
 msgstr "Acción Necesária"
 
@@ -1414,6 +1416,7 @@ msgstr "Acción Necesária"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__active
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__active
 msgid "Active"
 msgstr "Activo"
 
@@ -1494,6 +1497,7 @@ msgstr "Confirmar el archivado de grupo(s) con alumnos activos"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_ids
 msgid "Activities"
 msgstr "Actividades"
 
@@ -1501,6 +1505,7 @@ msgstr "Actividades"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #. module: ems
 #: model:ir.model,name:ems.model_mail_activity
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Activity"
 msgstr "Actividad"
 
@@ -1521,6 +1526,7 @@ msgstr "Actividad"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepción en una actividad"
 
@@ -1541,6 +1547,7 @@ msgstr "Decorador de la excepción en una actividad"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_state
 msgid "Activity State"
 msgstr "Estado de la actividad"
 
@@ -1561,6 +1568,7 @@ msgstr "Estado de la actividad"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icono de tipo de actividad"
 
@@ -1993,6 +2001,7 @@ msgstr "Archivo adjunto"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_attachment_count
 msgid "Attachment Count"
 msgstr "Cantidad de adjuntos"
 
@@ -2493,6 +2502,7 @@ msgstr "Cancelar"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_status__cancel
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__state__cancelled
 msgid "Cancelled"
 msgstr "Cancelado"
 
@@ -2606,6 +2616,9 @@ msgstr "Ciudadanía"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__city model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_city model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__city
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__city
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "City"
 msgstr "Ciudad"
 
@@ -2881,6 +2894,9 @@ msgstr "No se pudieron leer las cabeceras de columnas del archivo CSV."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__country_id model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__country_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__country_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Country"
 msgstr "País"
 
@@ -3030,6 +3046,10 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3103,6 +3123,10 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3445,6 +3469,10 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -3533,6 +3561,9 @@ msgstr "Documentación"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__document_ids model:ir.model.fields,field_description:ems.field_res_users__document_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__document_ids
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Documents"
 msgstr "Documentos"
 
@@ -3540,6 +3571,7 @@ msgstr "Documentos"
 #: model:ir.model.fields.selection,name:ems.selection__ems_course_transition_wizard__state__done
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_direction_state__done
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__done model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__done
 msgid "Done"
 msgstr "Hecho"
 
@@ -3774,6 +3806,8 @@ msgstr "Activa los comportamientos especiales del bloque."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course__end
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__date_end
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__date_end
 msgid "End"
 msgstr "Fin"
 
@@ -3816,6 +3850,8 @@ msgstr "Productos matriculados (Técnico)"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization__enrollment_id model:ir.model.fields,field_description:ems.field_ems_group__enrollment_view_ids model:ir.model.fields,field_description:ems.field_res_partner__enrollment_ids model:ir.model.fields,field_description:ems.field_res_users__enrollment_ids model:ir.ui.menu,name:ems.menu_ems_enrollment model_terms:ir.ui.view,arch_db:ems.ems_portal_custom_header_menu model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_applicant_list
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__enrollment_id
+#: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 msgid "Enrollment"
 msgstr "Matrícula"
 
@@ -4209,6 +4245,7 @@ msgstr "Hacer un seguimiento"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_follower_ids
 msgid "Followers"
 msgstr "Seguidores"
 
@@ -4231,6 +4268,7 @@ msgstr "Seguidores"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidores (Compañeros)"
 
@@ -4251,6 +4289,7 @@ msgstr "Seguidores (Compañeros)"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icono de Font Awesome p. ej. fa-tasks"
 
@@ -4530,6 +4569,8 @@ msgstr "Grupo"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination
 msgid "Group By"
 msgstr "Agrupar por"
 
@@ -4615,6 +4656,7 @@ msgstr "Tiene tasas"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__has_message
 msgid "Has Message"
 msgstr "Tiene mensaje"
 
@@ -4784,6 +4826,10 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__id
 msgid "ID"
 msgstr "ID"
 
@@ -4810,6 +4856,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_exception_icon
 msgid "Icon"
 msgstr "Icono"
 
@@ -4830,6 +4877,7 @@ msgstr "Icono"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icono para indicar una actividad de excepción."
 
@@ -4857,6 +4905,7 @@ msgstr "Si el IBAN está mapeado y una fila tiene valor, todas las cuentas banca
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si está marcado, nuevos mensajes requieren de su atención. "
 
@@ -4896,6 +4945,8 @@ msgstr "Si está marcado, nuevos mensajes requieren de su atención. "
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si está marcado, algunos mensajes tienen un error de entrega.Si está marcado, algunos mensajes tienen un error de entrega.Si está marcado, algunos mensajes fallaron al intentar ser entregados."
 
@@ -5178,6 +5229,7 @@ msgstr "Es tasa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_is_follower
 msgid "Is Follower"
 msgstr "Es seguidor"
 
@@ -5361,6 +5413,10 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5434,6 +5490,10 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5481,6 +5541,7 @@ msgstr "Texto legal (renderizado)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__level_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__level_id model:ir.model.fields,field_description:ems.field_ems_content__level model:ir.model.fields,field_description:ems.field_ems_criteria__level model:ir.model.fields,field_description:ems.field_ems_group__level_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__level_ids model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__level_id model:ir.model.fields,field_description:ems.field_ems_outcome__level model:ir.model.fields,field_description:ems.field_ems_study__level_id model:ir.model.fields,field_description:ems.field_res_partner__level_id model:ir.model.fields,field_description:ems.field_res_users__level_id model:ir.model.fields,field_description:ems.field_resource_calendar__level_id model:ir.model.fields,field_description:ems.field_sale_order__ems_level_id model_terms:ir.ui.view,arch_db:ems.level_view_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model:ir.model.fields,field_description:ems.field_ems_student_year_record__level_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__level_id model:ir.model.fields,field_description:ems.field_sale_order_template__ems_level_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__level_id
 msgid "Level"
 msgstr "Nivel"
 
@@ -5488,6 +5549,7 @@ msgstr "Nivel"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.level_action model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard__ems_level_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_state_wizard__level_ids model:ir.model.fields,field_description:ems.field_ems_grade_session_wizard__level_ids model:ir.ui.menu,name:ems.level_menu model_terms:ir.ui.view,arch_db:ems.view_study_search
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard__ems_level_ids model:ir.model.fields,field_description:ems.field_ems_student_scope_mixin__ems_level_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__level_ids
 msgid "Levels"
 msgstr "Niveles"
 
@@ -5793,6 +5855,7 @@ msgstr "Mensaje"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de entrega del mensaje"
 
@@ -5815,6 +5878,7 @@ msgstr "Error de entrega del mensaje"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_ids
 msgid "Messages"
 msgstr "Mensajes"
 
@@ -5864,6 +5928,9 @@ msgstr "Móvil"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__modality_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__modality_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__modality_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 msgid "Modality"
 msgstr "Modalidad"
 
@@ -5918,6 +5985,7 @@ msgstr "Madre"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Fecha límite de mi actividad"
 
@@ -5940,6 +6008,9 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__name
 #: code:addons/ems/models/grades/title_import_wizard.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__name
 msgid "Name"
 msgstr "Nombre"
 
@@ -5987,6 +6058,7 @@ msgstr "Nuevo contacto de alumno/a"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Fecha límite de la siguiente actividad"
 
@@ -6007,6 +6079,7 @@ msgstr "Fecha límite de la siguiente actividad"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resumen de la siguiente actividad"
 
@@ -6027,6 +6100,7 @@ msgstr "Resumen de la siguiente actividad"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipo de la siguiente actividad"
 
@@ -6136,6 +6210,7 @@ msgstr "No encolado"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__note model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__note model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__note
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__note
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__note
 msgid "Note"
 msgstr "Nota"
 
@@ -6148,6 +6223,8 @@ msgstr "Nota"
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__notes
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Notes"
 msgstr "Notas"
 
@@ -6240,6 +6317,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Cantidad de acciones"
 
@@ -6262,6 +6340,7 @@ msgstr "Cantidad de acciones"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_has_error_counter
 msgid "Number of errors"
 msgstr "Cantidad de errores"
 
@@ -6284,6 +6363,7 @@ msgstr "Cantidad de errores"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Cantidad de mensajes que requieren de una acción"
 
@@ -6306,6 +6386,7 @@ msgstr "Cantidad de mensajes que requieren de una acción"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Cantidad de mensajes con error de entrega"
 
@@ -6417,6 +6498,7 @@ msgstr "Solo los tutores pueden justificar las faltas de los alumnos."
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__open model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_claim__state__open
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 msgid "Open"
 msgstr "Abierta"
 
@@ -6968,6 +7050,7 @@ msgstr "Plantilla de presupuesto"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__rating_ids
 msgid "Ratings"
 msgstr "Cualificaciones"
 
@@ -7284,6 +7367,7 @@ msgstr "Detalles de la respuesta"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_user_id
 msgid "Responsible User"
 msgstr "Usuario responsable"
 
@@ -7438,6 +7522,7 @@ msgstr "En ejecución"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de entrega de un SMS"
 
@@ -7730,6 +7815,9 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_rejection_reason__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -7924,6 +8012,8 @@ msgstr "Comportamiento especial"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_course__start
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__date_start
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__date_start
 msgid "Start"
 msgstr "Comenzar"
 
@@ -7972,6 +8062,8 @@ msgstr "Iniciando proceso en segundo plano; recibirás una notificación al fina
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__state
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 msgid "State"
 msgstr "Estado"
 
@@ -8011,6 +8103,7 @@ msgstr "Estado"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_state
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_state
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_state
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -9017,6 +9110,7 @@ msgstr "Conflicto"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipo de actividad de excepción en el registro."
 
@@ -9202,6 +9296,7 @@ msgstr "Usuario"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__user_is_admin
 msgid "User Is Admin"
 msgstr "El usuario es administrador"
 
@@ -9218,6 +9313,7 @@ msgstr "El usuario es administrador"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__user_is_tutor
 msgid "User Is Tutor"
 msgstr "El usuario es tutor"
 
@@ -9315,6 +9411,7 @@ msgstr "Estamos trabajando en esta sección para ofrecerte la mejor experiencia.
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__website_message_ids
 msgid "Website Messages"
 msgstr "Mensajes del sitio web"
 
@@ -9337,6 +9434,7 @@ msgstr "Mensajes del sitio web"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_claim__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__website_message_ids
 msgid "Website communication history"
 msgstr "Historial de comunicaciones del sistio web"
 
@@ -9721,6 +9819,8 @@ msgstr "Prevalece la derecha"
 #. odoo-javascript
 #: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_internal_conflict_line__resolution__reassign_rooms model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_external_conflict_line__resolution__reassign_rooms
 #: code:addons/ems/static/src/js/backend/grouped_conflict_lines_field.js:0
+#: model:ir.model.fields.selection,name:ems.selection__ems_group_classroom_change_wizard_conflict_line__resolution__reassign_rooms
+#: model:ir.model.fields.selection,name:ems.selection__ems_working_schedules_import_wizard_conflict_mixin__resolution__reassign_rooms
 #, python-format
 msgid "Reassign rooms"
 msgstr "Reasignar aulas"
@@ -10974,6 +11074,7 @@ msgstr "%(student)s: no se ha podido revocar el acceso al portal, se mantiene ac
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/settings/course_transition_wizard.py:0
+#: code:addons/ems/models/contacts/portal.py
 msgid "%s: portal access could not be revoked, kept active"
 msgstr "%s: no se ha podido revocar el acceso al portal, se mantiene activo"
 
@@ -11086,6 +11187,7 @@ msgstr "Dar de baja"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_students_no_destination model:ir.ui.menu,name:ems.menu_students_no_destination
+#: model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination
 msgid "Students without destination"
 msgstr "Estudiantes sin destino"
 
@@ -16082,6 +16184,7 @@ msgstr "Marcad los módulos que ya habéis superado en otros estudios."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Evento de calendario de la siguiente actividad"
 
@@ -18582,6 +18685,7 @@ msgstr "Cerrar la asistencia"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call__state__closed
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_meeting_presence__state__closed model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__state__done
 msgid "Closed"
 msgstr "Cerrada"
 
@@ -19808,6 +19912,7 @@ msgstr "Validar el justificante de la ausencia"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__hr_leave__ems_document_state__validated
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_state__validated
 msgid "Validated"
 msgstr "Validado"
 
@@ -20108,6 +20213,7 @@ msgstr "No se puede poner un strike con fecha futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_claim_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_offer_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Actions"
 msgstr "Acciones"
 
@@ -22960,6 +23066,7 @@ msgstr "Motivo del rechazo:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__when
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Dates"
 msgstr "Fechas"
 
@@ -24032,7 +24139,6 @@ msgstr "Solo avisar a las familias"
 msgid "Fill main groups from enrolled students"
 msgstr "Rellenar los grupos principales desde el alumnado inscrito"
 
-
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 msgid "Some of its enrolled students come from main groups that are not among its main groups:"
@@ -24417,6 +24523,7 @@ msgstr "Observaciones del solicitante"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__application_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__application_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__application_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__application_id
 msgid "Application"
 msgstr "Solicitud"
 
@@ -24494,6 +24601,10 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__call_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__call_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__call_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__call_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__call_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
 msgid "Call"
 msgstr "Convocatoria"
 
@@ -24553,6 +24664,8 @@ msgstr "Declara menos oportunidades"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__destinations
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__destination_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Destinations"
 msgstr "Destinos"
 
@@ -24716,6 +24829,9 @@ msgstr "Información para los solicitantes"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__description
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__description
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__description
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__description
 msgid "Instructions"
 msgstr "Instrucciones"
 
@@ -24761,6 +24877,7 @@ msgstr "Modalidad:"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__review_state__needs_change
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Needs changes"
 msgstr "Hay que corregir"
 
@@ -24830,6 +24947,7 @@ msgstr "Opcional"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__places
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__places
 msgid "Places"
 msgstr "Plazas"
 
@@ -24951,6 +25069,7 @@ msgstr "Se muestra en el portal encima del formulario de solicitud."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__description
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__description
 msgid "Shown to the applicant next to the upload."
 msgstr "Se muestra al solicitante junto a la subida del archivo."
 
@@ -25055,6 +25174,7 @@ msgstr "Primero sube los documentos obligatorios: %s"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application_document__review_state__valid
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Valid"
 msgstr "Válido"
 
@@ -25608,6 +25728,7 @@ msgstr ""
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__rank
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__rank
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer_wizard__rank
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__rank
 msgid ""
 "Position in the modality among the admitted applications. 0 until every one "
 "of them has a complete score."
@@ -25621,6 +25742,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__rank
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__rank
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__rank
 msgid "Rank"
 msgstr "Posición"
 
@@ -26156,6 +26278,7 @@ msgstr "Completa la puntuación y resuelve los sorteos de: %s"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Confirm that I renounce the place"
 msgstr "Confirmo que renuncio a la plaza"
 
@@ -26261,6 +26384,7 @@ msgstr "F. Amonestaciones"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__free_places
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__free_places
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__free_places
 msgid "Free places"
 msgstr "Plazas libres"
 
@@ -26275,6 +26399,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "I want to renounce the place"
 msgstr "Quiero renunciar a la plaza"
 
@@ -26474,6 +26599,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Reason (optional)"
 msgstr "Motivo (opcional)"
 
@@ -26784,6 +26910,7 @@ msgstr "Anexo 2 (0, 0,5 o 1 cada uno)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__audience model:ir.model.fields,field_description:ems.field_ems_erasmus_call__audience model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__audience model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__audience
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__audience
 msgid "Applicants"
 msgstr "Solicitantes"
 
@@ -26822,6 +26949,7 @@ msgstr "Proyectos, comisiones o coordinaciones del centro en los que participas 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
+#: code:addons/ems/models/erasmus/mobility.py
 msgid "Choose one of the activities of the call."
 msgstr "Elige una de las actividades de la convocatoria."
 
@@ -26843,6 +26971,8 @@ msgstr "Coordinación de un proyecto del centro (1)"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__destination
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__destination_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Destination"
 msgstr "Destino"
 
@@ -26901,6 +27031,7 @@ msgstr "Cada modalidad de una convocatoria de alumnado necesita los niveles del 
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__host_entity model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Host entity or course"
 msgstr "Entidad de acogida o curso"
 
@@ -26931,6 +27062,7 @@ msgstr "Actividad de internacionalización (0,5)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__job_shadowing
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_activity__job_shadowing
 msgid "Job shadowing"
 msgstr "Job shadowing"
 
@@ -27170,11 +27302,13 @@ msgstr "Convocatoria del personal: quién valora los planes de movilidad (todos 
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__course
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_activity__course
 msgid "Structured course"
 msgstr "Curso estructurado"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__audience model:ir.model.fields,help:ems.field_ems_erasmus_call__audience model:ir.model.fields,help:ems.field_ems_erasmus_offer_wizard__audience model:ir.model.fields,help:ems.field_ems_erasmus_resolution_line__audience
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__audience
 msgid "Students apply in the modality of their level. Staff apply once, are ranked in one list, and the Erasmus team assigns each selected person a modality (project and period) afterwards."
 msgstr "El alumnado se presenta en la modalidad de su nivel. El personal solicita una sola vez, se clasifica en una sola lista y, después, el equipo Erasmus asigna a cada persona seleccionada una modalidad (proyecto y periodo)."
 
@@ -27195,6 +27329,7 @@ msgstr "Apoyos o adaptaciones que necesitas para hacer la movilidad (confidencia
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__staff_activity__teaching
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_activity__teaching
 msgid "Teaching assignment"
 msgstr "Estancia de docencia"
 
@@ -27495,3 +27630,1150 @@ msgstr "Solo el coordinador o la coordinadora Erasmus puede publicar una resoluc
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 msgid "Approved by the Erasmus+ coordination on:"
 msgstr "Aprobada por la coordinación Erasmus+ el:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/course_transition_wizard.py:0
+msgid "%s: kept on the portal until their Erasmus+ mobility is closed"
+msgstr "%s: se mantiene en el portal hasta que se cierre su movilidad Erasmus+"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "(optional)"
+msgstr "(opcional)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+".\n"
+"                                Without an answer by then, you lose the place."
+msgstr ""
+".\n"
+"                                Si no respondes antes, pierdes la plaza."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_choice_turn
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            It is your turn to choose the destination of your Erasmus+ mobility\n"
+"                            (<strong t-out=\"object.call_id.name\"/>), among the destinations that still have places.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Choose it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            before <strong t-out=\"object._ems_local_format(object.turn_deadline)\"/>.\n"
+"                            Without an answer by then, you lose the place.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Te toca elegir el destino de tu movilidad Erasmus+\n"
+"                            (<strong t-out=\"object.call_id.name\"/>), entre los destinos que aún tienen plazas.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Elígelo en el portal del instituto\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            antes del <strong t-out=\"object._ems_local_format(object.turn_deadline)\"/>.\n"
+"                            Si no respondes antes, pierdes la plaza.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Saludos cordiales,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_mobility_assigned
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            The destination of your Erasmus+ mobility is\n"
+"                            <strong t-out=\"object.destination_id.name or ', '.join(filter(None, [object.city, object.country_id.name]))\"/>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Now you can prepare it: on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) you will find the\n"
+"                            documents to hand in, who signs each one, the deadlines and the steps to follow.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            El destino de tu movilidad Erasmus+ es\n"
+"                            <strong t-out=\"object.destination_id.name or ', '.join(filter(None, [object.city, object.country_id.name]))\"/>.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Ahora ya puedes prepararla: en el portal del instituto\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) encontrarás los\n"
+"                            documentos que hay que entregar, quién firma cada uno, los plazos y los pasos que hay que seguir.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Saludos cordiales,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_mobility_documents
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            These documents of your Erasmus+ mobility (<strong t-out=\"object.call_id.name\"/>) are\n"
+"                            missing or need changes:\n"
+"                        </p>\n"
+"                        <t t-out=\"object._ems_mail_document_list()\"/>\n"
+"                        <p>\n"
+"                            Upload them on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>), where you will also\n"
+"                            find the team's comments and the deadlines.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Estos documentos de tu movilidad Erasmus+ (<strong t-out=\"object.call_id.name\"/>)\n"
+"                            faltan o hay que corregirlos:\n"
+"                        </p>\n"
+"                        <t t-out=\"object._ems_mail_document_list()\"/>\n"
+"                        <p>\n"
+"                            Súbelos en el portal del instituto\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>), donde también\n"
+"                            encontrarás los comentarios del equipo y los plazos.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Saludos cordiales,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_proposal_rejected
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            Your proposal for the Erasmus+ mobility (<strong t-out=\"object.call_id.name\"/>) has not\n"
+"                            been validated, for this reason:\n"
+"                        </p>\n"
+"                        <p style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
+"                        <p t-if=\"object.audience == 'staff'\">\n"
+"                            You can propose another activity on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            You can choose one of the centre's destinations on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) when your turn comes.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            Tu propuesta para la movilidad Erasmus+ (<strong t-out=\"object.call_id.name\"/>) no\n"
+"                            se ha validado, por este motivo:\n"
+"                        </p>\n"
+"                        <p style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
+"                        <p t-if=\"object.audience == 'staff'\">\n"
+"                            Puedes proponer otra actividad en el portal del instituto\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            Puedes elegir uno de los destinos del centro en el portal del instituto\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) cuando te toque.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Saludos cordiales,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "<i class=\"fa fa-clock-o me-1\"/>The Erasmus team will open the choice of destinations: you will receive an email when it is your turn."
+msgstr "<i class=\"fa fa-clock-o me-1\"/>El equipo Erasmus abrirá la elección de destinos: recibirás un correo cuando te toque."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "<i class=\"fa fa-clock-o me-1\"/>The selected choose their destination in rank order: you will receive an email when it is your turn."
+msgstr "<i class=\"fa fa-clock-o me-1\"/>Las personas seleccionadas eligen el destino por orden de puntuación: recibirás un correo cuando te toque."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "<strong><i class=\"fa fa-plane me-1\"/>Your mobility</strong>"
+msgstr "<strong><i class=\"fa fa-plane me-1\"/>Tu movilidad</strong>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "A destination belongs to a modality of its own call."
+msgstr "Un destino pertenece a una modalidad de su propia convocatoria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "A short report with evidence, within a month of your return."
+msgstr "Una breve memoria con evidencias, en el mes siguiente a la vuelta."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_mobility_task_mobility_task_unique
+msgid "A step appears once in a mobility."
+msgstr "Un paso solo aparece una vez en una movilidad."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Activities left for your groups"
+msgstr "Actividades preparadas para tus grupos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Activities, dates and expected results, agreed with the host entity."
+msgstr "Actividades, fechas y resultados previstos, acordados con la entidad de acogida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Add the destinations first."
+msgstr "Añade primero los destinos."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Adds the documents and steps of the call that this mobility does not have yet."
+msgstr "Añade los documentos y los pasos de la convocatoria que esta movilidad aún no tiene."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_mobility_application_unique
+msgid "An application has only one mobility."
+msgstr "Una solicitud solo tiene una movilidad."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Annex 3 of the call."
+msgstr "Anexo 3 de la convocatoria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Authorisation for minors to travel abroad"
+msgstr "Autorización de salida de menores al extranjero"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_offer__state__returned
+msgid "Back to the reserve list"
+msgstr "Ha vuelto a la lista de reserva"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__stage__preparation model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__stage__preparation model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Before leaving"
+msgstr "Antes de salir"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Before leaving, by"
+msgstr "Antes de salir, hasta el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__can_validate
+msgid "Can validate the proposal"
+msgstr "Puede validar la propuesta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Cancel the mobility"
+msgstr "Cancelar la movilidad"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Cancellation"
+msgstr "Cancelación"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Centre"
+msgstr "Centro"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Certificate of stay"
+msgstr "Certificado de estancia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Certificate of stay or attendance"
+msgstr "Certificado de estancia o de asistencia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__task_ids model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__task_ids model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Checklist"
+msgstr "Lista de pasos"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__turn_deadline
+msgid "Choose before"
+msgstr "Elegir antes del"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Choose this destination"
+msgstr "Elegir este destino"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__state__choosing
+msgid "Choosing the destination"
+msgstr "Eligiendo el destino"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Close the mobility"
+msgstr "Cerrar la movilidad"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Commitment letter"
+msgstr "Carta de compromiso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Contact person"
+msgstr "Persona de contacto"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Contact person at the host entity (name and email)"
+msgstr "Persona de contacto en la entidad de acogida (nombre y correo)"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__return_days
+msgid "Counted from the end of the mobility."
+msgstr "Contados desde el final de la movilidad."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__return_days
+msgid "Days to hand in the return documents"
+msgstr "Días para entregar los documentos de vuelta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__decided_by_id
+msgid "Decided by"
+msgstr "Decidido por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__decision_date
+msgid "Decided on"
+msgstr "Decidido el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__choice_open
+msgid "Destination choice open"
+msgstr "Elección de destino abierta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Dissemination activities"
+msgstr "Actividades de difusión"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Dissemination session"
+msgstr "Sesión de difusión"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__preparation_deadline model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__preparation_deadline
+msgid "Documents before leaving by"
+msgstr "Documentos antes de salir hasta el"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_mobility_assigned
+msgid "EMS: Erasmus+, destination assigned"
+msgstr "EMS: Erasmus+, destino asignado"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_erasmus_expire_turns_ir_actions_server
+msgid "EMS: Erasmus+, destination choice turns with no answer"
+msgstr "EMS: Erasmus+, turnos de elección de destino sin respuesta"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_mobility_documents
+msgid "EMS: Erasmus+, mobility documents pending"
+msgstr "EMS: Erasmus+, documentos de la movilidad pendientes"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_proposal_rejected
+msgid "EMS: Erasmus+, proposal not validated"
+msgstr "EMS: Erasmus+, propuesta no validada"
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_choice_turn
+msgid "EMS: Erasmus+, your turn to choose the destination"
+msgstr "EMS: Erasmus+, tu turno para elegir el destino"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Emails the participant the documents missing or needing changes."
+msgstr "Envía al participante un correo con los documentos que faltan o que hay que corregir."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_task__modality_ids
+msgid "Empty: every modality."
+msgstr "En blanco: todas las modalidades."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_call_task
+msgid "Erasmus+ call checklist step"
+msgstr "Paso de la lista de la convocatoria Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_destination
+msgid "Erasmus+ destination"
+msgstr "Destino Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_mobility
+msgid "Erasmus+ mobility"
+msgstr "Movilidad Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_mobility_task
+msgid "Erasmus+ mobility checklist step"
+msgstr "Paso de la lista de una movilidad Erasmus+"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_choice_turn
+msgid "Erasmus+: choose your destination - {{ object.call_id.name }}"
+msgstr "Erasmus+: elige tu destino - {{ object.call_id.name }}"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_mobility_documents
+msgid "Erasmus+: documents pending - {{ object.call_id.name }}"
+msgstr "Erasmus+: documentos pendientes - {{ object.call_id.name }}"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Erasmus+: validate the proposal of %s"
+msgstr "Erasmus+: validar la propuesta de %s"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_mobility_assigned
+msgid "Erasmus+: your destination - {{ object.call_id.name }}"
+msgstr "Erasmus+: tu destino - {{ object.call_id.name }}"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_proposal_rejected
+msgid "Erasmus+: your proposal was not validated - {{ object.call_id.name }}"
+msgstr "Erasmus+: tu propuesta no se ha validado - {{ object.call_id.name }}"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "European Health Insurance Card"
+msgstr "Tarjeta sanitaria europea"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Every required return document of %s must be valid and every return step done."
+msgstr "Todos los documentos de vuelta obligatorios de %s deben ser válidos y deben haberse hecho todos los pasos de vuelta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Final report (EU Survey)"
+msgstr "Informe final (EU Survey)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "GM: learning agreement. GS: Learning Agreement for Traineeships."
+msgstr "GM: acuerdo de aprendizaje. GS: Learning Agreement for Traineeships."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Go back to the reserve list"
+msgstr "Volver a la lista de reserva"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Grant agreement"
+msgstr "Convenio de subvención"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_contact
+msgid "Host contact"
+msgstr "Contacto de la entidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__host_contact_id
+msgid "Host contact person"
+msgstr "Persona de contacto de la entidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__host_partner_ids
+msgid "Host entities"
+msgstr "Entidades de acogida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__host_partner_id model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Host entity"
+msgstr "Entidad de acogida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__choice_turn_hours
+msgid "Hours per choice turn"
+msgstr "Horas por turno de elección"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__choice_turn_hours
+msgid "How long each selected student has to choose their destination when their turn comes. No answer in time loses the place (art. 15)."
+msgstr "Cuánto tiempo tiene cada alumno seleccionado para elegir el destino cuando le toca. Si no responde a tiempo, pierde la plaza (art. 15)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "It is not your turn to choose a destination."
+msgstr "No te toca elegir destino."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "It is your turn to choose your destination, before"
+msgstr "Te toca elegir el destino, antes del"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Learning agreement"
+msgstr "Acuerdo de aprendizaje"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Legal guardian"
+msgstr "Tutor legal"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_mobility model:ir.model.fields,field_description:ems.field_ems_erasmus_call__mobility_ids model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__mobility_ids model:ir.ui.menu,name:ems.menu_erasmus_mobilities model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_list model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
+msgid "Mobilities"
+msgstr "Movilidades"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__mobility_ids model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__mobility_id model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__mobility_id model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Mobility"
+msgstr "Movilidad"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__preparation_document_ids model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Mobility documents"
+msgstr "Documentos de la movilidad"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Mobility programme"
+msgstr "Programa de movilidad"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__proposal_contact
+msgid "Name and email of the person at the host entity."
+msgstr "Nombre y correo de la persona de la entidad de acogida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "No destination chosen by the end of the turn."
+msgstr "No ha elegido destino antes del final del turno."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "No destination has places for your profile now."
+msgstr "Ahora ningún destino tiene plazas para tu perfil."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "No document of %s is missing or needs changes."
+msgstr "A %s no le falta ningún documento ni tiene que corregir ninguno."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "None of the destinations suits me, or I am not available for any of them"
+msgstr "Ningún destino me va bien, o no estoy disponible para ninguno"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_state__rejected
+msgid "Not validated"
+msgstr "No validada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Notify pending documents"
+msgstr "Avisar de los documentos pendientes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__stage__return model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__stage__return model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "On return"
+msgstr "A la vuelta"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "On return, by"
+msgstr "A la vuelta, hasta el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Online language course (OLS)"
+msgstr "Curso de idiomas en línea (OLS)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Only a mobility in preparation can be closed."
+msgstr "Solo se puede cerrar una movilidad en preparación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Only a mobility in preparation has documents to ask for."
+msgstr "Solo una movilidad en preparación tiene documentos que pedir."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__sign_guardian
+msgid "Only for minors."
+msgstr "Solo para menores."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__modality_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__modality_ids
+msgid "Only for modalities"
+msgstr "Solo para las modalidades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Only the Director validates a staff activity, and the Erasmus team a student's own destination."
+msgstr "Solo la dirección valida la actividad del personal, y el equipo Erasmus el destino propio de un alumno."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Only the Erasmus team changes a mobility."
+msgstr "Solo el equipo Erasmus cambia una movilidad."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Only the Erasmus team manages the mobilities."
+msgstr "Solo el equipo Erasmus gestiona las movilidades."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Only who validates the proposal writes the reason of the decision."
+msgstr "Solo quien valida la propuesta escribe el motivo de la decisión."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Open destination choice"
+msgstr "Abrir la elección de destino"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__partner_id model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Participant"
+msgstr "Participante"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Place"
+msgstr "Lugar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Preparation meetings"
+msgstr "Reuniones de preparación"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Preparation sessions"
+msgstr "Sesiones de preparación"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__state__preparing
+msgid "Preparing"
+msgstr "En preparación"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Processed with the Mossos d'Esquadra."
+msgstr "Se tramita con los Mossos d'Esquadra."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_state model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Proposal"
+msgstr "Propuesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_attachment_ids
+msgid "Proposal files"
+msgstr "Ficheros de la propuesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_notes
+msgid "Proposal notes"
+msgstr "Notas de la propuesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_date
+msgid "Proposal sent on"
+msgstr "Propuesta enviada el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
+msgid "Proposal to validate"
+msgstr "Propuesta por validar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Propose another activity"
+msgstr "Proponer otra actividad"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Propose my own destination"
+msgstr "Proponer mi propio destino"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_activity
+msgid "Proposed activity"
+msgstr "Actividad propuesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_city
+msgid "Proposed city"
+msgstr "Ciudad propuesta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_country_id
+msgid "Proposed country"
+msgstr "País propuesto"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_dates
+msgid "Proposed dates"
+msgstr "Fechas propuestas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__proposal_host
+msgid "Proposed host entity or course"
+msgstr "Entidad de acogida o curso propuesto"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__preparation_complete
+msgid "Ready to leave"
+msgstr "Lista para salir"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__cancel_reason
+msgid "Reason for cancelling"
+msgstr "Motivo de la cancelación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__decision_note
+msgid "Reason of the decision"
+msgstr "Motivo de la decisión"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Received:"
+msgstr "Recibido:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Reject the proposal"
+msgstr "Rechazar la propuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Rejected the destinations with places: back to the reserve list."
+msgstr "Ha rechazado los destinos con plazas: vuelve a la lista de reserva."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Renounced by the participant."
+msgstr "Renuncia del participante."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Renouncing without a justified cause may mean paying the expenses already committed (tickets, bookings), as the call says."
+msgstr "Renunciar sin una causa justificada puede suponer pagar los gastos ya comprometidos (billetes, reservas), tal como dice la convocatoria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Report with evidence"
+msgstr "Memoria con evidencias"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Requested at the Social Security's electronic office."
+msgstr "Se pide en la Sede Electrónica de la Seguridad Social."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__decision_note
+msgid "Required to reject a proposal; the participant reads it on the portal."
+msgstr "Obligatorio para rechazar una propuesta; el participante lo lee en el portal."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__return_complete
+msgid "Return complete"
+msgstr "Vuelta completa"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__return_deadline
+msgid "Return documents by"
+msgstr "Documentos de vuelta hasta el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Say the host entity and the country."
+msgstr "Indica la entidad de acogida y el país."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Send the proposal"
+msgstr "Enviar la propuesta"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__turn_deadline
+msgid "Set while it is this participant's turn to choose the destination."
+msgstr "Tiene valor mientras es el turno de este participante para elegir el destino."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_task__description model:ir.model.fields,help:ems.field_ems_erasmus_mobility_task__description
+msgid "Shown to the participant on the portal."
+msgstr "Se muestra al participante en el portal."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_destination__notes
+msgid "Shown to the students when they choose."
+msgstr "Se muestra al alumnado cuando elige."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Sign them outside EMS as indicated and upload the signed copy."
+msgstr "Fírmalos fuera de EMS como se indica y sube la copia firmada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__signers model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__signers
+msgid "Signed by"
+msgstr "Firmado por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_centre
+msgid "Signed by the centre"
+msgstr "Firmado por el centro"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_host
+msgid "Signed by the host entity"
+msgstr "Firmado por la entidad de acogida"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_guardian
+msgid "Signed by the legal guardian"
+msgstr "Firmado por el tutor legal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_participant
+msgid "Signed by the participant"
+msgstr "Firmado por el participante"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Signed by:"
+msgstr "Firmado por:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__call_task_id
+msgid "Step"
+msgstr "Paso"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Steps"
+msgstr "Pasos"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__proposal_attachment_ids
+msgid "Students: the host entity's written commitment."
+msgstr "Alumnado: el compromiso por escrito de la entidad de acogida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "The destinations are chosen after the definitive resolution of a students' call."
+msgstr "Los destinos se eligen después de la resolución definitiva de una convocatoria de alumnado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The documents of this mobility can no longer be changed."
+msgstr "Los documentos de esta movilidad ya no se pueden cambiar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "The host entity's written commitment"
+msgstr "El compromiso por escrito de la entidad de acogida"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_destination__level_ids
+msgid "The levels whose students this destination suits. Empty: every level of the modality."
+msgstr "Los niveles para cuyo alumnado es adecuado este destino. En blanco: todos los niveles de la modalidad."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The mobility of %s is no longer open."
+msgstr "La movilidad de %s ya no está abierta."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__level_id
+msgid "The participant's level when the place was accepted: which destinations suit."
+msgstr "El nivel del participante cuando aceptó la plaza: qué destinos le son adecuados."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "The place becomes free and the application is marked as renounced. Continue?"
+msgstr "La plaza queda libre y la solicitud queda como renuncia. ¿Quieres continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "The selected who accepted their place choose their destination on the portal, by turns in rank order."
+msgstr "Las personas seleccionadas que han aceptado la plaza eligen el destino en el portal, por turnos y por orden de puntuación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "There is no proposal waiting for validation."
+msgstr "No hay ninguna propuesta pendiente de validación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "This destination has no place for you."
+msgstr "Este destino no tiene ninguna plaza para ti."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__done_user_id
+msgid "Ticked by"
+msgstr "Marcado por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__done_date
+msgid "Ticked on"
+msgstr "Marcado el"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__preparation_deadline model:ir.model.fields,help:ems.field_ems_erasmus_mobility__preparation_deadline
+msgid "Until when the participants hand in the travel and preparation documents (art. 17)."
+msgstr "Hasta cuándo los participantes entregan los documentos de viaje y de preparación (art. 17)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Update documents and checklist"
+msgstr "Actualizar documentos y pasos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Upload the documents"
+msgstr "Subir los documentos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Upload the host entity's written commitment."
+msgstr "Sube el compromiso por escrito de la entidad de acogida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Valid for the whole stay: DNI or passport (EU citizens); passport and NIE (non-EU citizens)."
+msgstr "Vigente durante toda la estancia: DNI o pasaporte (ciudadanía de la UE); pasaporte y NIE (ciudadanía de fuera de la UE)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Validate the proposal"
+msgstr "Validar la propuesta"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Virtual component (GS)"
+msgstr "Componente virtual (GS)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_state__pending
+msgid "Waiting for validation"
+msgstr "Pendiente de validación"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__preparation_document_ids
+msgid "What the participants hand in before leaving and on return, once their place is accepted."
+msgstr "Lo que entregan los participantes antes de salir y a la vuelta, una vez aceptada la plaza."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__stage model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__stage model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__stage model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__stage
+msgid "When"
+msgstr "Cuándo"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__stage__application
+msgid "With the application"
+msgstr "Con la solicitud"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0 model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Write the reason for cancelling first."
+msgstr "Escribe primero el motivo de la cancelación."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Write the reason of the decision first."
+msgstr "Escribe primero el motivo de la decisión."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Write the reason of the decision first: the participant reads it."
+msgstr "Escribe primero el motivo de la decisión: el participante lo lee."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "You can only go back to the reserve list while choosing the destination."
+msgstr "Solo puedes volver a la lista de reserva mientras eliges el destino."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "You cannot send a proposal now."
+msgstr "Ahora no puedes enviar ninguna propuesta."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "You find the host company or entity yourself, with its written commitment to take you; the entity must also write to the Erasmus coordination. The Erasmus team validates it."
+msgstr "Buscas por tu cuenta la empresa o entidad de acogida, con su compromiso por escrito de acogerte; la entidad también tiene que escribir a la coordinación Erasmus. El equipo Erasmus la valida."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "You go back to the reserve list with your score, and your place is offered to the next reserve."
+msgstr "Vuelves a la lista de reserva con tu puntuación, y la plaza se ofrece a la persona siguiente en reserva."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Your own destination is waiting for the Erasmus team's validation."
+msgstr "Tu destino propio está pendiente de la validación del equipo Erasmus."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Your proposal is waiting for the Director's validation."
+msgstr "Tu propuesta está pendiente de la validación de la dirección."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Your proposal was not validated:"
+msgstr "Tu propuesta no se ha validado:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Your turn to choose has ended."
+msgstr "Tu turno para elegir ha terminado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "centre"
+msgstr "centro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "free places"
+msgstr "plazas libres"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "host entity"
+msgstr "entidad de acogida"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "legal guardian"
+msgstr "tutor legal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "participant"
+msgstr "participante"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__modality_ids
+msgid "Mobility documents: empty, every modality."
+msgstr "Documentos de la movilidad: en blanco, todas las modalidades."

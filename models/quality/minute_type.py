@@ -21,6 +21,10 @@ SECTION_KINDS = [
 ]
 
 
+# The minute field that holds each scope's department, group or workgroup.
+SCOPE_FIELDS = {'department': 'department_id', 'teaching_team': 'group_id', 'workgroup': 'workgroup_id'}
+
+
 class EmsMinuteSection(models.Model):
     _name = "ems.minute.section"
     _description = "Minute section: one of the blocks a minute can be made of."
@@ -90,11 +94,80 @@ class EmsMinuteType(models.Model):
     section_ids = fields.One2many(string="Sections", comodel_name="ems.minute.type.section", inverse_name="type_id")
     sequence = fields.Integer(string="Sequence", default=10)
     active = fields.Boolean(string="Active", default=True)
+    # Who can start one. With neither set, anybody can: a teacher is only offered the kinds they
+    # can actually start, instead of every kind of meeting the centre holds.
+    starter_role_ids = fields.Many2many(
+        string="Started by",
+        comodel_name="ems.role",
+        relation="ems_minute_type_starter_role_rel",
+        column1="type_id",
+        column2="role_id",
+        help="The posts whose holders can start this kind of minute, for any scope. With none, and the option below off, anybody can.",
+    )
+    starter_scope = fields.Boolean(
+        string="Also started by the people of its scope",
+        help="A department's: its Department and Seminar Chiefs and those above them. A group's: its tutor, those above them and its teachers. A workgroup's: its members. Only for their own department, group or workgroup.",
+    )
+    can_start = fields.Boolean(string="Can start it", compute="_compute_can_start", search="_search_can_start")
 
     @api.depends('code', 'name')
     def _compute_display_name(self):
         for minute_type in self:
             minute_type.display_name = minute_type.name or minute_type.code
+
+    @api.depends_context('uid')
+    @api.depends('starter_role_ids', 'starter_scope', 'scope_kind')
+    def _compute_can_start(self):
+        startable = self._ems_startable()
+        for minute_type in self:
+            minute_type.can_start = minute_type in startable
+
+    def _search_can_start(self, operator, value):
+        if operator not in ('=', '!=') or not isinstance(value, bool):
+            raise NotImplementedError()
+        startable = self.search([])._ems_startable()
+        return [('id', 'in' if (operator == '=') == value else 'not in', startable.ids)]
+
+    def _ems_startable(self):
+        """The kinds among these the current user can start, for some scope or other."""
+        return self.filtered(lambda minute_type: minute_type._ems_starts_anywhere()
+                             or (minute_type.starter_scope and minute_type._ems_scope_records()))
+
+    def _ems_starts_anywhere(self):
+        """Whether the current user can start this kind of minute whatever its scope: anybody can,
+        they hold one of its posts, or they administer EMS or the quality system."""
+        self.ensure_one()
+        user = self.env.user
+        if self.env.su or user.has_group('ems.group_academic_admin') or user.has_group('ems.group_quality_admin'):
+            return True
+        if not self.starter_role_ids and not self.starter_scope:
+            return True
+        return bool(self.starter_role_ids.sudo().employee_ids.filtered(lambda employee: employee.user_id == user))
+
+    def _ems_scope_records(self):
+        """The departments, groups or workgroups through which the current user can start this kind
+        of minute, as one of their people (see starter_scope); False for a kind with no such scope."""
+        self.ensure_one()
+        uid = self.env.uid
+        if self.scope_kind == 'department':
+            return self.env['hr.department'].sudo().search([
+                '|', ('manager_id.tutor_scope_user_ids', '=', uid), ('seminar_chief_id.tutor_scope_user_ids', '=', uid)])
+        if self.scope_kind == 'teaching_team':
+            taught = self.env['ems.teaching'].sudo().search([('teacher_id.user_id', '=', uid)]).group_id
+            return self.env['ems.group'].sudo().search([
+                '|', ('tutor_id.tutor_scope_user_ids', '=', uid), ('id', 'in', taught.ids)])
+        if self.scope_kind == 'workgroup':
+            return self.env['ems.workgroup'].sudo().search([('employee_ids.user_id', '=', uid)])
+        return False
+
+    def _ems_can_start(self, scope_record):
+        """Whether the current user can start this kind of minute for this department, group or
+        workgroup."""
+        self.ensure_one()
+        if self._ems_starts_anywhere():
+            return True
+        scope_records = self.starter_scope and self._ems_scope_records()
+        return bool(scope_records) and bool(scope_record) and scope_record in scope_records
 
     def _has_section(self, kind):
         self.ensure_one()

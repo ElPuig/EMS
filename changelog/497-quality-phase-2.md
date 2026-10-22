@@ -1,5 +1,9 @@
 # What's new
 
+## Each kind of meeting can only be started by whom it belongs to:
+
+Every minute type now says who can start it: some posts (for any scope) and/or the people of its own scope (a department's chiefs and those above them; a group's tutor, those above them and its teachers; a workgroup's members), and anybody when neither is set. A teacher is only offered the types they can start and, for a scoped one, only their own departments, groups or workgroups; the server refuses the rest. Seeded: generic for everybody, department meetings by its chiefs, claustre by the management team (Director, Head and Deputy Head of Studies, Secretary), teaching team by the group's tutor and teachers, improvement teams by the quality coordinator (meetings also by the team's members). Administrators can always start any.
+
 ## Minutes and evidence records:
 
 Meeting minutes move into EMS, under the **Meetings** menu (shared with the meeting attendance sessions), the first screen of this work the whole staff sees. One model covers both meeting minutes and evidence records, with the sections each type carries declared as configuration: adding a type of minute no longer needs development.
@@ -45,6 +49,10 @@ A minute goes draft → to approve → approved. Approving records who approved 
 The PDF quotes the controlled template's code in its footer, and prints the members' identification number only for the minute types that need it.
 
 # Changes
+
+## Department, workgroup and group dropdowns offer the user's own first:
+
+In every dropdown of EMS, the departments the user belongs to or heads, the workgroups they are a member of and the groups they tutor or teach come first; for departments, the other departments of the same area (VET, ESO/BTX, ASP) come next; the rest follow (departments sorted by their path). Departments now show in the reader's language everywhere (the stored complete_name mixed Catalan, Spanish and English) and can be found by their translated name, a parent's name offering the departments under it. A shared mixin (ems.mine_first_mixin), which also replaces the approver dropdown's own ems_first_ids code.
 
 ## Agreements are reachable from both sides:
 

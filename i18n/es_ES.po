@@ -25609,3 +25609,62 @@ msgstr "Se borrará definitivamente el acta y todo lo que se ha escrito en ella.
 #: code:addons/ems/models/quality/minute.py:0
 msgid "Only a minute still in draft can be deleted."
 msgstr "Solo se puede borrar un acta que aún sea un borrador."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__starter_role_ids
+msgid "Started by"
+msgstr "Quién puede iniciarla"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_type__starter_role_ids
+msgid "The posts whose holders can start this kind of minute, for any scope. With none, and the option below off, anybody can."
+msgstr "Los cargos que pueden iniciar este tipo de acta, para cualquier ámbito. Sin ningún cargo y con la opción de abajo desactivada, puede iniciarla cualquier persona."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__starter_scope
+msgid "Also started by the people of its scope"
+msgstr "También pueden iniciarla las personas de su ámbito"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_minute_type__starter_scope
+msgid "A department's: its Department and Seminar Chiefs and those above them. A group's: its tutor, those above them and its teachers. A workgroup's: its members. Only for their own department, group or workgroup."
+msgstr "De un departamento: los jefes de departamento y de seminario y quien está por encima. De un grupo: el tutor o tutora, quien está por encima y el profesorado del grupo. De un grupo de trabajo: sus miembros. Solo para su propio departamento, grupo o grupo de trabajo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute_type__can_start
+msgid "Can start it"
+msgstr "Puede iniciarla"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__start_scope_restricted
+msgid "Scope limited to the user's own"
+msgstr "Ámbito limitado a los del usuario"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__start_department_ids
+msgid "Departments it can be started for"
+msgstr "Departamentos para los que se puede iniciar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__start_group_ids
+msgid "Groups it can be started for"
+msgstr "Grupos para los que se puede iniciar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_minute__start_workgroup_ids
+msgid "Workgroups it can be started for"
+msgstr "Grupos de trabajo para los que se puede iniciar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+#, python-format
+msgid "You cannot start a minute of type \"%(type)s\" for %(scope)s."
+msgstr "No puede iniciar un acta del tipo \"%(type)s\" para %(scope)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/quality/minute.py:0
+#, python-format
+msgid "You cannot start a minute of type \"%s\"."
+msgstr "No puede iniciar un acta del tipo \"%s\"."

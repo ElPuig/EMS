@@ -5,6 +5,7 @@ from odoo import api, fields, models
 class EmsWorkgroup(models.Model):
 	_name = "ems.workgroup"
 	_description = "Workgroup: Employees (teachers, providers, and ASP) can define workgroups."
+	_inherit = "ems.mine_first_mixin"
 	_order = "name asc"
 
 	name = fields.Char(string="Name", required=True)
@@ -28,6 +29,11 @@ class EmsWorkgroup(models.Model):
 		if committee:
 			self._ems_sync_quality_committee(left=left)
 		return result
+
+	@api.model
+	def _ems_my_ids(self):
+		"""The workgroups the user is a member of."""
+		return self.sudo().search([('employee_ids.user_id', '=', self.env.uid)]).ids
 
 	@api.model
 	def _ems_quality_committee(self):

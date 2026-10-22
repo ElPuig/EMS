@@ -19,7 +19,9 @@ class TestQualityMinuteTour(HttpCase):
         super().setUpClass()
         cls.department = cls.env['hr.department'].create({'name': '0000 Minute Tour Department'})
         cls.user = create_role_user(cls, 'department_chief', 'minute.tour@example.com')
-        create_role_employee(cls, cls.user, department_id=cls.department.id)
+        employee = create_role_employee(cls, cls.user, department_id=cls.department.id)
+        # Only the department's own chiefs start its minutes (ems.minute.type.starter_scope).
+        cls.department.manager_id = employee
 
     def test_write_a_minute_tour(self):
         self.start_tour("/odoo", "ems_minute_write", login="minute.tour@example.com")

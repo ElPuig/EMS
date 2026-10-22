@@ -207,6 +207,31 @@ the call* (`send_call`, which needs an email) is ticked, and then in a message o
 in `call_recipient_count`. Access is the same as the minute's other line models (ACL, no rule of their own). The form keeps the table hidden behind a switch (`show_guests`, non-stored, computed from
 `guest_ids` and editable) until somebody is added, so the attendance block stays short.
 
+### Who can start each kind of minute
+
+`ems.minute.type` declares it with two fields, set per type in **Meetings → Configuration → Minute
+types**: `starter_role_ids` (the posts whose holders can start it for any scope) and `starter_scope`
+(also the people of its own scope, only for that scope). With neither set, anybody can.
+
+| Scope | Its people (`_ems_scope_records()`) |
+|---|---|
+| department | the department's Department and Seminar Chiefs and those above them (`manager_id`/`seminar_chief_id.tutor_scope_user_ids`) |
+| teaching_team | the group's tutor and those above them (`tutor_id.tutor_scope_user_ids`), and whoever teaches the group (`ems.teaching`) |
+| workgroup | its members |
+
+Academic and quality administrators can always start any kind (`_ems_starts_anywhere()`).
+
+- The type dropdown only offers `can_start` types (non-stored, `depends_context('uid')`, searchable).
+- When the user can only start the chosen type for their own scope, `start_scope_restricted` and
+  `start_department_ids`/`start_group_ids`/`start_workgroup_ids` narrow the scope dropdown.
+- `_check_can_start` (constraint on type and scope) refuses the rest, as the user making the change;
+  minutes created by the system (`sudo`) are not checked.
+
+Seeded values (`data/custom/quality/ems.minute.type.csv`): generic open to all; department and
+teaching team by their scope; claustre by Director, Head of Studies, Deputy Head of Studies and
+Secretary; improvement team constitution and closing by the quality coordinator, its meetings also
+by the team's members.
+
 ## `ems.quality.action` — agreements and improvement actions
 
 | Field | Type | Notes |

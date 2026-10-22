@@ -27,6 +27,19 @@ a meeting you attended, one of your department) opens **read-only**, with no act
 2. Choose the **minute type**. It is the first thing the form asks for and the step that matters: the
    type decides which sections appear, so a department minute and a staff-meeting minute do not ask for
    the same things.
+
+   Only the types you can start are listed:
+
+   | Type | Who can start it |
+   |---|---|
+   | Acta de reunió genèrica | Anybody |
+   | Acta de reunió de departament | The Department or Seminar Chief, and those above them, only for their own department |
+   | Acta de claustre | The management team: Director, Head of Studies, Deputy Head of Studies and Secretary |
+   | Acta d'equip docent | The group's tutor, those above them and the teachers who teach the group |
+   | Acta de constitució d'equip de millora / Acta de finalització d'equip de millora | The quality coordinator |
+   | Acta de reunió d'equip de millora | The quality coordinator and the team's members |
+
+   Whoever administers the quality system sets this up in **Meetings → Configuration → Minute types**.
 3. Right after, the form asks **whose meeting it is**, depending on the type: the department, the
    workgroup or the group. A staff-meeting minute asks for nothing; a generic minute lets you choose
    the scope.

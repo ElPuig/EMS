@@ -7,10 +7,11 @@ from urllib.parse import urlencode
 from markupsafe import Markup
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
+from odoo.exceptions import UserError, ValidationError
 from odoo.tools import format_date
 
 from .common import SCOPE_CODE_LANG, scope_code
+from .minute_type import SCOPE_FIELDS
 
 # What the old free-text 'type' column held, kept in step with the new type's scope so the column
 # stays meaningful for anything reading the database directly. It is no longer used by the
@@ -69,6 +70,12 @@ class EmsMinute(models.Model):
     workgroup_id = fields.Many2one(string="Workgroup", comodel_name="ems.workgroup", tracking=True)
     group_id = fields.Many2one(string="Group", comodel_name="ems.group", tracking=True)
     is_centre = fields.Boolean(string="Centre-wide")
+    # What the scope dropdowns offer: only the user's own departments, groups or workgroups when
+    # that is all they can start this kind of minute for (ems.minute.type.starter_scope).
+    start_scope_restricted = fields.Boolean(string="Scope limited to the user's own", compute="_compute_start_scope")
+    start_department_ids = fields.Many2many(string="Departments it can be started for", comodel_name="hr.department", compute="_compute_start_scope")
+    start_group_ids = fields.Many2many(string="Groups it can be started for", comodel_name="ems.group", compute="_compute_start_scope")
+    start_workgroup_ids = fields.Many2many(string="Workgroups it can be started for", comodel_name="ems.workgroup", compute="_compute_start_scope")
     # Only for a type whose scope is 'generic': which of the scopes above this particular minute has.
     scope_choice = fields.Selection(
         string="Scope of the meeting",
@@ -292,6 +299,30 @@ class EmsMinute(models.Model):
     def _compute_legacy_type(self):
         for minute in self:
             minute.type = _LEGACY_TYPE_BY_SCOPE.get(minute.type_id.scope_kind, 'department')
+
+    @api.depends_context('uid')
+    @api.depends('type_id')
+    def _compute_start_scope(self):
+        for minute in self:
+            minute_type = minute.type_id
+            restricted = bool(minute_type) and not minute_type._ems_starts_anywhere()
+            records = restricted and minute_type._ems_scope_records()
+            minute.start_scope_restricted = restricted
+            for kind, field_name in SCOPE_FIELDS.items():
+                minute[f"start_{field_name}s"] = records if records and minute_type.scope_kind == kind else False
+
+    @api.constrains('type_id', 'department_id', 'workgroup_id', 'group_id')
+    def _check_can_start(self):
+        """Only whoever can start a kind of minute creates one or moves it to another scope (see
+        ems.minute.type.starter_role_ids and starter_scope), checked as the user making the change."""
+        for minute in self:
+            field_name = SCOPE_FIELDS.get(minute.type_id.scope_kind)
+            scope_record = minute[field_name] if field_name else False
+            if not minute.type_id._ems_can_start(scope_record):
+                if scope_record:
+                    raise ValidationError(_("You cannot start a minute of type \"%(type)s\" for %(scope)s.",
+                                            type=minute.type_id.name, scope=scope_record.display_name))
+                raise ValidationError(_("You cannot start a minute of type \"%s\".", minute.type_id.name))
 
     @api.onchange('type_id')
     def _onchange_type_id(self):

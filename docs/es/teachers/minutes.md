@@ -27,6 +27,19 @@ veáis (la de una reunión a la que asististeis, la de vuestro departamento) se 
 1. Botón **Nuevo**.
 2. Elegid el **tipo de acta**. Es lo primero que pide el formulario y el paso importante: el tipo decide
    qué secciones salen, así que un acta de departamento y una de claustro no os piden lo mismo.
+
+   Solo aparecen los tipos que podéis iniciar:
+
+   | Tipo | Quién puede iniciarla |
+   |---|---|
+   | Acta de reunió genèrica | Cualquier persona |
+   | Acta de reunió de departament | El jefe de departamento o de seminario, y quien está por encima, solo de su departamento |
+   | Acta de claustre | El equipo directivo: director, jefe de estudios, jefe de estudios adjunto y secretaria |
+   | Acta d'equip docent | El tutor o tutora del grupo, quien está por encima y el profesorado que da clase en él |
+   | Acta de constitució d'equip de millora / Acta de finalització d'equip de millora | El coordinador de calidad |
+   | Acta de reunió d'equip de millora | El coordinador de calidad y los miembros del equipo |
+
+   Lo configura quien administra el sistema de calidad, en **Reuniones → Configuración → Tipos de acta**.
 3. A continuación el formulario os pide **de quién es la reunión**, según el tipo: el departamento, el
    equipo de trabajo o el grupo. Un acta de claustro no pide nada; un acta genérica os deja elegir el ámbito.
 4. Comprobad la **fecha y hora** (viene propuesta la próxima hora en punto), el carácter y la modalidad, e

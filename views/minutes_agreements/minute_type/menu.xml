@@ -12,6 +12,8 @@
                     <field name="kind"/>
                     <field name="scope_kind"/>
                     <field name="approver_role_id"/>
+                    <field name="starter_role_ids" widget="many2many_tags" optional="show"/>
+                    <field name="starter_scope" optional="show"/>
                     <field name="template_document_id"/>
                     <field name="print_identification" optional="hide"/>
                 </list>
@@ -35,6 +37,8 @@
                             </group>
                             <group>
                                 <field name="approver_role_id"/>
+                                <field name="starter_role_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                <field name="starter_scope" invisible="scope_kind not in ('department', 'teaching_team', 'workgroup')"/>
                                 <field name="template_document_id"/>
                                 <field name="print_identification"/>
                                 <field name="active"/>

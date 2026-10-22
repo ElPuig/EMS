@@ -55,17 +55,25 @@
                              is, then when and where. -->
                         <group invisible="state != 'draft' and type_kind != 'record'">
                             <group string="Which meeting" name="which">
-                                <field name="type_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="type_id" readonly="state != 'draft'" options="{'no_create': True, 'no_open': True}"
+                                       domain="[('can_start', '=', True)]"/>
+                                <field name="start_scope_restricted" invisible="1"/>
+                                <field name="start_department_ids" invisible="1"/>
+                                <field name="start_group_ids" invisible="1"/>
+                                <field name="start_workgroup_ids" invisible="1"/>
                                 <field name="type_kind" invisible="1"/>
                                 <field name="scope_kind" invisible="1"/>
                                 <field name="scope_choice" invisible="scope_kind != 'generic'"/>
                                 <field name="department_id" options="{'no_create': True}"
+                                       domain="[('id', 'in', start_department_ids)] if start_scope_restricted else []"
                                        invisible="scope_kind != 'department' and (scope_kind != 'generic' or scope_choice != 'department')"
                                        required="scope_kind == 'department' or (scope_kind == 'generic' and scope_choice == 'department')"/>
                                 <field name="workgroup_id" options="{'no_create': True}"
+                                       domain="[('id', 'in', start_workgroup_ids)] if start_scope_restricted else []"
                                        invisible="scope_kind != 'workgroup' and (scope_kind != 'generic' or scope_choice != 'workgroup')"
                                        required="scope_kind == 'workgroup' or (scope_kind == 'generic' and scope_choice == 'workgroup')"/>
                                 <field name="group_id" options="{'no_create': True}"
+                                       domain="[('id', 'in', start_group_ids)] if start_scope_restricted else []"
                                        invisible="scope_kind != 'teaching_team' and (scope_kind != 'generic' or scope_choice != 'group')"
                                        required="scope_kind == 'teaching_team' or (scope_kind == 'generic' and scope_choice == 'group')"/>
                                 <field name="is_centre" invisible="1"/>

@@ -8,7 +8,7 @@ from ..shared.attendance_mixin import EMS_SKIP_GROUP_CLASSROOM_CASCADE
 class EmsGroup(models.Model):
 	_name = "ems.group"
 	_description = "Groups: Where the students are assigned to."
-	_inherit = ["mail.thread", "mail.activity.mixin"]
+	_inherit = ["mail.thread", "mail.activity.mixin", "ems.mine_first_mixin"]
 	_order = "name"
 
 	active = fields.Boolean(default=True, help="A group that won't be used this course but may come back in a "
@@ -192,6 +192,13 @@ class EmsGroup(models.Model):
 	def _compute_managing_department_ids(self):
 		for group in self:
 			group.managing_department_ids = (group.study_id | group.parent_group_ids.study_id).managing_department_id
+
+	@api.model
+	def _ems_my_ids(self):
+		"""The groups the user tutors or teaches."""
+		uid = self.env.uid
+		taught = self.env['ems.teaching'].sudo().search([('teacher_id.user_id', '=', uid)]).group_id
+		return self.sudo().search(['|', ('tutor_id.user_id', '=', uid), ('id', 'in', taught.ids)]).ids
 
 	@api.model
 	def _managed_by_departments_domain(self, departments):

@@ -184,6 +184,7 @@ class TestQualityMinute(TransactionCase):
     def test_attendance_with_the_tag_prepares_a_session_for_the_writer(self):
         """A teacher has no access to the attendance sessions, yet the one of their own minute
         is theirs to run: they convene it, with the people the minute preloaded."""
+        self.department.manager_id = self.employee
         minute = self.env['ems.minute'].with_user(self.user).create({
             'type_id': self.type.id, 'department_id': self.department.id,
             'start_datetime': datetime(2027, 1, 14, 11, 30), 'duration': 1.5, 'attendance_mode': 'nfc',

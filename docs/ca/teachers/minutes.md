@@ -27,6 +27,19 @@ veieu (la d'una reunió on vau assistir, la del vostre departament) s'obre **nom
 1. Botó **Nou**.
 2. Trieu el **tipus d'acta**. És el primer que demana el formulari i el pas important: el tipus decideix
    quines seccions surten, així que una acta de departament i una de claustre no us demanen el mateix.
+
+   Només hi surten els tipus que podeu iniciar:
+
+   | Tipus | Qui la pot iniciar |
+   |---|---|
+   | Acta de reunió genèrica | Qualsevol persona |
+   | Acta de reunió de departament | El cap de departament o de seminari, i qui en té per sobre, només del seu departament |
+   | Acta de claustre | L'equip directiu: director, cap d'estudis, cap d'estudis adjunt i secretària |
+   | Acta d'equip docent | El tutor o tutora del grup, qui en té per sobre i el professorat que hi fa classe |
+   | Acta de constitució d'equip de millora / Acta de finalització d'equip de millora | El coordinador de qualitat |
+   | Acta de reunió d'equip de millora | El coordinador de qualitat i els membres de l'equip |
+
+   Ho configura qui administra el sistema de qualitat, a **Reunions → Configuració → Tipus d'acta**.
 3. Tot seguit el formulari us demana **de qui és la reunió**, segons el tipus: el departament, l'equip
    de treball o el grup. Una acta de claustre no demana res; una acta genèrica us deixa triar l'àmbit.
 4. Comproveu la **data i hora** (ve proposada la propera hora en punt), el caràcter i la modalitat, i

@@ -51,15 +51,18 @@ PARTICIPANT_HEADERS = ('Nombre', 'Apellidos', 'DNI', 'Email', 'Teléfono', 'Dire
 ANSWER_FIELDS = {
     'student': ('previous_mobility', 'previous_mobility_details', 'availability', 'fewer_opportunities',
                 'image_consent', 'applicant_notes'),
-    'staff': ('staff_activity', 'host_entity', 'host_not_identified', 'destination', 'preferred_dates',
+    'staff': ('staff_activity', 'host_entity', 'destination', 'preferred_dates',
               'declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
-              'centre_projects', 'accompany_students', 'declared_language_level', 'support_needs', 'image_consent',
-              'applicant_notes', 'plan_reason', 'plan_objectives', 'plan_application', 'plan_dissemination',
-              'plan_department_informed'),
+              'centre_projects', 'declared_language_level', 'support_needs', 'image_consent',
+              'applicant_notes', 'plan_reason', 'plan_objectives', 'plan_application'),
 }
-# Issue #697: sections 3 to 6 of annex 1 of the staff call, written in the form (1 and 2 are the
-# activity, host, destination and dates); the panel reads them on screen.
-PLAN_TEXT_FIELDS = ('plan_reason', 'plan_objectives', 'plan_application', 'plan_dissemination')
+# Issue #697: the mobility and transfer plan of the staff call (annex 1), written in the form and
+# required to submit: the activity, host entity or course, destination and dates (always a
+# concrete one), why that choice, the objectives and the application to the job. Its
+# dissemination is not asked for: it is the same obligation for everyone (a news item on the
+# website, and sharing it at a meeting if needed). The panel reads it on screen.
+PLAN_FIELDS = ('staff_activity', 'host_entity', 'destination', 'preferred_dates', 'plan_reason', 'plan_objectives',
+               'plan_application')
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
 
@@ -105,8 +108,6 @@ class EmsErasmusApplication(models.Model):
     # Issue #686: the staff application form (art. 8 and annex 1 of the staff call).
     staff_activity = fields.Selection(string="Activity", selection=STAFF_ACTIVITIES)
     host_entity = fields.Char(string="Host entity or course")
-    host_not_identified = fields.Boolean(string="Host not found yet",
-                                         help="The Erasmus coordination helps to find one.")
     destination = fields.Char(string="Destination")
     preferred_dates = fields.Char(string="Preferred dates")
     centre_projects = fields.Text(string="Centre projects")
@@ -119,14 +120,6 @@ class EmsErasmusApplication(models.Model):
     plan_application = fields.Text(string="Application to the job",
                                    help="Annex 1, section 5: how it will be used in the classes, the department or "
                                         "the centre's management, and which students will benefit.")
-    plan_dissemination = fields.Text(string="Dissemination",
-                                     help="Annex 1, section 6: how it will be shared with the rest of the staff (for "
-                                          "example, as a good practice at a meeting of the cycles or a news item on "
-                                          "the website).")
-    plan_department_informed = fields.Boolean(string="Department informed",
-                                              help="Annex 1, section 7: the applicant's department or the person in "
-                                                   "charge knows about it.")
-    accompany_students = fields.Boolean(string="Interested in accompanying students")
     support_needs = fields.Text(string="Support needs", groups='ems.group_erasmus,ems.group_academic_admin')
     declared_never_staff_mobility = fields.Boolean(
         string="Never had a staff mobility",
@@ -770,10 +763,10 @@ class EmsErasmusApplication(models.Model):
                     and application.declared_centre_start_date):
                 raise UserError(_("Say when your last staff mobility was (or that you never had one) and since when "
                                   "you work at the centre."))
-            if application.audience == 'staff' and not (
-                    all(application[name] for name in PLAN_TEXT_FIELDS) and application.plan_department_informed):
-                raise UserError(_("Fill in every section of the mobility plan and confirm that your department knows "
-                                  "about it."))
+            if application.audience == 'staff' and not all(application[name] for name in PLAN_FIELDS):
+                raise UserError(_("Fill in every section of the mobility plan: the activity, the host entity or "
+                                  "course, the destination, the dates, why you chose them, the objectives and the "
+                                  "application to your job."))
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
         self.document_ids.sudo().correction_requested = False

@@ -14,7 +14,7 @@ As a member of the panel of the Erasmus+ staff call, you rate in EMS the mobilit
 
 When the Erasmus team sends the plans to the panel you receive a task in EMS for each one, due on the call's score correction deadline (two weeks after it closes). It appears in your daily summary of pending tasks until you do it. The **Erasmus+** menu appears, with **My plan ratings**: the plans assigned to you.
 
-Each rating shows the candidate's **mobility and transfer plan** on screen, as they wrote it in the application form: activity, host entity or course, destination, dates, why that choice, objectives, application to their job and dissemination. You see nothing else of the application.
+Each rating shows the candidate's **mobility and transfer plan** on screen, as they wrote it in the application form: activity, host entity or course, destination, dates, why that choice, objectives and application to their job. You see nothing else of the application. The dissemination is not rated: it is the same obligation for everyone.
 
 ## 2. Rate the rubric
 
@@ -23,7 +23,7 @@ For each aspect, choose the description that fits the plan best: they are the on
 | Aspect | 1 point | 0.5 points | 0 points |
 |---|---|---|---|
 | Relevance and concreteness | The relation with the job, the department and the training cycles is clear, with concrete objectives and the entity or course named | The relation is general, or the objectives and the activity are not very concrete | The relation with the job or the training cycles is not explained, and the objectives and the activity are generic |
-| Application and dissemination | A concrete application to the job and the students, and a defined dissemination (explaining it as a good practice at a meeting of the cycles or a news item on the website is enough) | Application or dissemination not very concrete | No application nor dissemination planned |
+| Application to the job | A concrete application to the job and the students, with defined actions | An application not very concrete | No application planned |
 
 You can write your own notes in **Evaluator's notes**.
 

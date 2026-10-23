@@ -17,15 +17,17 @@ Ves a **Erasmus+** al portal del centre (`/my/erasmus`; l'equip Erasmus en compa
 ## 2. Omplir el formulari
 
 - **Activitat:** job shadowing, curs estructurat o estada de docència.
-- **Entitat d'acollida o curs** i **Destinació** (ciutat i país). Si encara no en tens cap, marca la casella i la coordinació Erasmus t'ajudarà a trobar-ne una.
+- **Entitat d'acollida o curs** i **Destinació** (ciutat i país): sempre una de concreta, amb el seu nom. Trobaràs opcions a la [web Erasmus+ del centre](https://elpuig.xeill.net/el-centre/erasmus/recursos-i-formacio).
 - **Dates o període preferent** i la durada aproximada: preferentment en període no lectiu (juny, juliol); en un altre moment, com l'abril, només una setmana que no afecti les avaluacions i amb la validació de la direcció.
 - El **mes i l'any de la teva última mobilitat Erasmus+ de personal** des del centre, o marca que no n'has fet mai cap. Els acompanyaments d'alumnat, altres programes i les mobilitats des d'altres centres no compten.
 - El **mes i l'any des que treballes al centre** de manera continuada.
 - Els **projectes**, comissions o coordinacions del centre en què participes (el curs passat i l'actual).
 - El teu **certificat de llengua** oficial més alt (B2 o superior), si en tens. Adjunta'l també als documents.
-- Opcionalment: si vols acompanyar grups d'alumnat, i el **suport** que necessites per fer la mobilitat. Aquesta resposta és confidencial: només la llegeix l'equip Erasmus.
+- Opcionalment: el **suport** que necessites per fer la mobilitat. Aquesta resposta és confidencial: només la llegeix l'equip Erasmus.
 - El consentiment voluntari per a l'ús de la teva imatge.
-- El **pla de mobilitat i transferència** (annex 1), l'única part de la sol·licitud que llegeix el tribunal: per què aquesta entitat o aquest curs, dos o tres objectius, com ho aplicaràs a la teva feina i com ho compartiràs (n'hi ha prou d'explicar-ho com a bona pràctica en una reunió de cicles o de publicar-ne una notícia al web), com a màxim 1.500 caràcters cadascun. Marca que el teu departament n'està assabentat.
+- El **pla de mobilitat i transferència** (annex 1), l'única part de la sol·licitud que llegeix el tribunal: per què aquesta entitat o aquest curs, dos o tres objectius i com ho aplicaràs a la teva feina, com a màxim 1.500 caràcters cadascun. Juntament amb l'activitat, l'entitat, la destinació i les dates, tots els apartats són obligatoris.
+
+La **difusió** no forma part del pla: és la mateixa per a tothom. En tornar, publiques una notícia al web del centre explicant la teva experiència, d'acord amb la identitat visual i la política de difusió d'Erasmus+, i, si es considera necessari, la comparteixes amb els companys en una reunió de departament o de cicles.
 
 Adjunta els documents que demana la convocatòria: document d'identitat i CV Europass en anglès. Els certificats de llengües són opcionals.
 
@@ -43,7 +45,7 @@ Quan acceptes la plaça, la pàgina mostra **La teva mobilitat** amb la teva pro
 
 **Si canvia més endavant:** un cop validada, si canvien el curs, l'entitat d'acollida o les dates (per exemple, perquè aquell mes no s'ofereix el curs), obre **Canvia l'activitat o les dates** a **La teva mobilitat** abans que comenci i envia la nova proposta. La direcció la torna a validar i, mentrestant, la teva mobilitat es manté tal com es va validar. Si la direcció hi deixa un comentari, el veuràs al correu i al portal.
 
-Un cop validada, la targeta mostra els documents que cal lliurar abans de marxar i en tornar (targeta sanitària europea, conveni de subvenció, programa de mobilitat signat per tu, pel centre i per l'entitat d'acollida, certificat d'assistència, una breu memòria amb evidències en el mes següent al retorn...), qui signa cadascun i el seu termini, i els passos que cal seguir (reunions de preparació, activitats preparades per als teus grups, informe final, sessió de difusió). L'equip Erasmus puja el conveni de subvenció emplenat (descarrega'l, signa'l i puja'l signat) i la teva pòlissa d'assegurança (descarrega-la). Signa els altres documents fora de l'EMS, adjunta'ls i fes clic a **Puja els documents**.
+Un cop validada, la targeta mostra els documents que cal lliurar abans de marxar i en tornar (targeta sanitària europea, conveni de subvenció, programa de mobilitat signat per tu, pel centre i per l'entitat d'acollida, certificat d'assistència, una breu memòria amb evidències en el mes següent al retorn...), qui signa cadascun i el seu termini, i els passos que cal seguir (reunions de preparació, activitats preparades per als teus grups, informe final, notícia al web i, si cal, compartir-la en una reunió). L'equip Erasmus puja el conveni de subvenció emplenat (descarrega'l, signa'l i puja'l signat) i la teva pòlissa d'assegurança (descarrega-la). Signa els altres documents fora de l'EMS, adjunta'ls i fes clic a **Puja els documents**.
 
 ---
 

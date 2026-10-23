@@ -95,8 +95,8 @@
                                                column_invisible="parent.audience == 'staff'"/>
                                         <field name="project"/>
                                         <field name="places"/>
-                                        <field name="period"/>
-                                        <field name="destinations"/>
+                                        <field name="period" column_invisible="parent.audience == 'staff'"/>
+                                        <field name="destinations" column_invisible="parent.audience == 'staff'"/>
                                     </list>
                                 </field>
                             </page>

@@ -290,7 +290,6 @@
                                 <group>
                                     <field name="staff_activity" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="host_entity" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="host_not_identified" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="destination" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="preferred_dates" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="previous_mobility" readonly="not can_manage" invisible="audience != 'student'"/>
@@ -302,9 +301,6 @@
                                     <field name="plan_reason" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="plan_objectives" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="plan_application" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_dissemination" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="plan_department_informed" readonly="not can_manage" invisible="audience != 'staff'"/>
-                                    <field name="accompany_students" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     <field name="availability" readonly="not can_manage" invisible="audience != 'student'"/>
                                     <field name="fewer_opportunities" readonly="not can_manage" invisible="audience != 'student'" groups="ems.group_erasmus,ems.group_academic_admin"/>

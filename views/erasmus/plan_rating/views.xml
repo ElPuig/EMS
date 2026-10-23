@@ -86,8 +86,6 @@
                             <field name="plan_reason"/>
                             <field name="plan_objectives"/>
                             <field name="plan_application"/>
-                            <field name="plan_dissemination"/>
-                            <field name="plan_department_informed"/>
                         </group>
                         <group string="Annex 2">
                             <field name="relevance" widget="radio" readonly="state != 'draft'"/>

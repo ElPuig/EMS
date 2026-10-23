@@ -61,13 +61,13 @@ Record each merit with its justification, from what the applicant wrote in centr
 
 ## 5. Places, ranking and resolutions
 
-Before preparing the provisional resolution, add the **modalities** of the call with the places you finally have (for example *GM April*, *GM June-July*, *GS June-July*).
+A new staff call has two **modalities**, one per project: *FP staff (KA121-VET)* and *Higher education staff (KA131-HED)*, with no period (each person proposes their own dates). Before preparing the provisional resolution, fill in the places you finally have in each one. The staff never see them.
 
 The staff are ranked **in one list** for the whole call (**Ranking** button of the call). Ties are broken by the mobility plan score, then seniority and, last, the draw you record.
 
 The resolutions are published as in the students' call: the lists show only four digits of the identity document, never names. For the staff it is taken from their **employee file** (DNI or NIE, otherwise the passport); if someone has none, ask the Secretariat to add it.
 
-The selected are those within the call's places (the sum of every modality); each person gets one place at most. Then assign each one their project and period in the application's **Modality** field.
+The selected are those within the call's places (the sum of every modality); each person gets one place at most. Then assign each one their project (VET or HED) in the application's **Modality** field; their mobility goes on that project of the year.
 
 ## 6. Offers and spreadsheet
 

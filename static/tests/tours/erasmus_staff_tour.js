@@ -52,15 +52,13 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_staff_apply", {
             trigger: "form.o_ems_erasmus_form textarea[name='plan_reason']",
             content: "Write the mobility plan (annex 1)",
             run() {
-                for (const name of ["plan_reason", "plan_objectives", "plan_application", "plan_dissemination"]) {
+                for (const name of ["plan_reason", "plan_objectives", "plan_application"]) {
                     document.querySelector(`form.o_ems_erasmus_form textarea[name='${name}']`).value = `Tour ${name}`;
                 }
+                for (const name of ["destination", "preferred_dates"]) {
+                    document.querySelector(`form.o_ems_erasmus_form input[name='${name}']`).value = `Tour ${name}`;
+                }
             },
-        },
-        {
-            trigger: "form.o_ems_erasmus_form input[name='plan_department_informed']",
-            content: "The department knows about it",
-            run: "click",
         },
         {
             trigger: "form.o_ems_erasmus_form .o_ems_erasmus_document.o_ems_erasmus_required input[type='file']",

@@ -61,13 +61,13 @@ Registra cada mèrit amb la seva justificació, a partir del que la persona ha e
 
 ## 5. Places, classificació i resolucions
 
-Abans de preparar la resolució provisional, afegeix les **modalitats** de la convocatòria amb les places que tinguis finalment (per exemple *GM abril*, *GM juny-juliol*, *GS juny-juliol*).
+Una convocatòria del personal nova té dues **modalitats**, una per projecte: *Personal d'FP (KA121-VET)* i *Personal d'educació superior (KA131-HED)*, sense període (cada persona proposa les seves dates). Abans de preparar la resolució provisional, omple les places que tinguis finalment a cadascuna. El professorat no les veu.
 
 El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Els empats es desfan per la puntuació del pla de mobilitat, després per l'antiguitat i, finalment, pel sorteig que registris.
 
 Les resolucions es publiquen com a la convocatòria de l'alumnat: les llistes només mostren quatre xifres del document d'identitat, mai noms. Per al personal es treu de la seva **fitxa d'empleat** (DNI o NIE; si no, el passaport); si algú no en té, demana a la secretaria que l'afegeixi.
 
-Són seleccionades les persones que entren dins de les places de la convocatòria (la suma de totes les modalitats); cada persona obté com a màxim una plaça. Després assigna a cadascuna el projecte i el període al camp **Modalitat** de la sol·licitud.
+Són seleccionades les persones que entren dins de les places de la convocatòria (la suma de totes les modalitats); cada persona obté com a màxim una plaça. Després assigna a cadascuna el projecte (VET o HED) al camp **Modalitat** de la sol·licitud; la seva mobilitat va a aquest projecte de l'any.
 
 ## 6. Ofertes i full de càlcul
 

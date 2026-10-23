@@ -61,13 +61,13 @@ Registra cada mérito con su justificación, a partir de lo que la persona ha es
 
 ## 5. Plazas, clasificación y resoluciones
 
-Antes de preparar la resolución provisional, añade las **modalidades** de la convocatoria con las plazas que tengas finalmente (por ejemplo *GM abril*, *GM junio-julio*, *GS junio-julio*).
+Una convocatoria del personal nueva tiene dos **modalidades**, una por proyecto: *Personal de FP (KA121-VET)* y *Personal de educación superior (KA131-HED)*, sin periodo (cada persona propone sus fechas). Antes de preparar la resolución provisional, rellena las plazas que tengas finalmente en cada una. El profesorado no las ve.
 
 El personal se clasifica **en una sola lista** para toda la convocatoria (botón **Clasificación** de la convocatoria). Los empates se deshacen por la puntuación del plan de movilidad, después por la antigüedad y, por último, por el sorteo que registres.
 
 Las resoluciones se publican como en la convocatoria del alumnado: las listas solo muestran cuatro cifras del documento de identidad, nunca nombres. Para el personal se toma de su **ficha de empleado** (DNI o NIE; si no, el pasaporte); si alguien no lo tiene, pide a secretaría que lo añada.
 
-Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de todas las modalidades); cada persona obtiene como máximo una plaza. Después asigna a cada una su proyecto y periodo en el campo **Modalidad** de la solicitud.
+Quedan seleccionadas las personas que entran dentro de las plazas de la convocatoria (la suma de todas las modalidades); cada persona obtiene como máximo una plaza. Después asigna a cada una su proyecto (VET o HED) en el campo **Modalidad** de la solicitud; su movilidad va a ese proyecto del año.
 
 ## 6. Ofertas y hoja de cálculo
 

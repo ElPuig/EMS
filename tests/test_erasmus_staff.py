@@ -13,9 +13,10 @@ from .common import create_role_employee, create_role_user, mock_outgoing_email
 from .test_erasmus import PDF, create_erasmus_fixtures, upload
 
 
-# Annex 1's sections 3 to 7, written in the form (issue #697).
-STAFF_PLAN = {'plan_reason': 'Test reason', 'plan_objectives': 'Test objectives', 'plan_application': 'Test application',
-              'plan_dissemination': 'Test dissemination', 'plan_department_informed': True}
+# The mobility plan (annex 1), written in the form and required to submit (issue #697).
+STAFF_PLAN = {'staff_activity': 'job_shadowing', 'host_entity': 'Test host school', 'destination': 'Test city',
+              'preferred_dates': 'June', 'plan_reason': 'Test reason', 'plan_objectives': 'Test objectives',
+              'plan_application': 'Test application'}
 
 
 def create_staff_call_fixtures(cls):
@@ -46,8 +47,8 @@ def create_staff_call_fixtures(cls):
         'date_open': now - timedelta(days=1),
         'date_close': now + timedelta(days=10),
         'acceptance_deadline': now + timedelta(days=20),
-        'modality_ids': [(0, 0, {'name': 'TGM April', 'project': 'ka121_vet', 'places': 1, 'sequence': 1}),
-                         (0, 0, {'name': 'TGS June', 'project': 'ka131_hed', 'places': 1, 'sequence': 2})],
+        'modality_ids': [(0, 0, {'name': 'Test VET staff', 'project': 'ka121_vet', 'places': 1, 'sequence': 1}),
+                         (0, 0, {'name': 'Test HED staff', 'project': 'ka131_hed', 'places': 1, 'sequence': 2})],
         'document_ids': [
             (0, 0, {'name': 'Identity document', 'requirement': 'required', 'sequence': 1}),
             (0, 0, {'name': 'Staff language certificate', 'requirement': 'optional', 'sequence': 3}),
@@ -109,12 +110,11 @@ class TestErasmusStaffCall(ErasmusStaffCase):
 
     def test_staff_apply_once_without_a_modality(self):
         application = self._apply(0, staff_activity='job_shadowing', host_entity='Test host',
-                                  accompany_students=True, availability='Ignored: a students\' answer')
+                                  availability='Ignored: a students\' answer')
         self.assertEqual(application.employee_id, self.staff_employees[0])
         self.assertFalse(application.modality_id)
         self.assertFalse(application.is_minor)
         self.assertEqual((application.staff_activity, application.host_entity), ('job_shadowing', 'Test host'))
-        self.assertTrue(application.accompany_students)
         self.assertFalse(application.availability)
         with self.assertRaises(UserError):
             application._ems_portal_save({'staff_activity': 'holidays'}, {})
@@ -138,6 +138,8 @@ class TestErasmusStaffCall(ErasmusStaffCase):
             'name': 'Staff call without places', 'audience': 'staff', 'date_open': self.staff_call.date_open,
             'date_close': self.staff_call.date_close})
         self.assertEqual(len(call.document_ids), 3)
+        self.assertEqual(call.modality_ids.mapped('project'), ['ka121_vet', 'ka131_hed'],
+                         "One modality per project, without a period.")
         self.assertFalse(call.document_ids.filtered('panel_visible'), "The mobility plan is written in the form.")
         call.action_publish()
         self.assertEqual(call.state, 'published')
@@ -224,14 +226,13 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         partner = self.staff_users[1].partner_id
         application = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.staff_call, partner)
         application._ems_portal_save({'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01',
-                                      **STAFF_PLAN, 'plan_department_informed': False},
-                                     {self.id_document.id: [('id.pdf', PDF)]})
+                                      **STAFF_PLAN, 'host_entity': False}, {self.id_document.id: [('id.pdf', PDF)]})
+        with self.assertRaises(UserError, msg="Always with a concrete host entity or course."):
+            application.action_submit()
+        application._ems_portal_save({'host_entity': 'Test course provider', 'plan_objectives': False}, {})
         with self.assertRaises(UserError):
             application.action_submit()
-        application._ems_portal_save({'plan_department_informed': True, 'plan_dissemination': False}, {})
-        with self.assertRaises(UserError):
-            application.action_submit()
-        application._ems_portal_save({'plan_dissemination': 'A news item on the website'}, {})
+        application._ems_portal_save({'plan_objectives': 'Test objectives'}, {})
         application.action_submit()
         self.assertEqual(application.state, 'submitted')
 
@@ -323,8 +324,8 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.assertEqual(len(mine), 3)
         rating = mine.filtered(lambda rating: rating.application_id == first)
         # The plan written in the form, and none of the application's documents.
-        self.assertEqual((rating.plan_reason, rating.plan_objectives, rating.plan_application, rating.plan_dissemination,
-                          rating.plan_department_informed), tuple(STAFF_PLAN.values()))
+        self.assertEqual((rating.plan_activity, rating.plan_host, rating.plan_destination, rating.plan_dates,
+                          rating.plan_reason, rating.plan_objectives, rating.plan_application), tuple(STAFF_PLAN.values()))
         self.assertFalse(rating.plan_attachment_ids)
         self.assertFalse(self.env['ems.erasmus.application.document'].with_user(self.panel_teacher).search([]))
         with self.assertRaises(AccessError):
@@ -470,10 +471,9 @@ class TestPortalErasmusStaff(HttpCase):
         url = f'/my/erasmus/call/{self.staff_call.id}'
         self.assertIn(b'o_ems_erasmus_staff_form', self.url_open(url).content)
         response = self.url_open(f'{url}/save', data={
-            'csrf_token': Request.csrf_token(self), 'staff_activity': 'course', 'host_entity': 'Test course',
+            'csrf_token': Request.csrf_token(self), **STAFF_PLAN, 'staff_activity': 'course', 'host_entity': 'Test course',
             'destination': 'Test city, Test country', 'support_needs': 'Test need', 'declared_language_level': 'c2',
             'declared_last_mobility_date': '2024-03', 'declared_centre_start_date': '2015-09', 'submit': '1',
-            **{name: 'on' if value is True else value for name, value in STAFF_PLAN.items()},
         }, files=[(f'document_{self.id_document.id}', ('id.pdf', PDF, 'application/pdf'))])
         self.assertTrue(response.url.endswith('/my/erasmus?submitted=1'))
         application = self.env['ems.erasmus.application'].search([('call_id', '=', self.staff_call.id)])

@@ -425,6 +425,8 @@ what differs:
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | The sum of every modality, offered as one pool |
+| Modalities | Levels, places, period, destinations | One per project, added on their own (`_ems_staff_modalities`: FP KA121-VET and higher education KA131-HED), places only, no period; never shown to staff. The team assigns each selected person one, so their mobility goes on that project of the year |
+| Dissemination | - | Not part of the plan nor of the rubric (criterion 2 rates the application to the job only): the same obligation for everyone, a news item on the website and sharing it at a meeting if needed (two return steps of the checklist) |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
 | Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
 | Score correction deadline (`interview_deadline`) | Set by hand | `date_close` + 14 days (`STAFF_RATING_DAYS`), set by `create()`/onchange and moved with `date_close` while it still holds that default |
@@ -449,12 +451,12 @@ erDiagram
 ### Application form
 
 The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`): activity
-(`staff_activity`), host entity or course, "host not found yet", destination, preferred dates,
-last staff mobility and date at the centre (below), centre projects, the mobility and transfer plan of annex 1
-(`plan_reason`, `plan_objectives`, `plan_application`, `plan_dissemination`, all required to submit, and
-`plan_department_informed`; the rating shows them through related fields, so the panel reads the plan
-on screen and nothing else of the application), interest in accompanying
-students, support needs
+(`staff_activity`), host entity or course, destination, preferred dates, last staff mobility and date
+at the centre (below), centre projects, the mobility and transfer plan of annex 1 (`plan_reason`,
+`plan_objectives`, `plan_application`; `PLAN_FIELDS`, with the activity, host, destination and dates,
+all required to submit: always a concrete host, decided with the coordinator 2026-10-23; the rating
+shows them through related fields, so the panel reads the plan on screen and nothing else of the
+application), support needs
 (confidential: `groups` Erasmus team and administrator), the declared language certificate
 (`declared_language_level`), image consent, notes. The controller saves only the answers of the call's audience;
 `_ems_portal_save` refuses an activity outside the selection. `employee_id` is set when the

@@ -172,6 +172,8 @@ class EmsErasmusCall(models.Model):
         self.min_score = 0.0 if self.audience == 'staff' else 50.0
         if self.audience == 'staff' and not self.document_ids:
             self.document_ids = self._ems_staff_documents()
+        if self.audience == 'staff' and not self.modality_ids:
+            self.modality_ids = self._ems_staff_modalities()
         if self.audience == 'staff' and not self.staff_level_ids:
             self.staff_level_ids = self._ems_staff_levels()
         if self.audience == 'staff' and not self.validator_ids:
@@ -222,6 +224,8 @@ class EmsErasmusCall(models.Model):
                     vals['interview_deadline'] = self._ems_rating_deadline(vals.get('date_close'))
             if audience == 'staff' and not vals.get('document_ids'):
                 vals['document_ids'] = self._ems_staff_documents()
+            if audience == 'staff' and not vals.get('modality_ids'):
+                vals['modality_ids'] = self._ems_staff_modalities()
             # Issue #687: the documents and checklist of art. 17 (students) and art. 15 (staff), editable.
             if 'preparation_document_ids' not in vals:
                 vals['preparation_document_ids'] = self._ems_preparation_documents(audience)
@@ -230,6 +234,14 @@ class EmsErasmusCall(models.Model):
             if audience == 'student' and 'commitment_text' not in vals:
                 vals['commitment_text'] = self._ems_commitment_text()
         return super().create(vals_list)
+
+    @api.model
+    def _ems_staff_modalities(self):
+        """A staff call's places, by project (issue #697): each selected person goes on an FP
+        (KA121-VET) or a higher education (KA131-HED) staff mobility, with no period: they propose
+        their own dates."""
+        return [(0, 0, {'sequence': 1, 'name': _("FP staff (KA121-VET)"), 'project': 'ka121_vet'}),
+                (0, 0, {'sequence': 2, 'name': _("Higher education staff (KA131-HED)"), 'project': 'ka131_hed'})]
 
     @api.model
     def _ems_staff_documents(self):
@@ -334,7 +346,9 @@ class EmsErasmusCall(models.Model):
         if audience == 'staff':
             names = [('preparation', _("Preparation meetings")),
                      ('preparation', _("Activities left for your groups")),
-                     ('return', _("Final report (EU Survey)")), ('return', _("Dissemination session"))]
+                     ('return', _("Final report (EU Survey)")),
+                     ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
+                     ('return', _("Share it at a department or cycles meeting, if it is considered necessary"))]
         else:
             names = [('preparation', _("Preparation sessions")), ('preparation', _("Virtual component (GS)")),
                      ('return', _("Final report (EU Survey)")), ('return', _("Dissemination activities"))]

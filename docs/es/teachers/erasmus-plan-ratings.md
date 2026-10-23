@@ -14,7 +14,7 @@ Como miembro del tribunal de la convocatoria Erasmus+ del personal, valoras en E
 
 Cuando el equipo Erasmus envía los planes al tribunal, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. Aparece el menú **Erasmus+**, con **Mis valoraciones de planes**: los planes que tienes asignados.
 
-Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de la persona candidata, tal como lo escribió en el formulario de solicitud: actividad, entidad de acogida o curso, destino, fechas, el motivo de la elección, los objetivos, la aplicación al trabajo y la difusión. No ves nada más de la solicitud.
+Cada valoración muestra en pantalla el **plan de movilidad y transferencia** de la persona candidata, tal como lo escribió en el formulario de solicitud: actividad, entidad de acogida o curso, destino, fechas, el motivo de la elección, los objetivos y la aplicación al trabajo. No ves nada más de la solicitud. La difusión no se valora: es la misma obligación para todo el mundo.
 
 ## 2. Valorar la rúbrica
 
@@ -23,7 +23,7 @@ Para cada aspecto, elige la descripción que más se ajusta al plan: son las del
 | Aspecto | 1 punto | 0,5 puntos | 0 puntos |
 |---|---|---|---|
 | Relevancia y concreción | La relación con el trabajo, el departamento y los ciclos formativos es clara, con objetivos concretos y la entidad o el curso indicados por su nombre | La relación es general o los objetivos y la actividad son poco concretos | No se explica la relación con el trabajo ni con los ciclos formativos, y los objetivos y la actividad son genéricos |
-| Aplicación y difusión | Aplicación concreta al trabajo y al alumnado, y propuesta de difusión definida (basta con explicarlo como buena práctica en una reunión de ciclos o publicar una noticia en la web) | Aplicación o difusión poco concretas | No se prevé ninguna aplicación ni difusión |
+| Aplicación al trabajo | Aplicación concreta al trabajo y al alumnado, con acciones definidas | Aplicación poco concreta | No se prevé ninguna aplicación |
 
 Puedes escribir tus notas en **Notas del evaluador**.
 

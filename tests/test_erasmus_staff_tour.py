@@ -37,7 +37,7 @@ class TestErasmusStaffTour(HttpCase):
         self.assertEqual((application.staff_activity, application.host_entity),
                          ('job_shadowing', 'Tour host school'))
         self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
-        self.assertEqual((application.plan_objectives, application.plan_department_informed), ('Tour plan_objectives', True))
+        self.assertEqual(application.plan_objectives, 'Tour plan_objectives')
 
     def test_my_plan_rating_tour(self):
         application = self._admitted_and_closed()

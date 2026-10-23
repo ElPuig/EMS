@@ -12,11 +12,12 @@ RELEVANCE_RUBRIC = [
     ('0', "The relation with the job or the training cycles is not explained, and the objectives and the activity "
           "are generic."),
 ]
+# The dissemination is the same obligation for everyone (a news item on the website), so the
+# second criterion rates the application to the job only (issue #697).
 TRANSFER_RUBRIC = [
-    ('1', "A concrete application to the job and the students, and a defined dissemination (explaining it as a "
-          "good practice at a meeting of the cycles or a news item on the website is enough)."),
-    ('0.5', "Application or dissemination not very concrete."),
-    ('0', "No application nor dissemination planned."),
+    ('1', "A concrete application to the job and the students, with defined actions."),
+    ('0.5', "An application not very concrete."),
+    ('0', "No application planned."),
 ]
 PLAN_CRITERIA = ('relevance', 'transfer')
 # Art. 11 of the staff call, criteria 3 and 6: points per merit and the criterion it counts for.
@@ -66,7 +67,7 @@ class EmsErasmusPlanRating(models.Model):
                                          "of the other members' ratings.")
     relevance = fields.Selection(string="Relevance and concreteness", selection=RELEVANCE_RUBRIC, tracking=True,
                                  help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
-    transfer = fields.Selection(string="Application and dissemination", selection=TRANSFER_RUBRIC, tracking=True,
+    transfer = fields.Selection(string="Application to the job", selection=TRANSFER_RUBRIC, tracking=True,
                                 help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True)
     # Issue #697: the mobility plan (annex 1) as the applicant wrote it in the form, the only part of
@@ -77,10 +78,7 @@ class EmsErasmusPlanRating(models.Model):
     plan_dates = fields.Char(string="Preferred dates", related='application_id.preferred_dates')
     plan_reason = fields.Text(string="Why this entity or course", related='application_id.plan_reason')
     plan_objectives = fields.Text(string="Objectives", related='application_id.plan_objectives')
-    plan_application = fields.Text(string="Application to the job", related='application_id.plan_application')
-    plan_dissemination = fields.Text(string="Dissemination", related='application_id.plan_dissemination')
-    plan_department_informed = fields.Boolean(string="Department informed",
-                                              related='application_id.plan_department_informed')
+    plan_application = fields.Text(string="Planned application", related='application_id.plan_application')
     plan_attachment_ids = fields.Many2many(string="Files for the panel", comodel_name='ir.attachment',
                                            compute='_compute_plan_attachment_ids', compute_sudo=True,
                                            help="The files of the documents the call shows to the panel, if any.")

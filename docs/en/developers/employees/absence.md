@@ -285,7 +285,9 @@ a note and an overdue activity to the Head, once (`ems_document_escalated`). **E
 for its reader's working day to start** (issue #696): it goes out on the first run after
 `res.users._ems_workday_started()` says so (the start of their `_ems_workday_intervals()` that
 day, or of the company's default framework for somebody with no schedule at all), never outside
-their working hours and never on a day they don't work. The search only returns what is due
+their working hours and never on a day they don't work, and is written in its reader's language
+(the scheduled action runs as OdooBot). Both steps go through two helpers shared with the detected
+absences, `mail.thread._ems_remind_at_workday_start()` and `_ems_report_at_workday_start()`. The search only returns what is due
 today, so once a request has been dealt with it leaves the search until its next reminder. The note is the
 Head's email: the activity is scheduled with `mail_activity_quick_update`, which keeps Odoo from
 sending its own "assigned to you" email for the same thing. Both are company

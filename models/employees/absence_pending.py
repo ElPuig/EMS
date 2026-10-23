@@ -311,23 +311,15 @@ class EmsAbsencePending(models.Model):
         ])
         started = {}
         for absence in absences:
-            teacher = absence.employee_id.user_id
-            last = absence.reminder_date
-            if (not last or (today - last).days >= interval) \
-                    and teacher and teacher._ems_workday_started(today, now, started):
-                # In the reader's language, not the scheduled action's.
-                absence._ems_notify(teacher.partner_id, absence.with_context(lang=teacher.lang)._ems_reminder_message())
-                absence.reminder_date = today
+            absence._ems_remind_at_workday_start(
+                absence.employee_id.user_id,
+                lambda user, absence=absence: absence.with_context(lang=user.lang)._ems_reminder_message(),
+                today, now, started, 'reminder_date', interval)
             if not absence.escalated and absence.date_to <= report_bound:
-                heads = absence.employee_id._find_attendance_approvers()
-                if not any(head._ems_workday_started(today, now, started) for head in heads):
-                    continue
-                absence._ems_notify(heads.partner_id, absence.with_context(lang=heads[:1].lang)._ems_report_message())
-                # The note above is the Head's email; the activity only goes on their list.
-                for head in heads:
-                    absence.with_context(mail_activity_quick_update=True).activity_schedule(
-                        NOT_REQUESTED_ACTIVITY_XMLID, date_deadline=today, user_id=head.id)
-                absence.escalated = True
+                absence._ems_report_at_workday_start(
+                    absence.employee_id._find_attendance_approvers(),
+                    lambda user, absence=absence: absence.with_context(lang=user.lang)._ems_report_message(),
+                    NOT_REQUESTED_ACTIVITY_XMLID, today, now, started, 'escalated')
 
     def _ems_when(self):
         """The day and hours of the absence, in the company's timezone."""

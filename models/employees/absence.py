@@ -1472,24 +1472,16 @@ class EmsAbsenceLeave(models.Model):
         started = {}
         for leave in leaves:
             reminder_field, escalated_field, overdue_xmlid = EMPLOYEE_STEPS[leave.ems_status]
-            reminder, report = leave._ems_reminder_messages()
-            last = leave[reminder_field]
-            owner = leave.employee_id.user_id
-            if (not last or (today - last).days >= interval) \
-                    and owner and owner._ems_workday_started(today, now, started):
-                leave._ems_notify(owner.partner_id, reminder)
-                leave[reminder_field] = today
+            leave._ems_remind_at_workday_start(
+                leave.employee_id.user_id,
+                lambda user, leave=leave: leave.with_context(lang=user.lang)._ems_reminder_messages()[0],
+                today, now, started, reminder_field, interval)
             if not leave[escalated_field] and (today - leave.request_date_to).days >= escalation:
                 # Whoever has it in hand: the Director for an ATRI absence it sent back.
-                heads = leave._ems_stage_users()
-                if not any(head._ems_workday_started(today, now, started) for head in heads):
-                    continue
-                leave._ems_notify(heads.partner_id, report)
-                # The note above is the Head's email; the activity only goes on their list.
-                for head in heads:
-                    leave.with_context(mail_activity_quick_update=True).activity_schedule(
-                        overdue_xmlid, date_deadline=today, user_id=head.id)
-                leave[escalated_field] = True
+                leave._ems_report_at_workday_start(
+                    leave._ems_stage_users(),
+                    lambda user, leave=leave: leave.with_context(lang=user.lang)._ems_reminder_messages()[1],
+                    overdue_xmlid, today, now, started, escalated_field)
 
     def _ems_reminder_messages(self):
         """(reminder for the employee, report for their Head) of the step the request waits on."""

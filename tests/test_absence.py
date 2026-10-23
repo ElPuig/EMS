@@ -1327,7 +1327,8 @@ class TestAbsenceRequest(TransactionCase):
         be an officer - proving nothing about what an ordinary employee can do.
         """
         user = self.env['res.users'].with_context(no_reset_password=True).create({
-            'name': name, 'login': login,
+            # English: the reminders are written in their reader's language.
+            'name': name, 'login': login, 'lang': 'en_US',
             'groups_id': [Command.link(self.env.ref('base.group_user').id),
                           Command.link(self.env.ref('ems.group_teacher').id)],
         })

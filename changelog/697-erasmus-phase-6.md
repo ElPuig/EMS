@@ -34,6 +34,10 @@
   dates. The Direction can leave a comment when validating, shown in the email and the portal.
 - The panel rates each plan by picking the descriptions of annex 2 of the call instead of
   0 / 0.5 / 1 (the points stay the same underneath).
+- The mobility and transfer plan (annex 1) is written in the application form instead of uploaded
+  as a PDF: why that entity or course, objectives, application to the job and dissemination (all
+  required to submit) and that the department knows about it. The panel reads it on its rating
+  screen, still without seeing anything else of the application.
 - Staff never see the modality, places or periods (the team's planning); the date fields explain
   the rule (non-teaching period, or another week with the Direction's validation).
 

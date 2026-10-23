@@ -25,8 +25,9 @@ Ve a **Erasmus+** en el portal del centro (`/my/erasmus`; el equipo Erasmus comp
 - Tu **certificado de idioma** oficial más alto (B2 o superior), si tienes. Adjúntalo también en los documentos.
 - Opcionalmente: si quieres acompañar grupos de alumnado, y el **apoyo** que necesitas para hacer la movilidad. Esta respuesta es confidencial: solo la lee el equipo Erasmus.
 - El consentimiento voluntario para el uso de tu imagen.
+- El **plan de movilidad y transferencia** (anexo 1), la única parte de la solicitud que lee el tribunal: por qué esta entidad o este curso, dos o tres objetivos, cómo lo aplicarás a tu trabajo y cómo lo compartirás (basta con explicarlo como buena práctica en una reunión de ciclos o publicar una noticia en la web), como máximo 1.500 caracteres cada uno. Marca que tu departamento está al corriente.
 
-Adjunta los documentos que pide la convocatoria: documento de identidad, CV Europass en inglés y el **plan de movilidad** (anexo 1, como máximo dos páginas). Los certificados de idiomas son opcionales.
+Adjunta los documentos que pide la convocatoria: documento de identidad y CV Europass en inglés. Los certificados de idiomas son opcionales.
 
 No puedes enviarla sin la última movilidad y la fecha de incorporación al centro. Haz clic en **Guardar borrador** para continuar más tarde, o en **Enviar la solicitud** cuando lo tengas todo listo. Recibirás un justificante por correo. Hasta la fecha de cierre puedes modificarla y volver a enviarla.
 

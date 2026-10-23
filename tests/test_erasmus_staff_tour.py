@@ -2,7 +2,7 @@ from odoo.tests.common import HttpCase, tagged
 
 from .common import mock_outgoing_email
 from .test_erasmus import PDF
-from .test_erasmus_staff import create_staff_call_fixtures
+from .test_erasmus_staff import STAFF_PLAN, create_staff_call_fixtures
 
 
 @tagged('post_install', '-at_install')
@@ -21,8 +21,8 @@ class TestErasmusStaffTour(HttpCase):
         partner = self.staff_users[0].partner_id
         application = self.env['ems.erasmus.application']._ems_portal_get_or_create(self.staff_call, partner)
         application._ems_portal_save(
-            {'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01'},
-            {self.id_document.id: [('id.pdf', PDF)], self.plan_document.id: [('plan.pdf', PDF)]})
+            {'declared_never_staff_mobility': True, 'declared_centre_start_date': '2015-09-01', **STAFF_PLAN},
+            {self.id_document.id: [('id.pdf', PDF)]})
         application.action_submit()
         application.requirements_check = 'met'
         application.document_ids.filtered('attachment_ids').action_mark_valid()
@@ -37,6 +37,7 @@ class TestErasmusStaffTour(HttpCase):
         self.assertEqual((application.staff_activity, application.host_entity),
                          ('job_shadowing', 'Tour host school'))
         self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
+        self.assertEqual((application.plan_objectives, application.plan_department_informed), ('Tour plan_objectives', True))
 
     def test_my_plan_rating_tour(self):
         application = self._admitted_and_closed()

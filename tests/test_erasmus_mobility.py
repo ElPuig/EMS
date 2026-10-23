@@ -501,7 +501,7 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         names = self.staff_call.preparation_document_ids.mapped('name')
         self.assertIn('Mobility programme', names)
         self.assertIn('Report with evidence', names)
-        self.assertEqual(len(self.staff_call.document_ids), 3, "The application documents are unchanged.")
+        self.assertEqual(len(self.staff_call.document_ids), 2, "The application documents are unchanged.")
 
 
 @tagged('post_install', '-at_install')

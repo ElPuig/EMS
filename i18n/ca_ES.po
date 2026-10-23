@@ -1509,6 +1509,7 @@ msgstr "Activitats"
 #: model:ir.model,name:ems.model_mail_activity
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_activity
 msgid "Activity"
 msgstr "Activitat"
 
@@ -26992,6 +26993,7 @@ msgstr "Coordinació d'un projecte del centre (1)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__destination
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__destination_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_destination
 msgid "Destination"
 msgstr "Destinació"
 
@@ -27054,6 +27056,7 @@ msgstr "Cada modalitat d'una convocatòria d'alumnat necessita els nivells de l'
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__host_entity
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_host
 msgid "Host entity or course"
 msgstr "Entitat d'acollida o curs"
 
@@ -27146,11 +27149,6 @@ msgid "Merits reviewed on"
 msgstr "Mèrits revisats el"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_attachment_ids
-msgid "Mobility plan"
-msgstr "Pla de mobilitat"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_complete
 msgid "Mobility plan rated"
 msgstr "Pla de mobilitat valorat"
@@ -27240,6 +27238,7 @@ msgstr "Càrrec"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__preferred_dates
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_dates
 msgid "Preferred dates"
 msgstr "Dates preferents"
 
@@ -27387,11 +27386,6 @@ msgid "The evaluation is not submitted."
 msgstr "L'avaluació no està enviada."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_attachment_ids
-msgid "The files of the documents the call shows to the panel."
-msgstr "Els fitxers dels documents que la convocatòria mostra al tribunal."
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 msgid "The review deadline has passed: only the Erasmus team can reopen this rating."
 msgstr "Ha passat el termini de revisió: només l'equip Erasmus pot reobrir aquesta valoració."
@@ -27497,12 +27491,6 @@ msgid "Add the modalities of the call, with their places, before preparing the r
 msgstr "Afegeix les modalitats de la convocatòria, amb les seves places, abans de preparar la resolució."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Annex 1 of the call, two pages at most."
-msgstr "Annex 1 de la convocatòria, com a màxim dues pàgines."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__declared_centre_start_date
 msgid "At the centre since"
 msgstr "Al centre des de"
@@ -27568,6 +27556,8 @@ msgstr "Última mobilitat de personal el"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 msgid "Mobility and transfer plan"
 msgstr "Pla de mobilitat i transferència"
 
@@ -30547,3 +30537,166 @@ msgid "Say who validates the staff's activities before publishing the call."
 msgstr ""
 "Indica qui valida les activitats del personal abans de publicar la "
 "convocatòria."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"Annex 1 of the call. The panel only reads this plan, together with the "
+"activity, the host entity or course, the destination and the dates above. "
+"1,500 characters at most per section."
+msgstr ""
+"Annex 1 de la convocatòria. El tribunal només llegeix aquest pla, juntament "
+"amb l'activitat, l'entitat d'acollida o el curs, la destinació i les dates "
+"de més amunt. Com a màxim 1.500 caràcters per apartat."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_reason
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_reason
+msgid ""
+"Annex 1, section 3: why this entity or course, and its relation with the "
+"applicant's job and with the centre's training cycles."
+msgstr ""
+"Annex 1, apartat 3: per què aquesta entitat o aquest curs, i quina relació "
+"té amb la feina de la persona sol·licitant i amb els cicles formatius del "
+"centre."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_objectives
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_objectives
+msgid ""
+"Annex 1, section 4: two or three concrete objectives: what to observe, learn"
+" or, in a teaching assignment, teach."
+msgstr ""
+"Annex 1, apartat 4: dos o tres objectius concrets: què es vol observar, "
+"aprendre o, en una estada de docència, ensenyar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_application
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_application
+msgid ""
+"Annex 1, section 5: how it will be used in the classes, the department or "
+"the centre's management, and which students will benefit."
+msgstr ""
+"Annex 1, apartat 5: com s'incorporarà a les classes, al departament o a la "
+"gestió del centre, i a quin alumnat beneficiarà."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_dissemination
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_dissemination
+msgid ""
+"Annex 1, section 6: how it will be shared with the rest of the staff (for "
+"example, as a good practice at a meeting of the cycles or a news item on the"
+" website)."
+msgstr ""
+"Annex 1, apartat 6: com es compartirà amb la resta del personal (per "
+"exemple, com a bona pràctica en una reunió de cicles o amb una notícia al "
+"web)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__plan_department_informed
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_department_informed
+msgid ""
+"Annex 1, section 7: the applicant's department or the person in charge knows"
+" about it."
+msgstr ""
+"Annex 1, apartat 7: el departament de la persona sol·licitant o la persona "
+"responsable n'està assabentat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_application
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_application
+msgid "Application to the job"
+msgstr "Aplicació a la feina"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Application to your job"
+msgstr "Aplicació a la teva feina"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_department_informed
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_department_informed
+msgid "Department informed"
+msgstr "Departament assabentat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_dissemination
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_dissemination
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Dissemination"
+msgstr "Difusió"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_attachment_ids
+msgid "Files for the panel"
+msgstr "Fitxers per al tribunal"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid ""
+"Fill in every section of the mobility plan and confirm that your department "
+"knows about it."
+msgstr ""
+"Omple tots els apartats del pla de mobilitat i confirma que el teu "
+"departament n'està assabentat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"How you will share it with the rest of the staff: explaining it as a good "
+"practice at a meeting of the cycles or a news item on the website is enough."
+msgstr ""
+"Com ho compartiràs amb la resta del personal: n'hi ha prou d'explicar-ho com"
+" a bona pràctica en una reunió de cicles o de publicar-ne una notícia al "
+"web."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"How you will use it in your classes, your department or the centre's "
+"management, and which students will benefit."
+msgstr ""
+"Com ho aplicaràs a les teves classes, al departament o a la gestió del "
+"centre, i a quin alumnat beneficiarà."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Its relation with your job and with the centre's training cycles."
+msgstr ""
+"Quina relació té amb la teva feina i amb els cicles formatius del centre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "My department (or the person in charge) knows about it"
+msgstr "El meu departament (o la persona responsable) n'està assabentat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_objectives
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_objectives
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Objectives"
+msgstr "Objectius"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__plan_attachment_ids
+msgid "The files of the documents the call shows to the panel, if any."
+msgstr ""
+"Els fitxers dels documents que la convocatòria mostra al tribunal, si n'hi "
+"ha."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"Two or three concrete objectives: what you want to observe, learn or, in a "
+"teaching assignment, teach."
+msgstr ""
+"Dos o tres objectius concrets: què vols observar, aprendre o, en una estada "
+"de docència, ensenyar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_reason
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__plan_reason
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "Why this entity or course"
+msgstr "Per què aquesta entitat o aquest curs"

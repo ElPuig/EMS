@@ -233,15 +233,13 @@ class EmsErasmusCall(models.Model):
 
     @api.model
     def _ems_staff_documents(self):
-        """The documents art. 8 of the staff call asks for; the mobility plan is the one the panel sees."""
+        """The documents art. 8 of the staff call asks for. The mobility plan is written in the form (issue #697)."""
         return [(0, 0, vals) for vals in (
             {'sequence': 1, 'name': _("Identity document"), 'requirement': 'required',
              'description': _("DNI or passport (EU citizens); passport and NIE (non-EU citizens).")},
             {'sequence': 2, 'name': _("Europass CV in English"), 'requirement': 'required',
              'description': _("With your experience, skills and a photo (europass.europa.eu).")},
-            {'sequence': 3, 'name': _("Mobility and transfer plan"), 'requirement': 'required', 'panel_visible': True,
-             'description': _("Annex 1 of the call, two pages at most.")},
-            {'sequence': 4, 'name': _("Language certificates"), 'requirement': 'optional',
+            {'sequence': 3, 'name': _("Language certificates"), 'requirement': 'optional',
              'description': _("Official, B2 or higher.")},
         )]
 

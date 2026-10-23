@@ -25,8 +25,9 @@ Go to **Erasmus+** on the school portal (`/my/erasmus`; the Erasmus team shares 
 - Your highest official **language certificate** (B2 or higher), if you have one. Attach it in the documents too.
 - Optional: whether you want to accompany groups of students, and the **support** you need to do the mobility. This answer is confidential: only the Erasmus team reads it.
 - The voluntary consent to use your image.
+- The **mobility and transfer plan** (annex 1), the only part of your application the panel reads: why this entity or course, two or three objectives, how you will apply it to your job and how you will share it (explaining it as a good practice at a meeting of the cycles or a news item on the website is enough), 1,500 characters at most each. Tick that your department knows about it.
 
-Attach the documents the call asks for: identity document, Europass CV in English and the **mobility plan** (annex 1, two pages at most). The language certificates are optional.
+Attach the documents the call asks for: identity document and Europass CV in English. The language certificates are optional.
 
 You can't submit it without your last mobility and the date you joined the centre. Click **Save draft** to keep working on it later, or **Submit application** when everything is ready. You receive a receipt by email. Until the closing date you can change it and submit it again.
 

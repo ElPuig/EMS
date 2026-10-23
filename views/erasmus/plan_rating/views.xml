@@ -66,9 +66,28 @@
                                        groups="ems.group_erasmus,ems.group_academic_admin"/>
                             </group>
                             <group>
-                                <field name="plan_attachment_ids" widget="many2many_binary" readonly="1"/>
+                                <field name="plan_attachment_ids" widget="many2many_binary" readonly="1"
+                                       invisible="not plan_attachment_ids"/>
                                 <field name="submit_date"/>
                             </group>
+                        </group>
+                        <!-- Issue #697: the plan as written in the application form (annex 1). -->
+                        <group string="Mobility and transfer plan" name="plan">
+                            <group>
+                                <field name="plan_activity"/>
+                                <field name="plan_host"/>
+                            </group>
+                            <group>
+                                <field name="plan_destination"/>
+                                <field name="plan_dates"/>
+                            </group>
+                        </group>
+                        <group col="1">
+                            <field name="plan_reason"/>
+                            <field name="plan_objectives"/>
+                            <field name="plan_application"/>
+                            <field name="plan_dissemination"/>
+                            <field name="plan_department_informed"/>
                         </group>
                         <group string="Annex 2">
                             <field name="relevance" widget="radio" readonly="state != 'draft'"/>

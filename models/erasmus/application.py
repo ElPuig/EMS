@@ -54,8 +54,12 @@ ANSWER_FIELDS = {
     'staff': ('staff_activity', 'host_entity', 'host_not_identified', 'destination', 'preferred_dates',
               'declared_never_staff_mobility', 'declared_last_mobility_date', 'declared_centre_start_date',
               'centre_projects', 'accompany_students', 'declared_language_level', 'support_needs', 'image_consent',
-              'applicant_notes'),
+              'applicant_notes', 'plan_reason', 'plan_objectives', 'plan_application', 'plan_dissemination',
+              'plan_department_informed'),
 }
+# Issue #697: sections 3 to 6 of annex 1 of the staff call, written in the form (1 and 2 are the
+# activity, host, destination and dates); the panel reads them on screen.
+PLAN_TEXT_FIELDS = ('plan_reason', 'plan_objectives', 'plan_application', 'plan_dissemination')
 STAFF_ACTIVITIES = [('job_shadowing', "Job shadowing"), ('course', "Structured course"),
                     ('teaching', "Teaching assignment")]
 
@@ -106,6 +110,22 @@ class EmsErasmusApplication(models.Model):
     destination = fields.Char(string="Destination")
     preferred_dates = fields.Char(string="Preferred dates")
     centre_projects = fields.Text(string="Centre projects")
+    plan_reason = fields.Text(string="Why this entity or course",
+                              help="Annex 1, section 3: why this entity or course, and its relation with the "
+                                   "applicant's job and with the centre's training cycles.")
+    plan_objectives = fields.Text(string="Objectives",
+                                  help="Annex 1, section 4: two or three concrete objectives: what to observe, learn "
+                                       "or, in a teaching assignment, teach.")
+    plan_application = fields.Text(string="Application to the job",
+                                   help="Annex 1, section 5: how it will be used in the classes, the department or "
+                                        "the centre's management, and which students will benefit.")
+    plan_dissemination = fields.Text(string="Dissemination",
+                                     help="Annex 1, section 6: how it will be shared with the rest of the staff (for "
+                                          "example, as a good practice at a meeting of the cycles or a news item on "
+                                          "the website).")
+    plan_department_informed = fields.Boolean(string="Department informed",
+                                              help="Annex 1, section 7: the applicant's department or the person in "
+                                                   "charge knows about it.")
     accompany_students = fields.Boolean(string="Interested in accompanying students")
     support_needs = fields.Text(string="Support needs", groups='ems.group_erasmus,ems.group_academic_admin')
     declared_never_staff_mobility = fields.Boolean(
@@ -750,6 +770,10 @@ class EmsErasmusApplication(models.Model):
                     and application.declared_centre_start_date):
                 raise UserError(_("Say when your last staff mobility was (or that you never had one) and since when "
                                   "you work at the centre."))
+            if application.audience == 'staff' and not (
+                    all(application[name] for name in PLAN_TEXT_FIELDS) and application.plan_department_informed):
+                raise UserError(_("Fill in every section of the mobility plan and confirm that your department knows "
+                                  "about it."))
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
         self.document_ids.sudo().correction_requested = False

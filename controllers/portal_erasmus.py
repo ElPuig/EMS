@@ -11,7 +11,7 @@ from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS
 from odoo.addons.ems.models.erasmus.mobility import PROPOSAL_FIELDS
 
 BOOLEAN_ANSWERS = ('previous_mobility', 'fewer_opportunities', 'image_consent', 'host_not_identified',
-                   'accompany_students', 'declared_never_staff_mobility')
+                   'accompany_students', 'declared_never_staff_mobility', 'plan_department_informed')
 # Answers given as a month (<input type="month">, "YYYY-MM"), stored as the 1st of that month.
 MONTH_ANSWERS = ('declared_last_mobility_date', 'declared_centre_start_date')
 

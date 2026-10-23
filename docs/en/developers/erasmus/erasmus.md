@@ -420,7 +420,7 @@ what differs:
 |---|---|---|
 | Who sees the call on the portal | A student whose main group's level is in a modality | An internal user with an employee file (`res.partner._ems_erasmus_employee`) |
 | Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change): required before preparing the provisional resolution; the team assigns each selected person's project and period |
-| Documents | Configured per call | The four of art. 8 added on their own (`_ems_staff_documents`, on create and on the `audience` onchange), the mobility plan `panel_visible` |
+| Documents | Configured per call | The three of art. 8 added on their own (`_ems_staff_documents`, on create and on the `audience` onchange); the mobility plan is written in the form, not uploaded (`PLAN_TEXT_FIELDS`, issue #697) |
 | Admission checks | Requirements + serious sanctions (Head of Studies) | Requirements only |
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
@@ -450,7 +450,10 @@ erDiagram
 
 The portal shows the staff form when `audience == 'staff'` (`ANSWER_FIELDS['staff']`): activity
 (`staff_activity`), host entity or course, "host not found yet", destination, preferred dates,
-last staff mobility and date at the centre (below), centre projects, interest in accompanying
+last staff mobility and date at the centre (below), centre projects, the mobility and transfer plan of annex 1
+(`plan_reason`, `plan_objectives`, `plan_application`, `plan_dissemination`, all required to submit, and
+`plan_department_informed`; the rating shows them through related fields, so the panel reads the plan
+on screen and nothing else of the application), interest in accompanying
 students, support needs
 (confidential: `groups` Erasmus team and administrator), the declared language certificate
 (`declared_language_level`), image consent, notes. The controller saves only the answers of the call's audience;

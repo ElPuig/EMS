@@ -25,8 +25,9 @@ Ves a **Erasmus+** al portal del centre (`/my/erasmus`; l'equip Erasmus en compa
 - El teu **certificat de llengua** oficial més alt (B2 o superior), si en tens. Adjunta'l també als documents.
 - Opcionalment: si vols acompanyar grups d'alumnat, i el **suport** que necessites per fer la mobilitat. Aquesta resposta és confidencial: només la llegeix l'equip Erasmus.
 - El consentiment voluntari per a l'ús de la teva imatge.
+- El **pla de mobilitat i transferència** (annex 1), l'única part de la sol·licitud que llegeix el tribunal: per què aquesta entitat o aquest curs, dos o tres objectius, com ho aplicaràs a la teva feina i com ho compartiràs (n'hi ha prou d'explicar-ho com a bona pràctica en una reunió de cicles o de publicar-ne una notícia al web), com a màxim 1.500 caràcters cadascun. Marca que el teu departament n'està assabentat.
 
-Adjunta els documents que demana la convocatòria: document d'identitat, CV Europass en anglès i el **pla de mobilitat** (annex 1, com a màxim dues pàgines). Els certificats de llengües són opcionals.
+Adjunta els documents que demana la convocatòria: document d'identitat i CV Europass en anglès. Els certificats de llengües són opcionals.
 
 No la pots enviar sense l'última mobilitat i la data d'incorporació al centre. Fes clic a **Desa l'esborrany** per continuar-hi més tard, o a **Envia la sol·licitud** quan ho tinguis tot a punt. Rebràs un justificant per correu. Fins a la data de tancament la pots modificar i tornar a enviar.
 

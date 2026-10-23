@@ -16,7 +16,7 @@ La convocatòria del personal funciona com la de l'alumnat (vegeu [Convocatòrie
 
 A **Erasmus+ > Convocatòries**, crea la convocatòria, posa *Personal* a **Sol·licitants**, omple les dates, adjunta la convocatòria publicada i publica-la. Res més:
 
-- Els **documents** de l'article 8 s'afegeixen sols: document d'identitat, CV Europass en anglès, **pla de mobilitat i transferència** (l'únic document que veu el tribunal, marcat com a **Visible per al tribunal**) i, opcionals, els certificats de llengües. Els pots canviar abans de publicar.
+- Els **documents** de l'article 8 s'afegeixen sols: document d'identitat, CV Europass en anglès i, opcionals, els certificats de llengües. El **pla de mobilitat i transferència** no és un document: les persones sol·licitants l'escriuen al formulari (annex 1), i és l'única part de la sol·licitud que veu el tribunal. Els pots canviar abans de publicar.
 - No hi ha **Puntuació mínima**: la convocatòria del personal no en té, així que l'EMS la posa a 0 i l'amaga.
 - El **Termini per corregir puntuacions** es posa dues setmanes després de la data de tancament: aquell dia vencen les tasques del tribunal, i després els membres ja no poden canviar les seves valoracions. Si canvies la data de tancament, el termini la segueix, tret que l'hagis canviat a mà.
 - **Professorat de:** els nivells del professorat que pot sol·licitar. Una convocatòria del personal nova té tots els nivells de formació professional (cicles de grau bàsic, mitjà i superior, cursos d'especialització i PFI). L'EMS només mostra la convocatòria al professorat que fa classe en algun grup d'aquests nivells i a les persones de **Valida les activitats**: ni al personal d'administració ni al professorat que només fa classe a l'ESO o al batxillerat.

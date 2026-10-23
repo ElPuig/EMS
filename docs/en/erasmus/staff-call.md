@@ -16,7 +16,7 @@ The staff call works like the students' one (see [Calls and applications](calls-
 
 In **Erasmus+ > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
 
-- The **documents** of art. 8 are added on their own: identity document, Europass CV in English, **mobility and transfer plan** (the only document the panel sees, marked **Shown to the panel**) and, optional, the language certificates. You can change them before publishing.
+- The **documents** of art. 8 are added on their own: identity document, Europass CV in English and, optional, the language certificates. The **mobility and transfer plan** is not a document: the applicants write it in the form (annex 1), and it is the only part of the application the panel sees. You can change them before publishing.
 - There is no **Minimum score**: the staff call has none, so EMS sets it to 0 and hides it.
 - The **Score correction deadline** is set two weeks after the closing date: the panel's tasks are due that day, and after it the members can no longer change their ratings. It follows the closing date when you change it, unless you changed it by hand.
 - **Teachers of:** the levels whose teachers can apply. A new staff call has every vocational training level (basic, intermediate and higher cycles, specialisation courses and PFI). EMS shows the call only to the teachers who teach a group of those levels and to the people in **Validates the activities**: not to the administration staff nor to the teachers of ESO or Batxillerat only.

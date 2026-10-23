@@ -242,6 +242,39 @@
                                        t-att-value="application.preferred_dates or ''"/>
                                 <div class="form-text">Preferably in the non-teaching period (June, July). At another time, such as April, only a week that does not affect the assessments, and with the Direction's validation.</div>
                             </div>
+                            <!-- Issue #697: the mobility and transfer plan (annex 1, sections 3 to 7), written
+                                 here instead of a PDF: it is what the panel reads and rates. -->
+                            <h5 class="mt-4 mb-1">Mobility and transfer plan</h5>
+                            <p class="small text-muted mb-3">Annex 1 of the call. The panel only reads this plan, together with the activity, the host entity or course, the destination and the dates above. 1,500 characters at most per section.</p>
+                            <div class="mb-3">
+                                <label class="form-label" for="plan_reason">Why this entity or course</label>
+                                <textarea class="form-control" name="plan_reason" id="plan_reason" rows="3" maxlength="1500"
+                                          t-esc="application.plan_reason or ''"/>
+                                <div class="form-text">Its relation with your job and with the centre's training cycles.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="plan_objectives">Objectives</label>
+                                <textarea class="form-control" name="plan_objectives" id="plan_objectives" rows="3" maxlength="1500"
+                                          t-esc="application.plan_objectives or ''"/>
+                                <div class="form-text">Two or three concrete objectives: what you want to observe, learn or, in a teaching assignment, teach.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="plan_application">Application to your job</label>
+                                <textarea class="form-control" name="plan_application" id="plan_application" rows="3" maxlength="1500"
+                                          t-esc="application.plan_application or ''"/>
+                                <div class="form-text">How you will use it in your classes, your department or the centre's management, and which students will benefit.</div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label" for="plan_dissemination">Dissemination</label>
+                                <textarea class="form-control" name="plan_dissemination" id="plan_dissemination" rows="3" maxlength="1500"
+                                          t-esc="application.plan_dissemination or ''"/>
+                                <div class="form-text">How you will share it with the rest of the staff: explaining it as a good practice at a meeting of the cycles or a news item on the website is enough.</div>
+                            </div>
+                            <div class="form-check mb-4">
+                                <input class="form-check-input" type="checkbox" name="plan_department_informed" id="plan_department_informed"
+                                       t-att-checked="application.plan_department_informed or None"/>
+                                <label class="form-check-label" for="plan_department_informed">My department (or the person in charge) knows about it</label>
+                            </div>
                             <div class="mb-3">
                                 <label class="form-label" for="declared_last_mobility_date">Month and year of your last Erasmus+ staff mobility from this centre</label>
                                 <input type="month" class="form-control" name="declared_last_mobility_date" id="declared_last_mobility_date"

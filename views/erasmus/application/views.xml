@@ -299,6 +299,11 @@
                                     <field name="declared_last_mobility_date" readonly="not can_manage" invisible="audience != 'staff' or declared_never_staff_mobility"/>
                                     <field name="declared_centre_start_date" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="centre_projects" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_reason" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_objectives" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_application" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_dissemination" readonly="not can_manage" invisible="audience != 'staff'"/>
+                                    <field name="plan_department_informed" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="accompany_students" readonly="not can_manage" invisible="audience != 'staff'"/>
                                     <field name="support_needs" readonly="not can_manage" invisible="audience != 'staff'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     <field name="availability" readonly="not can_manage" invisible="audience != 'student'"/>

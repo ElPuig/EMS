@@ -69,9 +69,21 @@ class EmsErasmusPlanRating(models.Model):
     transfer = fields.Selection(string="Application and dissemination", selection=TRANSFER_RUBRIC, tracking=True,
                                 help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True)
-    plan_attachment_ids = fields.Many2many(string="Mobility plan", comodel_name='ir.attachment',
+    # Issue #697: the mobility plan (annex 1) as the applicant wrote it in the form, the only part of
+    # the application the panel sees.
+    plan_activity = fields.Selection(string="Activity", related='application_id.staff_activity')
+    plan_host = fields.Char(string="Host entity or course", related='application_id.host_entity')
+    plan_destination = fields.Char(string="Destination", related='application_id.destination')
+    plan_dates = fields.Char(string="Preferred dates", related='application_id.preferred_dates')
+    plan_reason = fields.Text(string="Why this entity or course", related='application_id.plan_reason')
+    plan_objectives = fields.Text(string="Objectives", related='application_id.plan_objectives')
+    plan_application = fields.Text(string="Application to the job", related='application_id.plan_application')
+    plan_dissemination = fields.Text(string="Dissemination", related='application_id.plan_dissemination')
+    plan_department_informed = fields.Boolean(string="Department informed",
+                                              related='application_id.plan_department_informed')
+    plan_attachment_ids = fields.Many2many(string="Files for the panel", comodel_name='ir.attachment',
                                            compute='_compute_plan_attachment_ids', compute_sudo=True,
-                                           help="The files of the documents the call shows to the panel.")
+                                           help="The files of the documents the call shows to the panel, if any.")
 
     @api.depends(*PLAN_CRITERIA)
     def _compute_score(self):

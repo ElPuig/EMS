@@ -49,6 +49,20 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_staff_apply", {
             },
         },
         {
+            trigger: "form.o_ems_erasmus_form textarea[name='plan_reason']",
+            content: "Write the mobility plan (annex 1)",
+            run() {
+                for (const name of ["plan_reason", "plan_objectives", "plan_application", "plan_dissemination"]) {
+                    document.querySelector(`form.o_ems_erasmus_form textarea[name='${name}']`).value = `Tour ${name}`;
+                }
+            },
+        },
+        {
+            trigger: "form.o_ems_erasmus_form input[name='plan_department_informed']",
+            content: "The department knows about it",
+            run: "click",
+        },
+        {
             trigger: "form.o_ems_erasmus_form .o_ems_erasmus_document.o_ems_erasmus_required input[type='file']",
             content: "Attach the required documents",
             run() {
@@ -83,8 +97,8 @@ registry.category("web_tour.tours").add("ems_erasmus_my_plan_rating", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='plan_attachment_ids'] .o_attachment:contains('plan.pdf')",
-            content: "The mobility plan can be opened",
+            trigger: ".o_form_view .o_field_widget[name='plan_objectives']:contains('Test objectives')",
+            content: "The mobility plan is on screen",
         },
         {
             trigger: ".o_form_view .o_field_widget[name='relevance'] input[data-value='1']",

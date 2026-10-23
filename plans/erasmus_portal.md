@@ -1,7 +1,7 @@
 # Erasmus+ calls and mobilities inside EMS
 
-**Status: design, current as of 2026-10-22. Phases 1 (#683), 2 (#684), 3 (#685), 4 (#686) and 5 (#687, section 10) implemented on their branches, not merged yet: what it
-ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Design of record for the
+**Status: design, current as of 2026-10-22, partly stale. Phases 1 (#683), 2 (#684), 3 (#685), 4 (#686), 5 (#687, section 10) and 6 (#697, not described here) implemented on their branches (all in `697-erasmus-phase-6`), not merged yet: what it
+ships is described in `docs/en/developers/erasmus/erasmus.md`, which wins over this file where they differ.** Known differences since 2026-10-23: there is no manual serious-sanction check (art. 6 is applied from EMS's conduct warnings, 3 or more this course), the staff mobility plan is written in the form, and only FP teachers see the staff call. Design of record for the
 umbrella issue #682 and its phase issues (#683-#687); keep it current as each phase lands, then delete it once the
 last phase ships (its contents folded into `docs/en/developers/erasmus/` and the role manuals).
 

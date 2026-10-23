@@ -592,8 +592,9 @@ erDiagram
 or `return`. The call's `document_ids` shows only the application ones (One2many domain), so the
 application's lines and every earlier rule are unchanged; `preparation_document_ids` holds the
 other two. Each one can be limited to some modalities (`modality_ids`) and says who signs it
-outside EMS (`sign_participant`, `sign_guardian` for minors, `sign_centre`, `sign_host`, shown as
-`signers`). The mobility's lines are `ems.erasmus.application.document` records with `mobility_id`
+outside EMS (`sign_participant`, `sign_guardian` for minors, `sign_director`, `sign_coordinator`, `sign_host`,
+shown as `signers`; by default the Director signs the grant agreement and the Erasmus coordinator
+the learning agreement and the staff mobility programme). The mobility's lines are `ems.erasmus.application.document` records with `mobility_id`
 set: same review, every version kept, a new upload goes back to review. A new call gets default
 documents and steps per audience (`_ems_preparation_documents`, `_ems_preparation_tasks`: art. 17
 of the students' call, art. 15 of the staff call), editable. `_ems_sync_requirements()` adds what

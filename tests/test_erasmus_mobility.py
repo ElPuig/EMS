@@ -73,6 +73,12 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertIn('host entity', first.document_ids.filtered(
             lambda line: line.call_document_id.sign_host)[:1].signers)
 
+    def test_the_director_signs_the_grant_agreement_and_the_coordinator_the_learning_agreement(self):
+        documents = self.call.preparation_document_ids
+        self.assertEqual(documents.filtered('sign_director').mapped('name'), ["Grant agreement"])
+        self.assertEqual(documents.filtered('sign_coordinator').mapped('name'), ["Learning agreement"])
+        self.assertIn('Erasmus coordinator', documents.filtered('sign_coordinator').signers)
+
     def test_documents_only_for_some_modalities(self):
         gs_only = self.env['ems.erasmus.call.document'].create({
             'call_id': self.call.id, 'stage': 'preparation', 'name': 'GS only',

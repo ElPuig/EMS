@@ -81,6 +81,11 @@
   sent with nobody of the team behind them (the application receipt, which had none, and the
   reminders and cron emails).
 
+## Erasmus+ mobility documents say who signs for the centre:
+- A mobility document's "centre" signer is now two: the Director (by default, the grant agreement) and the Erasmus
+  coordinator (by default, the learning agreement and the staff mobility programme), as the centre actually signs
+  them. Shown in the call's Mobility documents tab and on the participant's portal card.
+
 # Fixes
 
 ## Erasmus+ students' call: issues found walking through it as every role:

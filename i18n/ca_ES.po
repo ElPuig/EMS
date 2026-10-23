@@ -3417,6 +3417,7 @@ msgstr "Domiciliació bancària"
 
 #. module: ems
 #: model:ems.role,name:ems.role_director model:ir.model.fields,field_description:ems.field_res_company__director_id model:ir.model.fields,field_description:ems.field_res_config_settings__director_id model:res.groups,name:ems.group_director model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Director"
 msgstr "Director/a"
 
@@ -4027,7 +4028,10 @@ msgid "Enter the full legal text here..."
 msgstr "Introdueix el text legal complet aquí..."
 
 #. module: ems
+#. odoo-python
 #: model:ems.role,name:ems.role_erasmus
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+#: code:addons/ems/models/erasmus/call.py:0
 msgid "Erasmus coordinator"
 msgstr "Coordinador/a d'Erasmus"
 
@@ -27701,11 +27705,6 @@ msgid "Cancellation"
 msgstr "Cancel·lació"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
-msgid "Centre"
-msgstr "Centre"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "Certificate of stay"
@@ -28220,9 +28219,14 @@ msgid "Signed by"
 msgstr "Signat per"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_centre
-msgid "Signed by the centre"
-msgstr "Signat pel centre"
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_director
+msgid "Signed by the Director"
+msgstr "Signat per la direcció"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_coordinator
+msgid "Signed by the Erasmus coordinator"
+msgstr "Signat per la coordinació Erasmus"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_host
@@ -28417,8 +28421,8 @@ msgstr "El teu torn per triar s'ha acabat."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "centre"
-msgstr "centre"
+msgid "director"
+msgstr "direcció"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility

@@ -266,8 +266,9 @@ class EmsErasmusCall(models.Model):
         insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start',
                      'sepie_folder': '05_Seguros',
                      'description': _("The Erasmus team uploads it for you to keep.")}
+        # The Director signs the grant agreement, the Erasmus coordinator the learning agreement.
         agreement = {'due_basis': 'before_start', 'handled_by': 'team_to_sign', 'sign_participant': True,
-                     'sign_centre': True, 'description': _(
+                     'description': _(
                          "The Erasmus team uploads it filled in. Ideally signed three months before leaving.")}
         # Issue #697: the tickets or boarding passes, kept for the project's dossier (travel).
         travel_proof = {'stage': 'return', 'name': _("Tickets or boarding passes"), 'requirement': 'optional',
@@ -277,10 +278,10 @@ class EmsErasmusCall(models.Model):
         if audience == 'staff':
             documents = [
                 health_card,
-                {**agreement, 'name': _("Grant agreement")},
+                {**agreement, 'name': _("Grant agreement"), 'sign_director': True},
                 insurance,
                 {'name': _("Mobility programme"), 'due_basis': 'before_start', 'sign_participant': True,
-                 'sign_centre': True, 'sign_host': True,
+                 'sign_coordinator': True, 'sign_host': True,
                  'description': _("Activities, dates and expected results, agreed with the host entity.")},
                 {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True},
                 travel_proof,
@@ -304,8 +305,8 @@ class EmsErasmusCall(models.Model):
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
                  'sepie_folder': '03_Vinculacion',
                  'description': _("Processed with the Mossos d'Esquadra.")},
-                {**agreement, 'name': _("Grant agreement")},
-                {**agreement, 'name': _("Learning agreement"), 'sign_host': True,
+                {**agreement, 'name': _("Grant agreement"), 'sign_director': True},
+                {**agreement, 'name': _("Learning agreement"), 'sign_coordinator': True, 'sign_host': True,
                  'description': _("GM: learning agreement. GS: Learning Agreement for Traineeships. The Erasmus "
                                   "team uploads it filled in. Ideally signed three months before leaving.")},
                 insurance,
@@ -676,7 +677,8 @@ class EmsErasmusCallDocument(models.Model):
                                     help="Mobility documents: empty, every modality.")
     sign_participant = fields.Boolean(string="Signed by the participant")
     sign_guardian = fields.Boolean(string="Signed by the legal guardian", help="Only for minors.")
-    sign_centre = fields.Boolean(string="Signed by the centre")
+    sign_director = fields.Boolean(string="Signed by the Director")
+    sign_coordinator = fields.Boolean(string="Signed by the Erasmus coordinator")
     sign_host = fields.Boolean(string="Signed by the host entity")
     signers = fields.Char(string="Signed by", compute='_compute_signers')
     due_basis = fields.Selection(string="Due", selection=[
@@ -697,10 +699,11 @@ class EmsErasmusCallDocument(models.Model):
                                    help="Staff call: the panel members see these files when they rate (the mobility "
                                         "plan), and nothing else of the application.")
 
-    @api.depends('sign_participant', 'sign_guardian', 'sign_centre', 'sign_host')
+    @api.depends('sign_participant', 'sign_guardian', 'sign_director', 'sign_coordinator', 'sign_host')
     def _compute_signers(self):
         """Issue #687: who signs it, outside EMS, before it is uploaded."""
         labels = [('sign_participant', _("participant")), ('sign_guardian', _("legal guardian")),
-                  ('sign_centre', _("centre")), ('sign_host', _("host entity"))]
+                  ('sign_director', _("director")), ('sign_coordinator', _("Erasmus coordinator")),
+                  ('sign_host', _("host entity"))]
         for document in self:
             document.signers = ", ".join(label for name, label in labels if document[name])

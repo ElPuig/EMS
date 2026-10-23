@@ -18,7 +18,8 @@
 6. [Sending the request](#sending-the-request)
 7. [Checking its status](#checking-its-status)
 8. [Reminders of a missing document](#reminders-of-a-missing-document)
-9. [Health absence allowance](#health-absence-allowance)
+9. [Detected absences](#detected-absences)
+10. [Health absence allowance](#health-absence-allowance)
 
 ---
 
@@ -154,9 +155,27 @@ If your request is refused and whoever refused it wrote the reason, you receive 
 
 ## Reminders of a missing document
 
-If the absence is over and it is still **Awaiting documentation**, EMS reminds you by message every day until you attach the document. You also have a pending activity ("Attach the absence's supporting document") that turns red the day after the absence.
+If the absence is over and it is still **Awaiting documentation**, EMS reminds you by message every day, when your working day starts, until you attach the document. You also have a pending activity ("Attach the absence's supporting document") that turns red the day after the absence.
 
 A few days after the absence (three, unless the centre has set otherwise), your Head is told as well that the document is still missing.
+
+---
+
+## Detected absences
+
+Sometimes EMS knows about an absence of yours that you have not requested yet. It happens in two cases:
+
+- **You did not check in.** Once the day is over, if you did not check in at all, or checked in after your first lesson had ended, EMS records a *detected absence* from your first lesson to your last one (or to the time you checked in). This only happens in the areas where the centre has switched it on.
+- **Somebody announced it.** You warned your Department Chief or the Head of Studies that you would be away, and they entered it so your classes could be covered.
+
+Either way, at the start of your next working day you receive a message with the day and the hours, and a link to it. Until you deal with it, you are reminded every day (unless the centre has set otherwise), and a few days later your Head of Studies is told too. You never get these messages outside your working hours.
+
+What to do:
+
+- **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in: choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop.
+- **If you were at the centre and forgot to check in**, ask your Head of Studies to record your check-in for that day. As soon as it is recorded, the detected absence is discarded on its own and the reminders stop.
+
+![A detected absence as the teacher sees it, with the Request the absence button](../../assets/teachers/teachers-detected-absence.png)
 
 ---
 

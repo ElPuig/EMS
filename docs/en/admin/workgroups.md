@@ -4,7 +4,7 @@
 
 # Workgroups
 
-Workgroups are free-form employee groupings — a project team, a cross-department committee, or any group of teachers, providers or ASP staff you need to track together. They have no effect elsewhere in the system; they're purely organisational.
+Workgroups are free-form employee groupings — a project team, a cross-department committee, or any group of teachers, providers or ASP staff you need to track together. One of them, **Quality Comission**, is the quality committee: its members see the **Quality** menu, and stop seeing it when they leave the workgroup.
 
 **Required role:** Administrator
 

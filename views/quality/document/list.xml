@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_document_list">
+            <field name="name">ems.quality.document.list</field>
+            <field name="model">ems.quality.document</field>
+            <field name="arch" type="xml">
+                <list>
+                    <header>
+                        <button name="%(ems.action_quality_document_link_import)d" string="Load links" type="action"
+                                display="always" class="o_quality_load_links"
+                                groups="ems.group_quality_admin,ems.group_director"/>
+                    </header>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="procedure_id"/>
+                    <field name="process_id"/>
+                    <field name="url" widget="url" optional="show"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

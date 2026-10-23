@@ -6,7 +6,7 @@
 
 Consulta dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana — no solo tu propio horario.
 
-**Rol necesario:** Docente (solo lectura; los horarios los configura un Jefe de departamento o superior desde el horario semanal propio del docente correspondiente). Organizar una ausencia desde la Tabla de ausencias corresponde al Jefe de departamento o de seminario del docente ausente y a quienes están por encima (ver [Organizar una ausencia](#organizar-una-ausencia)), que también pueden introducir una ausencia prevista para un docente de su departamento (ver [Introducir una ausencia prevista](#introducir-una-ausencia-prevista)); un docente de guardia también puede cogerse él mismo una clase sin docente (ver [Cubrir tú mismo una clase](#cubrir-tu-mismo-una-clase)). Cuando los estudios del grupo tienen un departamento que los gestiona, los jefes de ese departamento también pueden organizarla.
+**Rol necesario:** Docente (solo lectura; los horarios los configura un Jefe de departamento o superior desde el horario semanal propio del docente correspondiente). Organizar una ausencia desde la Tabla de ausencias corresponde al Jefe de departamento o de seminario del docente ausente y a quienes están por encima (ver [Organizar una ausencia](#organizar-una-ausencia)), que también pueden introducir una ausencia detectada para un docente de su departamento (ver [Introducir una ausencia detectada](#introducir-una-ausencia-detectada)); un docente de guardia también puede cogerse él mismo una clase sin docente (ver [Cubrir tú mismo una clase](#cubrir-tu-mismo-una-clase)). Cuando los estudios del grupo tienen un departamento que los gestiona, los jefes de ese departamento también pueden organizarla.
 
 ---
 
@@ -98,11 +98,41 @@ Un docente que falta aparece en rojo allá donde salga su nombre — en su propi
 
 Las solicitudes denegadas y canceladas no se muestran.
 
-Una ausencia que su jefe o Jefatura de Estudios ya conoce pero que el docente todavía no ha solicitado (una *ausencia prevista*, ver más abajo) también se muestra como pendiente de aprobar.
+Una ausencia que su jefe o Jefatura de Estudios ya conoce, pero que el docente todavía no ha solicitado (una *ausencia detectada*, ver más abajo) también se muestra como pendiente de aprobar. También aparece un día ya terminado en el que el docente no fichó, una vez EMS lo ha detectado.
 
 Un docente de guardia ordinaria que falta queda marcado en la columna de guardia y no genera ninguna línea en la columna de ausencias: no tiene ninguna clase propia que nadie deba cubrir. Una guardia que es un puesto fijo, como la de WC o la de patio, es distinta: alguien tiene que estar allí, así que cuando falta su docente tiene su propia línea en la columna **Guardia** de la tabla de ausencias, debajo de los docentes de guardia de su bloque, con el nombre de la guardia (por ejemplo **Guardia (WC)**) donde una clase muestra el grupo, y se cubre como una clase (consulta [Cubrir una guardia de WC o de patio](#cubrir-una-guardia-de-wc-o-de-patio)).
 
 Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el justificante, no.
+
+---
+
+## Docentes que no han fichado
+
+Hoy, en cuanto empieza una clase, si su docente no ha fichado aparece en la **Tabla de ausencias** como una ausencia, para que un docente de guardia la pueda cubrir. Su nombre se muestra en rojo subrayado con puntos y con la etiqueta **Sin fichar**. Lo mismo pasa con un docente de guardia: queda marcado en la columna de guardia y no se le puede enviar a cubrir nada hasta que fiche.
+
+- La clase sale de la tabla en cuanto el docente ficha, y también sus clases siguientes. Las clases que han terminado antes de que fichara se quedan, de modo que una guardia que ya se haya enviado sigue siendo correcta.
+- Una ausencia (aprobada, solicitada o detectada) siempre tiene preferencia: entonces la línea muestra la ausencia.
+- Estas clases solo se cubren con una guardia. El horario no propone avisar a las familias ni reorganizar clases, porque puede que el docente esté en el centro.
+- Solo cuentan las clases de hoy. Otro día todavía no ha fichado nadie.
+
+![Tabla de ausencias a las 10:30: la clase de 8 a 9, ya terminada, y la de 10 a 11 de una docente que no ha fichado, ambas con la etiqueta Sin fichar, y el docente de guardia](../../assets/teachers/guard-duty-10-sense-fitxar.png)
+
+### El docente está en el aula
+
+A veces el docente está en el aula y solo se ha olvidado de fichar. Si estás de guardia en esa franja, u organizas las ausencias de ese docente (su jefe de departamento o de seminario, JE, JEA, Dirección o el administrador), puedes indicarlo:
+
+1. En la **Tabla de ausencias**, haz clic en la línea de la clase en curso (la indicación dice que el docente **aún no ha fichado. Haz clic si está en el aula, o para cubrir la clase.**).
+2. Haz clic en el botón **Está en el aula**.
+
+![Diálogo de la clase en curso: la docente aún no ha fichado, con los botones Está en el aula y Cubrirla yo](../../assets/teachers/guard-duty-11-es-a-l-aula.png)
+
+Se registra la entrada del docente a la hora actual, la clase sale de la tabla y el docente recibe un mensaje que dice quién la ha registrado. En la ficha del fichaje, **Entrada registrada por** muestra tu nombre. Si la hora no es correcta, el docente puede solicitar una corrección como con cualquier otro fichaje.
+
+El mismo diálogo también ofrece lo que podrías hacer con la línea: **Cubrirla yo** si estás de guardia (la clase queda cubierta con tu nombre enseguida, sin ninguna otra confirmación, igual que con **Está en el aula**), o **Enviar un docente de guardia** si organizas la ausencia. Una clase que ya ha terminado no se puede resolver así: registrar ahora la entrada del docente no la cambiaría.
+
+### El horario se actualiza solo
+
+Mientras está abierto, el horario se actualiza solo, sin volver a cargar la página, únicamente cuando cambia algo que muestra: cuando empieza o termina una clase, cuando alguien ficha, envía o retira una guardia, o cuando cambia una ausencia o un comunicado a las familias. Así ves al instante lo que un compañero acaba de organizar. Si hay un diálogo abierto o la pestaña del navegador está en segundo plano, espera y se actualiza en cuanto lo cierras o vuelves a ella.
 
 ---
 
@@ -119,25 +149,25 @@ Las líneas que no puedes coger porque a esa hora no estás de guardia también 
 
 Si cambias de idea, vuelve a hacer clic en la línea y después en **Deja de cubrir esta clase**: la clase vuelve a quedarse sin guardia. Solo puedes hacerlo con una clase que te has cogido tú; si alguien te ha enviado, pídele que lo cambie. Quien organiza la ausencia siempre puede cambiar o quitar a un docente de guardia que se haya cogido una clase por su cuenta.
 
-## Introducir una ausencia prevista
+## Introducir una ausencia detectada
 
 Quién puede hacerlo: los **Jefes de seminario** y los **Jefes de departamento**, para los docentes de su propio departamento, además de JE o JEA, Dirección y el administrador. También pueden hacerlo para un docente de otro departamento que da clase a un grupo que gestiona su departamento, o que tiene su departamento en el campo **También gestionado por los departamentos** (ver [Organizar una ausencia](#organizar-una-ausencia)).
 
 La vía normal siempre es que el docente solicite la ausencia él mismo. Usa esto solo en el caso excepcional de un docente que llama o escribe para avisar de que faltará y no puede entrar en EMS: al introducirla, sus clases salen en el cuadro enseguida y puedes organizar la cobertura.
 
-1. Ve a **Asistencia del personal > Ausencias > Administración > Ausencias previstas** y haz clic en **Nuevo**.
+1. Ve a **Asistencia del personal > Ausencias > Administración > Ausencias detectadas** y haz clic en **Nuevo**.
 2. Elige el **Profesor**. Solo aparecen los docentes de tu departamento.
 3. Indica **De** y **A**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede abarcar varios días.
-4. Si quieres, añade **Notas** para ti. El docente nunca ve esta entrada.
+4. Si quieres, añade **Notas** para ti. El docente puede abrir la entrada, pero nunca ve las notas.
 5. Guarda.
 
-La ausencia sale entonces en el cuadro como pendiente de aprobar (rojo claro en cursiva), y puedes organizarla como se explica a continuación. Cuando el docente solicita la ausencia él mismo, la ausencia prevista se vincula sola y lo que hayas organizado se mantiene tal cual. Si al final el docente no falta, borra la entrada.
+La ausencia sale entonces en el cuadro como pendiente de aprobar (rojo claro en cursiva), y puedes organizarla como se explica a continuación. Cuando el docente solicita la ausencia él mismo, la ausencia detectada se vincula sola y lo que hayas organizado se mantiene tal cual. Si al final el docente no falta, borra la entrada.
 
 ---
 
 ## Organizar una ausencia
 
-Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del docente ausente, y quienes están por encima en la jerarquía (JE o JEA, y Dirección), además del administrador. Lo que cuenta es el departamento donde da clase el docente: sus jefes y el responsable del área a la que pertenece organizan las ausencias de todos los que forman parte de él, incluidos los miembros del equipo directivo (como el Secretario). El resto de docentes ven el resultado pero no pueden cambiarlo, y el docente ausente no puede organizar su propia ausencia. Da igual si la ausencia la ha solicitado el docente o la ha introducido su jefe o Jefatura de estudios como ausencia prevista: las dos se gestionan igual. Cuando más adelante el docente solicita una ausencia que estaba prevista, lo que ya se había organizado se mantiene tal cual, y solo los días u horas de más de la solicitud aparecen como líneas nuevas por decidir. **Docentes compartidos entre departamentos:** además de los responsables del docente, también puede organizar una clase quien responde de los alumnos que se quedan sin ella: cuando los estudios del grupo tienen indicado un departamento que los gestiona (campo **Gestionado por el departamento** de la ficha de los estudios), el Jefe de departamento y el Jefe de seminario de ese departamento, y quienes tienen por encima, pueden organizar las clases de sus grupos, sea cual sea el departamento del docente. Por ejemplo, si una docente del departamento de Lenguas extranjeras falta a una hora con un grupo de Informática, la guardia la pueden asignar los jefes de Informática; si falta a una hora con un grupo de Administración, los de Administración; y en ambos casos, también su propia jefa de departamento. Un grupo de refuerzo sigue los estudios de sus grupos principales. Para un docente que en la práctica trabaja para otro departamento o área que no es el suyo, su ficha permite indicarlo en el campo **También gestionado por los departamentos** (debajo de **Gestor**): los jefes de esos departamentos, y quienes tienen por encima, pueden organizar todo lo suyo, incluidas las guardias fijas (lavabos, patio), que no tienen alumnos.
+Quién puede hacerlo: el **Jefe de seminario** o el **Jefe de departamento** del docente ausente, y quienes están por encima en la jerarquía (JE o JEA, y Dirección), además del administrador. Lo que cuenta es el departamento donde da clase el docente: sus jefes y el responsable del área a la que pertenece organizan las ausencias de todos los que forman parte de él, incluidos los miembros del equipo directivo (como el secretario). El resto de docentes ven el resultado, pero no pueden cambiarlo, y el docente ausente no puede organizar su propia ausencia. Da igual si la ausencia la ha solicitado el docente o la ha introducido su jefe o Jefatura de estudios como ausencia detectada: las dos se gestionan igual. Cuando más adelante el docente solicita una ausencia detectada, lo que ya se había organizado se mantiene tal cual, y solo los días u horas de más de la solicitud aparecen como líneas nuevas por decidir. **Docentes compartidos entre departamentos:** además de los responsables del docente, también puede organizar una clase quien responde de los alumnos que se quedan sin ella: cuando los estudios del grupo tienen indicado un departamento que los gestiona (campo **Gestionado por el departamento** de la ficha de los estudios), el Jefe de departamento y el Jefe de seminario de ese departamento, y quienes tienen por encima, pueden organizar las clases de sus grupos, sea cual sea el departamento del docente. Por ejemplo, si una docente del departamento de Lenguas extranjeras falta a una hora con un grupo de Informática, la guardia la pueden asignar los jefes de Informática; si falta a una hora con un grupo de Administración, los de Administración; y en ambos casos, también su propia jefa de departamento. Un grupo de refuerzo sigue los estudios de sus grupos principales. Para un docente que en la práctica trabaja para otro departamento o área que no es el suyo, su ficha permite indicarlo en el campo **También gestionado por los departamentos** (debajo de **Gestor**): los jefes de esos departamentos, y quienes tienen por encima, pueden organizar todo lo suyo, incluidas las guardias fijas (lavabos, patio), que no tienen alumnos.
 
 > Los campos **Gestionado por el departamento** y **También gestionado por los departamentos** se introdujeron en la versión 18.0.0.36.2. Nadie que ya pudiera organizar una ausencia ha dejado de poder hacerlo.
 

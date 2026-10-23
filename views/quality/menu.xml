@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Root menu of the quality management system: the quality committee (group_quality),
+             quality coordination and management. The staff-facing side (minutes and agreements)
+             lives in the Meetings menu. -->
+        <menuitem name="Quality" sequence="9" id="menu_quality"
+                  groups="ems.group_quality,ems.group_quality_admin,ems.group_director"/>
+
+        <!-- First entry, so clicking Quality lands on its first item, the process map. Everything
+             in it opens read-only; whoever may change it does so with 'Edit' on the record itself,
+             which is why there is no separate configuration menu. -->
+        <menuitem name="Documentation" sequence="1" id="menu_quality_documentation" parent="menu_quality"/>
+    </data>
+</odoo>

@@ -102,14 +102,18 @@
                                 <field name="ems_health_allowance_hours" widget="float_time"/>
                             </setting>
 
-                            <setting string="Supporting document reminder" help="While an absence that is already over is still awaiting its supporting document, the employee is reminded every this many days." id="ems_absence_document_reminder_days">
+                            <setting string="Absence reminder" help="While an absence that is already over still waits for the employee (its supporting document, or requesting a detected absence), they are reminded every this many days, when their working day starts." id="ems_absence_document_reminder_days">
                                 <field name="ems_absence_document_reminder_days" class="text-center" style="width: 5ch;"/>
                                 <span class="ms-2">days</span>
                             </setting>
 
-                            <setting string="Missing supporting document report" help="This many days after the absence, a supporting document still missing is also reported to the Head who approves it." id="ems_absence_document_escalation_days">
+                            <setting string="Absence report" help="This many days after the absence, what is still missing is also reported, when their working day starts: a supporting document to the Head who approves the absence, a detected absence not requested yet to the Head of Studies of the teacher." id="ems_absence_document_escalation_days">
                                 <field name="ems_absence_document_escalation_days" class="text-center" style="width: 5ch;"/>
                                 <span class="ms-2">days</span>
+                            </setting>
+
+                            <setting string="Detected absences" help="Areas whose teachers go through the detected absences circuit: a day a teacher has not checked in (or arrived after their first lesson) becomes a detected absence, and every detected absence reminds the teacher to request it. Leave it empty to switch the circuit off." id="ems_absence_circuit_area_ids">
+                                <field name="ems_absence_circuit_area_ids" widget="many2many_tags" options="{'no_create': True}"/>
                             </setting>
                         </block>
 

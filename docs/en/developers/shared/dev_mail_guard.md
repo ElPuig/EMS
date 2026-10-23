@@ -81,6 +81,15 @@ developer's redirect inbox and the allowlisted shared ones (the staff account) a
 production's own emails, and a request notification from a development machine looked exactly
 like a real one.
 
+The subject is marked when the machine has the role **or** the database is a development one
+(`ems.environment_type = dev`). A box whose `devel.sh` ran before the role existed (#590) has a
+`dev` database but no `ems_server_role`: its emails still carry `[DEV]` (issue #691), while the
+recipient check above stays tied to the machine role, since such a database may have no
+`ems.dev_mail_redirect` and the check would then refuse the developer's own inbox. That situation
+also logs a `WARNING` once per server start (`res.company._ems_check_environment_declaration()`,
+next to the warning for a database that never declared its environment): running `devel.sh` again
+sets the role and turns the recipient check on.
+
 Production and CI never set `ems_server_role`, so nothing changes there. Tests that mock
 `IrMailServer.send_email` (see CLAUDE.md, "Email safety in tests") never reach
 `_prepare_email_message`, so the guard does not interfere with them; `tests/test_dev_mail_guard.py`

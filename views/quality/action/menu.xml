@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.actions.act_window" id="action_quality_action">
+            <field name="name">Actions and agreements</field>
+            <field name="res_model">ems.quality.action</field>
+            <field name="view_mode">list,form</field>
+            <field name="search_view_id" ref="ems.view_quality_action_search"/>
+            <field name="context">{'search_default_open': 1, 'search_default_current_course': 1}</field>
+        </record>
+
+        <menuitem name="Actions and agreements" sequence="20" id="menu_quality_actions"
+                  parent="menu_quality" action="action_quality_action"/>
+    </data>
+</odoo>

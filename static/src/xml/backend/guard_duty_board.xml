@@ -55,6 +55,10 @@
             <span t-if="absence.moved" class="o_guard_board_absence_tag o_guard_board_moved_tag">
                 <i class="fa fa-arrows-v me-1"/><t t-esc="absence.moved"/>
             </span>
+            <!-- Issue #692: on the table only because the teacher has not checked in. -->
+            <span t-if="absence.state === 'unchecked'" class="o_guard_board_absence_tag o_guard_board_unchecked_tag">
+                <i class="fa fa-clock-o me-1"/>Not checked in
+            </span>
             <span t-if="absence.arrangement_plans.length" class="o_guard_board_absence_tag o_guard_board_options_tag">
                 <i class="fa fa-exchange me-1"/><t t-esc="arrangementCountLabel(absence)"/>
             </span>
@@ -473,6 +477,20 @@
     <!-- Issue #571: send a guard teacher to one class of the absences table; issue #605: or
          resolve it with an internal arrangement, detected by the board or described by hand. -->
     <!-- Issue #659: a timetable change already told, changed with one correction. -->
+    <!-- Issue #692: a class whose teacher has not checked in. -->
+    <t t-name="ems.GuardUncheckedDialog">
+        <Dialog title="title" size="'md'">
+            <p class="o_guard_unchecked_dialog" t-esc="body"/>
+            <t t-set-slot="footer">
+                <button type="button" class="btn btn-primary o_guard_unchecked_present" t-att-disabled="state.saving"
+                        t-on-click="markPresent">They are in the classroom</button>
+                <button t-if="props.onCover" type="button" class="btn btn-secondary o_guard_unchecked_cover"
+                        t-att-disabled="state.saving" t-on-click="cover" t-esc="props.coverLabel"/>
+                <button type="button" class="btn btn-link" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
     <t t-name="ems.GuardChangeProposalDialog">
         <Dialog title="labels.title" size="'md'">
             <div class="o_guard_change_proposal_dialog">
@@ -556,7 +574,8 @@
                                t-att-checked="state.mode === 'guard'" t-on-change="() => this.onModeChange('guard')"/>
                         <label class="form-check-label" for="o_guard_cover_mode_guard" t-esc="labels.modeGuard"/>
                     </div>
-                    <div class="form-check">
+                    <!-- Issue #692: a teacher who has not checked in may still be in the building: only a guard. -->
+                    <div t-if="props.row.state !== 'unchecked'" class="form-check">
                         <input class="form-check-input o_guard_cover_mode_manual" type="radio" name="o_guard_cover_mode" id="o_guard_cover_mode_manual"
                                t-att-checked="state.mode === 'manual'" t-on-change="() => this.onModeChange('manual')"/>
                         <label class="form-check-label" for="o_guard_cover_mode_manual" t-esc="labels.modeManual"/>

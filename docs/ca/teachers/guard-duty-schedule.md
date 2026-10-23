@@ -6,7 +6,7 @@
 
 Consulta on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana — no només el teu propi horari.
 
-**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)), que també poden introduir una absència prevista per a un docent del seu departament (consulta [Introduir una absència prevista](#introduir-una-absencia-prevista)); un docent de guàrdia també pot agafar-se ell mateix una classe sense docent (consulta [Cobrir tu mateix una classe](#cobrir-tu-mateix-una-classe)). Quan els estudis del grup tenen un departament que els gestiona, els caps d'aquell departament també la poden organitzar.
+**Rol necessari:** Docent (només lectura; els horaris els configura un Cap de departament o superior des de l'horari setmanal propi del docent corresponent). Organitzar una absència des de la Taula d'absències correspon al Cap de departament o de seminari del docent absent i als qui són per sobre seu (consulta [Organitzar una absència](#organitzar-una-absencia)), que també poden introduir una absència detectada per a un docent del seu departament (consulta [Introduir una absència detectada](#introduir-una-absencia-detectada)); un docent de guàrdia també pot agafar-se ell mateix una classe sense docent (consulta [Cobrir tu mateix una classe](#cobrir-tu-mateix-una-classe)). Quan els estudis del grup tenen un departament que els gestiona, els caps d'aquell departament també la poden organitzar.
 
 ---
 
@@ -98,11 +98,41 @@ Un docent que falta apareix en vermell allà on surti el seu nom — a la seva p
 
 Les sol·licituds denegades i cancel·lades no es mostren.
 
-Una absència que el seu cap o Prefectura d'Estudis ja coneix però que el docent encara no ha sol·licitat (una *absència prevista*, vegeu més avall) també es mostra com a pendent d'aprovar.
+Una absència que el seu cap o Prefectura d'Estudis ja coneix, però que el docent encara no ha sol·licitat (una *absència detectada*, vegeu més avall) també es mostra com a pendent d'aprovar. També hi surt un dia ja acabat en què el docent no va fitxar, un cop EMS l'ha detectat.
 
 Un docent de guàrdia ordinària que falta queda marcat a la columna de guàrdia i no genera cap línia a la columna d'absències: no té cap classe pròpia que ningú hagi de cobrir. Una guàrdia que és un lloc fix, com la de WC o la de pati, és diferent: algú hi ha de ser, així que quan en falta el docent té la seva pròpia línia a la columna **Guàrdia** de la taula d'absències, sota els docents de guàrdia del seu bloc, amb el nom de la guàrdia (per exemple **Guàrdia (WC)**) on una classe mostra el grup, i es cobreix com una classe (consulta [Cobrir una guàrdia de WC o de pati](#cobrir-una-guardia-de-wc-o-de-pati)).
 
 Aquí només es mostra que la persona falta. El tipus d'absència, el motiu i el justificant, no.
+
+---
+
+## Docents que no han fitxat
+
+Avui, tan bon punt comença una classe, si el docent no ha fitxat surt a la **Taula d'absències** com una absència, perquè un docent de guàrdia la pugui cobrir. El seu nom es mostra en vermell subratllat amb punts i amb l'etiqueta **Sense fitxar**. El mateix passa amb un docent de guàrdia: queda marcat a la columna de guàrdia i no se'l pot enviar a cobrir res fins que fitxi.
+
+- La classe surt de la taula tan bon punt el docent fitxa, i també les classes següents. Les classes que han acabat abans que fitxés s'hi queden, de manera que una guàrdia que ja s'hi hagi enviat continua sent correcta.
+- Una absència (aprovada, sol·licitada o detectada) sempre té preferència: llavors la línia mostra l'absència.
+- Aquestes classes només es cobreixen amb una guàrdia. L'horari no proposa avisar les famílies ni reorganitzar classes, perquè potser el docent és al centre.
+- Només compten les classes d'avui. Un altre dia encara no ha fitxat ningú.
+
+![Taula d'absències a les 10:30: la classe de 8 a 9, ja acabada, i la de 10 a 11 d'una docent que no ha fitxat, totes dues amb l'etiqueta Sense fitxar, i el docent de guàrdia](../../assets/teachers/guard-duty-10-sense-fitxar.png)
+
+### El docent és a l'aula
+
+De vegades el docent és a l'aula i només s'ha oblidat de fitxar. Si estàs de guàrdia en aquella franja, o organitzes les absències d'aquest docent (el seu cap de departament o de seminari, cap d'estudis, cap d'estudis adjunt, direcció o l'administrador), ho pots indicar:
+
+1. A la **Taula d'absències**, fes clic a la línia de la classe en curs (la indicació diu que el docent **encara no ha fitxat. Fes clic si és a l'aula, o per cobrir la classe.**).
+2. Fes clic a **És a l'aula**.
+
+![Diàleg de la classe en curs: la docent encara no ha fitxat, amb els botons És a l'aula i Cobrir-la jo](../../assets/teachers/guard-duty-11-es-a-l-aula.png)
+
+Es registra l'entrada del docent a l'hora actual, la classe surt de la taula i el docent rep un missatge que diu qui l'ha registrada. A la fitxa del fitxatge, **Entrada registrada per** mostra el teu nom. Si l'hora no és correcta, el docent en pot sol·licitar una correcció com amb qualsevol altre fitxatge.
+
+El mateix diàleg també ofereix el que podries fer amb la línia: **Cobrir-la jo** si estàs de guàrdia (la classe queda coberta amb el teu nom de seguida, sense cap altra confirmació, igual que amb **És a l'aula**), o **Enviar un docent de guàrdia** si organitzes l'absència. Una classe que ja ha acabat no es pot resoldre així: registrar ara l'entrada del docent no la canviaria.
+
+### L'horari s'actualitza sol
+
+Mentre està obert, l'horari s'actualitza sol, sense tornar a carregar la pàgina, només quan canvia alguna cosa que mostra: quan comença o acaba una classe, quan algú fitxa, envia o retira una guàrdia, o quan canvia una absència o un comunicat a les famílies. Així veus a l'instant el que un company acaba d'organitzar. Si hi ha un diàleg obert o la pestanya del navegador és en segon pla, espera i s'actualitza tan bon punt el tanques o hi tornes.
 
 ---
 
@@ -119,25 +149,25 @@ Les línies que no pots agafar perquè en aquella hora no estàs de guàrdia tam
 
 Si canvies d'idea, torna a fer clic a la línia i després a **Deixa de cobrir aquesta classe**: la classe torna a quedar sense guàrdia. Només ho pots fer amb una classe que t'has agafat tu; si algú t'hi ha enviat, demana-li que ho canviï. Qui organitza l'absència sempre pot canviar o treure un docent de guàrdia que s'hagi agafat una classe pel seu compte.
 
-## Introduir una absència prevista
+## Introduir una absència detectada
 
 Qui ho pot fer: els **Caps de seminari** i els **Caps de departament**, per als docents del seu propi departament, a més del Cap d'estudis o Cap d'estudis adjunt, Direcció i l'administrador. També ho poden fer per a un docent d'un altre departament que fa classe a un grup que gestiona el seu departament, o que té el seu departament al camp **També gestionat pels departaments** (consulta [Organitzar una absència](#organitzar-una-absencia)).
 
 La via normal sempre és que el docent sol·liciti l'absència ell mateix. Fes servir això només en el cas excepcional d'un docent que truca o escriu per avisar que faltarà i no pot entrar a l'EMS: en introduir-la, les seves classes surten al quadre de seguida i en pots organitzar la cobertura.
 
-1. Ves a **Assistència del personal > Absències > Administració > Absències previstes** i fes clic a **Nou**.
+1. Ves a **Assistència del personal > Absències > Administració > Absències detectades** i fes clic a **Nou**.
 2. Tria el **Professor/a**. Només surten els docents del teu departament.
 3. Indica **De** i **A**, amb data i hora. Per defecte, avui de 08:00 a 15:00. Una absència pot abastar diversos dies.
-4. Si vols, afegeix-hi **Notes** per a tu. El docent no veu mai aquesta entrada.
+4. Si vols, afegeix-hi **Notes** per a tu. El docent pot obrir l'entrada, però no veu mai les notes.
 5. Desa.
 
-L'absència surt llavors al quadre com a pendent d'aprovar (vermell clar en cursiva), i la pots organitzar tal com s'explica a continuació. Quan el docent sol·licita l'absència ell mateix, l'absència prevista s'hi vincula sola i el que hagis organitzat es manté tal com estava. Si finalment el docent no falta, esborra l'entrada.
+L'absència surt llavors al quadre com a pendent d'aprovar (vermell clar en cursiva), i la pots organitzar tal com s'explica a continuació. Quan el docent sol·licita l'absència ell mateix, l'absència detectada s'hi vincula sola i el que hagis organitzat es manté tal com estava. Si finalment el docent no falta, esborra l'entrada.
 
 ---
 
 ## Organitzar una absència
 
-Qui ho pot fer: el **Cap de seminari** o el **Cap de departament** del docent absent, i els qui són per sobre seu a la jerarquia (Cap d'estudis o Cap d'estudis adjunt, i Direcció), a més de l'administrador. El que compta és el departament on fa classe el docent: els seus caps i el responsable de l'àrea a què pertany organitzen les absències de tothom qui en forma part, inclosos els membres de l'equip directiu (com el Secretari). La resta de docents en veuen el resultat però no el poden canviar, i el docent absent no pot organitzar la seva pròpia absència. És igual si l'absència l'ha sol·licitada el docent o l'ha introduïda el seu cap o Cap d'estudis com a absència prevista: totes dues es gestionen igual. Quan més endavant el docent sol·licita una absència que estava prevista, el que ja s'havia organitzat es manté tal com estava, i només els dies o les hores de més de la sol·licitud apareixen com a línies noves per decidir. **Docents compartits entre departaments:** a més dels responsables del docent, també pot organitzar una classe qui respon dels alumnes que es queden sense: quan els estudis del grup tenen indicat un departament que els gestiona (camp **Gestionat pel departament** de la fitxa dels estudis), el Cap de departament i el Cap de seminari d'aquell departament, i els qui tenen per sobre, poden organitzar les classes dels seus grups, sigui quin sigui el departament del docent. Per exemple, si una docent del departament de Llengües estrangeres falta a una hora amb un grup d'Informàtica, la guàrdia la poden assignar els caps d'Informàtica; si falta a una hora amb un grup d'Administració, els d'Administració; i en tots dos casos, també la seva pròpia cap de departament. Un grup de reforç segueix els estudis dels seus grups principals. Per a un docent que a la pràctica treballa per a un altre departament o àrea que no és el seu, la seva fitxa permet indicar-ho al camp **També gestionat pels departaments** (sota **Gestor**): els caps d'aquells departaments, i els qui tenen per sobre, poden organitzar tot el que és seu, incloses les guàrdies fixes (lavabos, pati), que no tenen alumnes.
+Qui ho pot fer: el **cap de seminari** o el **cap de departament** del docent absent, i els qui són per sobre seu a la jerarquia (cap d'estudis o cap d'estudis adjunt, i Direcció), a més de l'administrador. El que compta és el departament on fa classe el docent: els seus caps i el responsable de l'àrea a què pertany organitzen les absències de tothom qui en forma part, inclosos els membres de l'equip directiu (com el secretari). La resta de docents en veuen el resultat, però no el poden canviar, i el docent absent no pot organitzar la seva pròpia absència. És igual si l'absència l'ha sol·licitada el docent o l'ha introduïda el seu cap o el cap d'estudis com a absència detectada: totes dues es gestionen igual. Quan més endavant el docent sol·licita una absència detectada, el que ja s'havia organitzat es manté tal com estava, i només els dies o les hores de més de la sol·licitud apareixen com a línies noves per decidir. **Docents compartits entre departaments:** a més dels responsables del docent, també pot organitzar una classe qui respon dels alumnes que es queden sense: quan els estudis del grup tenen indicat un departament que els gestiona (camp **Gestionat pel departament** de la fitxa dels estudis), el Cap de departament i el Cap de seminari d'aquell departament, i els qui tenen per sobre, poden organitzar les classes dels seus grups, sigui quin sigui el departament del docent. Per exemple, si una docent del departament de Llengües estrangeres falta a una hora amb un grup d'Informàtica, la guàrdia la poden assignar els caps d'Informàtica; si falta a una hora amb un grup d'Administració, els d'Administració; i en tots dos casos, també la seva pròpia cap de departament. Un grup de reforç segueix els estudis dels seus grups principals. Per a un docent que a la pràctica treballa per a un altre departament o àrea que no és el seu, la seva fitxa permet indicar-ho al camp **També gestionat pels departaments** (sota **Gestor**): els caps d'aquells departaments, i els qui tenen per sobre, poden organitzar tot el que és seu, incloses les guàrdies fixes (lavabos, pati), que no tenen alumnes.
 
 > Els camps **Gestionat pel departament** i **També gestionat pels departaments** es van introduir a la versió 18.0.0.36.2. Ningú que ja pogués organitzar una absència ha deixat de poder fer-ho.
 

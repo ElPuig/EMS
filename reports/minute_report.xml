@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The company's A4, with the body starting closer to the letterhead: the default top
+             margin leaves a band of blank paper between the header and a minute's title (the
+             header itself is about 36 mm tall), and with half as much again of side margin, about
+             14 mm instead of 9, so a text-heavy minute does not run edge to edge. -->
+        <record id="paperformat_minute" model="report.paperformat">
+            <field name="name">A4 (minutes)</field>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">42</field>
+            <field name="margin_bottom">32</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">40</field>
+            <field name="dpi">90</field>
+            <field name="css_margins" eval="True"/>
+        </record>
+
+        <record model="ir.actions.report" id="action_report_minute">
+            <field name="name">Minute</field>
+            <field name="model">ems.minute</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_minute</field>
+            <field name="report_file">ems.report_minute</field>
+            <field name="binding_model_id" ref="ems.model_ems_minute"/>
+            <field name="binding_type">report</field>
+            <field name="binding_view_types">list,form</field>
+            <field name="print_report_name">object.code or 'minute'</field>
+            <field name="paperformat_id" ref="ems.paperformat_minute"/>
+        </record>
+
+        <template id="report_minute">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.external_layout">
+                        <div class="page o_ems_minute">
+                            <!-- A minute is read on paper and filed: compact, but airy enough to read,
+                                 nothing wider than the sheet whatever was pasted into its texts, and no
+                                 table split across two pages. The brand colour is the company's own,
+                                 the one the layout already gives table headers. -->
+                            <t t-set="brand" t-value="doc.env.company.primary_color or '#a51d2d'"/>
+                            <style>
+                                /* The layout's address block and document title are empty for a minute:
+                                   without them the minute starts right under the letterhead. */
+                                .o_report_layout_bubble > table.o_ignore_layout_styling { display: none; }
+                                .o_ems_minute { font-size: 9.5pt; line-height: 1.45; text-align: justify; }
+                                .o_ems_minute h2 { font-size: 15pt; margin: 0 0 2pt 0; text-align: left; }
+                                .o_ems_minute h4 { font-size: 12pt; font-weight: bold; text-decoration: underline; margin: 16pt 0 6pt 0; text-align: left; page-break-after: avoid; }
+                                .o_ems_minute h5 { font-size: 10.5pt; font-weight: bold; margin: 11pt 0 3pt 0; text-align: left; page-break-after: avoid; }
+                                .o_ems_minute p { margin: 0 0 5pt 0; }
+                                .o_ems_minute ol, .o_ems_minute ul { margin: 0 0 5pt 0; padding-left: 16pt; }
+                                .o_ems_minute li { margin-bottom: 1.5pt; }
+                                .o_ems_minute .o_ems_minute_keep { page-break-inside: avoid; }
+                                .o_ems_minute table { width: 100% !important; max-width: 100% !important; border-collapse: collapse; margin: 4pt 0 8pt 0; font-size: 8.5pt; text-align: left; page-break-inside: avoid; }
+                                .o_ems_minute table tr { height: auto !important; page-break-inside: avoid; }
+                                .o_ems_minute table td, .o_ems_minute table th { width: auto !important; height: auto !important; padding: 4pt 7pt !important; border: 1px solid #bbb; vertical-align: top; word-wrap: break-word; }
+                                .o_ems_minute table td p, .o_ems_minute table th p { margin: 0 !important; line-height: 1.3 !important; }
+                                .o_ems_minute table.o_ems_minute_facts { margin: 6pt 0 4pt 0; font-size: 9pt; }
+                                .o_ems_minute table.o_ems_minute_facts td, .o_ems_minute table.o_ems_minute_facts th { padding: 5pt 8pt !important; vertical-align: middle; }
+                                /* Title cells in the brand colour, faded: a white veil over it. */
+                                .o_ems_minute table.o_ems_minute_facts th {
+                                    white-space: nowrap; width: 1% !important; font-weight: bold; color: <t t-out="brand"/>;
+                                    background-color: <t t-out="brand"/>;
+                                    background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
+                                    background-image: linear-gradient(rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.86));
+                                }
+                                .o_ems_minute table.o_ems_minute_signatures { margin-top: 18pt; }
+                                .o_ems_minute table.o_ems_minute_signatures th { width: 50% !important; }
+                                .o_ems_minute table.o_ems_minute_signatures td { width: 50% !important; padding: 8pt !important; }
+                                /* Room under each name for the stamp, the same whether it is there yet or not. */
+                                .o_ems_minute .o_ems_minute_stamp_room { min-height: 72pt; padding-top: 4pt; }
+                                .o_ems_minute a { word-wrap: break-word; word-break: break-all; }
+                                .o_ems_minute img { max-width: 100% !important; height: auto !important; }
+                                .o_ems_minute .o_ems_minute_draft { border: 1px solid #b00; color: #b00; font-weight: bold; padding: 2pt 6pt; margin-bottom: 6pt; display: inline-block; }
+                                .o_ems_minute .o_ems_minute_muted { color: #555; }
+                            </style>
+
+                            <div t-if="doc.state != 'approved'" class="o_ems_minute_draft">Draft, not approved yet</div>
+                            <h2 t-out="doc.name"/>
+                            <p class="o_ems_minute_muted" t-out="doc.code"/>
+
+                            <!-- Three columns, two rows: when, how, where. An evidence record is no
+                                 meeting, so it has no nature or modality column. -->
+                            <t t-set="is_meeting" t-value="doc.type_kind != 'record'"/>
+                            <table class="o_ems_minute_facts">
+                                <tr>
+                                    <th>Date</th><td t-out="doc.date" t-options="{'widget': 'date'}"/>
+                                    <t t-if="is_meeting"><th>Nature</th><td t-out="dict(doc._fields['nature']._description_selection(doc.env)).get(doc.nature)"/></t>
+                                    <th>Scope</th><td t-out="doc.scope_name"/>
+                                </tr>
+                                <tr>
+                                    <th>Time</th><td t-out="doc.time or ''"/>
+                                    <t t-if="is_meeting"><th>Modality</th><td t-out="dict(doc._fields['modality']._description_selection(doc.env)).get(doc.modality)"/></t>
+                                    <th>Place</th><td t-out="doc.place_name"/>
+                                </tr>
+                            </table>
+
+                            <t t-if="doc.type_kind != 'record'">
+                                <!-- People from outside EMS go with the rest, by name and organisation; their
+                                     email is kept in the minute, never printed. -->
+                                <t t-set="guests_in" t-value="doc.guest_ids.filtered('attended')"/>
+                                <t t-set="guests_out" t-value="doc.guest_ids - guests_in"/>
+                                <h4>Attendees</h4>
+                                <p t-out="', '.join(doc.attendee_ids.mapped('name') + guests_in.mapped('display_name'))"/>
+                                <t t-if="doc.absentee_ids or guests_out">
+                                    <h4>Absentees</h4>
+                                    <p>
+                                        <span t-out="', '.join(doc.absentee_ids.mapped('name') + guests_out.mapped('display_name'))"/>
+                                        <span t-if="doc.absence_notes"> (<span t-out="doc.absence_notes"/>)</span>
+                                    </p>
+                                </t>
+                            </t>
+
+                            <t t-if="doc.agenda_html">
+                                <h4>Agenda</h4>
+                                <div t-out="doc.agenda_html"/>
+                            </t>
+
+                            <t t-if="doc.previous_minute_id">
+                                <h4>Approval of the previous minute</h4>
+                                <p>
+                                    <span t-out="doc.previous_minute_id.display_name"/>:
+                                    <strong t-out="dict(doc._fields['previous_approved']._description_selection(doc.env)).get(doc.previous_approved)"/>
+                                </p>
+                                <p t-if="doc.previous_approval_notes" t-out="doc.previous_approval_notes"/>
+                            </t>
+
+                            <t t-if="doc.agreement_review_ids">
+                                <h4>Follow-up of the agreements</h4>
+                                <table>
+                                    <thead><tr><th>Code</th><th>Agreement</th><th>Follow-up</th><th>Deadline</th><th>Done</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.agreement_review_ids" t-as="review">
+                                            <td style="white-space: nowrap;" t-out="review.code"/>
+                                            <td t-out="review.name"/>
+                                            <td t-out="review.note or ''"/>
+                                            <td style="white-space: nowrap;"><span t-if="review.deadline_date" t-out="review.deadline_date" t-options="{'widget': 'date'}"/></td>
+                                            <td><t t-if="review.is_closed">Yes</t><t t-else="">No</t></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <!-- What was said: item by item when the minute has items to discuss, and
+                                 otherwise the development written as a text of its own (below). -->
+                            <t t-set="items" t-value="doc.agenda_ids.sorted('sequence')"/>
+                            <t t-if="items">
+                                <h4>Items discussed</h4>
+                                <t t-foreach="items" t-as="item">
+                                    <h5><t t-out="item_index + 1"/>. <t t-out="item.name"/></h5>
+                                    <div t-if="item.notes" t-out="item.notes"/>
+                                </t>
+                            </t>
+
+                            <t t-foreach="doc.section_value_ids.sorted('sequence')" t-as="section">
+                                <t t-if="section.is_written and section.content">
+                                    <h4 t-out="section.name"/>
+                                    <div t-out="section.content"/>
+                                </t>
+                            </t>
+
+                            <t t-if="doc.member_line_ids">
+                                <h4>Team members</h4>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th t-if="doc.type_id.print_identification">Identification</th>
+                                            <th>Speciality</th>
+                                            <th>Post in the team</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.member_line_ids" t-as="member">
+                                            <td t-out="member.employee_id.name"/>
+                                            <td t-if="doc.type_id.print_identification" t-out="member.identification or ''"/>
+                                            <td t-out="member.speciality or ''"/>
+                                            <td t-out="dict(member._fields['team_role']._description_selection(member.env)).get(member.team_role)"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-if="doc.objective_line_ids">
+                                <h4>Objectives and indicators</h4>
+                                <table>
+                                    <thead><tr><th>Objective</th><th>Indicator</th><th>Acceptance</th><th>Target</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.objective_line_ids" t-as="objective">
+                                            <td t-out="objective.name"/>
+                                            <td t-out="objective.indicator or ''"/>
+                                            <td t-out="objective.acceptance_value or ''"/>
+                                            <td t-out="objective.target_value or ''"/>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-if="doc.agreement_ids">
+                                <h4>Agreements</h4>
+                                <table>
+                                    <thead><tr><th>Code</th><th>Agreement</th><th>Responsible</th><th>Deadline</th></tr></thead>
+                                    <tbody>
+                                        <tr t-foreach="doc.agreement_ids" t-as="agreement">
+                                            <t t-set="people" t-value="agreement.responsible_employee_ids"/>
+                                            <td style="white-space: nowrap;" t-out="agreement.code"/>
+                                            <td>
+                                                <span t-out="agreement.name"/>
+                                                <!-- How to carry it out: as it reads when the PDF is made (on approval). -->
+                                                <div t-if="not is_html_empty(agreement.description)" t-out="agreement.description" style="font-size: 0.9em;"/>
+                                            </td>
+                                            <td>
+                                                <span t-out="agreement.responsible_role_id.name or ''"/><span t-if="agreement.responsible_role_id and people">, </span>
+                                                <!-- A whole department is said as a number, as on screen. -->
+                                                <span t-out="doc._ems_people_label(people)"/>
+                                            </td>
+                                            <td style="white-space: nowrap;">
+                                                <span t-if="agreement.deadline_date" t-out="agreement.deadline_date" t-options="{'widget': 'date'}"/>
+                                                <span t-else="" t-out="agreement.deadline_text or ''"/>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </t>
+
+                            <t t-set="pending" t-value="doc.pending_topic_ids.filtered(lambda topic: not topic.is_done)"/>
+                            <t t-if="pending">
+                                <h4>Pending topics</h4>
+                                <ul>
+                                    <li t-foreach="pending" t-as="topic" t-out="topic.name"/>
+                                </ul>
+                            </t>
+
+                            <t t-if="doc.annex_document_ids">
+                                <h4>Annexes</h4>
+                                <ul>
+                                    <li t-foreach="doc.annex_document_ids" t-as="annex">
+                                        <span t-out="annex.code or ''"/> <span t-out="annex.name"/>
+                                    </li>
+                                </ul>
+                            </t>
+
+                            <!-- Under each name, the stamp EMS puts once that side has signed (see
+                                 ems.report_validation_stamp): who sent it for approval and when, who
+                                 approved it and when. Until then the same room is left blank, so a
+                                 draft printed for review keeps the layout of the approved minute. -->
+                            <table class="o_ems_minute_signatures">
+                                <thead><tr><th>Minute written by</th><th>Approved by</th></tr></thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div t-out="doc.redactor_employee_id.name or ''"/>
+                                            <div class="o_ems_minute_stamp_room">
+                                                <t t-if="doc.submission_date" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Sent for approval in EMS</t>
+                                                    <t t-set="stamp_by_label">Signed by:</t>
+                                                    <t t-set="stamp_by" t-value="doc.submitted_by_id.name"/>
+                                                    <t t-set="stamp_date" t-value="doc.submission_date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.code"/>
+                                                </t>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div t-out="doc.approver_employee_id.name or doc.approver_role_id.name or ''"/>
+                                            <div class="o_ems_minute_stamp_room">
+                                                <t t-if="doc.approval_date" t-call="ems.report_validation_stamp">
+                                                    <t t-set="stamp_title">Approved in EMS</t>
+                                                    <t t-set="stamp_by_label">Signed by:</t>
+                                                    <t t-set="stamp_by" t-value="doc.approver_employee_id.name"/>
+                                                    <t t-set="stamp_date" t-value="doc.approval_date"/>
+                                                    <t t-set="stamp_reference" t-value="doc.code"/>
+                                                </t>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <p class="o_ems_minute_muted" style="margin-top: 10pt; font-size: 8pt;" t-if="doc.template_document_id">
+                                <span t-out="doc.template_document_id.code or ''"/>
+                                <span t-out="doc.template_document_id.name"/>
+                            </p>
+                        </div>
+                    </t>
+                </t>
+            </t>
+        </template>
+    </data>
+</odoo>

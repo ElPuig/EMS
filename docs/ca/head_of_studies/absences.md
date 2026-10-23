@@ -17,7 +17,7 @@
 5. [Desfer una decisió](#desfer-una-decisió)
 6. [Informe per empleat](#informe-per-empleat)
 7. [Informe mensual](#informe-mensual)
-8. [Absències previstes](#absències-previstes)
+8. [Absències detectades](#absències-detectades)
 
 ---
 
@@ -70,7 +70,7 @@ La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formular
 
 L'absència té efecte (calendari d'absències, saldo d'hores, quadrant de guàrdies) tan bon punt la dones per rebuda, encara que falti el justificant o Direcció no l'hagi revisada.
 
-Si uns dies després de l'absència (tres, si el centre no ho ha canviat) la persona encara no ha adjuntat el justificant, reps un missatge i una activitat per fer-ne el seguiment; a la persona se li recorda cada dia.
+Si uns dies després de l'absència (tres, si el centre no ho ha canviat) la persona encara no ha adjuntat el justificant, reps un missatge i una activitat per fer-ne el seguiment; a la persona se li recorda cada dia. Cada recordatori i cada missatge espera l'inici de la jornada de qui el rep: ningú no en rep fora del seu horari.
 
 ![Llistat d'absències, amb les accions sobre una sol·licitud pendent](../../assets/head_of_studies/hos-absences-list.png)
 
@@ -184,26 +184,37 @@ Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis
 
 ---
 
-## Absències previstes
+## Absències detectades
 
-**Assistència del personal > Absències > Administració > Absències previstes**.
+**Assistència del personal > Absències > Administració > Absències detectades**.
 
-Quan ja saps que un docent faltarà però encara no ha sol·licitat l'absència (ha trucat aquest matí, o s'ha acordat en una reunió), entra-la aquí perquè les guàrdies es puguin planificar tot seguit.
+Aquesta llista recull les absències dels docents que encara no ha sol·licitat ningú. Tenen dos orígens, que es veuen a la columna **Origen**:
+
+- **Informada**: l'has introduïda tu (o un cap de departament o de seminari) perquè ja sabies que el docent faltaria (ha trucat aquest matí, o s'ha acordat en una reunió).
+- **Sense fitxatge**: l'ha afegida EMS sol en acabar el dia, perquè el docent no va fitxar, o va fitxar quan ja havia acabat la seva primera classe. Va de la seva primera classe a l'última, o fins a l'hora en què va fitxar. Només hi entren els docents de les àrees que ha triat l'administrador (de moment, FP), i només els dies que el seu horari té classes: a un docent sense horari carregat no se li detecta mai res.
+
+### Introduir-ne una
 
 1. Fes clic a **Nou**.
-2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el Cap d'Estudis o el Cap d'Estudis Adjunt veu els seus docents, i Direcció els veu tots. Els caps de departament i de seminari també poden introduir absències previstes, per als docents del seu propi departament. Els membres de l'equip directiu (com el Secretari) compten com a docents de l'àrea a què pertany el seu departament: el Secretari, que fa classe en un departament d'FP, surt al Cap d'Estudis o Cap d'Estudis Adjunt responsable d'FP. També hi surten els docents d'altres departaments que fan classe a un grup que gestiona el departament (camp **Gestionat pel departament** dels estudis del grup) i els que tenen el departament al camp **També gestionat pels departaments** de la seva fitxa.
+2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el cap d'estudis o el cap d'estudis adjunt veu els seus docents, i Direcció els veu tots. Els caps de departament i de seminari també en poden introduir, per als docents del seu propi departament. Els membres de l'equip directiu (com el secretari) compten com a docents de l'àrea a què pertany el seu departament: el secretari, que fa classe en un departament d'FP, surt al cap d'estudis o cap d'estudis adjunt responsable d'FP. També hi surten els docents d'altres departaments que fan classe a un grup que gestiona el departament (camp **Gestionat pel departament** dels estudis del grup) i els que tenen el departament al camp **També gestionat pels departaments** de la seva fitxa.
 3. Indica **De** i **A**, amb data i hora. Per defecte, avui de 08:00 a 15:00. Una absència pot ocupar diversos dies.
-4. Si vols, afegeix-hi **Notes** per a tu. El docent no veu mai aquesta entrada.
+4. Si vols, afegeix-hi **Notes** per a tu. El docent pot obrir l'entrada, però no veu mai les notes.
 5. Desa.
 
 A partir d'aquest moment, el docent surt a l'horari de guàrdies com a absent amb una sol·licitud pendent d'aprovar (vermell més clar i en cursiva), durant les hores que has indicat.
 
-Quan el docent sol·licita l'absència, l'absència prevista s'hi vincula automàticament i el seu estat passa de **Prevista** a **Sol·licitada**. Des d'aleshores només compta la sol·licitud del docent, amb les seves dates i hores: si després es rebutja o es cancel·la, l'entrada no torna a l'horari de guàrdies. Una entrada sol·licitada ja no es pot modificar; queda a la llista, amb el filtre **Sol·licitada**, com a registre.
+### Què passa després
 
-![Llista d'absències previstes, una encara prevista i una ja sol·licitada pel docent](../../assets/head_of_studies/hos-expected-absences-list.png)
+Quan el docent sol·licita l'absència, l'entrada s'hi vincula automàticament i el seu estat passa de **Detectada** a **Sol·licitada**. Des d'aleshores només compta la sol·licitud del docent, amb les seves dates i hores: si després es rebutja o es cancel·la, l'entrada no torna a l'horari de guàrdies. Una entrada sol·licitada ja no es pot modificar; queda a la llista, amb el filtre **Sol·licitada**, com a registre.
 
-Si finalment el docent no falta, esborra l'entrada.
+Mentrestant, un cop acabada l'absència, EMS recorda al docent que la sol·liciti a l'inici de la seva jornada, cada dia si el centre no ho ha canviat. El missatge no és el mateix per als dos orígens: per a un fitxatge que falta també li diu que, si era al centre i es va oblidar de fitxar, et demani que registris el seu fitxatge. Si uns dies després de l'absència (tres, si el centre no ho ha canviat) encara no l'ha sol·licitada, reps un missatge i una activitat per fer-ne el seguiment. Aquests recordatoris arriben als docents de les àrees que ha triat l'administrador.
+
+**Si al final el docent sí que era al centre**, registra el seu fitxatge d'aquell dia (**Assistència del personal → Assistència → Vista general**, **Nou**; vegeu també [Correccions de fitxatges](attendance-corrections.md)): una absència detectada per un fitxatge que faltava passa sola a **Descartada**, o s'escurça si va arribar abans del que deia. Una informada que vas introduir per error s'esborra a mà.
+
+![Llista d'absències detectades amb el seu origen: una informada, una per un fitxatge que falta i una ja sol·licitada pel docent](../../assets/head_of_studies/hos-detected-absences-list.png)
 
 ### Organitzar la cobertura
 
-Un cop una absència surt a l'horari de guàrdies, prevista o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans (si l'administrador ha activat aquests canvis), i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència prevista es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../teachers/guard-duty-schedule.md#organitzar-una-absencia).
+Un cop una absència surt a l'horari de guàrdies, detectada o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans (si l'administrador ha activat aquests canvis), i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència detectada es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../teachers/guard-duty-schedule.md#organitzar-una-absencia).
+
+Una classe el docent de la qual no ha fitxat quan comença també surt a la Taula d'absències, per cobrir-la amb una guàrdia. Si resulta que el docent és a l'aula, en pots registrar l'entrada des de la taula: consulta [Docents que no han fitxat](../teachers/guard-duty-schedule.md#docents-que-no-han-fitxat).

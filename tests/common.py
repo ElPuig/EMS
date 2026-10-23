@@ -258,10 +258,13 @@ def shift_ems_clock(case, hour=10.0, weekdays=None):
         target = utils.time_float_to_local_datetime(real_now.date() + real.timedelta(days=1), hour)
     while weekdays is not None and target.weekday() not in weekdays:
         target = utils.time_float_to_local_datetime(target.date() + real.timedelta(days=1), hour)
-    delta = target - real_now
+    # In UTC: between two datetimes of the same zone Python counts wall-clock time, so a shift across a
+    # daylight saving change (e.g. a Friday in summer time to the Monday after it ends) was an hour off.
+    delta = target.astimezone(real.timezone.utc) - real_now.astimezone(real.timezone.utc)
 
     def now(tz=None):
-        return real.datetime.now(tz) + delta
+        shifted = real.datetime.now(real.timezone.utc) + delta
+        return shifted.astimezone(tz) if tz is not None else shifted.astimezone().replace(tzinfo=None)
 
     def utc_naive_now():
         return now(real.timezone.utc).replace(tzinfo=None)

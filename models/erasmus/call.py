@@ -598,7 +598,7 @@ class EmsErasmusCall(models.Model):
 
     @api.model
     def _ems_conduct_blocked_count(self, count):
-        """Students' call art. 4: as many conduct warnings this course as the number that sends the
+        """Students' call art. 6: as many conduct warnings this course as the number that sends the
         case to the coexistence team (res.company.strike_escalation_threshold), or more, rule a
         student out. No threshold, no rule."""
         threshold = self.env.company.strike_escalation_threshold

@@ -56,7 +56,7 @@
 
 - The Head of Studies / Director no longer record a "no serious sanction" check on each
   application (fields, filter, tour and the Head of Studies manual removed; they only read the
-  applications now). EMS has no register of disciplinary sanctions, so art. 4 is applied from the
+  applications now). EMS has no register of disciplinary sanctions, so art. 6 is applied from the
   conduct warnings (ems.strike): a student with as many warnings during the call's course as the
   coexistence escalation threshold (res.company.strike_escalation_threshold, 3) or more cannot
   apply. The portal shows them a notice instead of "Apply"; creating or submitting the application

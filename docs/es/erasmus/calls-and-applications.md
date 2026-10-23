@@ -50,7 +50,7 @@ Abre una solicitud:
 - Pestaña **Documentos**: cada documento con sus archivos. Se conservan todos los archivos que ha subido el alumno, también las versiones anteriores. Márcalos como **Válido** (✓) o **Hay que corregir** (✗), y escribe un **Comentario para el solicitante** cuando haya que corregirlo.
 - Pestaña **Admisión**:
     - **Requisitos**: matriculado en un nivel de la convocatoria, ninguna práctica Erasmus+ anterior en este ciclo y autorización familiar si es menor de edad. EMS registra quién lo ha comprobado y cuándo.
-    - **Conducta este curso**: las **amonestaciones** que el alumno tiene en EMS durante el curso de la convocatoria. Si tiene tantas como las que hacen saltar el aviso a convivencia (3, el ajuste de EMS) o más, se marca **Demasiadas amonestaciones** y no puede participar (artículo 4 de la convocatoria). EMS lo comprueba solo: nadie tiene que registrarlo a mano.
+    - **Conducta este curso**: las **amonestaciones** que el alumno tiene en EMS durante el curso de la convocatoria. Si tiene tantas como las que hacen saltar el aviso a convivencia (3, el ajuste de EMS) o más, se marca **Demasiadas amonestaciones** y no puede participar (artículo 6 de la convocatoria). EMS lo comprueba solo: nadie tiene que registrarlo a mano.
     - **Motivo de exclusión**, si la solicitud queda excluida.
 - Pestaña **Respuestas**: lo que el alumno ha respondido en el formulario.
 

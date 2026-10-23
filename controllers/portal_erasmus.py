@@ -43,7 +43,7 @@ class EmsPortalErasmusController(CustomerPortal):
         values.update({
             'page_name': 'erasmus',
             'calls': calls,
-            # Students' call art. 4: too many conduct warnings this course rule the student out.
+            # Students' call art. 6: too many conduct warnings this course rule the student out.
             'blocked': calls.filtered(lambda call: call._ems_conduct_blocked(partner)),
             'applications': {application.call_id: application for application in applications},
             'state_labels': dict(applications._fields['state']._description_selection(request.env)),

@@ -50,7 +50,7 @@ Obre una sol·licitud:
 - Pestanya **Documents**: cada document amb els seus fitxers. Es conserven tots els fitxers que ha pujat l'alumne, també les versions anteriors. Marca'ls com a **Vàlid** (✓) o **Cal corregir** (✗), i escriu un **Comentari per al sol·licitant** quan calgui corregir-lo.
 - Pestanya **Admissió**:
     - **Requisits**: matriculat en un nivell de la convocatòria, cap pràctica Erasmus+ anterior en aquest cicle i autorització familiar si és menor d'edat. EMS registra qui ho ha comprovat i quan.
-    - **Conducta aquest curs**: les **amonestacions** que l'alumne té a l'EMS durant el curs de la convocatòria. Si en té tantes com les que fan saltar l'avís a convivència (3, l'ajust de l'EMS) o més, es marca **Massa amonestacions** i no pot participar (article 4 de la convocatòria). L'EMS ho comprova sol: ningú no ho ha de registrar a mà.
+    - **Conducta aquest curs**: les **amonestacions** que l'alumne té a l'EMS durant el curs de la convocatòria. Si en té tantes com les que fan saltar l'avís a convivència (3, l'ajust de l'EMS) o més, es marca **Massa amonestacions** i no pot participar (article 6 de la convocatòria). L'EMS ho comprova sol: ningú no ho ha de registrar a mà.
     - **Motiu d'exclusió**, si la sol·licitud queda exclosa.
 - Pestanya **Respostes**: el que l'alumne ha respost al formulari.
 

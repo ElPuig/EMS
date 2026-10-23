@@ -109,7 +109,7 @@ version stays. A new upload puts the line back to *Pending review*. The team mar
 family authorization if minor): recorded by the Erasmus team, with result (*Pending*, *Met*,
 *Not met*), author and date stamped by `write()`.
 
-**Conduct** (students' call, art. 4), never recorded by hand: EMS has no register of
+**Conduct** (students' call, art. 6), never recorded by hand: EMS has no register of
 disciplinary sanctions, only the conduct warnings (`ems.strike`), and the coexistence team reviews
 a case each time a student reaches `res.company.strike_escalation_threshold` warnings (3 by
 default). The same number rules a student out: `call._ems_course_strike_count(partner)` counts

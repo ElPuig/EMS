@@ -299,7 +299,7 @@ class TestErasmusApplication(TransactionCase):
         } for index in range(count)])
 
     def test_too_many_conduct_warnings_this_course_rule_the_student_out(self):
-        """Art. 4: as many warnings this course as the coexistence escalation threshold, or more."""
+        """Art. 6: as many warnings this course as the coexistence escalation threshold, or more."""
         self.env.company.strike_escalation_threshold = 3
         self._strikes(2)
         self.assertFalse(self.call._ems_conduct_blocked(self.student))
@@ -337,7 +337,7 @@ class TestErasmusApplication(TransactionCase):
         application.invalidate_recordset(['conduct_blocked', 'course_strike_count'])
         with self.assertRaises(UserError):
             application.action_admit()
-        application.exclusion_reason = 'Art. 4'
+        application.exclusion_reason = 'Art. 6'
         application.action_exclude()
 
     def test_corrected_application_becomes_a_task_for_the_team(self):

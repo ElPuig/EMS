@@ -30598,32 +30598,32 @@ msgstr "recursos y formación"
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
 msgid ""
-"%s has too many conduct warnings this course to take part (art. 4 of the "
+"%s has too many conduct warnings this course to take part (art. 6 of the "
 "call): exclude the application."
 msgstr ""
-"%s tiene demasiadas amonestaciones este curso para participar (art. 4 de la "
+"%s tiene demasiadas amonestaciones este curso para participar (art. 6 de la "
 "convocatoria): excluye la solicitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid ""
 "<i class=\"fa fa-ban me-1\"/> You cannot apply to this call: you have too "
-"many conduct warnings this course (article 4 of the call). If you think this"
+"many conduct warnings this course (article 6 of the call). If you think this"
 " is a mistake, talk to the Erasmus team."
 msgstr ""
 "<i class=\"fa fa-ban me-1\"/> No puedes presentarte a esta convocatoria: "
-"este curso tienes demasiadas amonestaciones (artículo 4 de la convocatoria)."
+"este curso tienes demasiadas amonestaciones (artículo 6 de la convocatoria)."
 " Si crees que es un error, habla con el equipo Erasmus."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid ""
 "<i class=\"fa fa-ban me-1\"/>You cannot apply to this call: you have too "
-"many conduct warnings this course (article 4 of the call). If you think this"
+"many conduct warnings this course (article 6 of the call). If you think this"
 " is a mistake, talk to the Erasmus team."
 msgstr ""
 "<i class=\"fa fa-ban me-1\"/>No puedes presentarte a esta convocatoria: este"
-" curso tienes demasiadas amonestaciones (artículo 4 de la convocatoria). Si "
+" curso tienes demasiadas amonestaciones (artículo 6 de la convocatoria). Si "
 "crees que es un error, habla con el equipo Erasmus."
 
 #. module: ems
@@ -30698,10 +30698,10 @@ msgstr "Demasiadas amonestaciones"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 msgid ""
-"Too many conduct warnings this course: the student cannot take part (art. 4 "
+"Too many conduct warnings this course: the student cannot take part (art. 6 "
 "of the call). Exclude the application."
 msgstr ""
-"Demasiadas amonestaciones este curso: el alumno no puede participar (art. 4 "
+"Demasiadas amonestaciones este curso: el alumno no puede participar (art. 6 "
 "de la convocatoria). Excluye la solicitud."
 
 #. module: ems

@@ -151,7 +151,7 @@ class EmsErasmusApplication(models.Model):
     requirements_check_user_id = fields.Many2one(string="Requirements checked by", comodel_name='res.users',
                                                  readonly=True, copy=False)
     requirements_check_date = fields.Datetime(string="Requirements checked on", readonly=True, copy=False)
-    # Students' call art. 4: conduct is read from EMS's own conduct warnings, never checked by hand.
+    # Students' call art. 6: conduct is read from EMS's own conduct warnings, never checked by hand.
     course_strike_count = fields.Integer(string="Conduct warnings this course", compute='_compute_conduct',
                                          help="The applicant's conduct warnings in EMS during the call's course.")
     conduct_blocked = fields.Boolean(string="Too many conduct warnings", compute='_compute_conduct',
@@ -485,7 +485,7 @@ class EmsErasmusApplication(models.Model):
             if application.requirements_check != 'met':
                 raise UserError(_("Every admission check must be met to admit %s.", application.partner_id.name))
             if application.conduct_blocked:
-                raise UserError(_("%s has too many conduct warnings this course to take part (art. 4 of the call): "
+                raise UserError(_("%s has too many conduct warnings this course to take part (art. 6 of the call): "
                                   "exclude the application.", application.partner_id.name))
             if application.document_ids.filtered(lambda line: line.is_required and line.review_state != 'valid'):
                 raise UserError(_("Every required document of %s must be valid to admit the application.",

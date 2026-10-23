@@ -78,7 +78,7 @@
                     </header>
                     <sheet>
                         <div class="alert alert-warning" role="alert" invisible="not conduct_blocked or state not in ('submitted', 'subsanation')">
-                            Too many conduct warnings this course: the student cannot take part (art. 4 of the call). Exclude the application.
+                            Too many conduct warnings this course: the student cannot take part (art. 6 of the call). Exclude the application.
                         </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>
@@ -120,7 +120,7 @@
                                         <field name="requirements_check_user_id"/>
                                         <field name="requirements_check_date"/>
                                     </group>
-                                    <!-- Students' call art. 4, from EMS's own conduct warnings. -->
+                                    <!-- Students' call art. 6, from EMS's own conduct warnings. -->
                                     <group string="Conduct this course" invisible="audience != 'student'">
                                         <field name="course_strike_count"/>
                                         <field name="conduct_blocked"/>

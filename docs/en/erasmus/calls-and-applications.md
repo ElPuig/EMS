@@ -50,7 +50,7 @@ Open an application:
 - **Documents** tab: each document with its files. Every file the student uploaded is kept, also the earlier versions. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes.
 - **Admission** tab:
     - **Requirements**: enrolled in a level of the call, no previous Erasmus+ internship in this cycle, family authorization if a minor. EMS records who checked it and when.
-    - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Too many conduct warnings** is ticked and the student cannot take part (article 4 of the call). EMS checks it on its own: nobody records it by hand.
+    - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Too many conduct warnings** is ticked and the student cannot take part (article 6 of the call). EMS checks it on its own: nobody records it by hand.
     - **Exclusion reason**, if the application is excluded.
 - **Answers** tab: what the student answered in the form.
 

@@ -193,7 +193,7 @@ To change the period, remove the **Current Course** filter and pick the one you 
 This list holds the teachers' absences that nobody has requested yet. They come from two places, shown in the **Origin** column:
 
 - **Informed**: you (or a Department or Seminar Chief) entered it because you already knew the teacher would be away (they phoned in this morning, or it was agreed in a meeting).
-- **No check-in**: EMS added it on its own once the day was over, because the teacher did not check in at all, or checked in after their first lesson had ended. It goes from their first lesson to their last one, or to the time they checked in. Only the teachers of the areas the administrator has chosen go through this (for now, VET).
+- **No check-in**: EMS added it on its own once the day was over, because the teacher did not check in at all, or checked in after their first lesson had ended. It goes from their first lesson to their last one, or to the time they checked in. Only the teachers of the areas the administrator has chosen go through this (for now, VET), and only on the days their schedule has lessons: a teacher with no schedule loaded is never detected.
 
 ### Entering one
 

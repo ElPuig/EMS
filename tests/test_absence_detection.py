@@ -101,6 +101,16 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(self._hours(absence), (9.0, 13.0), 'from the first period to the last one')
         self.assertFalse(self._detected(self.present))
 
+    def test_a_teacher_without_a_schedule_is_never_detected(self):
+        """Nothing to compare the check-ins with: asking them to check in would be no control at all."""
+        unscheduled = self.env['hr.employee'].create({'name': 'TAD Unscheduled Teacher', 'employee_type': 'teacher'})
+        unscheduled.department_id = self.department
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+
+        self.assertFalse(unscheduled.resource_calendar_id.attendance_ids)
+        self.assertFalse(self._detected(unscheduled))
+        self.assertTrue(self._detected(), 'the scheduled ones still are')
+
     def test_a_late_arrival_is_detected_until_the_check_in(self):
         self._check_in(self.teacher, self.yesterday, 10.5)
         self.Pending._ems_detect_missing_check_ins(self.yesterday)

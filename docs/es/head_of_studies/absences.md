@@ -191,7 +191,7 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 Esta lista recoge las ausencias de los docentes que todavía no ha solicitado nadie. Tienen dos orígenes, que se ven en la columna **Origen**:
 
 - **Informada**: la has introducido tú (o un jefe de departamento o de seminario) porque ya sabías que el docente faltaría (ha llamado esta mañana, o se ha acordado en una reunión).
-- **Sin fichaje**: la ha añadido EMS solo al terminar el día, porque el docente no fichó, o fichó cuando ya había terminado su primera clase. Va de su primera clase a la última, o hasta la hora en que fichó. Solo entran los docentes de las áreas que ha elegido el administrador (de momento, FP).
+- **Sin fichaje**: la ha añadido EMS solo al terminar el día, porque el docente no fichó, o fichó cuando ya había terminado su primera clase. Va de su primera clase a la última, o hasta la hora en que fichó. Solo entran los docentes de las áreas que ha elegido el administrador (de momento, FP), y solo los días que su horario tiene clases: a un docente sin horario cargado no se le detecta nunca nada.
 
 ### Introducir una
 

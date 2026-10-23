@@ -755,7 +755,9 @@ of a two-week schedule left out), and their first check-in with
 "not checked in" rows; the technical attendances Odoo's own absence detection creates are not
 presence). No check-in at all: the entry spans the first period to the last one. A check-in after
 the first period was over: from the first period to the check-in. A check-in during the first
-period is no absence. A day only counts once it is over, so the detection runs on the days before
+period is no absence. A teacher with no period that weekday (no schedule loaded, or a day they
+don't work) is never detected: there is nothing to hold their check-ins against. The company
+framework fallback of the reminders only decides when a message goes out, never what is missing. A day only counts once it is over, so the detection runs on the days before
 today; the marker `ems.missing_check_in_last_day` (`ir.config_parameter`) keeps each day to one
 pass. A day nobody in the circuit checked in is taken as a day off the calendar does not know
 about (the summer, a school holiday) and skipped; a public holiday too.

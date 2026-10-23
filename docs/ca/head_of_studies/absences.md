@@ -191,7 +191,7 @@ Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis
 Aquesta llista recull les absències dels docents que encara no ha sol·licitat ningú. Tenen dos orígens, que es veuen a la columna **Origen**:
 
 - **Informada**: l'has introduïda tu (o un cap de departament o de seminari) perquè ja sabies que el docent faltaria (ha trucat aquest matí, o s'ha acordat en una reunió).
-- **Sense fitxatge**: l'ha afegida EMS sol en acabar el dia, perquè el docent no va fitxar, o va fitxar quan ja havia acabat la seva primera classe. Va de la seva primera classe a l'última, o fins a l'hora en què va fitxar. Només hi entren els docents de les àrees que ha triat l'administrador (de moment, FP).
+- **Sense fitxatge**: l'ha afegida EMS sol en acabar el dia, perquè el docent no va fitxar, o va fitxar quan ja havia acabat la seva primera classe. Va de la seva primera classe a l'última, o fins a l'hora en què va fitxar. Només hi entren els docents de les àrees que ha triat l'administrador (de moment, FP), i només els dies que el seu horari té classes: a un docent sense horari carregat no se li detecta mai res.
 
 ### Introduir-ne una
 

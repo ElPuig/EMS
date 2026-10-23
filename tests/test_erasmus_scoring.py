@@ -50,7 +50,6 @@ class ErasmusScoringCase(TransactionCase):
         upload(application, self.cv)
         application.action_submit()
         application.requirements_check = 'met'
-        application.with_user(self.hos_user).sanction_check = 'met'
         application.document_ids.filtered('attachment_ids').action_mark_valid()
         application.action_admit()
         return application

@@ -38,10 +38,13 @@ class EmsPortalErasmusController(CustomerPortal):
         if not partner._ems_erasmus_portal_visible():
             return request.redirect('/my/home')
         applications = partner._ems_erasmus_applications()
+        calls = partner._ems_erasmus_calls() | applications.call_id
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
-            'calls': partner._ems_erasmus_calls() | applications.call_id,
+            'calls': calls,
+            # Students' call art. 4: too many conduct warnings this course rule the student out.
+            'blocked': calls.filtered(lambda call: call._ems_conduct_blocked(partner)),
             'applications': {application.call_id: application for application in applications},
             'state_labels': dict(applications._fields['state']._description_selection(request.env)),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
@@ -73,14 +76,17 @@ class EmsPortalErasmusController(CustomerPortal):
         partner = request.env.user.partner_id
         application = request.env['ems.erasmus.application'].sudo().search([
             ('call_id', '=', call.id), ('partner_id', '=', partner.id)])
+        blocked = call._ems_conduct_blocked(partner) and (not application or application.state in ('draft', 'subsanation'))
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
             'call': call,
             'application': application,
             'modality': application.modality_id or call._ems_modality_for(partner),
-            'editable': application._ems_portal_editable() if application else call.is_accepting,
-            'correctable': application._ems_portal_correctable() if application else application.document_ids,
+            'blocked': blocked,
+            'editable': not blocked and (application._ems_portal_editable() if application else call.is_accepting),
+            'correctable': application._ems_portal_correctable() if application and not blocked
+            else application.document_ids.browse(),
             'documents': call.document_ids,
             'lines': {line.call_document_id: line for line in application.document_ids},
             'is_minor': call.audience == 'student' and not partner.is_adult,

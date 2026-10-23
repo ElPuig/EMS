@@ -261,7 +261,6 @@ class TestErasmusApplication(TransactionCase):
         with self.assertRaises(UserError):
             application.action_admit()
         application.requirements_check = 'met'
-        application.with_user(self.hos_user).sanction_check = 'met'
         with self.assertRaises(UserError):
             application.action_admit()
         self._line(application, self.cv).action_mark_valid()
@@ -285,17 +284,76 @@ class TestErasmusApplication(TransactionCase):
         application.with_user(self.erasmus_user).requirements_check = 'met'
         self.assertEqual(application.requirements_check_user_id, self.erasmus_user)
         self.assertTrue(application.requirements_check_date)
-        application.with_user(self.hos_user).sanction_check = 'not_met'
-        self.assertEqual(application.sanction_check_user_id, self.hos_user)
 
-    def test_sanction_check_reserved_to_head_of_studies(self):
+    def test_head_of_studies_only_reads(self):
         application = self._apply()
-        with self.assertRaises(AccessError):
-            application.with_user(self.erasmus_user).sanction_check = 'met'
+        self.assertEqual(application.with_user(self.hos_user).partner_id, self.student)
         with self.assertRaises(AccessError):
             application.with_user(self.hos_user).requirements_check = 'met'
-        application.with_user(self.hos_user).write({'sanction_check': 'met', 'sanction_check_note': 'Checked'})
-        self.assertEqual(application.sanction_check, 'met')
+
+    def _strikes(self, count, partner=None):
+        teacher = self.env['hr.employee'].search([], limit=1)
+        return self.env['ems.strike'].create([{
+            'student_id': (partner or self.student).id, 'teacher_id': teacher.id,
+            'date': fields.Datetime.now() - timedelta(minutes=index + 1),
+        } for index in range(count)])
+
+    def test_too_many_conduct_warnings_this_course_rule_the_student_out(self):
+        """Art. 4: as many warnings this course as the coexistence escalation threshold, or more."""
+        self.env.company.strike_escalation_threshold = 3
+        self._strikes(2)
+        self.assertFalse(self.call._ems_conduct_blocked(self.student))
+        application = self._apply()
+        self._strikes(1)
+        application.invalidate_recordset(['conduct_blocked', 'course_strike_count'])
+        self.assertEqual(application.course_strike_count, 3)
+        self.assertTrue(application.conduct_blocked)
+        upload(application, self.cv)
+        with self.assertRaises(UserError):
+            application.action_submit()
+        self._strikes(3, self.minor)
+        with self.assertRaises(UserError):
+            self.env['ems.erasmus.application']._ems_portal_get_or_create(self.call, self.minor)
+
+    def test_conduct_warnings_of_earlier_courses_do_not_count(self):
+        self.env.company.strike_escalation_threshold = 3
+        old = self._strikes(3)
+        old.write({'date': fields.Datetime.now() - timedelta(days=800)})
+        self.assertFalse(self.call._ems_conduct_blocked(self.student))
+
+    def test_no_threshold_no_rule(self):
+        self.env.company.strike_escalation_threshold = 0
+        self._strikes(5)
+        self.assertFalse(self.call._ems_conduct_blocked(self.student))
+
+    def test_conduct_warnings_after_submitting_block_the_admission(self):
+        self.env.company.strike_escalation_threshold = 3
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        application.requirements_check = 'met'
+        self._line(application, self.cv).action_mark_valid()
+        self._strikes(3)
+        application.invalidate_recordset(['conduct_blocked', 'course_strike_count'])
+        with self.assertRaises(UserError):
+            application.action_admit()
+        application.exclusion_reason = 'Art. 4'
+        application.action_exclude()
+
+    def test_corrected_application_becomes_a_task_for_the_team(self):
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        self._line(application, self.cv).action_mark_needs_change()
+        application.action_request_subsanation()
+        self.assertFalse(application.activity_ids)
+        upload(application, self.cv)
+        application.action_submit()
+        self.assertIn(self.erasmus_user, application.activity_ids.user_id)
+        application.requirements_check = 'met'
+        self._line(application, self.cv).action_mark_valid()
+        application.action_admit()
+        self.assertFalse(application.activity_ids, "Reviewing it marks the task done.")
 
     def test_head_of_studies_does_not_see_confidential_documents(self):
         application = self._apply()

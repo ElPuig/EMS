@@ -123,10 +123,10 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         with self.assertRaises(UserError):
             self.env['ems.erasmus.application']._ems_portal_get_or_create(self.staff_call, self.student)
 
-    def test_staff_is_admitted_without_the_sanction_check(self):
+    def test_staff_conduct_warnings_never_count(self):
         application = self._admitted(0)
         self.assertEqual(application.state, 'admitted')
-        self.assertEqual(application.sanction_check, 'pending')
+        self.assertFalse(application.conduct_blocked)
 
     def test_a_call_with_applications_keeps_its_audience(self):
         self._apply(0)

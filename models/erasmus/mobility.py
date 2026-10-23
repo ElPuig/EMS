@@ -261,9 +261,8 @@ class EmsErasmusMobility(models.Model):
     @api.onchange('host_partner_id')
     def _onchange_host_partner_id(self):
         """Issue #697: the host entity's tutor, when it has only one contact."""
-        contacts = self.host_partner_id.child_ids.filtered(lambda contact: contact.type == 'contact')
         if self.host_contact_id.parent_id != self.host_partner_id:
-            self.host_contact_id = contacts if len(contacts) == 1 else False
+            self.host_contact_id = self._ems_single_contact(self.host_partner_id)
 
     @api.constrains('prefinancing_percent')
     def _check_prefinancing_percent(self):
@@ -354,10 +353,20 @@ class EmsErasmusMobility(models.Model):
         self._ems_assign(destination)
         self.call_id._ems_advance_choice()
 
+    @api.model
+    def _ems_single_contact(self, host):
+        """The host entity's tutor, when it has only one contact."""
+        contacts = host.child_ids.filtered(lambda contact: contact.type == 'contact')
+        return contacts if len(contacts) == 1 else contacts.browse()
+
     def _ems_assign(self, destination):
+        """The destination's place, dates and, when it has only one, its host entity (and tutor)."""
+        host = destination.host_partner_ids
+        host_vals = {'host_partner_id': host.id, 'host_contact_id': self._ems_single_contact(host).id} \
+            if len(host) == 1 else {}
         self._ems_set_state('preparing', destination_id=destination.id, turn_deadline=False,
                             country_id=destination.country_id.id, city=destination.city,
-                            date_start=destination.date_start, date_end=destination.date_end)
+                            date_start=destination.date_start, date_end=destination.date_end, **host_vals)
         self._ems_send('ems.email_template_erasmus_mobility_assigned')
 
     def action_agree_destination(self):
@@ -494,7 +503,7 @@ class EmsErasmusMobility(models.Model):
         themselves; without anyone, the administrators. Students: the Erasmus team."""
         self.ensure_one()
         if self.audience != 'staff':
-            return self.env.ref('ems.group_erasmus').sudo().users.filtered(lambda user: not user.share)
+            return self.env['ems.erasmus.call']._ems_erasmus_team()
         users = self.sudo().call_id.validator_ids - self.sudo().application_id.employee_id.user_id
         return users or self.env['res.users'].sudo().search(
             [('groups_id', '=', self.env.ref('ems.group_academic_admin').id), ('share', '=', False)])

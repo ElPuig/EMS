@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from collections import Counter
-from datetime import timedelta
+from datetime import datetime, time, timedelta
 
 from markupsafe import Markup
 from pytz import UTC
@@ -62,6 +62,9 @@ class EmsErasmusCall(models.Model):
                              selection=[('draft', "Draft"), ('published', "Published"), ('closed', "Closed")])
     date_open = fields.Datetime(string="Applications open", required=True, tracking=True)
     date_close = fields.Datetime(string="Applications close", required=True, tracking=True)
+    contact_email = fields.Char(string="Contact email", tracking=True,
+                                help="Where the applicants' replies go when an email of the call is not sent by someone of "
+                                     "the Erasmus team (receipts, reminders), e.g. the Erasmus coordination's mailbox.")
     subsanation_deadline = fields.Datetime(string="Corrections deadline", tracking=True, copy=False,
                                            help="Until when applicants can upload the corrections asked for.")
     interview_deadline = fields.Datetime(string="Score correction deadline", tracking=True, copy=False,
@@ -581,6 +584,34 @@ class EmsErasmusCall(models.Model):
         if not level:
             return self.env['ems.erasmus.call.modality']
         return self.modality_ids.filtered(lambda modality: level in modality.level_ids)[:1]
+
+    def _ems_course_strike_count(self, partner):
+        """How many conduct warnings (ems.strike) `partner` has during the call's course."""
+        self.ensure_one()
+        course = self.course_id or self.env.company.current_course_id
+        if not course or partner.contact_type != 'student':
+            return 0
+        utils = self.env['ems.datetime_utils']
+        first_day = datetime.combine(course.date_range()[0], time.min, tzinfo=utils.current_tz())
+        return self.env['ems.strike'].sudo().search_count([
+            ('student_id', '=', partner.id), ('date', '>=', utils.datetime_to_odoo(first_day.astimezone(UTC)))])
+
+    @api.model
+    def _ems_conduct_blocked_count(self, count):
+        """Students' call art. 4: as many conduct warnings this course as the number that sends the
+        case to the coexistence team (res.company.strike_escalation_threshold), or more, rule a
+        student out. No threshold, no rule."""
+        threshold = self.env.company.strike_escalation_threshold
+        return threshold > 0 and count >= threshold
+
+    def _ems_conduct_blocked(self, partner):
+        self.ensure_one()
+        return self.audience == 'student' and self._ems_conduct_blocked_count(self._ems_course_strike_count(partner))
+
+    @api.model
+    def _ems_erasmus_team(self):
+        """The Erasmus team's users (coordination and mobility technicians)."""
+        return self.env.ref('ems.group_erasmus').sudo().users.filtered(lambda user: not user.share)
 
 
 class EmsErasmusCallModality(models.Model):

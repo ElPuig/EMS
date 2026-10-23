@@ -1397,6 +1397,8 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1419,6 +1421,8 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__active
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__active
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__active
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1500,6 +1504,8 @@ msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_ids
 msgid "Activities"
 msgstr "Activitats"
 
@@ -1530,6 +1536,8 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepció a una activitad"
 
@@ -1551,6 +1559,8 @@ msgstr "Decorador de la excepció a una activitad"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_state
 msgid "Activity State"
 msgstr "Estat de l'activitat"
 
@@ -1572,6 +1582,8 @@ msgstr "Estat de l'activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
@@ -2007,6 +2019,8 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -4279,6 +4293,8 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -4302,6 +4318,8 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -4323,6 +4341,8 @@ msgstr "Seguidors (Companys)"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icona de font impressionant, p. ex. tasques-fa"
 
@@ -4693,6 +4713,8 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -4900,6 +4922,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_exception_icon
 msgid "Icon"
 msgstr "Icona"
 
@@ -4921,6 +4945,8 @@ msgstr "Icona"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icona per indicar una activitat d'excepció."
 
@@ -4949,6 +4975,8 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -4990,6 +5018,10 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_has_error
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -5273,6 +5305,8 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -5911,6 +5945,8 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -5934,6 +5970,8 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -6041,6 +6079,8 @@ msgstr "Mare"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Data límit de la meva activitat"
 
@@ -6115,6 +6155,8 @@ msgstr "Nou contacte d'alumne/a"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Data límit de la següent activitat"
 
@@ -6136,6 +6178,8 @@ msgstr "Data límit de la següent activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resum de l'activitat següent"
 
@@ -6157,6 +6201,8 @@ msgstr "Resum de l'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipus d'activitat següent"
 
@@ -6375,6 +6421,8 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -6398,6 +6446,8 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -6421,6 +6471,8 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -6444,6 +6496,8 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -7111,6 +7165,8 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -7428,6 +7484,8 @@ msgstr "Detalls de la resposta"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_user_id
 msgid "Responsible User"
 msgstr "Usuari responsable"
 
@@ -7583,6 +7641,8 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -9181,6 +9241,8 @@ msgstr "Conflicte"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipus de l'activitat d'excepció registrada."
 
@@ -9367,6 +9429,8 @@ msgstr "Usuari"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__user_is_admin
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__user_is_admin
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__user_is_admin
 msgid "User Is Admin"
 msgstr "L'usuari és administrador"
 
@@ -9384,6 +9448,8 @@ msgstr "L'usuari és administrador"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__user_is_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__user_is_tutor
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__user_is_tutor
 msgid "User Is Tutor"
 msgstr "L'usuari és tutor"
 
@@ -9482,6 +9548,8 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -9505,6 +9573,8 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_offer__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -16258,6 +16328,8 @@ msgstr "Marqueu els mòduls que ja heu superat en altres estudis."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Esdeveniment de calendari de la següent activitat"
 
@@ -28304,6 +28376,7 @@ msgstr "Amb la sol·licitud"
 #. module: ems
 #. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: code:addons/ems/models/erasmus/mobility.py:0
 msgid "Write the reason for cancelling first."
 msgstr "Primer escriu el motiu de la cancel·lació."
 
@@ -30506,3 +30579,134 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "resources and training"
 msgstr "recursos i formació"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid ""
+"%s has too many conduct warnings this course to take part (art. 4 of the "
+"call): exclude the application."
+msgstr ""
+"%s té massa amonestacions aquest curs per participar-hi (art. 4 de la "
+"convocatòria): exclou la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid ""
+"<i class=\"fa fa-ban me-1\"/> You cannot apply to this call: you have too "
+"many conduct warnings this course (article 4 of the call). If you think this"
+" is a mistake, talk to the Erasmus team."
+msgstr ""
+"<i class=\"fa fa-ban me-1\"/> No pots presentar-te a aquesta convocatòria: "
+"aquest curs tens massa amonestacions (article 4 de la convocatòria). Si "
+"creus que és un error, parla amb l'equip Erasmus."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid ""
+"<i class=\"fa fa-ban me-1\"/>You cannot apply to this call: you have too "
+"many conduct warnings this course (article 4 of the call). If you think this"
+" is a mistake, talk to the Erasmus team."
+msgstr ""
+"<i class=\"fa fa-ban me-1\"/>No pots presentar-te a aquesta convocatòria: "
+"aquest curs tens massa amonestacions (article 4 de la convocatòria). Si "
+"creus que és un error, parla amb l'equip Erasmus."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+msgid "Apply for an Erasmus+ mobility and follow your application"
+msgstr "Sol·licita una mobilitat Erasmus+ i segueix la teva sol·licitud"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__conduct_blocked
+msgid ""
+"As many conduct warnings this course as the number that sends the case to "
+"the coexistence team, or more: the student cannot apply."
+msgstr ""
+"Tantes amonestacions aquest curs com les que fan saltar l'avís a "
+"convivència, o més: l'alumne no pot sol·licitar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid "Conduct this course"
+msgstr "Conducta aquest curs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__course_strike_count
+msgid "Conduct warnings this course"
+msgstr "Amonestacions aquest curs"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__contact_email
+msgid "Contact email"
+msgstr "Correu de contacte"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__can_manage
+msgid "Erasmus team or administrator."
+msgstr "Equip Erasmus o administrador."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_resolution_line
+msgid "Erasmus+ result"
+msgstr "Resultat Erasmus+"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "Erasmus+: pay the invoice %(number)s (%(amount)s)"
+msgstr "Erasmus+: pagar la factura %(number)s (%(amount)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Erasmus+: review the corrections of %s"
+msgstr "Erasmus+: revisar l'esmena de %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "Erasmus+: transfer %(amount)s to %(participant)s"
+msgstr "Erasmus+: transferir %(amount)s a %(participant)s"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application__course_strike_count
+msgid "The applicant's conduct warnings in EMS during the call's course."
+msgstr ""
+"Les amonestacions del sol·licitant a l'EMS durant el curs de la "
+"convocatòria."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__conduct_blocked
+msgid "Too many conduct warnings"
+msgstr "Massa amonestacions"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+msgid ""
+"Too many conduct warnings this course: the student cannot take part (art. 4 "
+"of the call). Exclude the application."
+msgstr ""
+"Massa amonestacions aquest curs: l'alumne no pot participar (art. 4 de la "
+"convocatòria). Exclou la sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__contact_email
+msgid ""
+"Where the applicants' replies go when an email of the call is not sent by "
+"someone of the Erasmus team (receipts, reminders), e.g. the Erasmus "
+"coordination's mailbox."
+msgstr ""
+"On arriben les respostes dels sol·licitants quan un correu de la "
+"convocatòria no l'envia ningú de l'equip Erasmus (acusaments de recepció, "
+"recordatoris), per exemple la bústia de la coordinació Erasmus."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid ""
+"You cannot apply to this call: you have too many conduct warnings this "
+"course."
+msgstr ""
+"No pots presentar-te a aquesta convocatòria: aquest curs tens massa "
+"amonestacions."

@@ -9,7 +9,7 @@ from .test_portal_erasmus import create_portal_erasmus_fixtures
 class TestErasmusTour(HttpCase):
     """Issue #683 - each Erasmus+ screen, driven by the least-privileged user that uses it: a
     student on the portal, the Erasmus team on the backend, and the Head of Studies for the
-    sanction check."""
+    read-only view."""
 
     @classmethod
     def setUpClass(cls):
@@ -40,8 +40,7 @@ class TestErasmusTour(HttpCase):
     def test_calls_tour(self):
         self.start_tour('/odoo/action-ems.action_erasmus_call', 'ems_erasmus_calls', login='test_erasmus_team')
 
-    def test_sanction_check_tour(self):
-        application = self._submitted_application()
-        self.start_tour('/odoo/action-ems.action_erasmus_application', 'ems_erasmus_sanction_check',
+    def test_head_of_studies_reads_tour(self):
+        self._submitted_application()
+        self.start_tour('/odoo/action-ems.action_erasmus_application', 'ems_erasmus_head_of_studies_reads',
                         login='test_erasmus_hos')
-        self.assertEqual(application.sanction_check, 'met')

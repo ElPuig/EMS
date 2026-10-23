@@ -38,7 +38,7 @@ They can't submit without the last mobility and the date at the centre.
 
 ## 3. Review, admit and send the plans to the panel
 
-Review the documents and admit or exclude as in the students' call (there is no serious-sanction check).
+Review the documents and admit or exclude as in the students' call (conduct warnings do not count).
 
 Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My plan ratings**, due on the **Score correction deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing.
 

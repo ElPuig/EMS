@@ -220,7 +220,8 @@ class EmsErasmusResolutionLine(models.Model):
     """Issue #685 - one applicant in a resolution, frozen when it was prepared. The published
     list identifies them only by the masked identity document (`public_id`), never by name."""
     _name = 'ems.erasmus.resolution.line'
-    _description = 'Erasmus+ resolution line'
+    # The emails' header reads "Your <description>": the applicant's result, not a technical "line".
+    _description = 'Erasmus+ result'
     _order = 'resolution_id, sequence, id'
 
     resolution_id = fields.Many2one(string="Resolution", comodel_name='ems.erasmus.resolution', required=True,
@@ -252,6 +253,10 @@ class EmsErasmusResolutionLine(models.Model):
     score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2))
     exclusion_reason = fields.Text(string="Exclusion reason",
                                    help="Only for the applicant (email and portal), never in the published list.")
+
+    def _compute_display_name(self):
+        for line in self:
+            line.display_name = f"{line.partner_id.name} - {line.resolution_id.name}"
 
     def _ems_format_score(self):
         """The total as the reader's language writes numbers, for the email."""

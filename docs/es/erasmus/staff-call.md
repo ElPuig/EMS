@@ -38,7 +38,7 @@ No puede enviar la solicitud sin la última movilidad y la fecha de incorporaci�
 
 ## 3. Revisar, admitir y enviar los planes al tribunal
 
-Revisa los documentos y admite o excluye como en la convocatoria del alumnado (no hay comprobación de sanciones graves).
+Revisa los documentos y admite o excluye como en la convocatoria del alumnado (las amonestaciones no cuentan).
 
 Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mis valoraciones de planes**, que vence el **Plazo para corregir puntuaciones** (el botón lo pide si está vacío; si lo cambias después, las tareas abiertas lo siguen). Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
 

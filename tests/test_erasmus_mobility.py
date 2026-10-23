@@ -90,6 +90,15 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertEqual(destination.free_places, 0)
         self.assertTrue(self._mails(first))
 
+    def test_assigning_a_destination_with_one_host_entity_sets_it_and_its_tutor(self):
+        first, second = self._accepted()
+        host = self.env['res.partner'].create({'name': 'Test Host School', 'is_company': True, 'is_erasmus_host': True})
+        tutor = self.env['res.partner'].create({'name': 'Test Tutor', 'parent_id': host.id, 'type': 'contact'})
+        destination = self._destinations(2)
+        destination.host_partner_ids = host
+        self.call.action_open_destination_choice()
+        self.assertEqual((first.host_partner_id, first.host_contact_id), (host, tutor))
+
     def test_choice_opens_only_after_the_definitive_resolution_with_destinations(self):
         self._scored_call()
         with self.assertRaises(UserError):
@@ -595,3 +604,20 @@ class TestPortalErasmusMobility(HttpCase, ErasmusMobilityCase):
         sign(accepted='on')
         self.assertEqual(first.commitment_guardian_signed_by_id, family_user)
         self.assertIn('o_ems_erasmus_guardian_signed', self.url_open('/my/erasmus').text)
+
+    def test_a_minor_signs_their_own_letter_whether_the_family_signed_or_not(self):
+        """The student's form shows while their own signature is missing, before or after the
+        family's, and never again once signed."""
+        first, _second = self._accepted()
+        self._minor_with_family()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        self.authenticate(self.student_user.login, self.student_user.login)
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_guardian_pending', page)
+        self.assertIn('o_ems_erasmus_commitment_sign', page)
+        self._post('commitment', accepted='on')
+        self.assertEqual(first.commitment_signed_by_id, self.student_user)
+        page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
+        self.assertIn('o_ems_erasmus_commitment_signed', page)
+        self.assertNotIn('o_ems_erasmus_commitment_sign"', page)

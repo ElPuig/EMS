@@ -16,6 +16,8 @@ In the portal, click the **Erasmus+** card. It only appears when there is a call
 
 Each call shows its dates and a link to **Read the call**. Read it before applying: it explains the requirements, the documents and how the places are awarded.
 
+If you have 3 or more conduct warnings this course, you cannot apply (article 4 of the call): instead of the **Apply** button you will see a notice. If you think it is a mistake, talk to the Erasmus team.
+
 ## 2. Fill in the application
 
 Click **Apply** and fill in the form:

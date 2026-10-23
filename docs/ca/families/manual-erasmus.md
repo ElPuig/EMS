@@ -16,6 +16,8 @@ Al portal, fes clic a la targeta **Erasmus+**. Només apareix quan hi ha una con
 
 Cada convocatòria mostra les dates i un enllaç per **Llegir la convocatòria**. Llegeix-la abans de sol·licitar: hi trobaràs els requisits, els documents i com s'adjudiquen les places.
 
+Si aquest curs acumules 3 amonestacions o més, no pots presentar-te (article 4 de la convocatòria): en lloc del botó **Sol·licita** hi veuràs un avís. Si creus que és un error, parla amb l'equip Erasmus.
+
 ## 2. Omplir la sol·licitud
 
 Fes clic a **Sol·licita** i omple el formulari:

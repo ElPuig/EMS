@@ -14,7 +14,7 @@
                     <field name="modality_id"/>
                     <field name="submit_date"/>
                     <field name="requirements_check" optional="show"/>
-                    <field name="sanction_check" optional="show"/>
+                    <field name="course_strike_count" optional="hide"/>
                     <field name="score_total" optional="hide"/>
                     <field name="score_complete" optional="hide"/>
                     <field name="state" widget="badge"
@@ -40,8 +40,6 @@
                     <filter name="excluded" string="Excluded" domain="[('state', '=', 'excluded')]"/>
                     <filter name="selected" string="Selected" domain="[('state', 'in', ('selected', 'accepted'))]"/>
                     <filter name="reserve" string="Reserve" domain="[('state', '=', 'reserve')]"/>
-                    <separator/>
-                    <filter name="sanction_pending" string="Sanction check pending" domain="[('sanction_check', '=', 'pending'), ('audience', '=', 'student'), ('state', 'not in', ('draft', 'not_submitted'))]"/>
                     <separator/>
                     <filter name="students" string="Students" domain="[('audience', '=', 'student')]"/>
                     <filter name="staff" string="Staff" domain="[('audience', '=', 'staff')]"/>
@@ -79,6 +77,9 @@
                         <field name="state" widget="statusbar" statusbar_visible="draft,submitted,admitted,selected,accepted"/>
                     </header>
                     <sheet>
+                        <div class="alert alert-warning" role="alert" invisible="not conduct_blocked or state not in ('submitted', 'subsanation')">
+                            Too many conduct warnings this course: the student cannot take part (art. 4 of the call). Exclude the application.
+                        </div>
                         <div class="oe_title">
                             <h1><field name="partner_id" readonly="1"/></h1>
                         </div>
@@ -119,12 +120,10 @@
                                         <field name="requirements_check_user_id"/>
                                         <field name="requirements_check_date"/>
                                     </group>
-                                    <group string="Serious sanctions this course" invisible="audience != 'student'">
-                                        <field name="can_check_sanction" invisible="1"/>
-                                        <field name="sanction_check" readonly="not can_check_sanction"/>
-                                        <field name="sanction_check_note" readonly="not can_check_sanction"/>
-                                        <field name="sanction_check_user_id"/>
-                                        <field name="sanction_check_date"/>
+                                    <!-- Students' call art. 4, from EMS's own conduct warnings. -->
+                                    <group string="Conduct this course" invisible="audience != 'student'">
+                                        <field name="course_strike_count"/>
+                                        <field name="conduct_blocked"/>
                                     </group>
                                 </group>
                                 <group>

@@ -19,7 +19,7 @@ class TestErasmusScoringTour(HttpCase):
         application = cls.env['ems.erasmus.application']._ems_portal_get_or_create(cls.call, cls.student)
         upload(application, cls.cv)
         application.action_submit()
-        application.write({'requirements_check': 'met', 'sanction_check': 'met'})
+        application.write({'requirements_check': 'met'})
         application.document_ids.filtered('attachment_ids').action_mark_valid()
         application.action_admit()
         cls.call.action_close()

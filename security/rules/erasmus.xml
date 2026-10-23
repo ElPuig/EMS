@@ -2,8 +2,8 @@
 <odoo>
     <data>
         <!-- Issue #683: confidential documents (e.g. evidence of fewer opportunities) are only for
-             the Erasmus team and the administrator. A Head of Studies opens the applications for
-             the serious-sanction check but never sees those files. -->
+             the Erasmus team and the administrator. A Head of Studies reads the applications
+             but never sees those files. -->
         <record id="rule_erasmus_application_document_all" model="ir.rule">
             <field name="name">Erasmus application document: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>

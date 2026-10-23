@@ -16,6 +16,8 @@ En el portal, haz clic en la tarjeta **Erasmus+**. Solo aparece cuando hay una c
 
 Cada convocatoria muestra las fechas y un enlace para **Leer la convocatoria**. Léela antes de solicitar: encontrarás los requisitos, los documentos y cómo se adjudican las plazas.
 
+Si este curso acumulas 3 amonestaciones o más, no puedes presentarte (artículo 4 de la convocatoria): en lugar del botón **Solicitar** verás un aviso. Si crees que es un error, habla con el equipo Erasmus.
+
 ## 2. Rellenar la solicitud
 
 Haz clic en **Solicitar** y rellena el formulario:

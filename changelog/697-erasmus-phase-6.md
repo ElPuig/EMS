@@ -52,7 +52,47 @@
 
 - The link to the published call (PDF) is now also on the application page, not only on the list of calls.
 
+## Erasmus+ students' call: conduct checked from EMS's own warnings, no manual sanction check:
+
+- The Head of Studies / Director no longer record a "no serious sanction" check on each
+  application (fields, filter, tour and the Head of Studies manual removed; they only read the
+  applications now). EMS has no register of disciplinary sanctions, so art. 4 is applied from the
+  conduct warnings (ems.strike): a student with as many warnings during the call's course as the
+  coexistence escalation threshold (res.company.strike_escalation_threshold, 3) or more cannot
+  apply. The portal shows them a notice instead of "Apply"; creating or submitting the application
+  is refused; and admitting is refused if the warnings came after submitting (the form warns the
+  team to exclude it). Criterion F (the penalty per warning) is unchanged. Agreed with adriamt
+  2026-10-23: "3 o más este curso", without touching anything of coexistence.
+
+## Erasmus+ tasks for the team and the Secretary:
+
+- A corrected application (submitted again after a subsanation) gives each member of the Erasmus
+  team a to-do to review it, done when they admit, exclude or ask for corrections again. New
+  applications give none (adriamt: only corrections).
+- Every grant payment requested and every invoice created gives whoever holds the Secretary role
+  a to-do ("transfer X to Y" / "pay the invoice N"), done when the transfer is registered and
+  scheduled again if it is undone; the Secretary sees them every working day in the existing
+  daily pending-tasks digest. Payments and invoices inherit ems.base (chatter and activities).
+
+## Erasmus+ call: contact email for the replies:
+
+- New field on the call, Contact email: the reply-to of the emails sent with nobody of the team
+  behind them (the application receipt, which had none, and the reminders and cron emails).
+
 # Fixes
+
+## Erasmus+ students' call: issues found walking through it as every role:
+
+- The Erasmus team could not close a call: freezing the record average created the grade lines
+  without sudo (only the administrator may create them), an AccessError.
+- A minor could never sign their own commitment letter on the portal: the form was chained after
+  the family's notices, so it only showed when neither applied; an adult got the form again after
+  signing. It now shows exactly while the participant's signature is missing.
+- The result emails' header showed "ems.erasmus.resolution.line,<id>": the line is now named
+  "<applicant> - <resolution>" and described as "Erasmus+ result".
+- Assigning a destination with a single host entity sets it on the mobility, with its tutor when
+  the entity has a single contact (it stayed empty).
+- The portal home card's text of Erasmus+ was untranslated.
 
 ## Erasmus+ staff call: issues found in the manual test run:
 

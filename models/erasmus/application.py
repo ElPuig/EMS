@@ -18,10 +18,8 @@ CHECK_STATES = [('pending', "Pending"), ('met', "Met"), ('not_met', "Not met")]
 YES_NO = [('yes', "Yes"), ('no', "No")]
 # Criterion C (art. 12): the highest language certificate.
 LANGUAGE_SCORES = {'none': 0.0, 'b1': 2.5, 'b2': 5.0, 'c1': 7.5, 'c2': 10.0}
-# What a Head of Studies who is not in the Erasmus team may write: the check reserved to them.
-SANCTION_FIELDS = {'sanction_check', 'sanction_check_note'}
 # Values set by hand that keep who set them and when (<field>_user_id, <field>_date).
-STAMPED_FIELDS = ('requirements_check', 'sanction_check', 'language_level', 'fewer_opportunities_check',
+STAMPED_FIELDS = ('requirements_check', 'language_level', 'fewer_opportunities_check',
                   'first_mobility', 'last_staff_mobility', 'seniority', 'merits_checked')
 # Application states whose data is frozen when the call closes.
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
@@ -153,15 +151,14 @@ class EmsErasmusApplication(models.Model):
     requirements_check_user_id = fields.Many2one(string="Requirements checked by", comodel_name='res.users',
                                                  readonly=True, copy=False)
     requirements_check_date = fields.Datetime(string="Requirements checked on", readonly=True, copy=False)
-    sanction_check = fields.Selection(string="No serious sanction", selection=CHECK_STATES, default='pending',
-                                      required=True, tracking=True, copy=False)
-    sanction_check_note = fields.Text(string="Sanction check note", copy=False)
-    sanction_check_user_id = fields.Many2one(string="Sanction checked by", comodel_name='res.users',
-                                             readonly=True, copy=False)
-    sanction_check_date = fields.Datetime(string="Sanction checked on", readonly=True, copy=False)
-    can_check_sanction = fields.Boolean(string="Can check sanctions", compute='_compute_permissions')
+    # Students' call art. 4: conduct is read from EMS's own conduct warnings, never checked by hand.
+    course_strike_count = fields.Integer(string="Conduct warnings this course", compute='_compute_conduct',
+                                         help="The applicant's conduct warnings in EMS during the call's course.")
+    conduct_blocked = fields.Boolean(string="Too many conduct warnings", compute='_compute_conduct',
+                                     help="As many conduct warnings this course as the number that sends the case "
+                                          "to the coexistence team, or more: the student cannot apply.")
     can_manage = fields.Boolean(string="Can manage", compute='_compute_permissions',
-                                help="Erasmus team or administrator: everything but the sanction check.")
+                                help="Erasmus team or administrator.")
     exclusion_reason = fields.Text(string="Exclusion reason", tracking=True, copy=False)
 
     # --- scoring (issue #684, art. 12 of the call) ---
@@ -280,11 +277,16 @@ class EmsErasmusApplication(models.Model):
 
     @api.depends_context('uid')
     def _compute_permissions(self):
-        can_check_sanction = self._ems_can_check_sanction()
         can_manage = self._ems_can_manage()
         for application in self:
-            application.can_check_sanction = can_check_sanction
             application.can_manage = can_manage
+
+    def _compute_conduct(self):
+        for application in self:
+            count = application.call_id._ems_course_strike_count(application.partner_id) \
+                if application.audience == 'student' else 0
+            application.course_strike_count = count
+            application.conduct_blocked = application.call_id._ems_conduct_blocked_count(count)
 
     @api.depends('interview_ids.state', 'interview_ids.general_score', 'interview_ids.english_score',
                  'single_interview_reason')
@@ -450,12 +452,8 @@ class EmsErasmusApplication(models.Model):
     def write(self, vals):
         if 'state' in vals and not self.env.context.get('ems_erasmus_state'):
             raise UserError(_("The state of an application only changes through its actions."))
-        if not self.env.su:
-            touched = set(vals)
-            if touched & SANCTION_FIELDS and not self._ems_can_check_sanction():
-                raise AccessError(_("Only the Head of Studies or the Director record the serious sanction check."))
-            if touched - SANCTION_FIELDS and not self._ems_can_manage():
-                raise AccessError(_("Only the Erasmus team changes an application."))
+        if not self.env.su and not self._ems_can_manage():
+            raise AccessError(_("Only the Erasmus team changes an application."))
         now = fields.Datetime.now()
         for name in STAMPED_FIELDS:
             if name in vals:
@@ -477,18 +475,22 @@ class EmsErasmusApplication(models.Model):
             if not to_correct:
                 raise UserError(_("Mark which documents need changes before asking for corrections."))
             to_correct.sudo().correction_requested = True
+        self._ems_activities_done()
         self._ems_set_state('subsanation')
         self._ems_send('ems.email_template_erasmus_application_subsanation')
 
     def action_admit(self):
         for application in self:
             application._ems_check_state(('submitted',))
-            if application.requirements_check != 'met' or (
-                    application.audience == 'student' and application.sanction_check != 'met'):
+            if application.requirements_check != 'met':
                 raise UserError(_("Every admission check must be met to admit %s.", application.partner_id.name))
+            if application.conduct_blocked:
+                raise UserError(_("%s has too many conduct warnings this course to take part (art. 4 of the call): "
+                                  "exclude the application.", application.partner_id.name))
             if application.document_ids.filtered(lambda line: line.is_required and line.review_state != 'valid'):
                 raise UserError(_("Every required document of %s must be valid to admit the application.",
                                   application.partner_id.name))
+        self._ems_activities_done()
         self._ems_set_state('admitted')
 
     def action_exclude(self):
@@ -497,6 +499,7 @@ class EmsErasmusApplication(models.Model):
             application._ems_check_state(('submitted', 'subsanation', 'admitted'))
             if not (application.exclusion_reason or '').strip():
                 raise UserError(_("Write the exclusion reason first."))
+        self._ems_activities_done()
         self._ems_set_state('excluded')
 
     def action_back_to_review(self):
@@ -618,7 +621,7 @@ class EmsErasmusApplication(models.Model):
     def _ems_freeze_scoring_data(self):
         """Copy the record average (A) and the conduct warnings (F) as EMS has them now: what the
         selection is based on, never recomputed afterwards."""
-        Grade = self.env['ems.erasmus.application.grade']
+        Grade = self.env['ems.erasmus.application.grade'].sudo()
         for application in self.sudo():
             grades = application._ems_grade_values()
             hours = sum(vals['hours'] for vals in grades)
@@ -695,6 +698,8 @@ class EmsErasmusApplication(models.Model):
             return application
         if call not in partner._ems_erasmus_calls():
             raise UserError(_("You cannot apply to this call."))
+        if call._ems_conduct_blocked(partner):
+            raise UserError(_("You cannot apply to this call: you have too many conduct warnings this course."))
         if not call.is_accepting:
             raise UserError(_("This call is not accepting applications."))
         if call.audience == 'staff':
@@ -751,10 +756,13 @@ class EmsErasmusApplication(models.Model):
 
     def action_submit(self):
         """Submit (or submit again) the application: every required document needs a file. Emails
-        the applicant a receipt with the files received."""
+        the applicant a receipt with the files received. A correction the team was waiting for
+        becomes a task for the Erasmus team to review it."""
         for application in self:
             if not (application._ems_portal_editable() or application._ems_subsanation_open()):
                 raise UserError(_("The application can no longer be submitted."))
+            if application.conduct_blocked:
+                raise UserError(_("You cannot apply to this call: you have too many conduct warnings this course."))
             missing = application.document_ids.filtered(lambda line: line.is_required and not line.attachment_ids)
             if missing:
                 raise UserError(_("Upload the required documents first: %s", ", ".join(missing.mapped('name'))))
@@ -767,10 +775,12 @@ class EmsErasmusApplication(models.Model):
                 raise UserError(_("Fill in every section of the mobility plan: the activity, the host entity or "
                                   "course, the destination, the dates, why you chose them, the objectives and the "
                                   "application to your job."))
+        corrected = self.filtered(lambda application: application.state == 'subsanation')
         self._ems_set_state('submitted')
         self.sudo().write({'submit_date': fields.Datetime.now()})
         self.document_ids.sudo().correction_requested = False
         self._ems_send('ems.email_template_erasmus_application_submitted')
+        corrected._ems_ask_review()
 
     # --- helpers -----------------------------------------------------------------------------
 
@@ -788,8 +798,19 @@ class EmsErasmusApplication(models.Model):
     def _ems_set_state(self, state):
         self.with_context(ems_erasmus_state=True).sudo().write({'state': state})
 
-    def _ems_can_check_sanction(self):
-        return self.env.su or self.env.user.has_group('ems.group_head_of_studies')
+    def _ems_ask_review(self):
+        """A task for each member of the Erasmus team to review the corrected application; it is
+        marked done when the team admits, excludes or asks for corrections again."""
+        activity_type = self.env.ref('mail.mail_activity_data_todo')
+        team = self.env['ems.erasmus.call']._ems_erasmus_team()
+        for application in self:
+            for user in team:
+                application.sudo().activity_schedule(
+                    activity_type_id=activity_type.id, user_id=user.id,
+                    summary=_("Erasmus+: review the corrections of %s", application.partner_id.name))
+
+    def _ems_activities_done(self):
+        self.sudo().activity_ids.action_feedback()
 
     def _ems_can_manage(self):
         user = self.env.user

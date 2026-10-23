@@ -21,6 +21,7 @@ Go to **Erasmus+ > Calls** and click **New**:
 | Published call | The PDF of the call, which students can download from the portal |
 | Applications open / close | When students can apply. After the closing date nobody can change their application |
 | Corrections deadline | Until when applicants can upload the corrections you ask for. You can fill it in later |
+| Contact email | The Erasmus+ coordination's mailbox (for example, the centre's Erasmus one). Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) arrive here |
 
 **Modalities** tab: one line per selection list with its own places, for example *GM* and *GS*. In **Levels** choose the levels whose students apply in that modality (for example *CFGM* for GM, and *CFGS* and the specialisation courses for GS, whose students go on the higher education project). Any student whose main group is of one of those levels can apply, whatever their year. Also fill in the project, places, period and destinations.
 
@@ -42,24 +43,24 @@ In **Actions**, click **Publish**. The call appears on the portal of every stude
 
 ## 3. Review the applications
 
-Go to **Erasmus+ > Applications** (or the **Applications** button on the call). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded* and *Sanction check pending*.
+Go to **Erasmus+ > Applications** (or the **Applications** button on the call). Filters: *To review*, *Corrections requested*, *Admitted*, *Excluded*.
 
 Open an application:
 
 - **Documents** tab: each document with its files. Every file the student uploaded is kept, also the earlier versions. Mark each one as **Valid** (✓) or **Needs changes** (✗), and write a **Comment for the applicant** when it needs changes.
 - **Admission** tab:
     - **Requirements**: enrolled in a level of the call, no previous Erasmus+ internship in this cycle, family authorization if a minor. EMS records who checked it and when.
-    - **Serious sanctions this course**: recorded by the Head of Studies or the Director, not by the Erasmus team.
+    - **Conduct this course**: the **conduct warnings** the student has in EMS during the call's course. With as many as the number that sends the case to the coexistence team (3, the EMS setting) or more, **Too many conduct warnings** is ticked and the student cannot take part (article 4 of the call). EMS checks it on its own: nobody records it by hand.
     - **Exclusion reason**, if the application is excluded.
 - **Answers** tab: what the student answered in the form.
 
 ## 4. Ask for corrections
 
-When a document needs changes or a required one is missing, mark it and click **Actions > Request corrections**. The student receives an email with the list and the call's corrections deadline, and can upload only those documents. When they submit again, the application is back to *Submitted* and the new files are pending review.
+When a document needs changes or a required one is missing, mark it and click **Actions > Request corrections**. The student receives an email with the list and the call's corrections deadline, and can upload only those documents. When they submit again, the application is back to *Submitted*, the new files are pending review and each member of the Erasmus team gets a task to review it (also in their daily summary of pending tasks). The task is closed on its own when you admit it, exclude it or ask for corrections again.
 
 ## 5. Admit or exclude
 
-- **Admit**: both admission checks must be *Met* and every required document *Valid*.
+- **Admit**: the requirements must be *Met*, every required document *Valid* and the student cannot have too many conduct warnings. If the warnings came after the application was submitted, the form warns about it at the top: exclude it.
 - **Exclude**: write the exclusion reason first. It also works on an admitted application, for example when the student does not attend the interview.
 - **Back to review** undoes either decision.
 

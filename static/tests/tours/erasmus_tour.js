@@ -82,8 +82,8 @@ registry.category("web_tour.tours").add("ems_erasmus_review", {
             run: 'select "met"',
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='sanction_check'] span",
-            content: "The sanction check is read-only for the Erasmus team",
+            trigger: ".o_form_view .o_field_widget[name='course_strike_count']",
+            content: "The conduct warnings of this course come from EMS",
         },
         {
             trigger: ".o_form_view .o_form_button_save",
@@ -126,8 +126,8 @@ registry.category("web_tour.tours").add("ems_erasmus_calls", {
     ],
 });
 
-// The Head of Studies records the serious-sanction check, the one thing reserved to them.
-registry.category("web_tour.tours").add("ems_erasmus_sanction_check", {
+// The Head of Studies reads the applications; the conduct check comes from EMS on its own.
+registry.category("web_tour.tours").add("ems_erasmus_head_of_studies_reads", {
     test: true,
     url: "/odoo/action-ems.action_erasmus_application",
     steps: () => [
@@ -142,18 +142,12 @@ registry.category("web_tour.tours").add("ems_erasmus_sanction_check", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='sanction_check'] select",
-            content: "Record that there is no serious sanction",
-            run: 'select "met"',
+            trigger: ".o_form_view .o_field_widget[name='course_strike_count']",
+            content: "The conduct warnings of this course are shown",
         },
         {
-            trigger: ".o_form_view .o_form_button_save",
-            content: "Save",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view .o_form_saved",
-            content: "Saved",
+            trigger: ".o_form_view .o_field_widget[name='requirements_check'] span",
+            content: "Everything is read-only for the Head of Studies",
         },
     ],
 });

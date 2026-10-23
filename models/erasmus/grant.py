@@ -2,7 +2,7 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
-from odoo.tools import float_round
+from odoo.tools import float_round, formatLang
 
 # What the centre may pay directly out of a participant's grant (issue #697).
 CONCEPTS = [('travel', "Travel"), ('accommodation', "Accommodation"), ('course', "Course fees"), ('other', "Other")]
@@ -25,6 +25,25 @@ def _transfer_wizard_action(records):
         'view_mode': 'form', 'target': 'new',
         'context': {f'default_{"payment" if records._name == "ems.erasmus.payment" else "invoice"}_ids': records.ids},
     }
+
+
+def _secretary_users(env):
+    """Who pays: whoever holds the Secretary role (ems.role_secretary); without anyone, the
+    administrators."""
+    users = env['hr.employee'].sudo().search([('role_ids', '=', env.ref('ems.role_secretary').id)]).user_id
+    return users.filtered(lambda user: not user.share) or env['res.users'].sudo().search(
+        [('groups_id', '=', env.ref('ems.group_academic_admin').id), ('share', '=', False)])
+
+
+def _ask_transfer(records):
+    """A task for the Secretary per payment or invoice to pay: it shows in their daily summary of
+    pending tasks until the transfer is registered."""
+    activity_type = records.env.ref('mail.mail_activity_data_todo')
+    users = _secretary_users(records.env)
+    for record in records.sudo():
+        for user in users:
+            record.activity_schedule(activity_type_id=activity_type.id, user_id=user.id,
+                                     summary=record._ems_transfer_summary())
 
 
 def _check_payer(env):
@@ -57,6 +76,7 @@ class EmsErasmusInvoice(models.Model):
     each share editable afterwards."""
     _name = 'ems.erasmus.invoice'
     _description = 'Erasmus+ invoice'
+    _inherit = ['ems.base']
     _order = 'date desc, id desc'
 
     name = fields.Char(string="Invoice number", required=True)
@@ -93,6 +113,7 @@ class EmsErasmusInvoice(models.Model):
     def create(self, vals_list):
         invoices = super().create(vals_list)
         invoices._ems_split()
+        _ask_transfer(invoices)
         return invoices
 
     def write(self, vals):
@@ -134,6 +155,11 @@ class EmsErasmusInvoice(models.Model):
                 'description': invoice._ems_share_description(), 'amount': share + (remainder if index == 0 else 0),
             } for index, mobility in enumerate(mobilities)])
 
+    def _ems_transfer_summary(self):
+        self.ensure_one()
+        return _("Erasmus+: pay the invoice %(number)s (%(amount)s)", number=self.name,
+                 amount=formatLang(self.env, self.amount, currency_obj=self.currency_id))
+
     def _ems_share_description(self):
         self.ensure_one()
         return self.description or _("Invoice %s", self.name)
@@ -146,6 +172,7 @@ class EmsErasmusPayment(models.Model):
     paid."""
     _name = 'ems.erasmus.payment'
     _description = 'Erasmus+ grant payment'
+    _inherit = ['ems.base']
     _order = 'state desc, request_date, id'
 
     mobility_id = fields.Many2one(string="Mobility", comodel_name='ems.erasmus.mobility', required=True,
@@ -168,6 +195,22 @@ class EmsErasmusPayment(models.Model):
                                         "several payments.")
     bank_account = fields.Char(string="IBAN", compute='_compute_bank_account')
     bank_holder = fields.Char(string="Account holder", compute='_compute_bank_account')
+
+    def _compute_display_name(self):
+        kinds = dict(self._fields['kind']._description_selection(self.env))
+        for payment in self:
+            payment.display_name = f"{payment.partner_id.name} - {kinds.get(payment.kind, '')}"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        payments = super().create(vals_list)
+        _ask_transfer(payments)
+        return payments
+
+    def _ems_transfer_summary(self):
+        self.ensure_one()
+        return _("Erasmus+: transfer %(amount)s to %(participant)s", participant=self.partner_id.name,
+                 amount=formatLang(self.env, self.amount, currency_obj=self.currency_id))
 
     def _compute_bank_account(self):
         """The participant's first bank account, the one EMS keeps from enrolment (a family's,
@@ -205,6 +248,10 @@ def _mark_paid(records, paid_date, receipts=None):
     if paid_date and receipts:
         vals['receipt_ids'] = [(4, receipt.id) for receipt in receipts]
     records.with_context(ems_erasmus_payment_state=True).sudo().write(vals)
+    if paid_date:
+        records.sudo().activity_ids.action_feedback()
+    else:
+        _ask_transfer(records)
 
 
 class EmsErasmusTransferWizard(models.TransientModel):

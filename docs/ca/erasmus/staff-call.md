@@ -38,7 +38,7 @@ No pot enviar la sol·licitud sense l'última mobilitat i la data d'incorporaci�
 
 ## 3. Revisar, admetre i enviar els plans al tribunal
 
-Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (no hi ha la comprovació de sancions greus).
+Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (les amonestacions no hi compten).
 
 Omple la pestanya **Tribunal** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després de **Tanca les sol·licituds**, fes clic a **Accions > Envia els plans al tribunal**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > Les meves valoracions de plans**, que venç el **Termini per corregir puntuacions** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
 

@@ -73,6 +73,7 @@
                                 <field name="course_id"/>
                                 <field name="rules_document" filename="rules_filename"/>
                                 <field name="rules_filename" invisible="1"/>
+                                <field name="contact_email" widget="email"/>
                             </group>
                             <group>
                                 <field name="date_open"/>

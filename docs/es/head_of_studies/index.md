@@ -12,7 +12,6 @@ Esta sección contiene los manuales para **Jefatura de Estudios, Jefatura de Est
 
 - [Histórico académico: consultas de cohorte](academic-history.md)
 - [Convalidaciones: revisar y resolver las solicitudes](convalidations.md) — Revisar cada módulo y hacer la propuesta (Jefatura de Estudios), resolverla oficialmente (Dirección) o tramitarla con el Ministerio.
-- [Erasmus+: comprobar las sanciones graves](erasmus-sanctions.md) — Registrar, para cada solicitud Erasmus+, si el alumno tiene alguna sanción grave este curso.
 - [Erasmus+: validar las actividades del personal](erasmus-staff-validation.md) — La dirección valida la actividad, la entidad, el destino y las fechas de cada persona seleccionada del personal.
 - [Asistencia a reuniones con la tarjeta NFC](../secretary/meeting-attendance.md) — Confirmar la asistencia a un claustro o a una reunión con el lector NFC de la entrada (manual compartido con secretaría).
 - [Programaciones docentes: definir las ponderaciones de la calificación](planning.md)

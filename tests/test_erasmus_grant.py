@@ -129,6 +129,34 @@ class TestErasmusGrant(ErasmusGrantCase):
         team_payment.unlink()
         self.assertFalse(first.payment_ids)
 
+    def test_every_payment_or_invoice_to_pay_is_a_task_for_the_secretary(self):
+        """The Secretary (role) gets one task per amount to transfer, in their daily summary of
+        pending tasks, until the transfer is registered; undoing it brings the task back."""
+        # The Secretary role comes from managing the top-level Secretary department (one per centre).
+        secretary = self.env['hr.employee'].create({'name': 'Test Secretary', 'user_id': self.secretary_user.id,
+                                                    'employee_type': 'teacher'})
+        department = self.env['hr.department'].search([('top_level_role', '=', 'secretary')], limit=1)
+        if department:
+            department.manager_id = secretary
+        else:
+            self.env['hr.department'].create({'name': 'Test Secretary Department', 'is_top_level': True,
+                                              'top_level_area': 'asp', 'top_level_role': 'secretary',
+                                              'manager_id': secretary.id})
+        self.assertIn(self.env.ref('ems.role_secretary'), secretary.role_ids)
+        first, second = self._preparing()
+        first.grant_amount = 1000
+        first.action_request_prefinancing()
+        payment = first.payment_ids
+        invoice = self._invoice(first | second, 300)
+        for record in (payment, invoice):
+            self.assertEqual(record.activity_ids.user_id, self.secretary_user)
+        self.assertIn(first.partner_id.name, payment.activity_ids.summary)
+        self._transfer(payment, self.secretary_user)
+        self._transfer(invoice, self.secretary_user)
+        self.assertFalse(payment.activity_ids | invoice.activity_ids)
+        payment.with_user(self.secretary_user).action_mark_unpaid()
+        self.assertEqual(payment.activity_ids.user_id, self.secretary_user)
+
     def test_one_transfer_pays_several_payments_with_one_receipt(self):
         first, second = self._preparing()
         (first | second).write({'grant_amount': 1000, 'prefinancing_percent': 100})

@@ -60,17 +60,21 @@
                             <div t-if="application" t-attf-class="mb-2 o_ems_erasmus_application o_ems_erasmus_state_#{application.state}">
                                 Your application: <span class="badge text-bg-secondary" t-esc="state_labels.get(application.state)"/>
                             </div>
+                            <!-- Students' call art. 4: too many conduct warnings this course. -->
+                            <p t-if="call in blocked and (not application or application.state == 'draft')" class="alert alert-warning small mb-2 o_ems_erasmus_blocked">
+                                <i class="fa fa-ban me-1"/>You cannot apply to this call: you have too many conduct warnings this course (article 4 of the call). If you think this is a mistake, talk to the Erasmus team.
+                            </p>
                             <t t-if="application">
                                 <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_open">
                                     <i class="fa fa-folder-open me-1"/>See my application
                                 </a>
                             </t>
-                            <t t-elif="call.is_accepting">
+                            <t t-elif="call.is_accepting and call not in blocked">
                                 <a t-attf-href="/my/erasmus/call/#{call.id}" class="btn btn-primary btn-sm o_ems_erasmus_apply">
                                     <i class="fa fa-pencil me-1"/>Apply
                                 </a>
                             </t>
-                            <p t-else="" class="text-muted small mb-0">This call is not accepting applications.</p>
+                            <p t-elif="call not in blocked" class="text-muted small mb-0">This call is not accepting applications.</p>
                         </div>
                     </div>
                 </t>
@@ -101,7 +105,10 @@
                 <div t-if="error" class="alert alert-danger mb-3 o_ems_erasmus_error">
                     <i class="fa fa-exclamation-triangle me-1"/> It could not be saved: check that the application is still open and that every required document is attached.
                 </div>
-                <div t-if="application.state == 'subsanation'" class="alert alert-warning mb-3 o_ems_erasmus_subsanation">
+                <div t-if="blocked" class="alert alert-warning mb-3 o_ems_erasmus_blocked">
+                    <i class="fa fa-ban me-1"/> You cannot apply to this call: you have too many conduct warnings this course (article 4 of the call). If you think this is a mistake, talk to the Erasmus team.
+                </div>
+                <div t-if="application.state == 'subsanation' and not blocked" class="alert alert-warning mb-3 o_ems_erasmus_subsanation">
                     <i class="fa fa-exclamation-circle me-1"/> The Erasmus team asks you to correct the documents marked below<t t-if="call.subsanation_deadline">, before
                     <strong t-out="call.subsanation_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></t>.
                 </div>
@@ -519,7 +526,7 @@
                         <i class="fa fa-check-circle me-1"/>Your family signed it on
                         <t t-out="mobility.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
                     </div>
-                    <form t-elif="mobility.state == 'preparing'" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
+                    <form t-if="mobility.state == 'preparing' and mobility.commitment_pending" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <div class="border rounded p-3 mb-2 small" t-out="mobility._ems_commitment_text()"/>
                         <div class="form-check mb-2">

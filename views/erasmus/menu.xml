@@ -2,7 +2,7 @@
 <odoo>
     <data>
         <!-- Issue #683: the Erasmus team manages calls and applications; the Head of Studies and
-             the Director open the applications for the serious-sanction check. Issue #684: whoever has
+             the Director read the applications. Issue #684: whoever has
              an interview to score (ems.group_erasmus_evaluator) sees only "My evaluations". -->
         <menuitem name="Erasmus+" sequence="9" id="menu_erasmus"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_secretary,ems.group_academic_admin"/>

@@ -87,10 +87,15 @@ stateDiagram-v2
   document missing; it emails the list and the call's `subsanation_deadline`
   (`email_template_erasmus_application_subsanation`). Those lines get `correction_requested`;
   until the deadline the applicant can upload to them only (not change the answers, nor other
-  documents) and submit again, which clears the flags.
-- **Admit** needs both admission checks met and every required document *Valid*. **Exclude**
-  needs the exclusion reason.
+  documents) and submit again, which clears the flags. Submitting a correction schedules a to-do
+  for every member of the Erasmus team (`_ems_ask_review`, `call._ems_erasmus_team()`: the
+  `ems.group_erasmus` internal users), so it shows in their daily pending-tasks digest; admitting,
+  excluding or asking for corrections again marks it done.
+- **Admit** needs the requirements met, every required document *Valid* and, in a students' call,
+  no conduct block (below). **Exclude** needs the exclusion reason.
 - Emails go only to the applicant's own address; a recipient without one is noted in the chatter.
+  Their reply-to is whoever on the team caused the email (`_ems_reply_to()`), else the call's
+  `contact_email` (receipts and reminders, sent with nobody of the team behind them).
 
 ## Documents
 
@@ -100,16 +105,23 @@ version stays. A new upload puts the line back to *Pending review*. The team mar
 
 ## Admission checks
 
-Separate from the documents, each stores result (*Pending*, *Met*, *Not met*), author and date,
-stamped by `write()`:
+**Requirements** (enrolled in a modality's level, no previous Erasmus+ internship in this cycle,
+family authorization if minor): recorded by the Erasmus team, with result (*Pending*, *Met*,
+*Not met*), author and date stamped by `write()`.
 
-| Check | Who records it |
-|---|---|
-| Requirements (enrolled in a modality's level, no previous Erasmus+ internship in this cycle, family authorization if minor) | Erasmus team |
-| No serious sanction this course | **Head of Studies or Director only** (`ems.group_head_of_studies`, which the Director implies) |
+**Conduct** (students' call, art. 4), never recorded by hand: EMS has no register of
+disciplinary sanctions, only the conduct warnings (`ems.strike`), and the coexistence team reviews
+a case each time a student reaches `res.company.strike_escalation_threshold` warnings (3 by
+default). The same number rules a student out: `call._ems_course_strike_count(partner)` counts
+their warnings since 1 September of the call's course (`ems.course.date_range()`, centre's
+timezone), and `call._ems_conduct_blocked(partner)` is true at the threshold or above (a threshold
+of 0 disables it; staff calls never). Shown on the application as `course_strike_count` and
+`conduct_blocked` (non-stored). A blocked student sees the call on the portal with a notice
+instead of *Apply*; `_ems_portal_get_or_create()` and `action_submit()` refuse them, and
+`action_admit()` refuses an application whose warnings came after submitting (the form warns the
+team to exclude it). Criterion F, the scoring's penalty per warning, is unrelated and unchanged.
 
-A Head of Studies who is not in the Erasmus team can open the applications and write only the
-sanction check and its note; any other field is refused.
+The Head of Studies and the Director read the applications; they write nothing on them.
 
 ## Portal (`controllers/portal_erasmus.py`)
 
@@ -137,7 +149,7 @@ coordinator alone approves them). The administrator is a member of both.
 | Model | Erasmus team | Head of Studies / Director | Portal |
 |---|---|---|---|
 | `ems.erasmus.call`, `.modality`, `.document` | rwcu | r | via controller (sudo) |
-| `ems.erasmus.application` | rwcu | rw (sanction check only, enforced in `write()`) | via controller |
+| `ems.erasmus.application` | rwcu | r | via controller |
 | `ems.erasmus.application.document` | rwcu | r, **not confidential ones** (`ir.rule`) | via controller |
 
 Menu *Erasmus+*: *Applications* (team, Head of Studies, Director) and *Calls* (team).
@@ -270,7 +282,7 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.resolution` | A list the Erasmus team prepares and the Erasmus coordinator approves by publishing it: `admission`, `provisional`, `definitive` or `rectification`. |
-| `ems.erasmus.resolution.line` | One applicant in it, frozen when the resolution was prepared: modality, rank, every criterion, total, result, masked identity document. |
+| `ems.erasmus.resolution.line` | One applicant in it, frozen when the resolution was prepared: modality, rank, every criterion, total, result, masked identity document. Described as "Erasmus+ result" and named "<applicant> - <resolution>", which is what the email layout's header shows. |
 | `ems.erasmus.offer` | A place offered to an applicant and their answer. |
 | `ems.erasmus.offer.wizard` | Offer a free place to the next reserve (transient). |
 | `ems.erasmus.claim` | A claim (after the provisional) or an appeal before the Director, recorded by the team. |
@@ -421,7 +433,7 @@ what differs:
 | Who sees the call on the portal | A student whose main group's level is in a modality | An internal user with an employee file (`res.partner._ems_erasmus_employee`) |
 | Modality | Computed from the level when applying; required to publish | Not needed to publish (the places may change): required before preparing the provisional resolution; the team assigns each selected person's project and period |
 | Documents | Configured per call | The three of art. 8 added on their own (`_ems_staff_documents`, on create and on the `audience` onchange); the mobility plan is written in the form, not uploaded (`PLAN_TEXT_FIELDS`, issue #697) |
-| Admission checks | Requirements + serious sanctions (Head of Studies) | Requirements only |
+| Admission checks | Requirements + conduct warnings this course (automatic) | Requirements only |
 | Scoring | Art. 12 (A-F), A and F frozen at closing | Art. 11 of the staff call (1-6): the panel, what the applicant declares (last mobility, seniority, language) and the merits the team records |
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | The sum of every modality, offered as one pool |
@@ -662,7 +674,8 @@ rejection and cancellation. Per modality:
   modality is left to choose in order, every mobility that missed its turn gets `free_choice` (and
   the turn email, without a deadline) and can choose any destination still free.
 
-Assigning copies country, city and dates from the destination and emails
+Assigning copies country, city and dates from the destination - and its host entity, with the
+entity's tutor when it has a single contact, when the destination has only one - and emails
 `email_template_erasmus_mobility_assigned`.
 
 ### Proposals and their decision
@@ -777,6 +790,13 @@ and requested again.
 write of `state`/`paid_date`/`paid_by_id`/`receipt_ids` raises, a paid payment cannot be changed or
 deleted and a paid invoice cannot be deleted. Invoices have the same `state`, `paid_date`,
 `paid_by_id` and `receipt_ids` as payments.
+
+**The Secretary's tasks:** every payment requested and every invoice created schedules a to-do for
+whoever holds the Secretary role (`ems.role_secretary`; without anyone, the administrators),
+`_ask_transfer()`; registering the transfer marks it done and undoing it schedules it again. Both
+models inherit `ems.base` for it, so the Secretary sees what is left to pay every working day in
+the daily pending-tasks digest (`docs/en/developers/shared/task_digest.md`), with no mechanism of
+its own.
 
 **Portal:** once the mobility is in preparation and has a grant, the participant sees it
 (`_ems_portal_grant()`): the grant, each provision of services, what they receive and each payment

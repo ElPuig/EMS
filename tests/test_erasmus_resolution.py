@@ -60,6 +60,16 @@ class ErasmusResolutionCase(ErasmusScoringCase):
 @tagged('post_install', '-at_install')
 class TestErasmusResolution(ErasmusResolutionCase):
 
+    def test_result_email_names_the_applicant_and_the_list(self):
+        """The email layout's header shows the line's name: never a technical reference."""
+        self._admitted()
+        self.call.action_close()
+        line = self._publish('admission').line_ids[:1]
+        self.assertTrue(line.display_name.startswith(f"{line.partner_id.name} - "))
+        bodies = self._mails(line).mapped('body_html')
+        self.assertTrue(bodies)
+        self.assertFalse([body for body in bodies if 'ems.erasmus.resolution.line,' in body])
+
     def test_published_lists_show_only_four_digits_of_the_identity_document(self):
         self.assertEqual(mask_document_id('12345678Z'), '***4567**')
         self.assertEqual(mask_document_id(' 12.345.678-z '), '***4567**')

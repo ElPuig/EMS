@@ -147,10 +147,12 @@
                                         <field name="name"/>
                                         <field name="requirement"/>
                                         <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                        <field name="project"/>
                                         <field name="sign_participant" string="Participant"/>
                                         <field name="sign_guardian" string="Legal guardian"/>
                                         <field name="sign_director" string="Director"/>
                                         <field name="sign_coordinator" string="Erasmus coordinator"/>
+                                        <field name="sign_tutor" string="Centre's tutor"/>
                                         <field name="sign_host" string="Host entity"/>
                                         <field name="due_basis"/>
                                         <field name="due_days"/>
@@ -171,6 +173,7 @@
                                         <field name="stage"/>
                                         <field name="name"/>
                                         <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                        <field name="project"/>
                                         <field name="description"/>
                                     </list>
                                 </field>

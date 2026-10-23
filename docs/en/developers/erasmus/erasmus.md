@@ -591,10 +591,11 @@ erDiagram
 **Documents.** `ems.erasmus.call.document` has a `stage`: `application` (phases 1-4), `preparation`
 or `return`. The call's `document_ids` shows only the application ones (One2many domain), so the
 application's lines and every earlier rule are unchanged; `preparation_document_ids` holds the
-other two. Each one can be limited to some modalities (`modality_ids`) and says who signs it
-outside EMS (`sign_participant`, `sign_guardian` for minors, `sign_director`, `sign_coordinator`, `sign_host`,
-shown as `signers`; by default the Director signs the grant agreement and the Erasmus coordinator
-the learning agreement and the staff mobility programme). The mobility's lines are `ems.erasmus.application.document` records with `mobility_id`
+other two. Each one (and each checklist step, `ems.erasmus.call.task`) can be limited to some
+modalities (`modality_ids`) and to one project (`project`: KA121-VET or KA131-HED, matched against
+the mobility's modality, so a default can say "VET only" before the call has modalities), and says
+who signs it outside EMS (`sign_participant`, `sign_guardian` for minors, `sign_director`,
+`sign_coordinator`, `sign_tutor`: the centre's tutor in sBID, `sign_host`; shown as `signers`). The mobility's lines are `ems.erasmus.application.document` records with `mobility_id`
 set: same review, every version kept, a new upload goes back to review. A new call gets default
 documents and steps per audience (`_ems_preparation_documents`, `_ems_preparation_tasks`: art. 17
 of the students' call, art. 15 of the staff call), editable. `_ems_sync_requirements()` adds what
@@ -616,9 +617,16 @@ Insurance Card and, for minors, the family's and the Mossos d'Esquadra's authori
 after the destination), the OLS certificate with the English level (30 days after the destination),
 the inclusion documentation (optional, confidential), the grant agreement and the learning agreement
 (`team_to_sign`, 30 days before leaving at the latest, ideally 90), the insurance policy (`team`, 30
-days before leaving) and the certificate of stay (`team_to_sign`, signed by the tutor at the host
-company, 30 days after returning). Staff: health card,
-grant agreement, insurance policy, mobility programme, certificate and report. Not asked for, EMS
+days before leaving), the sBID agreement (REF5) and activity plan (REF6) (`team`, optional: only
+when the stay is part of the work placement) and, on return, the certificate of stay (`team_to_sign`,
+signed by the tutor at the host company, 30 days after returning), the Europass mobility document
+(`team`, KA121-VET) and the recognition of ECTS credits (`team`, KA131-HED). Staff: health card,
+grant agreement, insurance policy, learning agreement, on return the Europass mobility document
+(KA121-VET) or the certificate of stay or attendance (KA131-HED: in VET the Europass document already
+certifies the activity) and the report with evidence. Signers by default: the Director signs the
+grant agreement and the sBID agreement; the Erasmus coordinator, the learning agreement and the
+Europass mobility document; the family of a minor, the grant agreement and the learning agreement
+too; the centre's tutor, the sBID activity plan. The virtual component step is KA131-HED's. Not asked for, EMS
 already has them: identity document, bank account, personal details, emergency contact.
 
 **Commitment letter** (annex 3): the call's `commitment_text` (HTML, filled in with

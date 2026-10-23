@@ -27959,12 +27959,6 @@ msgid "Mobility documents"
 msgstr "Documents de la mobilitat"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Mobility programme"
-msgstr "Programa de mobilitat"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__proposal_contact
 msgid "Name and email of the person at the host entity."
 msgstr "Nom i correu de la persona de l'entitat d'acollida."
@@ -28348,12 +28342,6 @@ msgstr "Puja el compromís per escrit de l'entitat d'acollida."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Validate the proposal"
 msgstr "Valida la proposta"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "Virtual component (GS)"
-msgstr "Component virtual (GS)"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__proposal_state__pending
@@ -29262,16 +29250,6 @@ msgstr "Signada pel familiar"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__commitment_guardian_signed_date
 msgid "Signed by the family on"
 msgstr "Signada per la família el"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid ""
-"The Erasmus team uploads it for your tutor at the host company to sign at "
-"the end of the stay. Upload it signed within a month of your return."
-msgstr ""
-"L'equip Erasmus el puja perquè el signi el teu tutor a l'empresa d'acollida "
-"en acabar l'estada. Puja'l signat dins del mes següent a la tornada."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
@@ -30733,3 +30711,86 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "erasmus@example.com"
 msgstr "erasmus@example.com"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "centre's tutor"
+msgstr "tutor/a del centre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Virtual component"
+msgstr "Component virtual"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Europass mobility document"
+msgstr "Document de mobilitat Europass"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "It certifies what you learned during the stay. The Erasmus team issues it after the mobility and uploads it for you to download."
+msgstr "Acredita el que has après durant l'estada. L'equip Erasmus l'emet després de la mobilitat i el puja perquè el puguis descarregar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "It must state the dates, the tasks done and the project number."
+msgstr "Ha d'indicar les dates, les tasques fetes i el número del projecte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "sBID agreement (REF5)"
+msgstr "Conveni del sBID (REF5)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "sBID activity plan (REF6)"
+msgstr "Pla d'activitats del sBID (REF6)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "When the stay is part of the work placement: the Erasmus team uploads it from sBID."
+msgstr "Quan l'estada forma part de la formació en empresa: l'equip Erasmus el puja des del sBID."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Recognition of ECTS credits"
+msgstr "Reconeixement dels crèdits ECTS"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "The centre's recognition of the stay's ECTS credits. The Erasmus team uploads it."
+msgstr "El reconeixement dels crèdits ECTS de l'estada per part del centre. El puja l'equip Erasmus."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "The Erasmus team uploads it for your tutor at the host company to sign at the end of the stay. It must state the dates, the tasks done and the project number. Upload it signed within a month of your return."
+msgstr "L'equip Erasmus el puja perquè el signi el teu tutor a l'empresa d'acollida en acabar l'estada. Ha d'indicar les dates, les tasques fetes i el número del projecte. Puja'l signat dins del mes següent a la tornada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__project
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__project
+msgid "Only for project"
+msgstr "Només per al projecte"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_tutor
+msgid "Signed by the centre's tutor"
+msgstr "Signat pel tutor/a del centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Centre's tutor"
+msgstr "Tutor/a del centre"

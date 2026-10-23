@@ -75,9 +75,19 @@ class TestErasmusMobility(ErasmusMobilityCase):
 
     def test_the_director_signs_the_grant_agreement_and_the_coordinator_the_learning_agreement(self):
         documents = self.call.preparation_document_ids
-        self.assertEqual(documents.filtered('sign_director').mapped('name'), ["Grant agreement"])
-        self.assertEqual(documents.filtered('sign_coordinator').mapped('name'), ["Learning agreement"])
-        self.assertIn('Erasmus coordinator', documents.filtered('sign_coordinator').signers)
+        grant, learning = (documents.filtered(lambda document, name=name: document.name == name)
+                           for name in ("Grant agreement", "Learning agreement"))
+        self.assertEqual(grant.signers, "participant, legal guardian, director")
+        self.assertEqual(learning.signers, "participant, legal guardian, Erasmus coordinator, host entity")
+
+    def test_project_documents_and_steps_only_reach_that_project(self):
+        """The test modality is KA121-VET: it gets the Europass mobility document, never the
+        recognition of ECTS credits nor the virtual component, which are KA131-HED's."""
+        first, _second = self._accepted()
+        names = first.document_ids.call_document_id.mapped('name')
+        self.assertIn("Europass mobility document", names)
+        self.assertNotIn("Recognition of ECTS credits", names)
+        self.assertNotIn("Virtual component", first.task_ids.call_task_id.mapped('name'))
 
     def test_documents_only_for_some_modalities(self):
         gs_only = self.env['ems.erasmus.call.document'].create({
@@ -513,9 +523,12 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         self.assertIn(only_june, mobility.document_ids.call_document_id)
 
     def test_staff_calls_get_the_staff_mobility_documents(self):
-        names = self.staff_call.preparation_document_ids.mapped('name')
-        self.assertIn('Mobility programme', names)
-        self.assertIn('Report with evidence', names)
+        documents = self.staff_call.preparation_document_ids
+        learning = documents.filtered(lambda document: document.name == 'Learning agreement')
+        self.assertEqual(learning.signers, "participant, Erasmus coordinator, host entity")
+        self.assertIn('Report with evidence', documents.mapped('name'))
+        certificate = documents.filtered(lambda document: document.name == 'Certificate of stay or attendance')
+        self.assertEqual(certificate.project, 'ka131_hed', "KA121-VET staff get the Europass mobility document instead.")
         self.assertEqual(len(self.staff_call.document_ids), 2, "The application documents are unchanged.")
 
 

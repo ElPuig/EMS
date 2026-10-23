@@ -6,6 +6,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 from .application import STAFF_ACTIVITIES
+from .call import PROJECTS
 
 # A mobility still going on: its place is held and a graduate keeps the portal (issue #687).
 OPEN_STATES = ('choosing', 'preparing')
@@ -77,6 +78,8 @@ class EmsErasmusCallTask(models.Model):
     stage = fields.Selection(string="When", selection=STAGES, required=True, default='preparation')
     modality_ids = fields.Many2many(string="Only for modalities", comodel_name='ems.erasmus.call.modality',
                                     domain="[('call_id', '=', call_id)]", help="Empty: every modality.")
+    project = fields.Selection(string="Only for project", selection=PROJECTS,
+                               help="Only for the modalities of this project. Empty: both projects.")
     description = fields.Text(string="Instructions", help="Shown to the participant on the portal.")
 
 
@@ -321,7 +324,8 @@ class EmsErasmusMobility(models.Model):
             call, modality = mobility.call_id, mobility.modality_id
 
             def applies(record):
-                return not record.modality_ids or modality in record.modality_ids
+                return (not record.modality_ids or modality in record.modality_ids) and \
+                    (not record.project or record.project == modality.project)
 
             documents = call.preparation_document_ids.filtered(applies) - mobility.document_ids.call_document_id
             Line.create([{'application_id': mobility.application_id.id, 'mobility_id': mobility.id,

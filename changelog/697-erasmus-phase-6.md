@@ -86,6 +86,19 @@
   coordinator (by default, the learning agreement and the staff mobility programme), as the centre actually signs
   them. Shown in the call's Mobility documents tab and on the participant's portal card.
 
+## Erasmus+ mobility documents per project, sBID and ECTS:
+- A call's documents and checklist steps can be limited to one project (KA121-VET or KA131-HED), matched against the
+  mobility's modality, so the defaults no longer depend on each call's modalities.
+- New default documents: the Europass mobility document (KA121-VET, issued by the team and signed by the Erasmus
+  coordinator), the recognition of ECTS credits (KA131-HED, uploaded by the team) and, for students whose stay is
+  part of the work placement, the sBID agreement (REF5) and activity plan (REF6), uploaded by the team; a new signer,
+  the centre's tutor in sBID.
+- Staff: the "mobility programme" is now the learning agreement; the certificate of stay or attendance is only asked
+  for in KA131-HED, since the Europass mobility document already certifies a KA121-VET activity.
+- Students: the family of a minor also signs the grant agreement and the learning agreement; the certificate of stay
+  must state the dates, the tasks done and the project number; the virtual component step is KA131-HED only (it
+  reached GM students too).
+
 # Fixes
 
 ## Erasmus+ students' call: issues found walking through it as every role:

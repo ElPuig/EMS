@@ -260,16 +260,25 @@ class EmsErasmusCall(models.Model):
         """Travel documents and the OLS certificate: a month after the destination is set. The
         agreements the Erasmus team fills in: signed a month before leaving at the latest (ideally
         three); the insurance policy, uploaded a month before leaving. Return documents: a month
-        after the end."""
+        after the end. The Director signs the grant agreement; the Erasmus coordinator, the learning
+        agreement and the Europass mobility document (KA121-VET only); KA131-HED gets the
+        recognition of ECTS credits instead."""
         health_card = {'name': _("European Health Insurance Card"), 'sepie_folder': '05_Seguros',
                        'description': _("Requested at the Social Security's electronic office.")}
         insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start',
                      'sepie_folder': '05_Seguros',
                      'description': _("The Erasmus team uploads it for you to keep.")}
-        # The Director signs the grant agreement, the Erasmus coordinator the learning agreement.
         agreement = {'due_basis': 'before_start', 'handled_by': 'team_to_sign', 'sign_participant': True,
                      'description': _(
                          "The Erasmus team uploads it filled in. Ideally signed three months before leaving.")}
+        grant_agreement = {**agreement, 'name': _("Grant agreement"), 'sign_director': True}
+        learning_agreement = {**agreement, 'name': _("Learning agreement"), 'sign_coordinator': True,
+                              'sign_host': True}
+        europass = {'stage': 'return', 'name': _("Europass mobility document"), 'handled_by': 'team',
+                    'project': 'ka121_vet', 'sign_coordinator': True, 'description': _(
+                        "It certifies what you learned during the stay. The Erasmus team issues it after the mobility "
+                        "and uploads it for you to download.")}
+        stay_description = _("It must state the dates, the tasks done and the project number.")
         # Issue #697: the tickets or boarding passes, kept for the project's dossier (travel).
         travel_proof = {'stage': 'return', 'name': _("Tickets or boarding passes"), 'requirement': 'optional',
                         'sepie_folder': '07_Viajes', 'description': _(
@@ -278,18 +287,24 @@ class EmsErasmusCall(models.Model):
         if audience == 'staff':
             documents = [
                 health_card,
-                {**agreement, 'name': _("Grant agreement"), 'sign_director': True},
+                grant_agreement,
                 insurance,
-                {'name': _("Mobility programme"), 'due_basis': 'before_start', 'sign_participant': True,
-                 'sign_coordinator': True, 'sign_host': True,
-                 'description': _("Activities, dates and expected results, agreed with the host entity.")},
-                {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True},
+                {**learning_agreement, 'handled_by': 'participant', 'description': _(
+                    "Activities, dates and expected results, agreed with the host entity.")},
+                # KA121-VET: the Europass mobility document already certifies the activity.
+                {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True,
+                 'project': 'ka131_hed', 'description': stay_description},
+                europass,
                 travel_proof,
                 {'stage': 'return', 'name': _("Report with evidence"), 'sign_participant': True,
                  'sepie_folder': '13_EvaluacionImpactoDifusion',
                  'description': _("A short report with evidence, within a month of your return.")},
             ]
         else:
+            # sBID (the Department of Education's work placement application): the Erasmus team
+            # uploads its agreement (REF5) and activity plan (REF6), signed outside EMS.
+            sbid = {'handled_by': 'team', 'requirement': 'optional', 'due_basis': 'before_start',
+                    'sepie_folder': '04_ConveniosParticipantes'}
             documents = [
                 {**health_card, 'description': _(
                     "Both sides, valid for the whole stay. Requested at the Social Security's electronic office: upload "
@@ -305,14 +320,25 @@ class EmsErasmusCall(models.Model):
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
                  'sepie_folder': '03_Vinculacion',
                  'description': _("Processed with the Mossos d'Esquadra.")},
-                {**agreement, 'name': _("Grant agreement"), 'sign_director': True},
-                {**agreement, 'name': _("Learning agreement"), 'sign_coordinator': True, 'sign_host': True,
-                 'description': _("GM: learning agreement. GS: Learning Agreement for Traineeships. The Erasmus "
-                                  "team uploads it filled in. Ideally signed three months before leaving.")},
+                {**grant_agreement, 'sign_guardian': True},
+                {**learning_agreement, 'sign_guardian': True, 'description': _(
+                    "GM: learning agreement. GS: Learning Agreement for Traineeships. The Erasmus team uploads it "
+                    "filled in. Ideally signed three months before leaving.")},
+                {**sbid, 'name': _("sBID agreement (REF5)"), 'sign_director': True, 'sign_participant': True,
+                 'sign_host': True, 'description': _(
+                     "When the stay is part of the work placement: the Erasmus team uploads it from sBID.")},
+                {**sbid, 'name': _("sBID activity plan (REF6)"), 'sign_tutor': True, 'sign_participant': True,
+                 'sign_host': True, 'description': _(
+                     "When the stay is part of the work placement: the Erasmus team uploads it from sBID.")},
                 insurance,
                 {'stage': 'return', 'name': _("Certificate of stay"), 'handled_by': 'team_to_sign', 'sign_host': True,
                  'description': _("The Erasmus team uploads it for your tutor at the host company to sign at the end "
-                                  "of the stay. Upload it signed within a month of your return.")},
+                                  "of the stay. It must state the dates, the tasks done and the project number. "
+                                  "Upload it signed within a month of your return.")},
+                europass,
+                {'stage': 'return', 'name': _("Recognition of ECTS credits"), 'handled_by': 'team',
+                 'project': 'ka131_hed', 'description': _(
+                     "The centre's recognition of the stay's ECTS credits. The Erasmus team uploads it.")},
                 travel_proof,
             ]
         defaults = {'preparation': 'destination', 'return': 'after_end'}
@@ -351,9 +377,10 @@ class EmsErasmusCall(models.Model):
                      ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
                      ('return', _("Share it at a department or cycles meeting, if it is considered necessary"))]
         else:
-            names = [('preparation', _("Preparation sessions")), ('preparation', _("Virtual component (GS)")),
+            names = [('preparation', _("Preparation sessions")), ('preparation', _("Virtual component"), 'ka131_hed'),
                      ('return', _("Final report (EU Survey)")), ('return', _("Dissemination activities"))]
-        return [(0, 0, {'sequence': index, 'stage': stage, 'name': name}) for index, (stage, name) in enumerate(names, 1)]
+        return [(0, 0, {'sequence': index, 'stage': step[0], 'name': step[1], 'project': step[2] if len(step) > 2 else False})
+                for index, step in enumerate(names, 1)]
 
     def write(self, vals):
         if 'audience' in vals and self.filtered(
@@ -675,8 +702,13 @@ class EmsErasmusCallDocument(models.Model):
     modality_ids = fields.Many2many(string="Only for modalities", comodel_name='ems.erasmus.call.modality',
                                     domain="[('call_id', '=', call_id)]",
                                     help="Mobility documents: empty, every modality.")
+    project = fields.Selection(string="Only for project", selection=PROJECTS,
+                               help="Mobility documents: only for the modalities of this project (e.g. the Europass "
+                                    "mobility document, KA121-VET only). Empty: both projects.")
     sign_participant = fields.Boolean(string="Signed by the participant")
     sign_guardian = fields.Boolean(string="Signed by the legal guardian", help="Only for minors.")
+    sign_tutor = fields.Boolean(string="Signed by the centre's tutor",
+                                help="The work placement tutor of the centre that appears in sBID.")
     sign_director = fields.Boolean(string="Signed by the Director")
     sign_coordinator = fields.Boolean(string="Signed by the Erasmus coordinator")
     sign_host = fields.Boolean(string="Signed by the host entity")
@@ -699,11 +731,11 @@ class EmsErasmusCallDocument(models.Model):
                                    help="Staff call: the panel members see these files when they rate (the mobility "
                                         "plan), and nothing else of the application.")
 
-    @api.depends('sign_participant', 'sign_guardian', 'sign_director', 'sign_coordinator', 'sign_host')
+    @api.depends('sign_participant', 'sign_guardian', 'sign_director', 'sign_coordinator', 'sign_tutor', 'sign_host')
     def _compute_signers(self):
         """Issue #687: who signs it, outside EMS, before it is uploaded."""
         labels = [('sign_participant', _("participant")), ('sign_guardian', _("legal guardian")),
                   ('sign_director', _("director")), ('sign_coordinator', _("Erasmus coordinator")),
-                  ('sign_host', _("host entity"))]
+                  ('sign_tutor', _("centre's tutor")), ('sign_host', _("host entity"))]
         for document in self:
             document.signers = ", ".join(label for name, label in labels if document[name])

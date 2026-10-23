@@ -25157,6 +25157,8 @@ msgstr "Demana l'esmena"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__is_required
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__required
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__is_required
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__requirement__required
 msgid "Required"
 msgstr "Obligatori"
 
@@ -25167,6 +25169,7 @@ msgstr "Obligatori per a menors d'edat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__requirement
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__requirement
 msgid "Requirement"
 msgstr "Caràcter"
 
@@ -30734,12 +30737,6 @@ msgstr "Document de mobilitat Europass"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/call.py:0
-msgid "It certifies what you learned during the stay. The Erasmus team issues it after the mobility and uploads it for you to download."
-msgstr "Acredita el que has après durant l'estada. L'equip Erasmus l'emet després de la mobilitat i el puja perquè el puguis descarregar."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
 msgid "It must state the dates, the tasks done and the project number."
 msgstr "Ha d'indicar les dates, les tasques fetes i el número del projecte."
 
@@ -30754,12 +30751,6 @@ msgstr "Conveni del sBID (REF5)"
 #: code:addons/ems/models/erasmus/call.py:0
 msgid "sBID activity plan (REF6)"
 msgstr "Pla d'activitats del sBID (REF6)"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/call.py:0
-msgid "When the stay is part of the work placement: the Erasmus team uploads it from sBID."
-msgstr "Quan l'estada forma part de la formació en empresa: l'equip Erasmus el puja des del sBID."
 
 #. module: ems
 #. odoo-python
@@ -30794,3 +30785,69 @@ msgstr "Signat pel tutor/a del centre"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 msgid "Centre's tutor"
 msgstr "Tutor/a del centre"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Mobility agreement"
+msgstr "Acord de mobilitat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "The Mobility Agreement for staff training: programme, dates and expected results, agreed with the host entity."
+msgstr "L'acord de mobilitat (Mobility Agreement) per a formació del personal: programa, dates i resultats previstos, acordats amb l'entitat d'acollida."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Only if needed to prove the dates or the activity: the Europass mobility document already certifies it. It must state the dates, the tasks done and the project number."
+msgstr "Només si cal per acreditar les dates o l'activitat: el document de mobilitat Europass ja l'acredita. Ha d'indicar les dates, les tasques fetes i el número del projecte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "It certifies what you learned during the stay. The Erasmus team issues it after the mobility, with the learning outcomes and the actual dates of the stay, and uploads it for you to download. The Erasmus coordinator signs it on behalf of the centre when authorised to, as the Europass model allows."
+msgstr "Acredita el que has après durant l'estada. L'equip Erasmus l'emet després de la mobilitat, amb els resultats d'aprenentatge i les dates reals de l'estada, i el puja perquè el puguis descarregar. El coordinador Erasmus el signa en representació del centre quan n'està autoritzat, tal com permet el model Europass."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Curricular work placement: the Erasmus team uploads it from sBID."
+msgstr "Formació en empresa curricular: l'equip Erasmus el puja des del sBID."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__placement_type
+msgid "Placement type"
+msgstr "Tipus d'estada"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__is_short_blended
+msgid "Short blended mobility"
+msgstr "Mobilitat curta combinada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__placement_type__curricular
+msgid "Curricular work placement (sBID)"
+msgstr "Formació en empresa curricular (sBID)"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__placement_type__extracurricular
+msgid "Extracurricular"
+msgstr "Extracurricular"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__placement_type__graduate
+msgid "Recent graduate"
+msgstr "Titulat recent"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__requirement__short_blended
+msgid "Short blended mobilities only"
+msgstr "Només mobilitats curtes combinades"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__curricular
+msgid "Required for curricular work placement"
+msgstr "Obligatori en formació en empresa curricular"

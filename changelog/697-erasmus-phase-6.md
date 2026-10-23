@@ -99,6 +99,19 @@
   must state the dates, the tasks done and the project number; the virtual component step is KA131-HED only (it
   reached GM students too).
 
+## Erasmus+ conditional mobility documents (curricular placement, short blended stays):
+- Each student mobility has a placement type (curricular work placement in sBID by default, extracurricular or recent
+  graduate). The sBID agreement (REF5) and activity plan (REF6) and, in KA131-HED, the recognition of ECTS credits
+  are required only for a curricular work placement; otherwise they stay optional.
+- A checklist step can be "short blended mobilities only": it counts only in a KA131-HED stay of 30 days or fewer.
+  The virtual component comes like that by default; steps that don't count are hidden from the portal and don't
+  hold the mobility.
+- Staff: KA131-HED gets a mobility agreement, KA121-VET a learning agreement; in KA121-VET the certificate of stay or
+  attendance stays available as an optional document next to the Europass mobility document, whose instructions now
+  say it is issued after the mobility with the learning outcomes and actual dates, signed by the Erasmus coordinator
+  on behalf of the centre when authorised.
+- Only new calls get these defaults; existing calls and their documents are unchanged.
+
 # Fixes
 
 ## Erasmus+ students' call: issues found walking through it as every role:

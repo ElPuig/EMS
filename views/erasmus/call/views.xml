@@ -172,6 +172,7 @@
                                         <field name="sequence" widget="handle"/>
                                         <field name="stage"/>
                                         <field name="name"/>
+                                        <field name="requirement"/>
                                         <field name="modality_ids" widget="many2many_tags" options="{'no_create': True}"/>
                                         <field name="project"/>
                                         <field name="description"/>

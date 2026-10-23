@@ -261,8 +261,9 @@ class EmsErasmusCall(models.Model):
         agreements the Erasmus team fills in: signed a month before leaving at the latest (ideally
         three); the insurance policy, uploaded a month before leaving. Return documents: a month
         after the end. The Director signs the grant agreement; the Erasmus coordinator, the learning
-        agreement and the Europass mobility document (KA121-VET only); KA131-HED gets the
-        recognition of ECTS credits instead."""
+        (or staff mobility) agreement and the Europass mobility document (KA121-VET only). The sBID
+        documents and the recognition of ECTS credits (KA131-HED) are required for a curricular work
+        placement only (the mobility's placement type)."""
         health_card = {'name': _("European Health Insurance Card"), 'sepie_folder': '05_Seguros',
                        'description': _("Requested at the Social Security's electronic office.")}
         insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start',
@@ -276,8 +277,10 @@ class EmsErasmusCall(models.Model):
                               'sign_host': True}
         europass = {'stage': 'return', 'name': _("Europass mobility document"), 'handled_by': 'team',
                     'project': 'ka121_vet', 'sign_coordinator': True, 'description': _(
-                        "It certifies what you learned during the stay. The Erasmus team issues it after the mobility "
-                        "and uploads it for you to download.")}
+                        "It certifies what you learned during the stay. The Erasmus team issues it after the mobility, "
+                        "with the learning outcomes and the actual dates of the stay, and uploads it for you to "
+                        "download. The Erasmus coordinator signs it on behalf of the centre when authorised to, as "
+                        "the Europass model allows.")}
         stay_description = _("It must state the dates, the tasks done and the project number.")
         # Issue #697: the tickets or boarding passes, kept for the project's dossier (travel).
         travel_proof = {'stage': 'return', 'name': _("Tickets or boarding passes"), 'requirement': 'optional',
@@ -289,11 +292,20 @@ class EmsErasmusCall(models.Model):
                 health_card,
                 grant_agreement,
                 insurance,
-                {**learning_agreement, 'handled_by': 'participant', 'description': _(
+                {**learning_agreement, 'handled_by': 'participant', 'project': 'ka121_vet', 'description': _(
                     "Activities, dates and expected results, agreed with the host entity.")},
-                # KA121-VET: the Europass mobility document already certifies the activity.
+                {**learning_agreement, 'name': _("Mobility agreement"), 'handled_by': 'participant',
+                 'project': 'ka131_hed', 'description': _(
+                     "The Mobility Agreement for staff training: programme, dates and expected results, agreed with the "
+                     "host entity.")},
+                # KA121-VET: the Europass mobility document already certifies the activity; the
+                # certificate is optional, for when the dates or the activity need proving.
                 {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True,
                  'project': 'ka131_hed', 'description': stay_description},
+                {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True,
+                 'project': 'ka121_vet', 'requirement': 'optional', 'description': _(
+                     "Only if needed to prove the dates or the activity: the Europass mobility document already "
+                     "certifies it. It must state the dates, the tasks done and the project number.")},
                 europass,
                 travel_proof,
                 {'stage': 'return', 'name': _("Report with evidence"), 'sign_participant': True,
@@ -303,7 +315,7 @@ class EmsErasmusCall(models.Model):
         else:
             # sBID (the Department of Education's work placement application): the Erasmus team
             # uploads its agreement (REF5) and activity plan (REF6), signed outside EMS.
-            sbid = {'handled_by': 'team', 'requirement': 'optional', 'due_basis': 'before_start',
+            sbid = {'handled_by': 'team', 'requirement': 'curricular', 'due_basis': 'before_start',
                     'sepie_folder': '04_ConveniosParticipantes'}
             documents = [
                 {**health_card, 'description': _(
@@ -326,10 +338,10 @@ class EmsErasmusCall(models.Model):
                     "filled in. Ideally signed three months before leaving.")},
                 {**sbid, 'name': _("sBID agreement (REF5)"), 'sign_director': True, 'sign_participant': True,
                  'sign_host': True, 'description': _(
-                     "When the stay is part of the work placement: the Erasmus team uploads it from sBID.")},
+                     "Curricular work placement: the Erasmus team uploads it from sBID.")},
                 {**sbid, 'name': _("sBID activity plan (REF6)"), 'sign_tutor': True, 'sign_participant': True,
                  'sign_host': True, 'description': _(
-                     "When the stay is part of the work placement: the Erasmus team uploads it from sBID.")},
+                     "Curricular work placement: the Erasmus team uploads it from sBID.")},
                 insurance,
                 {'stage': 'return', 'name': _("Certificate of stay"), 'handled_by': 'team_to_sign', 'sign_host': True,
                  'description': _("The Erasmus team uploads it for your tutor at the host company to sign at the end "
@@ -337,7 +349,7 @@ class EmsErasmusCall(models.Model):
                                   "Upload it signed within a month of your return.")},
                 europass,
                 {'stage': 'return', 'name': _("Recognition of ECTS credits"), 'handled_by': 'team',
-                 'project': 'ka131_hed', 'description': _(
+                 'project': 'ka131_hed', 'requirement': 'curricular', 'description': _(
                      "The centre's recognition of the stay's ECTS credits. The Erasmus team uploads it.")},
                 travel_proof,
             ]
@@ -377,9 +389,11 @@ class EmsErasmusCall(models.Model):
                      ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
                      ('return', _("Share it at a department or cycles meeting, if it is considered necessary"))]
         else:
-            names = [('preparation', _("Preparation sessions")), ('preparation', _("Virtual component"), 'ka131_hed'),
+            # The virtual component: short blended KA131-HED mobilities only.
+            names = [('preparation', _("Preparation sessions")),
+                     ('preparation', _("Virtual component"), {'project': 'ka131_hed', 'requirement': 'short_blended'}),
                      ('return', _("Final report (EU Survey)")), ('return', _("Dissemination activities"))]
-        return [(0, 0, {'sequence': index, 'stage': step[0], 'name': step[1], 'project': step[2] if len(step) > 2 else False})
+        return [(0, 0, {'sequence': index, 'stage': step[0], 'name': step[1], **(step[2] if len(step) > 2 else {})})
                 for index, step in enumerate(names, 1)]
 
     def write(self, vals):
@@ -694,7 +708,10 @@ class EmsErasmusCallDocument(models.Model):
     name = fields.Char(string="Name", required=True)
     description = fields.Text(string="Instructions", help="Shown to the applicant next to the upload.")
     requirement = fields.Selection(string="Requirement", required=True, default='required', selection=[
-        ('required', "Required"), ('optional', "Optional"), ('minor', "Required for minors")])
+        ('required', "Required"), ('optional', "Optional"), ('minor', "Required for minors"),
+        ('curricular', "Required for curricular work placement")],
+        help="Required for curricular work placement: when the student's stay is a work placement managed in sBID "
+             "(the mobility's Placement type); optional for an extracurricular stay or a recent graduate.")
     confidential = fields.Boolean(string="Confidential",
                                   help="Only the Erasmus team sees these files (e.g. evidence of fewer opportunities).")
     stage = fields.Selection(string="When", required=True, default='application', selection=[

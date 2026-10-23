@@ -617,16 +617,26 @@ Insurance Card and, for minors, the family's and the Mossos d'Esquadra's authori
 after the destination), the OLS certificate with the English level (30 days after the destination),
 the inclusion documentation (optional, confidential), the grant agreement and the learning agreement
 (`team_to_sign`, 30 days before leaving at the latest, ideally 90), the insurance policy (`team`, 30
-days before leaving), the sBID agreement (REF5) and activity plan (REF6) (`team`, optional: only
-when the stay is part of the work placement) and, on return, the certificate of stay (`team_to_sign`,
-signed by the tutor at the host company, 30 days after returning), the Europass mobility document
-(`team`, KA121-VET) and the recognition of ECTS credits (`team`, KA131-HED). Staff: health card,
-grant agreement, insurance policy, learning agreement, on return the Europass mobility document
-(KA121-VET) or the certificate of stay or attendance (KA131-HED: in VET the Europass document already
-certifies the activity) and the report with evidence. Signers by default: the Director signs the
+days before leaving), the sBID agreement (REF5) and activity plan (REF6) (`team`, requirement
+`curricular`) and, on return, the certificate of stay (`team_to_sign`, signed by the tutor at the host
+company, 30 days after returning), the Europass mobility document (`team`, KA121-VET, issued after the
+mobility with the learning outcomes and actual dates) and the recognition of ECTS credits (`team`,
+KA131-HED, requirement `curricular`). Staff: health card, grant agreement, insurance policy, learning
+agreement (KA121-VET) or mobility agreement (KA131-HED), on return the Europass mobility document
+(KA121-VET, plus an optional certificate of stay or attendance for when the dates or the activity need
+proving) or the certificate of stay or attendance (KA131-HED), and the report with evidence.
+
+**Conditional requirements.** A call document's `requirement` is `required`, `optional`, `minor`
+(the application's `is_minor`) or `curricular`: required only when the mobility's `placement_type`
+is `curricular` (a work placement managed in sBID, the default for a student, computed once and then
+editable by the team; `extracurricular` and `graduate` leave it optional). A checklist step
+(`ems.erasmus.call.task`) has its own `requirement`: `required` or `short_blended`, which only counts
+when the mobility `is_short_blended` (KA131-HED modality and a stay of `SHORT_BLENDED_MAX_DAYS`, 30,
+days or fewer). The mobility line computes `is_required`; `_compute_complete` and the portal's steps
+only take the required ones, and a document that is not required can still be attached. Signers by default: the Director signs the
 grant agreement and the sBID agreement; the Erasmus coordinator, the learning agreement and the
 Europass mobility document; the family of a minor, the grant agreement and the learning agreement
-too; the centre's tutor, the sBID activity plan. The virtual component step is KA131-HED's. Not asked for, EMS
+too; the centre's tutor, the sBID activity plan. The virtual component step is KA131-HED and `short_blended`. Not asked for, EMS
 already has them: identity document, bank account, personal details, emergency contact.
 
 **Commitment letter** (annex 3): the call's `commitment_text` (HTML, filled in with

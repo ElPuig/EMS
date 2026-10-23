@@ -880,11 +880,12 @@ class EmsErasmusApplicationDocument(models.Model):
     correction_requested = fields.Boolean(string="Correction requested", readonly=True, copy=False,
                                           help="Asked to the applicant in the current corrections request.")
 
-    @api.depends('call_document_id.requirement', 'application_id.is_minor')
+    @api.depends('call_document_id.requirement', 'application_id.is_minor', 'mobility_id.placement_type')
     def _compute_is_required(self):
         for line in self:
             requirement = line.call_document_id.requirement
-            line.is_required = requirement == 'required' or (requirement == 'minor' and line.application_id.is_minor)
+            line.is_required = requirement == 'required' or (requirement == 'minor' and line.application_id.is_minor) \
+                or (requirement == 'curricular' and line.mobility_id.placement_type == 'curricular')
 
     @api.depends('call_document_id.due_basis', 'call_document_id.due_days', 'mobility_id.destination_date',
                  'mobility_id.date_start', 'mobility_id.date_end')

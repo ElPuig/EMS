@@ -89,6 +89,60 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertNotIn("Recognition of ECTS credits", names)
         self.assertNotIn("Virtual component", first.task_ids.call_task_id.mapped('name'))
 
+    def _line(self, mobility, name):
+        return mobility.document_ids.filtered(lambda line: line.name == name)
+
+    def test_sbid_documents_are_required_only_for_a_curricular_work_placement(self):
+        first, _second = self._accepted()
+        self.assertEqual(first.placement_type, 'curricular', "A student's stay is curricular by default.")
+        sbid = self._line(first, "sBID agreement (REF5)") | self._line(first, "sBID activity plan (REF6)")
+        self.assertEqual(len(sbid), 2)
+        self.assertTrue(all(sbid.mapped('is_required')))
+        for placement in ('extracurricular', 'graduate'):
+            first.placement_type = placement
+            self.assertFalse(any(sbid.mapped('is_required')), placement)
+            self.assertTrue(first.document_ids.filtered(lambda line: line in sbid), "They can still be attached.")
+
+    def test_a_vet_stay_gets_the_europass_document_and_no_ects_nor_virtual_component(self):
+        first, _second = self._accepted()
+        first.write({'date_start': date(2027, 6, 1), 'date_end': date(2027, 6, 14)})
+        self.assertTrue(self._line(first, "Europass mobility document").is_required)
+        self.assertTrue(self._line(first, "Certificate of stay").is_required, "Students keep the certificate in VET.")
+        self.assertFalse(self._line(first, "Recognition of ECTS credits"))
+        self.assertFalse(first.is_short_blended, "Only a KA131-HED stay is blended.")
+        self.assertNotIn("Virtual component", first.task_ids.mapped('name'))
+
+    def test_hed_ects_recognition_only_for_a_curricular_work_placement(self):
+        self.modality.project = 'ka131_hed'
+        first, _second = self._accepted()
+        ects = self._line(first, "Recognition of ECTS credits")
+        self.assertTrue(ects.is_required)
+        self.assertFalse(self._line(first, "Europass mobility document"), "KA131-HED has no Europass document.")
+        first.placement_type = 'graduate'
+        self.assertFalse(ects.is_required)
+        first.placement_type = 'extracurricular'
+        self.assertFalse(ects.is_required)
+
+    def test_the_virtual_component_counts_only_in_a_short_hed_stay(self):
+        self.modality.project = 'ka131_hed'
+        first, _second = self._accepted()
+        virtual = first.task_ids.filtered(lambda task: task.name == "Virtual component")
+        self.assertTrue(virtual)
+        self.assertFalse(virtual.is_required, "No dates yet: not known to be short.")
+        first.write({'date_start': date(2027, 6, 1), 'date_end': date(2027, 6, 30)})
+        self.assertTrue(first.is_short_blended, "30 days: short blended.")
+        self.assertTrue(virtual.is_required)
+        first.date_end = date(2027, 7, 1)
+        self.assertFalse(virtual.is_required, "31 days: a long stay, no virtual component.")
+
+    def test_a_step_not_required_does_not_hold_the_mobility(self):
+        self.modality.project = 'ka131_hed'
+        first, _second = self._accepted()
+        first.write({'date_start': date(2027, 6, 1), 'date_end': date(2027, 8, 31)})
+        self._complete_stage(first, 'preparation')
+        first.task_ids.filtered(lambda task: task.name == "Virtual component").done = False
+        self.assertTrue(first.preparation_complete, "A three-month stay has no virtual component to do.")
+
     def test_documents_only_for_some_modalities(self):
         gs_only = self.env['ems.erasmus.call.document'].create({
             'call_id': self.call.id, 'stage': 'preparation', 'name': 'GS only',
@@ -522,13 +576,31 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         mobility.application_id.modality_id = self.staff_call.modality_ids[1]
         self.assertIn(only_june, mobility.document_ids.call_document_id)
 
+    def test_staff_documents_follow_the_project_of_the_modality(self):
+        """KA121-VET: learning agreement, Europass document, the certificate only if needed.
+        KA131-HED: mobility agreement and the certificate, no Europass document."""
+        vet, hed = self.staff_call.modality_ids
+        mobility = self._accepted_staff()
+        mobility.application_id.modality_id = vet
+        names = {line.name: line.is_required for line in mobility.document_ids}
+        self.assertTrue(names["Learning agreement"])
+        self.assertTrue(names["Europass mobility document"])
+        self.assertFalse(names["Certificate of stay or attendance"], "Optional: the Europass document certifies it.")
+        self.assertNotIn("Mobility agreement", names)
+        mobility.document_ids.unlink()  # sync only adds lines: start again as if HED from the start
+        mobility.application_id.modality_id = hed
+        names = {line.name: line.is_required for line in mobility.document_ids}
+        self.assertTrue(names["Mobility agreement"])
+        self.assertTrue(names["Certificate of stay or attendance"])
+        self.assertNotIn("Europass mobility document", names)
+        self.assertNotIn("Learning agreement", names)
+        self.assertFalse(mobility.placement_type, "Staff have no placement type.")
+
     def test_staff_calls_get_the_staff_mobility_documents(self):
         documents = self.staff_call.preparation_document_ids
         learning = documents.filtered(lambda document: document.name == 'Learning agreement')
         self.assertEqual(learning.signers, "participant, Erasmus coordinator, host entity")
         self.assertIn('Report with evidence', documents.mapped('name'))
-        certificate = documents.filtered(lambda document: document.name == 'Certificate of stay or attendance')
-        self.assertEqual(certificate.project, 'ka131_hed', "KA121-VET staff get the Europass mobility document instead.")
         self.assertEqual(len(self.staff_call.document_ids), 2, "The application documents are unchanged.")
 
 

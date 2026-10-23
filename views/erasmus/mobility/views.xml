@@ -134,6 +134,8 @@
                                 <field name="date_end"/>
                                 <field name="project_kind" invisible="1"/>
                                 <field name="project_id" options="{'no_create': True}"/>
+                                <field name="placement_type" invisible="audience != 'student'" required="audience == 'student'"/>
+                                <field name="is_short_blended" invisible="project_kind != 'ka131_hed'"/>
                                 <field name="destination_date" invisible="not destination_date"/>
                                 <field name="leave_id" invisible="audience != 'staff' or not leave_id"/>
                             </group>
@@ -211,6 +213,7 @@
                                     <list editable="bottom" create="false" delete="false">
                                         <field name="stage"/>
                                         <field name="name"/>
+                                        <field name="is_required"/>
                                         <field name="done"/>
                                         <field name="done_user_id" optional="show"/>
                                         <field name="done_date" optional="show"/>

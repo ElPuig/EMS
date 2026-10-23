@@ -15,6 +15,12 @@ PROPOSAL_FIELDS = ('proposal_activity', 'proposal_host', 'proposal_contact', 'pr
                    'proposal_date_start', 'proposal_date_end', 'proposal_notes')
 # What the Direction writes on a staff proposal before validating or rejecting it.
 DECISION_FIELDS = {'decision_note'}
+# A KA131-HED stay of this many days or fewer is a short blended mobility: it has a virtual component.
+SHORT_BLENDED_MAX_DAYS = 30
+# A student's stay: curricular work placement (sBID, with academic recognition), or not.
+PLACEMENT_TYPES = [('curricular', "Curricular work placement (sBID)"), ('extracurricular', "Extracurricular"),
+                   ('graduate', "Recent graduate")]
+TASK_REQUIREMENTS = [('required', "Required"), ('short_blended', "Short blended mobilities only")]
 
 
 class EmsErasmusDestination(models.Model):
@@ -76,6 +82,9 @@ class EmsErasmusCallTask(models.Model):
     sequence = fields.Integer(string="Sequence", default=10)
     name = fields.Char(string="Name", required=True)
     stage = fields.Selection(string="When", selection=STAGES, required=True, default='preparation')
+    requirement = fields.Selection(string="Requirement", selection=TASK_REQUIREMENTS, required=True, default='required',
+                                   help="Short blended mobilities only: KA131-HED stays of 30 days or fewer (e.g. "
+                                        "the virtual component).")
     modality_ids = fields.Many2many(string="Only for modalities", comodel_name='ems.erasmus.call.modality',
                                     domain="[('call_id', '=', call_id)]", help="Empty: every modality.")
     project = fields.Selection(string="Only for project", selection=PROJECTS,
@@ -153,6 +162,14 @@ class EmsErasmusMobility(models.Model):
     date_start = fields.Date(string="Start", tracking=True)
     date_end = fields.Date(string="End", tracking=True)
     project_kind = fields.Selection(string="Project of the modality", related='modality_id.project')
+    placement_type = fields.Selection(
+        string="Placement type", selection=PLACEMENT_TYPES, compute='_compute_placement_type', store=True,
+        readonly=False, tracking=True,
+        help="Students: a curricular work placement managed in sBID requires the sBID documents and, in KA131-HED, "
+             "the recognition of ECTS credits; an extracurricular stay or a recent graduate's does not.")
+    is_short_blended = fields.Boolean(
+        string="Short blended mobility", compute='_compute_is_short_blended',
+        help="KA131-HED stay of 30 days or fewer: it has a virtual component.")
     project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', tracking=True,
                                  domain="[('kind', '=', project_kind)]",
                                  help="The Erasmus+ project the mobility is charged to: CFGM on a KA121-VET project, "
@@ -220,15 +237,28 @@ class EmsErasmusMobility(models.Model):
                 letter and mobility.audience == 'student' and not mobility.partner_id.is_adult
                 and not mobility.commitment_guardian_signed_date)
 
+    @api.depends('audience')
+    def _compute_placement_type(self):
+        """A student's stay is a curricular work placement unless the team says otherwise."""
+        for mobility in self:
+            mobility.placement_type = mobility.placement_type or (mobility.audience == 'student' and 'curricular')
+
+    @api.depends('project_kind', 'date_start', 'date_end')
+    def _compute_is_short_blended(self):
+        for mobility in self:
+            mobility.is_short_blended = bool(
+                mobility.project_kind == 'ka131_hed' and mobility.date_start and mobility.date_end
+                and (mobility.date_end - mobility.date_start).days + 1 <= SHORT_BLENDED_MAX_DAYS)
+
     @api.depends('document_ids.review_state', 'document_ids.is_required', 'document_ids.prepared_attachment_ids',
-                 'task_ids.done', 'commitment_pending', 'commitment_guardian_pending')
+                 'task_ids.done', 'task_ids.is_required', 'commitment_pending', 'commitment_guardian_pending')
     def _compute_complete(self):
         """A document the team provides is complete once it is uploaded; the others, once valid.
         Before leaving, the commitment letter must be signed too (also by the family of a minor)."""
         for mobility in self:
             for stage in ('preparation', 'return'):
                 lines = mobility.document_ids.filtered(lambda line: line.stage == stage and line.is_required)
-                tasks = mobility.task_ids.filtered(lambda task: task.stage == stage)
+                tasks = mobility.task_ids.filtered(lambda task: task.stage == stage and task.is_required)
                 mobility[f'{stage}_complete'] = (
                     all(line.prepared_attachment_ids if line.handled_by == 'team' else line.review_state == 'valid'
                         for line in lines)
@@ -761,10 +791,18 @@ class EmsErasmusMobilityTask(models.Model):
     description = fields.Text(string="Instructions", related='call_task_id.description')
     stage = fields.Selection(string="When", related='call_task_id.stage', store=True)
     sequence = fields.Integer(string="Sequence", related='call_task_id.sequence', store=True)
+    is_required = fields.Boolean(string="Required", compute='_compute_is_required')
     done = fields.Boolean(string="Done")
     done_user_id = fields.Many2one(string="Ticked by", comodel_name='res.users', readonly=True)
     done_date = fields.Datetime(string="Ticked on", readonly=True)
     note = fields.Char(string="Note")
+
+    @api.depends('call_task_id.requirement', 'mobility_id.is_short_blended')
+    def _compute_is_required(self):
+        """A short blended step (the virtual component) only counts in a short KA131-HED stay."""
+        for task in self:
+            requirement = task.call_task_id.requirement
+            task.is_required = requirement != 'short_blended' or task.mobility_id.is_short_blended
 
     def write(self, vals):
         if 'done' in vals:

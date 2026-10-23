@@ -573,10 +573,11 @@
                         <button t-if="mobility.state == 'preparing'" type="submit" class="btn btn-primary btn-sm o_ems_erasmus_mobility_upload">Upload the documents</button>
                     </form>
                 </t>
-                <t t-if="mobility.state in ('preparing', 'done') and mobility.task_ids">
+                <t t-set="steps" t-value="mobility.task_ids.filtered('is_required')"/>
+                <t t-if="mobility.state in ('preparing', 'done') and steps">
                     <h6 class="mt-3">Steps</h6>
                     <ul class="list-unstyled small o_ems_erasmus_mobility_tasks">
-                        <li t-foreach="mobility.task_ids" t-as="task">
+                        <li t-foreach="steps" t-as="task">
                             <i t-attf-class="fa #{'fa-check-square-o text-success' if task.done else 'fa-square-o'} me-1"/>
                             <t t-esc="task.name"/><span class="text-muted"> - <t t-if="task.stage == 'return'">On return</t><t t-else="">Before leaving</t></span>
                             <span t-if="task.description" class="d-block text-muted ms-3" t-esc="task.description"/>

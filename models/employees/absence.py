@@ -6,6 +6,7 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models, Command
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.osv.expression import OR
 from odoo.tools import format_date, plaintext2html
 
 # The Apps Script this replaces rounded every partial absence to quarters of an hour; the
@@ -1398,13 +1399,6 @@ class EmsAbsenceLeave(models.Model):
         self._ems_notify_request_changes()
         return True
 
-    def _ems_notify(self, partners, message):
-        """A note addressed to these partners only: unlike a comment, it is not sent to every
-        follower of the request - whoever else follows it does not need each reminder."""
-        self.ensure_one()
-        if partners:
-            self.message_post(body=message, partner_ids=partners.ids, subtype_xmlid='mail.mt_note')
-
     def _ems_head_users(self):
         """Who acts as this request's Head: the employee's approver, or, when they have none,
         whoever Odoo would route the approval to."""
@@ -1459,22 +1453,37 @@ class EmsAbsenceLeave(models.Model):
         the supporting document, or requesting it in ATRI (EMPLOYEE_STEPS) - every day by
         default, and reports it once, a few days after the absence, to whoever has the request
         in hand - their Head, or the Director for an ATRI absence it sent back (both intervals
-        configurable in the settings). Calendar days, in the centre's own timezone."""
+        configurable in the settings). Calendar days, in the centre's own timezone.
+
+        Each message waits for its reader's working day to start (issue #696): the scheduled
+        action runs every few minutes and sends each one on the first run after that, never
+        outside their working hours, and never on a day they don't work."""
         company = self.env.company
         today = self.env['ems.datetime_utils'].get_local_today()
+        now = fields.Datetime.now()
         interval = company._ems_absence_document_reminder_days()
         escalation = company._ems_absence_document_escalation_days()
-        leaves = self.search([('ems_status', 'in', list(EMPLOYEE_STEPS)), ('request_date_to', '<', today)])
+        # Only what is due today, so a request leaves the search once it has been dealt with.
+        leaves = self.search([('request_date_to', '<', today)] + OR([[
+            ('ems_status', '=', status),
+            '|', '|', (reminder_field, '=', False), (reminder_field, '<=', today - timedelta(days=interval)),
+            '&', (escalated_field, '=', False), ('request_date_to', '<=', today - timedelta(days=escalation)),
+        ] for status, (reminder_field, escalated_field, _xmlid) in EMPLOYEE_STEPS.items()]))
+        started = {}
         for leave in leaves:
             reminder_field, escalated_field, overdue_xmlid = EMPLOYEE_STEPS[leave.ems_status]
             reminder, report = leave._ems_reminder_messages()
             last = leave[reminder_field]
-            if not last or (today - last).days >= interval:
-                leave._ems_notify(leave.employee_id.user_id.partner_id, reminder)
+            owner = leave.employee_id.user_id
+            if (not last or (today - last).days >= interval) \
+                    and owner and owner._ems_workday_started(today, now, started):
+                leave._ems_notify(owner.partner_id, reminder)
                 leave[reminder_field] = today
             if not leave[escalated_field] and (today - leave.request_date_to).days >= escalation:
                 # Whoever has it in hand: the Director for an ATRI absence it sent back.
                 heads = leave._ems_stage_users()
+                if not any(head._ems_workday_started(today, now, started) for head in heads):
+                    continue
                 leave._ems_notify(heads.partner_id, report)
                 # The note above is the Head's email; the activity only goes on their list.
                 for head in heads:

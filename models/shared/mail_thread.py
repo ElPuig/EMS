@@ -21,6 +21,14 @@ class ResPartner(models.Model):
 class MailThread(models.AbstractModel):
     _inherit = 'mail.thread'
 
+    def _ems_notify(self, partners, message):
+        """A note addressed to these partners only: unlike a comment, it is not sent to every
+        follower of the record - whoever else follows it does not need each reminder. Used by
+        the absence requests (hr.leave) and the detected absences (ems.absence_pending)."""
+        self.ensure_one()
+        if partners:
+            self.message_post(body=message, partner_ids=partners.ids, subtype_xmlid='mail.mt_note')
+
     def message_notify(self, **kwargs):
         """A direct notice ("you have been sent to cover this class") is answered to the person
         who caused it (issue #607). Odoo's own reply address is the company's catchall mailbox,

@@ -1,5 +1,6 @@
 from . import test_absence
 from . import test_absence_tour
+from . import test_absence_detection
 from . import test_absence_pending
 from . import test_absence_pending_tour
 from . import test_accent_insensitive_sorting

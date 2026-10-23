@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from collections import defaultdict
-from datetime import timedelta
-
-from pytz import UTC
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
@@ -430,20 +427,12 @@ class EmsCourseGuardDutyBoard(models.Model):
         day (24.0 without one). A class counts as left without its teacher once it has started
         (hour_from <= now) unless they checked in before it ended (see _guard_duty_absence_state):
         checking in late clears the class in progress and the next ones, while those already over
-        stay, so a guard sent to them is still the right one. One query for every employee, in the
-        company's day: sudo because, like the absences, whoever reads the board needs to know a
-        colleague is not in, and only that fact leaves this method."""
+        stay, so a guard sent to them is still the right one. The first check-in is read the same way
+        the detected absences read it (hr.attendance._ems_first_check_in_hours, issue #696)."""
         utils = self.env['ems.datetime_utils']
         if not day or day != utils.get_local_today() or not employees:
             return {}
-        day_start = utils.datetime_to_odoo(utils.time_float_to_utc_datetime(day, 0.0))
-        check_ins = self.env['hr.attendance'].sudo()._read_group(
-            [('employee_id', 'in', employees.ids), ('check_in', '>=', day_start),
-             ('check_in', '<', day_start + timedelta(days=1))],
-            ['employee_id'], ['check_in:min'])
-        arrivals = {
-            employee.id: utils.time_to_float(utils.utc_datetime_to_local(first.replace(tzinfo=UTC)))
-            for employee, first in check_ins}
+        arrivals = self.env['hr.attendance']._ems_first_check_in_hours(day, employees)
         now = self._board_day_hour(day)
         return {employee.id: (now, arrivals.get(employee.id, 24.0), 'unchecked') for employee in employees}
 

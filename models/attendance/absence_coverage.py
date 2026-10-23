@@ -73,7 +73,7 @@ class EmsAbsenceCover(models.Model):
     (issue #571) - or, instead of a class, a guard duty that is not regular (WC, break...) left
     without its teacher, which a regular guard covers the same way (issue #606): `duty_id` is then
     set and `group_id` empty, exactly one of the two always. Keyed by the absent teacher, the date, the period and the group, never by the
-    absence record itself: an expected absence entered by the Head of Studies and the request
+    absence record itself: a detected absence entered by the Head of Studies and the request
     the teacher files afterwards (which takes its place) are the same absence for whoever plans
     the guards, so an assignment made on the first one stays valid on the second without being
     copied, and only the days or hours the request adds come up as new rows to cover.

@@ -366,7 +366,7 @@ class EmsAbsencePendingLeave(models.Model):
                            "request_hour_to", "request_unit_hours", "ems_full_day")
 
     ems_pending_absence_ids = fields.One2many(
-        string="Expected absences", comodel_name="ems.absence_pending", inverse_name="leave_id",
+        string="Detected absences", comodel_name="ems.absence_pending", inverse_name="leave_id",
         readonly=True, groups="ems.group_head_of_studies")
 
     def _ems_utc_range(self):

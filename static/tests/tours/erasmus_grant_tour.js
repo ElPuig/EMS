@@ -103,7 +103,7 @@ registry.category("web_tour.tours").add("ems_erasmus_grant_team", {
     ],
 });
 
-// The Secretary marks the grant payment as paid.
+// The Secretary registers the transfer of the grant payment.
 registry.category("web_tour.tours").add("ems_erasmus_grant_secretary", {
     test: true,
     url: "/odoo/action-ems.action_erasmus_payment",
@@ -117,7 +117,16 @@ registry.category("web_tour.tours").add("ems_erasmus_grant_secretary", {
             content: "Open the payment",
             run: "click",
         },
-        ...clickAction("action_mark_paid", "Mark as paid"),
+        ...clickAction("action_register_transfer", "Register the transfer"),
+        {
+            trigger: ".modal .o_field_widget[name='payment_ids'] .o_data_row",
+            content: "The transfer lists the payment",
+        },
+        {
+            trigger: ".modal-footer button[name='action_confirm']",
+            content: "Mark it as paid",
+            run: "click",
+        },
         {
             trigger: ".o_form_view .o_statusbar_status button.o_arrow_button_current[data-value='paid']",
             content: "The payment is paid",

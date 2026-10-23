@@ -116,6 +116,18 @@ class EmsErasmusResolution(models.Model):
             self.env['ems.erasmus.application']._ems_mail(
                 resolution.line_ids, 'ems.email_template_erasmus_resolution_published')
 
+    def _ems_stored_pdf(self):
+        """Issue #697: the published list as a PDF, for the project's dossier. The report keeps a
+        copy the first time a published resolution is printed (attachment_use) and reuses it after."""
+        self.ensure_one()
+        Attachment = self.env['ir.attachment'].sudo()
+        domain = [('res_model', '=', self._name), ('res_id', '=', self.id), ('mimetype', '=', 'application/pdf')]
+        pdf = Attachment.search(domain, order='id desc', limit=1)
+        if not pdf and self.state == 'published':
+            self.env['ir.actions.report'].sudo()._render_qweb_pdf('ems.report_erasmus_resolution', self.ids)
+            pdf = Attachment.search(domain, order='id desc', limit=1)
+        return pdf
+
     def _ems_check_can_prepare(self):
         self.ensure_one()
         call = self.call_id

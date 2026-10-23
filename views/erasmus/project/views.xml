@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Issue #687 - the centre's Erasmus+ projects, to which each mobility is assigned. -->
+        <!-- Issue #687 - the centre's Erasmus+ projects, to which each mobility is assigned. Issue
+             #697: each project's documents in SEPIE's folders, downloaded as one dossier. -->
         <record id="view_erasmus_project_list" model="ir.ui.view">
             <field name="name">ems.erasmus.project.list</field>
             <field name="model">ems.erasmus.project</field>
             <field name="arch" type="xml">
-                <list string="Projects" editable="bottom" decoration-muted="not active">
+                <list string="Projects" decoration-muted="not active">
                     <field name="name"/>
                     <field name="kind"/>
                     <field name="date_start"/>
                     <field name="date_end"/>
+                    <field name="keep_until" optional="show"/>
                     <field name="active" widget="boolean_toggle"/>
                 </list>
             </field>
@@ -30,10 +32,101 @@
             </field>
         </record>
 
+        <record id="view_erasmus_project_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.project.form</field>
+            <field name="model">ems.erasmus.project</field>
+            <field name="arch" type="xml">
+                <form string="Project">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_download_dossier" type="object" string="Download the dossier (ZIP)"
+                                    class="btn-primary" invisible="not id"
+                                    groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"
+                                    help="Every document of the project in SEPIE's folders: what was uploaded here, the calls and resolutions, the participants' documents, the invoices and the transfer receipts."/>
+                        </div>
+                    </header>
+                    <sheet>
+                        <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name" placeholder="e.g. 2026-1-ES01-KA121-VET-000123456"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="kind"/>
+                                <field name="date_start"/>
+                                <field name="date_end"/>
+                                <field name="active" invisible="1"/>
+                            </group>
+                            <group>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="budget"/>
+                                <field name="keep_until"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Documents" name="documents">
+                                <field name="document_ids" context="{'default_project_id': id}">
+                                    <list editable="bottom" default_group_by="folder">
+                                        <field name="project_id" column_invisible="1"/>
+                                        <field name="folder"/>
+                                        <field name="name"/>
+                                        <field name="date"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="mobility_ids" widget="many2many_tags" optional="show"
+                                               options="{'no_create': True}"
+                                               groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                        <field name="notes" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Mobilities" name="mobilities" groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                <field name="mobility_ids" readonly="1">
+                                    <list>
+                                        <field name="partner_id"/>
+                                        <field name="call_id"/>
+                                        <field name="modality_id"/>
+                                        <field name="destination_id" optional="show"/>
+                                        <field name="date_start"/>
+                                        <field name="date_end"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Invoices" name="invoices" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                                <field name="invoice_ids" readonly="1">
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="name"/>
+                                        <field name="supplier_id"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Grant payments" name="payments" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                                <field name="payment_ids" readonly="1">
+                                    <list>
+                                        <field name="partner_id"/>
+                                        <field name="kind"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="state" widget="badge"/>
+                                        <field name="paid_date"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
         <record id="action_erasmus_project" model="ir.actions.act_window">
             <field name="name">Projects</field>
             <field name="res_model">ems.erasmus.project</field>
-            <field name="view_mode">list</field>
+            <field name="view_mode">list,form</field>
         </record>
     </data>
 </odoo>

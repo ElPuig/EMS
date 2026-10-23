@@ -14,6 +14,7 @@ class ResPartner(models.Model):
         string="Erasmus+ host entity",
         help="A company, school or course provider that hosts Erasmus+ participants. Its contacts are the tutors "
              "at destination.")
+    erasmus_oid = fields.Char(string="OID", help="The Erasmus+ organisation ID of the host entity (e.g. E10150031).")
 
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a

@@ -52,7 +52,7 @@
 
         <menuitem name="Projects" sequence="9" id="menu_erasmus_projects"
                   parent="menu_erasmus" action="action_erasmus_project"
-                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+                  groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
 
         <menuitem name="Calls" sequence="8" id="menu_erasmus_calls"
                   parent="menu_erasmus" action="action_erasmus_call"

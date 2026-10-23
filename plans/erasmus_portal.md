@@ -339,7 +339,8 @@ graph LR
 - **F6 - Grants, provision of services and host entities** *(#697, on `697-erasmus-phase-6`, from F5;
   see the dev doc)*. Grant per mobility (calculated in the Beneficiary Module, entered in EMS), services
   the centre pays directly (from invoices split among the participants they cover), prefinancing and
-  final payments the Secretary transfers, host entities with their tutors.
+  final payments the Secretary transfers (with their receipts), host entities with their tutors and OID,
+  the project's documents in SEPIE's 13 folders and a downloadable dossier (ZIP).
 - **Later (no issue yet):** integrated self-hosted e-signature (third delivery); then the Learning
   Agreement is sent to the host tutor (the host entity's contact) to sign.
 

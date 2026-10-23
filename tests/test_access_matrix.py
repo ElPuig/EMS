@@ -47,6 +47,7 @@ ACCESS_MATRIX = {
     'ems.erasmus.provision': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.invoice': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.payment': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
+    'ems.erasmus.project.document': {'teacher': '', 'secretary': 'rwc', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.mobility.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},

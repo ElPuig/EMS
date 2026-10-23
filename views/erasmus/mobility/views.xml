@@ -120,7 +120,7 @@
                                 <field name="country_id"/>
                                 <field name="city"/>
                                 <field name="host_partner_id"
-                                       context="{'default_is_company': True, 'default_is_erasmus_host': True}"/>
+                                       context="{'default_is_company': True, 'default_is_erasmus_host': True, 'default_contact_type': 'provider'}"/>
                                 <field name="host_contact_id" context="{'default_parent_id': host_partner_id}"
                                        invisible="not host_partner_id"/>
                                 <field name="host_contact_email" widget="email" invisible="not host_contact_id"/>

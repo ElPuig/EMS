@@ -17,6 +17,8 @@
                     <field name="currency_id" column_invisible="1"/>
                     <field name="amount" sum="Total"/>
                     <field name="unassigned_amount" optional="show" decoration-danger="unassigned_amount != 0"/>
+                    <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
+                           decoration-success="state == 'paid'"/>
                 </list>
             </field>
         </record>
@@ -29,6 +31,8 @@
                     <field name="name"/>
                     <field name="supplier_id"/>
                     <field name="provision_ids" string="Participant" filter_domain="[('provision_ids.partner_id', 'ilike', self)]"/>
+                    <filter name="to_pay" string="To pay" domain="[('state', '=', 'to_pay')]"/>
+                    <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
                     <group expand="0" string="Group By">
                         <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
                         <filter name="group_concept" string="Concept" context="{'group_by': 'concept'}"/>
@@ -42,6 +46,16 @@
             <field name="model">ems.erasmus.invoice</field>
             <field name="arch" type="xml">
                 <form string="Invoice">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_register_transfer" type="object" string="Register transfer"
+                                    class="btn-primary" invisible="state != 'to_pay' or not id"
+                                    groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_mark_unpaid" type="object" string="Undo: not paid yet"
+                                    invisible="state != 'paid'" groups="ems.group_secretary,ems.group_academic_admin"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
                     <sheet>
                         <div class="oe_title">
                             <label for="name"/>
@@ -61,6 +75,8 @@
                                 <field name="unassigned_amount" decoration-danger="unassigned_amount != 0"/>
                                 <field name="document" filename="document_filename"/>
                                 <field name="document_filename" invisible="1"/>
+                                <field name="paid_date" invisible="state != 'paid'"/>
+                                <field name="receipt_ids" widget="many2many_binary" invisible="not receipt_ids"/>
                             </group>
                         </group>
                         <field name="mobility_ids" widget="many2many_tags" options="{'no_create': True}"
@@ -76,6 +92,50 @@
                             </list>
                         </field>
                     </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- The Secretary registers a transfer: grant payments or invoices, its date and its receipt. -->
+        <record id="view_erasmus_transfer_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.transfer.wizard.form</field>
+            <field name="model">ems.erasmus.transfer.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Register transfer">
+                    <group>
+                        <group>
+                            <field name="date"/>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="total"/>
+                        </group>
+                        <group>
+                            <field name="receipt" filename="receipt_filename"/>
+                            <field name="receipt_filename" invisible="1"/>
+                        </group>
+                    </group>
+                    <field name="payment_ids" readonly="1" invisible="not payment_ids">
+                        <list>
+                            <field name="partner_id"/>
+                            <field name="kind"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="amount"/>
+                            <field name="bank_account"/>
+                            <field name="state" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <field name="invoice_ids" readonly="1" invisible="not invoice_ids">
+                        <list>
+                            <field name="name"/>
+                            <field name="supplier_id"/>
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="amount"/>
+                            <field name="state" column_invisible="1"/>
+                        </list>
+                    </field>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Mark as paid" class="btn-primary"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
                 </form>
             </field>
         </record>
@@ -97,7 +157,7 @@
             <field name="arch" type="xml">
                 <list string="Grant payments" create="false" decoration-muted="state == 'paid'">
                     <header>
-                        <button name="action_mark_paid" type="object" string="Mark as paid"
+                        <button name="action_register_transfer" type="object" string="Register transfer"
                                 groups="ems.group_secretary,ems.group_academic_admin"/>
                     </header>
                     <field name="request_date"/>
@@ -112,6 +172,7 @@
                     <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
                            decoration-success="state == 'paid'"/>
                     <field name="paid_date" optional="show"/>
+                    <field name="receipt_ids" widget="many2many_binary" optional="show"/>
                 </list>
             </field>
         </record>
@@ -140,8 +201,9 @@
                 <form string="Grant payment" create="false">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_mark_paid" type="object" string="Mark as paid" class="btn-primary"
-                                    invisible="state != 'to_pay'" groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_register_transfer" type="object" string="Register transfer"
+                                    class="btn-primary" invisible="state != 'to_pay'"
+                                    groups="ems.group_secretary,ems.group_academic_admin"/>
                             <button name="action_mark_unpaid" type="object" string="Undo: not paid yet"
                                     invisible="state != 'paid'" groups="ems.group_secretary,ems.group_academic_admin"/>
                         </div>
@@ -165,6 +227,7 @@
                                 <field name="request_date"/>
                                 <field name="paid_date"/>
                                 <field name="paid_by_id"/>
+                                <field name="receipt_ids" widget="many2many_binary"/>
                             </group>
                         </group>
                     </sheet>
@@ -189,10 +252,25 @@
             <field name="res_model">res.partner</field>
             <field name="view_mode">list,kanban,form</field>
             <field name="domain">[('is_erasmus_host', '=', True)]</field>
-            <field name="context">{'default_is_company': True, 'default_is_erasmus_host': True}</field>
+            <field name="context">{'default_is_company': True, 'default_is_erasmus_host': True, 'default_contact_type': 'provider'}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">Add a host entity</p>
                 <p>Add its tutors as its contacts, with their email: you choose one on each mobility.</p>
+            </field>
+        </record>
+
+        <!-- The host entity's flag and Erasmus+ OID on the contact form (providers only). -->
+        <record id="view_partner_form_erasmus_host" model="ir.ui.view">
+            <field name="name">res.partner.form.erasmus.host</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <field name="category_id" position="after">
+                    <field name="is_erasmus_host" invisible="not is_company"
+                           groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
+                    <field name="erasmus_oid" invisible="not is_erasmus_host"
+                           groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
+                </field>
             </field>
         </record>
     </data>

@@ -508,6 +508,7 @@
         'data/custom/crm.team.csv',
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
+        'data/custom/erasmus/ems.erasmus.project.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        

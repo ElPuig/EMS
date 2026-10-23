@@ -13,6 +13,26 @@ from .offer import HOLDING_STATES
 
 # The centre's two Erasmus+ projects: CFGM goes on KA121-VET, CFGS on KA131-HED.
 PROJECTS = [('ka121_vet', "KA121-VET"), ('ka131_hed', "KA131-HED")]
+# Issue #697 - the folders SEPIE asks every project to keep its documents in, as the code (its
+# folder name in the project's dossier) and a label for the screens.
+SEPIE_FOLDERS = [
+    ('01_Solicitud', "01 Project application"),
+    ('02_Publicacionyseleccion', "02 Publication and selection"),
+    ('03_Vinculacion', "03 Link with the centre"),
+    ('04_ConveniosParticipantes', "04 Participant agreements"),
+    ('05_Seguros', "05 Insurance"),
+    ('06_Cursos_programasytasas', "06 Courses, programmes and fees"),
+    ('07_Viajes', "07 Travel"),
+    ('08_FacturasyTransferencias', "08 Invoices and transfers"),
+    ('09_Certificados', "09 Certificates"),
+    ('10_ApoyoLinguistico', "10 Language support"),
+    ('11_ApoyoInclusion', "11 Inclusion support"),
+    ('12_CostesExcepcionales', "12 Exceptional costs"),
+    ('13_EvaluacionImpactoDifusion', "13 Impact evaluation and dissemination"),
+]
+# Where a call document goes in the dossier when it says nothing (issue #697).
+STAGE_FOLDERS = {'application': '02_Publicacionyseleccion', 'preparation': '04_ConveniosParticipantes',
+                 'return': '09_Certificados'}
 
 
 class EmsErasmusCall(models.Model):
@@ -171,13 +191,19 @@ class EmsErasmusCall(models.Model):
         agreements the Erasmus team fills in: signed a month before leaving at the latest (ideally
         three); the insurance policy, uploaded a month before leaving. Return documents: a month
         after the end."""
-        health_card = {'name': _("European Health Insurance Card"),
+        health_card = {'name': _("European Health Insurance Card"), 'sepie_folder': '05_Seguros',
                        'description': _("Requested at the Social Security's electronic office.")}
         insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start',
+                     'sepie_folder': '05_Seguros',
                      'description': _("The Erasmus team uploads it for you to keep.")}
         agreement = {'due_basis': 'before_start', 'handled_by': 'team_to_sign', 'sign_participant': True,
                      'sign_centre': True, 'description': _(
                          "The Erasmus team uploads it filled in. Ideally signed three months before leaving.")}
+        # Issue #697: the tickets or boarding passes, kept for the project's dossier (travel).
+        travel_proof = {'stage': 'return', 'name': _("Tickets or boarding passes"), 'requirement': 'optional',
+                        'sepie_folder': '07_Viajes', 'description': _(
+                            "Your tickets or boarding passes and, for sustainable travel, the receipts of the means of "
+                            "transport. Upload them within a month of your return.")}
         if audience == 'staff':
             documents = [
                 health_card,
@@ -187,7 +213,9 @@ class EmsErasmusCall(models.Model):
                  'sign_centre': True, 'sign_host': True,
                  'description': _("Activities, dates and expected results, agreed with the host entity.")},
                 {'stage': 'return', 'name': _("Certificate of stay or attendance"), 'sign_host': True},
+                travel_proof,
                 {'stage': 'return', 'name': _("Report with evidence"), 'sign_participant': True,
+                 'sepie_folder': '13_EvaluacionImpactoDifusion',
                  'description': _("A short report with evidence, within a month of your return.")},
             ]
         else:
@@ -195,13 +223,16 @@ class EmsErasmusCall(models.Model):
                 {**health_card, 'description': _(
                     "Both sides, valid for the whole stay. Requested at the Social Security's electronic office: upload "
                     "it as soon as you have it.")},
-                {'name': _("OLS certificate"),
+                {'name': _("OLS certificate"), 'sepie_folder': '10_ApoyoLinguistico',
                  'description': _("The certificate of the online language course (OLS), with your English level.")},
                 {'name': _("Inclusion documentation"), 'requirement': 'optional', 'confidential': True,
+                 'sepie_folder': '11_ApoyoInclusion',
                  'description': _("Only if it applies to you: evidence of fewer opportunities, grants, special needs. "
                                   "Only the Erasmus team sees it.")},
-                {'name': _("Family authorisation to travel"), 'requirement': 'minor', 'sign_guardian': True},
+                {'name': _("Family authorisation to travel"), 'requirement': 'minor', 'sign_guardian': True,
+                 'sepie_folder': '03_Vinculacion'},
                 {'name': _("Authorisation for minors to travel abroad"), 'requirement': 'minor',
+                 'sepie_folder': '03_Vinculacion',
                  'description': _("Processed with the Mossos d'Esquadra.")},
                 {**agreement, 'name': _("Grant agreement")},
                 {**agreement, 'name': _("Learning agreement"), 'sign_host': True,
@@ -211,6 +242,7 @@ class EmsErasmusCall(models.Model):
                 {'stage': 'return', 'name': _("Certificate of stay"), 'handled_by': 'team_to_sign', 'sign_host': True,
                  'description': _("The Erasmus team uploads it for your tutor at the host company to sign at the end "
                                   "of the stay. Upload it signed within a month of your return.")},
+                travel_proof,
             ]
         defaults = {'preparation': 'destination', 'return': 'after_end'}
         return [(0, 0, {'sequence': index, 'stage': vals.get('stage', 'preparation'), 'requirement': 'required',
@@ -525,6 +557,10 @@ class EmsErasmusCallDocument(models.Model):
         help="Mobility documents. Filled in by the team: the Erasmus team uploads it filled in, the participant "
              "downloads it, signs it and uploads it signed, and is not asked for it before. Provided by the team (e.g. "
              "the insurance policy): the team uploads it and the participant only downloads it.")
+    sepie_folder = fields.Selection(string="Dossier folder", selection=SEPIE_FOLDERS,
+                                    help="The SEPIE folder of the project's dossier this document goes in. Empty: "
+                                         "publication and selection (application), participant agreements (before "
+                                         "leaving) or certificates (on return).")
     panel_visible = fields.Boolean(string="Shown to the panel",
                                    help="Staff call: the panel members see these files when they rate (the mobility "
                                         "plan), and nothing else of the application.")

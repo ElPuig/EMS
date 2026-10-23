@@ -723,7 +723,9 @@ erDiagram
 |---|---|
 | `ems.erasmus.provision` | Part of a grant the centre pays directly: concept (travel, accommodation, course fees, other), description, amount, the invoice it comes from (optional). Added by hand on the mobility's *Grant* tab, or created by an invoice. |
 | `ems.erasmus.invoice` | A supplier's invoice the centre paid for some participants: number, supplier, date, concept, project, amount, file, `mobility_ids`. Creating it, or changing its amount or participants, splits it again into equal shares (`_ems_split()`: rounded down to the cent, the remainder on the first share); a share can then be edited by hand, and `unassigned_amount` shows what is left. Changing only the concept or description updates the shares in place. |
-| `ems.erasmus.payment` | An amount the Secretary transfers: `kind` prefinancing, final or single; amount; `state` to pay / paid, who and when; the participant's IBAN and holder (`bank_account`, `bank_holder`: their first `res.partner.bank`, read with sudo). |
+| `ems.erasmus.payment` | An amount the Secretary transfers: `kind` prefinancing, final or single; amount; `state` to pay / paid, who and when, `receipt_ids` (the transfer receipts); the participant's IBAN and holder (`bank_account`, `bank_holder`: their first `res.partner.bank`, read with sudo). |
+| `ems.erasmus.transfer.wizard` | *Register transfer*: the Secretary picks the grant payments or the invoices one bank transfer pays (several at once, e.g. a batch of grants or a travel agency's invoice), its date and its receipt; one `ir.attachment` is created and linked to every one of them, which become paid. |
+| `ems.erasmus.project.document` | A file of a project that no other EMS record holds (the project application, preparatory visits, exceptional costs, dissemination...), in one of SEPIE's folders (`folder`), optionally about some participants. |
 
 **On the mobility:** `grant_amount`, `prefinancing_percent` (default 80, above 0 and up to 100),
 `provision_amount` and `grant_net` (= grant - provisions, what the participant receives).
@@ -735,9 +737,12 @@ can be requested once (`can_request_prefinancing`, `can_request_final`), from th
 state, and never for nothing (zero or less raises). An unpaid payment can be deleted by the team
 and requested again.
 
-**Paying:** only the Secretary (or the administrator) marks a payment paid or undoes it
-(`action_mark_paid`, `action_mark_unpaid`, which write with sudo after checking the group); a direct
-write of `state`/`paid_date`/`paid_by_id` raises, and a paid payment cannot be changed or deleted.
+**Paying:** only the Secretary (or the administrator) registers a transfer
+(`action_register_transfer` on payments and invoices opens the wizard) or undoes one
+(`action_mark_unpaid`); both write with sudo after checking the group (`_check_payer`). A direct
+write of `state`/`paid_date`/`paid_by_id`/`receipt_ids` raises, a paid payment cannot be changed or
+deleted and a paid invoice cannot be deleted. Invoices have the same `state`, `paid_date`,
+`paid_by_id` and `receipt_ids` as payments.
 
 **Portal:** once the mobility is in preparation and has a grant, the participant sees it
 (`_ems_portal_grant()`): the grant, each provision of services, what they receive and each payment
@@ -752,18 +757,44 @@ Learning Agreement already says it is signed by the host entity (`sign_host`); s
 tutor to sign waits for the integrated e-signature.
 
 **Projects:** the team assigns each mobility to a project (`project_id`, phase 5) before entering it
-in the Beneficiary Module. Payments and invoices carry the project for the Secretary.
+in the Beneficiary Module. Payments and invoices carry the project for the Secretary. The centre's
+active projects are seeded once from `data/custom/erasmus/ems.erasmus.project.csv` (agreement
+number, kind, dates; maintained in the app afterwards, like every `data/custom/` record). A project
+also has its `budget` (grant awarded) and `keep_until`: SEPIE asks to keep the documents 3 years
+after it ends, 5 when the grant is above 60,000 €.
+
+**Project dossier (SEPIE's folders):** `SEPIE_FOLDERS` (`models/erasmus/call.py`) are the 13
+folders SEPIE asks for (`01_Solicitud` ... `13_EvaluacionImpactoDifusion`, the codes are the folder
+names). *Download the dossier (ZIP)* on the project form (route
+`/ems/erasmus/project/<id>/dossier`, Erasmus team, Secretary and administrator) builds a ZIP with
+every folder, even empty, filled from where each file already is, nothing copied:
+
+| Folder | Files |
+|---|---|
+| Any | The project's own documents (`ems.erasmus.project.document`), in their folder, one subfolder per document. |
+| `02_Publicacionyseleccion` | Per call with a mobility on the project: the published call (`rules_document`) and every published resolution as a PDF (`_ems_stored_pdf()`: the report keeps a copy the first time a published resolution is printed, `attachment_use`, and the dossier prints it if needed). |
+| The call document's `sepie_folder` (empty: by stage, `STAGE_FOLDERS`: application → 02, before leaving → 04, on return → 09) | Per participant on the project (mobility not cancelled), every file of their application and mobility documents, in `<participant>/<document>/`. Confidential ones only when the Erasmus team downloads it. |
+| `08_FacturasyTransferencias` | `Facturas/<number>/`: each invoice of the project and its transfer receipts; `Transferencias/<participant>/`: the receipts of their grant payments. |
+
+New calls preset the folder of their mobility documents (health card and insurance → 05, OLS → 10,
+inclusion → 11, travel authorisations → 03, report → 13, the new optional *Tickets or boarding
+passes* return document → 07). The ZIP is written to a temporary file without compression (PDFs,
+photos and videos hardly shrink) and streamed, so its size never sits in memory. The host entity
+also has its Erasmus+ `erasmus_oid`.
 
 ### Access (phase 6)
 
 | Model | Erasmus team | Secretary | Head of Studies / Director |
 |---|---|---|---|
-| `ems.erasmus.provision`, `.invoice` | rwcu | r | - |
-| `ems.erasmus.payment` | rwcu (unpaid only; `write()` guard) | r + mark paid (button) | - |
+| `ems.erasmus.provision`, `.invoice` | rwcu | r (+ register the invoice's transfer) | - |
+| `ems.erasmus.project.document` | rwcu | rwc | r |
+| `ems.erasmus.transfer.wizard` | - | rwcu | - |
+| `ems.erasmus.payment` | rwcu (unpaid only; `write()` guard) | r + register the transfer (wizard) | - |
 | `ems.erasmus.call`, `.project` | rwcu | r | r |
 | `res.partner` | r every contact; wc only host entities and their contacts (`rule_contact_erasmus_*`) | (unchanged) | (unchanged) |
 
 The mobility's *Grant* tab and its grant columns are only for the team (`groups=`), so the Head of
 Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ > Host
-entities* (team), *Invoices* and *Grant payments* (team and Secretary; the Secretary sees only these
-two under *Erasmus+*).
+entities* (team), *Projects*, *Invoices* and *Grant payments* (team and Secretary; the Secretary
+sees only these three under *Erasmus+*). The project form's tabs follow the same split (mobilities:
+team and Head of Studies; invoices and payments: team and Secretary).

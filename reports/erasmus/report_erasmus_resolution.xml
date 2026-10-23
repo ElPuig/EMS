@@ -10,6 +10,9 @@
             <field name="report_name">ems.report_erasmus_resolution</field>
             <field name="report_file">ems.report_erasmus_resolution</field>
             <field name="print_report_name">object.name</field>
+            <!-- Issue #697: a published list is kept as printed, for the project's dossier. -->
+            <field name="attachment">object.state == 'published' and (object.name + '.pdf')</field>
+            <field name="attachment_use" eval="True"/>
             <field name="binding_model_id" ref="ems.model_ems_erasmus_resolution"/>
             <field name="binding_type">report</field>
         </record>

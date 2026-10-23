@@ -1,7 +1,12 @@
+import base64
+import io
+import zipfile
+
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import Form
 from odoo.tests.common import HttpCase, tagged
 
+from .test_erasmus import PDF
 from .test_erasmus_mobility import ErasmusMobilityCase
 
 
@@ -12,6 +17,15 @@ class ErasmusGrantCase(ErasmusMobilityCase):
         first, second = self._accepted()
         (first | second)._ems_set_state('preparing')
         return first, second
+
+    def _transfer(self, records, user, receipt=True):
+        """The Secretary's transfer wizard, as `user`, for payments or invoices."""
+        field = 'payment_ids' if records._name == 'ems.erasmus.payment' else 'invoice_ids'
+        action = records.with_user(user).action_register_transfer()
+        wizard = self.env['ems.erasmus.transfer.wizard'].with_user(user).with_context(action['context']).create({
+            'receipt': receipt and base64.b64encode(PDF), 'receipt_filename': receipt and 'receipt.pdf'})
+        self.assertEqual(wizard[field], records)
+        wizard.action_confirm()
 
     def _invoice(self, mobilities, amount, **vals):
         return self.env['ems.erasmus.invoice'].create({
@@ -98,12 +112,13 @@ class TestErasmusGrant(ErasmusGrantCase):
         self.assertEqual(payment.bank_account, 'ES91 2100 0418 4502 0005 1332')
         self.assertEqual(payment.partner_id, self.student)
         with self.assertRaises(AccessError):
-            first.payment_ids.with_user(self.erasmus_user).action_mark_paid()
+            first.payment_ids.with_user(self.erasmus_user).action_register_transfer()
         with self.assertRaises(AccessError):
             first.payment_ids.with_user(self.erasmus_user).write({'state': 'paid'})
-        payment.action_mark_paid()
+        self._transfer(first.payment_ids, self.secretary_user)
         self.assertEqual(first.payment_ids.state, 'paid')
         self.assertEqual(first.payment_ids.paid_by_id, self.secretary_user)
+        self.assertEqual(first.payment_ids.receipt_ids.mapped('name'), ['receipt.pdf'])
         team_payment = first.payment_ids.with_user(self.erasmus_user)
         with self.assertRaises(UserError):
             team_payment.amount = 1
@@ -113,6 +128,70 @@ class TestErasmusGrant(ErasmusGrantCase):
         self.assertEqual(first.payment_ids.state, 'to_pay')
         team_payment.unlink()
         self.assertFalse(first.payment_ids)
+
+    def test_one_transfer_pays_several_payments_with_one_receipt(self):
+        first, second = self._preparing()
+        (first | second).write({'grant_amount': 1000, 'prefinancing_percent': 100})
+        (first | second).action_request_prefinancing()
+        payments = (first | second).payment_ids
+        self._transfer(payments, self.secretary_user)
+        self.assertEqual(set(payments.mapped('state')), {'paid'})
+        self.assertEqual(len(payments.receipt_ids), 1, "The receipt is shared, not copied.")
+        self.assertEqual(payments.with_user(self.erasmus_user).receipt_ids.raw, PDF,
+                         "The Erasmus team reads the receipt too.")
+
+    def test_secretary_pays_an_invoice_and_then_it_cannot_be_deleted(self):
+        first, second = self._preparing()
+        invoice = self._invoice(first | second, 900)
+        with self.assertRaises(AccessError):
+            invoice.with_user(self.erasmus_user).write({'state': 'paid'})
+        self._transfer(invoice, self.secretary_user)
+        self.assertEqual(invoice.state, 'paid')
+        self.assertTrue(invoice.receipt_ids)
+        with self.assertRaises(UserError):
+            invoice.with_user(self.erasmus_user).unlink()
+
+    def test_dossier_files_every_document_in_its_sepie_folder(self):
+        first, second = self._preparing()
+        project = self.env['ems.erasmus.project'].create({
+            'name': 'TEST-KA121-VET', 'kind': 'ka121_vet', 'date_end': '2027-05-31', 'budget': 75000})
+        self.assertEqual(str(project.keep_until), '2032-05-31', "Above 60,000 €: kept 5 years.")
+        project.budget = 50000
+        self.assertEqual(str(project.keep_until), '2030-05-31')
+        self.modality.project = 'ka121_vet'
+        (first | second).project_id = project
+        self.call.rules_document = base64.b64encode(PDF)
+        self.call.rules_filename = 'call.pdf'
+        attachment = self.env['ir.attachment'].create({'name': 'application.pdf', 'raw': PDF})
+        self.env['ems.erasmus.project.document'].create({
+            'project_id': project.id, 'folder': '01_Solicitud', 'name': 'Application form',
+            'attachment_ids': [(6, 0, attachment.ids)]})
+        ols = first.document_ids.filtered(lambda line: line.call_document_id.sepie_folder == '10_ApoyoLinguistico')
+        first._ems_portal_upload({ols.call_document_id.id: [('ols.pdf', PDF)]})
+        inclusion = first.document_ids.filtered(lambda line: line.call_document_id.confidential)
+        first._ems_portal_upload({inclusion.call_document_id.id: [('evidence.pdf', PDF)]})
+        invoice = self._invoice(first | second, 600, project_id=project.id, document=base64.b64encode(PDF),
+                                document_filename='flights.pdf')
+        self._transfer(invoice, self.secretary_user)
+
+        def names(user):
+            with project.with_user(user)._ems_dossier_zip() as archive:
+                return zipfile.ZipFile(io.BytesIO(archive.read())).namelist()
+
+        files = names(self.erasmus_user)
+        root = 'TEST-KA121-VET'
+        self.assertIn(f'{root}/13_EvaluacionImpactoDifusion/', files, "Every SEPIE folder, even empty.")
+        self.assertIn(f'{root}/01_Solicitud/Application form/application.pdf', files)
+        self.assertIn(f'{root}/02_Publicacionyseleccion/{self.call.name}/call.pdf', files)
+        self.assertIn(f'{root}/10_ApoyoLinguistico/{self.student.name}/OLS certificate/ols.pdf', files)
+        self.assertIn(f'{root}/08_FacturasyTransferencias/Facturas/F-TEST-1/flights.pdf', files)
+        self.assertIn(f'{root}/08_FacturasyTransferencias/Facturas/F-TEST-1/receipt.pdf', files)
+        self.assertTrue(any(name.endswith('evidence.pdf') for name in files))
+        secretary_files = names(self.secretary_user)
+        self.assertFalse(any(name.endswith('evidence.pdf') for name in secretary_files),
+                         "Confidential documents only for the Erasmus team.")
+        with self.assertRaises(AccessError):
+            project.with_user(self.teacher_user)._ems_dossier_zip()
 
     def test_secretary_reads_the_invoices_and_their_shares(self):
         first, second = self._preparing()
@@ -156,3 +235,13 @@ class TestPortalErasmusGrant(HttpCase, ErasmusGrantCase):
         self.assertIn('Flights to Larnaca', page)
         self.assertIn('850.00', page, "1250 minus a 400 share of the flights.")
         self.assertIn('Prefinancing', page)
+
+    def test_dossier_download_for_the_secretary_only(self):
+        project = self.env['ems.erasmus.project'].create({'name': 'TEST-DOSSIER', 'kind': 'ka121_vet'})
+        self.authenticate(self.secretary_user.login, self.secretary_user.login)
+        response = self.url_open(f'/ems/erasmus/project/{project.id}/dossier')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers['Content-Type'], 'application/zip')
+        self.assertIn('TEST-DOSSIER/01_Solicitud/', zipfile.ZipFile(io.BytesIO(response.content)).namelist())
+        self.authenticate(self.teacher_user.login, self.teacher_user.login)
+        self.assertEqual(self.url_open(f'/ems/erasmus/project/{project.id}/dossier').status_code, 404)

@@ -16,12 +16,17 @@
 |---|---|---|
 | Absència de dia sencer | 7:30 | Hores que val una absència de dia sencer. Sempre compta aquestes hores, tingui la persona les classes que tingui programades aquell dia |
 | Crèdit d'hores per motius de salut | 15:00 | Hores d'absència per motius de salut que pot fer servir cada persona per curs |
-| Recordatori del justificant | 1 dia | Un cop passada una absència que encara espera el justificant, es recorda a la persona cada aquest nombre de dies |
-| Avís de justificant pendent | 3 dies | Passats aquests dies des de l'absència, un justificant que encara falti també es comunica al cap que l'aprova |
+| Recordatori d'absències | 1 dia | Un cop passada una absència que encara espera la persona (el justificant, o sol·licitar una absència detectada), se li recorda cada aquest nombre de dies |
+| Avís d'absències pendents | 3 dies | Passats aquests dies des de l'absència, el que encara falta també es comunica: un justificant, a qui aprova l'absència; una absència detectada encara no sol·licitada, al cap d'estudis del docent |
+| Absències detectades | (buit) | Les àrees els docents de les quals segueixen el circuit d'absències detectades: un dia que un docent no ha fitxat (o ha fitxat després de la primera classe) es converteix en una absència detectada, i cada absència detectada recorda al docent que la sol·liciti. Buit, el circuit està desactivat. Per començar, tria només l'àrea d'FP |
 
 El crèdit **avisa, no bloqueja**: qui el supera rep un avís i la sol·licitud queda marcada per al cap d'estudis, però es tramita igual.
 
-![Bloc de configuració d'absències del personal, amb els camps de dia sencer, crèdit de salut i recordatoris del justificant](../../assets/admin/admin-absences-settings.png)
+Cada recordatori i cada avís espera l'inici de la jornada de qui el rep, de manera que ningú no en rep fora del seu horari. Qui no té cap horari es regeix pel marc horari per defecte del centre.
+
+Un docent pertany a una àrea pel seu departament. Les absències detectades s'expliquen al [manual del cap d'estudis](../head_of_studies/absences.md#absències-detectades).
+
+![Bloc de configuració d'absències del personal, amb els camps de dia sencer, crèdit de salut, recordatori, avís i absències detectades](../../assets/admin/admin-absences-settings.png)
 
 ### Canvis d'horari al quadre de guàrdies
 

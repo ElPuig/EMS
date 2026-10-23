@@ -271,6 +271,19 @@ class TestAbsenceDetection(TransactionCase):
         self._run_cron_on(self.today, hour=12.5)
         self.assertEqual(len(self._messages_to(late_absence, late_user, 'No check-in')), 1)
 
+    def test_the_teacher_is_told_in_their_own_language(self):
+        """The scheduled action runs as OdooBot: the message must not come out in its language."""
+        if not self.env['res.lang']._lang_get('ca_ES'):
+            self.skipTest('Catalan is not installed')
+        self.teacher_user.lang = 'ca_ES'
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        self._run_cron_on(self.today)
+
+        self.assertTrue(self._messages_to(absence, self.teacher_user, 'No consta cap fitxatge'))
+        self.assertFalse(absence.message_ids.filtered(lambda message: 'created' in (message.body or '')),
+                         'no "created" line in the language of the scheduled action')
+
     def test_an_informed_absence_tells_the_teacher_something_else(self):
         informed = self.Pending.create({'employee_id': self.teacher.id, 'date_from': self._utc(self.yesterday, 9.0),
                                         'date_to': self._utc(self.yesterday, 11.0)})

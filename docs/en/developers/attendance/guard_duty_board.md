@@ -198,9 +198,10 @@ half has nobody. On this centre's data every shared slot is same room and same s
 genuine co-teaching. A co-teacher away for any part of the period does not cover, the same
 overlap test `_guard_duty_absence_state` uses.
 
-**Expected absences are pending absences too.** An `ems.absence_pending` entry the
-teacher's chief, the Head of Studies or their Deputy entered on the teacher's behalf (see
-[Expected absences](../employees/absence.md#expected-absences)) is added as a
+**Detected absences are pending absences too.** An `ems.absence_pending` entry, entered by the
+teacher's chief, the Head of Studies or their Deputy on the teacher's behalf or found from a
+missing check-in once the day was over (see
+[Detected absences](../employees/absence.md#detected-absences)), is added as a
 `'pending'` interval while its own state is `pending`, clipped to the requested day in the
 company's timezone by `_get_local_hours()`. Once the teacher files the real absence the entry is
 linked to it and ignored here for good: only the teacher's own request counts, with its own range
@@ -693,9 +694,9 @@ the period (`hour_from`/`hour_to`, the board row's own bounds), the group, the g
 message; the timetable change lives on the `ems.notice` itself (`absence_date`,
 `absence_group_id`, `absence_changes`, `models/communications/notice_absence_change.py`). Neither
 points at an `hr.leave` or an
-`ems.absence_pending`. That is what makes an expected absence and the request the teacher files
-afterwards (which takes its place, see [Expected absences](../employees/absence.md#expected-absences))
-behave as one absence: whatever was organised on the expected one still matches the same
+`ems.absence_pending`. That is what makes a detected absence and the request the teacher files
+afterwards (which takes its place, see [Detected absences](../employees/absence.md#detected-absences))
+behave as one absence: whatever was organised on the detected one still matches the same
 teacher, date, period and group, so nothing is redone, and the days or hours the request adds
 come up as new, uncovered rows. Whatever the request no longer covers shows up as a pending action
 instead (below).
@@ -1385,7 +1386,7 @@ checks them in.
 
 ```mermaid
 flowchart TD
-    ATT["hr.attendance: first check_in of today, per employee<br/>(one _read_group)"] --> UI["_get_unchecked_intervals(day, employees)<br/>{employee: (now, arrival, 'unchecked')}"]
+    ATT["hr.attendance._ems_first_check_in_hours(day, employees)<br/>first real check_in of today, per employee (one _read_group)"] --> UI["_get_unchecked_intervals(day, employees)<br/>{employee: (now, arrival, 'unchecked')}"]
     UI -->|"unchecked=True only"| INT["_get_guard_duty_absence_intervals"]
     INT --> ST["_guard_duty_absence_state<br/>approved > pending > unchecked"]
     ST --> ROWS["board rows, guard column, guard candidates,<br/>_get_group_day_blocks (assign / obsolete cover)"]
@@ -1394,7 +1395,9 @@ flowchart TD
 ```
 
 **The rule.** `_get_unchecked_intervals()` only answers for today (`get_local_today()`), with one
-query: the first check-in of each employee that company day. Its interval is not an overlap like an
+query: the first check-in of each employee that company day (`hr.attendance._ems_first_check_in_hours()`,
+shared with the detected absences, which turn what is still missing into an absence once the day
+is over; technical attendances are no presence). Its interval is not an overlap like an
 absence's but `(now, arrival)`: a period counts as unchecked when it has started (`hour_from <= now`)
 and the teacher had not arrived before it ended (`hour_to <= arrival`, `arrival` = 24.0 without a
 check-in). Checking in at 10:05 clears the 10-11 class and the next ones, while the 8-9 one stays: a

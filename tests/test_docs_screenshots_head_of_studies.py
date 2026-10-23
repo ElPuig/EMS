@@ -219,37 +219,39 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             'main_group_id': cls.group.id,
         })
 
-    def test_capture_expected_absences(self):
-        # Two teachers below this Head of Studies (the model only lets them pick their own branch):
-        # one still expected, one whose own request has since been filed and linked the entry.
-        expected_teacher, requested_teacher = self.env['hr.employee'].create([{
+    def test_capture_detected_absences(self):
+        # Three teachers below this Head of Studies (the model only lets them pick their own
+        # branch): one informed and still detected, one from a missing check-in, and one whose own
+        # request has since been filed and linked the entry.
+        informed_teacher, unchecked_teacher, requested_teacher = self.env['hr.employee'].create([{
             'name': name, 'employee_type': 'teacher', 'parent_id': self.hos_employee.id,
-        } for name in ('0000 Joan Exemple', '0000 Núria Mostra')])
+        } for name in ('0000 Joan Exemple', '0000 Marta Prova', '0000 Núria Mostra')])
         Pending = self.env['ems.absence_pending']
-        expected = Pending.create([{
-            'employee_id': teacher.id, 'date_from': start, 'date_to': stop,
-        } for teacher, (start, stop) in (
-            (expected_teacher, Pending._utc_bounds(datetime(2027, 4, 12).date(), 8.0, 15.0)),
-            (requested_teacher, Pending._utc_bounds(datetime(2027, 4, 14).date(), 8.0, 11.0)),
+        detected = Pending.create([{
+            'employee_id': teacher.id, 'date_from': start, 'date_to': stop, 'origin': origin,
+        } for teacher, origin, (start, stop) in (
+            (informed_teacher, 'informed', Pending._utc_bounds(datetime(2027, 4, 12).date(), 8.0, 15.0)),
+            (unchecked_teacher, 'check_in', Pending._utc_bounds(datetime(2027, 4, 13).date(), 8.0, 10.0)),
+            (requested_teacher, 'informed', Pending._utc_bounds(datetime(2027, 4, 14).date(), 8.0, 11.0)),
         )])
         self.env['hr.leave'].create({
             'employee_id': requested_teacher.id, 'holiday_status_id': self.leave_type_justified.id,
             'request_date_from': datetime(2027, 4, 14).date(), 'request_date_to': datetime(2027, 4, 14).date(),
             'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True,
         })
-        self.assertEqual(expected.mapped('state'), ['pending', 'linked'])
-        # Scoped to the fixture, and without the action's default "Expected" filter, so both
-        # states show.
+        self.assertEqual(detected.mapped('state'), ['pending', 'pending', 'linked'])
+        # Scoped to the fixture, and without the action's default "Detected" filter, so every
+        # state shows.
         action = self.env['ir.actions.act_window'].create({
-            'name': 'Absències previstes',
+            'name': 'Absències detectades',
             'res_model': 'ems.absence_pending',
             'view_mode': 'list,form',
-            'domain': [('id', 'in', expected.ids)],
+            'domain': [('id', 'in', detected.ids)],
         })
         self._capture(
             '/odoo/action-%d' % action.id,
-            '.o_list_table', 'hos-expected-absences-list.png',
-            login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row + .o_data_row',
+            '.o_list_table', 'hos-detected-absences-list.png',
+            login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row + .o_data_row + .o_data_row',
         )
 
     def test_capture_staff_vacancy(self):

@@ -265,7 +265,8 @@ class EmsAbsencePending(models.Model):
             ('date_from', '<', day_end), ('date_to', '>', day_start)])]
         busy = {employee_id for start, stop, employee_id in taken
                 if start < candidates[employee_id][1] and stop > candidates[employee_id][0]}
-        return self.sudo().create([{
+        # No "created" line in the chatter: the scheduled action would write it in its own language.
+        return self.sudo().with_context(mail_create_nolog=True).create([{
             'employee_id': employee_id, 'date_from': start, 'date_to': stop, 'origin': 'check_in',
         } for employee_id, (start, stop) in candidates.items() if employee_id not in busy])
 
@@ -314,13 +315,14 @@ class EmsAbsencePending(models.Model):
             last = absence.reminder_date
             if (not last or (today - last).days >= interval) \
                     and teacher and teacher._ems_workday_started(today, now, started):
-                absence._ems_notify(teacher.partner_id, absence._ems_reminder_message())
+                # In the reader's language, not the scheduled action's.
+                absence._ems_notify(teacher.partner_id, absence.with_context(lang=teacher.lang)._ems_reminder_message())
                 absence.reminder_date = today
             if not absence.escalated and absence.date_to <= report_bound:
                 heads = absence.employee_id._find_attendance_approvers()
                 if not any(head._ems_workday_started(today, now, started) for head in heads):
                     continue
-                absence._ems_notify(heads.partner_id, absence._ems_report_message())
+                absence._ems_notify(heads.partner_id, absence.with_context(lang=heads[:1].lang)._ems_report_message())
                 # The note above is the Head's email; the activity only goes on their list.
                 for head in heads:
                     absence.with_context(mail_activity_quick_update=True).activity_schedule(

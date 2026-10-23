@@ -63,6 +63,26 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             max_height=330,
         )
 
+    def test_capture_detected_absence(self):
+        """The teacher's own detected absence, from a missing check-in, as the reminder's link
+        opens it: with Request the absence (issue #696)."""
+        mock_outgoing_email(self)
+        Pending = self.env['ems.absence_pending']
+        day = datetime(2027, 4, 12).date()
+        # As the detection creates it, with the reminder the teacher received.
+        absence = Pending.with_context(mail_create_nolog=True).create({
+            'employee_id': self.teacher_employee.id, 'origin': 'check_in',
+            'date_from': Pending._utc_bounds(day, 0.0, 8.0)[1], 'date_to': Pending._utc_bounds(day, 0.0, 14.5)[1],
+        })
+        absence._ems_notify(self.teacher_user.partner_id,
+                            absence.with_context(lang=self.teacher_user.lang)._ems_reminder_message())
+        self._capture(
+            '/odoo/ems.absence_pending/%d' % absence.id,
+            '.o_content', 'teachers-detected-absence.png',
+            login='doc_shot_teacher', wait_for=".o_form_view button[name='action_request_absence']",
+            max_height=360,
+        )
+
     def test_capture_attendance_corrections(self):
         # A finished past day (both check-in and check-out set), so the correction form shows
         # both fields at once - the more informative shot vs. the still-clocked-in case, which

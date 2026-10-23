@@ -17,7 +17,7 @@
 5. [Undoing a decision](#undoing-a-decision)
 6. [Per-employee report](#per-employee-report)
 7. [Monthly report](#monthly-report)
-8. [Expected absences](#expected-absences)
+8. [Detected absences](#detected-absences)
 
 ---
 
@@ -70,7 +70,7 @@ The cross refuses, at any of these steps. Once you decide from the form, you are
 
 The absence takes effect (absence calendar, hour balance, guard duty board) as soon as you acknowledge it, even while the document is missing or Direction has not reviewed it yet.
 
-If the employee has not attached the document a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up; the employee is reminded every day.
+If the employee has not attached the document a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up; the employee is reminded every day. Each reminder and each message waits for the start of its reader's working day: nobody gets them outside their working hours.
 
 ![Absences list, with Approve/Refuse actions on a pending request](../../assets/head_of_studies/hos-absences-list.png)
 
@@ -186,28 +186,37 @@ To change the period, remove the **Current Course** filter and pick the one you 
 
 ---
 
-## Expected absences
+## Detected absences
 
-**Employee Attendances > Absences > Management > Expected absences**.
+**Employee Attendances > Absences > Management > Detected absences**.
 
-When you already know a teacher will be away but they have not requested the absence yet (they phoned in this morning, or it was agreed in a meeting), enter it here so guard duty can be planned around it straight away.
+This list holds the teachers' absences that nobody has requested yet. They come from two places, shown in the **Origin** column:
+
+- **Informed**: you (or a Department or Seminar Chief) entered it because you already knew the teacher would be away (they phoned in this morning, or it was agreed in a meeting).
+- **No check-in**: EMS added it on its own once the day was over, because the teacher did not check in at all, or checked in after their first lesson had ended. It goes from their first lesson to their last one, or to the time they checked in. Only the teachers of the areas the administrator has chosen go through this (for now, VET).
+
+### Entering one
 
 1. Click **New**.
-2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Department and Seminar Chiefs can also enter expected absences, for the teachers of their own department. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET. Teachers of other departments who teach a group the department manages (the **Managed by the department** field of the group's study), or who name the department in the **Also managed by the departments** field of their form, are offered too.
+2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Department and Seminar Chiefs can also enter them, for the teachers of their own department. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET. Teachers of other departments who teach a group the department manages (the **Managed by the department** field of the group's study), or who name the department in the **Also managed by the departments** field of their form, are offered too.
 3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
-4. Optionally, add **Notes** for your own reference. The teacher never sees this entry.
+4. Optionally, add **Notes** for your own reference. The teacher can open the entry but never sees the notes.
 5. Save.
 
 From that moment the teacher appears on the guard duty schedule as absent with a request still awaiting approval (lighter italic red), for the hours you entered.
 
-When the teacher requests the absence themselves, the expected absence is linked to it automatically and its status changes from **Expected** to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
+### What happens next
 
-![Expected absences list, one still expected and one already requested by the teacher](../../assets/head_of_studies/hos-expected-absences-list.png)
+When the teacher requests the absence themselves, the entry is linked to it automatically and its status changes from **Detected** to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
 
-If the teacher turns out not to be absent after all, delete the entry.
+Until then, once the absence is over, EMS reminds the teacher to request it at the start of their working day, every day unless the centre has set otherwise. The message is not the same for both origins: for a missing check-in it also tells them that, if they were at the centre and forgot to check in, they should ask you to record their check-in. If it is still not requested a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up. These reminders reach the teachers of the areas the administrator has chosen.
+
+**If the teacher was at the centre after all**, record their check-in for that day (**Employee Attendances → Attendance → Overview**, **New**; see also [Attendance corrections](attendance-corrections.md)): a detected absence from a missing check-in is then **Discarded** on its own, or shortened if they arrived earlier than it said. An informed one you entered by mistake is deleted by hand.
+
+![Detected absences list, with their origin: one informed, one from a missing check-in and one already requested by the teacher](../../assets/head_of_studies/hos-detected-absences-list.png)
 
 ### Organising the cover
 
-Once an absence is on the guard duty schedule, expected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier (if the administrator has switched these changes on), and correct what an absence that changed afterwards made unnecessary. Whatever you organise for an expected absence stays when the teacher requests it. See [Organising an absence](../teachers/guard-duty-schedule.md#organising-an-absence).
+Once an absence is on the guard duty schedule, detected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier (if the administrator has switched these changes on), and correct what an absence that changed afterwards made unnecessary. Whatever you organise for a detected absence stays when the teacher requests it. See [Organising an absence](../teachers/guard-duty-schedule.md#organising-an-absence).
 
 A class whose teacher has not checked in when it starts also appears on the Absences table, to be covered with a guard. If the teacher turns out to be in the classroom, you can register their check-in from the table: see [Teachers who have not checked in](../teachers/guard-duty-schedule.md#teachers-who-have-not-checked-in).

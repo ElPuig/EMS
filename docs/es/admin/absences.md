@@ -16,12 +16,17 @@
 |---|---|---|
 | Ausencia de día entero | 7:30 | Horas que vale una ausencia de día entero. Siempre cuenta esas horas, tenga la persona las clases que tenga programadas ese día |
 | Crédito de horas por motivos de salud | 15:00 | Horas de ausencia por motivos de salud que puede usar cada persona por curso |
-| Recordatorio del justificante | 1 día | Una vez pasada una ausencia que todavía espera el justificante, se recuerda a la persona cada este número de días |
-| Aviso de justificante pendiente | 3 días | Pasados estos días desde la ausencia, un justificante que todavía falte también se comunica al jefe que la aprueba |
+| Recordatorio de ausencias | 1 día | Una vez pasada una ausencia que todavía espera a la persona (el justificante, o solicitar una ausencia detectada), se le recuerda cada este número de días |
+| Aviso de ausencias pendientes | 3 días | Pasados estos días desde la ausencia, lo que todavía falta también se comunica: un justificante, a quien aprueba la ausencia; una ausencia detectada aún no solicitada, al jefe de estudios del docente |
+| Ausencias detectadas | (vacío) | Las áreas cuyos docentes siguen el circuito de ausencias detectadas: un día que un docente no ha fichado (o ha fichado después de su primera clase) se convierte en una ausencia detectada, y cada ausencia detectada recuerda al docente que la solicite. Vacío, el circuito está desactivado. Para empezar, elige solo el área de FP |
 
 El crédito **avisa, no bloquea**: quien lo supera recibe un aviso y la solicitud queda marcada para la jefatura de estudios, pero se tramita igual.
 
-![Bloque de configuración de ausencias del personal, con los campos de día entero, crédito de salud y recordatorios del justificante](../../assets/admin/admin-absences-settings.png)
+Cada recordatorio y cada aviso espera al inicio de la jornada de quien lo recibe, de modo que nadie los recibe fuera de su horario. Quien no tiene ningún horario se rige por el marco horario por defecto del centro.
+
+Un docente pertenece a un área por su departamento. Las ausencias detectadas se explican en el [manual del jefe de estudios](../head_of_studies/absences.md#ausencias-detectadas).
+
+![Bloque de configuración de ausencias del personal, con los campos de día entero, crédito de salud, recordatorio, aviso y ausencias detectadas](../../assets/admin/admin-absences-settings.png)
 
 ### Cambios de horario en el cuadro de guardias
 

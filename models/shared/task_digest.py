@@ -58,18 +58,33 @@ class EmsTaskDigestUsers(models.Model):
                 _logger.exception("EMS task digest: could not send the digest of user %s (id=%d).",
                                   user.login, user.id)
 
-    def _ems_workday_start(self, work_date):
+    def _ems_workday_start(self, work_date, empty_schedule_as_framework=False):
         """Naive UTC start of the user's working day on work_date, or None when it is not a
         working day for them: their employee's working day (hr.employee._ems_workday_intervals)
-        or, without an employee, the company's default schedule framework."""
+        or, without an employee, the company's default schedule framework.
+        `empty_schedule_as_framework`: an employee whose schedule has no period at all (a teacher
+        not scheduled yet) also gets the framework, rather than no working day ever."""
         self.ensure_one()
-        if self.employee_id:
-            intervals = self.employee_id._ems_workday_intervals(work_date)
+        employee = self.employee_id
+        if employee and not (empty_schedule_as_framework and not employee.resource_calendar_id.attendance_ids):
+            intervals = employee._ems_workday_intervals(work_date)
         else:
             intervals = self.company_id._ems_default_framework_intervals(work_date)
         if not intervals:
             return None
         return min(start for start, _end in intervals).astimezone(pytz.utc).replace(tzinfo=None)
+
+    def _ems_workday_started(self, today, now, cache):
+        """Whether the user's working day `today` has already started at `now` (naive UTC): never
+        on a day that is no working day for them. What the absence reminders wait for, so nobody
+        gets one outside their working hours (issue #696); somebody not scheduled yet goes by the
+        centre's own working day. `cache`, a dict, keeps the answer per
+        user for one run of a scheduled action: working out a working day reads the schedule."""
+        self.ensure_one()
+        if self.id not in cache:
+            start = self._ems_workday_start(today, empty_schedule_as_framework=True)
+            cache[self.id] = bool(start) and start <= now
+        return cache[self.id]
 
     def _ems_send_task_digest(self, today):
         """Queue the digest and mark the day as done - also for a user without an email address,

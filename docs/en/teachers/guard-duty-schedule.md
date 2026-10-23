@@ -6,7 +6,7 @@
 
 See where every teacher is, and who is on guard duty, in each time block of the week — not just your own schedule.
 
-**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule). Organising an absence from the Absences table is up to the absent teacher's Department or Seminar Chief and those above them (see [Organising an absence](#organising-an-absence)), who can also enter an expected absence for a teacher of their department (see [Entering an expected absence](#entering-an-expected-absence)); a teacher on guard duty can also take a class left without a teacher themselves (see [Covering a class yourself](#covering-a-class-yourself)). When the group's study has a department that manages it, that department's chiefs can organise it too.
+**Required role:** Teacher (read-only; schedules are configured by a Department Chief or above from the corresponding teacher's own weekly schedule). Organising an absence from the Absences table is up to the absent teacher's Department or Seminar Chief and those above them (see [Organising an absence](#organising-an-absence)), who can also enter a detected absence for a teacher of their department (see [Entering a detected absence](#entering-a-detected-absence)); a teacher on guard duty can also take a class left without a teacher themselves (see [Covering a class yourself](#covering-a-class-yourself)). When the group's study has a department that manages it, that department's chiefs can organise it too.
 
 ---
 
@@ -98,7 +98,7 @@ A teacher who is away is shown in red wherever their name appears — in their o
 
 Refused and cancelled requests are not shown.
 
-An absence their chief or the Head of Studies already knows about, but the teacher has not requested yet (an *expected absence*, see below), is also shown as awaiting approval.
+An absence their chief or the Head of Studies already knows about, but the teacher has not requested yet (a *detected absence*, see below), is also shown as awaiting approval. So is a day already over on which the teacher did not check in, once EMS has detected it.
 
 A teacher on an ordinary guard duty who is away is marked in the Guard duty column, and produces no line in the Absences column: they have no class of their own for anyone to cover. A guard duty that is a fixed post, like the WC or the break guard, is different: somebody has to be there, so when its teacher is away it gets its own line in the **Guard duty** column of the Absences table, under the guards of its own block, with the guard duty's name (for example **Guard (WC)**) where a class shows its group, to be covered like a class (see [Covering a WC or break guard](#covering-a-wc-or-break-guard)).
 
@@ -111,7 +111,7 @@ Only the fact that somebody is away is shown here. The type of absence, its reas
 Today, as soon as a class starts, if its teacher has not checked in it appears in the **Absences table** like an absence, so a guard teacher can cover it. Their name is shown in red with a dotted underline and the tag **Not checked in**. The same goes for a teacher on guard duty: they are marked in the Guard duty column and cannot be sent to cover anything until they check in.
 
 - The class leaves the table as soon as the teacher checks in, and so do their next classes. The classes that ended before they checked in stay, so a guard already sent to them is still correct.
-- An absence (approved, requested or expected) always takes precedence: the line then shows the absence.
+- An absence (approved, requested or detected) always takes precedence: the line then shows the absence.
 - Such a class is only covered with a guard. The schedule does not propose telling the families or rearranging lessons, because the teacher may still be in the centre.
 - Only today's classes count. On another day nobody is checked in or out yet.
 
@@ -149,25 +149,25 @@ Lines you cannot take because you are not on guard duty at that time show the ha
 
 If you change your mind, click the line again and then **Stop covering this class**: the class is left without a guard again. You can only do this with a class you took yourself; if somebody sent you to it, ask them to change it. Whoever organises the absence can still change or remove a guard who took a class on their own.
 
-## Entering an expected absence
+## Entering a detected absence
 
 Who can do this: **Seminar Chiefs** and **Department Chiefs**, for the teachers of their own department, as well as the Head of Studies or Deputy, Direction and the administrator. They can also do it for a teacher of another department who teaches a group their department manages, or who names their department in the **Also managed by the departments** field (see [Organising an absence](#organising-an-absence)).
 
 The normal way is always that the teacher requests the absence themselves. Use this only for the exceptional case of a teacher who phones or writes to warn they will be away and cannot use EMS: entering it puts their classes on the schedule straight away, so you can organise the cover.
 
-1. Go to **Employee Attendances > Absences > Management > Expected absences** and click **New**.
+1. Go to **Employee Attendances > Absences > Management > Detected absences** and click **New**.
 2. Choose the **Teacher**. Only the teachers of your own department are offered.
 3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
-4. Optionally, add **Notes** for your own reference. The teacher never sees this entry.
+4. Optionally, add **Notes** for your own reference. The teacher can open the entry, but never sees the notes.
 5. Save.
 
-The absence then appears on the schedule as awaiting approval (lighter italic red), and you can organise it as described below. When the teacher requests the absence themselves, the expected absence is linked to it automatically and whatever you organised stays as it is. If the teacher turns out not to be absent after all, delete the entry.
+The absence then appears on the schedule as awaiting approval (lighter italic red), and you can organise it as described below. When the teacher requests the absence themselves, the detected absence is linked to it automatically and whatever you organised stays as it is. If the teacher turns out not to be absent after all, delete the entry.
 
 ---
 
 ## Organising an absence
 
-Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**, and those above them in the hierarchy (Head of Studies or Deputy, and Direction), as well as the administrator. What counts is the department the teacher teaches in: its chiefs and the manager of the area it belongs to organise the absences of everyone in it, members of the management team (such as the Secretary) included. Everybody else sees the result but cannot change it, and the absent teacher cannot organise their own absence. It makes no difference whether the absence was requested by the teacher or entered by their chief or the Head of Studies as an expected absence: both are handled the same way. When the teacher later requests an absence that was expected, whatever was already organised stays as it is, and only the extra days or hours of the request appear as new lines to decide on. **Teachers shared between departments:** besides whoever answers for the teacher, a class can also be organised by whoever answers for the students who lose it: when the group's study names a department that manages it (the **Managed by the department** field on the study's form), that department's Department Chief and Seminar Chief, and those above them, can organise the classes of its groups, whatever department the teacher belongs to. For example, if a teacher of the Foreign Languages department misses a lesson with a Computer Science group, the Computer Science chiefs can assign the guard; if she misses a lesson with an Administration group, the Administration chiefs can; and in both cases so can her own Department Chief. A reinforcement group follows the studies of its main groups. For a teacher who in practice works for another department or area than their own, their form lets you say so in the **Also managed by the departments** field (below **Manager**): the chiefs of those departments, and those above them, can organise everything of theirs, fixed guard duties included (toilets, break), which have no students.
+Who can do this: the absent teacher's **Seminar Chief** or **Department Chief**, and those above them in the hierarchy (Head of Studies or Deputy, and Direction), as well as the administrator. What counts is the department the teacher teaches in: its chiefs and the manager of the area it belongs to organise the absences of everyone in it, members of the management team (such as the Secretary) included. Everybody else sees the result but cannot change it, and the absent teacher cannot organise their own absence. It makes no difference whether the absence was requested by the teacher or entered by their chief or the Head of Studies as a detected absence: both are handled the same way. When the teacher later requests a detected absence, whatever was already organised stays as it is, and only the extra days or hours of the request appear as new lines to decide on. **Teachers shared between departments:** besides whoever answers for the teacher, a class can also be organised by whoever answers for the students who lose it: when the group's study names a department that manages it (the **Managed by the department** field on the study's form), that department's Department Chief and Seminar Chief, and those above them, can organise the classes of its groups, whatever department the teacher belongs to. For example, if a teacher of the Foreign Languages department misses a lesson with a Computer Science group, the Computer Science chiefs can assign the guard; if she misses a lesson with an Administration group, the Administration chiefs can; and in both cases so can her own Department Chief. A reinforcement group follows the studies of its main groups. For a teacher who in practice works for another department or area than their own, their form lets you say so in the **Also managed by the departments** field (below **Manager**): the chiefs of those departments, and those above them, can organise everything of theirs, fixed guard duties included (toilets, break), which have no students.
 
 > The **Managed by the department** and **Also managed by the departments** fields were introduced in version 18.0.0.36.2. Nobody who could already organise an absence has lost that.
 

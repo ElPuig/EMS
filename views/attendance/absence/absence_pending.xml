@@ -6,15 +6,17 @@
             <field name="name">ems.absence_pending.list</field>
             <field name="model">ems.absence_pending</field>
             <field name="arch" type="xml">
-                <list string="Expected absences">
+                <list string="Detected absences">
                     <field name="employee_id" widget="many2one_avatar_employee"/>
                     <field name="date_from"/>
                     <field name="date_to"/>
+                    <field name="origin"/>
                     <field name="note" optional="hidden"/>
                     <field name="leave_id" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-warning="state == 'pending'"
-                           decoration-success="state == 'linked'"/>
+                           decoration-success="state == 'linked'"
+                           decoration-muted="state == 'discarded'"/>
                 </list>
             </field>
         </record>
@@ -23,20 +25,26 @@
             <field name="name">ems.absence_pending.form</field>
             <field name="model">ems.absence_pending</field>
             <field name="arch" type="xml">
-                <form string="Expected absences">
+                <form string="Detected absences">
                     <header>
-                        <field name="state" widget="statusbar"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_request_absence" type="object" string="Request the absence"
+                                    invisible="not can_request"/>
+                        </div>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,linked"/>
                     </header>
                     <sheet>
                         <group>
                             <group>
-                                <field name="employee_id" readonly="state == 'linked'"
+                                <field name="employee_id" readonly="state != 'pending'"
                                        options="{'no_create': True, 'no_open': True}"/>
+                                <field name="origin"/>
                                 <field name="leave_id" invisible="not leave_id"/>
+                                <field name="can_request" invisible="1"/>
                             </group>
                             <group>
-                                <field name="date_from" readonly="state == 'linked'"/>
-                                <field name="date_to" readonly="state == 'linked'"/>
+                                <field name="date_from" readonly="state != 'pending'"/>
+                                <field name="date_to" readonly="state != 'pending'"/>
                             </group>
                         </group>
                         <field name="note" placeholder="Why the teacher will be absent, for your own reference"/>
@@ -50,21 +58,26 @@
             <field name="name">ems.absence_pending.search</field>
             <field name="model">ems.absence_pending</field>
             <field name="arch" type="xml">
-                <search string="Expected absences">
+                <search string="Detected absences">
                     <field name="employee_id"/>
-                    <filter name="pending" string="Expected" domain="[('state', '=', 'pending')]"/>
+                    <filter name="pending" string="Detected" domain="[('state', '=', 'pending')]"/>
                     <filter name="linked" string="Requested" domain="[('state', '=', 'linked')]"/>
+                    <filter name="discarded" string="Discarded" domain="[('state', '=', 'discarded')]"/>
+                    <separator/>
+                    <filter name="informed" string="Informed" domain="[('origin', '=', 'informed')]"/>
+                    <filter name="check_in" string="No check-in" domain="[('origin', '=', 'check_in')]"/>
                     <separator/>
                     <filter name="date_from" string="Date" date="date_from"/>
                     <group expand="0" string="Group By">
                         <filter name="group_employee" string="Teacher" context="{'group_by': 'employee_id'}"/>
+                        <filter name="group_origin" string="Origin" context="{'group_by': 'origin'}"/>
                     </group>
                 </search>
             </field>
         </record>
 
         <record id="action_absence_pending" model="ir.actions.act_window">
-            <field name="name">Expected absences</field>
+            <field name="name">Detected absences</field>
             <field name="res_model">ems.absence_pending</field>
             <field name="view_mode">list,form</field>
             <field name="context">{'search_default_pending': 1}</field>
@@ -74,7 +87,8 @@
                 </p>
                 <p>
                     It shows on the guard duty schedule as a pending absence until the teacher
-                    requests it, and from then on only their own request counts.
+                    requests it, and from then on only their own request counts. The days a
+                    teacher does not check in are added here on their own.
                 </p>
             </field>
         </record>
@@ -84,7 +98,7 @@
              'rule_absence_pending_hierarchy', plus technical administrators, who see every
              teacher ('rule_absence_pending_system'). A chief only reaches Management through
              this entry: see views/attendance/absence/menu.xml. -->
-        <menuitem id="menu_absence_pending" name="Expected absences" sequence="6"
+        <menuitem id="menu_absence_pending" name="Detected absences" sequence="6"
                   parent="hr_holidays.menu_hr_holidays_management"
                   action="action_absence_pending"
                   groups="ems.group_department_chief,base.group_system"/>

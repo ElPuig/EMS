@@ -13,7 +13,7 @@ GUARD_BOARD_CHANGED = 'ems.guard_duty_board/changed'
 
 class EmsGuardBoardNotifier(models.AbstractModel):
     """Tells every open guard duty board that something it shows changed (issue #692): a check-in,
-    a guard sent or released, an absence, an expected absence, a timetable change told to the
+    a guard sent or released, an absence, a detected absence, a timetable change told to the
     families. The board reloads when it hears about the day it is showing, instead of asking the
     server again and again. Sent on commit through the bus, so a rolled-back change says nothing.
 

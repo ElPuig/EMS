@@ -14,6 +14,9 @@ ACCESS_MATRIX = {
     # Every write goes through the guard duty board's own methods, which check the hierarchy and
     # write with sudo() (see models/attendance/absence_coverage.py).
     'ems.absence_cover': {'teacher': 'r', 'department_chief': 'r', 'head_of_studies': 'r'},
+    # Issue #696: a teacher reads their own detected absences (rule_absence_pending_own); the
+    # chiefs above them manage them (rule_absence_pending_hierarchy).
+    'ems.absence_pending': {'teacher': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
     # Issue #656: tutors justify absences from it; the secretariat only reads justifications.

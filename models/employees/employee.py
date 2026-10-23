@@ -121,7 +121,7 @@ class ems_employee_base(models.AbstractModel):
         string="Also managed by the departments", comodel_name="hr.department",
         relation="hr_employee_managing_department_rel", column1="hr_employee_public_id", column2="hr_department_id",
         help="The chiefs of these departments, and whoever is above them, can also organise this employee's "
-             "guards and absences (covering their classes and guard duties, entering an expected absence), "
+             "guards and absences (covering their classes and guard duties, entering a detected absence), "
              "besides the Manager above and their own chain of command. For someone who in practice works for "
              "another department or area than the one they belong to. It does not change who approves their "
              "absences.")

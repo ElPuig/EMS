@@ -2,4 +2,4 @@
 
 # evaluation first: the models below inherit it (and call imports application, which imports plan_rating).
 from . import (evaluation, call, application, interview, plan_rating, partner, resolution, offer, claim,
-               mobility, project)
+               mobility, project, grant)

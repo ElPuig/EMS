@@ -58,5 +58,29 @@
             <field name="domain_force">[('call_document_id.panel_visible', '=', True), ('confidential', '=', False),
                                         ('application_id.plan_rating_ids.evaluator_id', '=', user.id)]</field>
         </record>
+
+        <!-- Issue #697: the Erasmus team reads every contact (the participants, their families) and
+             creates and edits only the host entities and their contacts (the tutors at destination). -->
+        <record id="rule_contact_erasmus_read" model="ir.rule">
+            <field name="name">Contact: Erasmus team (read)</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus'))]"/>
+            <field name="domain_force">[]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+
+        <record id="rule_contact_erasmus_host" model="ir.rule">
+            <field name="name">Contact: Erasmus team (host entities and their contacts)</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus'))]"/>
+            <field name="domain_force">['|', ('is_erasmus_host', '=', True), ('parent_id.is_erasmus_host', '=', True)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
     </data>
 </odoo>

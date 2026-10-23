@@ -1,14 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models
+from odoo import fields, models
 
 from .mobility import OPEN_STATES
 
 
 class ResPartner(models.Model):
     """Issue #683 - which Erasmus+ calls a student sees on the portal; issue #686, which staff
-    calls a staff member sees."""
+    calls a staff member sees; issue #697, the host entities of the mobilities."""
     _inherit = 'res.partner'
+
+    is_erasmus_host = fields.Boolean(
+        string="Erasmus+ host entity",
+        help="A company, school or course provider that hosts Erasmus+ participants. Its contacts are the tutors "
+             "at destination.")
 
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a

@@ -21,6 +21,9 @@
                     <field name="preparation_complete" optional="show"/>
                     <field name="return_complete" optional="show"/>
                     <field name="project_id" optional="show"/>
+                    <field name="currency_id" column_invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="grant_amount" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                    <field name="grant_net" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
                     <field name="state" widget="badge" decoration-info="state == 'choosing'"
                            decoration-warning="state == 'preparing'" decoration-success="state == 'done'"/>
                 </list>
@@ -73,6 +76,17 @@
                                     invisible="state not in ('choosing', 'preparing')"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="Adds the documents and steps of the call that this mobility does not have yet."/>
+                            <!-- Issue #697: the grant payments the Secretary transfers. -->
+                            <button name="action_request_prefinancing" type="object" string="Request the first payment"
+                                    invisible="not can_request_prefinancing or state not in ('preparing', 'done')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    confirm="The Secretary will see this payment to transfer it. Continue?"
+                                    help="The prefinancing percentage of what the participant receives, or everything at 100 %."/>
+                            <button name="action_request_final_payment" type="object" string="Request the final payment"
+                                    invisible="not can_request_final or state not in ('preparing', 'done')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    confirm="The Secretary will see this payment to transfer it. Continue?"
+                                    help="What is left to transfer to the participant, on return."/>
                             <button name="action_close" type="object" string="Close the mobility"
                                     invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_cancel" type="object" string="Cancel the mobility"
@@ -81,6 +95,8 @@
                                     confirm="The place becomes free and the application is marked as renounced. Continue?"
                                     help="Write the reason for cancelling first."/>
                         </div>
+                        <field name="can_request_prefinancing" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        <field name="can_request_final" invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                         <field name="state" widget="statusbar" statusbar_visible="choosing,preparing,done"/>
                     </header>
                     <sheet>
@@ -103,9 +119,11 @@
                                 <field name="free_choice" invisible="not free_choice"/>
                                 <field name="country_id"/>
                                 <field name="city"/>
-                                <field name="host_partner_id" context="{'default_is_company': True}"/>
+                                <field name="host_partner_id"
+                                       context="{'default_is_company': True, 'default_is_erasmus_host': True}"/>
                                 <field name="host_contact_id" context="{'default_parent_id': host_partner_id}"
                                        invisible="not host_partner_id"/>
+                                <field name="host_contact_email" widget="email" invisible="not host_contact_id"/>
                                 <field name="date_start"/>
                                 <field name="date_end"/>
                                 <field name="project_kind" invisible="1"/>
@@ -191,6 +209,43 @@
                                         <field name="done_user_id" optional="show"/>
                                         <field name="done_date" optional="show"/>
                                         <field name="note"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <!-- Issue #697: only the Erasmus team handles the grant. -->
+                            <page string="Grant" name="grant" groups="ems.group_erasmus,ems.group_academic_admin">
+                                <group>
+                                    <group>
+                                        <field name="currency_id" invisible="1"/>
+                                        <field name="grant_amount"/>
+                                        <field name="provision_amount"/>
+                                        <field name="grant_net" class="fw-bold"/>
+                                    </group>
+                                    <group>
+                                        <field name="prefinancing_percent"/>
+                                    </group>
+                                </group>
+                                <separator string="Provision of services"/>
+                                <field name="provision_ids">
+                                    <list editable="bottom">
+                                        <field name="concept"/>
+                                        <field name="description"/>
+                                        <field name="invoice_id" readonly="1" optional="show"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                    </list>
+                                </field>
+                                <separator string="Payments to the participant"/>
+                                <field name="payment_ids" readonly="1">
+                                    <list>
+                                        <field name="kind"/>
+                                        <field name="request_date"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="bank_account"/>
+                                        <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
+                                               decoration-success="state == 'paid'"/>
+                                        <field name="paid_date"/>
                                     </list>
                                 </field>
                             </page>

@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #697 - the invoices the centre paid for some participants, split among them as
+             provisions of services; the Secretary reads them. -->
+        <record id="view_erasmus_invoice_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.invoice.list</field>
+            <field name="model">ems.erasmus.invoice</field>
+            <field name="arch" type="xml">
+                <list string="Invoices">
+                    <field name="date"/>
+                    <field name="name"/>
+                    <field name="supplier_id"/>
+                    <field name="concept"/>
+                    <field name="description" optional="show"/>
+                    <field name="project_id" optional="show"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="amount" sum="Total"/>
+                    <field name="unassigned_amount" optional="show" decoration-danger="unassigned_amount != 0"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_invoice_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.invoice.search</field>
+            <field name="model">ems.erasmus.invoice</field>
+            <field name="arch" type="xml">
+                <search string="Invoices">
+                    <field name="name"/>
+                    <field name="supplier_id"/>
+                    <field name="provision_ids" string="Participant" filter_domain="[('provision_ids.partner_id', 'ilike', self)]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
+                        <filter name="group_concept" string="Concept" context="{'group_by': 'concept'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_invoice_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.invoice.form</field>
+            <field name="model">ems.erasmus.invoice</field>
+            <field name="arch" type="xml">
+                <form string="Invoice">
+                    <sheet>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name" placeholder="e.g. F-2027/0123"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="supplier_id"/>
+                                <field name="date"/>
+                                <field name="concept"/>
+                                <field name="description" placeholder="e.g. Flights Barcelona - Larnaca"/>
+                                <field name="project_id" options="{'no_create': True}"/>
+                            </group>
+                            <group>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="amount"/>
+                                <field name="unassigned_amount" decoration-danger="unassigned_amount != 0"/>
+                                <field name="document" filename="document_filename"/>
+                                <field name="document_filename" invisible="1"/>
+                            </group>
+                        </group>
+                        <field name="mobility_ids" widget="many2many_tags" options="{'no_create': True}"
+                               domain="[('state', 'not in', ('cancelled',))]"
+                               placeholder="Participants the invoice covers"
+                               groups="ems.group_erasmus,ems.group_academic_admin"/>
+                        <separator string="Share of each participant"/>
+                        <field name="provision_ids">
+                            <list editable="bottom" create="false" delete="false">
+                                <field name="partner_id"/>
+                                <field name="currency_id" column_invisible="1"/>
+                                <field name="amount" sum="Total"/>
+                            </list>
+                        </field>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_invoice" model="ir.actions.act_window">
+            <field name="name">Invoices</field>
+            <field name="res_model">ems.erasmus.invoice</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Upload an invoice the centre paid for some participants</p>
+                <p>Choose who it covers: its amount is split equally among them and deducted from what they receive.</p>
+            </field>
+        </record>
+
+        <!-- Issue #697 - the grant payments the Secretary transfers. -->
+        <record id="view_erasmus_payment_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.payment.list</field>
+            <field name="model">ems.erasmus.payment</field>
+            <field name="arch" type="xml">
+                <list string="Grant payments" create="false" decoration-muted="state == 'paid'">
+                    <header>
+                        <button name="action_mark_paid" type="object" string="Mark as paid"
+                                groups="ems.group_secretary,ems.group_academic_admin"/>
+                    </header>
+                    <field name="request_date"/>
+                    <field name="partner_id"/>
+                    <field name="call_id" optional="hide"/>
+                    <field name="project_id" optional="show"/>
+                    <field name="kind"/>
+                    <field name="currency_id" column_invisible="1"/>
+                    <field name="amount" sum="Total"/>
+                    <field name="bank_account"/>
+                    <field name="bank_holder" optional="show"/>
+                    <field name="state" widget="badge" decoration-warning="state == 'to_pay'"
+                           decoration-success="state == 'paid'"/>
+                    <field name="paid_date" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_payment_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.payment.search</field>
+            <field name="model">ems.erasmus.payment</field>
+            <field name="arch" type="xml">
+                <search string="Grant payments">
+                    <field name="partner_id"/>
+                    <field name="call_id"/>
+                    <filter name="to_pay" string="To pay" domain="[('state', '=', 'to_pay')]"/>
+                    <filter name="paid" string="Paid" domain="[('state', '=', 'paid')]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
+                        <filter name="group_call" string="Call" context="{'group_by': 'call_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_payment_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.payment.form</field>
+            <field name="model">ems.erasmus.payment</field>
+            <field name="arch" type="xml">
+                <form string="Grant payment" create="false">
+                    <header>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_mark_paid" type="object" string="Mark as paid" class="btn-primary"
+                                    invisible="state != 'to_pay'" groups="ems.group_secretary,ems.group_academic_admin"/>
+                            <button name="action_mark_unpaid" type="object" string="Undo: not paid yet"
+                                    invisible="state != 'paid'" groups="ems.group_secretary,ems.group_academic_admin"/>
+                        </div>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="partner_id" readonly="1"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="kind" readonly="1"/>
+                                <field name="currency_id" invisible="1"/>
+                                <field name="amount" readonly="1"/>
+                                <field name="bank_account"/>
+                                <field name="bank_holder"/>
+                            </group>
+                            <group>
+                                <field name="call_id"/>
+                                <field name="project_id"/>
+                                <field name="request_date"/>
+                                <field name="paid_date"/>
+                                <field name="paid_by_id"/>
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_payment" model="ir.actions.act_window">
+            <field name="name">Grant payments</field>
+            <field name="res_model">ems.erasmus.payment</field>
+            <field name="view_mode">list,form</field>
+            <field name="context">{'search_default_to_pay': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">No grant payment to make</p>
+                <p>The Erasmus team requests each payment from the participant's mobility.</p>
+            </field>
+        </record>
+
+        <!-- Issue #697 - the host entities (companies, schools, course providers) and their tutors. -->
+        <record id="action_erasmus_host_entity" model="ir.actions.act_window">
+            <field name="name">Host entities</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_mode">list,kanban,form</field>
+            <field name="domain">[('is_erasmus_host', '=', True)]</field>
+            <field name="context">{'default_is_company': True, 'default_is_erasmus_host': True}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">Add a host entity</p>
+                <p>Add its tutors as its contacts, with their email: you choose one on each mobility.</p>
+            </field>
+        </record>
+    </data>
+</odoo>

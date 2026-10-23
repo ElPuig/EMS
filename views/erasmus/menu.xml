@@ -5,7 +5,7 @@
              the Director open the applications for the serious-sanction check. Issue #684: whoever has
              an interview to score (ems.group_erasmus_evaluator) sees only "My evaluations". -->
         <menuitem name="Erasmus+" sequence="9" id="menu_erasmus"
-                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_academic_admin"/>
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_secretary,ems.group_academic_admin"/>
 
         <menuitem name="Applications" sequence="1" id="menu_erasmus_applications"
                   parent="menu_erasmus" action="action_erasmus_application"
@@ -57,5 +57,19 @@
         <menuitem name="Calls" sequence="8" id="menu_erasmus_calls"
                   parent="menu_erasmus" action="action_erasmus_call"
                   groups="ems.group_erasmus,ems.group_academic_admin"/>
+
+        <!-- Issue #697: host entities, invoices and grant payments; the Secretary pays the grants and
+             reads the invoices. -->
+        <menuitem name="Host entities" sequence="10" id="menu_erasmus_host_entities"
+                  parent="menu_erasmus" action="action_erasmus_host_entity"
+                  groups="ems.group_erasmus,ems.group_academic_admin"/>
+
+        <menuitem name="Invoices" sequence="11" id="menu_erasmus_invoices"
+                  parent="menu_erasmus" action="action_erasmus_invoice"
+                  groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
+
+        <menuitem name="Grant payments" sequence="12" id="menu_erasmus_payments"
+                  parent="menu_erasmus" action="action_erasmus_payment"
+                  groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
     </data>
 </odoo>

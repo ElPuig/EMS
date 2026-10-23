@@ -1353,6 +1353,7 @@ msgstr "Permisos de acceso para tutores (profesores responsables de un grupo).De
 msgid "Access rights for department heads. Currently identical to Tutor."
 msgstr "Permisos de acceso para los jefes de departamento. Actualmente idénticos a los del Tutor."
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__bank_holder
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value2 model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Account holder"
@@ -2978,6 +2979,9 @@ msgstr "Crear sesiones"
 msgid "Create your first Authorization Template!"
 msgstr "¡Crea tu primera plantilla de autorización!"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__create_uid
@@ -3056,6 +3060,9 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 msgid "Created by"
 msgstr "Creado por"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__create_date
@@ -3228,6 +3235,7 @@ msgstr "Campos de datos"
 msgid "Data downloaded"
 msgstr "Datos descargados"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__date
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date model:ir.model.fields,field_description:ems.field_ems_minute__date model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
@@ -3359,6 +3367,8 @@ msgstr "Jefe de estudios adjunto/a"
 msgid "Descripció"
 msgstr "Descripción"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__description
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__description
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__description
 msgid "Description"
@@ -3403,6 +3413,9 @@ msgstr "Desactivar la foto de perfil"
 msgid "Disabled"
 msgstr "Desactivado"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__display_name
@@ -4569,6 +4582,8 @@ msgstr "Otorgar acceso"
 msgid "Group"
 msgstr "Grupo"
 
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_template_search model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_enrollment_search model_terms:ir.ui.view,arch_db:ems.view_sale_order_template_search_inherit_ems model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_subject_search model_terms:ir.ui.view,arch_db:ems.view_teaching_search
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_search
@@ -4755,6 +4770,7 @@ msgstr "Híbrido"
 msgid "I confirm this bank account for the new enrollment and the entire upcoming academic year"
 msgstr "Confirmo esta cuenta bancaria para la nueva matrícula y todo el próximo curso académico"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__bank_account
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_document__doc_value model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_iban model_terms:ir.ui.view,arch_db:ems.view_student_document_form model_terms:ir.ui.view,arch_db:ems.view_student_document_list model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 msgid "IBAN"
@@ -4765,6 +4781,9 @@ msgstr "IBAN"
 msgid "IBAN data"
 msgstr "Datos IBAN"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__id
@@ -5353,6 +5372,9 @@ msgstr "Familia numerosa (General)"
 msgid "Large Family (Special)"
 msgstr "Familia numerosa (Especial)"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__write_uid
@@ -5431,6 +5453,9 @@ msgstr "Familia numerosa (Especial)"
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__write_date
@@ -6561,6 +6586,8 @@ msgstr "Ruta de la unidad organizativa donde se mueven los alumnos dados de baja
 msgid "Organizational Unit path where under-18 students are created."
 msgstr "Ruta de la unidad organizativa donde se crean los estudiantes menores de 18 años.Ruta de la unidad organizativa donde se crean los alumnos menores de 18 años."
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_invoice__concept__other
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_provision__concept__other
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__other
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation__basis__other
@@ -6693,6 +6720,7 @@ msgstr "Pasaporte"
 msgid "Paste here the full JSON key of the Google Cloud service account. It is stored encrypted. The service account must have a custom admin role scoped to the students OU."
 msgstr "Pega aquí la clave JSON completa de la cuenta de servicio de Google Cloud. Se guarda cifrada. La cuenta de servicio debe tener un rol de administrador personalizado limitado a la unidad organizativa de los alumnos."
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__kind
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment
 msgid "Payment"
@@ -8058,6 +8086,7 @@ msgstr "Fecha de inicio"
 msgid "Starting process in the background, you'll be notified on completion (it can take a while)."
 msgstr "Iniciando proceso en segundo plano; recibirás una notificación al finalizar (puede tardar un momento)."
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_evaluation__state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__state
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__state
@@ -8999,6 +9028,10 @@ msgstr "A"
 msgid "To Do"
 msgstr ""
 
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_list
 #. module: ems
 #. odoo-javascript
 #: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_confirmed model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process model_terms:ir.ui.view,arch_db:ems.report_enrollment model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list code:addons/ems/static/src/xml/backend/schedule_grid_field.xml:0 model_terms:ir.ui.view,arch_db:ems.report_working_schedule
@@ -16538,6 +16571,7 @@ msgid ""
 "%(enrollment)s: %(amount)s (due %(due_date)s)."
 msgstr "Pago recibido del plazo %(number)s de %(count)s de la matrícula %(enrollment)s: %(amount)s (vence el %(due_date)s)."
 
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_payment__kind__single
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/enrollment/enrollment.py:0
@@ -20215,6 +20249,7 @@ msgstr "Nuevo strike"
 msgid "A strike can't be dated in the future."
 msgstr "No se puede poner un strike con fecha futura."
 
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
@@ -24434,6 +24469,7 @@ msgstr ""
 "comprueba que la solicitud sigue abierta y que has adjuntado todos los "
 "documentos obligatorios."
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid "<i class=\"fa fa-file-pdf-o me-1\"/>Read the call"
@@ -24604,6 +24640,8 @@ msgid "Both admission checks must be met to admit %s."
 msgstr ""
 "Para admitir a %s se deben cumplir las dos comprobaciones de admisión."
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__call_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_panel__call_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_evaluation__call_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__call_name
@@ -24981,6 +25019,10 @@ msgstr "Movilidad Erasmus+ anterior"
 msgid "Previous mobility details"
 msgstr "Detalles de la movilidad anterior"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__project_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__project_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_modality__project
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__project_id
@@ -28028,6 +28070,8 @@ msgstr "Contacto de la entidad"
 msgid "Host contact person"
 msgstr "Persona de contacto de la entidad"
 
+#: model:ir.actions.act_window,name:ems.action_erasmus_host_entity
+#: model:ir.ui.menu,name:ems.menu_erasmus_host_entities
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__host_partner_ids
 msgid "Host entities"
@@ -28073,6 +28117,8 @@ msgstr "Tutor legal"
 msgid "Mobilities"
 msgstr "Movilidades"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__mobility_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__mobility_id
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__mobility_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__mobility_id
@@ -28172,6 +28218,9 @@ msgstr "Solo quien valida la propuesta escribe el motivo de la decisión."
 msgid "Open destination choice"
 msgstr "Abrir la elección de destino"
 
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__partner_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__partner_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
@@ -29210,6 +29259,7 @@ msgstr "El equipo Erasmus la sube para que la tengas."
 msgid "The Erasmus team will upload it for you."
 msgstr "El equipo Erasmus te lo subirá."
 
+#: model:ir.model.fields,help:ems.field_ems_erasmus_payment__project_id
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__project_id
 msgid "The Erasmus+ project the mobility is charged to: CFGM on a KA121-VET project, CFGS on a KA131-HED one."
@@ -29415,3 +29465,449 @@ msgid ""
 msgstr ""
 "es menor de edad, así que la familia también firma la carta de compromiso de"
 " la estancia Erasmus+."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__is_erasmus_host
+#: model:ir.model.fields,help:ems.field_res_users__is_erasmus_host
+msgid ""
+"A company, school or course provider that hosts Erasmus+ participants. Its "
+"contacts are the tutors at destination."
+msgstr ""
+"Empresa, centro educativo o proveedor de cursos que acoge participantes "
+"Erasmus+. Sus contactos son los tutores de destino."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "A paid payment cannot be deleted."
+msgstr "Un pago ya hecho no se puede eliminar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "A paid payment cannot change."
+msgstr "Un pago ya hecho no se puede modificar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "A payment is marked as paid from its own button."
+msgstr "Un pago se marca como pagado con su botón."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_invoice__concept__accommodation
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_provision__concept__accommodation
+msgid "Accommodation"
+msgstr "Alojamiento"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_host_entity
+msgid "Add a host entity"
+msgstr "Añade una entidad de acogida"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_host_entity
+msgid ""
+"Add its tutors as its contacts, with their email: you choose one on each "
+"mobility."
+msgstr ""
+"Añade sus tutores como contactos, con su correo: elegirás uno en cada "
+"movilidad."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__amount
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__amount
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__amount
+msgid "Amount"
+msgstr "Importe"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__can_request_final
+msgid "Can request the final payment"
+msgstr "Puede solicitar el pago final"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__can_request_prefinancing
+msgid "Can request the first payment"
+msgstr "Puede solicitar el primer pago"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_invoice
+msgid ""
+"Choose who it covers: its amount is split equally among them and deducted "
+"from what they receive."
+msgstr ""
+"Elige a quién cubre: el importe se reparte a partes iguales y se descuenta "
+"de lo que reciben."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__concept
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__concept
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
+msgid "Concept"
+msgstr "Concepto"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__host_contact_email
+msgid "Contact person's email"
+msgstr "Correo de la persona de contacto"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_invoice__concept__course
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_provision__concept__course
+msgid "Course fees"
+msgstr "Tasas del curso"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__currency_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__currency_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__currency_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Erasmus+ grant"
+msgstr "Beca Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_payment
+msgid "Erasmus+ grant payment"
+msgstr "Pago de beca Erasmus+"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__is_erasmus_host
+#: model:ir.model.fields,field_description:ems.field_res_users__is_erasmus_host
+msgid "Erasmus+ host entity"
+msgstr "Entidad de acogida Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_invoice
+msgid "Erasmus+ invoice"
+msgstr "Factura Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_provision
+msgid "Erasmus+ provision of services"
+msgstr "Provisión de servicios Erasmus+"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_payment__kind__final
+msgid "Final payment"
+msgstr "Pago final"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_amount
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Grant"
+msgstr "Beca"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_form
+msgid "Grant payment"
+msgstr "Pago de beca"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_payment
+#: model:ir.ui.menu,name:ems.menu_erasmus_payments
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
+msgid "Grant payments"
+msgstr "Pagos de becas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_provision__invoice_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "Invoice %s"
+msgstr "Factura %s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__document
+msgid "Invoice file"
+msgstr "Archivo de la factura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__document_filename
+msgid "Invoice file name"
+msgstr "Nombre del archivo de la factura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__name
+msgid "Invoice number"
+msgstr "Número de factura"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_erasmus_invoice
+#: model:ir.ui.menu,name:ems.menu_erasmus_invoices
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_list
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_search
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_list
+msgid "Mark as paid"
+msgstr "Marcar como pagado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__paid_by_id
+msgid "Marked paid by"
+msgstr "Marcado como pagado por"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_payment
+msgid "No grant payment to make"
+msgstr "No hay ningún pago de beca pendiente"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__unassigned_amount
+msgid "Not assigned"
+msgstr "Sin asignar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "Only the Secretary marks a grant payment as paid."
+msgstr "Solo la secretaría marca un pago de beca como pagado."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_payment__state__paid
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
+msgid "Paid"
+msgstr "Pagado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__provision_amount
+msgid "Paid by the centre"
+msgstr "Pagado por el centro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Paid by the centre:"
+msgstr "Pagado por el centro:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__paid_date
+msgid "Paid on"
+msgstr "Pagado el"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__prefinancing_percent
+msgid ""
+"Part of the grant paid before leaving; the rest, on return. 100: a single "
+"payment."
+msgstr ""
+"Parte de la beca que se paga antes de salir; el resto, al volver. 100: un "
+"solo pago."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__mobility_ids
+msgid "Participants"
+msgstr "Participantes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+msgid "Participants the invoice covers"
+msgstr "Participantes que cubre la factura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__payment_ids
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Payments to the participant"
+msgstr "Pagos a la persona participante"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_payment__kind__prefinancing
+msgid "Prefinancing"
+msgstr "Prefinanciación"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__prefinancing_percent
+msgid "Prefinancing (%)"
+msgstr "Prefinanciación (%)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__provision_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Provision of services"
+msgstr "Provisión de servicios"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Request the final payment"
+msgstr "Solicitar el pago final"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Request the first payment"
+msgstr "Solicitar el primer pago"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Request the first payment of %s before the final one, and only once."
+msgstr "Solicita el primer pago de %s antes del final, y solo una vez."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_payment__request_date
+msgid "Requested on"
+msgstr "Solicitado el"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+msgid "Share of each participant"
+msgstr "Parte de cada participante"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__provision_ids
+msgid "Shares"
+msgstr "Partes"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__supplier_id
+msgid "Supplier"
+msgstr "Proveedor"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_payment
+msgid ""
+"The Erasmus team requests each payment from the participant's mobility."
+msgstr ""
+"El equipo Erasmus solicita cada pago desde la movilidad de la persona "
+"participante."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "The Secretary will see this payment to transfer it. Continue?"
+msgstr ""
+"La secretaría verá este pago para hacer la transferencia. ¿Quieres "
+"continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The first payment of %s is already requested, or the grant is not set."
+msgstr ""
+"El primer pago de %s ya se ha solicitado, o la beca no está informada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_net
+msgid "The grant minus the services the centre pays directly."
+msgstr "La beca menos los servicios que paga directamente el centro."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__unassigned_amount
+msgid "The invoice's amount minus its shares: zero once fully assigned."
+msgstr ""
+"El importe de la factura menos las partes asignadas: cero cuando está "
+"asignada del todo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__grant_amount
+msgid "The participant's grant, as calculated in the Beneficiary Module."
+msgstr ""
+"La beca de la persona participante, tal como se ha calculado en el "
+"Beneficiary Module."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The prefinancing is a percentage above 0 and up to 100."
+msgstr "La prefinanciación es un porcentaje mayor que 0 y hasta 100."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid ""
+"The prefinancing percentage of what the participant receives, or everything "
+"at 100 %."
+msgstr ""
+"El porcentaje de prefinanciación de lo que recibe la persona participante, o"
+" todo si es el 100 %."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid ""
+"There is nothing to pay to %s: check the grant and the services the centre "
+"pays."
+msgstr ""
+"No hay nada que pagar a %s: revisa la beca y los servicios que paga el "
+"centro."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_payment__state__to_pay
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_search
+msgid "To pay"
+msgstr "Por pagar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__grant_net
+msgid "To transfer to the participant"
+msgstr "A transferir a la persona participante"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_invoice__concept__travel
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_provision__concept__travel
+msgid "Travel"
+msgstr "Viaje"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_payment_form
+msgid "Undo: not paid yet"
+msgstr "Deshacer: aún no se ha pagado"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_erasmus_invoice
+msgid "Upload an invoice the centre paid for some participants"
+msgstr "Sube una factura que el centro ha pagado para algunos participantes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "What is left to transfer to the participant, on return."
+msgstr "Lo que queda por transferir a la persona participante, al volver."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__provision_ids
+msgid ""
+"What the centre pays directly out of the grant: flights, accommodation, "
+"course fees..."
+msgstr ""
+"Lo que el centro paga directamente de la beca: vuelos, alojamiento, tasas de"
+" cursos..."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_invoice__mobility_ids
+msgid "Who the invoice covers: its amount is split equally among them."
+msgstr "A quién cubre la factura: el importe se reparte a partes iguales."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "You receive"
+msgstr "Recibes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Your grant"
+msgstr "Tu beca"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+msgid "e.g. F-2027/0123"
+msgstr "p. ej. F-2027/0123"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_invoice_form
+msgid "e.g. Flights Barcelona - Larnaca"
+msgstr "p. ej. Vuelos Barcelona - Larnaca"

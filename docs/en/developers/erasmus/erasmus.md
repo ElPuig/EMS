@@ -702,3 +702,68 @@ mobility (`prepared_attachment_ids`).
 
 Menu *Erasmus+ > Mobilities* (team, Head of Studies, Director), with a *Proposal to validate*
 filter.
+
+## Grants, provision of services and host entities (phase 6, #697)
+
+The coordinator calculates each participant's grant in the Beneficiary Module and enters it on the
+mobility. The centre may pay part of it directly (flights, accommodation, course fees): those
+**provisions of services** are deducted, and the Secretary transfers the rest to the participant
+(art. 5 of both calls).
+
+```mermaid
+erDiagram
+    ems_erasmus_mobility ||--o{ ems_erasmus_provision : "provision_ids"
+    ems_erasmus_invoice ||--o{ ems_erasmus_provision : "provision_ids (one share per participant)"
+    ems_erasmus_invoice }o--o{ ems_erasmus_mobility : "mobility_ids"
+    ems_erasmus_mobility ||--o{ ems_erasmus_payment : "payment_ids"
+    ems_erasmus_mobility }o--o| res_partner : "host_partner_id (is_erasmus_host), host_contact_id (its tutor)"
+```
+
+| Model | Purpose |
+|---|---|
+| `ems.erasmus.provision` | Part of a grant the centre pays directly: concept (travel, accommodation, course fees, other), description, amount, the invoice it comes from (optional). Added by hand on the mobility's *Grant* tab, or created by an invoice. |
+| `ems.erasmus.invoice` | A supplier's invoice the centre paid for some participants: number, supplier, date, concept, project, amount, file, `mobility_ids`. Creating it, or changing its amount or participants, splits it again into equal shares (`_ems_split()`: rounded down to the cent, the remainder on the first share); a share can then be edited by hand, and `unassigned_amount` shows what is left. Changing only the concept or description updates the shares in place. |
+| `ems.erasmus.payment` | An amount the Secretary transfers: `kind` prefinancing, final or single; amount; `state` to pay / paid, who and when; the participant's IBAN and holder (`bank_account`, `bank_holder`: their first `res.partner.bank`, read with sudo). |
+
+**On the mobility:** `grant_amount`, `prefinancing_percent` (default 80, above 0 and up to 100),
+`provision_amount` and `grant_net` (= grant - provisions, what the participant receives).
+*Request the first payment* (`action_request_prefinancing`) creates the prefinancing, `grant_net` x
+percentage, or a **single** payment at 100 %. *Request the final payment*
+(`action_request_final_payment`) creates the rest, `grant_net` minus every payment already
+requested, so a change of the grant or the provisions after the prefinancing lands in it. Each
+can be requested once (`can_request_prefinancing`, `can_request_final`), from the *preparing*
+state, and never for nothing (zero or less raises). An unpaid payment can be deleted by the team
+and requested again.
+
+**Paying:** only the Secretary (or the administrator) marks a payment paid or undoes it
+(`action_mark_paid`, `action_mark_unpaid`, which write with sudo after checking the group); a direct
+write of `state`/`paid_date`/`paid_by_id` raises, and a paid payment cannot be changed or deleted.
+
+**Portal:** once the mobility is in preparation and has a grant, the participant sees it
+(`_ems_portal_grant()`): the grant, each provision of services, what they receive and each payment
+with its state. The call's page also links the published call.
+
+**Host entities:** `res.partner.is_erasmus_host` marks a company, school or course provider that
+hosts participants; its contacts are the tutors at destination, with their email. Menu *Erasmus+ >
+Host entities* (`action_erasmus_host_entity`, the native contact views). The mobility's and the
+destination's host fields only offer host entities, the mobility shows the tutor's email
+(`host_contact_email`) and picks the tutor automatically when the entity has only one contact. The
+Learning Agreement already says it is signed by the host entity (`sign_host`); sending it to the
+tutor to sign waits for the integrated e-signature.
+
+**Projects:** the team assigns each mobility to a project (`project_id`, phase 5) before entering it
+in the Beneficiary Module. Payments and invoices carry the project for the Secretary.
+
+### Access (phase 6)
+
+| Model | Erasmus team | Secretary | Head of Studies / Director |
+|---|---|---|---|
+| `ems.erasmus.provision`, `.invoice` | rwcu | r | - |
+| `ems.erasmus.payment` | rwcu (unpaid only; `write()` guard) | r + mark paid (button) | - |
+| `ems.erasmus.call`, `.project` | rwcu | r | r |
+| `res.partner` | r every contact; wc only host entities and their contacts (`rule_contact_erasmus_*`) | (unchanged) | (unchanged) |
+
+The mobility's *Grant* tab and its grant columns are only for the team (`groups=`), so the Head of
+Studies and the Director, who read mobilities, never load the grant models. Menus *Erasmus+ > Host
+entities* (team), *Invoices* and *Grant payments* (team and Secretary; the Secretary sees only these
+two under *Erasmus+*).

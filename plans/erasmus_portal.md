@@ -336,9 +336,14 @@ graph LR
   on the portal, own proposals, host entities, preparation and return documents with signers (signed
   outside EMS and uploaded), checklist per modality, Director validation of staff activities, graduates
   keep the portal until their mobility closes.
-- **Later (no issue yet):** integrated self-hosted e-signature (third delivery).
+- **F6 - Grants, provision of services and host entities** *(#697, on `697-erasmus-phase-6`, from F5;
+  see the dev doc)*. Grant per mobility (calculated in the Beneficiary Module, entered in EMS), services
+  the centre pays directly (from invoices split among the participants they cover), prefinancing and
+  final payments the Secretary transfers, host entities with their tutors.
+- **Later (no issue yet):** integrated self-hosted e-signature (third delivery); then the Learning
+  Agreement is sent to the host tutor (the host entity's contact) to sign.
 
-Out of scope for all phases: grant calculation and payments, generating official documents,
+Out of scope for all phases: grant calculation (done in the Beneficiary Module), generating official documents,
 interview scheduling optimisation, bulk signature, advanced statistics, EWP, AI evaluation.
 
 Execution notes, all phases:

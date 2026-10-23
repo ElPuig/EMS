@@ -89,6 +89,9 @@
                     <t t-if="modality">Modality: <t t-esc="modality.name"/></t>
                     <t t-if="application"> - <t t-esc="state_labels.get(application.state)"/></t>
                 </p>
+                <p t-if="call.rules_document" class="small mb-3 o_ems_erasmus_rules">
+                    <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
+                </p>
 
                 <div t-if="saved" class="alert alert-success mb-3 o_ems_erasmus_saved">
                     <i class="fa fa-check-circle me-1"/> Saved. Remember to submit the application before the closing date.
@@ -502,6 +505,26 @@
                             <tr t-if="mobility.host_partner_id"><td>Host entity</td><td t-esc="mobility.host_partner_id.name"/></tr>
                             <tr t-if="mobility.host_contact_id"><td>Contact person</td><td><t t-esc="mobility.host_contact_id.name"/><t t-if="mobility.host_contact_id.email"> (<t t-esc="mobility.host_contact_id.email"/>)</t></td></tr>
                             <tr t-if="mobility.date_start"><td>Dates</td><td><t t-out="mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.date_end" t-options="{'widget': 'date'}"/></td></tr>
+                        </tbody>
+                    </table>
+                </t>
+                <!-- Issue #697: the grant, what the centre pays out of it and the payments (art. 5). -->
+                <t t-if="mobility.state in ('preparing', 'done') and mobility.grant_amount">
+                    <t t-set="currency_options" t-value="{'widget': 'monetary', 'display_currency': mobility.currency_id}"/>
+                    <t t-set="grant" t-value="mobility._ems_portal_grant()"/>
+                    <h6>Your grant</h6>
+                    <table class="table table-sm small mb-3 o_ems_erasmus_grant">
+                        <tbody>
+                            <tr><td>Erasmus+ grant</td><td class="text-end" t-out="mobility.grant_amount" t-options="currency_options"/></tr>
+                            <tr t-foreach="grant[0]" t-as="provision">
+                                <td>Paid by the centre: <t t-esc="provision[0]"/></td>
+                                <td class="text-end">- <t t-out="provision[1]" t-options="currency_options"/></td>
+                            </tr>
+                            <tr class="fw-bold"><td>You receive</td><td class="text-end o_ems_erasmus_grant_net" t-out="mobility.grant_net" t-options="currency_options"/></tr>
+                            <tr t-foreach="grant[1]" t-as="payment" class="text-muted">
+                                <td><t t-esc="payment[0]"/>: <t t-esc="payment[1]"/><t t-if="payment[3]"> (<t t-out="payment[3]" t-options="{'widget': 'date'}"/>)</t></td>
+                                <td class="text-end" t-out="payment[2]" t-options="currency_options"/>
+                            </tr>
                         </tbody>
                     </table>
                 </t>

@@ -23,7 +23,8 @@ ACCESS_MATRIX = {
     'ems.course': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     # Issue #683: the applications have record rules and a write() guard, tested in test_erasmus.py.
-    'ems.erasmus.call': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    # Issue #697: the Secretary reads the calls and projects of the grant payments it makes.
+    'ems.erasmus.call': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.document': {'teacher': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Issue #684: the modules frozen for the record average, written only by the call's closing.
     'ems.erasmus.application.grade': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
@@ -41,7 +42,11 @@ ACCESS_MATRIX = {
     'ems.erasmus.destination': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.mobility': {'teacher': '', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
-    'ems.erasmus.project': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.project': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    # Issue #697: payments are marked paid by the Secretary through a button (write() guard, test_erasmus_grant.py).
+    'ems.erasmus.provision': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
+    'ems.erasmus.invoice': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
+    'ems.erasmus.payment': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.mobility.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},

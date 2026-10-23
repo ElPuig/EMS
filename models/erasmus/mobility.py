@@ -38,7 +38,7 @@ class EmsErasmusDestination(models.Model):
     date_start = fields.Date(string="Start")
     date_end = fields.Date(string="End")
     host_partner_ids = fields.Many2many(string="Host entities", comodel_name='res.partner',
-                                        domain="[('is_company', '=', True)]")
+                                        domain="[('is_erasmus_host', '=', True)]")
     notes = fields.Text(string="Notes", help="Shown to the students when they choose.")
     mobility_ids = fields.One2many(string="Mobilities", comodel_name='ems.erasmus.mobility',
                                    inverse_name='destination_id')
@@ -143,7 +143,7 @@ class EmsErasmusMobility(models.Model):
     country_id = fields.Many2one(string="Country", comodel_name='res.country', tracking=True)
     city = fields.Char(string="City", tracking=True)
     host_partner_id = fields.Many2one(string="Host entity", comodel_name='res.partner', tracking=True,
-                                      domain="[('is_company', '=', True)]")
+                                      domain="[('is_erasmus_host', '=', True)]")
     host_contact_id = fields.Many2one(string="Host contact person", comodel_name='res.partner',
                                       domain="[('parent_id', '=', host_partner_id)]")
     date_start = fields.Date(string="Start", tracking=True)
@@ -186,6 +186,26 @@ class EmsErasmusMobility(models.Model):
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
     can_validate = fields.Boolean(string="Can validate the proposal", compute='_compute_can_validate')
 
+    # Issue #697: the grant, the services the centre pays out of it, and what the Secretary transfers.
+    currency_id = fields.Many2one(string="Currency", comodel_name='res.currency', compute='_compute_currency_id')
+    grant_amount = fields.Monetary(string="Grant", tracking=True,
+                                   help="The participant's grant, as calculated in the Beneficiary Module.")
+    prefinancing_percent = fields.Float(string="Prefinancing (%)", default=80.0, tracking=True,
+                                        help="Part of the grant paid before leaving; the rest, on return. 100: a "
+                                             "single payment.")
+    provision_ids = fields.One2many(string="Provision of services", comodel_name='ems.erasmus.provision',
+                                    inverse_name='mobility_id',
+                                    help="What the centre pays directly out of the grant: flights, accommodation, "
+                                         "course fees...")
+    provision_amount = fields.Monetary(string="Paid by the centre", compute='_compute_grant_net')
+    grant_net = fields.Monetary(string="To transfer to the participant", compute='_compute_grant_net',
+                                help="The grant minus the services the centre pays directly.")
+    payment_ids = fields.One2many(string="Payments", comodel_name='ems.erasmus.payment', inverse_name='mobility_id')
+    can_request_prefinancing = fields.Boolean(string="Can request the first payment",
+                                              compute='_compute_can_request_payment')
+    can_request_final = fields.Boolean(string="Can request the final payment", compute='_compute_can_request_payment')
+    host_contact_email = fields.Char(string="Contact person's email", related='host_contact_id.email')
+
     @api.depends('call_id.commitment_text', 'commitment_signed_date', 'commitment_guardian_signed_date',
                  'partner_id.birth_date')
     def _compute_commitment_pending(self):
@@ -219,6 +239,36 @@ class EmsErasmusMobility(models.Model):
             if mobility.project_id and kind and mobility.project_id.kind != kind:
                 raise ValidationError(_("The mobility of %(name)s goes on a %(kind)s project.", name=mobility.partner_id.name,
                                         kind=dict(self.env['ems.erasmus.project']._fields['kind'].selection)[kind]))
+
+    def _compute_currency_id(self):
+        self.currency_id = self.env.company.currency_id
+
+    @api.depends('grant_amount', 'provision_ids.amount')
+    def _compute_grant_net(self):
+        for mobility in self:
+            mobility.provision_amount = sum(mobility.provision_ids.mapped('amount'))
+            mobility.grant_net = mobility.grant_amount - mobility.provision_amount
+
+    @api.depends('payment_ids.kind', 'grant_amount')
+    def _compute_can_request_payment(self):
+        for mobility in self:
+            first = mobility.payment_ids.filtered(lambda payment: payment.kind in ('prefinancing', 'single'))
+            mobility.can_request_prefinancing = bool(mobility.grant_amount) and not first
+            mobility.can_request_final = bool(first) and not mobility.payment_ids.filtered(
+                lambda payment: payment.kind == 'final')
+
+    @api.onchange('host_partner_id')
+    def _onchange_host_partner_id(self):
+        """Issue #697: the host entity's tutor, when it has only one contact."""
+        contacts = self.host_partner_id.child_ids.filtered(lambda contact: contact.type == 'contact')
+        if self.host_contact_id.parent_id != self.host_partner_id:
+            self.host_contact_id = contacts if len(contacts) == 1 else False
+
+    @api.constrains('prefinancing_percent')
+    def _check_prefinancing_percent(self):
+        for mobility in self:
+            if not 0 < mobility.prefinancing_percent <= 100:
+                raise ValidationError(_("The prefinancing is a percentage above 0 and up to 100."))
 
     @api.depends_context('uid')
     @api.depends('audience')
@@ -537,6 +587,35 @@ class EmsErasmusMobility(models.Model):
             and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)
             and (line.review_state == 'needs_change' or (line.is_required and not line.attachment_ids))))
 
+    def action_request_prefinancing(self):
+        """Issue #697: the first payment for the Secretary, the prefinancing percentage of what
+        the participant receives (a single payment at 100 %)."""
+        self._ems_check_manager()
+        for mobility in self:
+            if not mobility.can_request_prefinancing:
+                raise UserError(_("The first payment of %s is already requested, or the grant is not set.",
+                                  mobility.partner_id.name))
+            kind = 'single' if mobility.prefinancing_percent >= 100 else 'prefinancing'
+            mobility._ems_request_payment(kind, mobility.grant_net * mobility.prefinancing_percent / 100)
+
+    def action_request_final_payment(self):
+        """Issue #697: the rest, on return: what the participant receives minus what was already
+        requested, so a change of the grant or the services after the prefinancing lands here."""
+        self._ems_check_manager()
+        for mobility in self:
+            if not mobility.can_request_final:
+                raise UserError(_("Request the first payment of %s before the final one, and only once.",
+                                  mobility.partner_id.name))
+            mobility._ems_request_payment('final', mobility.grant_net - sum(mobility.payment_ids.mapped('amount')))
+
+    def _ems_request_payment(self, kind, amount):
+        self.ensure_one()
+        amount = self.currency_id.round(amount)
+        if self.currency_id.compare_amounts(amount, 0) <= 0:
+            raise UserError(_("There is nothing to pay to %s: check the grant and the services the centre pays.",
+                              self.partner_id.name))
+        self.env['ems.erasmus.payment'].create({'mobility_id': self.id, 'kind': kind, 'amount': amount})
+
     def action_close(self):
         """The participant is back and every return document and step is done."""
         self._ems_check_manager()
@@ -577,6 +656,21 @@ class EmsErasmusMobility(models.Model):
             mobility.application_id._ems_set_state('renounced')
         self.partner_id._ems_erasmus_release_graduate()
         self.call_id.filtered('choice_open')._ems_advance_choice()
+
+    def _ems_portal_grant(self):
+        """Issue #697: the grant as the participant reads it on the portal (art. 5 of the calls:
+        what the centre pays directly and what they receive): the provisions as (label, amount),
+        the payments as (label, state label, amount, paid date)."""
+        self.ensure_one()
+        Provision, Payment = self.env['ems.erasmus.provision'], self.env['ems.erasmus.payment']
+        concepts = dict(Provision._fields['concept']._description_selection(self.env))
+        kinds = dict(Payment._fields['kind']._description_selection(self.env))
+        states = dict(Payment._fields['state']._description_selection(self.env))
+        provisions = [(" - ".join(filter(None, [concepts[provision.concept], provision.description])), provision.amount)
+                      for provision in self.provision_ids]
+        payments = [(kinds[payment.kind], states[payment.state], payment.amount, payment.paid_date)
+                    for payment in self.payment_ids]
+        return provisions, payments
 
     # --- helpers -----------------------------------------------------------------------------
 

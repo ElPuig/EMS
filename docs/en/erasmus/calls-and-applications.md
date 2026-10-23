@@ -21,7 +21,8 @@ Go to **Erasmus+ > Calls** and click **New**:
 | Published call | The PDF of the call, which students can download from the portal |
 | Applications open / close | When students can apply. After the closing date nobody can change their application |
 | Corrections deadline | Until when applicants can upload the corrections you ask for. You can fill it in later |
-| Contact email | The Erasmus+ coordination's mailbox (for example, the centre's Erasmus one). Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) arrive here |
+
+> Replies to the emails EMS sends without anyone of the team sending them (receipts and reminders) go to the Erasmus+ mailbox in **Settings > EMS Management > Center Data > Erasmus+** (erasmus@elpuig.xeill.net), the same for every call.
 
 **Modalities** tab: one line per selection list with its own places, for example *GM* and *GS*. In **Levels** choose the levels whose students apply in that modality (for example *CFGM* for GM, and *CFGS* and the specialisation courses for GS, whose students go on the higher education project). Any student whose main group is of one of those levels can apply, whatever their year. Also fill in the project, places, period and destinations.
 

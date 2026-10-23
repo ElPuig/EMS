@@ -74,10 +74,12 @@
   scheduled again if it is undone; the Secretary sees them every working day in the existing
   daily pending-tasks digest. Payments and invoices inherit ems.base (chatter and activities).
 
-## Erasmus+ call: contact email for the replies:
+## Erasmus+ contact email for the replies:
 
-- New field on the call, Contact email: the reply-to of the emails sent with nobody of the team
-  behind them (the application receipt, which had none, and the reminders and cron emails).
+- New company setting (Settings > Center Data > Erasmus+), defaulting to erasmus@elpuig.xeill.net
+  and the same for every call (adriamt: "siempre será ese"): the reply-to of the Erasmus+ emails
+  sent with nobody of the team behind them (the application receipt, which had none, and the
+  reminders and cron emails).
 
 # Fixes
 

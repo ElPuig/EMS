@@ -62,9 +62,6 @@ class EmsErasmusCall(models.Model):
                              selection=[('draft', "Draft"), ('published', "Published"), ('closed', "Closed")])
     date_open = fields.Datetime(string="Applications open", required=True, tracking=True)
     date_close = fields.Datetime(string="Applications close", required=True, tracking=True)
-    contact_email = fields.Char(string="Contact email", tracking=True,
-                                help="Where the applicants' replies go when an email of the call is not sent by someone of "
-                                     "the Erasmus team (receipts, reminders), e.g. the Erasmus coordination's mailbox.")
     subsanation_deadline = fields.Datetime(string="Corrections deadline", tracking=True, copy=False,
                                            help="Until when applicants can upload the corrections asked for.")
     interview_deadline = fields.Datetime(string="Score correction deadline", tracking=True, copy=False,

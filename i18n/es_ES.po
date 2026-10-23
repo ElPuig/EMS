@@ -24860,6 +24860,7 @@ msgstr ""
 #: model:ir.ui.menu,name:ems.menu_erasmus
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_home_ems_custom_landing
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 msgid "Erasmus+"
 msgstr "Erasmus+"
 
@@ -30651,11 +30652,6 @@ msgid "Conduct warnings this course"
 msgstr "Amonestaciones este curso"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__contact_email
-msgid "Contact email"
-msgstr "Correo de contacto"
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__can_manage
 msgid "Erasmus team or administrator."
 msgstr "Equipo Erasmus o administrador."
@@ -30705,17 +30701,6 @@ msgstr ""
 "de la convocatoria). Excluye la solicitud."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__contact_email
-msgid ""
-"Where the applicants' replies go when an email of the call is not sent by "
-"someone of the Erasmus team (receipts, reminders), e.g. the Erasmus "
-"coordination's mailbox."
-msgstr ""
-"Adónde llegan las respuestas de los solicitantes cuando un correo de la "
-"convocatoria no lo envía nadie del equipo Erasmus (acuses de recibo, "
-"recordatorios), por ejemplo el buzón de la coordinación Erasmus."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
 msgid ""
@@ -30724,3 +30709,37 @@ msgid ""
 msgstr ""
 "No puedes presentarte a esta convocatoria: este curso tienes demasiadas "
 "amonestaciones."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__erasmus_contact_email
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__erasmus_contact_email
+msgid "Erasmus+ contact email"
+msgstr "Correo de contacto de Erasmus+"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"The Erasmus+ coordination's mailbox. Replies to the Erasmus+ emails sent "
+"without anyone of the team behind them (application receipts, reminders) go "
+"here, for every call."
+msgstr ""
+"El buzón de la coordinación Erasmus+. Las respuestas a los correos de "
+"Erasmus+ que se envían sin nadie del equipo detrás (acuses de recibo de las "
+"solicitudes, recordatorios) llegan aquí, para todas las convocatorias."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_company__erasmus_contact_email
+#: model:ir.model.fields,help:ems.field_res_config_settings__erasmus_contact_email
+msgid ""
+"The Erasmus+ coordination's mailbox: the reply-to of the Erasmus+ emails "
+"sent without anyone of the team behind them (application receipts, "
+"reminders), for every call."
+msgstr ""
+"El buzón de la coordinación Erasmus+: la dirección de respuesta de los "
+"correos de Erasmus+ que se envían sin nadie del equipo detrás (acuses de "
+"recibo de las solicitudes, recordatorios), para todas las convocatorias."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "erasmus@example.com"
+msgstr "erasmus@example.com"

@@ -94,8 +94,10 @@ stateDiagram-v2
 - **Admit** needs the requirements met, every required document *Valid* and, in a students' call,
   no conduct block (below). **Exclude** needs the exclusion reason.
 - Emails go only to the applicant's own address; a recipient without one is noted in the chatter.
-  Their reply-to is whoever on the team caused the email (`_ems_reply_to()`), else the call's
-  `contact_email` (receipts and reminders, sent with nobody of the team behind them).
+  Their reply-to is whoever on the team caused the email (`_ems_reply_to()`), else the centre's
+  Erasmus+ mailbox, `res.company.erasmus_contact_email` (Settings > Center Data > Erasmus+, the same
+  for every call; it defaults to the centre's address, like `google_ws_domain`, so an upgrading
+  installation gets it too), for the receipts and reminders sent with nobody of the team behind them.
 
 ## Documents
 

@@ -67,6 +67,9 @@
                             <setting string="Secretariat" help="Email address of the center's secretariat, for messages addressed to it. No feature uses it yet." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>
+                            <setting string="Erasmus+" help="The Erasmus+ coordination's mailbox. Replies to the Erasmus+ emails sent without anyone of the team behind them (application receipts, reminders) go here, for every call." id="erasmus_contact_email">
+                                <field name="erasmus_contact_email" widget="email" placeholder="erasmus@example.com"/>
+                            </setting>
                             <setting string="Notice email signature" help="Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward." id="notice_email_signature">
                                 <field name="notice_email_signature" widget="html"/>
                             </setting>

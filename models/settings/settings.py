@@ -62,6 +62,7 @@ class ems_settings(models.TransientModel):
    director_id = fields.Many2one(comodel_name="hr.employee", related="company_id.director_id", readonly=False)
 
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
+   erasmus_contact_email = fields.Char(related="company_id.erasmus_contact_email", readonly=False)
    center_code = fields.Char(related="company_id.center_code", readonly=False)
    notice_email_signature = fields.Html(related="company_id.notice_email_signature", readonly=False)
 

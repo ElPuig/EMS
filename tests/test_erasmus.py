@@ -340,6 +340,14 @@ class TestErasmusApplication(TransactionCase):
         application.exclusion_reason = 'Art. 6'
         application.action_exclude()
 
+    def test_receipt_replies_go_to_the_erasmus_mailbox(self):
+        self.env.company.erasmus_contact_email = 'erasmus.box@example.com'
+        application = self._apply()
+        upload(application, self.cv)
+        application.action_submit()
+        mail = self.env['mail.mail'].search([('model', '=', application._name), ('res_id', '=', application.id)])
+        self.assertIn('erasmus.box@example.com', mail.reply_to)
+
     def test_corrected_application_becomes_a_task_for_the_team(self):
         application = self._apply()
         upload(application, self.cv)

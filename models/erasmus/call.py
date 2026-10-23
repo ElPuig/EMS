@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from collections import Counter
 from datetime import timedelta
 
 from markupsafe import Markup
@@ -33,6 +34,10 @@ SEPIE_FOLDERS = [
 # Where a call document goes in the dossier when it says nothing (issue #697).
 STAGE_FOLDERS = {'application': '02_Publicacionyseleccion', 'preparation': '04_ConveniosParticipantes',
                  'return': '09_Certificados'}
+# A staff call's panel rates the mobility plans in the two weeks after it closes.
+STAFF_RATING_DAYS = 14
+# Who a new staff call is for (art. 6 of the staff call): the teachers of every FP level.
+STAFF_LEVELS = ['ems.level_cfgb', 'ems.level_cfgm', 'ems.level_cfgs', 'ems.level_efps', 'ems.level_pfi']
 
 
 class EmsErasmusCall(models.Model):
@@ -61,7 +66,8 @@ class EmsErasmusCall(models.Model):
                                            help="Until when applicants can upload the corrections asked for.")
     interview_deadline = fields.Datetime(string="Score correction deadline", tracking=True, copy=False,
                                          help="Until when evaluators can reopen and change their interviews or "
-                                              "mobility plan ratings.")
+                                              "mobility plan ratings, and the due date of the panel's tasks. A "
+                                              "staff call sets it two weeks after closing.")
     claims_deadline = fields.Datetime(string="Claims deadline", tracking=True, copy=False,
                                       help="Until when applicants can claim against the provisional resolution "
                                            "(shown to them on the portal).")
@@ -70,6 +76,17 @@ class EmsErasmusCall(models.Model):
                                                "definitive resolution is published.")
     min_score = fields.Float(string="Minimum score", default=50.0, tracking=True,
                              help="Score needed to be eligible. The staff call has none.")
+    staff_level_ids = fields.Many2many(string="Teachers of", comodel_name='ems.level',
+                                       relation='ems_erasmus_call_staff_level_rel', tracking=True,
+                                       help="A staff call is only for the teachers who teach a group of these "
+                                            "levels, the Director and the Heads of Studies above those teachers. "
+                                            "A new one is for every FP level.")
+    validator_ids = fields.Many2many(string="Validates the activities", comodel_name='res.users',
+                                     relation='ems_erasmus_call_validator_rel', tracking=True,
+                                     domain=[('share', '=', False)],
+                                     help="Staff call: the Direction that validates each selected person's activity "
+                                          "and its changes (the Director and the Head of Studies of FP), whatever "
+                                          "their place in the organisation chart. They can apply too.")
     description = fields.Html(string="Information for applicants",
                               help="Shown on the portal above the application form.")
     rules_document = fields.Binary(string="Published call", attachment=True, copy=False)
@@ -155,11 +172,54 @@ class EmsErasmusCall(models.Model):
         self.min_score = 0.0 if self.audience == 'staff' else 50.0
         if self.audience == 'staff' and not self.document_ids:
             self.document_ids = self._ems_staff_documents()
+        if self.audience == 'staff' and not self.staff_level_ids:
+            self.staff_level_ids = self._ems_staff_levels()
+        if self.audience == 'staff' and not self.validator_ids:
+            self.validator_ids = self._ems_staff_validators(self.staff_level_ids)
+        if self.audience == 'staff' and not self.interview_deadline:
+            self.interview_deadline = self._ems_rating_deadline(self.date_close)
+
+    @api.onchange('date_close')
+    def _onchange_date_close(self):
+        """The panel's deadline follows the closing date, unless it was changed by hand."""
+        if self.audience == 'staff' and self.interview_deadline in (
+                False, self._ems_rating_deadline(self._origin.date_close)):
+            self.interview_deadline = self._ems_rating_deadline(self.date_close)
+
+    @api.model
+    def _ems_staff_levels(self):
+        levels = self.env['ems.level']
+        for xmlid in STAFF_LEVELS:
+            levels |= self.env.ref(xmlid, raise_if_not_found=False) or levels
+        return levels
+
+    @api.model
+    def _ems_staff_validators(self, levels):
+        """The Director and the Head of Studies of FP: the one above most of the teachers of
+        `levels` in the organisation chart."""
+        teachers = self.env['hr.employee'].sudo().search([
+            ('employee_type', '=', 'teacher'), ('teaching_ids.group_id.level_id', 'in', levels.ids)])
+        heads = Counter(teacher.find_head_of_studies() for teacher in teachers)
+        heads.pop(self.env['hr.employee'], None)
+        head = heads and heads.most_common(1)[0][0] or self.env['hr.employee']
+        return (self.env.company.sudo().director_id | head).user_id
+
+    @api.model
+    def _ems_rating_deadline(self, date_close):
+        return date_close and fields.Datetime.to_datetime(date_close) + timedelta(days=STAFF_RATING_DAYS)
 
     @api.model_create_multi
     def create(self, vals_list):
         for vals in vals_list:
             audience = vals.get('audience', 'student')
+            if audience == 'staff':
+                # Its criteria add up to 10 at most: a minimum score would leave everyone out.
+                vals.setdefault('min_score', 0.0)
+                levels = self._ems_staff_levels()
+                vals.setdefault('staff_level_ids', [(6, 0, levels.ids)])
+                vals.setdefault('validator_ids', [(6, 0, self._ems_staff_validators(levels).ids)])
+                if not vals.get('interview_deadline'):
+                    vals['interview_deadline'] = self._ems_rating_deadline(vals.get('date_close'))
             if audience == 'staff' and not vals.get('document_ids'):
                 vals['document_ids'] = self._ems_staff_documents()
             # Issue #687: the documents and checklist of art. 17 (students) and art. 15 (staff), editable.
@@ -286,7 +346,23 @@ class EmsErasmusCall(models.Model):
         if 'audience' in vals and self.filtered(
                 lambda call: call.audience != vals['audience'] and call.application_ids):
             raise UserError(_("A call with applications cannot change who it is for."))
-        return super().write(vals)
+        # A staff call's panel deadline follows its closing date, unless it was changed by hand.
+        following = self.filtered(lambda call: call.audience == 'staff' and call.interview_deadline in (
+            False, self._ems_rating_deadline(call.date_close))) if 'date_close' in vals and \
+            'interview_deadline' not in vals else self.browse()
+        result = super().write(vals)
+        if following:
+            following.write({'interview_deadline': self._ems_rating_deadline(vals['date_close'])})
+        if 'interview_deadline' in vals:
+            self._ems_move_evaluation_activities()
+        return result
+
+    def _ems_move_evaluation_activities(self):
+        """The open tasks of the interviews and mobility plan ratings follow the deadline."""
+        applications = self.sudo().application_ids
+        for evaluation in (*applications.interview_ids, *applications.plan_rating_ids):
+            if evaluation.activity_ids:
+                evaluation.activity_ids.date_deadline = evaluation._ems_activity_date()
 
     def copy_data(self, default=None):
         vals_list = super().copy_data(default)
@@ -302,6 +378,10 @@ class EmsErasmusCall(models.Model):
                 raise UserError(_("Add at least one modality before publishing the call."))
             if call.audience == 'student' and call.modality_ids.filtered(lambda modality: not modality.level_ids):
                 raise UserError(_("Every modality of a students' call needs the levels whose students apply in it."))
+            if call.audience == 'staff' and not call.staff_level_ids:
+                raise UserError(_("Say which levels' teachers the staff call is for before publishing it."))
+            if call.audience == 'staff' and not call.validator_ids:
+                raise UserError(_("Say who validates the staff's activities before publishing the call."))
             if not call.document_ids.filtered(lambda document: document.requirement == 'required'):
                 raise UserError(_("Add at least one required document before publishing the call."))
         self._ems_set_state('draft', 'published')
@@ -330,6 +410,9 @@ class EmsErasmusCall(models.Model):
                 raise UserError(_("Only a closed staff call sends the mobility plans to the panel."))
             if not call.panel_ids:
                 raise UserError(_("Add the panel members first."))
+            if not call.interview_deadline:
+                raise UserError(_("Set the call's score correction deadline first: it is the due date of the "
+                                  "panel's tasks."))
             candidates = call._ems_candidate_partners()
             vals_list = []
             for application in call.application_ids.filtered(lambda application: application.state == 'admitted'):
@@ -469,6 +552,15 @@ class EmsErasmusCall(models.Model):
             return ''
         return self.env['ems.datetime_utils'].utc_datetime_to_local(value.replace(tzinfo=UTC)).strftime(
             '%d/%m/%Y %H:%M')
+
+    def _ems_staff_can_apply(self, employee):
+        """Art. 6 of the staff call: the teachers of a group of its levels and the Direction that
+        validates the activities (the Director and the Head of Studies of FP). Never the
+        administration staff nor a teacher of ESO or Batxillerat only."""
+        self.ensure_one()
+        employee = employee.sudo()
+        return employee.user_id in self.validator_ids or (
+            employee.employee_type == 'teacher' and bool(employee.teaching_ids.group_id.level_id & self.staff_level_ids))
 
     def _ems_modality_for(self, partner):
         """The modality `partner` competes in: the one whose levels include their main group's."""

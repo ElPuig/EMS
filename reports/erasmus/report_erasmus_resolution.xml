@@ -31,7 +31,7 @@
 
         <!-- The list itself, shared by the PDF and the portal page. Needs `resolution`. -->
         <template id="erasmus_resolution_list">
-            <t t-set="results" t-value="dict(resolution.line_ids._fields['result'].selection)"/>
+            <t t-set="results" t-value="dict(resolution.line_ids._fields['result']._description_selection(resolution.env))"/>
             <t t-set="ranked" t-value="resolution.kind != 'admission'"/>
             <h2 class="o_ems_erasmus_resolution_title" t-esc="resolution.name"/>
             <p t-if="resolution.publish_date">Approved by the Erasmus+ coordination on: <span t-field="resolution.publish_date" t-options="{'widget': 'date'}"/></p>

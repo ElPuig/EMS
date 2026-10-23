@@ -4,7 +4,20 @@ from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 
 # Annex 2 of the staff call: each aspect 0, 0.5 or 1.
-PLAN_RUBRIC = [('0', "0"), ('0.5', "0.5"), ('1', "1")]
+# Annex 2 of the staff call: the panel picks a description, stored as its points (1, 0.5 or 0).
+RELEVANCE_RUBRIC = [
+    ('1', "The relation with the job, the department and the training cycles is clear, with concrete objectives "
+          "and the entity or course named."),
+    ('0.5', "The relation is general, or the objectives and the activity are not very concrete."),
+    ('0', "The relation with the job or the training cycles is not explained, and the objectives and the activity "
+          "are generic."),
+]
+TRANSFER_RUBRIC = [
+    ('1', "A concrete application to the job and the students, and a defined dissemination (explaining it as a "
+          "good practice at a meeting of the cycles or a news item on the website is enough)."),
+    ('0.5', "Application or dissemination not very concrete."),
+    ('0', "No application nor dissemination planned."),
+]
 PLAN_CRITERIA = ('relevance', 'transfer')
 # Art. 11 of the staff call, criteria 3 and 6: points per merit and the criterion it counts for.
 MERIT_POINTS = {'project_collaboration': 0.5, 'project_coordination': 1.0, 'internationalisation': 0.5}
@@ -51,15 +64,10 @@ class EmsErasmusPlanRating(models.Model):
     abstention_reason = fields.Text(string="Abstention reason", tracking=True,
                                     help="Why the panel member does not rate this plan. The plan's score is the mean "
                                          "of the other members' ratings.")
-    relevance = fields.Selection(string="Relevance and concreteness", selection=PLAN_RUBRIC, tracking=True,
-                                 help="0: no relation with the job or the training cycles, generic objectives and "
-                                      "activity. 0.5: a general relation, or objectives and activity not very "
-                                      "concrete. 1: a clear relation with the job, the department and the training "
-                                      "cycles, concrete objectives and the entity or course named.")
-    transfer = fields.Selection(string="Application and dissemination", selection=PLAN_RUBRIC, tracking=True,
-                                help="0: no application nor dissemination planned. 0.5: application or "
-                                     "dissemination not very concrete. 1: a concrete application to the job and the "
-                                     "students, and a defined dissemination proposal.")
+    relevance = fields.Selection(string="Relevance and concreteness", selection=RELEVANCE_RUBRIC, tracking=True,
+                                 help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
+    transfer = fields.Selection(string="Application and dissemination", selection=TRANSFER_RUBRIC, tracking=True,
+                                help="Annex 2 of the staff call: 1, 0.5 or 0 points.")
     score = fields.Float(string="Score (max 2)", digits=(3, 1), compute='_compute_score', store=True)
     plan_attachment_ids = fields.Many2many(string="Mobility plan", comodel_name='ir.attachment',
                                            compute='_compute_plan_attachment_ids', compute_sudo=True,

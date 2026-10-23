@@ -80,7 +80,7 @@ Si te titulas este curso y haces la movilidad en verano, mantienes el acceso al 
 
 ## 9. Seguir la solicitud
 
-La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*, y el estado de la movilidad: *Eligiendo el destino*, *En preparación*, *Cerrada* o *Cancelada*.
+La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*, y el estado de la movilidad: *Definiendo la movilidad*, *En preparación*, *Cerrada* o *Cancelada*.
 
 Para cualquier duda, escribe a la coordinación Erasmus: **erasmus@elpuig.xeill.net**.
 

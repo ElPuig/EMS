@@ -22,7 +22,7 @@ Ves a **Erasmus+ > Convocatòries** i fes clic a **Nou**:
 | Obertura / Tancament de sol·licituds | Quan pot sol·licitar l'alumnat. Després de la data de tancament ningú no pot modificar la seva sol·licitud |
 | Termini d'esmena | Fins quan els sol·licitants poden pujar les esmenes que demanis. Es pot omplir més endavant |
 
-Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també el projecte, les places, el període i les destinacions.
+Pestanya **Modalitats**: una línia per a cada llista de selecció amb places pròpies, per exemple *GM* i *GS*. A **Nivells** tria els nivells de l'alumnat que sol·licita en aquesta modalitat (per exemple *CFGM* per a GM, i *CFGS* i els cursos d'especialització per a GS, perquè aquest alumnat va al projecte d'educació superior). Qualsevol alumne el grup principal del qual sigui d'un d'aquests nivells pot sol·licitar, sigui del curs que sigui. Omple també el projecte, les places, el període i les destinacions.
 
 Pestanya **Documents**: una línia per a cada document que demana la convocatòria, amb el seu **Caràcter**:
 

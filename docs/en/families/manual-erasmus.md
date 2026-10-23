@@ -80,7 +80,7 @@ If you graduate this course and do the mobility in the summer, you keep access t
 
 ## 9. Follow your application
 
-The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*, and the state of your mobility: *Choosing the destination*, *Preparing*, *Closed* or *Cancelled*.
+The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*, and the state of your mobility: *Defining the mobility*, *Preparing*, *Closed* or *Cancelled*.
 
 For any question, write to the Erasmus coordination: **erasmus@elpuig.xeill.net**.
 

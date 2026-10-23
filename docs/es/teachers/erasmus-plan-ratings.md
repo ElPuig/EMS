@@ -12,18 +12,18 @@ Como miembro del tribunal de la convocatoria Erasmus+ del personal, valoras en E
 
 ## 1. Encontrar los planes
 
-Cuando el equipo Erasmus envía los planes al tribunal, recibes una tarea en EMS para cada uno. Aparece el menú **Erasmus+**, con **Mis valoraciones de planes**: los planes que tienes asignados.
+Cuando el equipo Erasmus envía los planes al tribunal, recibes una tarea en EMS para cada uno, que vence el plazo para corregir puntuaciones de la convocatoria (dos semanas después del cierre). Sale en el resumen diario de tareas pendientes hasta que la hagas. Aparece el menú **Erasmus+**, con **Mis valoraciones de planes**: los planes que tienes asignados.
 
 Desde cada valoración puedes abrir el **plan de movilidad** de la persona candidata. No ves nada más de la solicitud.
 
 ## 2. Valorar la rúbrica
 
-Puntúa cada aspecto con 0, 0,5 o 1 (anexo 2 de la convocatoria). Pasa el ratón por encima de cada aspecto para ver sus descriptores.
+Para cada aspecto, elige la descripción que más se ajusta al plan: son las del anexo 2 de la convocatoria, y EMS las convierte en puntos (1, 0,5 o 0).
 
-| Aspecto | 0 | 0,5 | 1 |
+| Aspecto | 1 punto | 0,5 puntos | 0 puntos |
 |---|---|---|---|
-| Relevancia y concreción | Sin relación con el trabajo ni con los ciclos formativos, objetivos genéricos | Relación general, objetivos poco concretos | Relación clara, objetivos concretos, la entidad o el curso indicados por su nombre |
-| Aplicación y difusión | No se prevé ninguna | Poco concretas | Aplicación concreta al trabajo y al alumnado, difusión definida |
+| Relevancia y concreción | La relación con el trabajo, el departamento y los ciclos formativos es clara, con objetivos concretos y la entidad o el curso indicados por su nombre | La relación es general o los objetivos y la actividad son poco concretos | No se explica la relación con el trabajo ni con los ciclos formativos, y los objetivos y la actividad son genéricos |
+| Aplicación y difusión | Aplicación concreta al trabajo y al alumnado, y propuesta de difusión definida (basta con explicarlo como buena práctica en una reunión de ciclos o publicar una noticia en la web) | Aplicación o difusión poco concretas | No se prevé ninguna aplicación ni difusión |
 
 Puedes escribir tus notas en **Notas del evaluador**.
 

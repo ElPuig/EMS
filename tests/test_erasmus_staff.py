@@ -2,6 +2,7 @@ import io
 from datetime import timedelta
 
 import openpyxl
+from pytz import UTC
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -15,19 +16,28 @@ from .test_erasmus import PDF, create_erasmus_fixtures, upload
 def create_staff_call_fixtures(cls):
     """create_erasmus_fixtures() (a students' call, its team and Head of Studies) plus a
     published staff call: two modalities of one place each, an identity document, a mobility
-    plan shown to the panel and an optional certificate; a panel of the Head of Studies and two
-    teachers; three teachers with an employee file who can apply, the third one also in the panel."""
+    plan shown to the panel and an optional certificate, for the teachers of the test level; a
+    panel of the Head of Studies and two teachers; three teachers of a group of that level who can
+    apply, the third one also in the panel."""
     create_erasmus_fixtures(cls)
+    # Any other open staff call of the database (one published on a copy of production) stays out.
+    cls.env['ems.erasmus.call'].search([('audience', '=', 'staff'), ('state', '=', 'published')]).state = 'closed'
     now = fields.Datetime.now()
     cls.panel_teacher = create_role_user(cls, 'teacher', 'test_erasmus_panel_teacher')
     cls.staff_users = [create_role_user(cls, 'teacher', f'test_erasmus_staff_{index}', name=f'Erasmus Staff {index}',
                                         email=f'erasmus.staff{index}@example.com') for index in (1, 2, 3)]
     cls.staff_employees = [create_role_employee(cls, user, identification_id=document)
                            for user, document in zip(cls.staff_users, ('11111111H', '22222222J', 'Y2222222E'))]
+    cls.subject = cls.env['ems.subject'].create({
+        'code': 'TERA001', 'acronym': 'TERA', 'name': 'Test Erasmus Subject', 'study_ids': [(6, 0, cls.study.ids)]})
+    cls.env['ems.teaching'].create([{'teacher_id': employee.id, 'group_id': cls.group.id, 'subject_id': cls.subject.id}
+                                    for employee in cls.staff_employees])
     cls.staff_call = cls.env['ems.erasmus.call'].create({
         'name': 'Test Erasmus Staff Call',
         'audience': 'staff',
         'min_score': 0.0,
+        'staff_level_ids': [(6, 0, cls.level.ids)],
+        'validator_ids': [(6, 0, cls.hos_user.ids)],
         'date_open': now - timedelta(days=1),
         'date_close': now + timedelta(days=10),
         'acceptance_deadline': now + timedelta(days=20),
@@ -128,6 +138,60 @@ class TestErasmusStaffCall(ErasmusStaffCase):
         call.action_publish()
         self.assertEqual(call.state, 'published')
 
+    def test_a_staff_call_is_only_for_fp_teachers_and_their_direction(self):
+        """Art. 6: the teachers of its levels and the Direction that validates; not the
+        administration staff, a teacher of another level only or another Head of Studies."""
+        def employee(login, role='teacher', **values):
+            return create_role_employee(self, create_role_user(self, role, login, name=login), **values)
+
+        other_teacher, administration = employee('test_erasmus_eso_teacher'), employee(
+            'test_erasmus_administration', employee_type='asp')
+        other_study = self.env['ems.study'].search([('level_id', '=', self.other_level.id)], limit=1)
+        other_subject = self.env['ems.subject'].create({
+            'code': 'TERB001', 'acronym': 'TERB', 'name': 'Test Erasmus Other Subject',
+            'study_ids': [(6, 0, other_study.ids)]})
+        teaching = {'group_id': self.other_group.id, 'subject_id': other_subject.id}
+        self.env['ems.teaching'].create([{**teaching, 'teacher_id': other_teacher.id},
+                                         {**teaching, 'teacher_id': administration.id}])
+        head_of_studies = create_role_employee(self, self.hos_user)
+        other_head = employee('test_erasmus_eso_hos', role='head_of_studies')
+        self.staff_employees[0].parent_id = other_head  # the organisation chart does not matter
+        director = employee('test_erasmus_staff_director', role='director')
+        self.staff_call.validator_ids |= director.user_id
+        for person, can_apply in ((self.staff_employees[0], True), (head_of_studies, True), (director, True),
+                                  (other_teacher, False), (administration, False), (other_head, False)):
+            self.assertEqual(self.staff_call in person.user_id.partner_id._ems_erasmus_calls(), can_apply, person.name)
+
+    def test_a_new_staff_call_is_for_every_fp_level_and_validated_by_the_fp_direction(self):
+        """The Director and the Head of Studies above most of the FP teachers."""
+        head_of_studies = create_role_employee(self, self.hos_user)
+        self.staff_employees[0].parent_id = self.staff_employees[1].parent_id = head_of_studies
+        self.staff_employees[2].parent_id = create_role_employee(self, create_role_user(
+            self, 'head_of_studies', 'test_erasmus_minority_hos', name='Test Minority Head Of Studies'))
+        director = create_role_employee(self, create_role_user(self, 'director', 'test_erasmus_new_director'))
+        self.env.company.director_id = director
+        Call = self.env['ems.erasmus.call']
+        self.assertEqual(Call._ems_staff_validators(self.level), director.user_id | self.hos_user)
+        call = Call.create({'name': 'New staff call', 'audience': 'staff', 'date_open': self.staff_call.date_open,
+                            'date_close': self.staff_call.date_close})
+        fp_levels = ('cfgb', 'cfgm', 'cfgs', 'efps', 'pfi')
+        self.assertEqual(call.staff_level_ids, self.env['ems.level'].union(
+            *(self.env.ref(f'ems.level_{level}') for level in fp_levels)))
+        self.assertIn(director.user_id, call.validator_ids)
+
+    def test_a_staff_call_has_no_minimum_score_and_gives_the_panel_two_weeks(self):
+        call = self.env['ems.erasmus.call'].create({
+            'name': 'Staff call defaults', 'audience': 'staff', 'date_open': self.staff_call.date_open,
+            'date_close': self.staff_call.date_close})
+        self.assertEqual(call.min_score, 0.0, "Its criteria add up to 10: a minimum would leave everyone out.")
+        self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14))
+        call.date_close += timedelta(days=3)
+        self.assertEqual(call.interview_deadline, call.date_close + timedelta(days=14), "It follows the closing date.")
+        changed = call.date_close + timedelta(days=20)
+        call.interview_deadline = changed
+        call.date_close += timedelta(days=1)
+        self.assertEqual(call.interview_deadline, changed, "Unless it was changed by hand.")
+
     def test_staff_declare_their_last_mobility_and_seniority(self):
         application = self._apply(0)
         self.assertEqual((application.declared_last_staff_mobility, application.declared_seniority), ('never', 'y5'))
@@ -186,6 +250,25 @@ class TestErasmusPlanRating(ErasmusStaffCase):
             candidate.evaluator_id = self.staff_users[2]  # a candidate never rates
         with self.assertRaises(ValidationError):
             candidate.evaluator_id = self.panel_teacher  # no substitutes
+
+    def test_the_panel_tasks_are_due_on_the_score_correction_deadline(self):
+        first, _second, _third = self._sent_to_panel()
+        activities = first.sudo().plan_rating_ids.activity_ids
+        self.assertTrue(activities)
+        self.assertEqual(set(activities.mapped('date_deadline')), {self._local_day(self.staff_call.interview_deadline)})
+        self.staff_call.interview_deadline += timedelta(days=7)
+        self.assertEqual(set(activities.mapped('date_deadline')), {self._local_day(self.staff_call.interview_deadline)},
+                         "The open tasks follow the deadline.")
+
+    def test_sending_to_the_panel_needs_the_score_correction_deadline(self):
+        self._admitted(0)
+        self.staff_call.action_close()
+        self.staff_call.interview_deadline = False
+        with self.assertRaises(UserError):
+            self.staff_call.action_send_to_panel()
+
+    def _local_day(self, value):
+        return self.env['ems.datetime_utils'].utc_datetime_to_local(UTC.localize(value)).date()
 
     def test_an_abstention_does_not_count(self):
         first = self._sent_to_panel()[0]

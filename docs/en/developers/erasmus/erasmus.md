@@ -426,7 +426,8 @@ what differs:
 | Ranking | Per modality | One list for the whole call |
 | Places | Per modality | The sum of every modality, offered as one pool |
 | Identity document of the lists | `res.partner.document_id` / `passport_id` | `hr.employee.identification_id` / `passport_id` (`_ems_identity_document`) |
-| Minimum score | 50 | 0 (set by the onchange of `audience`) |
+| Minimum score | 50 | 0 (set by `create()` and the onchange of `audience`; hidden in the form) |
+| Score correction deadline (`interview_deadline`) | Set by hand | `date_close` + 14 days (`STAFF_RATING_DAYS`), set by `create()`/onchange and moved with `date_close` while it still holds that default |
 
 ```mermaid
 erDiagram
@@ -442,7 +443,7 @@ erDiagram
 | Model | Purpose |
 |---|---|
 | `ems.erasmus.call.panel` | A panel member of a staff call (user, post), copied when the call is duplicated. |
-| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2: `relevance`, `transfer`, 0 / 0.5 / 1 each). Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
+| `ems.erasmus.plan_rating` | One panel member's rating of one application's mobility plan (annex 2: `relevance`, `transfer`; their selection labels are the annex's descriptions, their keys the points, 1 / 0.5 / 0). Unique per (application, panel member). Inherits `ems.erasmus.evaluation`. |
 | `ems.erasmus.application.merit` | A merit of criteria 3 (centre project: collaboration 0.5, coordination 1) or 6 (internationalisation activity 0.5), with its justification. |
 
 ### Application form
@@ -456,11 +457,27 @@ students, support needs
 `_ems_portal_save` refuses an activity outside the selection. `employee_id` is set when the
 application is created. `is_minor` is always false for staff.
 
+**Who sees a staff call** (art. 6, `ems.erasmus.call._ems_staff_can_apply`, used by
+`res.partner._ems_erasmus_calls`, so by the portal card and by `_ems_portal_get_or_create`): an
+internal user whose employee is a teacher with an active `ems.teaching` in a group of one of the
+call's `staff_level_ids` (*Teachers of*; a new staff call gets every FP level of the catalog,
+`STAFF_LEVELS`: CFGB, CFGM, CFGS, EFPS, PFI; required to publish), and the call's
+`validator_ids` (*Validates the activities*, required to publish). Never the administration staff
+(`asp`) nor a teacher of ESO/BTX only. A new staff call fills `validator_ids` with
+`_ems_staff_validators()`: the Director (`res.company.director_id`) and the Head of Studies that
+`find_head_of_studies()` returns for most of the teachers of those levels (decided with the
+coordinator 2026-10-23: FP's validates every applicant, also the language teachers who hang below
+ESO/BTX's in the chart). The staff portal never shows the modality (places and periods are the
+team's planning): not in the application header, the offer nor the offer email.
+
 ### Panel and plan ratings
 
 **Actions > Send plans to the panel** (`action_send_to_panel`, closed staff call only) creates one
 rating per admitted application and panel member still without one, so it can be repeated after
-admitting more. A panel member who applied to the call (`_ems_candidate_partners`: any application
+admitting more. It needs the call's `interview_deadline`: each evaluator's to-do is due that day
+in the company's timezone (`_ems_activity_date`), and changing the deadline moves the open to-dos
+of the interviews and plan ratings (`_ems_move_evaluation_activities`). The daily task digest
+reminds the members of them. A panel member who applied to the call (`_ems_candidate_partners`: any application
 past draft) gets an abstention instead: no `evaluator_id`, reason *Candidate in this call* (art. 10).
 For any other conflict of interest the team writes the `abstention_reason`, which clears the
 evaluator (`write`); clearing the reason gives the rating back to the member. There are no
@@ -652,13 +669,25 @@ The same fields serve a student's **own destination** and a staff member's **act
 | | Student | Staff |
 |---|---|---|
 | Sent | From the portal while choosing, with the host's written commitment (required) | Filled from the application when the mobility is created (`proposal_state` empty); the staff member completes it with the exact dates (`proposal_date_start`/`_end`) and the responsible declaration for the absence (`leave_declaration`), both required, and sends it from the portal, again after a rejection |
-| Validated by (`_ems_can_validate`) | Erasmus team | **Direction**: the Director or a Head of Studies (`ems.group_head_of_studies`, which the Director implies); the Erasmus team cannot |
+| Validated by (`_ems_can_validate`) | Erasmus team | **Direction** (`_ems_validators`): the call's `validator_ids` (the Director and the Head of Studies of FP), never the applicant; without anyone, the administrators. The Erasmus team cannot |
 | Validated | Preparing, country, city and dates from the proposal | Same |
 | Rejected (needs `decision_note`) | Back to choosing the centre's destinations | Proposes another activity on the portal |
 
 A pending proposal schedules a to-do (`mail.activity`) for every validator, marked done on the
-decision; a rejection emails `email_template_erasmus_proposal_rejected`. The administrator can
-always validate.
+decision; a validation emails `email_template_erasmus_mobility_assigned` (students) or
+`email_template_erasmus_proposal_validated` (staff), a rejection `email_template_erasmus_proposal_rejected`.
+The administrator can always validate, but gets no to-do. `decision_note` (*Comment on the
+decision*) is required to reject and optional to validate; the validated email and the portal show
+it.
+
+**A change after validation (staff, issue #697):** while `_ems_can_change_proposal()` (a staff
+mobility in `preparing`, not pending, `date_start` still in the future, company's today), the
+participant sends a new proposal from the portal (*Change the activity or the dates*), or the team
+edits the Proposal tab and clicks `action_request_revalidation`. Either sets `proposal_state =
+'pending'` and asks the validators again, keeping the mobility's validated dates and its
+`destination_date` (`_ems_set_state` only sets it when empty). Validating copies the new
+proposal onto the mobility (the training absence follows, `_ems_sync_training_leave`); rejecting
+keeps the validated activity and the email says so.
 
 ### Preparation, return and closing
 

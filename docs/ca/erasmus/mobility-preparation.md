@@ -6,7 +6,7 @@
 
 Un cop acceptada una plaça, la mobilitat es prepara a l'EMS: la destinació, l'entitat d'acollida i les dates, els documents que cal lliurar abans de marxar i en tornar, i els passos que cal seguir.
 
-**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). El cap d'estudis i la directora o el director poden consultar les mobilitats; la direcció (la directora o el director, o el cap d'estudis) valida les activitats del personal (vegeu [Validar les activitats del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
+**Rol necessari:** *Coordinador/a Erasmus* o *Tècnic/a de mobilitat Erasmus* (Erasmus+ > Gestor/a). El cap d'estudis i la directora o el director poden consultar les mobilitats; la direcció (la directora o el director, o el cap d'estudis de FP, indicats a la convocatòria) valida les activitats del personal (vegeu [Validar les activitats del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
 
 ---
 
@@ -39,7 +39,7 @@ Una persona seleccionada pot proposar la seva pròpia destinació al portal, amb
 
 1. Aneu a **Erasmus+ > Mobilitats** i feu servir el filtre **Proposta per validar**. També rebeu una tasca pendent.
 2. Obriu la mobilitat i reviseu la pestanya **Proposta**: entitat d'acollida, contacte, país, ciutat, dates i el compromís.
-3. Feu clic a **Accions > Valida la proposta**. Per rebutjar-la, escriviu abans el **Motiu de la decisió** i feu clic a **Accions > Rebutja la proposta**: l'alumne el rep per correu i torna a triar entre les destinacions del centre.
+3. Feu clic a **Accions > Valida la proposta**. Per rebutjar-la, escriviu abans el **Comentari de la decisió** i feu clic a **Accions > Rebutja la proposta**: l'alumne el rep per correu i torna a triar entre les destinacions del centre.
 
 ## 4. Preparar cada mobilitat
 
@@ -49,6 +49,7 @@ Obriu la mobilitat des d'**Erasmus+ > Mobilitats** (o des del botó **Mobilitats
 - Pestanya **Documents**: a **Fitxers de l'equip**, adjunteu el document emplenat perquè el participant el signi, o el que aporteu vosaltres (la pòlissa d'assegurança). El participant el descarrega al portal. Els altres els puja el participant al portal, i també els podeu adjuntar aquí. Cadascun mostra la seva **Data límit**. Marqueu cadascun com a **Vàlid** o **Cal corregir** (amb un comentari que el participant veu). Un fitxer nou el torna a revisió; els fitxers anteriors es conserven. **A punt per marxar** es marca quan tots els documents obligatoris d'abans de marxar són vàlids (o, si els aporta l'equip, pujats), s'han fet tots els passos d'abans de marxar i la carta de compromís està signada (pestanya **Carta de compromís**). Mentre falti alguna cosa, l'EMS ho recorda al participant per correu cada setmana.
 - Pestanya **Llista de passos**: marqueu cada pas quan s'hagi fet. L'EMS registra qui l'ha marcat i quan.
 - **Personal:** la persona completa la proposta amb les dates exactes i la declaració responsable, i la direcció la valida. Llavors l'EMS sol·licita sol la seva **absència per formació** per a aquests dies, i qui aprova les seves absències l'aprova com sempre. Si les dates canvien abans que s'aprovi, l'absència les segueix; si ja estava aprovada, l'EMS us avisa a la mobilitat perquè la corregiu a mà.
+- **Personal, un canvi després de validar-la:** fins que comenci la mobilitat, la persona pot proposar des del portal un altre curs, una altra entitat o unes altres dates; també els pots canviar a la pestanya **Proposta** i fer clic a **Accions > Demana a la direcció que la torni a validar**. La direcció la torna a validar i, mentrestant, la mobilitat manté les dates validades. El professorat no veu mai la modalitat, les places ni els períodes: són la planificació de l'equip.
 - **Accions > Avisa dels documents pendents** envia al participant un correu amb els documents que falten o que cal corregir.
 - Per al personal, si els documents depenen de la modalitat, assigneu la modalitat a la sol·licitud (els documents s'afegeixen sols). Feu clic a **Accions > Actualitza documents i passos** després d'afegir documents o passos a la convocatòria.
 

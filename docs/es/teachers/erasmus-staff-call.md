@@ -6,7 +6,7 @@
 
 Solicita un job shadowing, un curso estructurado o una estancia de docencia en el extranjero, y sigue tu solicitud, desde el portal del centro.
 
-**Quién:** el personal de formación profesional (profesorado, personal de administración y servicios, equipo directivo).
+**Quién:** el profesorado de formación profesional (ciclos de grado básico, medio y superior, cursos de especialización y PFI), la directora o el director y el jefe de estudios de formación profesional. Solo ellos ven la tarjeta **Erasmus+** en el portal.
 
 ---
 
@@ -18,7 +18,7 @@ Ve a **Erasmus+** en el portal del centro (`/my/erasmus`; el equipo Erasmus comp
 
 - **Actividad:** job shadowing, curso estructurado o estancia de docencia.
 - **Entidad de acogida o curso** y **Destino** (ciudad y país). Si todavía no tienes ninguno, marca la casilla y la coordinación Erasmus te ayudará a encontrarlo.
-- **Fechas o periodo preferente** y la duración aproximada.
+- **Fechas o periodo preferente** y la duración aproximada: preferentemente en periodo no lectivo (junio, julio); en otro momento, como abril, solo una semana que no afecte a las evaluaciones y con la validación de la dirección.
 - El **mes y el año de tu última movilidad Erasmus+ de personal** desde el centro, o marca que nunca has hecho ninguna. Los acompañamientos de alumnado, otros programas y las movilidades desde otros centros no cuentan.
 - El **mes y el año desde que trabajas en el centro** de forma continuada.
 - Los **proyectos**, comisiones o coordinaciones del centro en los que participas (el curso pasado y el actual).
@@ -38,7 +38,9 @@ Si te seleccionan, **acepta o renuncia a la plaza** en el portal antes del plazo
 
 ## 4. Preparar la movilidad
 
-Cuando aceptas la plaza, la página muestra **Tu movilidad** con tu propuesta, rellenada a partir de la solicitud. Complétala con las **fechas exactas de inicio y de final**, acepta la declaración responsable de tu ausencia por formación y haz clic en **Enviar la propuesta**: la dirección (la directora o el director, o el jefe de estudios) valida la actividad, la entidad de acogida o el curso, el destino y las fechas. Cuando lo hace, EMS solicita sola tu ausencia por formación para esos días, y quien aprueba tus ausencias la aprueba como siempre. Si no la valida, recibirás el motivo por correo: abre **Proponer otra actividad**, cambia lo que haga falta y vuelve a enviarla.
+Cuando aceptas la plaza, la página muestra **Tu movilidad** con tu propuesta, rellenada a partir de la solicitud. Complétala con las **fechas exactas de inicio y de final**, acepta la declaración responsable de tu ausencia por formación y haz clic en **Enviar la propuesta**: la dirección (la directora o el director, o el jefe de estudios de FP) valida la actividad, la entidad de acogida o el curso, el destino y las fechas. Cuando lo hace, EMS solicita sola tu ausencia por formación para esos días, y quien aprueba tus ausencias la aprueba como siempre. Si no la valida, recibirás el motivo por correo: abre **Proponer otra actividad**, cambia lo que haga falta y vuelve a enviarla.
+
+**Si cambia más adelante:** una vez validada, si cambian el curso, la entidad de acogida o las fechas (por ejemplo, porque ese mes no se ofrece el curso), abre **Cambiar la actividad o las fechas** en **Tu movilidad** antes de que empiece y envía la nueva propuesta. La dirección la vuelve a validar y, mientras tanto, tu movilidad se mantiene tal como se validó. Si la dirección deja un comentario, lo verás en el correo y en el portal.
 
 Una vez validada, la tarjeta muestra los documentos que hay que entregar antes de salir y a la vuelta (tarjeta sanitaria europea, convenio de subvención, programa de movilidad firmado por ti, por el centro y por la entidad de acogida, certificado de asistencia, una breve memoria con evidencias en el mes siguiente a la vuelta...), quién firma cada uno y su plazo, y los pasos que hay que seguir (reuniones de preparación, actividades preparadas para tus grupos, informe final, sesión de difusión). El equipo Erasmus sube el convenio de subvención rellenado (descárgalo, fírmalo y súbelo firmado) y tu póliza de seguro (descárgala). Firma los demás documentos fuera de EMS, adjúntalos y haz clic en **Subir los documentos**.
 

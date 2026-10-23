@@ -22,7 +22,7 @@ Ve a **Erasmus+ > Convocatorias** y haz clic en **Nuevo**:
 | Apertura / Cierre de solicitudes | Cuándo puede solicitar el alumnado. Después de la fecha de cierre nadie puede modificar su solicitud |
 | Plazo de subsanación | Hasta cuándo los solicitantes pueden subir las subsanaciones que pidas. Se puede rellenar más adelante |
 
-Pestaña **Modalidades**: una línea por cada lista de selección con plazas propias, por ejemplo *GM* y *GS*. En **Niveles** elige los niveles del alumnado que solicita en esa modalidad (por ejemplo *CFGM* para GM). Cualquier alumno cuyo grupo principal sea de uno de esos niveles puede solicitar, sea del curso que sea. Rellena también el proyecto, las plazas, el periodo y los destinos.
+Pestaña **Modalidades**: una línea por cada lista de selección con plazas propias, por ejemplo *GM* y *GS*. En **Niveles** elige los niveles del alumnado que solicita en esa modalidad (por ejemplo *CFGM* para GM, y *CFGS* y los cursos de especialización para GS, porque ese alumnado va al proyecto de educación superior). Cualquier alumno cuyo grupo principal sea de uno de esos niveles puede solicitar, sea del curso que sea. Rellena también el proyecto, las plazas, el periodo y los destinos.
 
 Pestaña **Documentos**: una línea por cada documento que pide la convocatoria, con su **Carácter**:
 

@@ -80,7 +80,7 @@ Si et titules aquest curs i fas la mobilitat a l'estiu, mantens l'accés al port
 
 ## 9. Seguir la sol·licitud
 
-La pàgina Erasmus+ mostra l'estat de la teva sol·licitud: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa*, *Exclosa*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaça acceptada* o *Renúncia*, i l'estat de la mobilitat: *Triant la destinació*, *En preparació*, *Tancada* o *Cancel·lada*.
+La pàgina Erasmus+ mostra l'estat de la teva sol·licitud: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa*, *Exclosa*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaça acceptada* o *Renúncia*, i l'estat de la mobilitat: *Definint la mobilitat*, *En preparació*, *Tancada* o *Cancel·lada*.
 
 Per a qualsevol dubte, escriu a la coordinació Erasmus: **erasmus@elpuig.xeill.net**.
 

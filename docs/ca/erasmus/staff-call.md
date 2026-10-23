@@ -17,7 +17,10 @@ La convocatòria del personal funciona com la de l'alumnat (vegeu [Convocatòrie
 A **Erasmus+ > Convocatòries**, crea la convocatòria, posa *Personal* a **Sol·licitants**, omple les dates, adjunta la convocatòria publicada i publica-la. Res més:
 
 - Els **documents** de l'article 8 s'afegeixen sols: document d'identitat, CV Europass en anglès, **pla de mobilitat i transferència** (l'únic document que veu el tribunal, marcat com a **Visible per al tribunal**) i, opcionals, els certificats de llengües. Els pots canviar abans de publicar.
-- La **Puntuació mínima** és 0: la convocatòria del personal no en té.
+- No hi ha **Puntuació mínima**: la convocatòria del personal no en té, així que l'EMS la posa a 0 i l'amaga.
+- El **Termini per corregir puntuacions** es posa dues setmanes després de la data de tancament: aquell dia vencen les tasques del tribunal, i després els membres ja no poden canviar les seves valoracions. Si canvies la data de tancament, el termini la segueix, tret que l'hagis canviat a mà.
+- **Professorat de:** els nivells del professorat que pot sol·licitar. Una convocatòria del personal nova té tots els nivells de formació professional (cicles de grau bàsic, mitjà i superior, cursos d'especialització i PFI). L'EMS només mostra la convocatòria al professorat que fa classe en algun grup d'aquests nivells i a les persones de **Valida les activitats**: ni al personal d'administració ni al professorat que només fa classe a l'ESO o al batxillerat.
+- **Valida les activitats:** la direcció que valida l'activitat de cada persona seleccionada i els canvis posteriors. Ve omplert amb la directora o el director i el cap d'estudis de FP (el que hi ha per sobre de la majoria del professorat de FP), i només ells reben la tasca, encara que un professor depengui d'un altre cap d'estudis a l'organigrama.
 - Per obrir-la no cal indicar les **places**: la convocatòria publicada ja dona les orientatives, i poden canviar segons els projectes. Les afegeixes més endavant (pas 5).
 
 Un cop publicada, tot el personal amb fitxa d'empleat veu la convocatòria al portal (targeta **Erasmus+**, `/my/erasmus`). Comparteix aquest enllaç quan l'anunciïs.
@@ -37,7 +40,7 @@ No pot enviar la sol·licitud sense l'última mobilitat i la data d'incorporaci�
 
 Revisa els documents i admet o exclou com a la convocatòria de l'alumnat (no hi ha la comprovació de sancions greus).
 
-Omple la pestanya **Tribunal** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després de **Tanca les sol·licituds**, fes clic a **Accions > Envia els plans al tribunal**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > Les meves valoracions de plans**. Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
+Omple la pestanya **Tribunal** de la convocatòria: les persones que valoren els plans de mobilitat (la direcció i els caps de departament i de seminari). Després de **Tanca les sol·licituds**, fes clic a **Accions > Envia els plans al tribunal**. Cada membre rep una tasca per valorar tots els plans des d'**Erasmus+ > Les meves valoracions de plans**, que venç el **Termini per corregir puntuacions** (el botó te'l demana si és buit; si el canvies després, les tasques obertes el segueixen). Hi pots tornar a fer clic després d'admetre més sol·licituds: només crea les valoracions que falten.
 
 **Abstencions:** un membre del tribunal que es presenta a la convocatòria no valora (art. 10): les seves valoracions es creen com a abstencions, amb el motiu *Candidat en aquesta convocatòria*. Per a un altre conflicte d'interessos, obre la valoració a **Erasmus+ > Valoracions de plans** i escriu el **Motiu de l'abstenció**. No hi ha persones substitutes: la puntuació del pla (criteri 1) és la mitjana dels membres que el valoren. **Una valoració pendent la bloqueja** fins que s'envia.
 

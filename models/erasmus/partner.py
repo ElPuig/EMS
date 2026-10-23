@@ -18,7 +18,8 @@ class ResPartner(models.Model):
 
     def _ems_erasmus_calls(self):
         """Published calls this person can apply to, open or not yet: the students' calls with a
-        modality for their level, or the staff calls for an internal user with an employee file."""
+        modality for their level, or the staff calls of an internal user whose employee file
+        meets art. 6 (`_ems_staff_can_apply`: FP's teachers and Direction)."""
         self.ensure_one()
         Call = self.env['ems.erasmus.call'].sudo()
         calls = Call
@@ -26,8 +27,10 @@ class ResPartner(models.Model):
         if level:
             calls |= Call.search([('state', '=', 'published'), ('audience', '=', 'student'),
                                   ('modality_ids.level_ids', 'in', level.ids)])
-        if self._ems_erasmus_employee():
-            calls |= Call.search([('state', '=', 'published'), ('audience', '=', 'staff')])
+        employee = self._ems_erasmus_employee()
+        if employee:
+            calls |= Call.search([('state', '=', 'published'), ('audience', '=', 'staff')]).filtered(
+                lambda call: call._ems_staff_can_apply(employee))
         return calls
 
     def _ems_erasmus_employee(self):

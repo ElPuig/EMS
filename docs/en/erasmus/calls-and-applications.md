@@ -22,7 +22,7 @@ Go to **Erasmus+ > Calls** and click **New**:
 | Applications open / close | When students can apply. After the closing date nobody can change their application |
 | Corrections deadline | Until when applicants can upload the corrections you ask for. You can fill it in later |
 
-**Modalities** tab: one line per selection list with its own places, for example *GM* and *GS*. In **Levels** choose the levels whose students apply in that modality (for example *CFGM* for GM). Any student whose main group is of one of those levels can apply, whatever their year. Also fill in the project, places, period and destinations.
+**Modalities** tab: one line per selection list with its own places, for example *GM* and *GS*. In **Levels** choose the levels whose students apply in that modality (for example *CFGM* for GM, and *CFGS* and the specialisation courses for GS, whose students go on the higher education project). Any student whose main group is of one of those levels can apply, whatever their year. Also fill in the project, places, period and destinations.
 
 **Documents** tab: one line per document the call asks for, with its **Requirement**:
 

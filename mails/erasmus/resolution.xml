@@ -87,7 +87,7 @@
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <p>Hello <t t-out="object.partner_id.name"/>,</p>
-                        <p t-if="object.modality_id">
+                        <p t-if="object.modality_id and object.call_id.audience == 'student'">
                             A place of the modality <strong t-out="object.modality_id.name"/> of
                             <strong t-out="object.call_id.name"/> has become free and it is offered to you.
                         </p>

@@ -20,8 +20,45 @@
 - "Download the dossier (ZIP)" gathers every document of the project in SEPIE's folder structure: published calls and resolutions, the participants' application and mobility documents, invoices and transfer receipts. Nothing is copied, so no paper gets lost or duplicated; confidential documents are only included for the Erasmus team.
 - Published resolutions are kept as a PDF; each mobility document of a call says which SEPIE folder it belongs to; a new optional "Tickets or boarding passes" return document; host entities have their Erasmus+ OID.
 
+## Erasmus+ staff call only for FP teachers, validated by the FP Direction (also its later changes):
+
+- A staff call says which levels' teachers it is for (every FP level by default: basic,
+  intermediate and higher cycles, specialisation courses, PFI) and who validates the activities
+  (filled in with the Director and the Head of Studies of FP). Only those teachers and those
+  validators see the call and the portal's Erasmus+ card: not the administration staff nor ESO
+  or Batxillerat teachers. The validators get the task for every applicant, whatever the
+  organisation chart says.
+- A validated staff activity can change until it starts (another course, host or dates): the
+  teacher proposes it again from the portal, or the team changes it and asks the Direction again.
+  It stays as validated until the Direction decides; the absence for training follows the new
+  dates. The Direction can leave a comment when validating, shown in the email and the portal.
+- The panel rates each plan by picking the descriptions of annex 2 of the call instead of
+  0 / 0.5 / 1 (the points stay the same underneath).
+- Staff never see the modality, places or periods (the team's planning); the date fields explain
+  the rule (non-teaching period, or another week with the Direction's validation).
+
 # Changes
 
 ## Erasmus+ portal: the call page links the published call:
 
 - The link to the published call (PDF) is now also on the application page, not only on the list of calls.
+
+# Fixes
+
+## Erasmus+ staff call: issues found in the manual test run:
+
+- A staff call always gets a minimum score of 0 (it was 50 unless created from the form's
+  onchange, so everyone ended up "not selected": the staff criteria add up to 10); the field is
+  hidden on staff calls.
+- The panel gets two weeks after closing: a staff call sets its score correction deadline to the
+  closing date + 14 days (following the closing date unless changed by hand). "Send plans to the
+  panel" needs it; the panel's tasks are due that day (company timezone) instead of "today", and
+  changing the deadline moves the open interview and plan-rating tasks.
+- The task to validate a staff member's proposal no longer goes to every Head of Studies and the
+  administrator: only to the call's validators (see above); only they (and the administrator)
+  can validate it.
+- The portal shows the application states and resolution results translated (they were raw
+  English selection labels); same for the resolution PDF's results and the claims' names.
+- Wording for staff: the mobility state "Choosing the destination" becomes "Defining the
+  mobility", and a validated staff activity sends its own email ("your activity has been
+  validated", with host, place, dates and the training absence) instead of "your destination".

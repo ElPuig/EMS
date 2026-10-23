@@ -6,7 +6,7 @@
 
 Once a place is accepted, prepare the mobility in EMS: the destination, the host entity and the dates, the documents to hand in before leaving and on return, and the steps to follow.
 
-**Required role:** *Erasmus coordinator* or *Erasmus mobility technician* (Erasmus+ > Manager). The Head of Studies and the Director can read the mobilities; the Direction (the Director or the Head of Studies) validates the staff's activities (see [Validating Erasmus+ staff activities](../head_of_studies/erasmus-staff-validation.md)).
+**Required role:** *Erasmus coordinator* or *Erasmus mobility technician* (Erasmus+ > Manager). The Head of Studies and the Director can read the mobilities; the Direction (the Director or the Head of Studies of FP, set in the call) validates the staff's activities (see [Validating Erasmus+ staff activities](../head_of_studies/erasmus-staff-validation.md)).
 
 ---
 
@@ -39,7 +39,7 @@ A selected student can propose their own destination on the portal, with the hos
 
 1. Go to **Erasmus+ > Mobilities** and use the **Proposal to validate** filter. You also get a to-do.
 2. Open the mobility and check the **Proposal** tab: host entity, contact, country, city, dates and the commitment.
-3. Click **Actions > Validate the proposal**. To reject it, write the **Reason of the decision** first and click **Actions > Reject the proposal**: the student receives it by email and goes back to choosing among the centre's destinations.
+3. Click **Actions > Validate the proposal**. To reject it, write the **Comment on the decision** first and click **Actions > Reject the proposal**: the student receives it by email and goes back to choosing among the centre's destinations.
 
 ## 4. Prepare each mobility
 
@@ -49,6 +49,7 @@ Open the mobility from **Erasmus+ > Mobilities** (or the **Mobilities** button o
 - **Documents** tab: in **Files from the team**, attach the document filled in for the participant to sign, or the one you provide (the insurance policy). The participant downloads it on the portal. The participant uploads the others on the portal, and you can also attach them here. Each one shows its **Deadline**. Mark each one **Valid** or **Needs changes** (with a comment the participant sees). A new file puts it back to review; earlier files are kept. **Ready to leave** is ticked when every required document before leaving is valid (or, if the team provides it, uploaded), every step before leaving is done and the commitment letter is signed (**Commitment letter** tab). While anything is missing, EMS reminds the participant by email every week.
 - **Checklist** tab: tick each step when it is done. EMS records who ticked it and when.
 - **Staff:** the staff member completes their proposal with the exact dates and their responsible declaration, and the Direction validates it. Then EMS requests their **absence for training** for those days on its own, and whoever approves their absences approves it as usual. If the dates change before it is approved, the absence follows them; if it was already approved, EMS warns you on the mobility to correct it by hand.
+- **Staff, a change after validating it:** until the mobility starts, the staff member can propose another course, host entity or dates from the portal; you can also change them in the **Proposal** tab and click **Actions > Ask the Direction to validate it again**. The Direction validates it again, and until then the mobility keeps the validated dates. Staff never see the modality, the places or the periods: they are the team's planning.
 - **Actions > Notify pending documents** emails the participant the documents missing or needing changes.
 - For staff, if the documents depend on the modality, assign the modality on the application and click **Actions > Update documents and checklist** (it is done on its own when you change it on the application). Use it too after adding documents or steps to the call.
 

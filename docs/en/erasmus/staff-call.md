@@ -17,7 +17,10 @@ The staff call works like the students' one (see [Calls and applications](calls-
 In **Erasmus+ > Calls**, create the call, set **Applicants** to *Staff*, fill in the dates, attach the published call and publish it. That's all:
 
 - The **documents** of art. 8 are added on their own: identity document, Europass CV in English, **mobility and transfer plan** (the only document the panel sees, marked **Shown to the panel**) and, optional, the language certificates. You can change them before publishing.
-- The **Minimum score** is 0: the staff call has none.
+- There is no **Minimum score**: the staff call has none, so EMS sets it to 0 and hides it.
+- The **Score correction deadline** is set two weeks after the closing date: the panel's tasks are due that day, and after it the members can no longer change their ratings. It follows the closing date when you change it, unless you changed it by hand.
+- **Teachers of:** the levels whose teachers can apply. A new staff call has every vocational training level (basic, intermediate and higher cycles, specialisation courses and PFI). EMS shows the call only to the teachers who teach a group of those levels and to the people in **Validates the activities**: not to the administration staff nor to the teachers of ESO or Batxillerat only.
+- **Validates the activities:** the Direction that validates each selected person's activity and its later changes. It comes filled in with the Director and the Head of Studies of FP (the one above most of the FP teachers), and only they get the to-do, even for a teacher who hangs below another Head of Studies in the organisation chart.
 - The **places** are not needed to open it: the published call gives the indicative ones, and they may change with the projects. You add them later (step 5).
 
 Once published, every member of the staff with an employee file sees the call on the portal (**Erasmus+** card, `/my/erasmus`). Share that link when you announce the call.
@@ -37,7 +40,7 @@ They can't submit without the last mobility and the date at the centre.
 
 Review the documents and admit or exclude as in the students' call (there is no serious-sanction check).
 
-Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My plan ratings**. You can click it again after admitting more applications: it only creates the ratings still missing.
+Fill in the **Panel** tab of the call: the people who rate the mobility plans (the management and the heads and seminar chiefs of the departments). Then, after **Close applications**, click **Actions > Send plans to the panel**. Every member gets a task to rate every plan from **Erasmus+ > My plan ratings**, due on the **Score correction deadline** (the button asks for it if it is empty; if you change it later, the open tasks follow it). You can click it again after admitting more applications: it only creates the ratings still missing.
 
 **Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating in **Erasmus+ > Plan ratings** and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted.
 

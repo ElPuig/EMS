@@ -6,7 +6,7 @@
 
 Apply for a job shadowing, a structured course or a teaching assignment abroad, and follow your application, from the school portal.
 
-**Who:** vocational training staff (teachers, administration and services staff, management team).
+**Who:** vocational training teachers (basic, intermediate and higher training cycles, specialisation courses and PFI), the Director and the Head of Studies of vocational training. Only they see the **Erasmus+** card on the portal.
 
 ---
 
@@ -18,7 +18,7 @@ Go to **Erasmus+** on the school portal (`/my/erasmus`; the Erasmus team shares 
 
 - **Activity:** job shadowing, structured course or teaching assignment.
 - **Host entity or course** and **Destination** (city and country). If you have not found one yet, tick the box and the Erasmus coordination will help you.
-- **Preferred dates or period** and the approximate duration.
+- **Preferred dates or period** and the approximate duration: preferably in the non-teaching period (June, July); at another time, such as April, only a week that does not affect the assessments, and with the Direction's validation.
 - The **month and year of your last Erasmus+ staff mobility** from the centre, or tick that you never had one. Accompanying students, other programmes and mobilities from other centres don't count.
 - The **month and year since when you work at the centre** without interruption.
 - The **centre projects**, commissions or coordinations you take part in (last course and this one).
@@ -38,7 +38,9 @@ If you are selected, **accept or renounce the place** on the portal before the d
 
 ## 4. Prepare your mobility
 
-When you accept the place, the page shows **Your mobility** with your proposal, filled in from your application. Complete it with the **exact start and end dates**, accept the responsible declaration for your absence for training and click **Send the proposal**: the Direction (the Director or the Head of Studies) validates the activity, the host entity or course, the destination and the dates. When it does, EMS requests your absence for training for those days on its own, and whoever approves your absences approves it as usual. If it is not validated, you will receive the reason by email: open **Propose another activity**, change what is needed and send it again.
+When you accept the place, the page shows **Your mobility** with your proposal, filled in from your application. Complete it with the **exact start and end dates**, accept the responsible declaration for your absence for training and click **Send the proposal**: the Direction (the Director or the Head of Studies of FP) validates the activity, the host entity or course, the destination and the dates. When it does, EMS requests your absence for training for those days on its own, and whoever approves your absences approves it as usual. If it is not validated, you will receive the reason by email: open **Propose another activity**, change what is needed and send it again.
+
+**If it changes later:** once validated, if the course, the host entity or the dates change (for example, the course is not offered that month), open **Change the activity or the dates** in **Your mobility** before it starts and send the new proposal. The Direction validates it again, and until then your mobility stays as it was validated. If the Direction leaves a comment, you see it in the email and on the portal.
 
 Once validated, the card shows the documents to hand in before leaving and on return (European Health Insurance Card, grant agreement, mobility programme signed by you, the centre and the host entity, certificate of attendance, a short report with evidence within a month of your return...), who signs each one and its deadline, and the steps to follow (preparation meetings, activities left for your groups, final report, dissemination session). The Erasmus team uploads the grant agreement filled in (download it, sign it and upload it signed) and your insurance policy (download it). Sign the other documents outside EMS, attach them and click **Upload the documents**.
 

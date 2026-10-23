@@ -103,7 +103,7 @@ class EmsErasmusMobility(models.Model):
     level_id = fields.Many2one(string="Level", comodel_name='ems.level', readonly=True,
                                help="The participant's level when the place was accepted: which destinations suit.")
     state = fields.Selection(string="State", required=True, default='choosing', tracking=True, readonly=True,
-                             selection=[('choosing', "Choosing the destination"), ('preparing', "Preparing"),
+                             selection=[('choosing', "Defining the mobility"), ('preparing', "Preparing"),
                                         ('done', "Closed"), ('cancelled', "Cancelled")])
     cancel_reason = fields.Text(string="Reason for cancelling", tracking=True)
 
@@ -134,8 +134,9 @@ class EmsErasmusMobility(models.Model):
                                                relation='ems_erasmus_mobility_proposal_attachment_rel',
                                                help="Students: the host entity's written commitment.")
     proposal_date = fields.Datetime(string="Proposal sent on", readonly=True)
-    decision_note = fields.Text(string="Reason of the decision",
-                                help="Required to reject a proposal; the participant reads it on the portal.")
+    decision_note = fields.Text(string="Comment on the decision",
+                                help="Required to reject a proposal, optional to validate it; the participant reads "
+                                     "it on the portal and in the email.")
     decided_by_id = fields.Many2one(string="Decided by", comodel_name='res.users', readonly=True)
     decision_date = fields.Datetime(string="Decided on", readonly=True)
 
@@ -389,11 +390,20 @@ class EmsErasmusMobility(models.Model):
 
     # --- proposals -----------------------------------------------------------------------------
 
+    def _ems_can_change_proposal(self):
+        """Staff can change a validated activity (another course, other dates) until it starts:
+        the Direction validates the change again (issue #697)."""
+        self.ensure_one()
+        return self.audience == 'staff' and self.state == 'preparing' and self.proposal_state != 'pending' and (
+            not self.date_start or self.date_start > self.env['ems.datetime_utils'].get_local_today())
+
     def _ems_portal_propose(self, values, files=(), declaration=False):
         """The participant sends a proposal: a student, their own destination with the host's
-        written commitment; staff, their activity with its exact dates, again after a rejection."""
+        written commitment; staff, their activity with its exact dates, again after a rejection,
+        or a change of the validated one before it starts (it stays as validated until then)."""
         self.ensure_one()
-        if self.state != 'choosing' or self.proposal_state == 'pending':
+        changing = self._ems_can_change_proposal()
+        if not changing and (self.state != 'choosing' or self.proposal_state == 'pending'):
             raise UserError(_("You cannot send a proposal now."))
         values = {key: value for key, value in values.items() if key in PROPOSAL_FIELDS}
         if values.get('proposal_activity') not in (False, None, *dict(STAFF_ACTIVITIES)):
@@ -413,11 +423,23 @@ class EmsErasmusMobility(models.Model):
             values['leave_declaration'] = True
         attachments = self.env['ir.attachment'].sudo().create([{
             'name': name, 'raw': content, 'res_model': self._name, 'res_id': self.id} for name, content in files])
-        self._ems_set_state('choosing', **values, proposal_state='pending', turn_deadline=False,
-                            proposal_date=fields.Datetime.now(), decision_note=False, decided_by_id=False,
-                            decision_date=False, proposal_attachment_ids=[(4, attachment.id) for attachment in attachments])
+        self._ems_set_state(self.state if changing else 'choosing', **values, proposal_state='pending',
+                            turn_deadline=False, proposal_date=fields.Datetime.now(), decision_note=False,
+                            decided_by_id=False, decision_date=False,
+                            proposal_attachment_ids=[(4, attachment.id) for attachment in attachments])
         self._ems_ask_validation()
         self.call_id._ems_advance_choice()
+
+    def action_request_revalidation(self):
+        """The Erasmus team changed a staff member's validated proposal in the backend: the
+        Direction validates it again."""
+        self._ems_check_manager()
+        for mobility in self:
+            if not mobility._ems_can_change_proposal():
+                raise UserError(_("Only a staff activity already decided and not started yet is validated again."))
+        self._ems_set_state('preparing', proposal_state='pending', proposal_date=fields.Datetime.now(),
+                            decision_note=False, decided_by_id=False, decision_date=False)
+        self._ems_ask_validation()
 
     def action_validate_proposal(self):
         for mobility in self:
@@ -429,7 +451,9 @@ class EmsErasmusMobility(models.Model):
                                     city=mobility.proposal_city, date_start=mobility.proposal_date_start,
                                     date_end=mobility.proposal_date_end)
         self._ems_sync_requirements()
-        self._ems_send('ems.email_template_erasmus_mobility_assigned')
+        staff = self.filtered(lambda mobility: mobility.audience == 'staff')
+        staff._ems_send('ems.email_template_erasmus_proposal_validated')
+        (self - staff)._ems_send('ems.email_template_erasmus_mobility_assigned')
 
     def action_reject_proposal(self):
         """Not validated, with a reason: a student goes back to the centre's destinations; staff
@@ -449,25 +473,31 @@ class EmsErasmusMobility(models.Model):
         if not self._ems_can_validate():
             raise AccessError(_("Only the Direction validates a staff activity, and the Erasmus team a student's "
                                 "own destination."))
-        if self.state != 'choosing' or self.proposal_state != 'pending':
+        if self.state not in ('choosing', 'preparing') or self.proposal_state != 'pending':
             raise UserError(_("There is no proposal waiting for validation."))
 
     def _ems_can_validate(self):
-        """Staff activities: the Direction, the Director or a Head of Studies (staff call art. 4,
-        ems.group_head_of_studies, which the Director implies); a student's own destination: the
-        Erasmus team (students' call art. 15). The administrator, always."""
+        """Staff activities: the call's Direction (staff call art. 4, `_ems_validators`); a
+        student's own destination: the Erasmus team (students' call art. 15). The administrator,
+        always."""
         self.ensure_one()
         user = self.env.user
         if self.env.su or user.has_group('ems.group_academic_admin'):
             return True
         if self.audience == 'staff':
-            return user.has_group('ems.group_head_of_studies')
+            return user in self._ems_validators()
         return user.has_group('ems.group_erasmus')
 
     def _ems_validators(self):
+        """Who validates the proposal. Staff: the call's Direction (`validator_ids`: the Director
+        and the Head of Studies of FP, whatever the organisation chart says), never the participant
+        themselves; without anyone, the administrators. Students: the Erasmus team."""
         self.ensure_one()
-        group = self.env.ref('ems.group_head_of_studies' if self.audience == 'staff' else 'ems.group_erasmus')
-        return group.sudo().users.filtered(lambda user: not user.share)
+        if self.audience != 'staff':
+            return self.env.ref('ems.group_erasmus').sudo().users.filtered(lambda user: not user.share)
+        users = self.sudo().call_id.validator_ids - self.sudo().application_id.employee_id.user_id
+        return users or self.env['res.users'].sudo().search(
+            [('groups_id', '=', self.env.ref('ems.group_academic_admin').id), ('share', '=', False)])
 
     def _ems_ask_validation(self):
         activity_type = self.env.ref('mail.mail_activity_data_todo')
@@ -675,9 +705,12 @@ class EmsErasmusMobility(models.Model):
     # --- helpers -----------------------------------------------------------------------------
 
     def _ems_set_state(self, state, **vals):
-        if state == 'preparing':
-            vals.setdefault('destination_date', self.env['ems.datetime_utils'].get_local_today())
-        self.with_context(ems_erasmus_state=True).sudo().write({'state': state, **vals})
+        mobilities = self.with_context(ems_erasmus_state=True).sudo()
+        if state == 'preparing' and 'destination_date' not in vals:
+            # Set when the destination is; a change validated later keeps it.
+            mobilities.filtered(lambda mobility: not mobility.destination_date).destination_date = \
+                self.env['ems.datetime_utils'].get_local_today()
+        mobilities.write({'state': state, **vals})
         if state == 'preparing':
             self._ems_remind_guardians()
 

@@ -12,18 +12,18 @@ As a member of the panel of the Erasmus+ staff call, you rate in EMS the mobilit
 
 ## 1. Find the plans
 
-When the Erasmus team sends the plans to the panel you receive a task in EMS for each one. The **Erasmus+** menu appears, with **My plan ratings**: the plans assigned to you.
+When the Erasmus team sends the plans to the panel you receive a task in EMS for each one, due on the call's score correction deadline (two weeks after it closes). It appears in your daily summary of pending tasks until you do it. The **Erasmus+** menu appears, with **My plan ratings**: the plans assigned to you.
 
 From each rating you can open the candidate's **mobility plan**. You see nothing else of the application.
 
 ## 2. Rate the rubric
 
-Score each aspect with 0, 0.5 or 1 (annex 2 of the call). Hover over each aspect to see the descriptors.
+For each aspect, choose the description that fits the plan best: they are the ones of annex 2 of the call, and EMS turns them into points (1, 0.5 or 0).
 
-| Aspect | 0 | 0.5 | 1 |
+| Aspect | 1 point | 0.5 points | 0 points |
 |---|---|---|---|
-| Relevance and concreteness | No relation with the job nor the training cycles, generic objectives | General relation, objectives not very concrete | Clear relation, concrete objectives, the entity or course named |
-| Application and dissemination | None planned | Not very concrete | Concrete application to the job and the students, defined dissemination |
+| Relevance and concreteness | The relation with the job, the department and the training cycles is clear, with concrete objectives and the entity or course named | The relation is general, or the objectives and the activity are not very concrete | The relation with the job or the training cycles is not explained, and the objectives and the activity are generic |
+| Application and dissemination | A concrete application to the job and the students, and a defined dissemination (explaining it as a good practice at a meeting of the cycles or a news item on the website is enough) | Application or dissemination not very concrete | No application nor dissemination planned |
 
 You can write your own notes in **Evaluator's notes**.
 

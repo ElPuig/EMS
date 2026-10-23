@@ -6,7 +6,7 @@
 
 Una vez aceptada una plaza, la movilidad se prepara en EMS: el destino, la entidad de acogida y las fechas, los documentos que hay que entregar antes de salir y a la vuelta, y los pasos que hay que seguir.
 
-**Rol necesario:** *Coordinador/a Erasmus* o *Técnico/a de movilidad Erasmus* (Erasmus+ > Gestor/a). El jefe de estudios y la directora o el director pueden consultar las movilidades; la dirección (la directora o el director, o el jefe de estudios) valida las actividades del personal (véase [Validar las actividades del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
+**Rol necesario:** *Coordinador/a Erasmus* o *Técnico/a de movilidad Erasmus* (Erasmus+ > Gestor/a). El jefe de estudios y la directora o el director pueden consultar las movilidades; la dirección (la directora o el director, o el jefe de estudios de FP, indicados en la convocatoria) valida las actividades del personal (véase [Validar las actividades del personal Erasmus+](../head_of_studies/erasmus-staff-validation.md)).
 
 ---
 
@@ -39,7 +39,7 @@ Una persona seleccionada puede proponer su propio destino en el portal, con el c
 
 1. Id a **Erasmus+ > Movilidades** y usad el filtro **Propuesta por validar**. También recibís una tarea pendiente.
 2. Abrid la movilidad y revisad la pestaña **Propuesta**: entidad de acogida, contacto, país, ciudad, fechas y el compromiso.
-3. Haced clic en **Acciones > Validar la propuesta**. Para rechazarla, escribid antes el **Motivo de la decisión** y haced clic en **Acciones > Rechazar la propuesta**: el alumno lo recibe por correo y vuelve a elegir entre los destinos del centro.
+3. Haced clic en **Acciones > Validar la propuesta**. Para rechazarla, escribid antes el **Comentario de la decisión** y haced clic en **Acciones > Rechazar la propuesta**: el alumno lo recibe por correo y vuelve a elegir entre los destinos del centro.
 
 ## 4. Preparar cada movilidad
 
@@ -49,6 +49,7 @@ Abrid la movilidad desde **Erasmus+ > Movilidades** (o desde el botón **Movilid
 - Pestaña **Documentos**: en **Ficheros del equipo**, adjuntad el documento rellenado para que el participante lo firme, o el que aportáis vosotros (la póliza de seguro). El participante lo descarga en el portal. Los demás los sube el participante en el portal, y también podéis adjuntarlos aquí. Cada uno muestra su **Fecha límite**. Marcad cada uno como **Válido** o **Hay que corregir** (con un comentario que el participante ve). Un fichero nuevo lo devuelve a revisión; los ficheros anteriores se conservan. **Lista para salir** se marca cuando todos los documentos obligatorios de antes de salir son válidos (o, si los aporta el equipo, subidos), se han hecho todos los pasos de antes de salir y la carta de compromiso está firmada (pestaña **Carta de compromiso**). Mientras falte algo, EMS se lo recuerda al participante por correo cada semana.
 - Pestaña **Lista de pasos**: marcad cada paso cuando se haya hecho. EMS registra quién lo ha marcado y cuándo.
 - **Personal:** la persona completa la propuesta con las fechas exactas y la declaración responsable, y la dirección la valida. Entonces EMS solicita sola su **ausencia por formación** para esos días, y quien aprueba sus ausencias la aprueba como siempre. Si las fechas cambian antes de que se apruebe, la ausencia las sigue; si ya estaba aprobada, EMS os avisa en la movilidad para que la corrijáis a mano.
+- **Personal, un cambio después de validarla:** hasta que empiece la movilidad, la persona puede proponer desde el portal otro curso, otra entidad u otras fechas; también puedes cambiarlos en la pestaña **Propuesta** y hacer clic en **Acciones > Pedir a la dirección que la vuelva a validar**. La dirección la vuelve a validar y, mientras tanto, la movilidad mantiene las fechas validadas. El profesorado nunca ve la modalidad, las plazas ni los periodos: son la planificación del equipo.
 - **Acciones > Avisar de los documentos pendientes** envía al participante un correo con los documentos que faltan o que hay que corregir.
 - Para el personal, si los documentos dependen de la modalidad, asignad la modalidad en la solicitud (los documentos se añaden solos). Haced clic en **Acciones > Actualizar documentos y pasos** después de añadir documentos o pasos a la convocatoria.
 

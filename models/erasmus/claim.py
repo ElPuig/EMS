@@ -31,7 +31,7 @@ class EmsErasmusClaim(models.Model):
                              selection=[('open', "Open"), ('resolved', "Resolved")])
 
     def _compute_display_name(self):
-        kinds = dict(self._fields['kind'].selection)
+        kinds = dict(self._fields['kind']._description_selection(self.env))
         for claim in self:
             claim.display_name = f"{kinds.get(claim.kind, '')} - {claim.partner_id.name}"
 

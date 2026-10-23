@@ -1508,6 +1508,7 @@ msgstr "Activitats"
 #. module: ems
 #: model:ir.model,name:ems.model_mail_activity
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "Activity"
 msgstr "Activitat"
 
@@ -2624,6 +2625,7 @@ msgstr "Ciutadania"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__city
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__city
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "City"
 msgstr "Ciutat"
 
@@ -2902,6 +2904,7 @@ msgstr "No s'han pogut llegir les capçaleres de columnes del fitxer CSV."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__country_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__country_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "Country"
 msgstr "País"
 
@@ -3839,6 +3842,7 @@ msgstr "Activa els comportaments especials del bloc."
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__date_end
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__date_end
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "End"
 msgstr "Final"
 
@@ -6281,6 +6285,7 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__notes
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "Notes"
 msgstr "Notes"
 
@@ -8075,6 +8080,7 @@ msgstr "Comportament especial"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__date_start
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__date_start
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "Start"
 msgstr "Inici"
 
@@ -14581,6 +14587,7 @@ msgstr "Hores que aquesta persona ja ha consumit del seu crèdit per motius de s
 #. module: ems
 #: model:ir.model.fields,help:ems.field_hr_leave__ems_responsible_declaration
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid ""
 "I declare, under my own responsibility, that the details and the reason "
 "given for this absence are true."
@@ -26031,55 +26038,6 @@ msgstr ""
 "revisió."
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_offer
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <p t-if=\"object.modality_id\">\n"
-"                            A place of the modality <strong t-out=\"object.modality_id.name\"/> of\n"
-"                            <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            A place of <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Accept or renounce it on the school portal\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                            before <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
-"                            Without an answer by then, the place is considered renounced.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <p t-if=\"object.modality_id\">\n"
-"                            Ha quedat lliure una plaça de la modalitat <strong t-out=\"object.modality_id.name\"/> de\n"
-"                            <strong t-out=\"object.call_id.name\"/> i te l'oferim.\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            Ha quedat lliure una plaça de <strong t-out=\"object.call_id.name\"/> i te l'oferim.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Accepta-la o renuncia-hi al portal del centre\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
-"                            abans del <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
-"                            Si no respons dins del termini, es considera que hi renuncies.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Salutacions cordials,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model:mail.template,body_html:ems.email_template_erasmus_resolution_published
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
@@ -26859,16 +26817,6 @@ msgstr "object.name"
 msgid "%s is a candidate in this call and cannot rate."
 msgstr "%s es presenta a aquesta convocatòria i no pot valorar."
 
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__transfer
-msgid "0: no application nor dissemination planned. 0.5: application or dissemination not very concrete. 1: a concrete application to the job and the students, and a defined dissemination proposal."
-msgstr "0: no es preveu cap aplicació ni difusió. 0,5: aplicació o difusió poc concretes. 1: aplicació concreta a la feina i a l'alumnat, i proposta de difusió definida."
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__relevance
-msgid "0: no relation with the job or the training cycles, generic objectives and activity. 0.5: a general relation, or objectives and activity not very concrete. 1: a clear relation with the job, the department and the training cycles, concrete objectives and the entity or course named."
-msgstr "0: no s'explica la relació amb la feina ni amb els cicles formatius, i els objectius i l'activitat són genèrics. 0,5: la relació és general o els objectius i l'activitat són poc concrets. 1: la relació amb la feina, el departament i els cicles formatius és clara, amb objectius concrets i l'entitat o el curs indicats pel nom."
-
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__declared_seniority__y1
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_application__seniority__y1
@@ -26877,6 +26825,10 @@ msgstr "D'1 a menys de 2 anys"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_plan model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_plan model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_plan
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_plan
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 msgid "1. Mobility plan"
 msgstr "1. Pla de mobilitat"
 
@@ -26899,11 +26851,17 @@ msgstr "2. Última mobilitat de personal"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_projects model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_projects model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_projects
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_projects
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "3. Centre projects"
 msgstr "3. Projectes del centre"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_staff_language model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_staff_language model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_staff_language
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_staff_language
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "4. Languages"
 msgstr "4. Llengües"
 
@@ -26915,6 +26873,8 @@ msgstr "5 anys o més"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_seniority model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_seniority
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_seniority
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_seniority
 msgid "5. Seniority"
 msgstr "5. Antiguitat"
 
@@ -26925,6 +26885,9 @@ msgstr "5. Antiguitat al centre"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_internationalisation model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_internationalisation model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__score_internationalisation
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__score_internationalisation
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "6. Internationalisation"
 msgstr "6. Internacionalització"
 
@@ -27088,6 +27051,9 @@ msgstr "Cada modalitat d'una convocatòria d'alumnat necessita els nivells de l'
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__host_entity model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__host_entity
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "Host entity or course"
 msgstr "Entitat d'acollida o curs"
 
@@ -27196,6 +27162,9 @@ msgstr "Valoració del pla de mobilitat"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_erasmus_plan_rating model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_rating_ids model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_list
+#: model:ir.actions.act_window,name:ems.action_erasmus_plan_rating
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__plan_rating_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_list
 msgid "Mobility plan ratings"
 msgstr "Valoracions de plans de mobilitat"
 
@@ -27212,6 +27181,8 @@ msgstr "Fa més de dos cursos"
 
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_erasmus_my_plan_ratings model:ir.ui.menu,name:ems.menu_erasmus_my_plan_ratings
+#: model:ir.actions.act_window,name:ems.action_erasmus_my_plan_ratings
+#: model:ir.ui.menu,name:ems.menu_erasmus_my_plan_ratings
 msgid "My plan ratings"
 msgstr "Les meves valoracions de plans"
 
@@ -27247,6 +27218,8 @@ msgstr "Tribunal"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__panel_member_id model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__panel_member_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_search
 msgid "Panel member"
 msgstr "Membre del tribunal"
 
@@ -27401,6 +27374,9 @@ msgstr "La coordinació Erasmus ajuda a trobar-ne una."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_evaluation__is_locked model:ir.model.fields,help:ems.field_ems_erasmus_interview__is_locked model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__is_locked
+#: model:ir.model.fields,help:ems.field_ems_erasmus_evaluation__is_locked
+#: model:ir.model.fields,help:ems.field_ems_erasmus_interview__is_locked
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__is_locked
 msgid "The call's review deadline has passed, or the provisional resolution is published: only the Erasmus team can reopen it, with a rectification note."
 msgstr "Ha passat el termini de revisió de la convocatòria o s'ha publicat la resolució provisional: només l'equip Erasmus la pot reobrir, amb una nota de rectificació."
 
@@ -27451,17 +27427,15 @@ msgid "Two courses ago"
 msgstr "Fa dos cursos"
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
-msgid "Until when evaluators can reopen and change their interviews or mobility plan ratings."
-msgstr "Fins quan les persones avaluadores poden reobrir i canviar les seves entrevistes o valoracions de plans de mobilitat."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application_merit__description
 msgid "Which project, commission or activity, and in which course."
 msgstr "Quin projecte, comissió o activitat, i en quin curs."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_evaluation__rectification_note model:ir.model.fields,help:ems.field_ems_erasmus_interview__rectification_note model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__rectification_note
+#: model:ir.model.fields,help:ems.field_ems_erasmus_evaluation__rectification_note
+#: model:ir.model.fields,help:ems.field_ems_erasmus_interview__rectification_note
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__rectification_note
 msgid "Why the Erasmus team reopens the evaluation after the review deadline."
 msgstr "Per què l'equip Erasmus reobre l'avaluació després del termini de revisió."
 
@@ -27746,55 +27720,6 @@ msgstr ""
 "            "
 
 #. module: ems
-#: model:mail.template,body_html:ems.email_template_erasmus_proposal_rejected
-msgid ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
-"                        <p>\n"
-"                            Your proposal for the Erasmus+ mobility (<strong t-out=\"object.call_id.name\"/>) has not\n"
-"                            been validated, for this reason:\n"
-"                        </p>\n"
-"                        <p style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
-"                        <p t-if=\"object.audience == 'staff'\">\n"
-"                            You can propose another activity on the school portal\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            You can choose one of the centre's destinations on the school portal\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) when your turn comes.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Kind regards,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-msgstr ""
-"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
-"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
-"                        <p>\n"
-"                            La teva proposta per a la mobilitat Erasmus+ (<strong t-out=\"object.call_id.name\"/>) no\n"
-"                            s'ha validat, per aquest motiu:\n"
-"                        </p>\n"
-"                        <p style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
-"                        <p t-if=\"object.audience == 'staff'\">\n"
-"                            Pots proposar una altra activitat al portal de l'institut\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
-"                        </p>\n"
-"                        <p t-else=\"\">\n"
-"                            Pots triar una de les destinacions del centre al portal de l'institut\n"
-"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) quan et toqui.\n"
-"                        </p>\n"
-"                        <p>\n"
-"                            Salutacions cordials,<br/>\n"
-"                            <t t-out=\"user.company_id.name\"/>\n"
-"                        </p>\n"
-"                    </div>\n"
-"                \n"
-"            "
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "<i class=\"fa fa-clock-o me-1\"/>The Erasmus team will open the choice of destinations: you will receive an email when it is your turn."
 msgstr "<i class=\"fa fa-clock-o me-1\"/>L'equip Erasmus obrirà l'elecció de destinacions: rebràs un correu quan et toqui."
@@ -27920,8 +27845,8 @@ msgstr "Tria aquesta destinació"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_mobility__state__choosing
-msgid "Choosing the destination"
-msgstr "Triant la destinació"
+msgid "Defining the mobility"
+msgstr "Definint la mobilitat"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
@@ -27935,6 +27860,7 @@ msgstr "Persona de contacte"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "Contact person at the host entity (name and email)"
 msgstr "Persona de contacte a l'entitat d'acollida (nom i correu)"
 
@@ -28338,11 +28264,6 @@ msgid "Reason for cancelling"
 msgstr "Motiu de la cancel·lació"
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__decision_note
-msgid "Reason of the decision"
-msgstr "Motiu de la decisió"
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Received:"
 msgstr "Rebut:"
@@ -28376,11 +28297,6 @@ msgid "Requested at the Social Security's electronic office."
 msgstr "Es demana a la Seu Electrònica de la Seguretat Social."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__decision_note
-msgid "Required to reject a proposal; the participant reads it on the portal."
-msgstr "Obligatori per rebutjar una proposta; el participant el llegeix al portal."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__return_complete
 msgid "Return complete"
 msgstr "Tornada completa"
@@ -28393,6 +28309,7 @@ msgstr "Indica l'entitat d'acollida i el país."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "Send the proposal"
 msgstr "Envia la proposta"
 
@@ -28472,6 +28389,7 @@ msgstr "Els documents d'aquesta mobilitat ja no es poden canviar."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "The host entity's written commitment"
 msgstr "El compromís per escrit de l'entitat d'acollida"
 
@@ -28576,6 +28494,7 @@ msgstr "Amb la sol·licitud"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/mobility.py:0 model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Write the reason for cancelling first."
 msgstr "Primer escriu el motiu de la cancel·lació."
 
@@ -28598,6 +28517,7 @@ msgstr "Ara no pots enviar cap proposta."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "You find the host company or entity yourself, with its written commitment to take you; the entity must also write to the Erasmus coordination. The Erasmus team validates it."
 msgstr "Busques pel teu compte l'empresa o entitat d'acollida, amb el seu compromís per escrit d'acollir-te; l'entitat també ha d'escriure a la coordinació Erasmus. L'equip Erasmus la valida."
 
@@ -29032,6 +28952,7 @@ msgstr "Per descarregar i signar:"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
 msgid "When the Direction validates the dates, EMS requests your absence for training for them with this declaration."
 msgstr "Quan la direcció validi les dates, l'EMS sol·licitarà la teva absència per formació per a aquests dies amb aquesta declaració."
 
@@ -30224,3 +30145,405 @@ msgstr ""
 "Els teus bitllets o targetes d'embarcament i, si has viatjat amb mitjans "
 "sostenibles, els justificants del mitjà de transport. Puja'ls dins del mes "
 "posterior a la tornada."
+
+#. module: ems
+#: model:mail.template,name:ems.email_template_erasmus_proposal_validated
+msgid "EMS: Erasmus+, activity validated"
+msgstr "EMS: Erasmus+, activitat validada"
+
+#. module: ems
+#: model:mail.template,subject:ems.email_template_erasmus_proposal_validated
+msgid "Erasmus+: your activity has been validated - {{ object.call_id.name }}"
+msgstr "Erasmus+: s'ha validat la teva activitat - {{ object.call_id.name }}"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid ""
+"Set the call's score correction deadline first: it is the due date of the "
+"panel's tasks."
+msgstr ""
+"Indica primer el termini per corregir puntuacions de la convocatòria: és la "
+"data de venciment de les tasques del tribunal."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__interview_deadline
+msgid ""
+"Until when evaluators can reopen and change their interviews or mobility "
+"plan ratings, and the due date of the panel's tasks. A staff call sets it "
+"two weeks after closing."
+msgstr ""
+"Fins quan les persones avaluadores poden reobrir i canviar les seves "
+"entrevistes o valoracions de plans de mobilitat, i la data de venciment de "
+"les tasques del tribunal. En una convocatòria del personal es posa dues "
+"setmanes després del tancament."
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_offer
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
+"                            A place of the modality <strong t-out=\"object.modality_id.name\"/> of\n"
+"                            <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            A place of <strong t-out=\"object.call_id.name\"/> has become free and it is offered to you.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Accept or renounce it on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            before <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
+"                            Without an answer by then, the place is considered renounced.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p t-if=\"object.modality_id and object.call_id.audience == 'student'\">\n"
+"                            Ha quedat lliure una plaça de la modalitat <strong t-out=\"object.modality_id.name\"/> de\n"
+"                            <strong t-out=\"object.call_id.name\"/> i te l'oferim.\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            Ha quedat lliure una plaça de <strong t-out=\"object.call_id.name\"/> i te l'oferim.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Accepta-la o renuncia-hi al portal del centre\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>)\n"
+"                            abans del <strong t-out=\"object.call_id._ems_local_format(object.deadline)\"/>.\n"
+"                            Si no respons dins del termini, es considera que hi renuncies.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_proposal_validated
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            The Direction has validated your Erasmus+ mobility (<strong t-out=\"object.call_id.name\"/>):\n"
+"                            <strong t-out=\"object.proposal_host\"/>,\n"
+"                            <t t-out=\"', '.join(filter(None, [object.city, object.country_id.name]))\"/>,\n"
+"                            from <t t-out=\"format_date(object.date_start)\"/> to <t t-out=\"format_date(object.date_end)\"/>.\n"
+"                            EMS has requested your absence for training for those dates.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.decision_note\">\n"
+"                            Comment from the Direction: <span style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Now you can prepare it: on the portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) you will find the\n"
+"                            documents to hand in, who signs each one, the deadlines and the steps to follow.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            La direcció ha validat la teva mobilitat Erasmus+ (<strong t-out=\"object.call_id.name\"/>):\n"
+"                            <strong t-out=\"object.proposal_host\"/>,\n"
+"                            <t t-out=\"', '.join(filter(None, [object.city, object.country_id.name]))\"/>,\n"
+"                            del <t t-out=\"format_date(object.date_start)\"/> al <t t-out=\"format_date(object.date_end)\"/>.\n"
+"                            L'EMS ha sol·licitat la teva absència per formació per a aquests dies.\n"
+"                        </p>\n"
+"                        <p t-if=\"object.decision_note\">\n"
+"                            Comentari de la direcció: <span style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Ara ja la pots preparar: al portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) hi trobaràs els\n"
+"                            documents que cal lliurar, qui signa cadascun, els terminis i els passos que cal seguir.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model:mail.template,body_html:ems.email_template_erasmus_proposal_rejected
+msgid ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
+"                        <p>\n"
+"                            Your proposal for the Erasmus+ mobility (<strong t-out=\"object.call_id.name\"/>) has not\n"
+"                            been validated, for this reason:\n"
+"                        </p>\n"
+"                        <p style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
+"                        <p t-if=\"object.audience == 'staff' and object.state == 'preparing'\">\n"
+"                            Your mobility stays as it was validated before. You can propose another change on the school\n"
+"                            portal (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
+"                        </p>\n"
+"                        <p t-elif=\"object.audience == 'staff'\">\n"
+"                            You can propose another activity on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            You can choose one of the centre's destinations on the school portal\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) when your turn comes.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Kind regards,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+msgstr ""
+"<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
+"                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
+"                        <p>\n"
+"                            La teva proposta per a la mobilitat Erasmus+ (<strong t-out=\"object.call_id.name\"/>) no\n"
+"                            s'ha validat, per aquest motiu:\n"
+"                        </p>\n"
+"                        <p style=\"white-space: pre-line;\" t-out=\"object.decision_note\"/>\n"
+"                        <p t-if=\"object.audience == 'staff' and object.state == 'preparing'\">\n"
+"                            La teva mobilitat es manté tal com es va validar. Pots proposar un altre canvi al portal de l'institut\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
+"                        </p>\n"
+"                        <p t-elif=\"object.audience == 'staff'\">\n"
+"                            Pots proposar una altra activitat al portal de l'institut\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>).\n"
+"                        </p>\n"
+"                        <p t-else=\"\">\n"
+"                            Pots triar una de les destinacions del centre al portal de l'institut\n"
+"                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>) quan et toqui.\n"
+"                        </p>\n"
+"                        <p>\n"
+"                            Salutacions cordials,<br/>\n"
+"                            <t t-out=\"user.company_id.name\"/>\n"
+"                        </p>\n"
+"                    </div>\n"
+"                \n"
+"            "
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"<i class=\"fa fa-hourglass-half me-1\"/>The change you proposed is waiting "
+"for the Direction's validation. Until then, your mobility stays as it was "
+"validated."
+msgstr ""
+"<i class=\"fa fa-hourglass-half me-1\"/>El canvi que has proposat està "
+"pendent de la validació de la direcció. Mentrestant, la teva mobilitat es "
+"manté tal com es va validar."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__1
+msgid ""
+"A concrete application to the job and the students, and a defined "
+"dissemination (explaining it as a good practice at a meeting of the cycles "
+"or a news item on the website is enough)."
+msgstr ""
+"Aplicació concreta a la feina i a l'alumnat, i proposta de difusió definida "
+"(n'hi ha prou d'explicar-ho com a bona pràctica en una reunió de cicles o de"
+" publicar-ne una notícia al web)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__staff_level_ids
+msgid ""
+"A staff call is only for the teachers who teach a group of these levels, the"
+" Director and the Heads of Studies above those teachers. A new one is for "
+"every FP level."
+msgstr ""
+"Una convocatòria del personal només és per al professorat que fa classe en "
+"algun grup d'aquests nivells, la directora o el director i el cap d'estudis "
+"d'aquest professorat. Una de nova és per a tots els nivells de formació "
+"professional."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_plan_rating_form
+msgid "Annex 2"
+msgstr "Annex 2"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__relevance
+#: model:ir.model.fields,help:ems.field_ems_erasmus_plan_rating__transfer
+msgid "Annex 2 of the staff call: 1, 0.5 or 0 points."
+msgstr "Annex 2 de la convocatòria del personal: 1, 0,5 o 0 punts."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__0_5
+msgid "Application or dissemination not very concrete."
+msgstr "Aplicació o difusió poc concretes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Ask the Direction to validate it again"
+msgstr "Demana a la direcció que la torni a validar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Change the activity or the dates"
+msgstr "Canvia l'activitat o les dates"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid ""
+"Change the proposal in the Proposal tab first: the Direction validates the "
+"new activity or dates, and until then the mobility stays as it was "
+"validated."
+msgstr ""
+"Canvia primer la proposta a la pestanya Proposta: la direcció valida la nova"
+" activitat o les noves dates i, mentrestant, la mobilitat es manté tal com "
+"es va validar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Comment from the Direction:"
+msgstr "Comentari de la direcció:"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__decision_note
+msgid "Comment on the decision"
+msgstr "Comentari de la decisió"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid ""
+"If the course, the host entity or the dates change, send the new proposal: "
+"the Direction validates it again."
+msgstr ""
+"Si canvien el curs, l'entitat d'acollida o les dates, envia la nova "
+"proposta: la direcció la torna a validar."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__transfer__0
+msgid "No application nor dissemination planned."
+msgstr "No es preveu cap aplicació ni difusió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid ""
+"Only a staff activity already decided and not started yet is validated "
+"again."
+msgstr ""
+"Només es torna a validar una activitat del personal ja decidida i que encara"
+" no ha començat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_proposal_form
+msgid ""
+"Preferably in the non-teaching period (June, July). At another time, such as"
+" April, only a week that does not affect the assessments, and with the "
+"Direction's validation."
+msgstr ""
+"Preferentment en període no lectiu (juny, juliol). En un altre moment, com "
+"l'abril, només una setmana que no afecti les avaluacions i amb la validació "
+"de la direcció."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__decision_note
+msgid ""
+"Required to reject a proposal, optional to validate it; the participant "
+"reads it on the portal and in the email."
+msgstr ""
+"Obligatori per rebutjar una proposta i opcional per validar-la; la persona "
+"el llegeix al portal i al correu."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Say which levels' teachers the staff call is for before publishing it."
+msgstr ""
+"Indica de quins nivells és el professorat a qui s'adreça la convocatòria del"
+" personal abans de publicar-la."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__staff_level_ids
+msgid "Teachers of"
+msgstr "Professorat de"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "The change you proposed was not validated:"
+msgstr "El canvi que has proposat no s'ha validat:"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0_5
+msgid ""
+"The relation is general, or the objectives and the activity are not very "
+"concrete."
+msgstr "La relació és general o els objectius i l'activitat són poc concrets."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__0
+msgid ""
+"The relation with the job or the training cycles is not explained, and the "
+"objectives and the activity are generic."
+msgstr ""
+"No s'explica la relació amb la feina ni amb els cicles formatius, i els "
+"objectius i l'activitat són genèrics."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_plan_rating__relevance__1
+msgid ""
+"The relation with the job, the department and the training cycles is clear, "
+"with concrete objectives and the entity or course named."
+msgstr ""
+"La relació amb la feina, el departament i els cicles formatius és clara, amb"
+" objectius concrets i l'entitat o el curs indicats pel nom."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Write the comment on the decision first: the participant reads it."
+msgstr "Escriu primer el comentari de la decisió: la persona el llegeix."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid ""
+"You can write a comment on the decision first: the participant reads it."
+msgstr ""
+"Pots escriure primer un comentari de la decisió: la persona el llegeix."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Your mobility stays as it was validated."
+msgstr "La teva mobilitat es manté tal com es va validar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__validator_ids
+msgid "Validates the activities"
+msgstr "Valida les activitats"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__validator_ids
+msgid ""
+"Staff call: the Direction that validates each selected person's activity and"
+" its changes (the Director and the Head of Studies of FP), whatever their "
+"place in the organisation chart. They can apply too."
+msgstr ""
+"Convocatòria del personal: la direcció que valida l'activitat de cada "
+"persona seleccionada i els seus canvis (la directora o el director i el cap "
+"d'estudis de FP), sigui quin sigui el seu lloc a l'organigrama. També hi "
+"poden sol·licitar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Say who validates the staff's activities before publishing the call."
+msgstr ""
+"Indica qui valida les activitats del personal abans de publicar la "
+"convocatòria."

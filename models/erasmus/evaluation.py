@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from pytz import UTC
+
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
@@ -118,11 +120,16 @@ class EmsErasmusEvaluation(models.AbstractModel):
 
     def _ems_schedule_activity(self):
         self.ensure_one()
-        deadline = self._ems_activity_deadline()
         self.sudo().activity_schedule(
-            'mail.mail_activity_data_todo', user_id=self.evaluator_id.id,
-            date_deadline=deadline and fields.Date.to_date(deadline) or fields.Date.context_today(self),
+            'mail.mail_activity_data_todo', user_id=self.evaluator_id.id, date_deadline=self._ems_activity_date(),
             summary=self._ems_activity_summary())
+
+    def _ems_activity_date(self):
+        """The due date of the evaluator's task: the day of the deadline in the company's timezone."""
+        self.ensure_one()
+        utils = self.env['ems.datetime_utils']
+        deadline = self._ems_activity_deadline()
+        return utils.utc_datetime_to_local(UTC.localize(deadline)).date() if deadline else utils.get_local_today()
 
     def _ems_activity_deadline(self):
         return self.application_id.call_id.interview_deadline

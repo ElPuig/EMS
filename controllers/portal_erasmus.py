@@ -44,7 +44,7 @@ class EmsPortalErasmusController(CustomerPortal):
             'page_name': 'erasmus',
             'calls': partner._ems_erasmus_calls() | applications.call_id,
             'applications': {application.call_id: application for application in applications},
-            'state_labels': dict(applications._fields['state'].selection),
+            'state_labels': dict(applications._fields['state']._description_selection(request.env)),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'submitted': kwargs.get('submitted'),
             'guardian_mobilities': partner._ems_erasmus_guardian_mobilities(),
@@ -89,7 +89,8 @@ class EmsPortalErasmusController(CustomerPortal):
                 'declared_language_level']._description_selection(request.env)),
             'activity_labels': dict(request.env['ems.erasmus.application']._fields['staff_activity']._description_selection(
                 request.env)),
-            'state_labels': dict(request.env['ems.erasmus.application']._fields['state'].selection),
+            'state_labels': dict(request.env['ems.erasmus.application']._fields['state']._description_selection(
+                request.env)),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
             'saved': kwargs.get('saved'),
@@ -97,7 +98,8 @@ class EmsPortalErasmusController(CustomerPortal):
             'result_lines': application.resolution_line_ids.filtered(
                 lambda line: line.resolution_id.state == 'published').sorted(
                 lambda line: line.resolution_id.publish_date, reverse=True),
-            'result_labels': dict(request.env['ems.erasmus.resolution.line']._fields['result'].selection),
+            'result_labels': dict(request.env['ems.erasmus.resolution.line']._fields['result']._description_selection(
+                request.env)),
             'offer': application.offer_ids.filtered(lambda offer: offer.state == 'pending')[:1],
             # Issue #687: the mobility of an accepted place.
             'mobility': application.mobility_ids[:1],

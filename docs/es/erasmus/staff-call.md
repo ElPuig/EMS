@@ -17,7 +17,10 @@ La convocatoria del personal funciona como la del alumnado (ver [Convocatorias y
 En **Erasmus+ > Convocatorias**, crea la convocatoria, pon *Personal* en **Solicitantes**, rellena las fechas, adjunta la convocatoria publicada y publícala. Nada más:
 
 - Los **documentos** del artículo 8 se añaden solos: documento de identidad, CV Europass en inglés, **plan de movilidad y transferencia** (el único documento que ve el tribunal, marcado como **Visible para el tribunal**) y, opcionales, los certificados de idiomas. Puedes cambiarlos antes de publicar.
-- La **Puntuación mínima** es 0: la convocatoria del personal no tiene.
+- No hay **Puntuación mínima**: la convocatoria del personal no tiene, así que EMS la pone a 0 y la oculta.
+- El **Plazo para corregir puntuaciones** se pone dos semanas después de la fecha de cierre: ese día vencen las tareas del tribunal, y después los miembros ya no pueden cambiar sus valoraciones. Si cambias la fecha de cierre, el plazo la sigue, salvo que lo hayas cambiado a mano.
+- **Profesorado de:** los niveles del profesorado que puede solicitar. Una convocatoria del personal nueva tiene todos los niveles de formación profesional (ciclos de grado básico, medio y superior, cursos de especialización y PFI). EMS solo muestra la convocatoria al profesorado que da clase en algún grupo de esos niveles y a las personas de **Valida las actividades**: ni al personal de administración ni al profesorado que solo da clase en la ESO o el bachillerato.
+- **Valida las actividades:** la dirección que valida la actividad de cada persona seleccionada y sus cambios posteriores. Viene rellenado con la directora o el director y el jefe de estudios de FP (el que está por encima de la mayoría del profesorado de FP), y solo ellos reciben la tarea, aunque un profesor dependa de otro jefe de estudios en el organigrama.
 - Para abrirla no hace falta indicar las **plazas**: la convocatoria publicada ya da las orientativas, y pueden cambiar según los proyectos. Las añades más adelante (paso 5).
 
 Una vez publicada, todo el personal con ficha de empleado ve la convocatoria en el portal (tarjeta **Erasmus+**, `/my/erasmus`). Comparte este enlace cuando la anuncies.
@@ -37,7 +40,7 @@ No puede enviar la solicitud sin la última movilidad y la fecha de incorporaci�
 
 Revisa los documentos y admite o excluye como en la convocatoria del alumnado (no hay comprobación de sanciones graves).
 
-Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mis valoraciones de planes**. Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
+Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran los planes de movilidad (la dirección y las jefaturas de departamento y de seminario). Después de **Cerrar las solicitudes**, haz clic en **Acciones > Enviar los planes al tribunal**. Cada miembro recibe una tarea para valorar todos los planes desde **Erasmus+ > Mis valoraciones de planes**, que vence el **Plazo para corregir puntuaciones** (el botón lo pide si está vacío; si lo cambias después, las tareas abiertas lo siguen). Puedes volver a hacer clic después de admitir más solicitudes: solo crea las valoraciones que faltan.
 
 **Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración en **Erasmus+ > Valoraciones de planes** y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía.
 

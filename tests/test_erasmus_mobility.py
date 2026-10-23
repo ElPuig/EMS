@@ -5,7 +5,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.http import Request
 from odoo.tests.common import HttpCase, tagged
 
-from .common import create_role_user
+from .common import create_role_employee, create_role_user
 from .test_erasmus import PDF
 from .test_erasmus_resolution import ErasmusResolutionCase
 from .test_erasmus_staff import ErasmusStaffCase
@@ -362,6 +362,12 @@ class ErasmusStaffMobilityCase(ErasmusStaffCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.director_user = create_role_user(cls, 'director', 'test_erasmus_director')
+        # The call's Direction validates: the Director and the Head of Studies of FP. Another Head
+        # of Studies (ESO) does not, even for an applicant who hangs below them in the chart.
+        cls.staff_call.validator_ids = cls.director_user | cls.hos_user
+        cls.other_hos_user = create_role_user(cls, 'head_of_studies', 'test_erasmus_other_hos',
+                                              name='Test ESO Head Of Studies')
+        cls.staff_employees[0].parent_id = create_role_employee(cls, cls.other_hos_user)
 
     def _accepted_staff(self):
         applications = self._admitted(0), self._admitted(1)
@@ -403,15 +409,18 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
             self._send_proposal(mobility, proposal_date_end='2027-06-01')
         self._send_proposal(mobility)
         self.assertEqual(mobility.proposal_state, 'pending')
-        self.assertIn(self.director_user, mobility.activity_ids.user_id)
-        self.assertIn(self.hos_user, mobility.activity_ids.user_id)
-        with self.assertRaises(AccessError):
-            mobility.with_user(self.erasmus_user).action_validate_proposal()
+        self.assertEqual(mobility.activity_ids.user_id, self.director_user | self.hos_user,
+                         "Only the call's Direction: not their Head of Studies in the chart, not the administrator.")
+        for user in (self.erasmus_user, self.other_hos_user):
+            with self.assertRaises(AccessError):
+                mobility.with_user(user).action_validate_proposal()
         with self.assertRaises(AccessError):
             mobility.with_user(self.director_user).city = 'Lisbon'
         mobility.with_user(self.hos_user).action_validate_proposal()
         self.assertEqual((mobility.state, mobility.decided_by_id, mobility.date_start, mobility.date_end),
                          ('preparing', self.hos_user, date(2027, 6, 14), date(2027, 6, 18)))
+        self.assertTrue(self.env['mail.mail'].search([
+            ('subject', 'like', 'your activity has been validated'), ('email_to', '=', mobility.partner_id.email)]))
 
     def test_direction_rejects_with_a_reason_and_the_teacher_proposes_again(self):
         mobility = self._accepted_staff()
@@ -427,6 +436,37 @@ class TestErasmusStaffMobility(ErasmusStaffMobilityCase):
         self.assertFalse(mobility.decision_note)
         mobility.with_user(self.director_user).action_validate_proposal()
         self.assertEqual((mobility.state, mobility.date_start), ('preparing', date(2027, 7, 5)))
+
+    def test_a_validated_activity_changes_only_when_the_direction_validates_it_again(self):
+        mobility = self._accepted_staff()
+        self._send_proposal(mobility)
+        mobility.with_user(self.director_user).decision_note = 'Fine, cover the second-year groups.'
+        mobility.with_user(self.director_user).action_validate_proposal()
+        destination_date = mobility.destination_date
+        self.assertEqual(mobility.leave_id.request_date_from, date(2027, 6, 14))
+        # The course is not offered in June: another one in July.
+        self._send_proposal(mobility, proposal_host='Test July Course', proposal_date_start='2027-07-05',
+                            proposal_date_end='2027-07-09')
+        self.assertEqual((mobility.state, mobility.proposal_state, mobility.date_start), ('preparing', 'pending',
+                                                                                          date(2027, 6, 14)),
+                         "It stays as validated until the Direction decides.")
+        self.assertEqual(mobility.activity_ids.user_id, self.director_user | self.hos_user)
+        mobility.with_user(self.hos_user).decision_note = 'The July dates are not possible.'
+        mobility.with_user(self.hos_user).action_reject_proposal()
+        self.assertEqual((mobility.state, mobility.proposal_state, mobility.date_start),
+                         ('preparing', 'rejected', date(2027, 6, 14)))
+        self._send_proposal(mobility, proposal_host='Test July Course', proposal_date_start='2027-07-12',
+                            proposal_date_end='2027-07-16')
+        mobility.with_user(self.hos_user).action_validate_proposal()
+        self.assertEqual((mobility.state, mobility.proposal_state, mobility.date_start, mobility.destination_date),
+                         ('preparing', 'validated', date(2027, 7, 12), destination_date))
+        self.assertEqual(mobility.leave_id.request_date_from, date(2027, 7, 12), "The absence follows.")
+        # The Erasmus team can also change it and ask the Direction again; never once it has started.
+        mobility.with_user(self.erasmus_user).proposal_date_end = date(2027, 7, 17)
+        mobility.with_user(self.erasmus_user).action_request_revalidation()
+        self.assertEqual(mobility.proposal_state, 'pending')
+        with self.assertRaises(UserError):
+            mobility.with_user(self.erasmus_user).action_request_revalidation()
 
     def test_the_training_absence_is_requested_when_the_direction_validates(self):
         mobility = self._accepted_staff()

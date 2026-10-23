@@ -86,8 +86,10 @@
                 <p class="mb-2"><a href="/my/erasmus"><i class="fa fa-arrow-left me-1"/>Erasmus+</a></p>
                 <h3 class="mb-1" t-esc="call.name"/>
                 <p class="text-muted small mb-3">
-                    <t t-if="modality">Modality: <t t-esc="modality.name"/></t>
-                    <t t-if="application"> - <t t-esc="state_labels.get(application.state)"/></t>
+                    <!-- Staff never see the modality: places and periods are the Erasmus team's own planning. -->
+                    <t t-set="show_modality" t-value="modality and call.audience == 'student'"/>
+                    <t t-if="show_modality">Modality: <t t-esc="modality.name"/></t>
+                    <t t-if="application"><t t-if="show_modality"> - </t><t t-esc="state_labels.get(application.state)"/></t>
                 </p>
                 <p t-if="call.rules_document" class="small mb-3 o_ems_erasmus_rules">
                     <a t-attf-href="/my/erasmus/call/#{call.id}/rules"><i class="fa fa-file-pdf-o me-1"/>Read the call</a>
@@ -118,7 +120,7 @@
                 <div t-if="offer" class="card border-success shadow-sm mb-3 o_ems_erasmus_offer">
                     <div class="card-body">
                         <h5 class="card-title"><i class="fa fa-plane me-1"/>A place is offered to you</h5>
-                        <p t-if="offer.modality_id" class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
+                        <p t-if="offer.modality_id and call.audience == 'student'" class="mb-1">Modality: <strong t-esc="offer.modality_id.name"/></p>
                         <p class="mb-1">Answer before: <strong t-out="offer.deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/></p>
                         <p class="mb-2">Without an answer by then, the place is considered renounced.</p>
                         <form t-attf-action="/my/erasmus/call/#{call.id}/offer" method="post" class="d-inline">
@@ -238,6 +240,7 @@
                                 <label class="form-label" for="preferred_dates">Preferred dates or period, and approximate duration</label>
                                 <input type="text" class="form-control" name="preferred_dates" id="preferred_dates"
                                        t-att-value="application.preferred_dates or ''"/>
+                                <div class="form-text">Preferably in the non-teaching period (June, July). At another time, such as April, only a week that does not affect the assessments, and with the Direction's validation.</div>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label" for="declared_last_mobility_date">Month and year of your last Erasmus+ staff mobility from this centre</label>
@@ -430,69 +433,7 @@
                         <summary t-if="mobility.audience == 'staff' and mobility.proposal_state == 'rejected'">Propose another activity</summary>
                         <summary t-elif="mobility.audience == 'staff'">Your proposal</summary>
                         <summary t-else="">Propose my own destination</summary>
-                        <form t-att-action="action + 'propose'" method="post" enctype="multipart/form-data" class="mt-2 ems-loading-form o_ems_erasmus_propose">
-                            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                            <p t-if="mobility.audience == 'student'" class="small">You find the host company or entity yourself, with its written commitment to take you; the entity must also write to the Erasmus coordination. The Erasmus team validates it.</p>
-                            <div t-if="mobility.audience == 'staff'" class="mb-2">
-                                <label class="form-label" for="proposal_activity">Activity</label>
-                                <select class="form-select" name="proposal_activity" id="proposal_activity" required="required">
-                                    <t t-foreach="activity_labels.items()" t-as="activity">
-                                        <option t-att-value="activity[0]" t-att-selected="mobility.proposal_activity == activity[0] or None" t-esc="activity[1]"/>
-                                    </t>
-                                </select>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label" for="proposal_host">Host entity or course</label>
-                                <input class="form-control" name="proposal_host" id="proposal_host" required="required" t-att-value="mobility.proposal_host or ''"/>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label" for="proposal_contact">Contact person at the host entity (name and email)</label>
-                                <input class="form-control" name="proposal_contact" id="proposal_contact" t-att-value="mobility.proposal_contact or ''"/>
-                            </div>
-                            <div class="row g-2 mb-2">
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="proposal_country_id">Country</label>
-                                    <select class="form-select" name="proposal_country_id" id="proposal_country_id" required="required">
-                                        <option value=""/>
-                                        <t t-foreach="countries" t-as="country">
-                                            <option t-att-value="country.id" t-att-selected="mobility.proposal_country_id == country or None" t-esc="country.name"/>
-                                        </t>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="proposal_city">City</label>
-                                    <input class="form-control" name="proposal_city" id="proposal_city" t-att-value="mobility.proposal_city or ''"/>
-                                </div>
-                            </div>
-                            <div class="row g-2 mb-2">
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="proposal_date_start">Start</label>
-                                    <input class="form-control" type="date" name="proposal_date_start" id="proposal_date_start"
-                                           t-att-required="'required' if mobility.audience == 'staff' else None"
-                                           t-att-value="mobility.proposal_date_start or ''"/>
-                                </div>
-                                <div class="col-sm-6">
-                                    <label class="form-label" for="proposal_date_end">End</label>
-                                    <input class="form-control" type="date" name="proposal_date_end" id="proposal_date_end"
-                                           t-att-required="'required' if mobility.audience == 'staff' else None"
-                                           t-att-value="mobility.proposal_date_end or ''"/>
-                                </div>
-                            </div>
-                            <div class="mb-2">
-                                <label class="form-label" for="proposal_notes">Notes</label>
-                                <textarea class="form-control" name="proposal_notes" id="proposal_notes" rows="2" t-esc="mobility.proposal_notes or ''"/>
-                            </div>
-                            <div t-if="mobility.audience == 'student'" class="mb-2">
-                                <label class="form-label" for="proposal_files">The host entity's written commitment</label>
-                                <input class="form-control" type="file" name="proposal_files" id="proposal_files" multiple="multiple"/>
-                            </div>
-                            <div t-if="mobility.audience == 'staff'" class="form-check mb-2">
-                                <input class="form-check-input" type="checkbox" name="leave_declaration" id="leave_declaration" required="required"/>
-                                <label class="form-check-label" for="leave_declaration">I declare, under my own responsibility, that the details and the reason given for this absence are true.</label>
-                                <div class="form-text">When the Direction validates the dates, EMS requests your absence for training for them with this declaration.</div>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_propose_submit">Send the proposal</button>
-                        </form>
+                        <t t-call="ems.portal_erasmus_proposal_form"/>
                     </details>
                 </t>
 
@@ -507,6 +448,25 @@
                             <tr t-if="mobility.date_start"><td>Dates</td><td><t t-out="mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.date_end" t-options="{'widget': 'date'}"/></td></tr>
                         </tbody>
                     </table>
+                </t>
+                <!-- Issue #697: staff change a validated activity before it starts (another course, other
+                     dates); it stays as validated until the Direction validates the change. -->
+                <t t-if="mobility.audience == 'staff' and mobility.state == 'preparing'">
+                    <div t-if="mobility.proposal_state == 'rejected' and mobility.decision_note" class="alert alert-warning o_ems_erasmus_change_rejected">
+                        The change you proposed was not validated: <span style="white-space: pre-line;" t-esc="mobility.decision_note"/>
+                        Your mobility stays as it was validated.
+                    </div>
+                    <p t-elif="mobility.proposal_state == 'validated' and mobility.decision_note" class="small o_ems_erasmus_decision_note">
+                        Comment from the Direction: <span style="white-space: pre-line;" t-esc="mobility.decision_note"/>
+                    </p>
+                    <p t-if="mobility.proposal_state == 'pending'" class="o_ems_erasmus_change_pending">
+                        <i class="fa fa-hourglass-half me-1"/>The change you proposed is waiting for the Direction's validation. Until then, your mobility stays as it was validated.
+                    </p>
+                    <details t-if="mobility._ems_can_change_proposal()" class="mb-3 o_ems_erasmus_change">
+                        <summary>Change the activity or the dates</summary>
+                        <p class="small mt-2 mb-0">If the course, the host entity or the dates change, send the new proposal: the Direction validates it again.</p>
+                        <t t-call="ems.portal_erasmus_proposal_form"/>
+                    </details>
                 </t>
                 <!-- Issue #697: the grant, what the centre pays out of it and the payments (art. 5). -->
                 <t t-if="mobility.state in ('preparing', 'done') and mobility.grant_amount">
@@ -618,6 +578,75 @@
                 <p t-if="mobility.state == 'cancelled' and mobility.cancel_reason" class="mb-0 small text-muted" t-esc="mobility.cancel_reason"/>
             </div>
         </div>
+    </template>
+
+    <!-- Issue #687: the proposal form (a student's own destination, a staff member's activity);
+         issue #697: also a staff member's change of a validated activity. -->
+    <template id="portal_erasmus_proposal_form" name="Erasmus+ proposal form">
+        <form t-att-action="action + 'propose'" method="post" enctype="multipart/form-data" class="mt-2 ems-loading-form o_ems_erasmus_propose">
+            <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+            <p t-if="mobility.audience == 'student'" class="small">You find the host company or entity yourself, with its written commitment to take you; the entity must also write to the Erasmus coordination. The Erasmus team validates it.</p>
+            <div t-if="mobility.audience == 'staff'" class="mb-2">
+                <label class="form-label" for="proposal_activity">Activity</label>
+                <select class="form-select" name="proposal_activity" id="proposal_activity" required="required">
+                    <t t-foreach="activity_labels.items()" t-as="activity">
+                        <option t-att-value="activity[0]" t-att-selected="mobility.proposal_activity == activity[0] or None" t-esc="activity[1]"/>
+                    </t>
+                </select>
+            </div>
+            <div class="mb-2">
+                <label class="form-label" for="proposal_host">Host entity or course</label>
+                <input class="form-control" name="proposal_host" id="proposal_host" required="required" t-att-value="mobility.proposal_host or ''"/>
+            </div>
+            <div class="mb-2">
+                <label class="form-label" for="proposal_contact">Contact person at the host entity (name and email)</label>
+                <input class="form-control" name="proposal_contact" id="proposal_contact" t-att-value="mobility.proposal_contact or ''"/>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-sm-6">
+                    <label class="form-label" for="proposal_country_id">Country</label>
+                    <select class="form-select" name="proposal_country_id" id="proposal_country_id" required="required">
+                        <option value=""/>
+                        <t t-foreach="countries" t-as="country">
+                            <option t-att-value="country.id" t-att-selected="mobility.proposal_country_id == country or None" t-esc="country.name"/>
+                        </t>
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="proposal_city">City</label>
+                    <input class="form-control" name="proposal_city" id="proposal_city" t-att-value="mobility.proposal_city or ''"/>
+                </div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-sm-6">
+                    <label class="form-label" for="proposal_date_start">Start</label>
+                    <input class="form-control" type="date" name="proposal_date_start" id="proposal_date_start"
+                           t-att-required="'required' if mobility.audience == 'staff' else None"
+                           t-att-value="mobility.proposal_date_start or ''"/>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label" for="proposal_date_end">End</label>
+                    <input class="form-control" type="date" name="proposal_date_end" id="proposal_date_end"
+                           t-att-required="'required' if mobility.audience == 'staff' else None"
+                           t-att-value="mobility.proposal_date_end or ''"/>
+                </div>
+            </div>
+            <div t-if="mobility.audience == 'staff'" class="form-text mb-2">Preferably in the non-teaching period (June, July). At another time, such as April, only a week that does not affect the assessments, and with the Direction's validation.</div>
+            <div class="mb-2">
+                <label class="form-label" for="proposal_notes">Notes</label>
+                <textarea class="form-control" name="proposal_notes" id="proposal_notes" rows="2" t-esc="mobility.proposal_notes or ''"/>
+            </div>
+            <div t-if="mobility.audience == 'student'" class="mb-2">
+                <label class="form-label" for="proposal_files">The host entity's written commitment</label>
+                <input class="form-control" type="file" name="proposal_files" id="proposal_files" multiple="multiple"/>
+            </div>
+            <div t-if="mobility.audience == 'staff'" class="form-check mb-2">
+                <input class="form-check-input" type="checkbox" name="leave_declaration" id="leave_declaration" required="required"/>
+                <label class="form-check-label" for="leave_declaration">I declare, under my own responsibility, that the details and the reason given for this absence are true.</label>
+                <div class="form-text">When the Direction validates the dates, EMS requests your absence for training for them with this declaration.</div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_propose_submit">Send the proposal</button>
+        </form>
     </template>
 
     <template id="portal_erasmus_resolution" name="Erasmus+ resolution">

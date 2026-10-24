@@ -210,6 +210,24 @@ class EmsErasmusMobility(models.Model):
              "training EMS requests once the Direction validates the dates.")
     preparation_complete = fields.Boolean(string="Ready to leave", compute='_compute_complete')
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
+    # The participant's record: every document of the call that applies, by category, and the
+    # project's documents linked to the mobility (shared with others, never copied).
+    application_document_ids = fields.One2many(string="From the application",
+                                               comodel_name='ems.erasmus.application.document',
+                                               compute='_compute_record',
+                                               help="What the participant handed in with the application, part of "
+                                                    "the record (data and authorisations).")
+    record_missing = fields.Integer(string="Documents missing", compute='_compute_record',
+                                    help="Required documents not complete yet: missing, pending review or needing "
+                                         "changes.")
+    record_progress = fields.Char(string="Record", compute='_compute_record',
+                                  help="Required documents complete out of those required.")
+    project_document_ids = fields.Many2many(string="Other documents", comodel_name='ems.erasmus.project.document',
+                                            relation='ems_erasmus_project_document_mobility_rel',
+                                            column1='ems_erasmus_mobility_id',
+                                            column2='ems_erasmus_project_document_id',
+                                            help="Documents of the project about this participant, added by the team, "
+                                                 "shared with other participants when they are about several.")
     can_validate = fields.Boolean(string="Can validate the proposal", compute='_compute_can_validate')
 
     # Issue #697: the grant, the services the centre pays out of it, and what the Secretary transfers.
@@ -261,21 +279,37 @@ class EmsErasmusMobility(models.Model):
                 mobility.project_kind == 'ka131_hed' and mobility.date_start and mobility.date_end
                 and (mobility.date_end - mobility.date_start).days + 1 <= SHORT_BLENDED_MAX_DAYS)
 
-    @api.depends('document_ids.review_state', 'document_ids.is_required', 'document_ids.prepared_attachment_ids',
-                 'task_ids.done', 'task_ids.is_required', 'commitment_pending', 'commitment_guardian_pending')
+    @api.depends('document_ids.file_state', 'task_ids.done', 'task_ids.is_required', 'commitment_pending',
+                 'commitment_guardian_pending')
     def _compute_complete(self):
-        """A document the team provides is complete once it is uploaded; the others, once valid.
-        Before leaving, the commitment letter must be signed too (also by the family of a minor)."""
+        """A document the team provides is complete once it is uploaded; the others, once valid
+        (`file_state`). Before leaving, the commitment letter must be signed too (also by the family
+        of a minor)."""
         for mobility in self:
             for stage in ('preparation', 'return'):
                 lines = mobility.document_ids.filtered(lambda line: line.stage == stage and line.is_required)
                 tasks = mobility.task_ids.filtered(lambda task: task.stage == stage and task.is_required)
                 mobility[f'{stage}_complete'] = (
-                    all(line.prepared_attachment_ids if line.handled_by == 'team' else line.review_state == 'valid'
-                        for line in lines)
+                    all(line.file_state == 'complete' for line in lines)
                     and all(tasks.mapped('done'))
                     and not (stage == 'preparation'
                              and (mobility.commitment_pending or mobility.commitment_guardian_pending)))
+
+    @api.depends('application_id.document_ids.file_state', 'document_ids.file_state')
+    def _compute_record(self):
+        for mobility in self:
+            lines = mobility._ems_record_lines()
+            required = lines.filtered('is_required')
+            mobility.application_document_ids = lines - mobility.document_ids
+            mobility.record_missing = len(required.filtered(lambda line: line.file_state != 'complete'))
+            mobility.record_progress = f"{len(required) - mobility.record_missing} / {len(required)}"
+
+    def _ems_record_lines(self):
+        """The documents of the participant's record for this mobility: those of the application and
+        those of the mobility, never another mobility's."""
+        self.ensure_one()
+        application = self.application_id.document_ids.filtered(lambda line: line.stage == 'application')
+        return (application | self.document_ids).sorted(lambda line: (line.file_category or '', line.sequence, line.id))
 
     @api.constrains('project_id', 'modality_id')
     def _check_project(self):
@@ -757,6 +791,15 @@ class EmsErasmusMobility(models.Model):
             raise UserError(_("There is nothing to pay to %s: check the grant and the services the centre pays.",
                               self.partner_id.name))
         self.env['ems.erasmus.payment'].create({'mobility_id': self.id, 'kind': kind, 'amount': amount})
+
+    def action_open(self):
+        self.ensure_one()
+        return {'type': 'ir.actions.act_window', 'res_model': self._name, 'res_id': self.id, 'view_mode': 'form'}
+
+    def action_export_record(self):
+        """The participant's record for this mobility as a ZIP (logged as an export)."""
+        self.ensure_one()
+        return self.env['ems.erasmus.export']._ems_open_wizard(mobility_id=self.id, project_id=self.project_id.id)
 
     def action_close(self):
         """The participant is back and every return document and step is done."""

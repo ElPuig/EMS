@@ -56,7 +56,7 @@ Open the mobility from **Erasmus+ > Mobilities** (or the **Mobilities** button o
 
 ## 5. During the stay: the weekly self-assessment
 
-From the first day of the stay, every week the participant answers the call's questions on the portal, for each week already begun. A week over and not answered goes in the weekly reminder email. On the mobility, the **Self-assessment** tab shows how many weeks are answered (for example, *2 / 4*) and each week's answers and rating; to let the participant answer a week again, delete it there. Print them all with **Print > Weekly self-assessment**, and the project's dossier adds that PDF to folder 13 (impact evaluation).
+From the first day of the stay, every week the participant answers the call's questions on the portal, for each week already begun. A week over and not answered goes in the weekly reminder email. On the mobility, the **Self-assessment** tab shows how many weeks are answered (for example, *2 / 4*) and each week's answers and rating; to let the participant answer a week again, delete it there. Print them all with **Print > Weekly self-assessment**, and the exports add that PDF to the participant's record (category 03, during the mobility).
 
 ## 6. Return and closing
 

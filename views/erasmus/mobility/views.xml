@@ -20,6 +20,7 @@
                            decoration-success="proposal_state == 'validated'" decoration-danger="proposal_state == 'rejected'"/>
                     <field name="preparation_complete" optional="show"/>
                     <field name="return_complete" optional="show"/>
+                    <field name="record_progress" optional="hide"/>
                     <field name="project_id" optional="show"/>
                     <field name="currency_id" column_invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
                     <field name="grant_amount" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -93,6 +94,9 @@
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     confirm="The Secretary will see this payment to transfer it. Continue?"
                                     help="What is left to transfer to the participant, on return."/>
+                            <button name="action_export_record" type="object" string="Export the record"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="The participant's documents of this mobility as a ZIP, in the four categories, with an index of what is missing and the files' hashes."/>
                             <button name="action_close" type="object" string="Close the mobility"
                                     invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_cancel" type="object" string="Cancel the mobility"
@@ -164,31 +168,66 @@
                                     </group>
                                 </group>
                             </page>
-                            <page string="Documents" name="documents">
+                            <!-- The participant's record: the call's documents that apply, in the four
+                                 categories, and the project's documents about them. -->
+                            <page string="Record" name="documents">
                                 <group>
-                                    <field name="preparation_complete"/>
-                                    <field name="return_complete"/>
+                                    <group>
+                                        <field name="record_progress"/>
+                                        <field name="record_missing" decoration-danger="record_missing"/>
+                                    </group>
+                                    <group>
+                                        <field name="preparation_complete"/>
+                                        <field name="return_complete"/>
+                                    </group>
                                 </group>
                                 <field name="document_ids">
-                                    <list editable="bottom" create="false" delete="false">
-                                        <field name="stage"/>
+                                    <list editable="bottom" create="false" delete="false"
+                                          decoration-muted="file_state == 'not_applicable'">
+                                        <field name="file_category"/>
                                         <field name="name"/>
-                                        <field name="signers"/>
+                                        <field name="stage" optional="hide"/>
+                                        <field name="signers" optional="show"/>
                                         <field name="open_date" optional="hide"/>
                                         <field name="deadline"/>
-                                        <field name="is_required"/>
+                                        <field name="is_required" optional="hide"/>
                                         <field name="handled_by" optional="hide"/>
                                         <field name="prepared_attachment_ids" widget="many2many_binary"
                                                readonly="handled_by == 'participant'"/>
                                         <field name="attachment_ids" widget="many2many_binary"
                                                readonly="handled_by == 'team'"/>
-                                        <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
-                                               decoration-danger="review_state == 'needs_change'"/>
+                                        <field name="file_state" widget="badge" decoration-success="file_state == 'complete'"
+                                               decoration-danger="file_state in ('missing', 'needs_change')"
+                                               decoration-warning="file_state == 'to_review'"/>
+                                        <field name="review_state" optional="hide"/>
                                         <field name="review_comment"/>
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
                                                 invisible="handled_by == 'team' or review_state == 'valid' or not attachment_ids"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes"
                                                 icon="fa-pencil" invisible="handled_by == 'team' or review_state == 'needs_change'"/>
+                                    </list>
+                                </field>
+                                <separator string="From the application" invisible="not application_document_ids"/>
+                                <field name="application_document_ids" invisible="not application_document_ids">
+                                    <list>
+                                        <field name="file_category"/>
+                                        <field name="name"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="file_state" widget="badge" decoration-success="file_state == 'complete'"
+                                               decoration-danger="file_state in ('missing', 'needs_change')"
+                                               decoration-warning="file_state == 'to_review'"/>
+                                    </list>
+                                </field>
+                                <separator string="Other documents"/>
+                                <field name="project_document_ids" readonly="not project_id"
+                                       context="{'default_project_id': project_id, 'default_category': '02_Mobilitats', 'default_mobility_ids': [id]}"
+                                       help="Documents not in the call's list (an incident, a change of dates...) or shared with other participants. Set the project first.">
+                                    <list>
+                                        <field name="participant_category"/>
+                                        <field name="name"/>
+                                        <field name="date"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="confidential" optional="show"/>
                                     </list>
                                 </field>
                             </page>

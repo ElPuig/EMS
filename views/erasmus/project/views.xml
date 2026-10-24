@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data>
-        <!-- Issue #687 - the centre's Erasmus+ projects, to which each mobility is assigned. Issue
-             #697: each project's documents in SEPIE's folders, downloaded as one dossier. -->
+        <!-- Issue #687 - the centre's Erasmus+ projects, to which each mobility is assigned. Their
+             documents in five categories, the state of the participants' records, and the ZIP
+             exports (ems.erasmus.export), logged. -->
         <record id="view_erasmus_project_list" model="ir.ui.view">
             <field name="name">ems.erasmus.project.list</field>
             <field name="model">ems.erasmus.project</field>
@@ -39,10 +40,10 @@
                 <form string="Project">
                     <header>
                         <div name="ems_actions" string="Actions">
-                            <button name="action_download_dossier" type="object" string="Download the dossier (ZIP)"
+                            <button name="action_export" type="object" string="Export the project"
                                     class="btn-primary" invisible="not id"
                                     groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"
-                                    help="Every document of the project in SEPIE's folders: what was uploaded here, the calls and resolutions, the participants' documents, the invoices and the transfer receipts."/>
+                                    help="Every document of the project as a ZIP in its five categories, with every participant's record, an index of what is missing and the files' hashes."/>
                         </div>
                     </header>
                     <sheet>
@@ -61,35 +62,55 @@
                             <group>
                                 <field name="currency_id" invisible="1"/>
                                 <field name="budget"/>
+                                <field name="final_payment_date"/>
                                 <field name="keep_until"/>
+                                <field name="retention_hold"/>
+                                <field name="retention_note" invisible="not retention_hold" required="retention_hold"/>
                             </group>
                         </group>
                         <notebook>
-                            <page string="Documents" name="documents">
+                            <page string="Documentation" name="documents">
+                                <group groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                    <group>
+                                        <field name="record_count"/>
+                                        <field name="record_complete_count"/>
+                                    </group>
+                                    <group>
+                                        <field name="record_missing_count" decoration-danger="record_missing_count"/>
+                                    </group>
+                                </group>
                                 <field name="document_ids" context="{'default_project_id': id}">
-                                    <list editable="bottom" default_group_by="folder">
+                                    <list editable="bottom">
                                         <field name="project_id" column_invisible="1"/>
-                                        <field name="folder"/>
+                                        <field name="category"/>
                                         <field name="name"/>
                                         <field name="date"/>
                                         <field name="attachment_ids" widget="many2many_binary"/>
                                         <field name="mobility_ids" widget="many2many_tags" optional="show"
                                                options="{'no_create': True}"
                                                groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                        <field name="participant_category" optional="hide"
+                                               groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                                        <field name="confidential" optional="show"
+                                               groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="notes" optional="hide"/>
                                     </list>
                                 </field>
                             </page>
                             <page string="Mobilities" name="mobilities" groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
                                 <field name="mobility_ids" readonly="1">
-                                    <list>
+                                    <list decoration-muted="state == 'cancelled'">
                                         <field name="partner_id"/>
                                         <field name="call_id"/>
                                         <field name="modality_id"/>
                                         <field name="destination_id" optional="show"/>
                                         <field name="date_start"/>
                                         <field name="date_end"/>
+                                        <field name="record_progress"/>
+                                        <field name="record_missing" decoration-danger="record_missing"
+                                               decoration-success="not record_missing"/>
                                         <field name="state" widget="badge"/>
+                                        <button name="action_open" type="object" string="Open the record" icon="fa-folder-open-o"/>
                                     </list>
                                 </field>
                             </page>
@@ -117,8 +138,54 @@
                                     </list>
                                 </field>
                             </page>
+                            <page string="Exports" name="exports" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                                <field name="export_ids" readonly="1">
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="requester_id"/>
+                                        <field name="scope"/>
+                                        <field name="mobility_id" optional="show"/>
+                                        <field name="include_confidential"/>
+                                        <field name="reason" optional="show"/>
+                                        <field name="file_count"/>
+                                        <field name="missing_count"/>
+                                        <field name="zip_sha256" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
                         </notebook>
                     </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- The dialog that asks for an export: an audit export (with the confidential documents)
+             only for the Erasmus coordinator and the administrator, with a reason. -->
+        <record id="view_erasmus_export_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.export.form</field>
+            <field name="model">ems.erasmus.export</field>
+            <field name="arch" type="xml">
+                <form string="Export">
+                    <sheet>
+                        <p class="text-muted">
+                            A ZIP with the original files in their categories (signed PDFs untouched), an index of every document, also the missing ones (index.csv), a manifest (manifest.json) and the SHA-256 hash of each file (SHA256SUMS) to check the copy archived in Drive. The export is logged with your name.
+                        </p>
+                        <group>
+                            <field name="scope"/>
+                            <field name="project_id" invisible="not project_id"/>
+                            <field name="mobility_id" invisible="scope != 'record'"/>
+                            <field name="can_audit" invisible="1"/>
+                            <field name="include_confidential" invisible="not can_audit"/>
+                            <field name="reason" invisible="not include_confidential" required="include_confidential"/>
+                        </group>
+                        <div class="alert alert-warning" role="alert" invisible="not include_confidential">
+                            The ZIP will include health, inclusion and bank documents. Keep it only where the audit requires it.
+                        </div>
+                    </sheet>
+                    <footer>
+                        <button name="action_generate" type="object" string="Download the ZIP" class="btn-primary"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
                 </form>
             </field>
         </record>

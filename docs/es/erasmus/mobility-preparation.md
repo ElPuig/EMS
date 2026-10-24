@@ -56,7 +56,7 @@ Abrid la movilidad desde **Erasmus+ > Movilidades** (o desde el botón **Movilid
 
 ## 5. Durante la estancia: la autoevaluación semanal
 
-Desde el primer día de la estancia, cada semana el participante responde en el portal las preguntas de la convocatoria, para cada semana ya empezada. Una semana terminada y sin respuesta entra en el correo de recordatorio semanal. En la movilidad, la pestaña **Autoevaluación** muestra cuántas semanas están respondidas (por ejemplo, *2 / 4*) y las respuestas y la valoración de cada semana; para que el participante vuelva a responder una semana, borradla allí. Imprimidlas todas con **Imprimir > Autoevaluación semanal**, y el expediente del proyecto añade ese PDF a la carpeta 13 (evaluación del impacto).
+Desde el primer día de la estancia, cada semana el participante responde en el portal las preguntas de la convocatoria, para cada semana ya empezada. Una semana terminada y sin respuesta entra en el correo de recordatorio semanal. En la movilidad, la pestaña **Autoevaluación** muestra cuántas semanas están respondidas (por ejemplo, *2 / 4*) y las respuestas y la valoración de cada semana; para que el participante vuelva a responder una semana, borradla allí. Imprimidlas todas con **Imprimir > Autoevaluación semanal**, y las exportaciones añaden ese PDF al expediente del participante (categoría 03, durante la movilidad).
 
 ## 6. Vuelta y cierre
 

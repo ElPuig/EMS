@@ -82,5 +82,38 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="False"/>
         </record>
+
+        <!-- Document records: a confidential project document (health, inclusion or bank data) is
+             only for the Erasmus team and the administrator; the Secretary and the Heads of
+             Studies see the rest. -->
+        <record id="rule_erasmus_project_document_all" model="ir.rule">
+            <field name="name">Erasmus project document: all (team, admin)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_project_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_erasmus_project_document_not_confidential" model="ir.rule">
+            <field name="name">Erasmus project document: not confidential (Secretary, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_project_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[('confidential', '=', False)]</field>
+        </record>
+
+        <!-- The exports log: the Erasmus team and the administrator see every export; the
+             Secretary, their own. -->
+        <record id="rule_erasmus_export_all" model="ir.rule">
+            <field name="name">Erasmus export: all (team, admin)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_export"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record id="rule_erasmus_export_own" model="ir.rule">
+            <field name="name">Erasmus export: own (Secretary)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_export"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary'))]"/>
+            <field name="domain_force">[('requester_id', '=', user.id)]</field>
+        </record>
     </data>
 </odoo>

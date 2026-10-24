@@ -1,6 +1,4 @@
 import base64
-import io
-import zipfile
 
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import Form
@@ -179,48 +177,6 @@ class TestErasmusGrant(ErasmusGrantCase):
         with self.assertRaises(UserError):
             invoice.with_user(self.erasmus_user).unlink()
 
-    def test_dossier_files_every_document_in_its_sepie_folder(self):
-        first, second = self._preparing()
-        project = self.env['ems.erasmus.project'].create({
-            'name': 'TEST-KA121-VET', 'kind': 'ka121_vet', 'date_end': '2027-05-31', 'budget': 75000})
-        self.assertEqual(str(project.keep_until), '2032-05-31', "Above 60,000 €: kept 5 years.")
-        project.budget = 50000
-        self.assertEqual(str(project.keep_until), '2030-05-31')
-        self.modality.project = 'ka121_vet'
-        (first | second).project_id = project
-        self.call.rules_document = base64.b64encode(PDF)
-        self.call.rules_filename = 'call.pdf'
-        attachment = self.env['ir.attachment'].create({'name': 'application.pdf', 'raw': PDF})
-        self.env['ems.erasmus.project.document'].create({
-            'project_id': project.id, 'folder': '01_Solicitud', 'name': 'Application form',
-            'attachment_ids': [(6, 0, attachment.ids)]})
-        ols = first.document_ids.filtered(lambda line: line.call_document_id.sepie_folder == '10_ApoyoLinguistico')
-        first._ems_portal_upload({ols.call_document_id.id: [('ols.pdf', PDF)]})
-        inclusion = first.document_ids.filtered(lambda line: line.call_document_id.confidential)
-        first._ems_portal_upload({inclusion.call_document_id.id: [('evidence.pdf', PDF)]})
-        invoice = self._invoice(first | second, 600, project_id=project.id, document=base64.b64encode(PDF),
-                                document_filename='flights.pdf')
-        self._transfer(invoice, self.secretary_user)
-
-        def names(user):
-            with project.with_user(user)._ems_dossier_zip() as archive:
-                return zipfile.ZipFile(io.BytesIO(archive.read())).namelist()
-
-        files = names(self.erasmus_user)
-        root = 'TEST-KA121-VET'
-        self.assertIn(f'{root}/13_EvaluacionImpactoDifusion/', files, "Every SEPIE folder, even empty.")
-        self.assertIn(f'{root}/01_Solicitud/Application form/application.pdf', files)
-        self.assertIn(f'{root}/02_Publicacionyseleccion/{self.call.name}/call.pdf', files)
-        self.assertIn(f'{root}/10_ApoyoLinguistico/{self.student.name}/OLS certificate/ols.pdf', files)
-        self.assertIn(f'{root}/08_FacturasyTransferencias/Facturas/F-TEST-1/flights.pdf', files)
-        self.assertIn(f'{root}/08_FacturasyTransferencias/Facturas/F-TEST-1/receipt.pdf', files)
-        self.assertTrue(any(name.endswith('evidence.pdf') for name in files))
-        secretary_files = names(self.secretary_user)
-        self.assertFalse(any(name.endswith('evidence.pdf') for name in secretary_files),
-                         "Confidential documents only for the Erasmus team.")
-        with self.assertRaises(AccessError):
-            project.with_user(self.teacher_user)._ems_dossier_zip()
-
     def test_secretary_reads_the_invoices_and_their_shares(self):
         first, second = self._preparing()
         invoice = self._invoice(first | second, 300).with_user(self.secretary_user)
@@ -263,13 +219,3 @@ class TestPortalErasmusGrant(HttpCase, ErasmusGrantCase):
         self.assertIn('Flights to Larnaca', page)
         self.assertIn('850.00', page, "1250 minus a 400 share of the flights.")
         self.assertIn('Prefinancing', page)
-
-    def test_dossier_download_for_the_secretary_only(self):
-        project = self.env['ems.erasmus.project'].create({'name': 'TEST-DOSSIER', 'kind': 'ka121_vet'})
-        self.authenticate(self.secretary_user.login, self.secretary_user.login)
-        response = self.url_open(f'/ems/erasmus/project/{project.id}/dossier')
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.headers['Content-Type'], 'application/zip')
-        self.assertIn('TEST-DOSSIER/01_Solicitud/', zipfile.ZipFile(io.BytesIO(response.content)).namelist())
-        self.authenticate(self.teacher_user.login, self.teacher_user.login)
-        self.assertEqual(self.url_open(f'/ems/erasmus/project/{project.id}/dossier').status_code, 404)

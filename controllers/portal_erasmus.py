@@ -111,8 +111,11 @@ class EmsPortalErasmusController(CustomerPortal):
             'countries': request.env['res.country'].sudo().search([]),
             'mobility_state_labels': dict(request.env['ems.erasmus.mobility']._fields['state']._description_selection(
                 request.env)),
-            'review_labels': dict(request.env['ems.erasmus.application.document']._fields[
-                'review_state']._description_selection(request.env)),
+            # The participant's record, in its four categories.
+            'record_categories': request.env['ems.erasmus.application.document']._fields[
+                'file_category']._description_selection(request.env),
+            'file_state_labels': dict(request.env['ems.erasmus.application.document']._fields[
+                'file_state']._description_selection(request.env)),
             'answered': kwargs.get('answered'),
         })
         return request.render('ems.portal_erasmus_application', values)
@@ -273,11 +276,13 @@ class EmsPortalErasmusController(CustomerPortal):
     @http.route('/my/erasmus/call/<int:call_id>/mobility/file/<int:attachment_id>', type='http', auth='user',
                 website=True)
     def portal_erasmus_mobility_file(self, call_id, attachment_id, **kwargs):
-        """Download a document the Erasmus team filled in for the logged-in user's own mobility."""
+        """Download a file of the logged-in user's own mobility: one the Erasmus team uploaded for
+        them, or one they uploaded themselves."""
         call = self._ems_erasmus_call(call_id)
         mobility = call and request.env['ems.erasmus.mobility'].sudo().search([
             ('call_id', '=', call.id), ('partner_id', '=', request.env.user.partner_id.id)], limit=1)
-        attachment = mobility and mobility.document_ids.prepared_attachment_ids.filtered(
+        lines = mobility and mobility.document_ids
+        attachment = mobility and (lines.prepared_attachment_ids | lines.attachment_ids).filtered(
             lambda attachment: attachment.id == attachment_id)
         if not attachment:
             return request.redirect(self._redirect)

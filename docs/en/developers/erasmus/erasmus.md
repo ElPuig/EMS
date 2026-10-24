@@ -631,7 +631,7 @@ proving) or the certificate of stay or attendance (KA131-HED), and the report wi
 is `curricular` (a work placement managed in sBID, the default for a student, computed once and then
 editable by the team; `extracurricular` and `graduate` leave it optional), or `short_blended`:
 required only when the mobility `is_short_blended`, and hidden on the portal otherwise (the student's
-virtual component, a PDF with their preparation, KA131-HED, dossier folder 06).
+virtual component, a PDF with their preparation, KA131-HED, in the record's category 02).
 
 **Opening date.** A call document's `open_days` (mobility documents before leaving) keeps it closed
 until that many days before leaving: the line's `open_date` is `date_start - open_days`, and
@@ -677,8 +677,8 @@ ratings 1-5, each week once, `unique(mobility_id, week)`). Each answer
 (`ems.erasmus.self_assessment.answer`) keeps the question's text as asked. The weekly reminder adds
 the weeks already over and not answered (`_ems_self_assessments_missing()`). The team reads them on
 the mobility (*Self-assessment* tab, `self_assessment_progress` "answered / weeks"), prints them
-(report `ems.action_report_erasmus_self_assessment`, bound to the mobility) and the dossier adds that
-PDF per participant to `13_EvaluacionImpactoDifusion`. Access: Erasmus team and administrator
+(report `ems.action_report_erasmus_self_assessment`, bound to the mobility) and the exports add that
+PDF to the participant's record, category `03_Durant_la_mobilitat` (see [records.md](records.md)). Access: Erasmus team and administrator
 read/write (the team can delete a week for the participant to answer it again), Head of Studies read.
 
 **Projects** (`ems.erasmus.project`, menu *Erasmus+ > Projects*): the centre's active projects
@@ -819,7 +819,7 @@ erDiagram
 | `ems.erasmus.invoice` | A supplier's invoice the centre paid for some participants: number, supplier, date, concept, project, amount, file, `mobility_ids`. Creating it, or changing its amount or participants, splits it again into equal shares (`_ems_split()`: rounded down to the cent, the remainder on the first share); a share can then be edited by hand, and `unassigned_amount` shows what is left. Changing only the concept or description updates the shares in place. |
 | `ems.erasmus.payment` | An amount the Secretary transfers: `kind` prefinancing, final or single; amount; `state` to pay / paid, who and when, `receipt_ids` (the transfer receipts); the participant's IBAN and holder (`bank_account`, `bank_holder`: their first `res.partner.bank`, read with sudo). |
 | `ems.erasmus.transfer.wizard` | *Register transfer*: the Secretary picks the grant payments or the invoices one bank transfer pays (several at once, e.g. a batch of grants or a travel agency's invoice), its date and its receipt; one `ir.attachment` is created and linked to every one of them, which become paid. |
-| `ems.erasmus.project.document` | A file of a project that no other EMS record holds (the project application, preparatory visits, exceptional costs, dissemination...), in one of SEPIE's folders (`folder`), optionally about some participants. |
+| `ems.erasmus.project.document` | A file of a project that no other EMS record holds (the grant agreement, budget follow-up, exceptional costs, dissemination, the final report...), in one of the project's five categories (`category`), optionally about some participants, whose records then show it (see [records.md](records.md)). |
 
 **On the mobility:** `grant_amount`, `prefinancing_percent` (default 80, above 0 and up to 100),
 `provision_amount` and `grant_net` (= grant - provisions, what the participant receives).
@@ -861,28 +861,13 @@ tutor to sign waits for the integrated e-signature.
 in the Beneficiary Module. Payments and invoices carry the project for the Secretary. The centre's
 active projects are seeded once from `data/custom/erasmus/ems.erasmus.project.csv` (agreement
 number, kind, dates; maintained in the app afterwards, like every `data/custom/` record). A project
-also has its `budget` (grant awarded) and `keep_until`: SEPIE asks to keep the documents 3 years
-after it ends, 5 when the grant is above 60,000 €.
+also has its `budget` (grant awarded), `final_payment_date` and `keep_until`: SEPIE asks to keep the
+documents 3 years after the final payment of the grant, 5 when it is above 60,000 €.
 
-**Project dossier (SEPIE's folders):** `SEPIE_FOLDERS` (`models/erasmus/call.py`) are the 13
-folders SEPIE asks for (`01_Solicitud` ... `13_EvaluacionImpactoDifusion`, the codes are the folder
-names). *Download the dossier (ZIP)* on the project form (route
-`/ems/erasmus/project/<id>/dossier`, Erasmus team, Secretary and administrator) builds a ZIP with
-every folder, even empty, filled from where each file already is, nothing copied:
-
-| Folder | Files |
-|---|---|
-| Any | The project's own documents (`ems.erasmus.project.document`), in their folder, one subfolder per document. |
-| `02_Publicacionyseleccion` | Per call with a mobility on the project: the published call (`rules_document`) and every published resolution as a PDF (`_ems_stored_pdf()`: the report keeps a copy the first time a published resolution is printed, `attachment_use`, and the dossier prints it if needed). |
-| The call document's `sepie_folder` (empty: by stage, `STAGE_FOLDERS`: application → 02, before leaving → 04, on return → 09) | Per participant on the project (mobility not cancelled), every file of their application and mobility documents, in `<participant>/<document>/`. Confidential ones only when the Erasmus team downloads it. |
-| `08_FacturasyTransferencias` | `Facturas/<number>/`: each invoice of the project and its transfer receipts; `Transferencias/<participant>/`: the receipts of their grant payments. |
-| `13_EvaluacionImpactoDifusion` | `<participant>/`: the weekly self-assessments as a PDF, printed when the dossier is downloaded (one report per participant who answered any week). |
-
-New calls preset the folder of their mobility documents (health card and insurance → 05, OLS → 10,
-inclusion → 11, travel authorisations → 03, report → 13, the new optional *Tickets or boarding
-passes* return document → 07). The ZIP is written to a temporary file without compression (PDFs,
-photos and videos hardly shrink) and streamed, so its size never sits in memory. The host entity
-also has its Erasmus+ `erasmus_oid`.
+**Documents and exports:** the project's documents in five categories, each participant's record in
+four, and the ZIP exports (a record or a whole project, with index, manifest and SHA-256 hashes,
+logged) are described in [records.md](records.md). The host entity also has its Erasmus+
+`erasmus_oid`.
 
 ### Access (phase 6)
 

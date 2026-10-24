@@ -406,12 +406,12 @@ class EmsCourseGuardDutyBoard(models.Model):
             hours = (leave.request_hour_from, leave.request_hour_to) if partial else WHOLE_DAY
             intervals[leave.employee_id.id].append((*hours, ABSENCE_STATES[leave.state]))
         # An absence the Head of Studies already knows about but the teacher has not filed yet
-        # (issue #509) reads as a pending one. Once filed, the teacher's own request above is all
-        # that counts, so a linked entry is left out whatever became of that request.
-        pending = self.env['ems.absence_pending'].sudo().search([
-            ('employee_id', 'in', employees.ids),
-            ('state', '=', 'pending'),
-        ])
+        # (issue #509) reads as a pending one, while it is unresolved (issue #707: still to review,
+        # or waiting for the teacher). Once filed, the teacher's own request above is all that
+        # counts, so a linked entry is left out whatever became of that request; a corrected or
+        # discarded one too.
+        Pending = self.env['ems.absence_pending'].sudo()
+        pending = Pending.search([('employee_id', 'in', employees.ids), *Pending._ems_unresolved_domain()])
         for absence in pending:
             hours = absence._get_local_hours(day)
             if hours:

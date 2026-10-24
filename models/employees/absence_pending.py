@@ -5,8 +5,8 @@ from datetime import time, timedelta
 
 from pytz import UTC
 
-from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo import SUPERUSER_ID, _, api, fields, models
+from odoo.exceptions import UserError, ValidationError
 
 # The absence states the guard duty board plans around (see guard_duty_board.ABSENCE_STATES): an
 # absence in any of them is the teacher's own request taking over from a pending one.
@@ -22,6 +22,15 @@ DETECTION_MARKER = 'ems.missing_check_in_last_day'
 DETECTION_LOOKBACK_DAYS = 7
 # The activity a detected absence still not requested leaves on its Head of Studies' list.
 NOT_REQUESTED_ACTIVITY_XMLID = 'ems.mail_activity_absence_not_requested'
+# Issue #707: every new detected absence is first a task for whoever reviews it.
+REVIEW_ACTIVITY_XMLID = 'ems.mail_activity_absence_review'
+# Issue #707: the states in which the absence is not settled yet (the guard duty board plans around
+# them, a check-in or the teacher's own request still resolves them), and among those, the ones
+# waiting for the teacher, the only ones they are reminded of.
+WAITING_STATES = ('justification_requested', 'prepared')
+UNRESOLVED_STATES = ('pending',) + WAITING_STATES
+# Settled for good: nothing moves them any more, nor their teacher and dates.
+FINAL_STATES = ('linked', 'corrected', 'discarded')
 
 
 class EmsAbsencePending(models.Model):
@@ -29,8 +38,10 @@ class EmsAbsencePending(models.Model):
     issue #696). Either informed: the teacher's Department or Seminar Chief (issue #604), the Head
     of Studies or their Deputy already knows it is coming and enters it on the teacher's behalf;
     or detected at the end of the day from a missing check-in (issue #696). The guard duty board
-    plans around it, and the teacher is reminded to request it: once the teacher's own absence is
-    filed, the two are linked for good and the real one is all that counts from then on."""
+    plans around it. Issue #707: whoever corrects the teacher's attendance reviews it first, and the
+    teacher only hears about it when they are asked for a justification or an absence is prepared
+    for them. Once the teacher's own absence is filed, the two are linked for good and the real one
+    is all that counts from then on. See "Detected absences" in docs/en/developers/employees/absence.md."""
     _name = "ems.absence_pending"
     _description = "Detected absence"
     # The guard duty board reloads when an expected absence changes (issue #692).
@@ -59,14 +70,33 @@ class EmsAbsencePending(models.Model):
              "the end of the day, the teacher did not check in, or arrived after their first lesson.")
     state = fields.Selection(
         string="Status",
-        selection=[('pending', 'Detected'), ('linked', 'Requested'), ('discarded', 'Discarded')],
+        selection=[
+            ('pending', 'To review'),
+            ('justification_requested', 'Justification requested'),
+            ('prepared', 'Absence prepared'),
+            ('linked', 'Requested'),
+            ('corrected', 'Check-in corrected'),
+            ('discarded', 'Discarded'),
+        ],
         default='pending', required=True, readonly=True, copy=False, tracking=True,
-        help="Detected until the teacher requests the absence themselves, then linked to their "
-             "request for good: from that moment only the request counts, whatever becomes of it. "
-             "Discarded when the teacher's check-in of that day shows up after all.")
+        help="To review: only whoever corrects the teacher's attendance knows about it, and decides "
+             "what to do. Justification requested: the teacher was asked to request the absence and "
+             "justify it, or to ask for a check-in correction. Absence prepared: the absence request "
+             "is ready for the teacher to check and send. Requested: linked to the teacher's request "
+             "for good, from then on only the request counts. Check-in corrected: the check-in was "
+             "recorded for these hours. Discarded: by the reviewer, or because the teacher's check-in "
+             "of that day showed up after all.")
+    active = fields.Boolean(string="Active", default=True)
     leave_id = fields.Many2one(
         string="Absence requested", comodel_name="hr.leave", readonly=True, copy=False,
         ondelete="set null")
+    proposed_leave_type_id = fields.Many2one(
+        string="Absence type prepared", comodel_name="hr.leave.type", readonly=True, copy=False,
+        help="The absence type chosen when the absence was prepared: the teacher's request opens with it.")
+    requested_date = fields.Date(
+        string="Asked to the teacher on", readonly=True, copy=False,
+        help="The day the teacher was asked for a justification, or told an absence was prepared for "
+             "them. The reminders and the report count from it.")
     reminder_date = fields.Date(
         string="Last reminder", readonly=True, copy=False,
         help="The last day the teacher was reminded to request the absence.")
@@ -74,6 +104,8 @@ class EmsAbsencePending(models.Model):
         string="Reported", readonly=True, copy=False,
         help="Already reported to the teacher's Head of Studies, who got an activity to follow it up.")
     can_request = fields.Boolean(compute="_compute_can_request")
+    can_review = fields.Boolean(compute="_compute_can_review")
+    can_correct = fields.Boolean(compute="_compute_can_review")
 
     def _domain_employee_id(self):
         """The same reach as the record rules: every teacher for a technical administrator
@@ -109,15 +141,36 @@ class EmsAbsencePending(models.Model):
     @api.depends('state', 'employee_id')
     @api.depends_context('uid')
     def _compute_can_request(self):
-        """Only the teacher themselves requests their absence, and only while nobody has."""
+        """Only the teacher themselves requests their absence, once they have been asked to and
+        while nobody has."""
         for absence in self:
-            absence.can_request = absence.state == 'pending' and absence.employee_id.user_id == self.env.user
+            absence.can_request = absence.state in WAITING_STATES and absence.employee_id.user_id == self.env.user
+
+    @api.depends('state', 'employee_id', 'date_from', 'date_to')
+    @api.depends_context('uid')
+    def _compute_can_review(self):
+        """The review actions (issue #707), for whoever may review the entry while it is still to
+        review; 'can_correct' for the check-in correction, which also needs it to be over and
+        within one day. Only what the screens offer: every action checks it again."""
+        reviewers = {}
+        for absence in self:
+            employee = absence.employee_id
+            if employee.id not in reviewers:
+                reviewers[employee.id] = absence._ems_can_review()
+            absence.can_review = absence.state == 'pending' and reviewers[employee.id]
+            absence.can_correct = absence.can_review and absence._ems_can_correct()
 
     @api.constrains('date_from', 'date_to')
     def _check_dates(self):
         for absence in self:
             if absence.date_to <= absence.date_from:
                 raise ValidationError(_("The end of an absence must come after its start."))
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        absences = super().create(vals_list)
+        absences._ems_schedule_review()
+        return absences
 
     def write(self, vals):
         if vals.keys() & {'employee_id', 'date_from', 'date_to'}:
@@ -126,17 +179,194 @@ class EmsAbsencePending(models.Model):
                 raise ValidationError(_("This absence has already been requested by the teacher: "
                                         "only their own request counts now."))
             if 'discarded' in states:
-                raise ValidationError(_("This absence was discarded: the teacher's check-in of "
-                                        "that day showed up."))
+                raise ValidationError(_("This detected absence was discarded: it can no longer be changed."))
+            if 'corrected' in states:
+                raise ValidationError(_("The check-in of this absence has already been corrected."))
         result = super().write(vals)
-        if vals.get('state') in ('linked', 'discarded'):
+        if vals.get('state') and vals['state'] != 'pending':
+            # Reviewed, one way or another (issue #707): off the reviewer's list.
+            self.sudo().activity_feedback([REVIEW_ACTIVITY_XMLID])
+        if vals.get('state') in FINAL_STATES:
             # Nothing is left to follow up on its Head of Studies' list.
             self.sudo().activity_feedback([NOT_REQUESTED_ACTIVITY_XMLID])
         return result
 
-    def action_request_absence(self):
-        """Opens a new absence request of the teacher's own, filled in with this one's day and
-        hours. Saving it links the two (_link_to_leaves)."""
+    # --- The review (issue #707) ----------------------------------------------------------------
+
+    def _ems_reviewers(self):
+        """Who reviews this entry and gets its task: whoever corrects the teacher's attendance
+        (hr.employee._find_attendance_approvers: their nearest Head or Deputy Head of Studies, else
+        their area's attendance manager, else the academic administrators), people only."""
+        self.ensure_one()
+        return self.employee_id._find_attendance_approvers().filtered(
+            lambda user: user.active and not user.share and user.id != SUPERUSER_ID)
+
+    def _ems_can_review(self):
+        """Whether the current user may review this entry: one of its reviewers, or an
+        administrator, who is always above the hierarchy."""
+        self.ensure_one()
+        user = self.env.user
+        if self.env.su or user.has_group('base.group_system') or user.has_group('ems.group_academic_admin'):
+            return True
+        return user in self._ems_reviewers()
+
+    @api.model
+    def _ems_unresolved_domain(self):
+        """The entries not settled yet: still to review, or waiting for the teacher. What the guard
+        duty board plans around."""
+        return [('state', 'in', UNRESOLVED_STATES)]
+
+    def _ems_can_correct(self):
+        """Whether its check-in can be corrected: it is over, and within one day of the company's."""
+        self.ensure_one()
+        if not (self.date_from and self.date_to) or self.date_to > fields.Datetime.now():
+            return False
+        start, stop = self._to_local(self.date_from), self._to_local(self.date_to)
+        return start.date() == (stop - timedelta(microseconds=1)).date()
+
+    def _ems_schedule_review(self):
+        """One "Review detected absence" task per reviewer on each entry. Quietly: the daily
+        pending-tasks digest is how the reviewer hears about it, not one email per entry. sudo:
+        whoever creates it (the scheduled action, a Department Chief) need not read the reviewer."""
+        today = self.get_local_today()
+        for absence in self.sudo().filtered(lambda absence: absence.state == 'pending'):
+            for user in absence._ems_reviewers():
+                absence.with_context(mail_activity_quick_update=True).activity_schedule(
+                    REVIEW_ACTIVITY_XMLID, date_deadline=today, user_id=user.id)
+
+    def _ems_review_targets(self, condition=None):
+        """The selected entries the current user may act on now: still to review, theirs to
+        review and, when given, meeting `condition`. Raises when there is none at all."""
+        targets = self.filtered(lambda absence: absence.state == 'pending' and absence._ems_can_review()
+                                and (condition is None or condition(absence)))
+        if not targets:
+            raise UserError(_("None of the selected detected absences can be dealt with this way: only "
+                              "those still to review, of teachers whose attendance you correct (and, to "
+                              "correct the check-in, already over and within one day)."))
+        return targets
+
+    def _ems_review_result(self, done, message):
+        """The notification an action ends with: what it did, and how many of the selected entries
+        it left alone."""
+        skipped = len(self) - len(done)
+        if skipped:
+            message = _("%(done)s %(skipped)s left as they were: already reviewed, not yours to review, "
+                        "or not possible for them.", done=message, skipped=skipped)
+        return {
+            'type': 'ir.actions.client',
+            'tag': 'display_notification',
+            'params': {
+                'message': message,
+                'type': 'warning' if skipped else 'success',
+                'sticky': False,
+                # From the wizard, closing its dialog reloads the screen behind it.
+                'next': {'type': 'ir.actions.act_window_close'} if self.env.context.get('ems_review_wizard')
+                        else {'type': 'ir.actions.client', 'tag': 'soft_reload'},
+            },
+        }
+
+    def _ems_note(self, body):
+        self.ensure_one()
+        self.message_post(body=body, subtype_xmlid='mail.mt_note')
+
+    def _ems_tell_teacher(self):
+        """The note asking the teacher to act (the same one the reminders send), in their own
+        language. Nobody is told when the teacher has no user."""
+        for absence in self:
+            user = absence.employee_id.user_id
+            if user:
+                absence = absence.with_context(lang=user.lang)
+                absence._ems_notify(user.partner_id, absence._ems_reminder_message())
+
+    def _ems_ask_teacher(self, vals):
+        """Moves the entries to a state waiting for the teacher and tells them at once: the
+        reminders then count from today."""
+        today = self.get_local_today()
+        self.sudo().write({**vals, 'requested_date': today, 'reminder_date': today})
+        self.sudo()._ems_tell_teacher()
+
+    def action_request_justification(self):
+        """Asks the teacher to request the absence and justify it, or to ask for a check-in
+        correction if they were at the centre."""
+        targets = self._ems_review_targets()
+        targets._ems_ask_teacher({'state': 'justification_requested'})
+        return self._ems_review_result(targets, _("Justification requested for %(count)s detected absence(s).",
+                                                  count=len(targets)))
+
+    def action_correct_check_in(self):
+        """Records the teacher's check-in for the detected hours, telling nobody."""
+        targets = self._ems_review_targets(lambda absence: absence._ems_can_correct())
+        for absence in targets:
+            absence._ems_correct_check_in()
+        return self._ems_review_result(targets, _("Check-in corrected for %(count)s detected absence(s).",
+                                                  count=len(targets)))
+
+    def _ems_correct_check_in(self):
+        """A late arrival (an attendance starting inside the detected range, which detection ends
+        at the arrival) is moved back to its start; otherwise a closed attendance covers the range.
+        Registered as the reviewer's (ems_checked_in_by_id), but without the notice the guard duty
+        board sends (_notify_checked_in_by). 'ems_absence_correcting' keeps the check-in review from
+        discarding the entry: this sets it corrected instead. sudo: the reviewer corrects the
+        attendance of the teachers they review, whatever their own attendance rights."""
+        self.ensure_one()
+        reviewer = self.env.user
+        Attendance = self.env['hr.attendance'].sudo().with_context(ems_absence_correcting=self.ids)
+        late = Attendance.search([
+            ('employee_id', '=', self.employee_id.id), ('in_mode', '!=', 'technical'),
+            ('check_in', '>=', self.date_from), ('check_in', '<=', self.date_to),
+        ], order='check_in', limit=1)
+        try:
+            if late:
+                late.write({'check_in': self.date_from, 'ems_checked_in_by_id': reviewer.id})
+            else:
+                Attendance.create({
+                    'employee_id': self.employee_id.id, 'check_in': self.date_from, 'check_out': self.date_to,
+                    'in_mode': 'manual', 'ems_checked_in_by_id': reviewer.id,
+                })
+        except ValidationError as error:
+            raise UserError(_("The check-in of %(teacher)s could not be corrected: %(reason)s",
+                              teacher=self.employee_id.name, reason=error.args[0])) from error
+        self.sudo().state = 'corrected'
+        self.sudo()._ems_note(_("Check-in corrected by %(user)s for these hours.", user=reviewer.name))
+
+    def action_prepare_absence(self):
+        """Opens the wizard choosing the absence type to prepare for the selected entries."""
+        self._ems_review_targets()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Create absence"),
+            'res_model': 'ems.absence_pending.prepare_wizard',
+            'view_mode': 'form',
+            'views': [(False, 'form')],
+            'target': 'new',
+            'context': {'default_absence_ids': self.ids},
+        }
+
+    def _ems_prepare_absence(self, leave_type):
+        """Prepares the absence request for the teacher, who checks it, accepts the responsible
+        declaration and sends it: nobody can declare it on their behalf, so nothing is filed here
+        (see "Create absence" in the developer doc)."""
+        targets = self._ems_review_targets()
+        targets._ems_ask_teacher({'state': 'prepared', 'proposed_leave_type_id': leave_type.id})
+        return self._ems_review_result(targets, _("Absence prepared for %(count)s detected absence(s): each "
+                                                  "teacher has been asked to check and send it.", count=len(targets)))
+
+    def action_discard(self):
+        """Discards the entries and archives them, telling nobody."""
+        targets = self._ems_review_targets()
+        for absence in targets.sudo():
+            absence.state = 'discarded'
+            absence._ems_note(_("Discarded by %(user)s.", user=self.env.user.name))
+        # Separately: archiving drops the record's activities, and the review task is to be marked
+        # done (write(), on the state) rather than to vanish.
+        targets.sudo().active = False
+        return self._ems_review_result(targets, _("%(count)s detected absence(s) discarded.", count=len(targets)))
+
+    # --- The teacher ----------------------------------------------------------------------------
+
+    def _ems_request_context(self):
+        """The defaults of a new absence request covering this entry: the teacher, the day and,
+        within one day, the hours; and the type when one was prepared."""
         self.ensure_one()
         start, stop = self._to_local(self.date_from), self._to_local(self.date_to)
         last_day = (stop - timedelta(microseconds=1)).date()
@@ -151,6 +381,15 @@ class EmsAbsencePending(models.Model):
                 'default_request_hour_from': self.time_to_float(start),
                 'default_request_hour_to': self.time_to_float(stop) if stop.date() == last_day else 24.0,
             })
+        if self.state == 'prepared' and self.proposed_leave_type_id:
+            context['default_holiday_status_id'] = self.proposed_leave_type_id.id
+        return context
+
+    def action_request_absence(self):
+        """Opens a new absence request of the teacher's own, filled in with this one's day and
+        hours, and its type when it was prepared. Sending it links the two (_link_to_leaves)."""
+        self.ensure_one()
+        context = self._ems_request_context()
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'hr.leave',
@@ -176,14 +415,14 @@ class EmsAbsencePending(models.Model):
 
     @api.model
     def _link_to_leaves(self, leaves):
-        """Links every pending entry to the teacher's own absence overlapping it. sudo(): the
-        teacher filing that absence has no access to this model at all, which is the point of
-        it."""
+        """Links every unresolved entry to the teacher's own absence overlapping it, whether it was
+        still to review or waiting for the teacher. sudo(): the teacher filing that absence may not
+        read the entry, which is the point of it."""
         Pending = self.sudo()
         for leave in leaves.filtered(lambda leave: leave.state in ACTIVE_LEAVE_STATES):
             start, stop = leave._ems_utc_range()
             Pending.search([
-                ('state', '=', 'pending'),
+                ('state', 'in', UNRESOLVED_STATES),
                 ('employee_id', '=', leave.employee_id.id),
                 ('date_from', '<', stop),
                 ('date_to', '>', start),
@@ -287,11 +526,12 @@ class EmsAbsencePending(models.Model):
 
     @api.model
     def _cron_ems_detected_absences(self):
-        """Detects the days just over, then reminds every teacher in the circuit of each
-        detected absence of theirs still not requested once it is over, every few days, and
-        reports it once to their Head of Studies a few days after it (both intervals shared with
-        the supporting document reminders, see hr.leave._cron_ems_document_reminder). Each
-        message waits for its reader's working day to start: never outside their working hours."""
+        """Detects the days just over, then reminds every teacher in the circuit of each detected
+        absence they were asked about (issue #707: never one still to review) and have not
+        requested yet, once it is over, every few days, and reports it once to whoever reviews it
+        a few days after they asked (both intervals shared with the supporting document reminders,
+        see hr.leave._cron_ems_document_reminder, and counted from requested_date). Each message
+        waits for its reader's working day to start: never outside their working hours."""
         company = self.env.company
         today = self.get_local_today()
         now = fields.Datetime.now()
@@ -302,12 +542,12 @@ class EmsAbsencePending(models.Model):
         interval = company._ems_absence_document_reminder_days()
         escalation = company._ems_absence_document_escalation_days()
         today_start = self._utc_bounds(today, 0.0, 0.0)[0]
-        report_bound = self._utc_bounds(today - timedelta(days=escalation - 1), 0.0, 0.0)[0]
+        report_bound = today - timedelta(days=escalation)
         # Only what is due today, so an entry leaves the search once it has been dealt with.
         absences = self.sudo().search([
-            ('state', '=', 'pending'), ('employee_id', 'any', domain), ('date_to', '<=', today_start),
+            ('state', 'in', WAITING_STATES), ('employee_id', 'any', domain), ('date_to', '<=', today_start),
             '|', '|', ('reminder_date', '=', False), ('reminder_date', '<=', today - timedelta(days=interval)),
-            '&', ('escalated', '=', False), ('date_to', '<=', report_bound),
+            '&', ('escalated', '=', False), ('requested_date', '<=', report_bound),
         ])
         started = {}
         for absence in absences:
@@ -315,9 +555,9 @@ class EmsAbsencePending(models.Model):
                 absence.employee_id.user_id,
                 lambda user, absence=absence: absence.with_context(lang=user.lang)._ems_reminder_message(),
                 today, now, started, 'reminder_date', interval)
-            if not absence.escalated and absence.date_to <= report_bound:
+            if not absence.escalated and absence.requested_date and absence.requested_date <= report_bound:
                 absence._ems_report_at_workday_start(
-                    absence.employee_id._find_attendance_approvers(),
+                    absence._ems_reviewers(),
                     lambda user, absence=absence: absence.with_context(lang=user.lang)._ems_report_message(),
                     NOT_REQUESTED_ACTIVITY_XMLID, today, now, started, 'escalated')
 
@@ -331,9 +571,14 @@ class EmsAbsencePending(models.Model):
         return _("%(start)s to %(stop)s", start=start.strftime('%d/%m/%Y %H:%M'), stop=stop.strftime('%d/%m/%Y %H:%M'))
 
     def _ems_reminder_message(self):
-        """What the teacher is told: a missing check-in is not the same as an absence they
-        announced and have not requested yet."""
+        """What the teacher is told: an absence prepared for them, a missing check-in, and an
+        absence they announced and have not requested yet are three different requests."""
         self.ensure_one()
+        if self.state == 'prepared':
+            return _("An absence request has been prepared for you for %(when)s (%(type)s). Please open "
+                     "it with \u201cRequest the absence\u201d on this page, check it, accept the responsible "
+                     "declaration and send it.", when=self._ems_when(),
+                     type=self.proposed_leave_type_id.ems_short_name or self.proposed_leave_type_id.name)
         if self.origin == 'check_in':
             return _("No check-in of yours was recorded on %(when)s, and no absence is requested for "
                      "it. If you were absent, please request the absence from this page. If you were "
@@ -345,11 +590,33 @@ class EmsAbsencePending(models.Model):
     def _ems_report_message(self):
         """What the teacher's Head of Studies is told once it has gone on for too long."""
         self.ensure_one()
+        if self.state == 'prepared':
+            return _("%(name)s has still not sent the absence request prepared for them for %(when)s.",
+                     name=self.employee_id.name, when=self._ems_when())
         if self.origin == 'check_in':
             return _("%(name)s has still not requested an absence for %(when)s, when no check-in of "
                      "theirs was recorded.", name=self.employee_id.name, when=self._ems_when())
         return _("%(name)s has still not requested the absence of %(when)s that was announced.",
                  name=self.employee_id.name, when=self._ems_when())
+
+    @api.model
+    def _ems_migrate_to_review(self):
+        """Issue #707, for the entries that were already there: those whose teacher had already
+        been reminded (or reported) go on waiting for the teacher, as the teacher expects, counting
+        from the last reminder; the others are still to review and get their review task.
+        Idempotent. Returns (waiting, to review) counts."""
+        Pending = self.sudo().with_context(active_test=False)
+        reminded = Pending.search([('state', '=', 'pending'), '|', ('reminder_date', '!=', False), ('escalated', '=', True)])
+        for absence in reminded:
+            absence.write({
+                'state': 'justification_requested',
+                'requested_date': absence.reminder_date or self._to_local(absence.create_date).date(),
+            })
+        review_type = self.env.ref(REVIEW_ACTIVITY_XMLID)
+        to_review = Pending.search([('state', '=', 'pending')]).filtered(
+            lambda absence: review_type not in absence.activity_ids.activity_type_id)
+        to_review._ems_schedule_review()
+        return len(reminded), len(to_review)
 
 
 class EmsAbsencePendingLeave(models.Model):
@@ -428,19 +695,21 @@ class EmsAbsencePendingAttendance(models.Model):
 
     def _ems_review_detected_absences(self):
         """A check-in recorded afterwards (checked in from the guard duty board, by their Head of
-        Studies, a correction) reviews that day's detected absence of the teacher (issue #696):
-        discarded when nothing is missing any more, shortened when they arrived earlier than it
-        said."""
+        Studies, a correction) reviews that day's detected absence of the teacher (issue #696),
+        whether it was still to review or waiting for the teacher: discarded when nothing is missing
+        any more, shortened when they arrived earlier than it said. Not the entries being corrected
+        from their review (issue #707, 'ems_absence_correcting'): that action settles them itself."""
         attendances = self.filtered(lambda attendance: attendance.check_in and attendance.in_mode != 'technical')
         if not attendances:
             return
         Pending = self.env['ems.absence_pending'].sudo()
         days = {(attendance.employee_id.id, Pending._to_local(attendance.check_in).date()) for attendance in attendances}
         absences = Pending.search([
-            ('origin', '=', 'check_in'), ('state', '=', 'pending'),
+            ('origin', '=', 'check_in'), ('state', 'in', UNRESOLVED_STATES),
             ('employee_id', 'in', attendances.employee_id.ids),
             ('date_from', '<', max(attendances.mapped('check_in')) + timedelta(days=1)),
             ('date_to', '>', min(attendances.mapped('check_in')) - timedelta(days=1)),
+            ('id', 'not in', self.env.context.get('ems_absence_correcting') or []),
         ])
         for absence in absences:
             day = Pending._to_local(absence.date_from).date()

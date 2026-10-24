@@ -455,11 +455,13 @@
 
     <!-- Issue #696: a teacher reads their own detected absences, so the reminder's link opens and
          they can request the absence from it. Read only (their ACL), and never the note left by
-         whoever entered it (the field's own groups). -->
+         whoever entered it (the field's own groups). Issue #707: only once they have been asked
+         about it (justification requested, absence prepared) or it is requested: one still to
+         review, corrected or discarded never reaches them. -->
     <record id="rule_absence_pending_own" model="ir.rule">
         <field name="name">Detected absence: the teacher's own</field>
         <field name="model_id" ref="ems.model_ems_absence_pending"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id), ('state', 'in', ['justification_requested', 'prepared', 'linked'])]</field>
     </record>
 </odoo>

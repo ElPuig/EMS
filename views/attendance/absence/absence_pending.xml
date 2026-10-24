@@ -6,7 +6,22 @@
             <field name="name">ems.absence_pending.list</field>
             <field name="model">ems.absence_pending</field>
             <field name="arch" type="xml">
-                <list string="Detected absences">
+                <!-- Issue #707: the review actions on the selected entries share the list's Actions
+                     dropdown (o_ems_header_actions, see docs/en/developers/shared/actions_dropdown.md).
+                     A list header button can't depend on each record, so they go by group; every
+                     action skips the entries the user may not review, and says so. -->
+                <list string="Detected absences" class="o_ems_header_actions">
+                    <header>
+                        <button name="action_request_justification" type="object" string="Request justification"
+                                groups="ems.group_head_of_studies,base.group_system"/>
+                        <button name="action_correct_check_in" type="object" string="Correct check-in"
+                                groups="ems.group_head_of_studies,base.group_system"/>
+                        <button name="action_prepare_absence" type="object" string="Create absence"
+                                groups="ems.group_head_of_studies,base.group_system"/>
+                        <button name="action_discard" type="object" string="Discard"
+                                groups="ems.group_head_of_studies,base.group_system"
+                                confirm="The selected detected absences are discarded and archived, and nobody is told. Discard them?"/>
+                    </header>
                     <field name="employee_id" widget="many2one_avatar_employee"/>
                     <field name="date_from"/>
                     <field name="date_to"/>
@@ -15,7 +30,8 @@
                     <field name="leave_id" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-warning="state == 'pending'"
-                           decoration-success="state == 'linked'"
+                           decoration-info="state in ('justification_requested', 'prepared')"
+                           decoration-success="state in ('linked', 'corrected')"
                            decoration-muted="state == 'discarded'"/>
                 </list>
             </field>
@@ -30,8 +46,19 @@
                         <div name="ems_actions" string="Actions">
                             <button name="action_request_absence" type="object" string="Request the absence"
                                     invisible="not can_request"/>
+                            <!-- Issue #707: the review, for whoever reviews it (can_review), while it is
+                                 still to review. -->
+                            <button name="action_request_justification" type="object" string="Request justification"
+                                    invisible="not can_review"/>
+                            <button name="action_correct_check_in" type="object" string="Correct check-in"
+                                    invisible="not can_correct"/>
+                            <button name="action_prepare_absence" type="object" string="Create absence"
+                                    invisible="not can_review"/>
+                            <button name="action_discard" type="object" string="Discard"
+                                    invisible="not can_review"
+                                    confirm="This detected absence is discarded and archived, and nobody is told. Discard it?"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,linked"/>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,justification_requested,linked"/>
                     </header>
                     <sheet>
                         <group>
@@ -40,7 +67,13 @@
                                        options="{'no_create': True, 'no_open': True}"/>
                                 <field name="origin"/>
                                 <field name="leave_id" invisible="not leave_id"/>
+                                <field name="proposed_leave_type_id" invisible="not proposed_leave_type_id"
+                                       options="{'no_open': True}"/>
+                                <field name="requested_date" invisible="not requested_date"/>
                                 <field name="can_request" invisible="1"/>
+                                <field name="can_review" invisible="1"/>
+                                <field name="can_correct" invisible="1"/>
+                                <field name="active" invisible="1"/>
                             </group>
                             <group>
                                 <field name="date_from" readonly="state != 'pending'"/>
@@ -60,9 +93,14 @@
             <field name="arch" type="xml">
                 <search string="Detected absences">
                     <field name="employee_id"/>
-                    <filter name="pending" string="Detected" domain="[('state', '=', 'pending')]"/>
+                    <filter name="pending" string="To review" domain="[('state', '=', 'pending')]"/>
+                    <filter name="waiting" string="Waiting for the teacher"
+                            domain="[('state', 'in', ('justification_requested', 'prepared'))]"/>
                     <filter name="linked" string="Requested" domain="[('state', '=', 'linked')]"/>
+                    <filter name="corrected" string="Check-in corrected" domain="[('state', '=', 'corrected')]"/>
                     <filter name="discarded" string="Discarded" domain="[('state', '=', 'discarded')]"/>
+                    <separator/>
+                    <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
                     <separator/>
                     <filter name="informed" string="Informed" domain="[('origin', '=', 'informed')]"/>
                     <filter name="check_in" string="No check-in" domain="[('origin', '=', 'check_in')]"/>
@@ -70,6 +108,7 @@
                     <filter name="date_from" string="Date" date="date_from"/>
                     <group expand="0" string="Group By">
                         <filter name="group_employee" string="Teacher" context="{'group_by': 'employee_id'}"/>
+                        <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
                         <filter name="group_origin" string="Origin" context="{'group_by': 'origin'}"/>
                     </group>
                 </search>
@@ -88,8 +127,33 @@
                 <p>
                     It shows on the guard duty schedule as a pending absence until the teacher
                     requests it, and from then on only their own request counts. The days a
-                    teacher does not check in are added here on their own.
+                    teacher does not check in are added here on their own. Each one is reviewed
+                    first by whoever corrects the teacher's attendance: the teacher is only told
+                    when asked for a justification or when an absence is prepared for them.
                 </p>
+            </field>
+        </record>
+
+        <!-- Issue #707: "Create absence", for one or several detected absences. -->
+        <record id="view_absence_pending_prepare_wizard_form" model="ir.ui.view">
+            <field name="name">ems.absence_pending.prepare_wizard.form</field>
+            <field name="model">ems.absence_pending.prepare_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Create absence">
+                    <p class="text-muted">
+                        An absence request is prepared for each teacher with this type and the
+                        detected day and hours. Nothing is sent on their behalf: each teacher is
+                        asked to check it, accept the responsible declaration and send it.
+                    </p>
+                    <field name="absence_ids" invisible="1"/>
+                    <group>
+                        <field name="leave_type_id" widget="radio" options="{'no_create': True}"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Prepare the absence" class="btn-primary"/>
+                        <button special="cancel" string="Cancel"/>
+                    </footer>
+                </form>
             </field>
         </record>
 

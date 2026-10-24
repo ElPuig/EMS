@@ -439,8 +439,10 @@ class TestContactDataRequest(TransactionCase):
         request._ems_submit(self._complete(self.minor._ems_contact_data()))
         body = self._logs(request).body
         self.assertIn('Canvis de dades de contacte enviats per revisar', body)
-        self.assertIn('Carrer', body)
-        self.assertNotIn('Street', body)
+        # An EMS field's label: a native one (Street) depends on the base translations the database
+        # has loaded, which a CI database hasn't.
+        self.assertIn("Document d'identitat", body)
+        self.assertNotIn('Document ID', body)
 
     # --- access -----------------------------------------------------------------------------
 

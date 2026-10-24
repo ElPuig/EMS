@@ -29,6 +29,10 @@ Your own groups are the ones on your timetable plus any group you are the tutor 
 is listed when that group is their main group, or when they are enrolled in one of your
 subjects in it — reinforcement groups and *desdobles* included.
 
+The list shows the first name and the last names in columns of their own and is sorted by last
+name, in the same order as the roll-call. Click a column header to sort by it. The complete name
+is hidden: to show it, open the optional columns menu at the right end of the headers.
+
 ![The Students list with both filters applied, showing only a student of the teacher's own group](../../assets/teachers/alumnat-01-els-meus-grups.png)
 
 ---

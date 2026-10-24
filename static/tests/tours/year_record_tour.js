@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // "Academic history" (action_year_record_list, ems.student.year_record) had zero coverage -
 // neither its own standalone list/form, nor the nested subject/outcome dialogs it opens, nor
@@ -69,7 +70,7 @@ registry.category("web_tour.tours").add("ems_year_record_partner_tab", {
             content: "The search facet is applied",
         },
         {
-            trigger: ".o_list_view .o_data_cell:contains('Year Record Tour Student')",
+            trigger: `.o_list_view ${studentCell("Year Record Tour Student")}`,
             content: "Open the seeded student",
             run: "click",
         },

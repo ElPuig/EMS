@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { studentRow } from "@ems/../tests/tours/student_list_helpers";
 import { clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // ems.portal.access.wizard has no menu/act_window of its own - it only opens via the
@@ -41,7 +42,7 @@ registry.category("web_tour.tours").add("ems_portal_access_wizard_revoke", {
         },
         {
             trigger:
-                ".o_data_row:has(.o_data_cell:contains('Portal Wizard Tour Student')) .o_list_record_selector",
+                `${studentRow("Portal Wizard Tour Student")} .o_list_record_selector`,
             content: "Select the seeded student",
             run: "click",
         },

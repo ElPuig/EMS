@@ -1028,3 +1028,30 @@ class TestContactStudentId(TransactionCase):
         self.env['base.partner.merge.automatic.wizard']._merge((former | current).ids, former)
         self.assertFalse(current.exists())
         self.assertEqual(former.student_id, student_id)
+
+
+class TestStudentListColumns(TransactionCase):
+    """Educational Community > Students, list view (issue #655): first name and last name as
+    columns of their own, sorted by last name like the roll-call; the complete name is hidden by
+    default. Only this list: Families and Providers share the contact list and stay as they were."""
+
+    def _list_arch(self, action_xmlid):
+        action = self.env.ref(action_xmlid)
+        view_id = dict((mode, view) for view, mode in action.read(['views'])[0]['views']).get('list')
+        context = eval(action.context.strip()) if action.context else {}
+        return self.env['res.partner'].with_context(**context).get_views([(view_id, 'list')])['views']['list']['arch']
+
+    def test_students_list_has_first_and_last_name_sorted_by_last_name(self):
+        action = self.env.ref('ems.action_student_kanban')
+        modes = [mode for _view, mode in action.read(['views'])[0]['views']]
+        self.assertEqual(modes[0], 'kanban', "The Students menu still opens on the kanban")
+        arch = self._list_arch('ems.action_student_kanban')
+        self.assertIn('default_order="lastname, firstname"', arch)
+        self.assertIn('name="firstname"', arch)
+        self.assertIn('name="lastname"', arch)
+        self.assertRegex(arch, r'name="complete_name"[^>]*optional="hide"')
+
+    def test_families_list_keeps_the_complete_name(self):
+        arch = self._list_arch('ems.action_family_list')
+        self.assertNotIn('name="lastname"', arch)
+        self.assertNotRegex(arch, r'name="complete_name"[^>]*optional="hide"')

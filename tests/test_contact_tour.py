@@ -70,6 +70,20 @@ class TestContactTour(HttpCase):
                                      name='Secretary Personal Email Tour')
         self.start_tour("/odoo", "ems_contact_personal_email_not_corporate", login=secretary.login)
 
+    def test_students_list_sorted_by_last_name_tour(self):
+        # Issue #655: first name and last name columns, sorted by last name. As a tutor, the
+        # least privileged role that lists students (the default "My students" filter keeps their
+        # own group's).
+        tutor_user = create_role_user(self, 'tutor', 'test_tutor_student_list_tour', name='Tutor Student List Tour')
+        tutor = create_role_employee(self, tutor_user)
+        __, __, group = create_level_study_group(self, 'TSLT', group={'tutor_id': tutor.id})
+        for firstname, lastname in (('Ana', 'Tslt Bosch'), ('Zoe', 'Tslt Aguilar')):
+            self.env['res.partner'].create({
+                'firstname': firstname, 'lastname': lastname, 'contact_type': 'student',
+                'student_id': next_student_id(), 'main_group_id': group.id,
+            })
+        self.start_tour("/odoo", "ems_students_list_sorted_by_last_name", login=tutor_user.login)
+
     def test_contact_tutor_deletes_family_contact_tour(self):
         # Issue #470: a tutor hit an AccessError deleting a family contact of their own student
         # from the Contacts & Addresses tab. Logged in as that tutor - the only role the bug

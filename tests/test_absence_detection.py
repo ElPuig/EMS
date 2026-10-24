@@ -11,10 +11,10 @@ from .common import (
 PERIODS = ((9.0, 10.0), (10.0, 11.0), (12.0, 13.0))
 
 
-class TestAbsenceDetection(TransactionCase):
-    """Issue #696: missing check-ins become detected absences at the end of the day, and every
-    detected absence (also the ones entered by hand) reminds the teacher to request it when their
-    working day starts, then reports it to their Head of Studies."""
+class AbsenceDetectionCase(TransactionCase):
+    """The fixture shared by the detection and the review tests (issues #696, #707): a circuit area
+    with a Head of Studies above its teachers, a second Head of Studies of another branch, and a
+    school day yesterday and today. No tests of its own."""
 
     @classmethod
     def setUpClass(cls):
@@ -89,6 +89,16 @@ class TestAbsenceDetection(TransactionCase):
 
     def _messages_to(self, absence, user, text):
         return absence.message_ids.filtered(lambda message: user.partner_id in message.partner_ids and text in message.body)
+
+    def _request_justification(self, absences, user=None):
+        """What the reviewer does first for the teacher to hear about it (issue #707)."""
+        return absences.with_user(user or self.head_of_studies).action_request_justification()
+
+
+class TestAbsenceDetection(AbsenceDetectionCase):
+    """Issue #696: missing check-ins become detected absences at the end of the day. Issue #707:
+    the teacher only hears about one once it is reviewed and they are asked about it; then they are
+    reminded when their working day starts, and it is reported to their Head of Studies."""
 
     # --- Detection ------------------------------------------------------------------------------
 
@@ -236,8 +246,12 @@ class TestAbsenceDetection(TransactionCase):
             'employee_id': self.present.id, 'date_from': self._utc(self.today, 12.0),
             'date_to': self._utc(self.today, 13.0)})
         mine = self._detected() | informed
+        Teacher = self.Pending.with_user(self.teacher_user)
+        self.assertFalse(Teacher.search([('id', 'in', (mine | theirs).ids)]), 'nothing before it is reviewed (issue #707)')
 
-        self.assertEqual(self.Pending.with_user(self.teacher_user).search([('id', 'in', (mine | theirs).ids)]), mine)
+        self._request_justification(mine)
+
+        self.assertEqual(Teacher.search([('id', 'in', (mine | theirs).ids)]), mine)
         with self.assertRaises(AccessError):
             informed.with_user(self.teacher_user).read(['note'])
         with self.assertRaises(AccessError):
@@ -246,6 +260,7 @@ class TestAbsenceDetection(TransactionCase):
     def test_requesting_it_opens_a_request_that_links_it(self):
         self._check_in(self.teacher, self.yesterday, 10.5)
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        self._request_justification(self._detected())
         absence = self._detected().with_user(self.teacher_user)
         self.assertTrue(absence.can_request)
         self.assertFalse(absence.with_user(self.head_of_studies).can_request, 'only the teacher themselves')
@@ -266,29 +281,61 @@ class TestAbsenceDetection(TransactionCase):
 
     # --- Reminders ------------------------------------------------------------------------------
 
-    def test_the_teacher_is_told_once_their_working_day_starts(self):
+    def test_nobody_is_told_before_the_review(self):
+        """Issue #707: detected or entered by hand, the teacher hears nothing on their own, however
+        many days go by, and nothing is reported."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        informed = self.Pending.create({'employee_id': self.teacher.id, 'date_from': self._utc(self.yesterday, 9.0),
+                                        'date_to': self._utc(self.yesterday, 11.0)})
+        absences = self._detected() | informed
+        school_days = [day for day in (self.today + timedelta(days=offset) for offset in range(8)) if day.weekday() < 5]
+        for day in school_days:
+            make_working_day(self, day)
+            self._run_cron_on(day)
+
+        for absence in absences:
+            self.assertEqual(absence.state, 'pending')
+            self.assertFalse(absence.message_ids.filtered(lambda message: self.teacher_user.partner_id in message.partner_ids))
+            self.assertFalse(absence.reminder_date)
+            self.assertFalse(absence.escalated)
+
+    def test_the_teacher_is_told_when_the_reviewer_asks(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        self._request_justification(absence)
+
+        self.assertEqual(absence.state, 'justification_requested')
+        self.assertEqual(absence.requested_date, self.today)
+        self.assertEqual(absence.reminder_date, self.today)
+        self.assertEqual(len(self._messages_to(absence, self.teacher_user, 'No check-in')), 1)
+
+    def test_the_reminders_wait_for_the_teachers_working_day(self):
         late_user = create_role_user(self, 'teacher', 'test_late_teacher_tad', name='TAD Late Teacher')
         late = self._teacher('TAD Late Teacher', user=late_user, periods=((12.0, 13.0),))
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absence, late_absence = self._detected(), self._detected(late)
+        self._request_justification(absence | late_absence)
+        # Asked some days ago: today's reminder is due.
+        (absence | late_absence).write({'reminder_date': self.today - timedelta(days=3)})
+        count = lambda record, user: len(self._messages_to(record, user, 'No check-in'))
 
         self._run_cron_on(self.today, hour=8.0)
-        self.assertFalse(self._messages_to(absence, self.teacher_user, 'No check-in'), 'their day starts at 9:00')
+        self.assertEqual(count(absence, self.teacher_user), 1, 'their day starts at 9:00: only the first note')
         self._run_cron_on(self.today, hour=10.0)
         self._run_cron_on(self.today, hour=10.5)
-        self.assertEqual(len(self._messages_to(absence, self.teacher_user, 'No check-in')), 1, 'once a day')
-        self.assertFalse(self._messages_to(late_absence, late_user, 'No check-in'), 'their day starts at 12:00')
+        self.assertEqual(count(absence, self.teacher_user), 2, 'once a day')
+        self.assertEqual(count(late_absence, late_user), 1, 'their day starts at 12:00')
         self._run_cron_on(self.today, hour=12.5)
-        self.assertEqual(len(self._messages_to(late_absence, late_user, 'No check-in')), 1)
+        self.assertEqual(count(late_absence, late_user), 2)
 
     def test_the_teacher_is_told_in_their_own_language(self):
-        """The scheduled action runs as OdooBot: the message must not come out in its language."""
+        """Whoever reviews it, or the scheduled action, may write in another language."""
         if not self.env['res.lang']._lang_get('ca_ES'):
             self.skipTest('Catalan is not installed')
         self.teacher_user.lang = 'ca_ES'
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absence = self._detected()
-        self._run_cron_on(self.today)
+        self._request_justification(absence)
 
         self.assertTrue(self._messages_to(absence, self.teacher_user, 'No consta cap fitxatge'))
         self.assertFalse(absence.message_ids.filtered(lambda message: 'created' in (message.body or '')),
@@ -297,37 +344,45 @@ class TestAbsenceDetection(TransactionCase):
     def test_an_informed_absence_tells_the_teacher_something_else(self):
         informed = self.Pending.create({'employee_id': self.teacher.id, 'date_from': self._utc(self.yesterday, 9.0),
                                         'date_to': self._utc(self.yesterday, 11.0)})
-        self._run_cron_on(self.today)
+        self._request_justification(informed)
 
         self.assertEqual(len(self._messages_to(informed, self.teacher_user, 'was announced')), 1)
         self.assertFalse(self._messages_to(informed, self.teacher_user, 'No check-in'))
 
-    def test_nothing_while_the_absence_is_still_going_on(self):
+    def test_no_reminder_while_the_absence_is_still_going_on(self):
         informed = self.Pending.create({'employee_id': self.teacher.id, 'date_from': self._utc(self.today, 9.0),
                                         'date_to': self._utc(self.today, 11.0)})
-        self._run_cron_on(self.today, hour=12.0)
+        self._request_justification(informed)
+        informed.reminder_date = self.today - timedelta(days=3)
+        self._run_cron_on(self.today, hour=10.0)
 
-        self.assertFalse(informed.message_ids.filtered(lambda message: self.teacher_user.partner_id in message.partner_ids))
+        self.assertEqual(len(informed.message_ids.filtered(lambda message: self.teacher_user.partner_id in message.partner_ids)), 1,
+                         'only the note the reviewer sent')
 
-    def test_reminded_again_and_reported_once_to_their_own_head_of_studies(self):
+    def test_reminded_again_and_reported_once_counting_from_the_request(self):
         self.env.company.write({'ems_absence_document_reminder_days': 2, 'ems_absence_document_escalation_days': 3})
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absence = self._detected()
         school_days = [day for day in (self.today + timedelta(days=offset) for offset in range(10)) if day.weekday() < 5]
         for day in school_days:
             make_working_day(self, day)
+        # Reviewed some days after the absence: everything counts from that day, not from the absence.
+        asked = school_days[1]
         reminders = lambda: self._messages_to(absence, self.teacher_user, 'No check-in')
         reported = lambda user: self._messages_to(absence, user, 'has still not requested')
 
         for day in school_days:
+            if day == asked:
+                with patch.object(type(self.env['ems.datetime_utils']), 'get_local_today', return_value=day):
+                    self._request_justification(absence)
             self._run_cron_on(day)
             expected, last = 0, None
-            for reminder_day in school_days[:school_days.index(day) + 1]:
+            for reminder_day in school_days[school_days.index(asked):school_days.index(day) + 1]:
                 if last is None or (reminder_day - last).days >= 2:
                     expected, last = expected + 1, reminder_day
-            self.assertEqual(len(reminders()), expected, f'every two days ({day})')
-            self.assertEqual(bool(reported(self.head_of_studies)), (day - self.yesterday).days >= 3,
-                             f'reported three days after the absence ({day})')
+            self.assertEqual(len(reminders()), expected, f'every two days from the request ({day})')
+            self.assertEqual(bool(reported(self.head_of_studies)), (day - asked).days >= 3,
+                             f'reported three days after the request ({day})')
         self.assertEqual(len(reported(self.head_of_studies)), 1, 'reported once')
         self.assertFalse(reported(self.other_head_of_studies), 'not to a Head of Studies of another branch')
         activity = absence.activity_ids.filtered(
@@ -343,6 +398,9 @@ class TestAbsenceDetection(TransactionCase):
         outside = self._teacher('TAD Outside Teacher', user=outside_user, department=self.outside_department)
         informed = self.Pending.create({'employee_id': outside.id, 'date_from': self._utc(self.yesterday, 9.0),
                                         'date_to': self._utc(self.yesterday, 11.0)})
+        self._request_justification(informed)
+        informed.reminder_date = self.today - timedelta(days=3)
         self._run_cron_on(self.today)
 
-        self.assertFalse(self._messages_to(informed, outside_user, 'was announced'))
+        self.assertEqual(len(self._messages_to(informed, outside_user, 'was announced')), 1,
+                         'the note the reviewer sent, but no reminder outside the circuit')

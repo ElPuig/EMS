@@ -17,6 +17,8 @@ ACCESS_MATRIX = {
     # Issue #696: a teacher reads their own detected absences (rule_absence_pending_own); the
     # chiefs above them manage them (rule_absence_pending_hierarchy).
     'ems.absence_pending': {'teacher': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
+    # Issue #707: "Create absence", run by whoever reviews a detected absence (the action checks who).
+    'ems.absence_pending.prepare_wizard': {'teacher': '', 'department_chief': 'rwc', 'head_of_studies': 'rwc'},
     # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
     # Issue #656: tutors justify absences from it; the secretariat only reads justifications.

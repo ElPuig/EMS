@@ -210,10 +210,16 @@ class TestAbsencePending(TransactionCase):
                 self._pending(user=user)
 
     def test_teachers_only_read_their_own(self):
-        """Issue #696: so the reminder's link opens. Nothing else, and never their colleagues'."""
+        """Issue #696: so the reminder's link opens. Nothing else, and never their colleagues'.
+        Issue #707: only once the reviewer has asked them about it."""
         mine, theirs = self._pending(), self._pending(employee=self.other_teacher)
+        Teacher = self.Pending.with_user(self.teacher_user)
+        self.assertFalse(Teacher.search([('id', 'in', (mine | theirs).ids)]), 'not while it is to review')
 
-        self.assertEqual(self.Pending.with_user(self.teacher_user).search([('id', 'in', (mine | theirs).ids)]), mine)
+        mine.with_user(self.head_of_studies).action_request_justification()
+        theirs.with_user(self.other_head_of_studies).action_request_justification()
+
+        self.assertEqual(Teacher.search([('id', 'in', (mine | theirs).ids)]), mine)
         with self.assertRaises(AccessError):
             self._pending(user=self.teacher_user)
 

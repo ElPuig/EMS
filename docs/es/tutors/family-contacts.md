@@ -19,7 +19,7 @@ Puedes añadir y quitar los familiares (padre, madre, tutor legal…) de los alu
 3. Elige la **relación** (Padre, Madre, Tutor legal…).
 
    ![Ventana Nuevo contacto de alumno/a, eligiendo la relación](../../assets/tutors/contactes-familia-02-afegir.png)
-4. Elige un contacto **ya existente** o rellena los datos de uno **nuevo**: como mínimo un nombre o apellido, un documento de identidad (DNI/NIE o pasaporte) y un teléfono, móvil o correo.
+4. Elige un contacto **ya existente** o rellena los datos de uno **nuevo**: como mínimo un nombre o apellido, un documento de identidad (DNI/NIE o pasaporte) y un teléfono, móvil o correo. Un nombre escrito todo en mayúsculas o todo en minúsculas se guarda con las iniciales en mayúscula.
 5. Guarda. El familiar aparece en la lista de contactos del alumno.
 
 ---

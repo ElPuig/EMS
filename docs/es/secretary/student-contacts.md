@@ -37,7 +37,7 @@ Una ficha de alumno que ya existía sin ID de estudiante sigue funcionando con n
 
 La parte superior de la ficha reúne los datos del alumno sin tener que cambiar de pestaña:
 
-- **Nombre** y **Apellidos**, con el **Correo personal** y el **Correo corporativo** debajo.
+- **Nombre** y **Apellidos**, con el **Correo personal** y el **Correo corporativo** debajo. Un nombre escrito todo en mayúsculas o todo en minúsculas se guarda con las iniciales en mayúscula ("ASHLEY BUENO" pasa a "Ashley Bueno"); si mezcla mayúsculas y minúsculas, se guarda tal como se ha escrito.
 - Tres columnas: **Contacto** (dirección, teléfonos e idioma), **Identificación** (DNI/NIE, pasaporte, identificador de estudiante, identificación médica, NUSS y matrícula del vehículo) y **Datos personales** (fecha de nacimiento, si es mayor de edad, país de nacimiento, ciudadanía, beneficios y necesidades educativas especiales).
 - **Autorizaciones**: el resumen Sí/No de los derechos de imagen, las excursiones escolares, los datos de salud y compartir con la familia.
 

@@ -337,6 +337,28 @@ IDALU in the development database the test shards are cloned from.
 
 ---
 
+## Name normalization (issue #472)
+
+Students (`STUDENT_LIFECYCLE_TYPES`) and families get capital initials on the way in:
+`create()` and `write()` pass `name`/`firstname`/`lastname` through
+`_ems_normalize_person_name_values()`, whatever writes them (the form, the family contact wizard,
+the importers, an approved contact data request). Providers and staff are left alone.
+
+- `_ems_normalize_person_name()` only touches a value typed all in capitals or all in lower case
+  ("ASHLEY BUENO", "laila"); one with mixed case was written that way on purpose ("McKenzie",
+  "DiMaria") and is kept. Each word gets a capital initial, and another one after a hyphen or an
+  apostrophe ("Pérez-Luna", "D'Amico"); `NAME_PARTICLES` ("de", "la", "i", "y"...) stay in lower
+  case unless they start the value. "el" is not a particle: here it mostly starts an Arabic surname
+  ("El Maazouzi").
+- A complete `name` is normalized as partner_firstname splits it with the centre's `first_last`
+  order (first word, then the last names), so "MARIA DE LA FUENTE" gives "Maria" + "De la Fuente",
+  the same last names as typed on their own.
+- A contact data request normalizes the family's names before comparing them with the ones on file
+  (`_ems_submit()`), so a name typed in capitals is not a change to review.
+- `migrations/18.0.0.40.0/post-migrate.py` runs `_ems_normalize_stored_person_names()` once over the
+  names stored before: through the ORM, so the complete name follows and a student's Google account
+  is renamed too (`_gw_enqueue_rename()`, #542). A clean install has no such names.
+
 ## Portal email change
 
 `write()` detects, **before** calling `super()`, any student/family partner whose `email` is about to change while holding active portal access (`_has_active_portal_user`), then **after** the write calls `_apply_portal_email_change()` for each: revokes portal access at the old email and re-grants it at the new one via `ems.portal.access.wizard` (sudo — tutors lack `res.users` rights), and posts a portal-visible message on the related student(s) explaining what happened. `_onchange_email_portal_warning` gives the same heads-up client-side, before Save, via a non-blocking `warning`.

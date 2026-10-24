@@ -365,6 +365,10 @@ class EmsContactDataRequest(models.Model):
         file now. Nothing changed at all means the data was confirmed as it is: done, with nothing
         to review."""
         self.ensure_one()
+        # The names as they would be stored (issue #472): typed in capitals, the one on file is
+        # not a change.
+        for entry in proposal['family']:
+            self.env['res.partner']._ems_normalize_person_name_values(entry)
         current = self.student_id._ems_contact_data()
         lines = self._ems_diff_lines(self.student_id, current, proposal)
         self.line_ids.unlink()

@@ -190,6 +190,16 @@ class TestContactDataRequest(TransactionCase):
         self.assertEqual(request.state, 'done')
         self.assertFalse(request.line_ids)
 
+    def test_a_name_typed_in_capitals_is_not_a_change(self):
+        """Issue #472: the name on file has capital initials, and so would the one typed in
+        capitals once approved: it is not a change to review."""
+        data = self._complete(self.minor._ems_contact_data())
+        data['family'][0]['firstname'] = 'CONTACT'
+        request = self._request()
+        request._ems_submit(data)
+        self.assertFalse(request.line_ids.filtered(lambda line: line.field_name == 'firstname'))
+        self.assertEqual(request.line_ids.filtered(lambda line: line.field_name == 'lastname').new_value, 'Surname')
+
     def test_approve_writes_student_family_and_new_contact(self):
         data = self._complete(self.minor._ems_contact_data())
         data['family'].append({

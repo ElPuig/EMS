@@ -49,6 +49,8 @@ In **Educational Community → Students → Data request**:
 
 Use the filters **Pending answer**, **To review**, **Pending for more than a week** and **Possible duplicate**, and group by **Group**.
 
+When the family of one of your students sends changes, even if you did not ask for them, you get a **Review contact data changes** activity on the request. It is marked as done when you approve the changes or return them. The request's history (the request, the changes sent, and the approval or the return with its reason) is at the bottom of its form. The family sees the same history in **Communications** on the portal.
+
 ## Approving the changes
 
 ![Request to review: the changes proposed by the family, with the Approve and Return to the family buttons](../../assets/tutors/dades-contacte-04-revisio.png)

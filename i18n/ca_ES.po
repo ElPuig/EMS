@@ -1385,6 +1385,7 @@ msgstr "Acció"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_needaction model:ir.model.fields,field_description:ems.field_ems_group__message_needaction model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction model:ir.model.fields,field_description:ems.field_ems_space__message_needaction model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_needaction
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_needaction
 msgid "Action Needed"
 msgstr "Acció Necessària"
 
@@ -1469,6 +1470,7 @@ msgstr "Confirmar l'arxivat de grup(s) amb alumnes actius"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_ids model:ir.model.fields,field_description:ems.field_ems_group__activity_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_ids model:ir.model.fields,field_description:ems.field_ems_space__activity_ids model:ir.model.fields,field_description:ems.field_ems_strike__activity_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_ids
 msgid "Activities"
 msgstr "Activitats"
 
@@ -1484,6 +1486,7 @@ msgstr "Activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_group__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_space__activity_exception_decoration model:ir.model.fields,field_description:ems.field_ems_strike__activity_exception_decoration
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_exception_decoration
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_exception_decoration
 msgid "Activity Exception Decoration"
 msgstr "Decorador de la excepció a una activitad"
 
@@ -1494,6 +1497,7 @@ msgstr "Decorador de la excepció a una activitad"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_state model:ir.model.fields,field_description:ems.field_ems_group__activity_state model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_state model:ir.model.fields,field_description:ems.field_ems_space__activity_state model:ir.model.fields,field_description:ems.field_ems_strike__activity_state
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_state
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_state
 msgid "Activity State"
 msgstr "Estat de l'activitat"
 
@@ -1504,6 +1508,7 @@ msgstr "Estat de l'activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_group__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_space__activity_type_icon model:ir.model.fields,field_description:ems.field_ems_strike__activity_type_icon
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_type_icon
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_type_icon
 msgid "Activity Type Icon"
 msgstr "Icona del tipus d'activitat"
 
@@ -1936,6 +1941,7 @@ msgstr "Adjunt"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_group__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_quality_action__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_space__message_attachment_count model:ir.model.fields,field_description:ems.field_ems_strike__message_attachment_count
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_attachment_count
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_attachment_count
 msgid "Attachment Count"
 msgstr "Quantitat d'adjunts"
 
@@ -4143,6 +4149,7 @@ msgstr "Seguiment"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_group__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_space__message_follower_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_follower_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_follower_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_follower_ids
 msgid "Followers"
 msgstr "Seguidors"
 
@@ -4155,6 +4162,7 @@ msgstr "Seguidors"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_group__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_space__message_partner_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_partner_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_partner_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_partner_ids
 msgid "Followers (Partners)"
 msgstr "Seguidors (Companys)"
 
@@ -4164,6 +4172,7 @@ msgstr "Seguidors (Companys)"
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__activity_type_icon model:ir.model.fields,help:ems.field_ems_group__activity_type_icon model:ir.model.fields,help:ems.field_ems_quality_action__activity_type_icon model:ir.model.fields,help:ems.field_ems_space__activity_type_icon model:ir.model.fields,help:ems.field_ems_strike__activity_type_icon
 #: model:ir.model.fields,help:ems.field_ems_minute__activity_type_icon
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__activity_type_icon
 msgid "Font awesome icon e.g. fa-tasks"
 msgstr "Icona de font impressionant, p. ex. tasques-fa"
 
@@ -4527,6 +4536,7 @@ msgstr "Té taxes"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__has_message model:ir.model.fields,field_description:ems.field_ems_group__has_message model:ir.model.fields,field_description:ems.field_ems_quality_action__has_message model:ir.model.fields,field_description:ems.field_ems_space__has_message model:ir.model.fields,field_description:ems.field_ems_strike__has_message
 #: model:ir.model.fields,field_description:ems.field_ems_minute__has_message
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__has_message
 msgid "Has Message"
 msgstr "Té missatge"
 
@@ -4702,6 +4712,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_group__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_space__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_strike__activity_exception_icon
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_exception_icon
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_exception_icon
 msgid "Icon"
 msgstr "Icona"
 
@@ -4711,6 +4722,7 @@ msgstr "Icona"
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__activity_exception_icon model:ir.model.fields,help:ems.field_ems_group__activity_exception_icon model:ir.model.fields,help:ems.field_ems_quality_action__activity_exception_icon model:ir.model.fields,help:ems.field_ems_space__activity_exception_icon model:ir.model.fields,help:ems.field_ems_strike__activity_exception_icon
 #: model:ir.model.fields,help:ems.field_ems_minute__activity_exception_icon
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__activity_exception_icon
 msgid "Icon to indicate an exception activity."
 msgstr "Icona per indicar una activitat d'excepció."
 
@@ -4727,6 +4739,7 @@ msgstr "Si l'IBAN està mapejat i una fila té valor, tots els comptes bancaris 
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_needaction model:ir.model.fields,help:ems.field_ems_group__message_needaction model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction model:ir.model.fields,help:ems.field_ems_space__message_needaction model:ir.model.fields,help:ems.field_ems_strike__message_needaction
 #: model:ir.model.fields,help:ems.field_ems_minute__message_needaction
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__message_needaction
 msgid "If checked, new messages require your attention."
 msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 
@@ -4742,6 +4755,8 @@ msgstr "Si està marcat, nous missatges que requereixen de la vostra atenció. "
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_error model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_sms_error model:ir.model.fields,help:ems.field_ems_group__message_has_error model:ir.model.fields,help:ems.field_ems_group__message_has_sms_error model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error model:ir.model.fields,help:ems.field_ems_quality_action__message_has_sms_error model:ir.model.fields,help:ems.field_ems_space__message_has_error model:ir.model.fields,help:ems.field_ems_space__message_has_sms_error model:ir.model.fields,help:ems.field_ems_strike__message_has_error model:ir.model.fields,help:ems.field_ems_strike__message_has_sms_error
 #: model:ir.model.fields,help:ems.field_ems_minute__message_has_error model:ir.model.fields,help:ems.field_ems_minute__message_has_sms_error
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__message_has_error
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr "Si està marcat, alguns missatges han fallat en intentar ser lliurats."
 
@@ -5014,6 +5029,7 @@ msgstr "És taxa de matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_is_follower model:ir.model.fields,field_description:ems.field_ems_group__message_is_follower model:ir.model.fields,field_description:ems.field_ems_quality_action__message_is_follower model:ir.model.fields,field_description:ems.field_ems_space__message_is_follower model:ir.model.fields,field_description:ems.field_ems_strike__message_is_follower
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_is_follower
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_is_follower
 msgid "Is Follower"
 msgstr "És seguidor"
 
@@ -5601,6 +5617,7 @@ msgstr "Missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_error model:ir.model.fields,field_description:ems.field_ems_group__message_has_error model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error model:ir.model.fields,field_description:ems.field_ems_space__message_has_error model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_error
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_has_error
 msgid "Message Delivery error"
 msgstr "Error de lliurament del missatge"
 
@@ -5613,6 +5630,7 @@ msgstr "Error de lliurament del missatge"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_ids model:ir.model.fields,field_description:ems.field_ems_group__message_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__message_ids model:ir.model.fields,field_description:ems.field_ems_space__message_ids model:ir.model.fields,field_description:ems.field_ems_strike__message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_ids
 msgid "Messages"
 msgstr "Missatges"
 
@@ -5705,6 +5723,7 @@ msgstr "Mare"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_group__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_quality_action__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_space__my_activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_strike__my_activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_minute__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__my_activity_date_deadline
 msgid "My Activity Deadline"
 msgstr "Data límit de la meva activitat"
 
@@ -5769,6 +5788,7 @@ msgstr "Nou contacte d'alumne/a"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_group__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_space__activity_date_deadline model:ir.model.fields,field_description:ems.field_ems_strike__activity_date_deadline
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_date_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_date_deadline
 msgid "Next Activity Deadline"
 msgstr "Data límit de la següent activitat"
 
@@ -5779,6 +5799,7 @@ msgstr "Data límit de la següent activitat"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_summary model:ir.model.fields,field_description:ems.field_ems_group__activity_summary model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_summary model:ir.model.fields,field_description:ems.field_ems_space__activity_summary model:ir.model.fields,field_description:ems.field_ems_strike__activity_summary
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_summary
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_summary
 msgid "Next Activity Summary"
 msgstr "Resum de l'activitat següent"
 
@@ -5789,6 +5810,7 @@ msgstr "Resum de l'activitat següent"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_type_id model:ir.model.fields,field_description:ems.field_ems_group__activity_type_id model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_type_id model:ir.model.fields,field_description:ems.field_ems_space__activity_type_id model:ir.model.fields,field_description:ems.field_ems_strike__activity_type_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_type_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_type_id
 msgid "Next Activity Type"
 msgstr "Tipus d'activitat següent"
 
@@ -5992,6 +6014,7 @@ msgstr "Número"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_group__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_quality_action__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_space__message_needaction_counter model:ir.model.fields,field_description:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_needaction_counter
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_needaction_counter
 msgid "Number of Actions"
 msgstr "Quantitat d'accions"
 
@@ -6004,6 +6027,7 @@ msgstr "Quantitat d'accions"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_group__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_space__message_has_error_counter model:ir.model.fields,field_description:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_error_counter
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_has_error_counter
 msgid "Number of errors"
 msgstr "Quantitat d'errors"
 
@@ -6015,6 +6039,7 @@ msgstr "Quantitat d'errors"
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_needaction_counter model:ir.model.fields,help:ems.field_ems_group__message_needaction_counter model:ir.model.fields,help:ems.field_ems_quality_action__message_needaction_counter model:ir.model.fields,help:ems.field_ems_space__message_needaction_counter model:ir.model.fields,help:ems.field_ems_strike__message_needaction_counter
 #: model:ir.model.fields,help:ems.field_ems_minute__message_needaction_counter
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__message_needaction_counter
 msgid "Number of messages requiring action"
 msgstr "Quantitat de missatges que requereixen d'una acció"
 
@@ -6026,6 +6051,7 @@ msgstr "Quantitat de missatges que requereixen d'una acció"
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__message_has_error_counter model:ir.model.fields,help:ems.field_ems_group__message_has_error_counter model:ir.model.fields,help:ems.field_ems_quality_action__message_has_error_counter model:ir.model.fields,help:ems.field_ems_space__message_has_error_counter model:ir.model.fields,help:ems.field_ems_strike__message_has_error_counter
 #: model:ir.model.fields,help:ems.field_ems_minute__message_has_error_counter
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__message_has_error_counter
 msgid "Number of messages with delivery error"
 msgstr "Quantitat de missatges amb error de lliurament"
 
@@ -6675,6 +6701,7 @@ msgstr "Plantilla de pressupost"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__rating_ids model:ir.model.fields,field_description:ems.field_ems_group__rating_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__rating_ids model:ir.model.fields,field_description:ems.field_ems_space__rating_ids model:ir.model.fields,field_description:ems.field_ems_strike__rating_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__rating_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__rating_ids
 msgid "Ratings"
 msgstr "Qualificacions"
 
@@ -6976,6 +7003,7 @@ msgstr "Detalls de la resposta"
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_user_id model:ir.model.fields,field_description:ems.field_ems_group__activity_user_id model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_user_id model:ir.model.fields,field_description:ems.field_ems_space__activity_user_id model:ir.model.fields,field_description:ems.field_ems_strike__activity_user_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_user_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_user_id
 msgid "Responsible User"
 msgstr "Usuari responsable"
 
@@ -7120,6 +7148,7 @@ msgstr "En execució"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_group__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_quality_action__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_space__message_has_sms_error model:ir.model.fields,field_description:ems.field_ems_strike__message_has_sms_error
 #: model:ir.model.fields,field_description:ems.field_ems_minute__message_has_sms_error
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__message_has_sms_error
 msgid "SMS Delivery error"
 msgstr "Error de lliurament d'un SMS"
 
@@ -7674,6 +7703,7 @@ msgstr "Estat"
 #: model:ir.model.fields,help:ems.field_ems_convalidation__activity_state
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_state
 #: model:ir.model.fields,help:ems.field_ems_minute__activity_state
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__activity_state
 msgid ""
 "Status based on activities\n"
 "Overdue: Due date is already passed\n"
@@ -8667,6 +8697,7 @@ msgstr "Conflicte"
 #: model:ir.model.fields,help:ems.field_ems_meeting_presence__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_group__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_quality_action__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_space__activity_exception_decoration model:ir.model.fields,help:ems.field_ems_strike__activity_exception_decoration
 #: model:ir.model.fields,help:ems.field_ems_minute__activity_exception_decoration
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__activity_exception_decoration
 msgid "Type of the exception activity on record."
 msgstr "Tipus de l'activitat d'excepció registrada."
 
@@ -8940,6 +8971,7 @@ msgstr "Estem treballant en aquesta secció per oferir-te la millor experiència
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__website_message_ids model:ir.model.fields,field_description:ems.field_ems_group__website_message_ids model:ir.model.fields,field_description:ems.field_ems_quality_action__website_message_ids model:ir.model.fields,field_description:ems.field_ems_space__website_message_ids model:ir.model.fields,field_description:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,field_description:ems.field_ems_minute__website_message_ids
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__website_message_ids
 msgid "Website Messages"
 msgstr "Missatges del lloc web"
 
@@ -8951,6 +8983,7 @@ msgstr "Missatges del lloc web"
 #: model:ir.model.fields,help:ems.field_ems_absence_cover__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_attendance_correction__website_message_ids model:ir.model.fields,help:ems.field_ems_group__website_message_ids model:ir.model.fields,help:ems.field_ems_quality_action__website_message_ids model:ir.model.fields,help:ems.field_ems_space__website_message_ids model:ir.model.fields,help:ems.field_ems_strike__website_message_ids
 #: model:ir.model.fields,help:ems.field_ems_minute__website_message_ids
+#: model:ir.model.fields,help:ems.field_ems_contact_data_request__website_message_ids
 msgid "Website communication history"
 msgstr "Històric de comunicacions del lloc web"
 
@@ -15654,6 +15687,7 @@ msgstr "Marqueu els mòduls que ja heu superat en altres estudis."
 #: model:ir.model.fields,field_description:ems.field_ems_planning__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_base__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_grade_session__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_group__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_notice__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_notice_line__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_quality_action__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_space__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_strike__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_student_document__activity_calendar_event_id model:ir.model.fields,field_description:ems.field_ems_teaching__activity_calendar_event_id
 #: model:ir.model.fields,field_description:ems.field_ems_minute__activity_calendar_event_id
+#: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__activity_calendar_event_id
 msgid "Next Activity Calendar Event"
 msgstr "Esdeveniment de calendari de la següent activitat"
 
@@ -17306,6 +17340,7 @@ msgstr "Trieu almenys un grup, estudi o nivell."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__contact_data_request_state
 #: model:ir.model.fields,field_description:ems.field_res_users__contact_data_request_state
+#: model:mail.message.subtype,name:ems.mt_contact_data_request
 msgid "Contact data"
 msgstr "Dades de contacte"
 
@@ -26562,3 +26597,53 @@ msgstr ""
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "Discarded: the teacher's check-in of that day has been recorded."
 msgstr "Descartada: s'ha registrat el fitxatge del docent d'aquell dia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#, python-format
+msgid "%s: no longer a contact"
+msgstr "%s: ja no és un contacte"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "Contact data changes approved."
+msgstr "Canvis de dades de contacte aprovats."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#, python-format
+msgid "Contact data changes returned to correct them: %s"
+msgstr "Canvis de dades de contacte retornats perquè es corregeixin: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+msgid "Contact data changes sent for review:"
+msgstr "Canvis de dades de contacte enviats per revisar:"
+
+#. module: ems
+#: model:mail.message.subtype,description:ems.mt_contact_data_request
+msgid "Contact data review: the request, the changes sent and the result of the review."
+msgstr "Revisió de dades de contacte: la petició, els canvis enviats i el resultat de la revisió."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#, python-format
+msgid "New family contact: %(name)s (%(relation)s)"
+msgstr "Nou contacte familiar: %(name)s (%(relation)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/contact_data_request.py:0
+#, python-format
+msgid "The centre asks to review the contact details for the %s academic year."
+msgstr "El centre demana revisar les dades de contacte per al curs %s."
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_contact_data_review
+msgid "Review contact data changes"
+msgstr "Revisar canvis de dades de contacte"

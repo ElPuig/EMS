@@ -97,6 +97,19 @@ class TestPortalContactData(PortalContactDataHelpers, HttpCase):
         self.assertIn('o_ems_contact_data_pending_review', again.text)
         self.assertIn('Portal Street 3', again.text)
 
+    def test_communications_lists_what_was_sent(self):
+        """Issue #700: what the family sends is in their Communications, even with no request from
+        the tutor, and the tutor's activity done when it is reviewed is not."""
+        self._post(**self._complete_form())
+        request = self._request()
+        request.action_approve()
+        response = self.url_open('/my/comunicaciones')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Contact data changes sent for review', response.text)
+        self.assertIn('Street', response.text)
+        self.assertIn('Contact data changes approved', response.text)
+        self.assertNotIn('Review contact data changes', response.text)
+
     def test_another_students_family_cannot_be_touched(self):
         stranger = self.env['res.partner'].create({
             'firstname': 'Stranger', 'lastname': 'Family', 'contact_type': 'family', 'mobile': '711200007'})

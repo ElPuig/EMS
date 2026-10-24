@@ -49,6 +49,8 @@ En **Comunidad educativa → Estudiantes → Solicitud de datos**:
 
 Usad los filtros **Pendiente de respuesta**, **Por revisar**, **Pendientes desde hace más de una semana** y **Posible duplicado**, y agrupad por **Grupo**.
 
+Cuando la familia de uno de vuestros alumnos envía cambios, aunque no se los hayáis pedido, recibís una actividad **Revisar cambios de datos de contacto** en la solicitud. Se marca como hecha cuando aprobáis los cambios o los devolvéis. El historial de la solicitud (la petición, los cambios enviados y la aprobación o la devolución con el motivo) está en la parte de abajo de la ficha. La familia ve el mismo historial en **Comunicaciones**, en el portal.
+
 ## Aprobar los cambios
 
 ![Solicitud por revisar: los cambios propuestos por la familia, con los botones Aprobar y Devolver a la familia](../../assets/tutors/dades-contacte-04-revisio.png)

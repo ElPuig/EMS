@@ -25832,6 +25832,7 @@ msgstr "D. Menos oportunidades"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__draw_order
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__draw_order
 msgid "Draw"
 msgstr "Sorteo"
 
@@ -31907,23 +31908,6 @@ msgid "Enrolled on"
 msgstr "Inscrito el"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/erasmus/group_mobility.py:0
-msgid ""
-"Enrolled within the period, in the eligible group and with fewer conduct "
-"warnings this course than the number that rules a student out. Ordered by "
-"the record average, from highest to lowest. Tie-break: the fewer "
-"opportunities accredited by the Erasmus team. If the tie persists, it is "
-"resolved as the Erasmus coordination publishes before the enrolment opens."
-msgstr ""
-"Inscrito dentro del plazo, del grupo que puede inscribirse y con menos "
-"amonestaciones este curso que el número que excluye a un alumno. Ordenado "
-"por la nota media del expediente, de más alta a más baja. Desempate: las "
-"menos oportunidades acreditadas por el equipo Erasmus. Si el empate "
-"continúa, se resuelve como publique la coordinación Erasmus antes de abrir "
-"la inscripción."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__registration_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__state
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__enrolment
@@ -32384,17 +32368,6 @@ msgid "Publish the selection criteria before opening the enrolment."
 msgstr "Publica los criterios de selección antes de abrir la inscripción."
 
 #. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__tie_break
-msgid ""
-"Published on the portal before the enrolment opens. EMS ranks by the record "
-"average, then the fewer opportunities accredited; it never breaks a "
-"remaining tie by itself."
-msgstr ""
-"Se publica en el portal antes de abrir la inscripción. EMS ordena por la "
-"nota media del expediente y después por las menos oportunidades acreditadas;"
-" nunca resuelve solo un empate que quede."
-
-#. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__result
 msgid "Published when the coordinator approves the selection."
 msgstr "Se publica cuando la coordinación aprueba la selección."
@@ -32520,15 +32493,6 @@ msgstr "Devolver la propuesta"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 msgid "Send the proposal to the coordinator"
 msgstr "Enviar la propuesta a la coordinación"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__draw_order
-msgid ""
-"Set by the Erasmus coordination to resolve a tie, as the published criteria "
-"say. Lower goes first."
-msgstr ""
-"Lo fija la coordinación Erasmus para resolver un empate, como dicen los "
-"criterios publicados. El más bajo va primero."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__document_ids
@@ -32735,15 +32699,6 @@ msgid "The students whose main group is one of these can enrol."
 msgstr "Puede inscribirse el alumnado cuyo grupo principal es uno de estos."
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
-msgid ""
-"There is a tie in the ranking: the Erasmus coordination resolves it with the"
-" Tie order, as the published criteria say."
-msgstr ""
-"Hay un empate en la clasificación: la coordinación Erasmus lo resuelve con "
-"el «Orden de desempate», como dicen los criterios publicados."
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "There is a tie the Erasmus coordination has to resolve first."
@@ -32754,11 +32709,6 @@ msgstr "Hay un empate que antes debe resolver la coordinación Erasmus."
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "There is no free place or no reserve left in %s."
 msgstr "En %s no hay ninguna plaza libre o no queda ninguna reserva."
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__draw_order
-msgid "Tie order"
-msgstr "Orden de desempate"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__needs_draw
@@ -32961,3 +32911,74 @@ msgstr "de la lista de reserva"
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 msgid "student places"
 msgstr "plazas de alumnado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Draw of the ties, run by %s:"
+msgstr "Sorteo de los empates, hecho por %s:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Draw the ties"
+msgstr "Sortear los empates"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"EMS orders each tie at random and records the result. It cannot be repeated."
+" Continue?"
+msgstr ""
+"EMS ordena cada empate al azar y guarda el resultado. No se puede repetir. "
+"¿Continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Enrolled within the period, in the eligible group and with fewer conduct "
+"warnings this course than the number that rules a student out. Ordered by "
+"the record average, from highest to lowest. Tie-break: the fewer "
+"opportunities accredited by the Erasmus team. If the tie persists, it is "
+"resolved by a draw."
+msgstr ""
+"Inscrito dentro del plazo, del grupo que puede inscribirse y con menos "
+"amonestaciones este curso que el número que excluye a un alumno. Ordenado "
+"por la nota media del expediente, de más alta a más baja. Desempate: las "
+"menos oportunidades acreditadas por el equipo Erasmus. Si el empate "
+"continúa, se resuelve por sorteo."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__draw_order
+msgid ""
+"Position in the draw that resolved a tie (the Erasmus coordinator runs it). "
+"Lower goes first."
+msgstr ""
+"Posición en el sorteo que ha resuelto un empate (lo hace el coordinador "
+"Erasmus). El más bajo va primero."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__tie_break
+msgid ""
+"Published on the portal before the enrolment opens. EMS ranks by the record "
+"average, then the fewer opportunities accredited, then the draw the Erasmus "
+"coordinator runs in EMS for a remaining tie."
+msgstr ""
+"Se publica en el portal antes de abrir la inscripción. EMS ordena por la "
+"nota media del expediente, después por las menos oportunidades acreditadas "
+"y, si queda un empate, por el sorteo que hace el coordinador Erasmus en EMS."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"There is a tie in the ranking: the Erasmus coordinator resolves it with a "
+"draw (Actions, Draw the ties)."
+msgstr ""
+"Hay un empate en la clasificación: el coordinador Erasmus lo resuelve por "
+"sorteo (Acciones, «Sortear los empates»)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "There is no tie to draw in %s."
+msgstr "En %s no hay ningún empate que sortear."

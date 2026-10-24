@@ -207,19 +207,26 @@ class TestErasmusGroupRanking(ErasmusGroupMobilityCase):
         self.assertEqual(registration.exclusion, 'group')
         self.assertEqual(registration.frozen_group_id, self.group_c)
 
-    def test_a_tie_blocks_the_proposal_until_the_coordination_resolves_it(self):
-        registrations = self._enrol(self.students[:2])
-        self._close({self.students[0]: 7.0, self.students[1]: 7.0})
-        self.assertTrue(all(registrations.mapped('needs_draw')))
-        self.assertTrue(self.mobility.needs_draw)
+    def test_a_tie_blocks_the_proposal_until_the_coordinator_draws_it(self):
+        registrations = self._enrol(self.students[:3])
+        self._close({self.students[0]: 7.0, self.students[1]: 7.0, self.students[2]: 9.0})
+        self.assertEqual(registrations.mapped('needs_draw'), [True, True, False])
         with self.assertRaises(UserError):
             self.mobility.with_user(self.leader_user).action_submit_proposal()
         with self.assertRaises(AccessError):
-            registrations[1].with_user(self.leader_user).draw_order = 1
-        registrations[0].with_user(self.coordinator_user).draw_order = 2
-        registrations[1].with_user(self.coordinator_user).draw_order = 1
+            registrations[1].with_user(self.coordinator_user).draw_order = 1
+        for user in (self.leader_user, self.technician_user):
+            with self.assertRaises(AccessError):
+                self.mobility.with_user(user).action_draw_ties()
+        self.mobility.with_user(self.coordinator_user).action_draw_ties()
         self.assertFalse(self.mobility.needs_draw)
-        self.assertEqual(registrations.mapped('rank'), [2, 1])
+        self.assertEqual(sorted(registrations[:2].mapped('draw_order')), [1, 2])
+        self.assertEqual(sorted(registrations[:2].mapped('rank')), [2, 3])
+        self.assertEqual(registrations[2].rank, 1, "The draw never moves anyone not tied.")
+        self.assertFalse(registrations[2].draw_order)
+        self.assertIn('Draw of the ties', self.mobility.message_ids[:1].body)
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.coordinator_user).action_draw_ties()
         self.mobility.with_user(self.leader_user).action_submit_proposal()
 
     def test_accredited_fewer_opportunities_break_a_tie(self):
@@ -243,7 +250,7 @@ class TestErasmusGroupRanking(ErasmusGroupMobilityCase):
     def test_ranking_cannot_change_once_approved(self):
         registrations = self._approved()
         with self.assertRaises(UserError):
-            registrations[0].with_user(self.coordinator_user).draw_order = 3
+            registrations[0].with_user(self.coordinator_user).fewer_opportunities_check = 'yes'
         self.mobility._ems_rank()
         self.assertEqual(registrations[0].rank, 1)
 

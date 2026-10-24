@@ -24,7 +24,7 @@ Els docents no passen per cap convocatòria de personal: en desar-los, ja veuen 
 ## Classificació i selecció
 
 - En acabar el període d'inscripció (o amb **Tanca la inscripció ara**), l'EMS congela les dades de cada inscripció: el grup, la **mitjana de l'expedient** (la mateixa fórmula que la convocatòria de pràctiques) i les amonestacions d'aquest curs. Queda exclòs qui no és d'un grup que s'hi pot inscriure o té tantes amonestacions com el límit que avisa convivència (o més).
-- L'ordre és per mitjana i, en cas d'empat, per les menys oportunitats acreditades. Si alguna persona ha declarat menys oportunitats, revisa-ho a la pestanya **Selecció** (columna *Menys oportunitats acreditades*). Si encara hi ha un empat, l'EMS l'assenyala i no deixa enviar la proposta fins que la coordinació hi posa l'**Ordre de desempat**, segons els criteris publicats.
+- L'ordre és per mitjana i, en cas d'empat, per les menys oportunitats acreditades. Si alguna persona ha declarat menys oportunitats, revisa-ho a la pestanya **Selecció** (columna *Menys oportunitats acreditades*). Si encara hi ha un empat, es resol per **sorteig**: l'EMS l'assenyala i no deixa enviar la proposta fins que el coordinador Erasmus, a **Accions**, fa clic a **Sorteja els empats**. L'EMS ordena a l'atzar només els alumnes empatats i deixa el resultat, qui l'ha fet i quan a l'historial de la mobilitat.
 - El docent responsable revisa la classificació i envia la proposta. Rebràs una tasca: a **Accions**, **Aprova i publica la selecció** (cada alumne rep el seu resultat per correu) o **Retorna la proposta** amb el motiu.
 - Per fer una excepció a la classificació, a la pestanya **Selecció** posa l'*Excepció* i el *Motiu de l'excepció* abans d'aprovar.
 

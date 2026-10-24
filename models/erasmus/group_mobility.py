@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import secrets
 from datetime import timedelta
+
+from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
@@ -68,10 +71,9 @@ class EmsErasmusGroupMobility(models.Model):
         default=lambda self: _(
             "Enrolled within the period, in the eligible group and with fewer conduct warnings this course than the "
             "number that rules a student out. Ordered by the record average, from highest to lowest. Tie-break: the "
-            "fewer opportunities accredited by the Erasmus team. If the tie persists, it is resolved as the Erasmus "
-            "coordination publishes before the enrolment opens."),
+            "fewer opportunities accredited by the Erasmus team. If the tie persists, it is resolved by a draw."),
         help="Published on the portal before the enrolment opens. EMS ranks by the record average, then the fewer "
-             "opportunities accredited; it never breaks a remaining tie by itself.")
+             "opportunities accredited, then the draw the Erasmus coordinator runs in EMS for a remaining tie.")
     # Destination, host entity and dates: may be pending during the enrolment.
     country_id = fields.Many2one(string="Country", comodel_name='res.country', tracking=True)
     city = fields.Char(string="City", tracking=True)
@@ -418,6 +420,31 @@ class EmsErasmusGroupMobility(models.Model):
             mobility._ems_schedule(mobility._ems_coordinators(),
                                    _("Erasmus+: validate the selection of %s", mobility.name))
 
+    def action_draw_ties(self):
+        """The Erasmus coordinator resolves the ties that remain after the record average and the
+        fewer opportunities by a draw: EMS orders each tied set at random (a cryptographically
+        secure generator) and records the result, who ran it and when in the chatter. Ties only:
+        it never moves anyone else."""
+        self._ems_check_coordinator()
+        self._ems_check_state('selection', 'validation')
+        randomizer = secrets.SystemRandom()
+        for mobility in self.sudo():
+            tied = mobility.registration_ids.filtered('needs_draw')
+            if not tied:
+                raise UserError(_("There is no tie to draw in %s.", mobility.name))
+            lines = []
+            for _key, registrations in tied.grouped(lambda registration: registration._ems_rank_key()[:2]).items():
+                drawn = list(registrations)
+                randomizer.shuffle(drawn)
+                for order, registration in enumerate(drawn, 1):
+                    registration._ems_write({'draw_order': order})
+                lines.append(", ".join(f"{order}. {registration.partner_id.name}"
+                                       for order, registration in enumerate(drawn, 1)))
+            mobility._ems_rank()
+            mobility.chatter(Markup("{}{}").format(
+                _("Draw of the ties, run by %s:", self.env.user.name),
+                mobility.env['ems.base'].build_html_list(lines)))
+
     def action_return_proposal(self):
         """The coordinator sends the proposal back to the leader, saying why."""
         self._ems_check_coordinator()
@@ -684,9 +711,9 @@ class EmsErasmusGroupRegistration(models.Model):
     eligible = fields.Boolean(string="Meets the requirements", readonly=True)
     rank = fields.Integer(string="Rank", readonly=True)
     needs_draw = fields.Boolean(string="Tied", readonly=True)
-    draw_order = fields.Integer(string="Tie order", tracking=True,
-                                help="Set by the Erasmus coordination to resolve a tie, as the published criteria "
-                                     "say. Lower goes first.")
+    draw_order = fields.Integer(string="Draw", tracking=True, readonly=True,
+                                help="Position in the draw that resolved a tie (the Erasmus coordinator runs it). "
+                                     "Lower goes first.")
     proposed_result = fields.Selection(string="Proposed", selection=RESULTS, readonly=True)
     result_override = fields.Selection(string="Exception", selection=RESULTS[:3], tracking=True,
                                        help="Only the Erasmus coordination, with a reason: replaces the proposed "
@@ -735,7 +762,7 @@ class EmsErasmusGroupRegistration(models.Model):
         if not self.env.su and not self.env.context.get('ems_erasmus_state'):
             for registration in self:
                 role = registration.group_mobility_id._ems_role()
-                allowed = {'fewer_opportunities_check', 'draw_order', 'result_override', 'override_reason',
+                allowed = {'fewer_opportunities_check', 'result_override', 'override_reason',
                            'exception_request'} if role == 'team' else {'exception_request'} if role == 'leader' \
                     else set()
                 if set(vals) - allowed:
@@ -745,7 +772,7 @@ class EmsErasmusGroupRegistration(models.Model):
             if {'result_override', 'override_reason'} & set(vals):
                 self.group_mobility_id._ems_check_coordinator()
         result = super().write(vals)
-        if {'fewer_opportunities_check', 'draw_order'} & set(vals):
+        if 'fewer_opportunities_check' in vals:
             self.group_mobility_id._ems_rank()
         return result
 

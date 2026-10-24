@@ -24,7 +24,7 @@ Teachers go through no staff call: once saved, they see the mobility in **Erasmu
 ## Ranking and selection
 
 - When the enrolment period ends (or with **Close the enrolment now**), EMS freezes each enrolment's data: the group, the **record average** (the same formula as the internship call) and this course's conduct warnings. A student not in an eligible group, or with as many conduct warnings as the limit that alerts the coexistence team (or more), is excluded.
-- The order is by average and, in a tie, by the fewer opportunities accredited. If somebody declared fewer opportunities, check it in the **Selection** tab (*Fewer opportunities accredited* column). If a tie remains, EMS flags it and the proposal cannot be sent until the coordination sets the **Tie order**, as the published criteria say.
+- The order is by average and, in a tie, by the fewer opportunities accredited. If somebody declared fewer opportunities, check it in the **Selection** tab (*Fewer opportunities accredited* column). If a tie remains, it is resolved by a **draw**: EMS flags it and the proposal cannot be sent until the Erasmus coordinator clicks **Draw the ties** in **Actions**. EMS orders only the tied students at random and records the result, who ran it and when in the mobility's history.
 - The leader teacher reviews the ranking and sends the proposal. You get a task: in **Actions**, **Approve and publish the selection** (each student receives their own result by email) or **Send the proposal back** with the reason.
 - To make an exception to the ranking, set the *Exception* and its *Reason for the exception* in the **Selection** tab before approving.
 

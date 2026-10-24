@@ -72,11 +72,15 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   eligible group, or too many conduct warnings). These values are never recomputed.
 - The **record average is the internship call's**: `ems.erasmus.application._ems_partner_grade_values`
   and `_ems_grade_average` (extracted from the application without changing them). Without any
-  evaluated module the average is 0 and `grade_found` is false: the enrolment still ranks, last.
+  evaluated module the average is 0 and `grade_found` is false (it does not happen in practice:
+  group mobilities take place during the course, when every student already has grades).
 - `_ems_rank` orders the eligible enrolments by average (descending), then the fewer
-  opportunities accredited by the team, then `draw_order`. A remaining tie is flagged
-  (`needs_draw`) and **blocks the proposal** until the coordination sets the tie order as the
-  published criteria say: EMS never breaks a tie by itself. A declared situation of fewer
+  opportunities accredited by the team, then a **draw** (decided by the coordinator, 2026-10-24).
+  A remaining tie is flagged (`needs_draw`) and **blocks the proposal** until the Erasmus
+  coordinator runs the draw (`action_draw_ties`): EMS orders each tied set at random with a
+  cryptographically secure generator (`secrets.SystemRandom`), stores the position in
+  `draw_order` (read-only) and records the result, who ran it and when in the chatter. It only
+  touches tied enrolments and cannot be repeated once the ties are resolved. A declared situation of fewer
   opportunities still pending verification blocks the proposal too. The first ones, as many as
   places, are proposed as selected, the rest as reserves in order; the non-eligible, as excluded
   ("excluded" and "no place" are different results).
@@ -152,8 +156,8 @@ Deadlines count from the group mobility: `destination` = the day the selection w
   `action_end_stay`). On return EMS schedules the EU Survey task for its responsible person
   (`eu_survey_user_id`, by default the leader) with a deadline (30 days if empty). That person or
   the leader says it is answered, with evidence if any; the team validates it. EMS does not
-  connect to the EU Survey platform, and the leader's survey does not replace the participants'
-  own reports (see "Pending").
+  connect to the EU Survey platform. In group mobilities only the leader answers the EU Survey
+  (decided by the coordinator, 2026-10-24): students and the other teacher have no survey task.
 - During the stay the leader and the accompanying teachers write the follow-up
   (`ems.erasmus.group.log`). Tasks and reminders are Odoo activities on the mobility, which reach
   the daily task digest.
@@ -198,11 +202,5 @@ what each role may change is checked again in the models (`EmsErasmusGroupMobili
 - **Families of minors:** the group documents signed by the family (grant agreement, family
   authorisation) are uploaded signed; the portal signature of the family used for the individual
   commitment letter is not offered for group mobilities yet.
-- **Participant reports:** which reports each participant must answer in the Beneficiary Module
-  (EU Survey of learners and of accompanying persons) has to be checked against the current
-  Erasmus+ Guide; EMS only tracks the leader's.
-- **Institutional decisions:** what resolves a tie that persists after the record average and the
-  fewer opportunities (proposal: a public draw), and whether a student with no evaluated module
-  at closing may rank (today: average 0, last).
 - **Exports:** the participants' spreadsheet of the individual modalities (fixed headers read by an
   external tool) is not offered for group mobilities, to avoid changing its contract.

@@ -96,6 +96,7 @@
                 <form string="Group mobility">
                     <header>
                         <field name="user_role" invisible="1"/>
+                        <field name="needs_draw" invisible="1"/>
                         <div name="ems_actions" string="Actions">
                             <button name="action_open_enrolment" type="object" string="Open the enrolment" class="btn-primary"
                                     invisible="state != 'draft' or user_role != 'team'"
@@ -112,6 +113,10 @@
                                     class="btn-primary" invisible="state != 'validation'"
                                     groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
                                     confirm="Each student receives their own result and the participants' files open. Continue?"/>
+                            <button name="action_draw_ties" type="object" string="Draw the ties"
+                                    invisible="not needs_draw or state not in ('selection', 'validation')"
+                                    groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                    confirm="EMS orders each tie at random and records the result. It cannot be repeated. Continue?"/>
                             <button name="action_return_proposal" type="object" string="Send the proposal back"
                                     invisible="state != 'validation'"
                                     groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
@@ -153,7 +158,7 @@
                             <h1><field name="name" placeholder="e.g. SMX2 morning" readonly="user_role != 'team'"/></h1>
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="not needs_draw">
-                            There is a tie in the ranking: the Erasmus coordination resolves it with the Tie order, as the published criteria say.
+                            There is a tie in the ranking: the Erasmus coordinator resolves it with a draw (Actions, Draw the ties).
                         </div>
                         <div class="alert alert-info" role="alert" invisible="not next_reserve">
                             A place is free: the next reserve is <field name="next_reserve" class="fw-bold"/>.
@@ -222,7 +227,6 @@
                                     <group>
                                         <field name="selected_count"/>
                                         <field name="reserve_count"/>
-                                        <field name="needs_draw" invisible="1"/>
                                         <field name="proposal_note" readonly="state != 'selection'"/>
                                         <field name="return_note" readonly="state != 'validation' or user_role != 'team'"
                                                invisible="state not in ('selection', 'validation') or (not return_note and state == 'selection')"/>
@@ -247,8 +251,7 @@
                                                groups="ems.group_erasmus,ems.group_academic_admin"
                                                invisible="not fewer_opportunities"/>
                                         <field name="needs_draw" widget="boolean_toggle" readonly="1" optional="show"/>
-                                        <field name="draw_order" optional="show" invisible="not needs_draw"
-                                               groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="draw_order" optional="show" invisible="not draw_order"/>
                                         <field name="proposed_result" widget="badge" decoration-success="proposed_result == 'selected'"
                                                decoration-info="proposed_result == 'reserve'" decoration-danger="proposed_result == 'excluded'"/>
                                         <field name="result_override" optional="show"

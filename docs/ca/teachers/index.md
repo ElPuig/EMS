@@ -34,6 +34,7 @@ Aquesta secció conté els manuals per als **professors**.
 | [Puntuar una entrevista Erasmus+](erasmus-interviews.md) | Com puntuar, amb la rúbrica de la convocatòria, les entrevistes Erasmus+ que t'assigna l'equip Erasmus |
 | [Sol·licitar una mobilitat Erasmus+ de personal](erasmus-staff-call.md) | Com sol·licitar des del portal un job shadowing, un curs o una estada de docència, i seguir la sol·licitud |
 | [Valorar plans de mobilitat Erasmus+](erasmus-plan-ratings.md) | Com valora el tribunal de la convocatòria del personal els plans de mobilitat amb la rúbrica de la convocatòria |
+| [Acompanyar una mobilitat de grup Erasmus+](erasmus-group-mobility.md) | Què fa el docent responsable (la selecció, els documents, el seguiment, l'EU Survey) i el docent acompanyant |
 
 ---
 

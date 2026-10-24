@@ -44,6 +44,15 @@ ACCESS_MATRIX = {
     'ems.erasmus.call.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.mobility': {'teacher': '', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
     'ems.erasmus.project': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    # Issue #701: a plain teacher reaches nothing; the leader and accompanying teachers (a hidden
+    # group EMS manages) only their own mobilities, through record rules tested in
+    # test_erasmus_group_mobility.py.
+    'ems.erasmus.group.mobility': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.group.registration': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.group.participant': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.group.draw': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
+    'ems.erasmus.group.draw.line': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'r'},
+    'ems.erasmus.group.log': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Issue #697: payments are marked paid by the Secretary through a button (write() guard, test_erasmus_grant.py).
     'ems.erasmus.provision': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.invoice': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},

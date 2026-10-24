@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Issue #701 - group mobilities on the portal's Erasmus+ page: one card per mobility the
+         student can enrol in or enrolled in, with a one-click enrolment (controllers/portal_erasmus_group.py). -->
+    <template id="portal_erasmus_group_cards" name="Erasmus+ group mobilities" inherit_id="ems.portal_erasmus">
+        <xpath expr="//p[@t-if='not calls and not guardian_mobilities']" position="attributes">
+            <attribute name="t-if">not calls and not guardian_mobilities and not group_mobilities and not group_partner._ems_erasmus_guardian_group_participants()</attribute>
+        </xpath>
+        <xpath expr="//h3" position="after">
+            <t t-set="group_partner" t-value="request.env.user.partner_id"/>
+            <t t-set="group_mobilities" t-value="group_partner._ems_erasmus_group_mobilities()"/>
+            <div t-if="request.params.get('enrolled')" class="alert alert-success mb-3 o_ems_erasmus_group_enrolled">
+                <i class="fa fa-check-circle me-1"/> You are enrolled. You will see the result here when the selection is published.
+            </div>
+            <div t-if="request.params.get('group_error')" class="alert alert-danger mb-3 o_ems_erasmus_group_error">
+                <i class="fa fa-exclamation-triangle me-1"/> It could not be done: the enrolment may be closed, or you do not meet its requirements.
+            </div>
+            <t t-foreach="group_mobilities" t-as="group_mobility">
+                <t t-call="ems.portal_erasmus_group_card"/>
+            </t>
+            <!-- Issue #703: the family of a selected minor accepts the commitment letter too. -->
+            <div t-foreach="group_partner._ems_erasmus_guardian_group_participants()" t-as="guardian_participant"
+                 class="card shadow-sm mb-4 o_ems_erasmus_group_guardian_commitment">
+                <div class="card-header bg-ems-primary text-white">
+                    <strong t-esc="guardian_participant.group_mobility_id.name"/> - <t t-esc="guardian_participant.partner_id.name"/>
+                </div>
+                <div class="card-body">
+                    <h6>Commitment letter</h6>
+                    <div t-if="guardian_participant.commitment_guardian_signed_date" class="alert alert-success small mb-0 o_ems_erasmus_guardian_signed">
+                        <i class="fa fa-check-circle me-1"/>Signed by the family on
+                        <t t-out="guardian_participant.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
+                    <form t-elif="guardian_participant._ems_commitment_open()" t-attf-action="/my/erasmus/group/commitment/#{guardian_participant.id}" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <p class="small">
+                            <t t-esc="guardian_participant.partner_id.name"/> is a minor, so the family accepts the commitment letter of the Erasmus+ group mobility too.
+                        </p>
+                        <div class="border rounded p-3 mb-2 small" t-out="guardian_participant._ems_commitment_text()"/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="accepted" t-attf-id="group_guardian_accepted_#{guardian_participant.id}" required="required"/>
+                            <label class="form-check-label" t-attf-for="group_guardian_accepted_#{guardian_participant.id}">As the family, we have read these commitments and we accept them.</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_group_guardian_sign">Accept and sign</button>
+                    </form>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="portal_erasmus_group_card" name="Erasmus+ group mobility card">
+        <t t-set="registration" t-value="group_mobility.registration_ids.filtered(lambda registration: registration.partner_id == group_partner)"/>
+        <t t-set="participant" t-value="group_mobility.participant_ids.filtered(lambda participant: participant.partner_id == group_partner and participant.state == 'active')"/>
+        <t t-set="blocked" t-value="not registration and group_mobility._ems_conduct_blocked(group_partner)"/>
+        <t t-set="published" t-value="group_mobility.state in ('preparation', 'stay', 'return', 'done')"/>
+        <t t-set="result_labels" t-value="dict(registration._fields['result']._description_selection(request.env))"/>
+        <div class="card shadow-sm mb-4 o_ems_erasmus_group_card">
+            <div class="card-header bg-ems-primary text-white">
+                <i class="fa fa-users me-1"/><strong>Erasmus+ group mobility</strong> - <t t-esc="group_mobility.name"/>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-2">
+                    <li><i class="fa fa-folder-o me-1"/>Project <t t-esc="group_mobility.project_id.display_name"/></li>
+                    <li t-if="group_mobility.country_id or group_mobility.city"><i class="fa fa-map-marker me-1"/>Destination:
+                        <t t-esc="', '.join(filter(None, [group_mobility.city, group_mobility.country_id.name]))"/></li>
+                    <li t-else=""><i class="fa fa-map-marker me-1"/>Destination: still to be confirmed</li>
+                    <li t-if="group_mobility.date_start or group_mobility.date_start_planned"><i class="fa fa-calendar me-1"/>Dates:
+                        <t t-if="group_mobility.date_start"><t t-out="group_mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="group_mobility.date_end" t-options="{'widget': 'date'}"/></t>
+                        <t t-else=""><t t-out="group_mobility.date_start_planned" t-options="{'widget': 'date'}"/> - <t t-out="group_mobility.date_end_planned" t-options="{'widget': 'date'}"/> (planned)</t></li>
+                    <li><i class="fa fa-user me-1"/><t t-esc="group_mobility.student_places"/> student places</li>
+                    <li t-if="group_mobility.enrolment_open"><i class="fa fa-pencil me-1"/>Enrolment from
+                        <strong t-out="group_mobility.enrolment_open" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/>
+                        to
+                        <strong t-out="group_mobility.enrolment_close" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/></li>
+                </ul>
+                <div t-if="group_mobility.description" class="small mb-2" t-out="group_mobility.description"/>
+                <details class="small mb-2 o_ems_erasmus_group_criteria">
+                    <summary>Selection criteria</summary>
+                    <p class="mt-1 mb-0" style="white-space: pre-line;" t-esc="group_mobility.tie_break"/>
+                </details>
+
+                <!-- Each student sees only their own result. -->
+                <div t-if="registration and registration.state == 'withdrawn'" class="mb-2 o_ems_erasmus_group_withdrawn">
+                    Your enrolment: <span class="badge text-bg-secondary">Withdrawn</span>
+                </div>
+                <div t-elif="registration and published and registration.result" t-attf-class="mb-2 o_ems_erasmus_group_result o_ems_erasmus_group_result_#{registration.result}">
+                    Result: <span t-attf-class="badge #{'text-bg-success' if registration.result == 'selected' else 'text-bg-info' if registration.result == 'reserve' else 'text-bg-secondary'}"
+                                  t-esc="result_labels.get(registration.result)"/>
+                    <t t-if="registration.result == 'reserve'"> - number <t t-esc="registration.reserve_position"/> on the reserve list</t>
+                </div>
+                <div t-elif="registration" class="mb-2 o_ems_erasmus_group_registered">
+                    Your enrolment: <span class="badge text-bg-primary">Enrolled</span>
+                    <span class="small text-muted">on <t t-out="registration.enrol_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/></span>
+                    <span t-if="not group_mobility.is_enrolling" class="d-block small text-muted">The selection is in progress: you will receive your result by email.</span>
+                </div>
+
+                <p t-if="blocked" class="alert alert-warning small mb-2 o_ems_erasmus_group_blocked">
+                    <i class="fa fa-ban me-1"/>You cannot enrol: you have too many conduct warnings this course. If you think this is a mistake, talk to the Erasmus team.
+                </p>
+                <form t-elif="group_mobility.is_enrolling and (not registration or registration.state == 'withdrawn')"
+                      t-attf-action="/my/erasmus/group/#{group_mobility.id}/enrol" method="post" class="o_ems_erasmus_group_enrol_form">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <div class="form-check small mb-2">
+                        <input class="form-check-input" type="checkbox" name="fewer_opportunities" t-attf-id="fewer_#{group_mobility.id}"/>
+                        <label class="form-check-label" t-attf-for="fewer_#{group_mobility.id}">
+                            I am in a situation of fewer opportunities (optional). The Erasmus team will contact you to accredit it; only the team sees it.
+                        </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_group_enrol"><i class="fa fa-check me-1"/>Enrol me</button>
+                </form>
+                <form t-elif="registration and registration.state == 'enrolled' and group_mobility.is_enrolling"
+                      t-attf-action="/my/erasmus/group/#{group_mobility.id}/withdraw" method="post">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button type="submit" class="btn btn-outline-secondary btn-sm o_ems_erasmus_group_withdraw">Withdraw my enrolment</button>
+                </form>
+                <p t-elif="not registration and group_mobility.state == 'enrolment'" class="text-muted small mb-0">The enrolment is not open now.</p>
+
+                <a t-if="participant" t-attf-href="/my/erasmus/group/#{group_mobility.id}" class="btn btn-primary btn-sm o_ems_erasmus_group_open">
+                    <i class="fa fa-folder-open me-1"/>See my documents
+                </a>
+            </div>
+        </div>
+    </template>
+
+    <!-- Issue #703 - the selected student's file: the mobility, their documents (and the group's
+         shared ones), and renouncing the place. -->
+    <template id="portal_erasmus_group" name="Erasmus+ group mobility">
+        <t t-call="portal.portal_layout">
+            <t t-set="action" t-value="'/my/erasmus/group/%s/' % mobility.id"/>
+            <div class="container mt-4 o_ems_portal_erasmus_group">
+                <h3 class="mb-3"><t t-esc="mobility.name"/></h3>
+                <div t-if="error" class="alert alert-danger o_ems_erasmus_error">
+                    <i class="fa fa-exclamation-triangle me-1"/> It could not be saved: the documents may be closed already.
+                </div>
+                <div t-if="saved" class="alert alert-success o_ems_erasmus_saved">
+                    <i class="fa fa-check-circle me-1"/> Saved.
+                </div>
+                <table class="table table-sm small mb-3">
+                    <tbody>
+                        <tr t-if="mobility.country_id or mobility.city"><td>Place</td><td t-esc="', '.join(filter(None, [mobility.city, mobility.country_id.name]))"/></tr>
+                        <tr t-if="mobility.host_partner_id"><td>Host entity</td><td t-esc="mobility.host_partner_id.name"/></tr>
+                        <tr t-if="mobility.date_start"><td>Dates</td><td><t t-out="mobility.date_start" t-options="{'widget': 'date'}"/> - <t t-out="mobility.date_end" t-options="{'widget': 'date'}"/></td></tr>
+                        <tr t-if="mobility.travel_date_out"><td>Travel</td><td><t t-out="mobility.travel_date_out" t-options="{'widget': 'date'}"/> - <t t-out="mobility.travel_date_back" t-options="{'widget': 'date'}"/></td></tr>
+                        <tr t-if="mobility.leader_id"><td>Leader teacher</td><td t-esc="mobility.leader_id.name"/></tr>
+                    </tbody>
+                </table>
+                <div t-if="mobility.programme" class="mb-3">
+                    <h6>Programme</h6>
+                    <div class="small" t-out="mobility.programme"/>
+                </div>
+
+                <t t-set="shared" t-value="mobility.document_ids.filtered(lambda line: not line.confidential and line.handled_by == 'team' and (line.attachment_ids or line.prepared_attachment_ids))"/>
+                <t t-if="shared">
+                    <h6>Group documents</h6>
+                    <ul class="list-group mb-3 o_ems_erasmus_group_shared">
+                        <li t-foreach="shared" t-as="line" class="list-group-item small">
+                            <strong t-esc="line.name"/>:
+                            <t t-foreach="line.attachment_ids | line.prepared_attachment_ids" t-as="attachment">
+                                <a t-attf-href="#{action}file/#{attachment.id}"><i class="fa fa-download me-1"/><t t-esc="attachment.name"/></a>
+                            </t>
+                        </li>
+                    </ul>
+                </t>
+
+                <!-- Issue #703: the commitment letter, accepted on the portal (and by the family of a minor). -->
+                <t t-if="participant.commitment_pending or participant.commitment_signed_date">
+                    <h6>Commitment letter</h6>
+                    <div t-if="participant.commitment_signed_date" class="alert alert-success small o_ems_erasmus_commitment_signed">
+                        <i class="fa fa-check-circle me-1"/>Accepted and signed on
+                        <t t-out="participant.commitment_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
+                    <div t-if="participant.commitment_guardian_pending" class="alert alert-warning small o_ems_erasmus_guardian_pending">
+                        <i class="fa fa-exclamation-triangle me-1"/>Your family has to accept it too, from its own portal.
+                    </div>
+                    <div t-elif="participant.commitment_guardian_signed_date" class="alert alert-success small">
+                        <i class="fa fa-check-circle me-1"/>Signed by the family on
+                        <t t-out="participant.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
+                    <form t-if="participant.commitment_pending and participant._ems_commitment_open()" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="border rounded p-3 mb-2 small" t-out="participant._ems_commitment_text()"/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
+                            <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_commitment_sign">Accept and sign</button>
+                    </form>
+                    <div t-elif="participant.commitment_signed_text" class="border rounded p-3 mb-3 small" t-out="participant.commitment_signed_text"/>
+                </t>
+
+                <t t-set="lines" t-value="participant.document_ids"/>
+                <t t-if="lines">
+                    <h6>Your documents</h6>
+                    <form t-att-action="action + 'upload'" method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_erasmus_group_documents">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <ul class="list-group mb-2">
+                            <li t-foreach="lines" t-as="line" class="list-group-item o_ems_erasmus_group_document">
+                                <div class="d-flex justify-content-between flex-wrap gap-2">
+                                    <span>
+                                        <strong t-esc="line.name"/>
+                                        <span class="small text-muted"> - <t t-if="line.stage == 'return'">On return</t><t t-else="">Before leaving</t></span>
+                                        <span t-if="not line.is_required" class="small text-muted"> (optional)</span>
+                                    </span>
+                                    <span t-attf-class="badge #{'text-bg-success' if line.review_state == 'valid' else 'text-bg-danger' if line.review_state == 'needs_change' else 'text-bg-light'}"
+                                          t-esc="review_labels.get(line.review_state) if line.attachment_ids else ''"/>
+                                </div>
+                                <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
+                                <p t-if="line.signers" class="small mb-1">Signed by: <t t-esc="line.signers"/></p>
+                                <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
+                                <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
+                                <div t-if="line.prepared_attachment_ids" class="small mb-1">
+                                    <t t-foreach="line.prepared_attachment_ids" t-as="attachment">
+                                        <a t-attf-href="#{action}file/#{attachment.id}"><i class="fa fa-download me-1"/><t t-esc="attachment.name"/></a>
+                                    </t>
+                                </div>
+                                <div t-if="line.attachment_ids" class="small text-muted mb-1">Uploaded: <t t-esc="', '.join(line.attachment_ids.mapped('name'))"/></div>
+                                <input t-if="line.handled_by != 'team' and line._ems_is_open() and participant.state == 'active' and mobility.state in ('preparation', 'stay', 'return')"
+                                       type="file" class="form-control form-control-sm" multiple="multiple"
+                                       t-attf-name="document_#{line.call_document_id.id}"/>
+                            </li>
+                        </ul>
+                        <button t-if="participant.state == 'active' and mobility.state in ('preparation', 'stay', 'return')" type="submit" class="btn btn-primary btn-sm o_ems_erasmus_group_upload">Upload</button>
+                    </form>
+                </t>
+
+                <details t-if="registration.result == 'selected' and mobility.state in ('preparation', 'stay')" class="mt-4 o_ems_erasmus_group_renounce">
+                    <summary class="text-danger">I cannot go: renounce the place</summary>
+                    <form t-att-action="action + 'renounce'" method="post" class="mt-2">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <textarea name="reason" class="form-control form-control-sm mb-2" rows="2" placeholder="Why (optional)"/>
+                        <button type="submit" class="btn btn-outline-danger btn-sm o_ems_erasmus_group_renounce_submit">Renounce the place</button>
+                    </form>
+                </details>
+                <a href="/my/erasmus" class="btn btn-link px-0 mt-3">Back</a>
+            </div>
+        </t>
+    </template>
+</odoo>

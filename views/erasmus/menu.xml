@@ -5,7 +5,7 @@
              the Director read the applications. Issue #684: whoever has
              an interview to score (ems.group_erasmus_evaluator) sees only "My evaluations". -->
         <menuitem name="Erasmus+" sequence="9" id="menu_erasmus"
-                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_secretary,ems.group_academic_admin"/>
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_secretary,ems.group_academic_admin,ems.group_erasmus_group_teacher"/>
 
         <menuitem name="Applications" sequence="1" id="menu_erasmus_applications"
                   parent="menu_erasmus" action="action_erasmus_application"
@@ -71,5 +71,15 @@
         <menuitem name="Grant payments" sequence="12" id="menu_erasmus_payments"
                   parent="menu_erasmus" action="action_erasmus_payment"
                   groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin"/>
+
+        <!-- Issues #701-#704: group mobilities. The coordinator's overview, and each leader or
+             accompanying teacher's own ones. -->
+        <menuitem name="Group mobilities" sequence="8" id="menu_erasmus_group_mobilities"
+                  parent="menu_erasmus" action="action_erasmus_group_mobility"
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+
+        <menuitem name="My group mobilities" sequence="4" id="menu_erasmus_my_group_mobilities"
+                  parent="menu_erasmus" action="action_erasmus_my_group_mobility"
+                  groups="ems.group_erasmus_group_teacher"/>
     </data>
 </odoo>

@@ -268,3 +268,5 @@ from . import test_erasmus_grant
 from . import test_erasmus_records
 from . import test_erasmus_grant_tour
 from . import test_erasmus_staff_tour
+from . import test_erasmus_group_mobility
+from . import test_erasmus_group_mobility_tour

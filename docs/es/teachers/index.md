@@ -34,6 +34,7 @@ Esta sección contiene los manuales para los **profesores**.
 | [Puntuar una entrevista Erasmus+](erasmus-interviews.md) | Cómo puntuar, con la rúbrica de la convocatoria, las entrevistas Erasmus+ que te asigna el equipo Erasmus |
 | [Solicitar una movilidad Erasmus+ de personal](erasmus-staff-call.md) | Cómo solicitar desde el portal un job shadowing, un curso o una estancia de docencia, y seguir la solicitud |
 | [Valorar planes de movilidad Erasmus+](erasmus-plan-ratings.md) | Cómo valora el tribunal de la convocatoria del personal los planes de movilidad con la rúbrica de la convocatoria |
+| [Acompañar una movilidad de grupo Erasmus+](erasmus-group-mobility.md) | Qué hace el docente responsable (la selección, los documentos, el seguimiento, la EU Survey) y el docente acompañante |
 
 ---
 

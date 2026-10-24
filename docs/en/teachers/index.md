@@ -34,6 +34,7 @@ This section contains the manuals for **teachers**.
 | [Scoring an Erasmus+ interview](erasmus-interviews.md) | How to score, with the rubric of the call, the Erasmus+ interviews the Erasmus team assigns you |
 | [Applying for an Erasmus+ staff mobility](erasmus-staff-call.md) | How to apply from the portal for a job shadowing, a course or a teaching assignment, and follow your application |
 | [Rating Erasmus+ mobility plans](erasmus-plan-ratings.md) | How the panel of the staff call rates the mobility plans with the rubric of the call |
+| [Accompanying an Erasmus+ group mobility](erasmus-group-mobility.md) | What the leader teacher does (the selection, the documents, the follow-up, the EU Survey) and what the accompanying teacher does |
 
 ---
 

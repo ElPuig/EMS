@@ -553,15 +553,23 @@ class EmsErasmusApplication(models.Model):
 
     def _ems_participants_xlsx(self):
         """The participants as an .xlsx: one row per application, PARTICIPANT_HEADERS' columns."""
+        return self._ems_participants_workbook([application._ems_participant_row() for application in
+                                                self._ems_participants().sudo().sorted(
+                                                    lambda application: application.partner_id.name)])
+
+    @api.model
+    def _ems_participants_workbook(self, rows):
+        """The participants' spreadsheet, one sheet with PARTICIPANT_HEADERS' columns: the format an
+        external tool reads, shared by the calls and the group mobilities (issue #703); never change
+        its columns."""
         stream = io.BytesIO()
         workbook = xlsxwriter.Workbook(stream, {'in_memory': True})
         sheet = workbook.add_worksheet(PARTICIPANT_SHEET)
         bold = workbook.add_format({'bold': True})
         date_format = workbook.add_format({'num_format': 'dd/mm/yyyy'})
         sheet.write_row(0, 0, PARTICIPANT_HEADERS, bold)
-        for row, application in enumerate(self._ems_participants().sudo().sorted(
-                lambda application: application.partner_id.name), start=1):
-            values = application._ems_participant_row()
+        for row, values in enumerate(rows, start=1):
+            values = list(values)
             birth_date = values.pop(6)
             sheet.write_row(row, 0, values[:6])
             if birth_date:
@@ -576,11 +584,15 @@ class EmsErasmusApplication(models.Model):
         The legal guardian columns, only for minors: every family contact, in the same order."""
         self.ensure_one()
         if self.audience == 'staff':
-            return self._ems_staff_participant_row()
-        partner = self.partner_id
+            return self._ems_staff_row(self.employee_id, self.partner_id)
+        return self._ems_student_row(self.partner_id, self.is_minor)
+
+    @api.model
+    def _ems_student_row(self, partner, is_minor, bank=True):
+        """A student's row, from their contact; `bank` False leaves the bank columns empty."""
         group = partner.main_group_id
-        bank = partner.bank_ids[:1]
-        family = partner._ems_family_contacts() if self.is_minor else self.env['res.partner']
+        bank = partner.bank_ids[:1] if bank else self.env['res.partner.bank']
+        family = partner._ems_family_contacts() if is_minor else self.env['res.partner']
         address = partner._display_address(without_company=True).replace('\n', ', ').strip(', ')
         birth_date = partner.birth_date and fields.Datetime.to_datetime(partner.birth_date)
         return [
@@ -593,18 +605,19 @@ class EmsErasmusApplication(models.Model):
             ', '.join(contact.phone or contact.mobile or '' for contact in family),
         ]
 
-    def _ems_staff_participant_row(self):
+    @api.model
+    def _ems_staff_row(self, employee, partner, bank=True):
         """Issue #686: a staff member's row, from their employee file. The cycle, the year and the
-        legal guardian columns stay empty, and so does the gender (decided 2026-10-22)."""
-        employee = self.employee_id
-        partner = self.partner_id
-        bank = employee.bank_account_id
+        legal guardian columns stay empty, and so does the gender (decided 2026-10-22); `bank`
+        False leaves the bank columns empty too."""
+        bank = employee.bank_account_id if bank else self.env['res.partner.bank']
         address = ', '.join(filter(None, [employee.private_street, employee.private_street2, employee.private_zip,
                                           employee.private_city, employee.private_state_id.name,
                                           employee.private_country_id.name]))
         birth_date = employee.birthday and fields.Datetime.to_datetime(employee.birthday)
         return [
-            partner.firstname or employee.name or '', partner.lastname or '', self._ems_identity_document(),
+            partner.firstname or employee.name or '', partner.lastname or '',
+            employee.identification_id or employee.passport_id or '',
             employee.private_email or employee.work_email or '', employee.private_phone or employee.mobile_phone or '',
             address, birth_date, employee.country_id.name or '', '', '', '',
             bank.acc_holder_name or (bank and employee.name) or '', bank.bank_id.name or '', bank.bank_id.bic or '',
@@ -625,7 +638,7 @@ class EmsErasmusApplication(models.Model):
         Grade = self.env['ems.erasmus.application.grade'].sudo()
         for application in self.sudo():
             grades = application._ems_grade_values()
-            hours = sum(vals['hours'] for vals in grades)
+            average, hours = self._ems_grade_average(grades)
             study = application.partner_id.main_group_id.study_id
             strikes = self.env['ems.strike'].sudo().search([
                 ('student_id', '=', application.partner_id.id), ('group_id.study_id', '=', study.id),
@@ -634,27 +647,37 @@ class EmsErasmusApplication(models.Model):
             Grade.create([{**vals, 'application_id': application.id} for vals in grades])
             application.write({
                 'scoring_frozen_date': fields.Datetime.now(),
-                'grade_average_ems': round(sum(vals['grade'] * vals['hours'] for vals in grades) / hours, 2)
-                if hours else 0.0,
+                'grade_average_ems': average,
                 'grade_average_from_ems': bool(hours),
                 'strike_ids': [(6, 0, strikes.ids)],
                 'strike_count': len(strikes),
             })
 
     def _ems_grade_values(self):
-        """The modules of the applicant's current cycle for the record average, as values of
+        self.ensure_one()
+        return self._ems_partner_grade_values(
+            self.partner_id, self.call_id.course_id.name or self.env.company.current_course_id.name)
+
+    @api.model
+    def _ems_grade_average(self, grades):
+        """The record average of `_ems_partner_grade_values`' modules, weighted by their hours,
+        and those hours (0: nothing to average)."""
+        hours = sum(vals['hours'] for vals in grades)
+        return (round(sum(vals['grade'] * vals['hours'] for vals in grades) / hours, 2) if hours else 0.0), hours
+
+    @api.model
+    def _ems_partner_grade_values(self, partner, course_name):
+        """The modules of `partner`'s current cycle for the record average, as values of
         ems.erasmus.application.grade: one per module, its most recent grade (this course's
         grade lines, then the year records from the latest course). Convalidated and recognised
-        modules are left out, and so are modules with nothing evaluated."""
-        self.ensure_one()
-        partner = self.partner_id
+        modules are left out, and so are modules with nothing evaluated. Issue #701: group
+        mobilities rank with the same average."""
         study = partner.main_group_id.study_id
         if not study:
             return []
         found = {}  # module -> its values, None when it is left out
         lines = self.env['ems.grade_subject_line'].sudo().search([
             ('student_id', '=', partner.id), ('grade_session_id.subject_id.study_ids', 'in', study.ids)])
-        course_name = self.call_id.course_id.name or self.env.company.current_course_id.name
         for subject, subject_lines in lines.grouped(lambda line: line.grade_session_id.subject_id).items():
             last = max(subject_lines, key=lambda line: line.grade_session_id.round)
             if last.is_convalidated:

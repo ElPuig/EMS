@@ -23,6 +23,20 @@ class EmsErasmusExportController(http.Controller):
             ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
         ])
 
+    @http.route('/ems/erasmus/group/participants', type='http', auth='user', methods=['GET'])
+    def download_group_participants(self, participant_ids=''):
+        """Issue #703 - the same .xlsx for a group mobility's participants (selected students and
+        accompanying teachers); Erasmus team only, built on the fly and never stored."""
+        ids = [int(participant_id) for participant_id in participant_ids.split(',') if participant_id.isdigit()]
+        try:
+            content = request.env['ems.erasmus.group.participant'].browse(ids).exists()._ems_participants_xlsx()
+        except (AccessError, UserError):
+            raise request.not_found()
+        return request.make_response(content, headers=[
+            ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
+        ])
+
     @http.route('/ems/erasmus/export/<int:export_id>', type='http', auth='user', methods=['GET'])
     def download_export(self, export_id):
         """Erasmus+ documents export (a participant's record or a whole project) as a ZIP built on

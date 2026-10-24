@@ -37,7 +37,7 @@ Una fitxa d'alumne que ja existia sense Identificador d'estudiant continua funci
 
 La part superior de la fitxa recull les dades de l'alumne sense haver de canviar de pestanya:
 
-- **Nom** i **Cognoms**, amb el **Correu personal** i el **Correu corporatiu** a sota.
+- **Nom** i **Cognoms**, amb el **Correu personal** i el **Correu corporatiu** a sota. Un nom escrit tot en majúscules o tot en minúscules es desa amb les inicials en majúscula ("ASHLEY BUENO" passa a "Ashley Bueno"); si barreja majúscules i minúscules, es desa tal com s'ha escrit.
 - Tres columnes: **Contacte** (adreça, telèfons i idioma), **Identificació** (DNI/NIE, passaport, identificador d'estudiant, identificació mèdica, NUSS i matrícula del vehicle) i **Dades personals** (data de naixement, si és major d'edat, país de naixement, ciutadania, beneficis i necessitats educatives especials).
 - **Autoritzacions**: el resum Sí/No dels drets d'imatge, les excursions escolars, les dades de salut i compartir amb la família.
 

@@ -78,6 +78,14 @@ class EmsStudentBenefit(models.Model):
 # Every contact_type of a student's lifecycle. A contact of any of them is identified by its
 # Student ID (IDALU), which must be unique (issue #460).
 STUDENT_LIFECYCLE_TYPES = ('student', 'applicant', 'alumni', 'withdrawal', 'expelled')
+# Contacts whose name is a person's, given capital initials when typed all in capitals or all in
+# lower case (issue #472): students and families. Providers and staff are left as they are.
+PERSON_NAME_CONTACT_TYPES = STUDENT_LIFECYCLE_TYPES + ('family',)
+PERSON_NAME_FIELDS = ('name', 'firstname', 'lastname')
+# Words kept in lower case inside a name ("de la Fuente", "Puig i Cadafalch"), unless they start it.
+# Not "el": here it mostly starts an Arabic surname ("El Maazouzi"), which keeps its capital.
+NAME_PARTICLES = frozenset({'de', 'del', 'la', 'las', 'les', 'los', 'i', 'y', 'da', 'das', 'do', 'dos',
+                            'di', 'du', 'van', 'von', 'der'})
 
 class ResPartner(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.base, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
@@ -924,6 +932,54 @@ class ResPartner(models.Model):
         if 'student_id' in values:
             values['student_id'] = (values['student_id'] or '').strip() or False
 
+    @api.model
+    def _ems_normalize_person_name(self, value):
+        """`value` with capital initials if it was typed all in capitals or all in lower case
+        ("ASHLEY BUENO", "laila" -> "Ashley Bueno", "Laila"), the particles in lower case unless
+        they start it, and a capital after a hyphen or an apostrophe ("D'Amico", "Pérez-Luna"). A
+        value with mixed case was written that way on purpose ("McKenzie") and is returned as is, and
+        so is a word with digits, a code rather than a name."""
+        if not isinstance(value, str) or not any(char.isalpha() for char in value) \
+                or value not in (value.upper(), value.lower()):
+            return value
+
+        def normalize_word(index, word):
+            if any(char.isdigit() for char in word):
+                return word  # a code, not a name ("E2E")
+            word = word.lower()
+            if index and word in NAME_PARTICLES:
+                return word
+            return re.sub(r"(^|[-'’])(\w)", lambda match: match.group(1) + match.group(2).upper(), word)
+        return ' '.join(normalize_word(index, word) for index, word in enumerate(value.split(' ')))
+
+    @api.model
+    def _ems_normalize_person_name_values(self, values):
+        for field in ('firstname', 'lastname'):
+            if field in values:
+                values[field] = self._ems_normalize_person_name(values[field])
+        name = values.get('name')
+        if isinstance(name, str) and self._ems_normalize_person_name(name) != name:
+            # Decided on the whole name ("E2E Import Test" has mixed case: left alone), then
+            # normalized the way partner_firstname splits it with the centre's "first_last" order
+            # (first word, then the last names), so the last names come out the same as when they
+            # are typed on their own: "maria de la fuente" -> "Maria" + "De la Fuente".
+            values['name'] = ' '.join(self._ems_normalize_person_name(part) for part in name.split(' ', 1))
+
+    @api.model
+    def _ems_normalize_stored_person_names(self):
+        """Give capital initials to the students' and families' names stored before they were
+        normalized on the way in (issue #472): run once by migrations/18.0.0.40.0. Through the ORM,
+        so the complete name follows and a student's Google account is renamed too (#542)."""
+        partners = self.with_context(active_test=False).search([('contact_type', 'in', PERSON_NAME_CONTACT_TYPES)])
+        fixed = 0
+        for partner in partners:
+            values = {field: self._ems_normalize_person_name(partner[field]) for field in ('firstname', 'lastname')}
+            values = {field: value for field, value in values.items() if value != partner[field]}
+            if values:
+                partner.write(values)
+                fixed += 1
+        return fixed
+
     def _ems_check_student_id_available(self, student_id):
         """Raise if `student_id` already belongs to a contact other than `self`, archived
         contacts included. Naming the holder is what sends the user to the existing record of
@@ -1014,6 +1070,8 @@ class ResPartner(models.Model):
             # with the Students action's default_contact_type='student' but becomes a family.
             self._ems_normalize_student_id(entry)
             contact_type = entry.get('contact_type', self.env.context.get('default_contact_type'))
+            if contact_type in PERSON_NAME_CONTACT_TYPES:
+                self._ems_normalize_person_name_values(entry)
             if contact_type in STUDENT_LIFECYCLE_TYPES and not entry.get('student_id'):
                 name = entry.get('name') or ' '.join(
                     filter(None, (entry.get('firstname'), entry.get('lastname'))))
@@ -1055,6 +1113,11 @@ class ResPartner(models.Model):
             self._ems_store_private_notes(values.pop('private_notes'))
             if not values:
                 return True
+        if set(PERSON_NAME_FIELDS) & set(values) and self and (
+                values.get('contact_type') in PERSON_NAME_CONTACT_TYPES
+                or all(partner.contact_type in PERSON_NAME_CONTACT_TYPES for partner in self)):
+            values = dict(values)
+            self._ems_normalize_person_name_values(values)
         self._ems_normalize_student_id(values)
         self._ems_check_student_id_on_write(values)
         self._ems_check_orientation_write(values)

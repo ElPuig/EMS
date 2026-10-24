@@ -12,3 +12,4 @@ ems.mail_activity_absence_direction_review,Direction review of the absence,defau
 ems.mail_activity_absence_document_overdue,Absence supporting document not attached,default,hr.leave,fa-exclamation-triangle,False
 ems.mail_activity_absence_atri_request,Confirm the absence is requested in ATRI,default,hr.leave,fa-external-link,False
 ems.mail_activity_absence_atri_overdue,Absence not confirmed in ATRI,default,hr.leave,fa-exclamation-triangle,False
+ems.mail_activity_contact_data_review,Review contact data changes,default,ems.contact.data.request,fa-address-card-o,False

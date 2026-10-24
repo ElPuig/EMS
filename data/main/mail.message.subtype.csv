@@ -1,2 +1,3 @@
 id,name,description,res_model,default,internal,hidden
 ems.mt_enrollment_payment,Payment received,A payment of an enrollment installment has been registered.,sale.order,False,False,False
+ems.mt_contact_data_request,Contact data,"Contact data review: the request, the changes sent and the result of the review.",ems.contact.data.request,False,False,True

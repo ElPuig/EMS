@@ -62,3 +62,5 @@ Feu clic a **Enviar**. Si falta un camp o no és vàlid, surt marcat en vermell:
 ![El formulari enviat incomplet: un missatge a dalt i els camps que falten marcats en vermell](../../assets/families/dades-contacte-04-errors.png)
 
 El centre revisa els canvis abans d'aplicar-los. Mentrestant, podeu tornar a obrir la pàgina, corregir-los i tornar-los a enviar. Si el centre us els retorna, rebeu un correu que indica què cal corregir.
+
+A la pàgina **Comunicacions** queda registrat el que heu enviat i si el centre ho aprova o us ho retorna, amb el motiu.

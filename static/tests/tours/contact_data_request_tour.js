@@ -184,6 +184,14 @@ registry.category("web_tour.tours").add("ems_contact_data_tutor", {
             trigger: "body:not(:has(.o_dialog))",
         },
         {
+            trigger: ".o-mail-Chatter .o-mail-Activity",
+            content: "The tutor has the activity to review what the family sent (issue #700)",
+        },
+        {
+            trigger: ".o-mail-Chatter .o-mail-Message-body:contains('Contact data changes sent for review')",
+            content: "The chatter logs what was sent, as the family's Communications do",
+        },
+        {
             trigger: ".o_form_view button[name='action_approve']",
             content: "Approve them",
             run: "click",
@@ -191,6 +199,14 @@ registry.category("web_tour.tours").add("ems_contact_data_tutor", {
         {
             trigger: ".o_form_view:not(:has(button[name='action_approve']))",
             content: "Approved: nothing left to approve",
+        },
+        {
+            trigger: ".o-mail-Chatter .o-mail-Message-body:contains('Contact data changes approved')",
+            content: "The approval is logged",
+        },
+        {
+            trigger: ".o-mail-Chatter:not(:has(.o-mail-Activity))",
+            content: "and the review activity is closed",
         },
     ],
 });

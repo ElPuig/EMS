@@ -131,6 +131,7 @@
                             </form>
                         </field>
                     </sheet>
+                    <chatter/>
                 </form>
             </field>
         </record>

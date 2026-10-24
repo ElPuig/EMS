@@ -62,3 +62,5 @@ Click **Send**. If a field is missing or not valid, it is marked in red: correct
 ![The form sent incomplete: a message at the top and the missing fields marked in red](../../assets/families/dades-contacte-04-errors.png)
 
 The school reviews the changes before applying them. Until then, you can open the page again, correct them and send them again. If the school returns them, you receive an email explaining what to correct.
+
+The **Communications** page records what you have sent and whether the school approves it or returns it, with the reason.

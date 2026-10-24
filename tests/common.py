@@ -105,16 +105,22 @@ def next_student_id():
     return f"TEST{next(_test_student_id_sequence):06d}"
 
 
-def build_academic_record_pdf(student_identifier, study_token, courses, student_name='Inventat , Alumne'):
+def build_academic_record_pdf(student_identifier, study_token, courses, student_name='Inventat , Alumne',
+                              printed=False):
     """An invented Esfera academic record ("Expedient acadèmic") PDF, laid out in columns like the
     real one so pdftotext reads it the same way (issue #585). Never use a real certificate in a
     test: it carries a real student's name, document number and signatures.
 
     courses: list of (centre_code, centre_name, 'YYYY/YYYY', rows), each row a tuple
     (code, name, type, qualification[, hours]) - type 'MP', 'RA', 'EM' or 'MP_' (an optional
-    module of the issuing centre)."""
-    from reportlab.pdfgen import canvas
+    module of the issuing centre).
 
+    printed: Esfera's record screen printed to PDF instead (issue #705): no study token in the
+    heading, blank lines in the centre block, the course as 'YYYY-YYYY  1er', and outcome rows with
+    no level, their code in the middle of their name wrapped over three lines. Give the
+    qualifications as that screen shows them ('A8', 'PQ', 'PDT'...)."""
+    if printed:
+        return _build_printed_academic_record_pdf(student_identifier, courses, student_name)
     lines = [
         f"Expedient acadèmic{' ' * 40}CFPM    {study_token}",
         "Dades de l'alumne/a",
@@ -140,6 +146,44 @@ def build_academic_record_pdf(student_identifier, study_token, courses, student_
             if wrapped:
                 lines.append(f"{'':<72}qualificar")
         lines += ["Observacions", "Accedeix al curs següent"]
+    return _academic_record_lines_to_pdf(lines)
+
+
+def _build_printed_academic_record_pdf(student_identifier, courses, student_name):
+    lines = [
+        f"Expedient acadèmic{' ' * 60}Formació professional",
+        "Dades de l'alumne/a",
+        f"{'Cognoms i nom':<36}{'Identificador de l' + chr(39) + 'alumne/a':<32}Tipus i número de document",
+        f"{student_name:<36}{student_identifier:<32}DNI: X0000000X",
+    ]
+    for centre_code, centre_name, course, rows in courses:
+        lines += [
+            "Centre que avalua",
+            "",
+            f"{'Codi':<30}Nom",
+            f"{centre_code:<30}{centre_name}",
+            "",
+            f"{'Curs acadèmic':<30}{'Nivell':<33}Ensenyament",
+            f"{course.replace('/', '-'):<30}{'1er':<33}Estudi Inventat (Nova FP)",
+            "",
+            "Resultats de l'avaluació",
+            " Nivell   Codi                 Nom                                 Tipus (MP/RA/EM)   Qualificació   Convocatòria   Hores",
+        ]
+        for code, name, kind, qualification, *hours in rows:
+            hours_column = f"{hours[0]:>8}" if hours else ''
+            if kind in ('RA', 'EM'):
+                lines += [f"{'':<30}{name} begins here and",
+                          f"{'':<10}{code:<20}carries on next to its code{'':<14}{kind:<9}{qualification:<14}{hours_column}",
+                          f"{'':<30}and ends on a third line.", ""]
+            else:
+                lines += [f"   1      {code:<20}{name:<44}{kind:<9}{qualification:<14}1{hours_column}", ""]
+        lines += ["Qualificació final", "Observacions"]
+    return _academic_record_lines_to_pdf(lines)
+
+
+def _academic_record_lines_to_pdf(lines):
+    from reportlab.pdfgen import canvas
+
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer)
     pdf.setFont('Courier', 7)

@@ -21120,8 +21120,8 @@ msgstr "%s resultados de aprendizaje de la programación no constan en el certif
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/external_record_wizard.py:0
-msgid "Another student's certificate"
-msgstr "Certificado de otro alumno"
+msgid "Check the certificate's student"
+msgstr "Comprobad el alumno/a del certificado"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_code
@@ -26645,3 +26645,16 @@ msgstr "El centro pide revisar los datos de contacto para el curso %s."
 #: model:mail.activity.type,name:ems.mail_activity_contact_data_review
 msgid "Review contact data changes"
 msgstr "Revisar cambios de datos de contacto"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The student identifier could not be read from the certificate, so it cannot be checked against the student's IDALU."
+msgstr "No se ha podido leer el identificador del alumno/a del certificado y no se puede comprobar con su IDALU."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+#, python-format
+msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
+msgstr "%(student)s no tiene IDALU para comprobar el del certificado (%(identifier)s): rellenadlo primero."

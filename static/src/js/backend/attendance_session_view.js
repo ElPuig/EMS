@@ -180,7 +180,7 @@ class AttendanceSessionView extends Component {
         const allGroups = new Set([
             ...filteredSessions.map(s => this._groupFromScheduleName(
                 s.attendance_schedule_id ? s.attendance_schedule_id[1] : '')),
-            ...filteredPlanned.map(s => this._groupFromScheduleName(s.name || '')),
+            ...filteredPlanned.map(s => this._groupFromScheduleName(s.display_name || '')),
         ]);
         allGroups.delete('');
         this.state.groups = [...allGroups].sort();
@@ -201,7 +201,7 @@ class AttendanceSessionView extends Component {
         const allGroups = new Set([
             ...sessions.map(s => this._groupFromScheduleName(
                 s.attendance_schedule_id ? s.attendance_schedule_id[1] : '')),
-            ...planned.map(s => this._groupFromScheduleName(s.name || '')),
+            ...planned.map(s => this._groupFromScheduleName(s.display_name || '')),
         ]);
         allGroups.delete('');
         this.state.groups = [...allGroups].sort();
@@ -384,7 +384,7 @@ class AttendanceSessionView extends Component {
     get filteredPlanned() {
         if (!this.state.selectedGroup) return this.state.planned;
         return this.state.planned.filter(s =>
-            this._groupFromScheduleName(s.name || '') === this.state.selectedGroup
+            this._groupFromScheduleName(s.display_name || '') === this.state.selectedGroup
         );
     }
 
@@ -408,7 +408,7 @@ class AttendanceSessionView extends Component {
     }
 
     scheduleLabel(s) {
-        return s.name || s.time_range;
+        return s.display_name || s.time_range;
     }
 
     avatarUrl(line) {

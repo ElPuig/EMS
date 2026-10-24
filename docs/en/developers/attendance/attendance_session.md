@@ -35,6 +35,18 @@ one hop further down.
 against two teachers creating the same day's session twice; `create()` catches the resulting
 `IntegrityError` and re-raises as a friendly `ValidationError`.
 
+`_check_class_taken_once` (`@api.constrains('date', 'attendance_schedule_id')`) — one roll-call per
+class and day, whichever schedule line it hangs from. A line that already has sessions is never
+edited when its room changes: the sync archives it and creates a copy with the same template,
+weekday and hours (`ems.attendance_mixin._write_or_new_version`), which the `UNIQUE` above can't
+tell apart from the original. Without this check, a teacher consulting a day taken before the
+change could start a second session of the same class, counting it twice in every student's
+attendance and absence rate (issue #699). A session is rejected when another session of the same
+date and template overlaps its hours (consecutive hours of the same template are different
+classes, a continuation). It checks every session of the day, under `sudo()` and with
+`active_test=False` (the other session may be another teacher's, on an archived line), through
+`_taken_time_slots(date)` + `_is_slot_taken(taken, schedule)`, shared with the selector below.
+
 ---
 
 ## `_auto_populate_lines`: continuation vs. fresh roll-call
@@ -206,7 +218,12 @@ flowchart TD
 `ems.group_academic_admin` membership and running under `sudo()` internally (a guard teacher
 needs to see/edit sessions they don't personally own). `get_guard_sessions` returns today's
 sessions **excluding** the caller's own (already shown in normal mode); `get_guard_planned`
-returns not-yet-created schedules for **other** teachers today. `create_scheduled_session`
+returns not-yet-created schedules for **other** teachers today. Both `get_guard_planned` and
+`get_normal_sessions_and_planned` build their planned slots through `_read_planned`, which leaves
+out any line whose class already has a session that day (`_is_slot_taken`: same template,
+overlapping hours, any line, archived or not), so a line replaced after a room change is never
+offered again on the days taken with the original. Planned slots are labelled with the line's
+`display_name` (weekday in the reader's language), like the sessions. `create_scheduled_session`
 is the click-to-start-a-session entry point (when the caller has no teaching employee, e.g. an
 admin, who sees every slot, the session's teacher is the slot's own first template teacher instead
 of the caller - `teacher_ids` is required on the template, so there always is one), returning whether the new session is a

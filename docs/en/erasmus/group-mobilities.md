@@ -24,7 +24,8 @@ Teachers go through no staff call: once saved, they see the mobility in **Erasmu
 ## Ranking and selection
 
 - When the enrolment period ends (or with **Close the enrolment now**), EMS freezes each enrolment's data: the group, the **record average** (the same formula as the internship call) and this course's conduct warnings. A student not in an eligible group, or with as many conduct warnings as the limit that alerts the coexistence team (or more), is excluded.
-- The order is by average and, in a tie, by the fewer opportunities accredited. If somebody declared fewer opportunities, check it in the **Selection** tab (*Fewer opportunities accredited* column). If a tie remains, it is resolved by a **draw**: EMS flags it and the proposal cannot be sent until the Erasmus coordinator clicks **Draw the ties** in **Actions**. EMS orders only the tied students at random and records the result, who ran it and when in the mobility's history.
+- The order is by average and, in a tie, by the fewer opportunities accredited. If somebody declared fewer opportunities, check it in the **Selection** tab (*Fewer opportunities accredited* column). If a tie remains, it is resolved by a **draw**: EMS flags it and the proposal cannot be sent until the Erasmus coordinator clicks **Draw the ties** in **Actions**. EMS orders only the tied students at random. Each draw is kept in the **Selection** tab, under **Draws**: who ran it, when, what the students were tied on and the order drawn. Nobody can change or delete it. If another student joins a tie already drawn (for example, after entering their average), the tie has to be drawn again, and both draws are kept.
+- **Students with no grades:** if an eligible student has no evaluated module, EMS does not give them a 0: they are left out of the ranking and the mobility shows a red warning. Neither the proposal nor the approval can go ahead until it is solved, in the **Selection** tab: tick *Average entered by hand* and write the average and *Where the average comes from* (for example, the academic record), or the coordinator excludes the student with an *Exception* and its reason.
 - The leader teacher reviews the ranking and sends the proposal. You get a task: in **Actions**, **Approve and publish the selection** (each student receives their own result by email) or **Send the proposal back** with the reason.
 - To make an exception to the ranking, set the *Exception* and its *Reason for the exception* in the **Selection** tab before approving.
 
@@ -35,6 +36,16 @@ If a selected student renounces (from the portal or through the leader teacher),
 ## Files and documents
 
 Approving the selection opens the file of each selected student and of both teachers. The **Documents** tab has the group's **shared documents** (the group learning agreement, once for everyone; the final list of participants; agreements, travel, inclusion —confidential— and evidence) and the list of **documents asked for**, which you can adapt to each mobility: who each document is for (the group, each student, each teacher or everybody), whether it is required or only for minors, who signs it and its deadline. After changing the list, click **Update documents**.
+
+## Commitment letter
+
+Each selected student accepts the mobility's **commitment letter** on the portal and, for a minor, the family too, from its own portal (EMS emails the family when the file opens). It is the same procedure as in the internships: the person ticks that they accept and EMS keeps who accepted it, when and from where, together with the exact text accepted. The letter is common to every group mobility and EMS fills it in with each one's data (destination, host entity and dates once confirmed; until then it says they are to be confirmed). It includes the authorisation to take part, taking part in the programme, the centre's coexistence rules and the teachers' instructions, the measures for serious breaches under the centre's rules and protocols, and communication with the centre.
+
+To add conditions of your own, write them in *Additional conditions* (**Participants** tab). A letter already accepted keeps the text it was accepted with. The mobility shows how many letters are pending, and a participant is not ready to leave until theirs is accepted. The letter **does not replace** the official authorisation for minors to travel abroad: that one is still a document of each minor's file.
+
+## Participants' spreadsheet
+
+In **Actions**, **Export participants (Excel)** downloads the selected students and the accompanying teachers in the same spreadsheet as the calls (same columns). Teachers have the cycle, year and legal guardian columns empty; the bank columns are empty for everyone, since a group mobility pays its expenses collectively.
 
 ## Stay, EU Survey and closure
 

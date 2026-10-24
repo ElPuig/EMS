@@ -7,6 +7,8 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.tools import format_date
+from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 
 STATES = [('draft', "Draft"), ('enrolment', "Enrolment"), ('selection', "Selection"),
           ('validation', "Waiting for validation"), ('preparation', "Preparation"), ('stay', "During the stay"),
@@ -15,6 +17,8 @@ STATES = [('draft', "Draft"), ('enrolment', "Enrolment"), ('selection', "Selecti
 FILE_STATES = ('preparation', 'stay', 'return')
 RESULTS = [('selected', "Selected"), ('reserve', "Reserve"), ('excluded', "Excluded"), ('renounced', "Renounced")]
 EXCLUSIONS = [('group', "Not in the eligible group"), ('conduct', "Too many conduct warnings this course")]
+# What the Erasmus team enters for a student with no grades in EMS (issue #702).
+GRADE_FIELDS = ('grade_manual', 'grade_average_manual', 'grade_manual_reason')
 ROLES = [('student', "Student"), ('leader', "Leader teacher"), ('companion', "Accompanying teacher")]
 # Who a group mobility's document is for.
 GROUP_AUDIENCES = [('collective', "The group (shared)"), ('student', "Each student"),
@@ -89,6 +93,10 @@ class EmsErasmusGroupMobility(models.Model):
     travel_date_back = fields.Date(string="Return travel", tracking=True)
     programme = fields.Html(string="Activity programme", help="The group's programme and calendar.")
     leader_notes = fields.Text(string="Leader's notes")
+    commitment_extra = fields.Html(
+        string="Additional conditions",
+        help="Added to the common commitment letter of this mobility, which each student (and the family of a minor) "
+             "accepts on the portal. A letter already accepted keeps the text it was accepted with.")
     cancel_reason = fields.Text(string="Reason for cancelling", tracking=True)
 
     registration_ids = fields.One2many(string="Enrolments", comodel_name='ems.erasmus.group.registration',
@@ -138,6 +146,14 @@ class EmsErasmusGroupMobility(models.Model):
     documents_to_review = fields.Integer(string="Documents to review", compute='_compute_counts')
     is_enrolling = fields.Boolean(string="Accepting enrolments", compute='_compute_is_enrolling')
     needs_draw = fields.Boolean(string="Tie to resolve", compute='_compute_counts')
+    grade_incidents = fields.Integer(string="Students with no grades", compute='_compute_counts',
+                                     help="Eligible enrolments with no evaluated module: the Erasmus team resolves "
+                                          "each one before the ranking can be closed.")
+    commitments_pending = fields.Integer(string="Commitment letters pending", compute='_compute_counts',
+                                         help="Selected students whose letter is not accepted yet, by them or, for a "
+                                              "minor, by their family.")
+    draw_ids = fields.One2many(string="Draws", comodel_name='ems.erasmus.group.draw',
+                               inverse_name='group_mobility_id', readonly=True)
     next_reserve = fields.Char(string="Next reserve", compute='_compute_counts',
                                help="With a place free, the best-ranked reserve without a substitution proposed.")
     user_role = fields.Selection(string="Your role", selection=[('team', "Erasmus team"), *ROLES[1:]],
@@ -146,7 +162,9 @@ class EmsErasmusGroupMobility(models.Model):
     expense_amount = fields.Monetary(string="Total of the collective expenses", compute='_compute_expense_amount')
 
     @api.depends('registration_ids.state', 'registration_ids.result', 'registration_ids.proposed_result',
-                 'registration_ids.needs_draw', 'registration_ids.substitution_state', 'participant_ids.state',
+                 'registration_ids.needs_draw', 'registration_ids.grade_incident',
+                 'registration_ids.substitution_state', 'participant_ids.state',
+                 'participant_ids.commitment_pending', 'participant_ids.commitment_guardian_pending',
                  'participant_ids.document_ids.review_state', 'participant_ids.document_ids.attachment_ids',
                  'document_ids.review_state', 'document_ids.attachment_ids', 'student_places')
     def _compute_counts(self):
@@ -161,6 +179,10 @@ class EmsErasmusGroupMobility(models.Model):
             mobility.selected_count = results.count('selected')
             mobility.reserve_count = results.count('reserve')
             mobility.needs_draw = any(registrations.mapped('needs_draw'))
+            mobility.grade_incidents = len(registrations.filtered('grade_incident'))
+            mobility.commitments_pending = len(mobility.participant_ids.filtered(
+                lambda participant: participant.state == 'active' and participant.role == 'student'
+                and (participant.commitment_pending or participant.commitment_guardian_pending)))
             lines = mobility.document_ids | mobility.participant_ids.filtered(
                 lambda participant: participant.state == 'active').document_ids
             mobility.documents_missing = len(lines.filtered(lambda line: line._ems_group_missing()))
@@ -386,33 +408,54 @@ class EmsErasmusGroupMobility(models.Model):
         """The rank of the eligible enrolments: record average descending, then the fewer
         opportunities accredited, then the draw order the coordination sets for a tie it resolves.
         The first ones, as many as places, are proposed as selected; the rest, as reserves in that
-        order. Not eligible: excluded. Only before the selection is approved: then it is frozen."""
+        order. Not eligible: excluded. An eligible student with no average (no evaluated module and
+        none entered by the Erasmus team) is not ranked: never as a 0, it is an incident to resolve.
+        A tie is resolved once every one in it has a different draw position: someone joining an
+        already drawn tie (a later accreditation, an average entered) reopens it for a new draw.
+        Only before the selection is approved: then it is frozen."""
         for mobility in self.sudo():
             if mobility.state not in ('selection', 'validation'):
                 continue
             enrolled = mobility.registration_ids.filtered(lambda registration: registration.state == 'enrolled')
-            eligible = enrolled.filtered('eligible').sorted(lambda registration: registration._ems_rank_key())
-            keys = [registration._ems_rank_key() for registration in eligible]
+            eligible = enrolled.filtered('eligible')
+            ranked = eligible.filtered('has_average').sorted(lambda registration: registration._ems_rank_key())
+            ties = ranked.grouped(lambda registration: registration._ems_tie_key())
             for registration in enrolled - eligible:
                 registration._ems_write({'rank': 0, 'needs_draw': False, 'proposed_result': 'excluded'})
-            for index, registration in enumerate(eligible):
+            for registration in eligible - ranked:
+                registration._ems_write({'rank': 0, 'needs_draw': False, 'proposed_result': False})
+            for index, registration in enumerate(ranked):
+                tie = ties[registration._ems_tie_key()]
+                orders = tie.mapped('draw_order')
                 registration._ems_write({
-                    'rank': index + 1, 'needs_draw': keys.count(keys[index]) > 1,
+                    'rank': index + 1, 'needs_draw': len(tie) > 1 and (0 in orders or len(set(orders)) < len(tie)),
                     'proposed_result': 'selected' if index < mobility.student_places else 'reserve'})
 
-    def action_submit_proposal(self):
-        """The leader sends the proposal to the Erasmus coordinator: every tie resolved and every
-        declared fewer-opportunities situation checked first."""
-        self._ems_check_role('team', 'leader')
-        self._ems_check_state('selection')
+    def _ems_check_selection_ready(self):
+        """What has to be resolved before the leader sends the proposal and before the
+        coordinator approves it."""
         for mobility in self:
             registrations = mobility.sudo().registration_ids.filtered(
                 lambda registration: registration.state == 'enrolled')
             if registrations.filtered(lambda registration: registration.eligible and registration.fewer_opportunities
                                       and registration.fewer_opportunities_check == 'pending'):
                 raise UserError(_("The Erasmus team still has to check a declared situation of fewer opportunities."))
+            incidents = registrations.filtered('grade_incident')
+            if incidents:
+                raise UserError(_(
+                    "These students have no evaluated module, so they have no record average: the Erasmus team "
+                    "enters it by hand with the reason, or the coordinator excludes them with a reason. %s",
+                    ", ".join(incidents.partner_id.mapped('name'))))
             if mobility.needs_draw:
                 raise UserError(_("There is a tie the Erasmus coordination has to resolve first."))
+
+    def action_submit_proposal(self):
+        """The leader sends the proposal to the Erasmus coordinator: every tie resolved and every
+        declared fewer-opportunities situation checked and every student with no grades resolved
+        first."""
+        self._ems_check_role('team', 'leader')
+        self._ems_check_state('selection')
+        self._ems_check_selection_ready()
         self._ems_activities_done()
         self._ems_set_state('validation', proposal_date=fields.Datetime.now(), proposal_user_id=self.env.uid,
                             return_note=False)
@@ -423,21 +466,32 @@ class EmsErasmusGroupMobility(models.Model):
     def action_draw_ties(self):
         """The Erasmus coordinator resolves the ties that remain after the record average and the
         fewer opportunities by a draw: EMS orders each tied set at random (a cryptographically
-        secure generator) and records the result, who ran it and when in the chatter. Ties only:
-        it never moves anyone else."""
+        secure generator) and keeps, as a record nobody can change (ems.erasmus.group.draw), who
+        ran it, when, the exact set of students tied with what they were tied on, and the order
+        drawn; also summed up in the chatter. Ties only: it never moves anyone else."""
         self._ems_check_coordinator()
         self._ems_check_state('selection', 'validation')
         randomizer = secrets.SystemRandom()
+        Draw = self.env['ems.erasmus.group.draw'].sudo()
         for mobility in self.sudo():
-            tied = mobility.registration_ids.filtered('needs_draw')
+            tied = mobility.registration_ids.filtered(lambda registration: registration.state == 'enrolled'
+                                                      and registration.needs_draw)
             if not tied:
                 raise UserError(_("There is no tie to draw in %s.", mobility.name))
             lines = []
-            for _key, registrations in tied.grouped(lambda registration: registration._ems_rank_key()[:2]).items():
-                drawn = list(registrations)
+            now = fields.Datetime.now()
+            for registrations in tied.grouped(lambda registration: registration._ems_tie_key()).values():
+                drawn = list(registrations.sorted(lambda registration: registration.partner_id.name))
                 randomizer.shuffle(drawn)
                 for order, registration in enumerate(drawn, 1):
                     registration._ems_write({'draw_order': order})
+                Draw.create({
+                    'group_mobility_id': mobility.id, 'user_id': self.env.uid, 'date': now,
+                    'grade_average': drawn[0]._ems_average(),
+                    'fewer_opportunities': drawn[0].fewer_opportunities_check == 'yes',
+                    'line_ids': [(0, 0, {'registration_id': registration.id, 'partner_id': registration.partner_id.id,
+                                         'position': order}) for order, registration in enumerate(drawn, 1)],
+                })
                 lines.append(", ".join(f"{order}. {registration.partner_id.name}"
                                        for order, registration in enumerate(drawn, 1)))
             mobility._ems_rank()
@@ -463,6 +517,7 @@ class EmsErasmusGroupMobility(models.Model):
         student (only their own), and every participant's file opens."""
         self._ems_check_coordinator()
         self._ems_check_state('validation')
+        self._ems_check_selection_ready()
         self._ems_activities_done()
         today = self.env['ems.datetime_utils'].get_local_today()
         for mobility in self.sudo():
@@ -520,9 +575,11 @@ class EmsErasmusGroupMobility(models.Model):
     def _ems_default_requirements(self):
         """What a KA121-VET group mobility asks for by default (editable on each mobility): the
         group learning agreement once for everyone, the participants list, and each participant's
-        own documents. Students: grant agreement, health card, family authorisations of minors,
-        insurance and the Europass mobility document; teachers: grant agreement and certificate of
-        stay. No individual learning agreement: the group one covers every student."""
+        own documents. Students: grant agreement, health card, the official authorisation for
+        minors to travel abroad, insurance and the Europass mobility document; teachers: grant
+        agreement and certificate of stay. No individual learning agreement: the group one covers
+        every student. The family's authorisation to take part is the commitment letter, accepted
+        on the portal (ems.erasmus.commitment), not a document."""
         team = {'handled_by': 'team'}
         documents = [
             {'group_audience': 'collective', 'name': _("Group learning agreement"), **team, 'sign_coordinator': True,
@@ -545,8 +602,6 @@ class EmsErasmusGroupMobility(models.Model):
              'description': _("The Erasmus team uploads it filled in: download it, sign it and upload it signed.")},
             {'group_audience': 'student', 'name': _("European Health Insurance Card"), 'sepie_folder': '05_Seguros',
              'description': _("Both sides, valid for the whole stay.")},
-            {'group_audience': 'student', 'name': _("Family authorisation to travel"), 'requirement': 'minor',
-             'sign_guardian': True, 'sepie_folder': '03_Vinculacion'},
             {'group_audience': 'student', 'name': _("Authorisation for minors to travel abroad"),
              'requirement': 'minor', 'sepie_folder': '03_Vinculacion',
              'description': _("Processed with the Mossos d'Esquadra.")},
@@ -660,6 +715,24 @@ class EmsErasmusGroupMobility(models.Model):
         self._ems_activities_done()
         self._ems_set_state('cancelled')
 
+    def action_export_participants(self):
+        """The participants' spreadsheet (the selected students and the accompanying teachers),
+        served by EmsErasmusExportController in the same format as the calls' one."""
+        self.ensure_one()
+        participants = self._ems_export_participants()
+        return {
+            'type': 'ir.actions.act_url',
+            'url': f"/ems/erasmus/group/participants?participant_ids={','.join(map(str, participants.ids))}",
+            'target': 'download',
+        }
+
+    def _ems_export_participants(self):
+        self._ems_check_role('team')
+        participants = self.sudo().participant_ids.filtered(lambda participant: participant.state == 'active')
+        if not participants:
+            raise UserError(_("%s has no participants yet.", self.name))
+        return participants
+
     def action_view_participants(self):
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_group_participant')
@@ -703,7 +776,18 @@ class EmsErasmusGroupRegistration(models.Model):
     grade_average = fields.Float(string="Record average", digits=(4, 2), readonly=True,
                                  help="Calculated by EMS as in the internship call, frozen at closing.")
     grade_found = fields.Boolean(string="Has grades", readonly=True,
-                                 help="Without any evaluated module the average counts as 0.")
+                                 help="Without any evaluated module there is no average: an incident the Erasmus "
+                                      "team resolves before the ranking can be closed, never a 0.")
+    grade_manual = fields.Boolean(string="Average entered by hand", tracking=True,
+                                  help="The Erasmus team enters the record average of a student EMS has no grades of "
+                                       "(e.g. from the academic record), with the reason.")
+    grade_average_manual = fields.Float(string="Average entered", digits=(4, 2), tracking=True)
+    grade_manual_reason = fields.Text(string="Where the average comes from", tracking=True)
+    has_average = fields.Boolean(string="Has an average", compute='_compute_grade_incident', store=True)
+    grade_incident = fields.Boolean(
+        string="No grades", compute='_compute_grade_incident', store=True,
+        help="Eligible with no evaluated module: until the team enters the average by hand or the coordinator "
+             "excludes the student with a reason, the ranking cannot be closed.")
     strike_count = fields.Integer(string="Conduct warnings this course", readonly=True,
                                   groups='ems.group_erasmus,ems.group_academic_admin')
     exclusion = fields.Selection(string="Reason not eligible", selection=EXCLUSIONS, readonly=True,
@@ -747,6 +831,14 @@ class EmsErasmusGroupRegistration(models.Model):
             ranks = sorted(reserves.mapped('rank'))
             registration.reserve_position = ranks.index(registration.rank) + 1 if registration in reserves else 0
 
+    @api.depends('state', 'eligible', 'grade_found', 'grade_manual', 'result_override')
+    def _compute_grade_incident(self):
+        for registration in self:
+            registration.has_average = registration.grade_found or registration.grade_manual
+            registration.grade_incident = (registration.state == 'enrolled' and registration.eligible
+                                           and not registration.has_average
+                                           and registration.result_override != 'excluded')
+
     def _compute_substitute_id(self):
         for registration in self:
             registration.substitute_id = self.search([('substitute_for_id', '=', registration.id)], limit=1)
@@ -762,9 +854,8 @@ class EmsErasmusGroupRegistration(models.Model):
         if not self.env.su and not self.env.context.get('ems_erasmus_state'):
             for registration in self:
                 role = registration.group_mobility_id._ems_role()
-                allowed = {'fewer_opportunities_check', 'result_override', 'override_reason',
-                           'exception_request'} if role == 'team' else {'exception_request'} if role == 'leader' \
-                    else set()
+                allowed = {'fewer_opportunities_check', 'result_override', 'override_reason', 'exception_request',
+                           *GRADE_FIELDS} if role == 'team' else {'exception_request'} if role == 'leader' else set()
                 if set(vals) - allowed:
                     raise AccessError(_("You cannot change this enrolment."))
                 if registration.group_mobility_id.state not in ('selection', 'validation'):
@@ -772,9 +863,17 @@ class EmsErasmusGroupRegistration(models.Model):
             if {'result_override', 'override_reason'} & set(vals):
                 self.group_mobility_id._ems_check_coordinator()
         result = super().write(vals)
-        if 'fewer_opportunities_check' in vals:
+        if {'fewer_opportunities_check', *GRADE_FIELDS} & set(vals):
             self.group_mobility_id._ems_rank()
         return result
+
+    @api.constrains('grade_manual', 'grade_average_manual', 'grade_manual_reason')
+    def _check_grade_manual(self):
+        for registration in self.filtered('grade_manual'):
+            if not (registration.grade_manual_reason or '').strip():
+                raise ValidationError(_("An average entered by hand needs to say where it comes from."))
+            if not 0 <= registration.grade_average_manual <= 10:
+                raise ValidationError(_("A record average goes from 0 to 10."))
 
     @api.constrains('result_override', 'override_reason')
     def _check_override_reason(self):
@@ -842,10 +941,19 @@ class EmsErasmusGroupRegistration(models.Model):
                 'exclusion': exclusion, 'eligible': not exclusion,
             })
 
+    def _ems_average(self):
+        """The record average the ranking uses: EMS's, or the one the team entered by hand."""
+        self.ensure_one()
+        return self.grade_average_manual if self.grade_manual else self.grade_average
+
+    def _ems_tie_key(self):
+        """What a tie is: the same average and the same accreditation of fewer opportunities."""
+        self.ensure_one()
+        return -self._ems_average(), self.sudo().fewer_opportunities_check != 'yes'
+
     def _ems_rank_key(self):
         self.ensure_one()
-        accredited = self.sudo().fewer_opportunities_check == 'yes'
-        return (-self.grade_average, not accredited, self.draw_order)
+        return *self._ems_tie_key(), self.draw_order
 
     def action_request_exception(self):
         """The leader asks the coordinator for an exception (written in Exception requested)."""
@@ -871,6 +979,7 @@ class EmsErasmusGroupRegistration(models.Model):
                                                   'partner_id': registration.partner_id.id, 'role': 'student'})
             registration._ems_write({'participant_id': participant.id})
             participant._ems_sync_documents()
+            participant._ems_remind_guardians()
 
     def _ems_send_result(self):
         """Each student's own result, to their own address (noted in the chatter when there is none)."""
@@ -931,10 +1040,13 @@ class EmsErasmusGroupRegistration(models.Model):
 class EmsErasmusGroupParticipant(models.Model):
     """Issue #703 - a participant's file in a group mobility: a selected student, or an
     accompanying teacher (who joins without any staff call). Its documents are lines of the
-    Erasmus+ document engine with no application."""
+    Erasmus+ document engine with no application. A student accepts the mobility's commitment
+    letter on the portal, and the family of a minor too (ems.erasmus.commitment, the same
+    mechanism as the internship mobilities)."""
     _name = 'ems.erasmus.group.participant'
     _description = 'Erasmus+ group mobility participant'
-    _inherit = ['ems.base']
+    _inherit = ['ems.base', 'ems.erasmus.commitment']
+    _ems_commitment_guardian_template = 'ems.email_template_erasmus_group_commitment_guardian'
     _order = 'group_mobility_id, role desc, partner_id'
     _sql_constraints = [
         ('participant_unique', 'unique(group_mobility_id, partner_id)', "A person takes part once in a mobility."),
@@ -973,18 +1085,101 @@ class EmsErasmusGroupParticipant(models.Model):
         for participant in self:
             participant.audience = 'student' if participant.role == 'student' else 'staff'
 
-    @api.depends('document_ids.review_state', 'document_ids.attachment_ids', 'document_ids.is_required')
+    @api.depends('document_ids.review_state', 'document_ids.attachment_ids', 'document_ids.is_required',
+                 'commitment_pending', 'commitment_guardian_pending')
     def _compute_documents(self):
+        """Ready to leave: every document before leaving valid and, for a student, the commitment
+        letter accepted (also by the family of a minor)."""
         for participant in self:
             lines = participant.document_ids
             participant.documents_missing = len(lines.filtered(lambda line: line._ems_group_missing()))
             participant.documents_valid = len(lines.filtered(lambda line: line.review_state == 'valid'))
-            participant.preparation_complete = not lines.filtered(
-                lambda line: line.stage == 'preparation' and line._ems_group_missing(final=True))
+            participant.preparation_complete = not (
+                lines.filtered(lambda line: line.stage == 'preparation' and line._ems_group_missing(final=True))
+                or participant.commitment_pending or participant.commitment_guardian_pending)
 
     def _compute_display_name(self):
         for participant in self:
             participant.display_name = f"{participant.partner_id.name} - {participant.group_mobility_id.name}"
+
+    # --- the commitment letter (ems.erasmus.commitment) -------------------------------------------
+
+    def _ems_commitment_depends(self):
+        return super()._ems_commitment_depends() + ['role', 'partner_id.birth_date']
+
+    def _ems_commitment_letter(self):
+        """A student's letter: the common template with the mobility's data now (destination and
+        dates once confirmed) and its additional conditions, in the reader's language. Whole
+        sentences with named placeholders, so each one translates as a unit."""
+        self.ensure_one()
+        if self.role != 'student':
+            return False
+        participant = self.sudo()
+        mobility = participant.group_mobility_id
+        minor = participant.is_minor
+        place = ', '.join(filter(None, [mobility.city, mobility.country_id.name]))
+        if mobility.host_partner_id:
+            place = f"{place} ({mobility.host_partner_id.name})" if place else mobility.host_partner_id.name
+        values = {'student': participant.partner_id.name, 'mobility': mobility.name,
+                  'project': mobility.project_id.display_name or '', 'place': place,
+                  'start': format_date(self.env, mobility.date_start), 'end': format_date(self.env, mobility.date_end),
+                  'out': format_date(self.env, mobility.travel_date_out),
+                  'back': format_date(self.env, mobility.travel_date_back),
+                  'teachers': ', '.join((mobility.leader_id | mobility.companion_ids).mapped('name'))}
+        if place and mobility.date_start:
+            participation = (_("The family authorises %(student)s to take part in this mobility, in %(place)s, from "
+                               "%(start)s to %(end)s.", **values) if minor else
+                             _("%(student)s takes part in this mobility, in %(place)s, from %(start)s to %(end)s.",
+                               **values))
+            if mobility.travel_date_out:
+                participation += " " + _("The group travels out on %(out)s and comes back on %(back)s.", **values)
+        else:
+            participation = (_("The family authorises %(student)s to take part in this mobility.", **values) if minor
+                             else _("%(student)s takes part in this mobility.", **values))
+            participation += " " + _("The destination and the final dates are still to be confirmed: the Erasmus "
+                                     "team will communicate them before leaving.")
+        if values['teachers']:
+            participation += " " + _("The group travels with its accompanying teachers: %(teachers)s.", **values)
+        commitments = [
+            participation,
+            _("The student commits to take part in every activity of the programme, on the dates and at the times "
+              "set."),
+            _("The student commits to respect the centre's rules of coexistence, those of the host entity and of the "
+              "accommodation, and to follow the instructions of the accompanying teachers at all times."),
+            _("A serious breach of these commitments or of those rules may lead to the measures that the centre's "
+              "rules of organisation and operation and its applicable protocols provide for."),
+            _("The family and the student commit to communicate and collaborate with the centre: to keep their "
+              "contact details up to date, to be reachable during the stay and to tell the accompanying teachers and "
+              "the Erasmus team about any incident, health need or circumstance that may affect the mobility.")
+            if minor else
+            _("The student commits to communicate and collaborate with the centre: to keep their contact details up "
+              "to date, to be reachable during the stay and to tell the accompanying teachers and the Erasmus team "
+              "about any incident, health need or circumstance that may affect the mobility."),
+        ]
+        intro = (_("Commitments accepted by %(student)s and their family or legal guardians for the Erasmus+ group "
+                   "mobility %(mobility)s (project %(project)s):", **values) if minor else
+                 _("Commitments accepted by %(student)s for the Erasmus+ group mobility %(mobility)s (project "
+                   "%(project)s):", **values))
+        letter = Markup("<p>{}</p><ol>{}</ol>").format(
+            intro, Markup("").join(Markup("<li>{}</li>").format(item) for item in commitments))
+        if mobility.commitment_extra:
+            letter += Markup("<p><strong>{}</strong></p>{}").format(
+                _("Additional conditions of this mobility"), mobility.commitment_extra)
+        if minor:
+            letter += Markup("<p><em>{}</em></p>").format(_(
+                "This letter does not replace the official authorisation for minors to travel abroad: when it is "
+                "needed, it is processed separately and handed in as its own document of the student's file."))
+        return letter
+
+    def _ems_commitment_has_letter(self):
+        return self.role == 'student'
+
+    def _ems_commitment_is_minor(self):
+        return self.is_minor
+
+    def _ems_commitment_open(self):
+        """Before leaving, while the student takes part."""
+        return self.state == 'active' and self.group_mobility_id.state == 'preparation'
 
     def _ems_sync_documents(self):
         """The documents asked for this participant's role still missing. Never removes a line."""
@@ -998,6 +1193,29 @@ class EmsErasmusGroupParticipant(models.Model):
                           'call_document_id': document.id}
                          for document in documents - participant.document_ids.call_document_id])
 
+    def _ems_participant_row(self):
+        """The row of the participants' spreadsheet (PARTICIPANT_HEADERS, the calls' format): a
+        student's from their contact, with their cycle and year (an accompanying teacher's stay
+        empty, which tells them apart); a teacher's from their employee file, like a staff call's.
+        No bank details: a group mobility pays its expenses collectively, nothing is transferred
+        to a participant from EMS."""
+        self.ensure_one()
+        Application = self.env['ems.erasmus.application']
+        participant = self.sudo()
+        if participant.role == 'student':
+            return Application._ems_student_row(participant.partner_id, participant.is_minor, bank=False)
+        return Application._ems_staff_row(participant.employee_id, participant.partner_id, bank=False)
+
+    def _ems_participants_xlsx(self):
+        """The participants' spreadsheet of these files (one mobility's): students first, by name."""
+        if not self:
+            raise UserError(_("There are no participants to export."))
+        self.group_mobility_id._ems_check_role('team')
+        participants = self.sudo().filtered(lambda participant: participant.state == 'active').sorted(
+            lambda participant: (participant.role != 'student', participant.partner_id.name or ''))
+        return self.env['ems.erasmus.application']._ems_participants_workbook(
+            [participant._ems_participant_row() for participant in participants])
+
     def _ems_portal_upload(self, uploads):
         """Files a student uploads from the portal: {call document id: [(name, bytes)]}, while the
         file is open."""
@@ -1009,6 +1227,66 @@ class EmsErasmusGroupParticipant(models.Model):
         for document_id, files in uploads.items():
             if files and document_id in lines:
                 lines[document_id]._ems_add_files(files)
+
+
+class EmsErasmusGroupDraw(models.Model):
+    """Issue #702 - a draw the Erasmus coordinator ran to resolve one tie: who, when, what the
+    students were tied on, the exact set tied and the order drawn. Created by EMS only, never
+    changed nor deleted: the evidence of the selection."""
+    _name = 'ems.erasmus.group.draw'
+    _description = 'Erasmus+ group mobility draw'
+    _order = 'date desc, id desc'
+
+    group_mobility_id = fields.Many2one(string="Group mobility", comodel_name='ems.erasmus.group.mobility',
+                                        required=True, ondelete='cascade', index=True, readonly=True)
+    user_id = fields.Many2one(string="Run by", comodel_name='res.users', required=True, readonly=True,
+                              ondelete='restrict')
+    date = fields.Datetime(string="Run on", required=True, readonly=True)
+    grade_average = fields.Float(string="Tied on the average", digits=(4, 2), readonly=True)
+    fewer_opportunities = fields.Boolean(string="Fewer opportunities accredited", readonly=True)
+    line_ids = fields.One2many(string="Order drawn", comodel_name='ems.erasmus.group.draw.line',
+                               inverse_name='draw_id', readonly=True)
+    tied_count = fields.Integer(string="Students tied", compute='_compute_tied_count')
+
+    @api.depends('line_ids')
+    def _compute_tied_count(self):
+        for draw in self:
+            draw.tied_count = len(draw.line_ids)
+
+    def write(self, vals):
+        raise UserError(_("A draw is the evidence of the selection: it cannot be changed."))
+
+    def unlink(self):
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            raise UserError(_("A draw is the evidence of the selection: it cannot be deleted."))
+        return super().unlink()
+
+
+class EmsErasmusGroupDrawLine(models.Model):
+    """A student of a draw and the position drawn (1 goes first)."""
+    _name = 'ems.erasmus.group.draw.line'
+    _description = 'Erasmus+ group mobility draw position'
+    _order = 'draw_id, position'
+
+    draw_id = fields.Many2one(string="Draw", comodel_name='ems.erasmus.group.draw', required=True,
+                              ondelete='cascade', index=True, readonly=True)
+    position = fields.Integer(string="Position", required=True, readonly=True)
+    registration_id = fields.Many2one(string="Enrolment", comodel_name='ems.erasmus.group.registration',
+                                      required=True, ondelete='cascade', readonly=True)
+    partner_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True, readonly=True,
+                                 ondelete='restrict')
+
+    def _compute_display_name(self):
+        for line in self:
+            line.display_name = f"{line.position}. {line.partner_id.name}"
+
+    def write(self, vals):
+        raise UserError(_("A draw is the evidence of the selection: it cannot be changed."))
+
+    def unlink(self):
+        if not self.env.context.get(MODULE_UNINSTALL_FLAG):
+            raise UserError(_("A draw is the evidence of the selection: it cannot be deleted."))
+        return super().unlink()
 
 
 class EmsErasmusGroupLog(models.Model):
@@ -1162,5 +1440,19 @@ class ResPartner(models.Model):
                                              ('registration_ids.partner_id', '=', self.id),
                                              ('participant_ids.partner_id', '=', self.id)])
 
+    def _ems_erasmus_guardian_group_participants(self):
+        """Issue #703: the group mobility files of the minors this family acts for, whose commitment
+        letter it accepts too (pending, or already accepted)."""
+        self.ensure_one()
+        Participant = self.env['ems.erasmus.group.participant'].sudo()
+        if self.contact_type != 'family':
+            return Participant
+        students = self.get_portal_students().filtered(self._ems_portal_can_act_for)
+        return Participant.search([('partner_id', 'in', students.ids), ('role', '=', 'student'),
+                                   ('state', '=', 'active'),
+                                   ('group_mobility_id.state', 'in', FILE_STATES)]).filtered(
+            lambda participant: participant.commitment_guardian_pending or participant.commitment_guardian_signed_date)
+
     def _ems_erasmus_portal_visible(self):
-        return super()._ems_erasmus_portal_visible() or bool(self._ems_erasmus_group_mobilities())
+        return super()._ems_erasmus_portal_visible() or bool(self._ems_erasmus_group_mobilities()) \
+            or bool(self._ems_erasmus_guardian_group_participants())

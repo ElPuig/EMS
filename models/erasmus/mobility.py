@@ -99,7 +99,8 @@ class EmsErasmusMobility(models.Model):
     return. See docs/en/developers/erasmus/erasmus.md."""
     _name = 'ems.erasmus.mobility'
     _description = 'Erasmus+ mobility'
-    _inherit = ['ems.base']
+    _inherit = ['ems.base', 'ems.erasmus.commitment']
+    _ems_commitment_guardian_template = 'ems.email_template_erasmus_commitment_guardian'
     _order = 'call_id desc, modality_id, rank, id'
     _sql_constraints = [
         ('application_unique', 'unique(application_id)', "An application has only one mobility."),
@@ -174,20 +175,6 @@ class EmsErasmusMobility(models.Model):
                                  domain="[('kind', '=', project_kind)]",
                                  help="The Erasmus+ project the mobility is charged to: CFGM on a KA121-VET project, "
                                       "CFGS on a KA131-HED one.")
-    commitment_signed_date = fields.Datetime(string="Commitment letter signed on", readonly=True)
-    commitment_signed_by_id = fields.Many2one(string="Commitment letter signed by", comodel_name='res.users',
-                                              readonly=True)
-    commitment_signed_ip = fields.Char(string="Signed from IP address", readonly=True)
-    commitment_signed_text = fields.Html(string="Commitment letter signed", readonly=True, sanitize=True,
-                                         help="The text accepted, as it was when it was signed.")
-    commitment_pending = fields.Boolean(string="Commitment letter pending", compute='_compute_commitment_pending')
-    commitment_guardian_signed_date = fields.Datetime(string="Signed by the family on", readonly=True)
-    commitment_guardian_signed_by_id = fields.Many2one(string="Signed by the family member", comodel_name='res.users',
-                                                       readonly=True)
-    commitment_guardian_signed_ip = fields.Char(string="Family signed from IP address", readonly=True)
-    commitment_guardian_pending = fields.Boolean(
-        string="Family signature pending", compute='_compute_commitment_pending',
-        help="A minor student's commitment letter is signed by their family too, on its own portal.")
     destination_date = fields.Date(string="Destination set on", readonly=True,
                                    help="When the destination was chosen, agreed or validated: the documents before "
                                         "leaving are due counting from it.")
@@ -232,15 +219,18 @@ class EmsErasmusMobility(models.Model):
     can_request_final = fields.Boolean(string="Can request the final payment", compute='_compute_can_request_payment')
     host_contact_email = fields.Char(string="Contact person's email", related='host_contact_id.email')
 
-    @api.depends('call_id.commitment_text', 'commitment_signed_date', 'commitment_guardian_signed_date',
-                 'partner_id.birth_date')
-    def _compute_commitment_pending(self):
-        for mobility in self:
-            letter = bool(mobility.call_id.commitment_text)
-            mobility.commitment_pending = letter and not mobility.commitment_signed_date
-            mobility.commitment_guardian_pending = (
-                letter and mobility.audience == 'student' and not mobility.partner_id.is_adult
-                and not mobility.commitment_guardian_signed_date)
+    def _ems_commitment_depends(self):
+        return super()._ems_commitment_depends() + ['call_id.commitment_text', 'audience', 'partner_id.birth_date']
+
+    def _ems_commitment_letter(self):
+        """The call's annex 3."""
+        return self.call_id.commitment_text
+
+    def _ems_commitment_is_minor(self):
+        return self.audience == 'student' and not self.partner_id.is_adult
+
+    def _ems_commitment_open(self):
+        return self.state in OPEN_STATES
 
     @api.depends('self_assessment_ids', 'date_start', 'date_end', 'call_id.self_assessment_question_ids')
     def _compute_self_assessment_progress(self):
@@ -577,34 +567,6 @@ class EmsErasmusMobility(models.Model):
                             or mobility._ems_self_assessments_missing())._ems_send(
             'ems.email_template_erasmus_mobility_documents')
         mobilities._ems_remind_guardians()
-
-    def _ems_remind_guardians(self):
-        """Email the family of each minor student whose commitment letter it still has to sign."""
-        template = self.env.ref('ems.email_template_erasmus_commitment_guardian')
-        for mobility in self.filtered('commitment_guardian_pending'):
-            for family in mobility.partner_id._ems_family_contacts().filtered('email'):
-                template.with_context(lang=family.lang).sudo().send_mail(
-                    mobility.id, force_send=False, email_values={'email_to': family.email})
-
-    def action_sign_commitment(self, accepted=False, ip_address=False, guardian=False):
-        """The participant, or the family of a minor (`guardian`), accepts and signs the commitment
-        letter (annex 3) in EMS, from the portal; in any order. The text is kept as it was at the
-        first signature, which is what the second one signs, with who, when and from where."""
-        self.ensure_one()
-        prefix = 'commitment_guardian_' if guardian else 'commitment_'
-        if self.state not in OPEN_STATES or not self[f'{prefix}pending']:
-            raise UserError(_("There is no commitment letter to sign."))
-        if not accepted:
-            raise UserError(_("Tick that you accept the commitments first."))
-        self.with_context(ems_erasmus_state=True).sudo().write({
-            f'{prefix}signed_date': fields.Datetime.now(), f'{prefix}signed_by_id': self.env.uid,
-            f'{prefix}signed_ip': ip_address, 'commitment_signed_text': self._ems_commitment_text()})
-        self.chatter(_("Commitment letter accepted and signed in EMS by the family.") if guardian
-                     else _("Commitment letter accepted and signed in EMS."))
-
-    def _ems_commitment_text(self):
-        """The commitment letter to sign: as it was signed first, or the call's current one."""
-        return self.commitment_signed_text or self.call_id.commitment_text
 
     def action_notify_documents(self):
         """Email the participant the documents still missing or needing changes."""

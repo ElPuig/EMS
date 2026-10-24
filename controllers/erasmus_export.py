@@ -23,6 +23,20 @@ class EmsErasmusExportController(http.Controller):
             ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
         ])
 
+    @http.route('/ems/erasmus/group/participants', type='http', auth='user', methods=['GET'])
+    def download_group_participants(self, participant_ids=''):
+        """Issue #703 - the same .xlsx for a group mobility's participants (selected students and
+        accompanying teachers); Erasmus team only, built on the fly and never stored."""
+        ids = [int(participant_id) for participant_id in participant_ids.split(',') if participant_id.isdigit()]
+        try:
+            content = request.env['ems.erasmus.group.participant'].browse(ids).exists()._ems_participants_xlsx()
+        except (AccessError, UserError):
+            raise request.not_found()
+        return request.make_response(content, headers=[
+            ('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
+        ])
+
     @http.route('/ems/erasmus/project/<int:project_id>/dossier', type='http', auth='user', methods=['GET'])
     def download_dossier(self, project_id):
         """Issue #697 - a project's dossier, every document in SEPIE's folders, as a ZIP built on

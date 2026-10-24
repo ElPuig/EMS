@@ -121,6 +121,9 @@
                                     invisible="state != 'validation'"
                                     groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
                                     help="Write why in the Selection tab first."/>
+                            <button name="action_export_participants" type="object" string="Export participants (Excel)"
+                                    invisible="not participant_ids or user_role != 'team'"
+                                    help="The selected students and the accompanying teachers, in the same spreadsheet format as the calls."/>
                             <button name="action_propose_substitution" type="object" string="Propose the next reserve"
                                     invisible="not next_reserve or user_role not in ('team', 'leader')"/>
                             <button name="action_sync_requirements" type="object" string="Update documents"
@@ -159,6 +162,13 @@
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="not needs_draw">
                             There is a tie in the ranking: the Erasmus coordinator resolves it with a draw (Actions, Draw the ties).
+                        </div>
+                        <div class="alert alert-danger" role="alert" invisible="not grade_incidents">
+                            <field name="grade_incidents" class="fw-bold"/> eligible students have no evaluated module, so they have no record average:
+                            the Erasmus team enters it by hand with its reason, or the coordinator excludes them with a reason (Selection tab). The ranking cannot be closed until then.
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="not commitments_pending or state != 'preparation'">
+                            <field name="commitments_pending" class="fw-bold"/> selected students have not accepted the commitment letter on the portal yet (they or, for a minor, their family).
                         </div>
                         <div class="alert alert-info" role="alert" invisible="not next_reserve">
                             A place is free: the next reserve is <field name="next_reserve" class="fw-bold"/>.
@@ -241,8 +251,16 @@
                                         <field name="group_id" optional="show"/>
                                         <field name="state" optional="show"/>
                                         <field name="enrol_date" optional="hide"/>
-                                        <field name="grade_average"/>
+                                        <field name="grade_average" invisible="not grade_found"/>
                                         <field name="grade_found" optional="hide"/>
+                                        <field name="grade_incident" widget="boolean_toggle" readonly="1" optional="show"
+                                               decoration-danger="grade_incident"/>
+                                        <field name="grade_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
+                                               invisible="grade_found"/>
+                                        <field name="grade_average_manual" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
+                                               invisible="not grade_manual" required="grade_manual"/>
+                                        <field name="grade_manual_reason" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"
+                                               invisible="not grade_manual" required="grade_manual"/>
                                         <field name="eligible"/>
                                         <field name="exclusion" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <field name="strike_count" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -275,6 +293,18 @@
                                                 groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
                                     </list>
                                 </field>
+                                <group string="Draws" invisible="not draw_ids">
+                                    <field name="draw_ids" nolabel="1" colspan="2">
+                                        <list>
+                                            <field name="date"/>
+                                            <field name="user_id"/>
+                                            <field name="grade_average"/>
+                                            <field name="fewer_opportunities"/>
+                                            <field name="tied_count"/>
+                                            <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
+                                        </list>
+                                    </field>
+                                </group>
                             </page>
                             <page string="Participants" name="participants" invisible="not participant_ids">
                                 <field name="participant_ids" readonly="1">
@@ -287,10 +317,14 @@
                                         <field name="is_minor" optional="show"/>
                                         <field name="documents_missing" decoration-danger="documents_missing > 0"/>
                                         <field name="documents_valid"/>
+                                        <field name="commitment_pending" optional="show"/>
+                                        <field name="commitment_guardian_pending" optional="show"/>
                                         <field name="preparation_complete"/>
                                         <field name="state" optional="show"/>
                                     </list>
                                 </field>
+                                <label for="commitment_extra"/>
+                                <field name="commitment_extra" readonly="user_role != 'team' or state not in ('draft', 'enrolment', 'selection', 'validation', 'preparation')"/>
                             </page>
                             <page string="Documents" name="documents" invisible="state in ('draft', 'enrolment', 'selection', 'validation') and user_role != 'team'">
                                 <group>
@@ -480,6 +514,8 @@
                                 <field name="documents_missing"/>
                             </group>
                         </group>
+                        <notebook>
+                        <page string="Documents" name="documents">
                         <field name="document_ids">
                             <list editable="bottom" create="false" delete="false">
                                 <field name="stage"/>
@@ -500,6 +536,25 @@
                                         icon="fa-pencil" invisible="handled_by == 'team' or review_state == 'needs_change'"/>
                             </list>
                         </field>
+                        </page>
+                        <page string="Commitment letter" name="commitment" invisible="role != 'student'">
+                            <field name="commitment_pending" invisible="1"/>
+                            <field name="commitment_guardian_pending" invisible="1"/>
+                            <group>
+                                <group string="Student">
+                                    <field name="commitment_signed_date"/>
+                                    <field name="commitment_signed_by_id"/>
+                                    <field name="commitment_signed_ip"/>
+                                </group>
+                                <group string="Family" invisible="not is_minor">
+                                    <field name="commitment_guardian_signed_date"/>
+                                    <field name="commitment_guardian_signed_by_id"/>
+                                    <field name="commitment_guardian_signed_ip"/>
+                                </group>
+                            </group>
+                            <field name="commitment_signed_text" invisible="not commitment_signed_date"/>
+                        </page>
+                        </notebook>
                     </sheet>
                     <chatter/>
                 </form>

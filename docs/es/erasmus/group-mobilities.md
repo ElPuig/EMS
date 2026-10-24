@@ -24,7 +24,8 @@ Los docentes no pasan por ninguna convocatoria de personal: al guardarlos, ya ve
 ## Clasificación y selección
 
 - Al acabar el periodo de inscripción (o con **Cerrar la inscripción ahora**), EMS congela los datos de cada inscripción: el grupo, la **nota media del expediente** (la misma fórmula que la convocatoria de prácticas) y las amonestaciones de este curso. Queda excluido quien no es de un grupo que puede inscribirse o tiene tantas amonestaciones como el límite que avisa a convivencia (o más).
-- El orden es por nota media y, en caso de empate, por las menos oportunidades acreditadas. Si alguien ha declarado menos oportunidades, revísalo en la pestaña **Selección** (columna *Menos oportunidades acreditadas*). Si aún hay un empate, se resuelve por **sorteo**: EMS lo señala y no deja enviar la propuesta hasta que el coordinador Erasmus, en **Acciones**, hace clic en **Sortear los empates**. EMS ordena al azar solo a los alumnos empatados y deja el resultado, quién lo ha hecho y cuándo en el historial de la movilidad.
+- El orden es por nota media y, en caso de empate, por las menos oportunidades acreditadas. Si alguien ha declarado menos oportunidades, revísalo en la pestaña **Selección** (columna *Menos oportunidades acreditadas*). Si aún hay un empate, se resuelve por **sorteo**: EMS lo señala y no deja enviar la propuesta hasta que el coordinador Erasmus, en **Acciones**, hace clic en **Sortear los empates**. EMS ordena al azar solo a los alumnos empatados. Cada sorteo queda en la pestaña **Selección**, en **Sorteos**: quién lo ha hecho, cuándo, en qué estaban empatados y el orden sorteado. Nadie puede modificarlo ni eliminarlo. Si otro alumno se suma a un empate ya sorteado (por ejemplo, al introducir su media), hay que volver a sortearlo, y se conservan los dos sorteos.
+- **Alumnos sin notas:** si un alumno que puede inscribirse no tiene ningún módulo evaluado, EMS no le pone un 0: queda fuera de la clasificación y la movilidad muestra un aviso rojo. No se puede enviar ni aprobar la propuesta hasta que se resuelve, en la pestaña **Selección**: marca *Media introducida a mano* y escribe la media y *De dónde sale la media* (por ejemplo, del expediente académico), o bien el coordinador excluye al alumno con una *Excepción* y su motivo.
 - El docente responsable revisa la clasificación y envía la propuesta. Recibirás una tarea: en **Acciones**, **Aprobar y publicar la selección** (cada alumno recibe su resultado por correo) o **Devolver la propuesta** con el motivo.
 - Para hacer una excepción a la clasificación, en la pestaña **Selección** pon la *Excepción* y el *Motivo de la excepción* antes de aprobar.
 
@@ -35,6 +36,16 @@ Si un alumno seleccionado renuncia (desde el portal o a través del docente resp
 ## Expedientes y documentos
 
 Al aprobar la selección se abre el expediente de cada alumno seleccionado y de los dos docentes. En la pestaña **Documentos** están los **documentos compartidos** del grupo (el acuerdo de aprendizaje del grupo, una sola vez para todos; la lista definitiva de participantes; acuerdos, viaje, inclusión —confidencial— y evidencias) y la lista de **documentos pedidos**, que puedes adaptar a cada movilidad: para quién es cada documento (el grupo, cada alumno, cada docente o todos), si es obligatorio o solo para menores, quién lo firma y el plazo. Si cambias la lista, haz clic en **Actualizar los documentos**.
+
+## Carta de compromiso
+
+Cada alumno seleccionado acepta la **carta de compromiso** de la movilidad en el portal y, si es menor de edad, también la familia, desde su portal (EMS avisa a la familia por correo cuando se abre el expediente). Es el mismo procedimiento que en las prácticas: la persona marca que la acepta y EMS guarda quién la ha aceptado, cuándo y desde dónde, junto con el texto exacto aceptado. La carta es común a todas las movilidades de grupo y EMS la rellena con los datos de cada una (destino, entidad de acogida y fechas cuando están confirmadas; mientras tanto indica que están por confirmar). Incluye la autorización para participar, la participación en el programa, las normas de convivencia del centro y las instrucciones de los docentes, las medidas ante incumplimientos graves según las normas y protocolos del centro, y la comunicación con el centro.
+
+Para añadir condiciones propias, escríbelas en *Condiciones adicionales* (pestaña **Participantes**). Una carta ya aceptada conserva el texto con el que se aceptó. La movilidad muestra cuántas cartas quedan pendientes, y un participante no está preparado para marchar hasta que se acepta la suya. La carta **no sustituye** la autorización oficial de viaje al extranjero para menores: esta sigue siendo un documento del expediente de cada menor.
+
+## Hoja de cálculo de participantes
+
+En **Acciones**, **Exportar los participantes (Excel)** descarga a los alumnos seleccionados y a los docentes acompañantes con la misma hoja de cálculo que las convocatorias (las mismas columnas). Los docentes tienen vacías las columnas de ciclo, curso y tutor legal; las columnas bancarias están vacías para todos, porque una movilidad de grupo paga los gastos de forma colectiva.
 
 ## Estancia, EU Survey y cierre
 

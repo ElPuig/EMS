@@ -24,7 +24,8 @@ Els docents no passen per cap convocatòria de personal: en desar-los, ja veuen 
 ## Classificació i selecció
 
 - En acabar el període d'inscripció (o amb **Tanca la inscripció ara**), l'EMS congela les dades de cada inscripció: el grup, la **mitjana de l'expedient** (la mateixa fórmula que la convocatòria de pràctiques) i les amonestacions d'aquest curs. Queda exclòs qui no és d'un grup que s'hi pot inscriure o té tantes amonestacions com el límit que avisa convivència (o més).
-- L'ordre és per mitjana i, en cas d'empat, per les menys oportunitats acreditades. Si alguna persona ha declarat menys oportunitats, revisa-ho a la pestanya **Selecció** (columna *Menys oportunitats acreditades*). Si encara hi ha un empat, es resol per **sorteig**: l'EMS l'assenyala i no deixa enviar la proposta fins que el coordinador Erasmus, a **Accions**, fa clic a **Sorteja els empats**. L'EMS ordena a l'atzar només els alumnes empatats i deixa el resultat, qui l'ha fet i quan a l'historial de la mobilitat.
+- L'ordre és per mitjana i, en cas d'empat, per les menys oportunitats acreditades. Si alguna persona ha declarat menys oportunitats, revisa-ho a la pestanya **Selecció** (columna *Menys oportunitats acreditades*). Si encara hi ha un empat, es resol per **sorteig**: l'EMS l'assenyala i no deixa enviar la proposta fins que el coordinador Erasmus, a **Accions**, fa clic a **Sorteja els empats**. L'EMS ordena a l'atzar només els alumnes empatats. Cada sorteig queda a la pestanya **Selecció**, a **Sortejos**: qui l'ha fet, quan, en què estaven empatats i l'ordre sortejat. Ningú no el pot modificar ni eliminar. Si un altre alumne s'afegeix a un empat ja sortejat (per exemple, en introduir-ne la mitjana), cal tornar a sortejar-lo, i es conserven tots dos sortejos.
+- **Alumnes sense notes:** si un alumne que s'hi pot inscriure no té cap mòdul avaluat, l'EMS no li posa un 0: queda fora de la classificació i la mobilitat mostra un avís vermell. No es pot enviar ni aprovar la proposta fins que es resol, a la pestanya **Selecció**: marca *Mitjana introduïda a mà* i escriu la mitjana i *D'on surt la mitjana* (per exemple, de l'expedient acadèmic), o bé el coordinador exclou l'alumne amb una *Excepció* i el seu motiu.
 - El docent responsable revisa la classificació i envia la proposta. Rebràs una tasca: a **Accions**, **Aprova i publica la selecció** (cada alumne rep el seu resultat per correu) o **Retorna la proposta** amb el motiu.
 - Per fer una excepció a la classificació, a la pestanya **Selecció** posa l'*Excepció* i el *Motiu de l'excepció* abans d'aprovar.
 
@@ -35,6 +36,16 @@ Si un alumne seleccionat renuncia (des del portal o a través del docent respons
 ## Expedients i documents
 
 En aprovar la selecció s'obre l'expedient de cada alumne seleccionat i dels dos docents. A la pestanya **Documents** hi ha els **documents compartits** del grup (l'acord d'aprenentatge del grup, una sola vegada per a tothom; la llista definitiva de participants; acords, viatge, inclusió —confidencial— i evidències) i la llista dels **documents demanats**, que pots adaptar a cada mobilitat: per a qui és cada document (el grup, cada alumne, cada docent o tothom), si és obligatori o només per a menors, qui el signa i el termini. Si canvies la llista, fes clic a **Actualitza els documents**.
+
+## Carta de compromís
+
+Cada alumne seleccionat accepta la **carta de compromís** de la mobilitat al portal i, si és menor d'edat, també la família, des del seu portal (l'EMS avisa la família per correu quan s'obre l'expedient). És el mateix procediment que a les pràctiques: la persona marca que l'accepta i l'EMS guarda qui l'ha acceptada, quan i des d'on, juntament amb el text exacte acceptat. La carta és comuna a totes les mobilitats de grup i l'EMS l'omple amb les dades de cadascuna (destinació, entitat d'acollida i dates quan estan confirmades; mentrestant indica que s'han de confirmar). Inclou l'autorització per participar-hi, la participació en el programa, les normes de convivència del centre i les instruccions dels docents, les mesures davant d'incompliments greus segons les normes i protocols del centre, i la comunicació amb el centre.
+
+Per afegir-hi condicions pròpies, escriu-les a *Condicions addicionals* (pestanya **Participants**). Una carta ja acceptada conserva el text amb què es va acceptar. La mobilitat mostra quantes cartes queden pendents, i un participant no està preparat per marxar fins que no s'accepta la seva. La carta **no substitueix** l'autorització oficial de viatge a l'estranger per a menors: aquesta continua sent un document de l'expedient de cada menor.
+
+## Full de càlcul de participants
+
+A **Accions**, **Exporta els participants (Excel)** descarrega els alumnes seleccionats i els docents acompanyants amb el mateix full de càlcul que les convocatòries (les mateixes columnes). Els docents tenen buides les columnes de cicle, curs i tutor legal; les columnes bancàries són buides per a tothom, perquè una mobilitat de grup paga les despeses de manera col·lectiva.
 
 ## Estada, EU Survey i tancament
 

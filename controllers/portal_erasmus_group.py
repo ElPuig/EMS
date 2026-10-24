@@ -67,6 +67,7 @@ class EmsPortalErasmusGroupController(CustomerPortal):
                                                                participant),
             'review_labels': dict(request.env['ems.erasmus.application.document']._fields[
                 'review_state']._description_selection(request.env)),
+            'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
             'saved': kwargs.get('saved'),
         })
@@ -75,7 +76,7 @@ class EmsPortalErasmusGroupController(CustomerPortal):
     @http.route('/my/erasmus/group/<int:mobility_id>/<string:step>', type='http', auth='user', methods=['POST'],
                 website=True)
     def portal_erasmus_group_step(self, mobility_id, step, **post):
-        """Upload documents, or renounce the place."""
+        """Upload documents, accept the commitment letter, or renounce the place."""
         mobility = self._ems_group_mobility(mobility_id)
         participant = mobility and self._ems_group_participant(mobility)
         if not participant:
@@ -91,6 +92,8 @@ class EmsPortalErasmusGroupController(CustomerPortal):
                     if files:
                         uploads[line.call_document_id.id] = files
                 participant._ems_portal_upload(uploads)
+            elif step == 'commitment':
+                participant.action_sign_commitment(bool(post.get('accepted')), request.httprequest.remote_addr)
             elif step == 'renounce':
                 participant.registration_ids.action_renounce((post.get('reason') or '').strip()[:2000] or False)
                 return request.redirect(self._redirect)
@@ -99,6 +102,22 @@ class EmsPortalErasmusGroupController(CustomerPortal):
         except UserError:
             return request.redirect(f'{page}?error=1')
         return request.redirect(f'{page}?saved=1')
+
+    @http.route('/my/erasmus/group/commitment/<int:participant_id>', type='http', auth='user', methods=['POST'],
+                website=True)
+    def portal_erasmus_group_guardian_commitment(self, participant_id, **post):
+        """The family of a minor accepts their commitment letter, only for a child it acts for (the
+        same as the internship mobilities')."""
+        participant = request.env.user.partner_id._ems_erasmus_guardian_group_participants().filtered(
+            lambda participant: participant.id == participant_id)
+        if not participant:
+            return request.redirect(f'{self._redirect}?error=1')
+        try:
+            participant.action_sign_commitment(bool(post.get('accepted')), request.httprequest.remote_addr,
+                                               guardian=True)
+        except UserError:
+            return request.redirect(f'{self._redirect}?error=1')
+        return request.redirect(self._redirect)
 
     @http.route('/my/erasmus/group/<int:mobility_id>/file/<int:attachment_id>', type='http', auth='user',
                 website=True)

@@ -4,7 +4,7 @@
          student can enrol in or enrolled in, with a one-click enrolment (controllers/portal_erasmus_group.py). -->
     <template id="portal_erasmus_group_cards" name="Erasmus+ group mobilities" inherit_id="ems.portal_erasmus">
         <xpath expr="//p[@t-if='not calls and not guardian_mobilities']" position="attributes">
-            <attribute name="t-if">not calls and not guardian_mobilities and not group_mobilities</attribute>
+            <attribute name="t-if">not calls and not guardian_mobilities and not group_mobilities and not group_partner._ems_erasmus_guardian_group_participants()</attribute>
         </xpath>
         <xpath expr="//h3" position="after">
             <t t-set="group_partner" t-value="request.env.user.partner_id"/>
@@ -18,6 +18,32 @@
             <t t-foreach="group_mobilities" t-as="group_mobility">
                 <t t-call="ems.portal_erasmus_group_card"/>
             </t>
+            <!-- Issue #703: the family of a selected minor accepts the commitment letter too. -->
+            <div t-foreach="group_partner._ems_erasmus_guardian_group_participants()" t-as="guardian_participant"
+                 class="card shadow-sm mb-4 o_ems_erasmus_group_guardian_commitment">
+                <div class="card-header bg-ems-primary text-white">
+                    <strong t-esc="guardian_participant.group_mobility_id.name"/> - <t t-esc="guardian_participant.partner_id.name"/>
+                </div>
+                <div class="card-body">
+                    <h6>Commitment letter</h6>
+                    <div t-if="guardian_participant.commitment_guardian_signed_date" class="alert alert-success small mb-0 o_ems_erasmus_guardian_signed">
+                        <i class="fa fa-check-circle me-1"/>Signed by the family on
+                        <t t-out="guardian_participant.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
+                    <form t-elif="guardian_participant._ems_commitment_open()" t-attf-action="/my/erasmus/group/commitment/#{guardian_participant.id}" method="post">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <p class="small">
+                            <t t-esc="guardian_participant.partner_id.name"/> is a minor, so the family accepts the commitment letter of the Erasmus+ group mobility too.
+                        </p>
+                        <div class="border rounded p-3 mb-2 small" t-out="guardian_participant._ems_commitment_text()"/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="accepted" t-attf-id="group_guardian_accepted_#{guardian_participant.id}" required="required"/>
+                            <label class="form-check-label" t-attf-for="group_guardian_accepted_#{guardian_participant.id}">As the family, we have read these commitments and we accept them.</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_group_guardian_sign">Accept and sign</button>
+                    </form>
+                </div>
+            </div>
         </xpath>
     </template>
 
@@ -133,6 +159,32 @@
                             </t>
                         </li>
                     </ul>
+                </t>
+
+                <!-- Issue #703: the commitment letter, accepted on the portal (and by the family of a minor). -->
+                <t t-if="participant.commitment_pending or participant.commitment_signed_date">
+                    <h6>Commitment letter</h6>
+                    <div t-if="participant.commitment_signed_date" class="alert alert-success small o_ems_erasmus_commitment_signed">
+                        <i class="fa fa-check-circle me-1"/>Accepted and signed on
+                        <t t-out="participant.commitment_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
+                    <div t-if="participant.commitment_guardian_pending" class="alert alert-warning small o_ems_erasmus_guardian_pending">
+                        <i class="fa fa-exclamation-triangle me-1"/>Your family has to accept it too, from its own portal.
+                    </div>
+                    <div t-elif="participant.commitment_guardian_signed_date" class="alert alert-success small">
+                        <i class="fa fa-check-circle me-1"/>Signed by the family on
+                        <t t-out="participant.commitment_guardian_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
+                    </div>
+                    <form t-if="participant.commitment_pending and participant._ems_commitment_open()" t-att-action="action + 'commitment'" method="post" class="mb-3 o_ems_erasmus_commitment">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <div class="border rounded p-3 mb-2 small" t-out="participant._ems_commitment_text()"/>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="accepted" id="commitment_accepted" required="required"/>
+                            <label class="form-check-label" for="commitment_accepted">I have read these commitments and I accept them.</label>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_commitment_sign">Accept and sign</button>
+                    </form>
+                    <div t-elif="participant.commitment_signed_text" class="border rounded p-3 mb-3 small" t-out="participant.commitment_signed_text"/>
                 </t>
 
                 <t t-set="lines" t-value="participant.document_ids"/>

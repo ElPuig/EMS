@@ -1,10 +1,14 @@
+import io
 from datetime import timedelta
 from unittest.mock import patch
+
+import openpyxl
 
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.http import Request
 from odoo.tests.common import HttpCase, TransactionCase, tagged
+from odoo.addons.ems.models.erasmus.application import PARTICIPANT_HEADERS
 
 from .common import create_level_study_group, create_role_employee, create_role_user, mock_outgoing_email, \
     next_student_id
@@ -91,6 +95,24 @@ class ErasmusGroupMobilityCase(TransactionCase):
         self.mobility.with_user(self.leader_user).action_submit_proposal()
         self.mobility.with_user(self.coordinator_user).action_approve_selection()
         return registrations
+
+    def _family(self):
+        """A family contact (the father) of the minor."""
+        family = self.env['res.partner'].create({
+            'name': 'Group Test Family', 'contact_type': 'family', 'email': 'group.family@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': self.minor.id})
+        return family
+
+    def _approved_with_minor(self):
+        """The minor and seven adults selected: the minor's file."""
+        self._enrol(self.minor | self.students[:7])
+        self._close({**{student: 8.0 - index * 0.1 for index, student in enumerate(self.students[:7])},
+                     self.minor: 5.0})
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        return self.mobility.participant_ids.filtered(lambda participant: participant.partner_id == self.minor)
 
 
 @tagged('post_install', '-at_install')
@@ -256,6 +278,145 @@ class TestErasmusGroupRanking(ErasmusGroupMobilityCase):
 
 
 @tagged('post_install', '-at_install')
+class TestErasmusGroupIncidents(ErasmusGroupMobilityCase):
+    """Issue #702 - a student with no grades is an incident, and a draw is kept as evidence."""
+
+    def test_no_grades_is_an_incident_never_a_zero(self):
+        registrations = self._enrol(self.students[:3])
+        self._close({self.students[0]: 7.0, self.students[1]: 6.0})
+        nogrades = registrations[2]
+        self.assertTrue(nogrades.grade_incident)
+        self.assertFalse(nogrades.has_average)
+        self.assertEqual((nogrades.rank, nogrades.proposed_result), (0, False), "Not ranked last with a 0.")
+        self.assertEqual(self.mobility.grade_incidents, 1)
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.leader_user).action_submit_proposal()
+        with self.assertRaises(AccessError):
+            nogrades.with_user(self.leader_user).write({'grade_manual': True, 'grade_average_manual': 8.0,
+                                                        'grade_manual_reason': 'Academic record'})
+        with self.assertRaises(ValidationError):
+            nogrades.with_user(self.technician_user).write({'grade_manual': True, 'grade_average_manual': 8.0})
+        nogrades.with_user(self.technician_user).write({'grade_manual': True, 'grade_average_manual': 8.0,
+                                                        'grade_manual_reason': 'Academic record, other centre'})
+        self.assertFalse(nogrades.grade_incident)
+        self.assertEqual(registrations.mapped('rank'), [2, 3, 1])
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+
+    def test_the_coordinator_can_exclude_a_student_with_no_grades(self):
+        registrations = self._enrol(self.students[:2])
+        self._close({self.students[0]: 7.0})
+        registrations[1].with_user(self.coordinator_user).write({'result_override': 'excluded',
+                                                                  'override_reason': 'Not enrolled in the modules'})
+        self.assertFalse(registrations[1].grade_incident)
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+
+    def test_a_draw_keeps_the_tied_set_the_order_who_and_when(self):
+        registrations = self._enrol(self.students[:4])
+        self._close({self.students[0]: 7.0, self.students[1]: 7.0, self.students[2]: 7.0, self.students[3]: 9.0})
+        self.mobility.with_user(self.coordinator_user).action_draw_ties()
+        draw = self.mobility.draw_ids
+        self.assertEqual(len(draw), 1)
+        self.assertEqual(draw.user_id, self.coordinator_user)
+        self.assertTrue(draw.date)
+        self.assertEqual(draw.grade_average, 7.0)
+        self.assertEqual(draw.line_ids.registration_id, registrations[:3], "Exactly the students tied.")
+        self.assertEqual([line.registration_id.draw_order for line in draw.line_ids], [1, 2, 3])
+        self.assertEqual(draw.line_ids.mapped('position'), [1, 2, 3])
+        self.assertEqual(draw.line_ids.sorted('position').registration_id.mapped('rank'), [2, 3, 4])
+        for record in (draw, draw.line_ids[:1]):
+            with self.assertRaises(UserError):
+                record.write({'position': 5} if record._name.endswith('line') else {'grade_average': 1.0})
+            with self.assertRaises(UserError):
+                record.unlink()
+
+    def test_joining_a_drawn_tie_reopens_it(self):
+        registrations = self._enrol(self.students[:3])
+        self._close({self.students[0]: 7.0, self.students[1]: 7.0})
+        self.mobility.with_user(self.coordinator_user).action_draw_ties()
+        self.assertFalse(self.mobility.needs_draw)
+        registrations[2].with_user(self.technician_user).write({
+            'grade_manual': True, 'grade_average_manual': 7.0, 'grade_manual_reason': 'Academic record'})
+        self.assertTrue(self.mobility.needs_draw)
+        self.mobility.with_user(self.coordinator_user).action_draw_ties()
+        self.assertEqual(len(self.mobility.draw_ids), 2)
+        self.assertEqual(len(self.mobility.draw_ids[:1].line_ids), 3)
+
+
+@tagged('post_install', '-at_install')
+class TestErasmusGroupCommitment(ErasmusGroupMobilityCase):
+    """Issue #703 - the commitment letter (the internship mobilities' mechanism) and the
+    participants' spreadsheet."""
+
+    def test_the_letter_is_the_common_template_with_the_mobility_data(self):
+        minor = self._approved_with_minor()
+        letter = minor._ems_commitment_text()
+        self.assertIn('Test SMX2 morning', letter)
+        self.assertIn('still to be confirmed', letter, "No destination yet.")
+        self.assertIn('does not replace the official authorisation', letter)
+        self.mobility.write({'city': 'Hamburg', 'country_id': self.env.ref('base.de').id,
+                             'commitment_extra': '<p>No motorbikes</p>'})
+        letter = minor._ems_commitment_text()
+        self.assertIn('Hamburg', letter)
+        self.assertIn('No motorbikes', letter)
+        self.assertNotIn('still to be confirmed', letter)
+        leader = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'leader')
+        self.assertFalse(leader.commitment_pending, "Teachers sign no letter.")
+
+    def test_student_and_family_sign_and_the_text_is_kept(self):
+        family = self._family()
+        minor = self._approved_with_minor()
+        self.assertTrue(minor.commitment_pending)
+        self.assertTrue(minor.commitment_guardian_pending)
+        self.assertTrue(self.env['mail.mail'].search([('email_to', '=', family.email),
+                                                      ('model', '=', minor._name), ('res_id', '=', minor.id)]),
+                        "The family is told when the file opens.")
+        self.assertEqual(family._ems_erasmus_guardian_group_participants(), minor)
+        self.assertTrue(family._ems_erasmus_portal_visible())
+        self.assertEqual(self.mobility.commitments_pending, 8)
+        with self.assertRaises(UserError):
+            minor.action_sign_commitment(False, '10.0.0.1')
+        minor.action_sign_commitment(True, '10.0.0.1')
+        self.assertIn('Test SMX2 morning', minor.commitment_signed_text)
+        self.mobility.commitment_extra = '<p>Changed later</p>'
+        self.assertNotIn('Changed later', minor.commitment_signed_text, "What was accepted never changes.")
+        self.assertNotIn('Changed later', minor._ems_commitment_text(), "The family signs the same text.")
+        self.assertTrue(minor.commitment_guardian_pending)
+        self.assertFalse(minor.preparation_complete)
+        minor.action_sign_commitment(True, '10.0.0.2', guardian=True)
+        self.assertEqual(minor.commitment_guardian_signed_ip, '10.0.0.2')
+        self.assertFalse(minor.commitment_guardian_pending)
+        with self.assertRaises(UserError):
+            minor.action_sign_commitment(True, guardian=True)
+
+    def test_an_adult_signs_alone(self):
+        self._approved()
+        adult = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'student')[:1]
+        self.assertFalse(adult.commitment_guardian_pending)
+        with self.assertRaises(UserError):
+            adult.action_sign_commitment(True, guardian=True)
+
+    def test_participants_spreadsheet_in_the_calls_format(self):
+        self._approved()
+        with self.assertRaises(AccessError):
+            self.mobility.with_user(self.leader_user).action_export_participants()
+        action = self.mobility.with_user(self.technician_user).action_export_participants()
+        self.assertIn('/ems/erasmus/group/participants?participant_ids=', action['url'])
+        participants = self.mobility.participant_ids
+        with self.assertRaises(AccessError):
+            participants.with_user(self.leader_user)._ems_participants_xlsx()
+        content = participants.with_user(self.technician_user)._ems_participants_xlsx()
+        rows = list(openpyxl.load_workbook(io.BytesIO(content))['Participantes'].iter_rows(values_only=True))
+        self.assertEqual(rows[0], PARTICIPANT_HEADERS, "The calls' columns, unchanged.")
+        self.assertEqual(len(rows), 1 + 8 + 2, "Eight students and the two teachers.")
+        records = [dict(zip(rows[0], row)) for row in rows[1:]]
+        students, teachers = records[:8], records[8:]
+        self.assertTrue(all(row['Ciclo formativo'] for row in students))
+        self.assertFalse(any(row['Ciclo formativo'] or row['Curso'] for row in teachers),
+                         "An accompanying teacher has no cycle nor year: what tells them apart.")
+        self.assertFalse(any(row['IBAN'] or row['Banco'] for row in records), "No bank data in a group mobility.")
+
+
+@tagged('post_install', '-at_install')
 class TestErasmusGroupSelection(ErasmusGroupMobilityCase):
     """Issue #702 - the leader proposes, the coordinator approves; withdrawals and substitutions."""
 
@@ -386,16 +547,15 @@ class TestErasmusGroupFiles(ErasmusGroupMobilityCase):
         self.assertTrue(teacher.document_ids.filtered(lambda line: line.name == 'Grant agreement'))
 
     def test_family_authorisations_only_for_minors(self):
-        self._enrol(self.minor)
-        registrations = self._enrol(self.students[:7])
-        self._close({**{student: 8.0 - index * 0.1 for index, student in enumerate(self.students[:7])},
-                     self.minor: 5.0})
-        self.mobility.with_user(self.leader_user).action_submit_proposal()
-        self.mobility.with_user(self.coordinator_user).action_approve_selection()
-        authorisation = 'Family authorisation to travel'
-        minor = self.mobility.participant_ids.filtered(lambda participant: participant.partner_id == self.minor)
-        adult = registrations[0].participant_id
+        """The official authorisation to travel abroad, only for minors: a document of their own
+        file, apart from the commitment letter."""
+        minor = self._approved_with_minor()
+        authorisation = 'Authorisation for minors to travel abroad'
+        adult = self.mobility.registration_ids.filtered(lambda registration: registration.partner_id ==
+                                                        self.students[0]).participant_id
         self.assertTrue(minor.is_minor)
+        self.assertFalse(minor.document_ids.filtered(lambda line: line.name == 'Family authorisation to travel'),
+                         "The family's authorisation to take part is the commitment letter, not a document.")
         self.assertTrue(minor.document_ids.filtered(lambda line: line.name == authorisation).is_required)
         self.assertFalse(adult.document_ids.filtered(lambda line: line.name == authorisation).is_required)
 
@@ -603,3 +763,29 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         self.assertIn('o_ems_erasmus_group_result_reserve', self.url_open('/my/erasmus').text)
         response = self.url_open(f'/my/erasmus/group/{self.mobility.id}')
         self.assertFalse(response.url.endswith(f'/my/erasmus/group/{self.mobility.id}'))
+
+    def test_student_and_family_accept_the_letter_on_the_portal(self):
+        family = self._family()
+        family_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': family.name, 'login': 'test_group_portal_family', 'password': 'test_group_portal_family',
+            'partner_id': family.id, 'lang': 'en_US', 'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        minor_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': self.minor.name, 'login': 'test_group_portal_minor', 'password': 'test_group_portal_minor',
+            'partner_id': self.minor.id, 'lang': 'en_US',
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        minor = self._approved_with_minor()
+        url = f'/my/erasmus/group/commitment/{minor.id}'
+        self.authenticate(minor_user.login, minor_user.login)
+        page = self.url_open(f'/my/erasmus/group/{self.mobility.id}').text
+        self.assertIn('o_ems_erasmus_commitment_sign', page)
+        self.assertIn('o_ems_erasmus_guardian_pending', page)
+        self.assertIn('error=1', self._post(f'/my/erasmus/group/{self.mobility.id}/commitment').url)
+        self._post(f'/my/erasmus/group/{self.mobility.id}/commitment', accepted='on')
+        self.assertEqual(minor.commitment_signed_by_id, minor_user)
+        self.assertIn('error=1', self._post(url, accepted='on').url, "The student does not sign for the family.")
+        self.authenticate(family_user.login, family_user.login)
+        self.assertIn('o_ems_erasmus_group_guardian_commitment', self.url_open('/my/erasmus').text)
+        self.assertIn('error=1', self._post(url).url, "Not without ticking the acceptance.")
+        self._post(url, accepted='on')
+        self.assertEqual(minor.commitment_guardian_signed_by_id, family_user)
+        self.assertIn('o_ems_erasmus_guardian_signed', self.url_open('/my/erasmus').text)

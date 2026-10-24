@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // Issue #534, as the student's tutor: the enrollment list is read-only (no "Add a line" - only the
 // secretary's office and academic administration add or remove enrollments), but its row buttons
@@ -15,7 +16,7 @@ registry.category("web_tour.tours").add("ems_enrollment_slot_tutor", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('0000 TSLT Split Student')",
+            trigger: `.o_list_view ${studentCell("0000 TSLT Split Student")}`,
             content: "Open the student",
             run: "click",
         },

@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell, studentRow } from "@ems/../tests/tours/student_list_helpers";
 
 // Archiving via the generic "Archive" action (form cog-menu for a single record, list
 // multi-selection for several) must open the withdrawal wizard — not archive silently.
@@ -20,8 +21,9 @@ registry.category("web_tour.tours").add("ems_archive_action_single_opens_wizard"
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("Archive Action Tour Single"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('Archive Action Tour Single')",
+            trigger: `.o_list_view ${studentCell("Archive Action Tour Single")}`,
             content: "Open the seeded student",
             run: "click",
         },
@@ -96,15 +98,16 @@ registry.category("web_tour.tours").add("ems_archive_action_bulk_opens_wizard", 
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("Archive Action Tour Bulk"),
         {
             trigger:
-                ".o_data_row:has(.o_data_cell:contains('Archive Action Tour Bulk A')) .o_list_record_selector",
+                `${studentRow("Archive Action Tour Bulk A")} .o_list_record_selector`,
             content: "Select the first seeded student",
             run: "click",
         },
         {
             trigger:
-                ".o_data_row:has(.o_data_cell:contains('Archive Action Tour Bulk B')) .o_list_record_selector",
+                `${studentRow("Archive Action Tour Bulk B")} .o_list_record_selector`,
             content: "Select the second seeded student",
             run: "click",
         },
@@ -150,7 +153,7 @@ registry.category("web_tour.tours").add("ems_archive_action_bulk_opens_wizard", 
         },
         {
             trigger:
-                ".o_list_view:not(:has(.o_data_cell:contains('Archive Action Tour Bulk A')))",
+                `.o_list_view:not(:has(${studentRow("Archive Action Tour Bulk A")}))`,
             content: "Both withdrawn students no longer show under the default Students filter",
         },
     ],
@@ -174,8 +177,9 @@ registry.category("web_tour.tours").add("ems_archive_action_expulsion_opens_wiza
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("Archive Action Tour Expulsion"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('Archive Action Tour Expulsion')",
+            trigger: `.o_list_view ${studentCell("Archive Action Tour Expulsion")}`,
             content: "Open the seeded student",
             run: "click",
         },
@@ -316,7 +320,7 @@ registry.category("web_tour.tours").add("ems_archive_action_shows_in_list", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('Archive Action Tour Single')",
+            trigger: `.o_list_view ${studentCell("Archive Action Tour Single")}`,
             content: "The withdrawn (now archived) student still shows up under Former students",
         },
     ],

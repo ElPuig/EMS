@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell } from "@ems/../tests/tours/student_list_helpers";
 import { checkActions, clickAction } from "@ems/../tests/tours/actions_dropdown_helpers";
 
 // Covers the two-stage leaving lifecycle (#388) as it is rendered on the student form
@@ -26,8 +27,9 @@ registry.category("web_tour.tours").add("ems_student_google_workspace_lifecycle"
             run: "click",
         },
         // --- stage 1: deactivation scheduled, nothing changed in Google yet ---
+        ...searchStudent("GW Student"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('0000 GW Student Scheduled')",
+            trigger: `.o_list_view ${studentCell("0000 GW Student Scheduled")}`,
             content: "Open the student whose deactivation is scheduled",
             run: "click",
         },
@@ -55,7 +57,7 @@ registry.category("web_tour.tours").add("ems_student_google_workspace_lifecycle"
         },
         // --- stage 2: suspended, deletion scheduled --------------------------
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('0000 GW Student Suspended')",
+            trigger: `.o_list_view ${studentCell("0000 GW Student Suspended")}`,
             content: "Open the suspended student",
             run: "click",
         },

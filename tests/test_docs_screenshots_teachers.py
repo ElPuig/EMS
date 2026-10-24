@@ -1036,6 +1036,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         # stall - see project_role_smoke_student_kanban_hang in memory - not worth risking here).
         action = self.env['ir.actions.act_window'].create({
             'name': 'Alumnat', 'res_model': 'res.partner', 'view_mode': 'list,form',
+            # The Students menu's own list (first name and last names, sorted by last name).
+            'view_ids': [(0, 0, {'view_mode': 'list', 'view_id': self.env.ref('ems.view_student_list').id})],
             'search_view_id': self.env.ref('ems.view_student_search').id,
             'domain': [('id', 'in', (student_own | student_other).ids)],
             'context': {

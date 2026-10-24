@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // Studies tab of a 2nd-year student: the subject dropdown only offers subjects of the
 // student's own study, and a subject the 1st-year enrollment template sells goes to the
@@ -14,8 +15,9 @@ registry.category("web_tour.tours").add("ems_enrollment_subject_group", {
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("0000 TESGT Student"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('0000 TESGT Student')",
+            trigger: `.o_list_view ${studentCell("0000 TESGT Student")}`,
             content: "Open the student",
             run: "click",
         },

@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // Opens a freshly seeded student (created by the Python test, not a real production
 // contact — see test_contact_tour.py) so this tour is free to actually create data:
@@ -40,8 +41,9 @@ registry.category("web_tour.tours").add("ems_contact_tabs_and_relation_wizard", 
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("Contact Tour Student"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('Contact Tour Student')",
+            trigger: `.o_list_view ${studentCell("Contact Tour Student")}`,
             content: "Open the seeded student",
             run: "click",
         },
@@ -176,6 +178,43 @@ registry.category("web_tour.tours").add("ems_contact_tabs_and_relation_wizard", 
         {
             trigger: ".o_form_view .o_field_widget[name='relation_all_ids'] .o_data_row td:contains('Tour Father')",
             content: "The new relation shows up in the Addresses tab list",
+        },
+    ],
+});
+
+// Issue #655: the Students list shows first name and last name as columns of their own, sorted by
+// last name like the roll-call, and the complete name is hidden by default. The fixture's last
+// names start with "Tslt" so they sort together, Aguilar before Bosch, the reverse of their
+// first names.
+registry.category("web_tour.tours").add("ems_students_list_sorted_by_last_name", {
+    test: true,
+    url: "/odoo/action-ems.action_student_kanban",
+    steps: () => [
+        {
+            trigger: ".o_switch_view.o_list",
+            content: "Switch to list view",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view th[data-name='firstname'] + th[data-name='lastname']",
+            content: "First name and last name are columns of their own, in that order",
+        },
+        {
+            trigger: ".o_list_view:not(:has(th[data-name='complete_name']))",
+            content: "The complete name is hidden by default",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:first-child td[name='lastname']:contains('Tslt Aguilar')",
+            content: "Sorted by last name: Zoe Tslt Aguilar comes before Ana Tslt Bosch",
+        },
+        {
+            trigger: ".o_list_view th[data-name='lastname']",
+            content: "Sort by last name the other way round",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:first-child td[name='lastname']:contains('Tslt Bosch')",
+            content: "Now Bosch comes first",
         },
     ],
 });

@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // Issue #534, Studies tab: switch on "Custom schedule", customize the subject (its group's
 // sessions become editable slots), drop Tuesday with group C and add Wednesday with group D.
@@ -13,8 +14,9 @@ registry.category("web_tour.tours").add("ems_enrollment_slot", {
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("0000 TSLT Split Student"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('0000 TSLT Split Student')",
+            trigger: `.o_list_view ${studentCell("0000 TSLT Split Student")}`,
             content: "Open the student",
             run: "click",
         },

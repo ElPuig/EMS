@@ -120,5 +120,43 @@
                 </xpath>
             </field>
         </record>
+
+        <!-- Educational Community > Students (issue #655): first name and last name as columns of
+             their own, sorted by last name like the roll-call, the complete name hidden by default.
+             Its own primary view because the contact list above is shared with Families and
+             Providers (a provider has no first and last name); it still inherits every column
+             above, since a primary child of base.view_partner_tree gets its extensions too. -->
+        <record model="ir.ui.view" id="view_student_list">
+            <field name="name">ems.student.list</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_tree"/>
+            <field name="mode">primary</field>
+            <field name="priority">100</field>
+            <field name="arch" type="xml">
+                <xpath expr="//list" position="attributes">
+                    <attribute name="default_order">lastname, firstname</attribute>
+                </xpath>
+                <xpath expr="//field[@name='complete_name']" position="before">
+                    <field name="firstname"/>
+                    <field name="lastname"/>
+                </xpath>
+                <xpath expr="//field[@name='complete_name']" position="attributes">
+                    <attribute name="optional">hide</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <!-- Bound to the list mode only, after the kanban: the menu still opens on the kanban. -->
+        <record model="ir.actions.act_window.view" id="action_student_kanban_view_kanban">
+            <field name="act_window_id" ref="ems.action_student_kanban"/>
+            <field name="view_mode">kanban</field>
+            <field name="sequence">1</field>
+        </record>
+        <record model="ir.actions.act_window.view" id="action_student_kanban_view_list">
+            <field name="act_window_id" ref="ems.action_student_kanban"/>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="view_student_list"/>
+            <field name="sequence">2</field>
+        </record>
     </data>
 </odoo>

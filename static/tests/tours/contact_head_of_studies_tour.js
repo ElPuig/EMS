@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // Issue #448: a Head/Deputy Head of Studies (not the student's own tutor) reported the
 // personal-data block hidden and an AccessError deleting a family contact. tests/
@@ -26,8 +27,9 @@ registry.category("web_tour.tours").add("ems_contact_head_of_studies_full_access
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("HoS Contact Tour Student"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('HoS Contact Tour Student')",
+            trigger: `.o_list_view ${studentCell("HoS Contact Tour Student")}`,
             content: "Open the seeded student",
             run: "click",
         },

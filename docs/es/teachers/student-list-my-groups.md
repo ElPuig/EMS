@@ -29,6 +29,11 @@ Tus grupos son los de tu horario más cualquier grupo del que seas tutor o tutor
 aparece en la lista cuando ese grupo es su grupo principal, o cuando está matriculado en él
 en alguna de tus materias — incluidos grupos de refuerzo y desdobles.
 
+La lista muestra el nombre y los apellidos en columnas separadas y está ordenada por apellidos,
+en el mismo orden que el pase de lista. Haz clic en la cabecera de una columna para ordenar por
+ella. El nombre completo está oculto: para mostrarlo, abre el menú de columnas opcionales en el
+extremo derecho de las cabeceras.
+
 ![La lista de Alumnado con los dos filtros aplicados, mostrando solo un alumno del propio grupo del profesor](../../assets/teachers/alumnat-01-els-meus-grups.png)
 
 ---

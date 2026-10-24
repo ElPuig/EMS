@@ -42,7 +42,8 @@ El selector de la derecha lista lo disponible para la fecha elegida, separado en
   alumno.
 - **Previstas (sin sesión)**: una franja de tu horario semanal para la que todavía no se ha creado
   ninguna sesión. Al seleccionar una aparece el botón **Iniciar sesión** — haz clic para crear la
-  sesión y cargar su alumnado.
+  sesión y cargar su alumnado. Una clase de la que ya se ha pasado lista ese día solo aparece en
+  **Sesiones**, aunque después haya cambiado su horario (por ejemplo, el aula).
 
 > Si más de una sesión o franja prevista coincide con la hora actual, verás un aviso pidiéndote
 > elegir una manualmente o cambiar al modo **Manual** — puede pasar si tu horario tiene entradas

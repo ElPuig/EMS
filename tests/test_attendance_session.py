@@ -433,6 +433,64 @@ class TestAttendanceSessionHeader(TransactionCase):
             self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
                 tomorrow.isoformat(), self.schedule.id)
 
+    # --- replaced schedule slot (issue #699) -----------------------------------------------
+
+    def _replace_schedule_after_roll_call(self):
+        """Today's roll-call taken on 'schedule', then its room changed: the line already has a
+        session, so the sync archives it and creates a copy with the same template, weekday and
+        hours, valid from the template's start like the original."""
+        session = self.env['ems.attendance_session_header'].create({
+            'attendance_schedule_id': self.schedule.id, 'date': self.today,
+            'mode': 'scheduled', 'session_teacher_id': self.teacher.id,
+        })
+        other_space = self.env['ems.space'].create({
+            'code': 'TAS-B', 'name': 'Test Space B (Attendance Session)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        replacement = self.schedule._write_or_new_version({'space_id': other_space.id})
+        self.assertNotEqual(replacement, self.schedule)
+        return session, replacement
+
+    def test_replaced_slot_is_not_planned_on_a_day_it_was_taken(self):
+        session, replacement = self._replace_schedule_after_roll_call()
+        Header = self.env['ems.attendance_session_header'].with_user(self.teacher_user).with_context(lang='es_ES')
+        result = Header.get_normal_sessions_and_planned(self.today.isoformat())
+        self.assertIn(session.id, [entry['id'] for entry in result['sessions']])
+        planned = {entry['id']: entry for entry in result['planned']}
+        self.assertNotIn(replacement.id, planned)
+        # The next hour of the same template is a different class: still offered.
+        self.assertIn(self.schedule2.id, planned)
+        # Labelled like the sessions, with the weekday in the reader's language.
+        self.assertEqual(planned[self.schedule2.id]['display_name'],
+                         self.schedule2.with_context(lang='es_ES').display_name)
+        # A day without that roll-call still offers the replacement.
+        last_week = Header.get_normal_sessions_and_planned((self.today - timedelta(days=7)).isoformat())
+        self.assertIn(replacement.id, [entry['id'] for entry in last_week['planned']])
+
+    def test_replaced_slot_is_not_planned_in_guard_mode(self):
+        _session, replacement = self._replace_schedule_after_roll_call()
+        guard_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Guard Teacher User 2 (Attendance Session)', 'login': 'test_guard_teacher2_tas',
+            'groups_id': [(4, self.env.ref('ems.group_teacher').id), (4, self.env.ref('base.group_user').id)],
+        })
+        planned = self.env['ems.attendance_session_header'].with_user(guard_user).get_guard_planned(
+            self.today.isoformat())
+        planned_ids = [entry['id'] for entry in planned]
+        self.assertNotIn(replacement.id, planned_ids)
+        self.assertIn(self.schedule2.id, planned_ids)
+
+    def test_replaced_slot_cannot_get_a_second_session_the_same_day(self):
+        _session, replacement = self._replace_schedule_after_roll_call()
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_session_header'].with_user(self.teacher_user).create_scheduled_session(
+                self.today.isoformat(), replacement.id)
+        with self.assertRaises(ValidationError):
+            self.env['ems.attendance_session_header'].create({
+                'attendance_schedule_id': replacement.id, 'date': self.today,
+                'mode': 'guard', 'session_teacher_id': self.teacher.id,
+            })
+
 
 class TestAttendanceSessionLine(TransactionCase):
     """ems.attendance_session_line — the per-student status row.

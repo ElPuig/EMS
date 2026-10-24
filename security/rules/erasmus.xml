@@ -82,5 +82,93 @@
             <field name="perm_create" eval="True"/>
             <field name="perm_unlink" eval="False"/>
         </record>
+
+        <!-- Issue #701: group mobilities. The Erasmus team, the administrator and the Head of Studies
+             see them all (the Head of Studies only reads); a leader or accompanying teacher
+             (ems.group_erasmus_group_teacher) only their own mobilities. The enrolments, with the
+             ranking, only the leader; never a confidential document. What each one may change is
+             checked again in the models (EmsErasmusGroupMobility._ems_role). -->
+        <record id="rule_erasmus_group_mobility_all" model="ir.rule">
+            <field name="name">Erasmus group mobility: all (team, admin, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_mobility"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_mobility_teacher" model="ir.rule">
+            <field name="name">Erasmus group mobility: own (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_mobility"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">['|', ('leader_id.user_id', '=', user.id), ('companion_ids.user_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_erasmus_group_participant_all" model="ir.rule">
+            <field name="name">Erasmus group participant: all (team, admin, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_participant"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_participant_teacher" model="ir.rule">
+            <field name="name">Erasmus group participant: own mobilities (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_participant"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">['|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_erasmus_group_follow_up_all" model="ir.rule">
+            <field name="name">Erasmus group follow-up: all (team, admin, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_log"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_follow_up_teacher" model="ir.rule">
+            <field name="name">Erasmus group follow-up: own mobilities (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_log"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">['|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_erasmus_group_registration_all" model="ir.rule">
+            <field name="name">Erasmus group enrolment: all (team, admin, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_registration"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_registration_leader" model="ir.rule">
+            <field name="name">Erasmus group enrolment: own mobilities (leader)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_registration"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('group_mobility_id.leader_id.user_id', '=', user.id)]</field>
+        </record>
+        <!-- With a rule for the group teachers on call documents, the groups that read every call's
+             documents need theirs, or a team member who also leads a group would lose them. -->
+        <record id="rule_erasmus_call_document_all" model="ir.rule">
+            <field name="name">Erasmus call document: all (team, admin, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_call_document_group_teacher" model="ir.rule">
+            <field name="name">Erasmus call document: own group mobilities (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('group_mobility_id', '!=', False), '|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
+        </record>
+        <record id="rule_erasmus_application_document_group_teacher" model="ir.rule">
+            <field name="name">Erasmus application document: own group mobilities, not confidential (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('group_mobility_id', '!=', False), ('confidential', '=', False), '|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_application_document_group_teacher_write" model="ir.rule">
+            <field name="name">Erasmus application document: change, own (accompanying teacher) or the group's (leader)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('group_mobility_id', '!=', False), ('confidential', '=', False), '|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_participant_id.employee_id.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
     </data>
 </odoo>

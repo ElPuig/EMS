@@ -650,7 +650,13 @@ class EmsErasmusCall(models.Model):
     def _ems_course_strike_count(self, partner):
         """How many conduct warnings (ems.strike) `partner` has during the call's course."""
         self.ensure_one()
-        course = self.course_id or self.env.company.current_course_id
+        return self._ems_partner_course_strike_count(partner, self.course_id)
+
+    @api.model
+    def _ems_partner_course_strike_count(self, partner, course):
+        """How many conduct warnings `partner` has during `course` (empty: the current one). Issue
+        #701: group mobilities apply the same rule."""
+        course = course or self.env.company.current_course_id
         if not course or partner.contact_type != 'student':
             return 0
         utils = self.env['ems.datetime_utils']

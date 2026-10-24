@@ -1,0 +1,524 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issues #701-#704 - group mobilities of students (KA121-VET): the coordinator's overview
+             (kanban and list) and each mobility's panel, the same form for the Erasmus team and for
+             its leader teacher, who only changes what the model lets them (EmsErasmusGroupMobility._ems_role). -->
+        <record id="view_erasmus_group_mobility_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.mobility.list</field>
+            <field name="model">ems.erasmus.group.mobility</field>
+            <field name="arch" type="xml">
+                <list string="Group mobilities" decoration-muted="state in ('done', 'cancelled')">
+                    <field name="name"/>
+                    <field name="group_ids" widget="many2many_tags" optional="show"/>
+                    <field name="leader_id"/>
+                    <field name="country_id" optional="show"/>
+                    <field name="date_start_planned" optional="show"/>
+                    <field name="registration_count" optional="show"/>
+                    <field name="selected_count"/>
+                    <field name="documents_missing" optional="show" decoration-danger="documents_missing > 0"/>
+                    <field name="documents_to_review" optional="show" decoration-warning="documents_to_review > 0"/>
+                    <field name="eu_survey_state" optional="hide"/>
+                    <field name="activity_ids" widget="list_activity" optional="show"/>
+                    <field name="project_id" optional="hide"/>
+                    <field name="state" widget="badge" decoration-info="state in ('enrolment', 'selection')"
+                           decoration-warning="state in ('validation', 'preparation', 'stay', 'return')"
+                           decoration-success="state == 'done'"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_mobility_kanban" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.mobility.kanban</field>
+            <field name="model">ems.erasmus.group.mobility</field>
+            <field name="arch" type="xml">
+                <kanban class="o_ems_erasmus_group_kanban" default_group_by="state" group_create="false"
+                        group_delete="false" group_edit="false" quick_create="false">
+                    <field name="state"/>
+                    <field name="student_places"/>
+                    <field name="activity_state"/>
+                    <templates>
+                        <t t-name="card">
+                            <field name="name" class="fw-bold fs-5"/>
+                            <field name="group_ids" widget="many2many_tags"/>
+                            <div class="small text-muted">
+                                <i class="fa fa-user me-1" title="Leader teacher"/><field name="leader_id"/>
+                            </div>
+                            <div class="small" invisible="not country_id">
+                                <i class="fa fa-map-marker me-1" title="Destination"/><field name="city"/> <field name="country_id"/>
+                            </div>
+                            <div class="small" invisible="not date_start_planned">
+                                <i class="fa fa-calendar me-1" title="Dates"/><field name="date_start_planned"/> - <field name="date_end_planned"/>
+                            </div>
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                <span class="badge text-bg-light" title="Enrolled"><i class="fa fa-pencil me-1"/><field name="registration_count"/></span>
+                                <span class="badge text-bg-light" title="Selected"><i class="fa fa-check me-1"/><field name="selected_count"/> / <field name="student_places"/></span>
+                                <span class="badge text-bg-danger" title="Documents missing" invisible="not documents_missing"><i class="fa fa-file-o me-1"/><field name="documents_missing"/></span>
+                                <span class="badge text-bg-warning" title="Documents to review" invisible="not documents_to_review"><i class="fa fa-eye me-1"/><field name="documents_to_review"/></span>
+                                <span class="badge text-bg-warning" title="Tie to resolve" invisible="not needs_draw"><i class="fa fa-random me-1"/>Tie</span>
+                            </div>
+                            <footer>
+                                <field name="activity_ids" widget="kanban_activity"/>
+                            </footer>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_mobility_search" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.mobility.search</field>
+            <field name="model">ems.erasmus.group.mobility</field>
+            <field name="arch" type="xml">
+                <search string="Group mobilities">
+                    <field name="name"/>
+                    <field name="group_ids"/>
+                    <field name="leader_id"/>
+                    <field name="project_id"/>
+                    <filter name="open" string="Open" domain="[('state', 'not in', ('done', 'cancelled'))]"/>
+                    <filter name="mine" string="Mine"
+                            domain="['|', ('leader_id.user_id', '=', uid), ('companion_ids.user_id', '=', uid)]"/>
+                    <separator/>
+                    <filter name="activities_overdue" string="Late tasks"
+                            domain="[('my_activity_date_deadline', '&lt;', context_today().strftime('%Y-%m-%d'))]"/>
+                    <group expand="0" string="Group By">
+                        <filter name="group_state" string="State" context="{'group_by': 'state'}"/>
+                        <filter name="group_project" string="Project" context="{'group_by': 'project_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_mobility_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.mobility.form</field>
+            <field name="model">ems.erasmus.group.mobility</field>
+            <field name="arch" type="xml">
+                <form string="Group mobility">
+                    <header>
+                        <field name="user_role" invisible="1"/>
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_open_enrolment" type="object" string="Open the enrolment" class="btn-primary"
+                                    invisible="state != 'draft' or user_role != 'team'"
+                                    help="Students of the eligible groups see it on the portal and enrol between the dates of the enrolment period."/>
+                            <button name="action_back_to_draft" type="object" string="Back to draft"
+                                    invisible="state != 'enrolment' or user_role != 'team'"/>
+                            <button name="action_close_enrolment" type="object" string="Close the enrolment now"
+                                    invisible="state != 'enrolment' or user_role != 'team'"
+                                    confirm="The ranking data are frozen now and nobody else can enrol. Continue?"
+                                    help="EMS closes it by itself when the enrolment period ends."/>
+                            <button name="action_submit_proposal" type="object" string="Send the proposal to the coordinator"
+                                    class="btn-primary" invisible="state != 'selection' or user_role not in ('team', 'leader')"/>
+                            <button name="action_approve_selection" type="object" string="Approve and publish the selection"
+                                    class="btn-primary" invisible="state != 'validation'"
+                                    groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                    confirm="Each student receives their own result and the participants' files open. Continue?"/>
+                            <button name="action_return_proposal" type="object" string="Send the proposal back"
+                                    invisible="state != 'validation'"
+                                    groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                    help="Write why in the Selection tab first."/>
+                            <button name="action_propose_substitution" type="object" string="Propose the next reserve"
+                                    invisible="not next_reserve or user_role not in ('team', 'leader')"/>
+                            <button name="action_sync_requirements" type="object" string="Update documents"
+                                    invisible="state not in ('preparation', 'stay', 'return') or user_role != 'team'"
+                                    help="Adds to every file the documents asked for that it does not have yet."/>
+                            <button name="action_start_stay" type="object" string="The stay starts"
+                                    invisible="state != 'preparation' or user_role not in ('team', 'leader')"/>
+                            <button name="action_end_stay" type="object" string="Back home"
+                                    invisible="state != 'stay' or user_role not in ('team', 'leader')"
+                                    help="The return documents and the EU Survey start."/>
+                            <button name="action_eu_survey_done" type="object" string="EU Survey answered"
+                                    invisible="state != 'return' or eu_survey_state != 'pending'"/>
+                            <button name="action_eu_survey_validate" type="object" string="Validate the EU Survey"
+                                    invisible="eu_survey_state != 'done' or user_role != 'team'"/>
+                            <button name="action_propose_closure" type="object" string="Propose the closure"
+                                    invisible="state != 'return' or closure_proposed_date or user_role not in ('team', 'leader')"/>
+                            <button name="action_close" type="object" string="Close the mobility"
+                                    invisible="state != 'return' or user_role != 'team'"/>
+                            <button name="action_cancel" type="object" string="Cancel the mobility"
+                                    invisible="state in ('done', 'cancelled') or user_role != 'team'"
+                                    confirm="The mobility is cancelled. Continue?"
+                                    help="Write the reason in the Closure tab first."/>
+                        </div>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,enrolment,selection,validation,preparation,stay,return,done"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_button_box" name="button_box">
+                            <button name="action_view_participants" type="object" class="oe_stat_button" icon="fa-users">
+                                <field name="selected_count" widget="statinfo" string="Selected"/>
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <label for="name"/>
+                            <h1><field name="name" placeholder="e.g. SMX2 morning" readonly="user_role != 'team'"/></h1>
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="not needs_draw">
+                            There is a tie in the ranking: the Erasmus coordination resolves it with the Tie order, as the published criteria say.
+                        </div>
+                        <div class="alert alert-info" role="alert" invisible="not next_reserve">
+                            A place is free: the next reserve is <field name="next_reserve" class="fw-bold"/>.
+                        </div>
+                        <group>
+                            <group string="Group">
+                                <field name="project_id" options="{'no_create': True}" readonly="user_role != 'team'"/>
+                                <field name="course_id" options="{'no_create': True}" readonly="user_role != 'team'"/>
+                                <field name="shift" readonly="user_role != 'team' or state != 'draft'"/>
+                                <field name="group_ids" widget="many2many_tags" options="{'no_create': True}"
+                                       domain="[('shift', '=', shift)] if shift else []"
+                                       readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
+                                <field name="student_places" readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
+                                <field name="teacher_places" readonly="user_role != 'team'"/>
+                                <field name="leader_id" options="{'no_create': True}" readonly="user_role != 'team'"/>
+                                <field name="companion_ids" widget="many2many_tags" options="{'no_create': True}"
+                                       readonly="user_role != 'team'"/>
+                            </group>
+                            <group string="Destination and dates">
+                                <field name="country_id" readonly="user_role != 'team'"/>
+                                <field name="city" readonly="user_role != 'team'"/>
+                                <field name="host_partner_id" readonly="user_role != 'team'"
+                                       context="{'default_is_company': True, 'default_is_erasmus_host': True, 'default_contact_type': 'provider'}"/>
+                                <field name="host_contact_id" context="{'default_parent_id': host_partner_id}"
+                                       invisible="not host_partner_id" readonly="user_role != 'team'"/>
+                                <label for="date_start_planned" string="Planned dates"/>
+                                <div class="o_row">
+                                    <field name="date_start_planned" readonly="user_role != 'team'"/> - <field name="date_end_planned" readonly="user_role != 'team'"/>
+                                </div>
+                                <label for="date_start" string="Final dates"/>
+                                <div class="o_row">
+                                    <field name="date_start" readonly="user_role != 'team'"/> - <field name="date_end" readonly="user_role != 'team'"/>
+                                </div>
+                                <label for="travel_date_out" string="Travel"/>
+                                <div class="o_row">
+                                    <field name="travel_date_out" readonly="user_role != 'team'"/> - <field name="travel_date_back" readonly="user_role != 'team'"/>
+                                </div>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Enrolment" name="enrolment" invisible="user_role == 'companion'">
+                                <group>
+                                    <group>
+                                        <field name="enrolment_open" readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
+                                        <field name="enrolment_close" readonly="user_role != 'team' or state not in ('draft', 'enrolment')"/>
+                                        <field name="is_enrolling"/>
+                                    </group>
+                                    <group>
+                                        <field name="registration_count"/>
+                                    </group>
+                                </group>
+                                <label for="tie_break"/>
+                                <field name="tie_break" readonly="user_role != 'team' or state != 'draft'"/>
+                                <label for="description"/>
+                                <field name="description" readonly="user_role != 'team'"/>
+                            </page>
+                            <page string="Selection" name="selection" invisible="state in ('draft', 'enrolment') or user_role == 'companion'">
+                                <group>
+                                    <group>
+                                        <field name="ranking_date"/>
+                                        <field name="proposal_date"/>
+                                        <field name="proposal_user_id"/>
+                                        <field name="approval_date"/>
+                                        <field name="approval_user_id"/>
+                                    </group>
+                                    <group>
+                                        <field name="selected_count"/>
+                                        <field name="reserve_count"/>
+                                        <field name="needs_draw" invisible="1"/>
+                                        <field name="proposal_note" readonly="state != 'selection'"/>
+                                        <field name="return_note" readonly="state != 'validation' or user_role != 'team'"
+                                               invisible="state not in ('selection', 'validation') or (not return_note and state == 'selection')"/>
+                                    </group>
+                                </group>
+                                <field name="registration_ids">
+                                    <list create="false" delete="false" editable="bottom"
+                                          decoration-muted="state == 'withdrawn' or result == 'renounced'"
+                                          decoration-danger="proposed_result == 'excluded'">
+                                        <field name="rank"/>
+                                        <field name="partner_id"/>
+                                        <field name="group_id" optional="show"/>
+                                        <field name="state" optional="show"/>
+                                        <field name="enrol_date" optional="hide"/>
+                                        <field name="grade_average"/>
+                                        <field name="grade_found" optional="hide"/>
+                                        <field name="eligible"/>
+                                        <field name="exclusion" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="strike_count" optional="hide" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="fewer_opportunities" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="fewer_opportunities_check" optional="show"
+                                               groups="ems.group_erasmus,ems.group_academic_admin"
+                                               invisible="not fewer_opportunities"/>
+                                        <field name="needs_draw" widget="boolean_toggle" readonly="1" optional="show"/>
+                                        <field name="draw_order" optional="show" invisible="not needs_draw"
+                                               groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="proposed_result" widget="badge" decoration-success="proposed_result == 'selected'"
+                                               decoration-info="proposed_result == 'reserve'" decoration-danger="proposed_result == 'excluded'"/>
+                                        <field name="result_override" optional="show"
+                                               groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                        <field name="override_reason" optional="show"
+                                               groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                               required="result_override"/>
+                                        <field name="exception_request" optional="show"/>
+                                        <field name="result" widget="badge" decoration-success="result == 'selected'"
+                                               decoration-info="result == 'reserve'" decoration-danger="result == 'excluded'"/>
+                                        <field name="reserve_position" optional="show"/>
+                                        <field name="substitution_state" optional="show"/>
+                                        <button name="action_request_exception" type="object" string="Request" icon="fa-flag"
+                                                title="Ask the coordinator for the exception written in Exception requested"
+                                                invisible="not exception_request or parent.state != 'selection'"/>
+                                        <button name="action_approve_substitution" type="object" string="Approve" icon="fa-check"
+                                                invisible="substitution_state != 'proposed'"
+                                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                        <button name="action_reject_substitution" type="object" string="Reject" icon="fa-times"
+                                                invisible="substitution_state != 'proposed'"
+                                                groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Participants" name="participants" invisible="not participant_ids">
+                                <field name="participant_ids" readonly="1">
+                                    <list decoration-muted="state == 'withdrawn'">
+                                        <field name="role"/>
+                                        <field name="partner_id"/>
+                                        <field name="group_id" optional="show"/>
+                                        <field name="email" widget="email" optional="show"/>
+                                        <field name="phone" widget="phone" optional="show"/>
+                                        <field name="is_minor" optional="show"/>
+                                        <field name="documents_missing" decoration-danger="documents_missing > 0"/>
+                                        <field name="documents_valid"/>
+                                        <field name="preparation_complete"/>
+                                        <field name="state" optional="show"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Documents" name="documents" invisible="state in ('draft', 'enrolment', 'selection', 'validation') and user_role != 'team'">
+                                <group>
+                                    <group>
+                                        <field name="documents_missing"/>
+                                        <field name="documents_to_review"/>
+                                    </group>
+                                </group>
+                                <separator string="Shared documents"/>
+                                <field name="document_ids">
+                                    <list editable="bottom" create="false" delete="false">
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="signers"/>
+                                        <field name="deadline"/>
+                                        <field name="is_required"/>
+                                        <field name="confidential" column_invisible="1"/>
+                                        <field name="handled_by" column_invisible="1"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
+                                               decoration-danger="review_state == 'needs_change'"/>
+                                        <field name="review_comment"/>
+                                        <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
+                                                invisible="review_state == 'valid' or not attachment_ids or parent.user_role not in ('team', 'leader')"/>
+                                        <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
+                                                invisible="review_state == 'needs_change' or parent.user_role not in ('team', 'leader')"/>
+                                    </list>
+                                </field>
+                                <separator string="Documents asked for" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                <field name="requirement_ids" groups="ems.group_erasmus,ems.group_academic_admin"
+                                       context="{'default_stage': 'preparation', 'default_due_basis': 'destination', 'default_due_days': 30}">
+                                    <list editable="bottom">
+                                        <field name="sequence" widget="handle"/>
+                                        <field name="group_audience"/>
+                                        <field name="stage"/>
+                                        <field name="name"/>
+                                        <field name="requirement"/>
+                                        <field name="handled_by"/>
+                                        <field name="confidential" optional="show"/>
+                                        <field name="due_basis" optional="show"/>
+                                        <field name="due_days" optional="show"/>
+                                        <field name="open_days" optional="hide"/>
+                                        <field name="sign_participant" optional="hide"/>
+                                        <field name="sign_guardian" optional="hide"/>
+                                        <field name="sign_director" optional="hide"/>
+                                        <field name="sign_coordinator" optional="hide"/>
+                                        <field name="sign_host" optional="hide"/>
+                                        <field name="sepie_folder" optional="hide"/>
+                                        <field name="description" optional="hide"/>
+                                    </list>
+                                </field>
+                            </page>
+                            <page string="Programme and stay" name="stay">
+                                <label for="programme"/>
+                                <field name="programme" readonly="user_role not in ('team', 'leader')"/>
+                                <separator string="Follow-up"/>
+                                <field name="log_ids" context="{'default_group_mobility_id': id}">
+                                    <list>
+                                        <field name="date"/>
+                                        <field name="kind" widget="badge" decoration-danger="kind == 'incident'"/>
+                                        <field name="name"/>
+                                        <field name="participant_ids" widget="many2many_tags"/>
+                                        <field name="attachment_ids" widget="many2many_binary"/>
+                                        <field name="author_id" optional="show"/>
+                                    </list>
+                                    <form string="Follow-up">
+                                        <group>
+                                            <group>
+                                                <field name="date"/>
+                                                <field name="kind"/>
+                                                <field name="name"/>
+                                            </group>
+                                            <group>
+                                                <field name="group_mobility_id" invisible="1"/>
+                                                <field name="participant_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                                                <field name="attachment_ids" widget="many2many_binary"/>
+                                                <field name="author_id"/>
+                                            </group>
+                                        </group>
+                                        <field name="description" placeholder="What happened, who was told, what was decided..."/>
+                                    </form>
+                                </field>
+                                <label for="leader_notes"/>
+                                <field name="leader_notes" readonly="user_role not in ('team', 'leader')"/>
+                            </page>
+                            <page string="Return and closure" name="closure">
+                                <group>
+                                    <group string="EU Survey">
+                                        <field name="eu_survey_user_id" options="{'no_create': True}" readonly="user_role != 'team'"
+                                               placeholder="The leader teacher"/>
+                                        <field name="eu_survey_deadline" readonly="user_role != 'team'"/>
+                                        <field name="eu_survey_state"/>
+                                        <field name="eu_survey_attachment_ids" widget="many2many_binary"
+                                               readonly="user_role not in ('team', 'leader')"/>
+                                    </group>
+                                    <group string="Closure">
+                                        <field name="closure_proposed_date"/>
+                                        <field name="closure_note" readonly="user_role not in ('team', 'leader')"/>
+                                        <field name="cancel_reason" readonly="user_role != 'team' or state in ('done', 'cancelled')"/>
+                                    </group>
+                                </group>
+                            </page>
+                            <!-- Issue #704: the group's own invoices (flights, accommodation...), never split by EMS. -->
+                            <page string="Collective expenses" name="expenses"
+                                  groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
+                                <group>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="expense_amount"/>
+                                </group>
+                                <field name="invoice_ids" context="{'default_project_id': project_id}">
+                                    <list>
+                                        <field name="name"/>
+                                        <field name="date"/>
+                                        <field name="supplier_id"/>
+                                        <field name="concept"/>
+                                        <field name="currency_id" column_invisible="1"/>
+                                        <field name="amount" sum="Total"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_group_mobility" model="ir.actions.act_window">
+            <field name="name">Group mobilities</field>
+            <field name="res_model">ems.erasmus.group.mobility</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="context">{'search_default_open': 1}</field>
+        </record>
+
+        <!-- The leader's and the accompanying teachers' own mobilities. -->
+        <record id="action_erasmus_my_group_mobility" model="ir.actions.act_window">
+            <field name="name">My group mobilities</field>
+            <field name="res_model">ems.erasmus.group.mobility</field>
+            <field name="view_mode">kanban,form</field>
+            <field name="domain">['|', ('leader_id.user_id', '=', uid), ('companion_ids.user_id', '=', uid)]</field>
+            <field name="context">{'create': False}</field>
+        </record>
+
+        <!-- A participant's file: their documents, reviewed by the team and the leader teacher. -->
+        <record id="view_erasmus_group_participant_list" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.participant.list</field>
+            <field name="model">ems.erasmus.group.participant</field>
+            <field name="arch" type="xml">
+                <list string="Participants" create="false" decoration-muted="state == 'withdrawn'">
+                    <field name="group_mobility_id" optional="show"/>
+                    <field name="role"/>
+                    <field name="partner_id"/>
+                    <field name="group_id" optional="show"/>
+                    <field name="is_minor" optional="show"/>
+                    <field name="documents_missing" decoration-danger="documents_missing > 0"/>
+                    <field name="documents_valid"/>
+                    <field name="preparation_complete"/>
+                    <field name="state" optional="show"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_participant_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.participant.form</field>
+            <field name="model">ems.erasmus.group.participant</field>
+            <field name="arch" type="xml">
+                <form string="Participant" create="false">
+                    <header>
+                        <field name="state" widget="statusbar"/>
+                    </header>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1><field name="partner_id"/></h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="group_mobility_id"/>
+                                <field name="role"/>
+                                <field name="group_id" invisible="role != 'student'"/>
+                                <field name="is_minor" invisible="role != 'student'"/>
+                            </group>
+                            <group>
+                                <field name="email" widget="email"/>
+                                <field name="phone" widget="phone"/>
+                                <field name="preparation_complete"/>
+                                <field name="documents_missing"/>
+                            </group>
+                        </group>
+                        <field name="document_ids">
+                            <list editable="bottom" create="false" delete="false">
+                                <field name="stage"/>
+                                <field name="name"/>
+                                <field name="signers"/>
+                                <field name="deadline"/>
+                                <field name="is_required"/>
+                                <field name="handled_by" optional="hide"/>
+                                <field name="prepared_attachment_ids" widget="many2many_binary"
+                                       readonly="handled_by == 'participant'"/>
+                                <field name="attachment_ids" widget="many2many_binary" readonly="handled_by == 'team'"/>
+                                <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
+                                       decoration-danger="review_state == 'needs_change'"/>
+                                <field name="review_comment"/>
+                                <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
+                                        invisible="handled_by == 'team' or review_state == 'valid' or not attachment_ids"/>
+                                <button name="action_mark_needs_change" type="object" string="Needs changes"
+                                        icon="fa-pencil" invisible="handled_by == 'team' or review_state == 'needs_change'"/>
+                            </list>
+                        </field>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_erasmus_group_participant" model="ir.actions.act_window">
+            <field name="name">Participants</field>
+            <field name="res_model">ems.erasmus.group.participant</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <!-- Issue #704: an invoice can be the group's (collective expenses). -->
+        <record id="view_erasmus_invoice_form_group_mobility" model="ir.ui.view">
+            <field name="name">ems.erasmus.invoice.form.group.mobility</field>
+            <field name="model">ems.erasmus.invoice</field>
+            <field name="inherit_id" ref="ems.view_erasmus_invoice_form"/>
+            <field name="arch" type="xml">
+                <field name="project_id" position="after">
+                    <field name="group_mobility_id" options="{'no_create': True}"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

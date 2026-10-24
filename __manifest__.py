@@ -358,6 +358,7 @@
         'views/erasmus/mobility/views.xml',
         'views/erasmus/project/views.xml',
         'views/erasmus/grant/views.xml',
+        'views/erasmus/group_mobility/views.xml',
         'views/erasmus/menu.xml',
 
         'views/sales/product_view.xml',
@@ -378,6 +379,7 @@
             'views/portal/portal_documentation.xml',
             'views/portal/portal_convalidations.xml',
             'views/portal/portal_erasmus.xml',
+            'views/portal/portal_erasmus_group.xml',
             'views/portal/portal_under_construction.xml',
 
         'views/documentation/menu.xml',       
@@ -402,6 +404,7 @@
         'mails/erasmus/application.xml',
         'mails/erasmus/resolution.xml',
         'mails/erasmus/mobility.xml',
+        'mails/erasmus/group_mobility.xml',
         'mails/shared/task_digest.xml',
         'mails/contacts/contact_data_request.xml',
 

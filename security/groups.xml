@@ -402,6 +402,15 @@
             <field name="category_id" ref="base.module_category_hidden"/>
         </record>
 
+        <!-- Issue #701: whoever leads or accompanies an Erasmus+ group mobility. Managed by EMS itself
+             when the mobility's teachers change (res.users._ems_sync_erasmus_group_teacher_group),
+             never by hand, hence hidden. Its record rules open only their own mobilities. -->
+        <record model="res.groups" id="group_erasmus_group_teacher">
+            <field name="name">Erasmus+ group mobility teacher</field>
+            <field name="comment">Leads or accompanies an Erasmus+ group mobility.</field>
+            <field name="category_id" ref="base.module_category_hidden"/>
+        </record>
+
         <record model="res.groups" id="group_academic_admin">
             <field name="name">Administrator</field>
             <field name="comment">All access rights for the Academic block.</field>

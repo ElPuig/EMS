@@ -624,7 +624,7 @@ class EmsErasmusApplication(models.Model):
         Grade = self.env['ems.erasmus.application.grade'].sudo()
         for application in self.sudo():
             grades = application._ems_grade_values()
-            hours = sum(vals['hours'] for vals in grades)
+            average, hours = self._ems_grade_average(grades)
             study = application.partner_id.main_group_id.study_id
             strikes = self.env['ems.strike'].sudo().search([
                 ('student_id', '=', application.partner_id.id), ('group_id.study_id', '=', study.id),
@@ -633,27 +633,37 @@ class EmsErasmusApplication(models.Model):
             Grade.create([{**vals, 'application_id': application.id} for vals in grades])
             application.write({
                 'scoring_frozen_date': fields.Datetime.now(),
-                'grade_average_ems': round(sum(vals['grade'] * vals['hours'] for vals in grades) / hours, 2)
-                if hours else 0.0,
+                'grade_average_ems': average,
                 'grade_average_from_ems': bool(hours),
                 'strike_ids': [(6, 0, strikes.ids)],
                 'strike_count': len(strikes),
             })
 
     def _ems_grade_values(self):
-        """The modules of the applicant's current cycle for the record average, as values of
+        self.ensure_one()
+        return self._ems_partner_grade_values(
+            self.partner_id, self.call_id.course_id.name or self.env.company.current_course_id.name)
+
+    @api.model
+    def _ems_grade_average(self, grades):
+        """The record average of `_ems_partner_grade_values`' modules, weighted by their hours,
+        and those hours (0: nothing to average)."""
+        hours = sum(vals['hours'] for vals in grades)
+        return (round(sum(vals['grade'] * vals['hours'] for vals in grades) / hours, 2) if hours else 0.0), hours
+
+    @api.model
+    def _ems_partner_grade_values(self, partner, course_name):
+        """The modules of `partner`'s current cycle for the record average, as values of
         ems.erasmus.application.grade: one per module, its most recent grade (this course's
         grade lines, then the year records from the latest course). Convalidated and recognised
-        modules are left out, and so are modules with nothing evaluated."""
-        self.ensure_one()
-        partner = self.partner_id
+        modules are left out, and so are modules with nothing evaluated. Issue #701: group
+        mobilities rank with the same average."""
         study = partner.main_group_id.study_id
         if not study:
             return []
         found = {}  # module -> its values, None when it is left out
         lines = self.env['ems.grade_subject_line'].sudo().search([
             ('student_id', '=', partner.id), ('grade_session_id.subject_id.study_ids', 'in', study.ids)])
-        course_name = self.call_id.course_id.name or self.env.company.current_course_id.name
         for subject, subject_lines in lines.grouped(lambda line: line.grade_session_id.subject_id).items():
             last = max(subject_lines, key=lambda line: line.grade_session_id.round)
             if last.is_convalidated:

@@ -6,8 +6,8 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 STATES = [('draft', "Draft"), ('enrolment', "Enrolment"), ('selection', "Selection"),
-          ('validation', "Waiting for validation"), ('preparation', "Preparation"), ('stay', "Stay"),
-          ('return', "Return"), ('done', "Closed"), ('cancelled', "Cancelled")]
+          ('validation', "Waiting for validation"), ('preparation', "Preparation"), ('stay', "During the stay"),
+          ('return', "On return"), ('done', "Closed"), ('cancelled', "Cancelled")]
 # States once the selection is approved: the participants' files are open.
 FILE_STATES = ('preparation', 'stay', 'return')
 RESULTS = [('selected', "Selected"), ('reserve', "Reserve"), ('excluded', "Excluded"), ('renounced', "Renounced")]
@@ -129,7 +129,7 @@ class EmsErasmusGroupMobility(models.Model):
 
     # Overview (issue #704).
     registration_count = fields.Integer(string="Enrolled", compute='_compute_counts')
-    selected_count = fields.Integer(string="Selected", compute='_compute_counts')
+    selected_count = fields.Integer(string="Selected students", compute='_compute_counts')
     reserve_count = fields.Integer(string="Reserves", compute='_compute_counts')
     documents_missing = fields.Integer(string="Documents missing", compute='_compute_counts',
                                        help="Required documents with no file, or needing changes.")
@@ -710,7 +710,7 @@ class EmsErasmusGroupRegistration(models.Model):
     substitution_approved_by_id = fields.Many2one(string="Substitution approved by", comodel_name='res.users',
                                                   readonly=True)
     substitution_approved_date = fields.Datetime(string="Substitution approved on", readonly=True)
-    participant_id = fields.Many2one(string="File", comodel_name='ems.erasmus.group.participant', readonly=True)
+    participant_id = fields.Many2one(string="Participant file", comodel_name='ems.erasmus.group.participant', readonly=True)
 
     @api.depends('result', 'rank', 'group_mobility_id.registration_ids.result')
     def _compute_reserve_position(self):

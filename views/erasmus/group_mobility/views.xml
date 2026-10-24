@@ -145,7 +145,7 @@
                     <sheet>
                         <div class="oe_button_box" name="button_box">
                             <button name="action_view_participants" type="object" class="oe_stat_button" icon="fa-users">
-                                <field name="selected_count" widget="statinfo" string="Selected"/>
+                                <field name="selected_count" widget="statinfo" string="Selected students"/>
                             </button>
                         </div>
                         <div class="oe_title">
@@ -261,7 +261,7 @@
                                                decoration-info="result == 'reserve'" decoration-danger="result == 'excluded'"/>
                                         <field name="reserve_position" optional="show"/>
                                         <field name="substitution_state" optional="show"/>
-                                        <button name="action_request_exception" type="object" string="Request" icon="fa-flag"
+                                        <button name="action_request_exception" type="object" string="Request the exception" icon="fa-flag"
                                                 title="Ask the coordinator for the exception written in Exception requested"
                                                 invisible="not exception_request or parent.state != 'selection'"/>
                                         <button name="action_approve_substitution" type="object" string="Approve" icon="fa-check"

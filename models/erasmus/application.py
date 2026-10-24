@@ -13,6 +13,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
 from .plan_rating import PROJECT_MERITS
+from .records import PARTICIPANT_CATEGORIES, STAGE_CATEGORIES, check_upload
 
 CHECK_STATES = [('pending', "Pending"), ('met', "Met"), ('not_met', "Not met")]
 YES_NO = [('yes', "Yes"), ('no', "No")]
@@ -849,7 +850,7 @@ class EmsErasmusApplicationDocument(models.Model):
     Every upload is kept: a new file never replaces the earlier ones."""
     _name = 'ems.erasmus.application.document'
     _description = 'Erasmus+ application document'
-    _order = 'application_id, sequence, id'
+    _order = 'application_id, file_category, sequence, id'
 
     application_id = fields.Many2one(string="Application", comodel_name='ems.erasmus.application', required=True,
                                      ondelete='cascade', index=True)
@@ -881,6 +882,14 @@ class EmsErasmusApplicationDocument(models.Model):
     review_comment = fields.Char(string="Comment for the applicant")
     correction_requested = fields.Boolean(string="Correction requested", readonly=True, copy=False,
                                           help="Asked to the applicant in the current corrections request.")
+    file_category = fields.Selection(string="Category", selection=PARTICIPANT_CATEGORIES,
+                                     compute='_compute_file_category', store=True,
+                                     help="Where it goes in the participant's record.")
+    file_state = fields.Selection(string="Status", compute='_compute_file_state', selection=[
+        ('missing', "Missing"), ('to_review', "Pending review"), ('needs_change', "Needs changes"),
+        ('complete', "Complete"), ('optional', "Optional"), ('not_applicable', "Not applicable")],
+        help="Complete: valid after the team's review (a signed document is only complete once checked, not when "
+             "uploaded); one the team provides, once it is uploaded.")
 
     @api.depends('call_document_id.requirement', 'application_id.is_minor', 'mobility_id.placement_type',
                  'mobility_id.is_short_blended')
@@ -890,6 +899,30 @@ class EmsErasmusApplicationDocument(models.Model):
             line.is_required = requirement == 'required' or (requirement == 'minor' and line.application_id.is_minor) \
                 or (requirement == 'curricular' and line.mobility_id.placement_type == 'curricular') \
                 or (requirement == 'short_blended' and line.mobility_id.is_short_blended)
+
+    @api.depends('call_document_id.file_category', 'call_document_id.stage')
+    def _compute_file_category(self):
+        for line in self:
+            document = line.call_document_id
+            line.file_category = document.file_category or STAGE_CATEGORIES.get(document.stage)
+
+    @api.depends('is_required', 'handled_by', 'review_state', 'attachment_ids', 'prepared_attachment_ids')
+    def _compute_file_state(self):
+        for line in self:
+            if line.handled_by == 'team':
+                done = bool(line.prepared_attachment_ids)
+            else:
+                done = line.review_state == 'valid' and bool(line.attachment_ids)
+            if done:
+                line.file_state = 'complete'
+            elif line.review_state == 'needs_change' and line.handled_by != 'team':
+                line.file_state = 'needs_change'
+            elif line.attachment_ids and line.handled_by != 'team':
+                line.file_state = 'to_review'
+            elif line.is_required:
+                line.file_state = 'missing'
+            else:
+                line.file_state = 'optional' if line.call_document_id.requirement == 'optional' else 'not_applicable'
 
     @api.depends('call_document_id.due_basis', 'call_document_id.due_days', 'mobility_id.destination_date',
                  'mobility_id.date_start', 'mobility_id.date_end')
@@ -908,12 +941,36 @@ class EmsErasmusApplicationDocument(models.Model):
             start, days = line.mobility_id.date_start, line.call_document_id.open_days
             line.open_date = days and start and start - timedelta(days=days)
 
+    def _ems_file_state_label(self):
+        self.ensure_one()
+        return dict(self._fields['file_state']._description_selection(self.env)).get(self.file_state, '')
+
     def _ems_is_open(self):
         """A mobility document that opens some days before leaving: only once the dates are known
         and that day has come."""
         self.ensure_one()
         return not self.call_document_id.open_days or bool(
             self.open_date and self.open_date <= self.env['ems.datetime_utils'].get_local_today())
+
+    def write(self, vals):
+        """A record keeps its history: a file is never removed from a valid document nor from a closed
+        mobility (a new version is uploaded instead), and every change of review in a mobility is
+        written in its chatter, with who made it."""
+        files = [name for name in ('attachment_ids', 'prepared_attachment_ids') if name in vals]
+        kept = {(line, name): line[name] for line in self for name in files
+                if line.review_state == 'valid' or line.mobility_id.state in ('done', 'cancelled')}
+        old_states = {line: line.review_state for line in self} if 'review_state' in vals else {}
+        result = super().write(vals)
+        for (line, name), attachments in kept.items():
+            if attachments - line[name]:
+                raise UserError(_("%s is valid or its mobility is closed: its files are kept. Upload a new version "
+                                  "instead of removing one.", line.name))
+        labels = dict(self._fields['review_state']._description_selection(self.env))
+        for line, old_state in old_states.items():
+            if line.mobility_id and line.review_state != old_state:
+                line.mobility_id.sudo().chatter(_("%(document)s: %(state)s.", document=line.name,
+                                           state=labels[line.review_state]))
+        return result
 
     def action_mark_valid(self):
         self.write({'review_state': 'valid'})
@@ -925,7 +982,7 @@ class EmsErasmusApplicationDocument(models.Model):
         """Attach `files` ([(name, bytes)]) to this line and put it back to review."""
         self.ensure_one()
         attachments = self.env['ir.attachment'].sudo().create([{
-            'name': name,
+            'name': check_upload(name),
             'datas': base64.b64encode(content),
             'res_model': self._name,
             'res_id': self.id,

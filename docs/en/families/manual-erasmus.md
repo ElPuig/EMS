@@ -76,7 +76,7 @@ When you accept the place, your application shows **Your mobility**.
 - The **commitment letter** (annex 3 of the call): read it on the portal, tick that you accept it and click **Accept and sign**. EMS keeps it signed. If you are a minor, your family signs it too: it receives an email and signs it from its own access to the portal, in **Erasmus+**.
 - The **steps** to follow (preparation sessions, the online language course, the final report...). The Erasmus team ticks them when they are done.
 
-**During the stay.** Every week, answer the **weekly self-assessment** on the card: what you did, what you learned, how you rate your week from 1 to 5 and what was hardest for you. Each week can be answered from its first day, and only once. If you forget one, you will receive a reminder. The Erasmus team reads it and it is kept in your dossier.
+**During the stay.** Every week, answer the **weekly self-assessment** on the card: what you did, what you learned, how you rate your week from 1 to 5 and what was hardest for you. Each week can be answered from its first day, and only once. If you forget one, you will receive a reminder. The Erasmus team reads it and it is kept in your record.
 
 If you have to renounce, open **I want to renounce the place**. Renouncing without a justified cause may mean paying the expenses already committed (tickets, bookings).
 

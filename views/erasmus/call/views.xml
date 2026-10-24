@@ -109,7 +109,7 @@
                                         <field name="confidential"/>
                                         <field name="panel_visible" column_invisible="parent.audience != 'staff'"/>
                                         <field name="description"/>
-                                        <field name="sepie_folder" optional="hide"/>
+                                        <field name="file_category" optional="hide"/>
                                     </list>
                                 </field>
                             </page>
@@ -159,7 +159,7 @@
                                         <field name="due_days"/>
                                         <field name="handled_by"/>
                                         <field name="description"/>
-                                        <field name="sepie_folder" optional="show"/>
+                                        <field name="file_category" optional="show"/>
                                     </list>
                                 </field>
                             </page>

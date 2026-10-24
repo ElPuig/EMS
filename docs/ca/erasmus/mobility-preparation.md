@@ -56,7 +56,7 @@ Obriu la mobilitat des d'**Erasmus+ > Mobilitats** (o des del botó **Mobilitats
 
 ## 5. Durant l'estada: l'autoavaluació setmanal
 
-Des del primer dia de l'estada, cada setmana el participant respon al portal les preguntes de la convocatòria, per a cada setmana ja començada. Una setmana acabada i sense resposta entra al correu de recordatori setmanal. A la mobilitat, la pestanya **Autoavaluació** mostra quantes setmanes estan respostes (per exemple, *2 / 4*) i les respostes i la valoració de cada setmana; perquè el participant torni a respondre una setmana, esborreu-la allà. Imprimiu-les totes amb **Imprimeix > Autoavaluació setmanal**, i l'expedient del projecte afegeix aquest PDF a la carpeta 13 (avaluació de l'impacte).
+Des del primer dia de l'estada, cada setmana el participant respon al portal les preguntes de la convocatòria, per a cada setmana ja començada. Una setmana acabada i sense resposta entra al correu de recordatori setmanal. A la mobilitat, la pestanya **Autoavaluació** mostra quantes setmanes estan respostes (per exemple, *2 / 4*) i les respostes i la valoració de cada setmana; perquè el participant torni a respondre una setmana, esborreu-la allà. Imprimiu-les totes amb **Imprimeix > Autoavaluació setmanal**, i les exportacions afegeixen aquest PDF a l'expedient del participant (categoria 03, durant la mobilitat).
 
 ## 6. Tornada i tancament
 

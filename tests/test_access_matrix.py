@@ -49,6 +49,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.invoice': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.payment': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.project.document': {'teacher': '', 'secretary': 'rwc', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    # Exports are a log: created (as oneself) and read, never changed nor deleted (test_erasmus_records.py).
+    'ems.erasmus.export': {'teacher': '', 'secretary': 'rc', 'head_of_studies': '', 'erasmus': 'rc'},
     'ems.erasmus.mobility.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.self_assessment.answer': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},

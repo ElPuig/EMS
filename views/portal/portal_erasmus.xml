@@ -539,22 +539,32 @@
                 <!-- A short blended document (the virtual component) is only shown when it is asked for. -->
                 <t t-set="mobility_documents" t-value="mobility.document_ids.filtered(lambda line: line.is_required or line.call_document_id.requirement != 'short_blended')"/>
                 <t t-if="mobility.state in ('preparing', 'done') and mobility_documents">
-                    <h6>Documents</h6>
+                    <h6>My record</h6>
                     <p class="small text-muted mb-2">
                         Sign them outside EMS as indicated and upload the signed copy, better as soon as you can: you will receive a reminder every week while any is missing.
                     </p>
+                    <t t-set="record_missing" t-value="len(mobility_documents.filtered(lambda line: line.is_required and line.file_state != 'complete'))"/>
+                    <div t-if="record_missing" class="alert alert-warning py-2 small o_ems_erasmus_record_missing">
+                        <i class="fa fa-exclamation-triangle me-1"/>Documents still to complete your record: <strong t-esc="record_missing"/>
+                    </div>
+                    <div t-else="" class="alert alert-success py-2 small o_ems_erasmus_record_complete">
+                        <i class="fa fa-check me-1"/>Your record has every required document.
+                    </div>
                     <form t-att-action="action + 'upload'" method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_erasmus_mobility_documents">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
-                        <ul class="list-group mb-2">
-                            <li t-foreach="mobility_documents" t-as="line" class="list-group-item o_ems_erasmus_mobility_document">
+                        <t t-foreach="record_categories" t-as="category">
+                            <t t-set="category_lines" t-value="mobility_documents.filtered(lambda line: line.file_category == category[0])"/>
+                            <t t-if="category_lines">
+                            <p class="fw-bold small mb-1 mt-2 o_ems_erasmus_record_category" t-esc="category[1]"/>
+                            <ul class="list-group mb-2">
+                            <li t-foreach="category_lines" t-as="line" class="list-group-item o_ems_erasmus_mobility_document">
                                 <div class="d-flex justify-content-between flex-wrap gap-2">
                                     <span>
                                         <strong t-esc="line.name"/>
-                                        <span class="small text-muted"> - <t t-if="line.stage == 'return'">On return</t><t t-else="">Before leaving</t></span>
                                         <span t-if="not line.is_required" class="small text-muted"> (optional)</span>
                                     </span>
-                                    <span t-attf-class="badge #{'text-bg-success' if line.review_state == 'valid' else 'text-bg-danger' if line.review_state == 'needs_change' else 'text-bg-light'}"
-                                          t-esc="review_labels.get(line.review_state) if line.attachment_ids else ''"/>
+                                    <span t-attf-class="badge o_ems_erasmus_file_state #{'text-bg-success' if line.file_state == 'complete' else 'text-bg-danger' if line.file_state in ('missing', 'needs_change') else 'text-bg-warning' if line.file_state == 'to_review' else 'text-bg-light'}"
+                                          t-esc="file_state_labels.get(line.file_state)"/>
                                 </div>
                                 <t t-set="line_open" t-value="line._ems_is_open()"/>
                                 <p t-if="not line_open" class="small mb-1 o_ems_erasmus_document_not_open">
@@ -572,11 +582,21 @@
                                 <p t-elif="line.handled_by == 'team'" class="small text-muted mb-1">The Erasmus team will upload it for you.</p>
                                 <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
                                 <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
-                                <p t-if="line.attachment_ids" class="small mb-1">Received: <t t-esc="', '.join(line.attachment_ids.mapped('name'))"/></p>
-                                <input t-if="mobility.state == 'preparing' and line_open and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)" class="form-control form-control-sm" type="file"
-                                       t-attf-name="document_#{line.call_document_id.id}" multiple="multiple"/>
+                                <p t-if="line.attachment_ids" class="small mb-1">Received:
+                                    <t t-foreach="line.attachment_ids" t-as="received">
+                                        <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{received.id}" class="o_ems_erasmus_received_file" t-esc="received.name"/>
+                                        <span class="text-muted">(<t t-out="received.create_date" t-options="{'widget': 'date'}"/>)</span><t t-if="not received_last">, </t>
+                                    </t>
+                                </p>
+                                <t t-if="mobility.state == 'preparing' and line_open and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)">
+                                    <p t-if="line.attachment_ids" class="small text-muted mb-1">Uploading again adds a new version: the earlier ones are kept.</p>
+                                    <input class="form-control form-control-sm" type="file"
+                                           t-attf-name="document_#{line.call_document_id.id}" multiple="multiple"/>
+                                </t>
                             </li>
-                        </ul>
+                            </ul>
+                            </t>
+                        </t>
                         <button t-if="mobility.state == 'preparing'" type="submit" class="btn btn-primary btn-sm o_ems_erasmus_mobility_upload">Upload the documents</button>
                     </form>
                 </t>
@@ -596,7 +616,7 @@
                 <t t-set="open_weeks" t-value="mobility._ems_self_assessments_open()"/>
                 <t t-if="open_weeks or mobility.self_assessment_ids">
                     <h6 class="mt-3">During the stay: weekly self-assessment</h6>
-                    <p class="small text-muted mb-2">Every week, think about what you have done and learned. The Erasmus team reads it, and it is kept in your dossier.</p>
+                    <p class="small text-muted mb-2">Every week, think about what you have done and learned. The Erasmus team reads it, and it is kept in your record.</p>
                     <form t-foreach="open_weeks" t-as="week" t-att-action="action + 'self_assessment'" method="post" class="border rounded p-3 mb-2 o_ems_erasmus_self_assessment">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <input type="hidden" name="week" t-att-value="week[0]"/>

@@ -23,15 +23,15 @@ class EmsErasmusExportController(http.Controller):
             ('Content-Disposition', content_disposition(f"{_('Erasmus+ participants')}.xlsx")),
         ])
 
-    @http.route('/ems/erasmus/project/<int:project_id>/dossier', type='http', auth='user', methods=['GET'])
-    def download_dossier(self, project_id):
-        """Issue #697 - a project's dossier, every document in SEPIE's folders, as a ZIP built on
-        the fly in a temporary file and streamed (never held whole in memory, never stored);
-        Erasmus team and Secretary only."""
-        project = request.env['ems.erasmus.project'].browse(project_id).exists()
+    @http.route('/ems/erasmus/export/<int:export_id>', type='http', auth='user', methods=['GET'])
+    def download_export(self, export_id):
+        """Erasmus+ documents export (a participant's record or a whole project) as a ZIP built on
+        the fly in a temporary file and streamed (never held whole in memory, never stored); only
+        for whoever asked for it, once."""
+        export = request.env['ems.erasmus.export'].browse(export_id).exists()
         try:
-            archive = project and project._ems_dossier_zip()
-        except AccessError:
+            archive = export and export._ems_zip()
+        except (AccessError, UserError):
             archive = None
         if not archive:
             raise request.not_found()
@@ -40,7 +40,7 @@ class EmsErasmusExportController(http.Controller):
         response = request.make_response(wrap_file(request.httprequest.environ, archive), headers=[
             ('Content-Type', 'application/zip'),
             ('Content-Length', str(size)),
-            ('Content-Disposition', content_disposition(f"{project.name}.zip")),
+            ('Content-Disposition', content_disposition(f"{export.sudo()._ems_root_name()}.zip")),
         ])
         response.direct_passthrough = True
         return response

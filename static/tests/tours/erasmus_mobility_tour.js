@@ -69,8 +69,12 @@ registry.category("web_tour.tours").add("ems_erasmus_mobility_team", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='review_state'] .badge.text-bg-success",
-            content: "The document is valid",
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='file_state'] .badge.text-bg-success",
+            content: "The document is complete once valid",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row td[name='file_category']:not(:empty)",
+            content: "Each document shows its category in the record",
         },
         {
             trigger: ".o_form_view .o_notebook a[name='checklist']",
@@ -94,6 +98,20 @@ registry.category("web_tour.tours").add("ems_erasmus_mobility_team", {
         {
             trigger: ".o_form_view .o_form_saved",
             content: "Saved",
+        },
+        ...clickAction("action_export_record", "Ask for the record's export"),
+        {
+            trigger: ".modal .o_form_view .o_field_widget[name='scope']",
+            content: "The export dialog opens",
+        },
+        {
+            trigger: ".modal .modal-footer .btn-secondary",
+            content: "Cancel it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "The dialog is closed",
         },
     ],
 });

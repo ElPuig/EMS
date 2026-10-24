@@ -265,5 +265,6 @@ from . import test_erasmus_scoring_tour
 from . import test_erasmus_resolution_tour
 from . import test_erasmus_mobility_tour
 from . import test_erasmus_grant
+from . import test_erasmus_records
 from . import test_erasmus_grant_tour
 from . import test_erasmus_staff_tour

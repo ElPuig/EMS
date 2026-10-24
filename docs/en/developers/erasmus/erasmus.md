@@ -3,7 +3,8 @@
 Issues #682 (umbrella), #683 (phase 1: calls and applications), #684 (phase 2: scoring and
 interviews), #685 (phase 3: resolutions, claims and place offers), #686 (phase 4: the staff
 call) and #687 (phase 5: mobility preparation). Design of the whole project: `plans/erasmus_portal.md`.
-This page describes what is implemented.
+This page describes what is implemented. Group mobilities (KA121-VET, issues #701-#704) are in
+[group_mobility.md](group_mobility.md).
 
 The centre publishes a yearly Erasmus+ call for its vocational training students (CFGM/CFGS, any
 year). Students apply from the portal (`/my/erasmus`), upload the documents the call asks for and

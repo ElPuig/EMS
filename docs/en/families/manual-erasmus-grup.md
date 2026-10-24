@@ -1,0 +1,26 @@
+[Català](../../ca/families/manual-erasmus-grup.md) | [Castellano](../../es/families/manual-erasmus-grup.md) | [English](manual-erasmus-grup.md)
+
+---
+
+# Enrolling in an Erasmus+ group mobility
+
+Some Erasmus+ mobilities are **group** ones: a group of students goes with two accompanying teachers. If there is one for your group, you will see it on the portal, on the **Erasmus+** page.
+
+---
+
+## Enrolling
+
+1. Log in to the portal and go to **Erasmus+**.
+2. The group mobility's card shows the project, the destination and dates (once confirmed), the places and the enrolment period. Open **Selection criteria** to see how the selection is made.
+3. Click **Enrol me**. If you are in a situation of fewer opportunities, you can tick it (it is optional and only the Erasmus team sees it).
+4. While the enrolment is open you can click **Withdraw my enrolment** and enrol again.
+
+No CV, letter nor interview is needed. If you have as many conduct warnings this course as the limit that alerts the coexistence team, you cannot enrol.
+
+## The result
+
+When the Erasmus coordination approves the selection, you receive an email with your result (selected, on the reserve list with your number, or not meeting the requirements). You also see it on the portal's card. You only see your own result.
+
+## If you are selected
+
+Click **See my documents**: you will find the documents you have to hand in (for example the European Health Insurance Card, the signed grant agreement or your family's authorisations if you are a minor), who signs them and their deadlines, and the group's documents the Erasmus team adds. Upload each file and click **Upload**. If you cannot go, open **I cannot go: renounce the place** as soon as possible, so that the place goes to the next reserve.

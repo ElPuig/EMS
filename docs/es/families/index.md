@@ -19,6 +19,7 @@ Esta sección contiene los manuales para **familias y alumnos**.
 | [Consultar el horario de clases](manual-horari.md) | Cómo ver el horario semanal del alumno en el portal y descargarlo en PDF |
 | [Solicitar convalidaciones](manual-convalidacions.md) | Cómo pedir la convalidación de módulos de formación profesional y seguir su resolución |
 | [Solicitar unas prácticas Erasmus+](manual-erasmus.md) | Cómo solicitar unas prácticas Erasmus+ en el extranjero, seguir la solicitud, ver los resultados y aceptar la plaza |
+| [Inscribirse en una movilidad de grupo Erasmus+](manual-erasmus-grup.md) | Cómo inscribirse desde el portal con un clic, ver el resultado y, si te seleccionan, entregar los documentos |
 | [Revisar los datos de contacto](manual-dades-contacte.md) | Cómo revisar y completar los datos de contacto del alumno y de la familia en el portal |
 
 ---

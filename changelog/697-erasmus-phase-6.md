@@ -111,6 +111,11 @@
   say it is issued after the mobility with the learning outcomes and actual dates, signed by the Erasmus coordinator
   on behalf of the centre when authorised.
 - Only new calls get these defaults; existing calls and their documents are unchanged.
+## Erasmus+ virtual component as a document the student uploads:
+
+- The virtual component of a short blended KA131-HED stay (30 days or fewer) is no longer a checklist step the team ticks: it is a mobility document (`requirement='short_blended'`, new value) the student uploads as a PDF with their preparation (the city, getting to the company, transport prices, exercises on the host company's technologies and tasks), due a week before leaving, kept in dossier folder 06 and validated by the team.
+- A `short_blended` document is required only when the mobility `is_short_blended`, and hidden on the portal otherwise; checklist steps keep their own `short_blended` requirement for any step the centre adds.
+- Team and student manuals updated in the three languages.
 
 # Fixes
 

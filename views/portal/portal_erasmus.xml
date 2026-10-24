@@ -536,7 +536,9 @@
                         <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_commitment_sign">Accept and sign</button>
                     </form>
                 </t>
-                <t t-if="mobility.state in ('preparing', 'done') and mobility.document_ids">
+                <!-- A short blended document (the virtual component) is only shown when it is asked for. -->
+                <t t-set="mobility_documents" t-value="mobility.document_ids.filtered(lambda line: line.is_required or line.call_document_id.requirement != 'short_blended')"/>
+                <t t-if="mobility.state in ('preparing', 'done') and mobility_documents">
                     <h6>Documents</h6>
                     <p class="small text-muted mb-2">
                         Sign them outside EMS as indicated and upload the signed copy, better as soon as you can: you will receive a reminder every week while any is missing.
@@ -544,7 +546,7 @@
                     <form t-att-action="action + 'upload'" method="post" enctype="multipart/form-data" class="ems-loading-form o_ems_erasmus_mobility_documents">
                         <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
                         <ul class="list-group mb-2">
-                            <li t-foreach="mobility.document_ids" t-as="line" class="list-group-item o_ems_erasmus_mobility_document">
+                            <li t-foreach="mobility_documents" t-as="line" class="list-group-item o_ems_erasmus_mobility_document">
                                 <div class="d-flex justify-content-between flex-wrap gap-2">
                                     <span>
                                         <strong t-esc="line.name"/>

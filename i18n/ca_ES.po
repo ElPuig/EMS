@@ -30843,6 +30843,7 @@ msgid "Recent graduate"
 msgstr "Titulat recent"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__short_blended
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__requirement__short_blended
 msgid "Short blended mobilities only"
 msgstr "Només mobilitats curtes combinades"
@@ -30851,3 +30852,14 @@ msgstr "Només mobilitats curtes combinades"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__curricular
 msgid "Required for curricular work placement"
 msgstr "Obligatori en formació en empresa curricular"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Short stays (30 days or fewer): a PDF with your preparation before leaving. Information about the city, how you will get to the company and how much transport costs, and the exercises on the technologies and tasks of the host company (the Erasmus coordinator asks the company about them)."
+msgstr "Estades curtes (30 dies o menys): un PDF amb la teva preparació abans de marxar. Informació sobre la ciutat, com aniràs a l'empresa i quant costa el transport, i els exercicis sobre les tecnologies i les tasques de l'empresa d'acollida (el coordinador Erasmus les consulta a l'empresa)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__requirement
+msgid "Required for curricular work placement: when the student's stay is a work placement managed in sBID (the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise."
+msgstr "Obligatori en formació en empresa curricular: quan l'estada de l'alumne és una formació en empresa gestionada al sBID (el Tipus d'estada de la mobilitat); opcional en una estada extracurricular o d'un titulat recent. Només mobilitats curtes combinades: es demana en una estada KA131-HED de 30 dies o menys, i si no, no es mostra."

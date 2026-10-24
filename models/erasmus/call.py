@@ -263,7 +263,8 @@ class EmsErasmusCall(models.Model):
         after the end. The Director signs the grant agreement; the Erasmus coordinator, the learning
         (or staff mobility) agreement and the Europass mobility document (KA121-VET only). The sBID
         documents and the recognition of ECTS credits (KA131-HED) are required for a curricular work
-        placement only (the mobility's placement type)."""
+        placement only (the mobility's placement type); the student's virtual component, for a short
+        blended KA131-HED stay only."""
         health_card = {'name': _("European Health Insurance Card"), 'sepie_folder': '05_Seguros',
                        'description': _("Requested at the Social Security's electronic office.")}
         insurance = {'name': _("Insurance policy"), 'handled_by': 'team', 'due_basis': 'before_start',
@@ -343,6 +344,15 @@ class EmsErasmusCall(models.Model):
                  'sign_host': True, 'description': _(
                      "Curricular work placement: the Erasmus team uploads it from sBID.")},
                 insurance,
+                # The virtual component of a short blended KA131-HED stay: the student's preparation, kept
+                # in the dossier.
+                {'name': _("Virtual component"), 'project': 'ka131_hed', 'requirement': 'short_blended',
+                 'due_basis': 'before_start', 'due_days': 7, 'sepie_folder': '06_Cursos_programasytasas',
+                 'description': _(
+                     "Short stays (30 days or fewer): a PDF with your preparation before leaving. Information about the "
+                     "city, how you will get to the company and how much transport costs, and the exercises on the "
+                     "technologies and tasks of the host company (the Erasmus coordinator asks the company about "
+                     "them).")},
                 {'stage': 'return', 'name': _("Certificate of stay"), 'handled_by': 'team_to_sign', 'sign_host': True,
                  'description': _("The Erasmus team uploads it for your tutor at the host company to sign at the end "
                                   "of the stay. It must state the dates, the tasks done and the project number. "
@@ -389,9 +399,7 @@ class EmsErasmusCall(models.Model):
                      ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
                      ('return', _("Share it at a department or cycles meeting, if it is considered necessary"))]
         else:
-            # The virtual component: short blended KA131-HED mobilities only.
             names = [('preparation', _("Preparation sessions")),
-                     ('preparation', _("Virtual component"), {'project': 'ka131_hed', 'requirement': 'short_blended'}),
                      ('return', _("Final report (EU Survey)")), ('return', _("Dissemination activities"))]
         return [(0, 0, {'sequence': index, 'stage': step[0], 'name': step[1], **(step[2] if len(step) > 2 else {})})
                 for index, step in enumerate(names, 1)]
@@ -709,9 +717,10 @@ class EmsErasmusCallDocument(models.Model):
     description = fields.Text(string="Instructions", help="Shown to the applicant next to the upload.")
     requirement = fields.Selection(string="Requirement", required=True, default='required', selection=[
         ('required', "Required"), ('optional', "Optional"), ('minor', "Required for minors"),
-        ('curricular', "Required for curricular work placement")],
+        ('curricular', "Required for curricular work placement"), ('short_blended', "Short blended mobilities only")],
         help="Required for curricular work placement: when the student's stay is a work placement managed in sBID "
-             "(the mobility's Placement type); optional for an extracurricular stay or a recent graduate.")
+             "(the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short "
+             "blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise.")
     confidential = fields.Boolean(string="Confidential",
                                   help="Only the Erasmus team sees these files (e.g. evidence of fewer opportunities).")
     stage = fields.Selection(string="When", required=True, default='application', selection=[

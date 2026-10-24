@@ -627,16 +627,19 @@ agreement (KA121-VET) or mobility agreement (KA131-HED), on return the Europass 
 proving) or the certificate of stay or attendance (KA131-HED), and the report with evidence.
 
 **Conditional requirements.** A call document's `requirement` is `required`, `optional`, `minor`
-(the application's `is_minor`) or `curricular`: required only when the mobility's `placement_type`
+(the application's `is_minor`), `curricular`: required only when the mobility's `placement_type`
 is `curricular` (a work placement managed in sBID, the default for a student, computed once and then
-editable by the team; `extracurricular` and `graduate` leave it optional). A checklist step
+editable by the team; `extracurricular` and `graduate` leave it optional), or `short_blended`:
+required only when the mobility `is_short_blended`, and hidden on the portal otherwise (the student's
+virtual component, a PDF with their preparation, KA131-HED, due a week before leaving, dossier folder
+06). A checklist step
 (`ems.erasmus.call.task`) has its own `requirement`: `required` or `short_blended`, which only counts
 when the mobility `is_short_blended` (KA131-HED modality and a stay of `SHORT_BLENDED_MAX_DAYS`, 30,
 days or fewer). The mobility line computes `is_required`; `_compute_complete` and the portal's steps
 only take the required ones, and a document that is not required can still be attached. Signers by default: the Director signs the
 grant agreement and the sBID agreement; the Erasmus coordinator, the learning agreement and the
 Europass mobility document; the family of a minor, the grant agreement and the learning agreement
-too; the centre's tutor, the sBID activity plan. The virtual component step is KA131-HED and `short_blended`. Not asked for, EMS
+too; the centre's tutor, the sBID activity plan. Not asked for, EMS
 already has them: identity document, bank account, personal details, emergency contact.
 
 **Commitment letter** (annex 3): the call's `commitment_text` (HTML, filled in with

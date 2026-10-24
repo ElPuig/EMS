@@ -87,7 +87,7 @@ class TestErasmusMobility(ErasmusMobilityCase):
         names = first.document_ids.call_document_id.mapped('name')
         self.assertIn("Europass mobility document", names)
         self.assertNotIn("Recognition of ECTS credits", names)
-        self.assertNotIn("Virtual component", first.task_ids.call_task_id.mapped('name'))
+        self.assertNotIn("Virtual component", names)
 
     def _line(self, mobility, name):
         return mobility.document_ids.filtered(lambda line: line.name == name)
@@ -110,7 +110,7 @@ class TestErasmusMobility(ErasmusMobilityCase):
         self.assertTrue(self._line(first, "Certificate of stay").is_required, "Students keep the certificate in VET.")
         self.assertFalse(self._line(first, "Recognition of ECTS credits"))
         self.assertFalse(first.is_short_blended, "Only a KA131-HED stay is blended.")
-        self.assertNotIn("Virtual component", first.task_ids.mapped('name'))
+        self.assertFalse(self._line(first, "Virtual component"))
 
     def test_hed_ects_recognition_only_for_a_curricular_work_placement(self):
         self.modality.project = 'ka131_hed'
@@ -123,11 +123,11 @@ class TestErasmusMobility(ErasmusMobilityCase):
         first.placement_type = 'extracurricular'
         self.assertFalse(ects.is_required)
 
-    def test_the_virtual_component_counts_only_in_a_short_hed_stay(self):
+    def test_the_virtual_component_is_asked_for_only_in_a_short_hed_stay(self):
         self.modality.project = 'ka131_hed'
         first, _second = self._accepted()
-        virtual = first.task_ids.filtered(lambda task: task.name == "Virtual component")
-        self.assertTrue(virtual)
+        virtual = self._line(first, "Virtual component")
+        self.assertEqual(virtual.handled_by, 'participant', "The student uploads their preparation.")
         self.assertFalse(virtual.is_required, "No dates yet: not known to be short.")
         first.write({'date_start': date(2027, 6, 1), 'date_end': date(2027, 6, 30)})
         self.assertTrue(first.is_short_blended, "30 days: short blended.")
@@ -135,13 +135,19 @@ class TestErasmusMobility(ErasmusMobilityCase):
         first.date_end = date(2027, 7, 1)
         self.assertFalse(virtual.is_required, "31 days: a long stay, no virtual component.")
 
-    def test_a_step_not_required_does_not_hold_the_mobility(self):
+    def test_a_short_blended_step_counts_only_in_a_short_hed_stay(self):
         self.modality.project = 'ka131_hed'
+        self.env['ems.erasmus.call.task'].create({
+            'call_id': self.call.id, 'name': 'Short blended step', 'requirement': 'short_blended'})
         first, _second = self._accepted()
         first.write({'date_start': date(2027, 6, 1), 'date_end': date(2027, 8, 31)})
         self._complete_stage(first, 'preparation')
-        first.task_ids.filtered(lambda task: task.name == "Virtual component").done = False
-        self.assertTrue(first.preparation_complete, "A three-month stay has no virtual component to do.")
+        step = first.task_ids.filtered(lambda task: task.name == 'Short blended step')
+        step.done = False
+        self.assertTrue(first.preparation_complete, "A three-month stay: the step does not count.")
+        self.assertTrue(self._line(first, "Virtual component"), "The document is there, just not asked for.")
+        first.date_end = date(2027, 6, 30)
+        self.assertFalse(first.preparation_complete, "A short stay: the step and the virtual component count.")
 
     def test_documents_only_for_some_modalities(self):
         gs_only = self.env['ems.erasmus.call.document'].create({
@@ -638,6 +644,18 @@ class TestPortalErasmusMobility(HttpCase, ErasmusMobilityCase):
         page = self.url_open(f'/my/erasmus/call/{self.call.id}').text
         self.assertIn('o_ems_erasmus_mobility_documents', page)
         self.assertIn('signed.pdf', page)
+
+    def test_the_virtual_component_is_shown_only_when_asked_for(self):
+        self.modality.project = 'ka131_hed'
+        first, _second = self._accepted()
+        cyprus, _germany = self._destinations(1, 1)
+        self.call.action_open_destination_choice()
+        self.authenticate(self.student_user.login, self.student_user.login)
+        self._post('choose', destination_id=cyprus.id)
+        self.assertTrue(first.is_short_blended, "The destination's 30 days: short blended.")
+        self.assertIn('Virtual component', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        first.date_end = date(2027, 8, 31)
+        self.assertNotIn('Virtual component', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
 
     def test_own_proposal_and_renounce(self):
         first, _second = self._accepted()

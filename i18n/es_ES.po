@@ -30856,6 +30856,7 @@ msgid "Recent graduate"
 msgstr "Titulado reciente"
 
 #. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__short_blended
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__requirement__short_blended
 msgid "Short blended mobilities only"
 msgstr "Solo movilidades cortas combinadas"
@@ -30864,3 +30865,14 @@ msgstr "Solo movilidades cortas combinadas"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__curricular
 msgid "Required for curricular work placement"
 msgstr "Obligatorio en formación en empresa curricular"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Short stays (30 days or fewer): a PDF with your preparation before leaving. Information about the city, how you will get to the company and how much transport costs, and the exercises on the technologies and tasks of the host company (the Erasmus coordinator asks the company about them)."
+msgstr "Estancias cortas (30 días o menos): un PDF con tu preparación antes de marchar. Información sobre la ciudad, cómo irás a la empresa y cuánto cuesta el transporte, y los ejercicios sobre las tecnologías y las tareas de la empresa de acogida (el coordinador Erasmus se las consulta a la empresa)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__requirement
+msgid "Required for curricular work placement: when the student's stay is a work placement managed in sBID (the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise."
+msgstr "Obligatorio en formación en empresa curricular: cuando la estancia del alumno es una formación en empresa gestionada en el sBID (el Tipo de estancia de la movilidad); opcional en una estancia extracurricular o de un titulado reciente. Solo movilidades cortas combinadas: se pide en una estancia KA131-HED de 30 días o menos, y si no, no se muestra."

@@ -631,8 +631,15 @@ proving) or the certificate of stay or attendance (KA131-HED), and the report wi
 is `curricular` (a work placement managed in sBID, the default for a student, computed once and then
 editable by the team; `extracurricular` and `graduate` leave it optional), or `short_blended`:
 required only when the mobility `is_short_blended`, and hidden on the portal otherwise (the student's
-virtual component, a PDF with their preparation, KA131-HED, due a week before leaving, dossier folder
-06). A checklist step
+virtual component, a PDF with their preparation, KA131-HED, dossier folder 06).
+
+**Opening date.** A call document's `open_days` (mobility documents before leaving) keeps it closed
+until that many days before leaving: the line's `open_date` is `date_start - open_days`, and
+`_ems_is_open()` is false before that day or while the dates are unknown. A closed line shows on the
+portal with the day it opens and no upload input; `_ems_portal_upload` ignores it and
+`_ems_documents_to_correct` (the weekly reminder) leaves it out. It still counts for
+`preparation_complete`. The virtual component opens 30 days before leaving and is due the day before
+(`due_basis='before_start'`, `due_days=1`). A checklist step
 (`ems.erasmus.call.task`) has its own `requirement`: `required` or `short_blended`, which only counts
 when the mobility `is_short_blended` (KA131-HED modality and a stay of `SHORT_BLENDED_MAX_DAYS`, 30,
 days or fewer). The mobility line computes `is_required`; `_compute_complete` and the portal's steps
@@ -657,6 +664,22 @@ the mobilities in preparation of the minors it acts for (`_ems_portal_can_act_fo
 the portal's Erasmus+ card visible to it. `_ems_remind_guardians()` emails every family contact with
 an address (template `email_template_erasmus_commitment_guardian`) when the mobility moves to
 *preparing* and in the weekly reminder cron.
+
+**Weekly self-assessment during the stay.** The call's `self_assessment_question_ids`
+(`ems.erasmus.call.question`: `name`, `kind` text or rating 1-5; four on a new students' call,
+`_ems_self_assessment_questions()`, editable; none on a staff call, so staff get no self-assessment
+unless the team adds questions). The stay is split into weeks from `date_start`
+(`_ems_self_assessment_weeks()`: (week, first day, last day), the last one cut at `date_end`). While
+the mobility is *preparing* (it stays so until the team closes it after the return), the portal
+offers a form for every week already begun and not answered (`_ems_self_assessments_open()`, portal
+step `self_assessment`, `_ems_portal_self_assessment(week, answers)`: every question answered,
+ratings 1-5, each week once, `unique(mobility_id, week)`). Each answer
+(`ems.erasmus.self_assessment.answer`) keeps the question's text as asked. The weekly reminder adds
+the weeks already over and not answered (`_ems_self_assessments_missing()`). The team reads them on
+the mobility (*Self-assessment* tab, `self_assessment_progress` "answered / weeks"), prints them
+(report `ems.action_report_erasmus_self_assessment`, bound to the mobility) and the dossier adds that
+PDF per participant to `13_EvaluacionImpactoDifusion`. Access: Erasmus team and administrator
+read/write (the team can delete a week for the participant to answer it again), Head of Studies read.
 
 **Projects** (`ems.erasmus.project`, menu *Erasmus+ > Projects*): the centre's active projects
 (agreement number, `kind` KA121-VET / KA131-HED, dates, `active`). Each mobility's `project_id` must
@@ -853,6 +876,7 @@ every folder, even empty, filled from where each file already is, nothing copied
 | `02_Publicacionyseleccion` | Per call with a mobility on the project: the published call (`rules_document`) and every published resolution as a PDF (`_ems_stored_pdf()`: the report keeps a copy the first time a published resolution is printed, `attachment_use`, and the dossier prints it if needed). |
 | The call document's `sepie_folder` (empty: by stage, `STAGE_FOLDERS`: application → 02, before leaving → 04, on return → 09) | Per participant on the project (mobility not cancelled), every file of their application and mobility documents, in `<participant>/<document>/`. Confidential ones only when the Erasmus team downloads it. |
 | `08_FacturasyTransferencias` | `Facturas/<number>/`: each invoice of the project and its transfer receipts; `Transferencias/<participant>/`: the receipts of their grant payments. |
+| `13_EvaluacionImpactoDifusion` | `<participant>/`: the weekly self-assessments as a PDF, printed when the dossier is downloaded (one report per participant who answered any week). |
 
 New calls preset the folder of their mobility documents (health card and insurance → 05, OLS → 10,
 inclusion → 11, travel authorisations → 03, report → 13, the new optional *Tickets or boarding

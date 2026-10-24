@@ -196,6 +196,11 @@ class EmsErasmusMobility(models.Model):
                                    inverse_name='mobility_id')
     task_ids = fields.One2many(string="Checklist", comodel_name='ems.erasmus.mobility.task',
                                inverse_name='mobility_id')
+    self_assessment_ids = fields.One2many(string="Weekly self-assessments", comodel_name='ems.erasmus.self_assessment',
+                                          inverse_name='mobility_id')
+    self_assessment_progress = fields.Char(string="Self-assessments answered",
+                                           compute='_compute_self_assessment_progress',
+                                           help="Weeks answered out of the weeks of the stay.")
     leave_id = fields.Many2one(string="Training absence", comodel_name='hr.leave', readonly=True, copy=False,
                                help="Staff: the absence for training EMS requests for the dates the Direction "
                                     "validated, approved as any other absence.")
@@ -236,6 +241,12 @@ class EmsErasmusMobility(models.Model):
             mobility.commitment_guardian_pending = (
                 letter and mobility.audience == 'student' and not mobility.partner_id.is_adult
                 and not mobility.commitment_guardian_signed_date)
+
+    @api.depends('self_assessment_ids', 'date_start', 'date_end', 'call_id.self_assessment_question_ids')
+    def _compute_self_assessment_progress(self):
+        for mobility in self:
+            weeks = mobility._ems_self_assessment_weeks()
+            mobility.self_assessment_progress = f"{len(mobility.self_assessment_ids)} / {len(weeks)}" if weeks else False
 
     @api.depends('audience')
     def _compute_placement_type(self):
@@ -558,10 +569,12 @@ class EmsErasmusMobility(models.Model):
     @api.model
     def _cron_remind_documents(self):
         """Weekly: remind every participant preparing a mobility of the documents still missing or
-        needing changes (the European Health Insurance Card above all) and of the commitment letter
-        still to sign; and the family of a minor, of the letter it has to sign too."""
+        needing changes (the European Health Insurance Card above all), of the commitment letter
+        still to sign and, during the stay, of the weekly self-assessments of the weeks already
+        over; and the family of a minor, of the letter it has to sign too."""
         mobilities = self.sudo().search([('state', '=', 'preparing')])
-        mobilities.filtered(lambda mobility: mobility._ems_documents_to_correct() or mobility.commitment_pending)._ems_send(
+        mobilities.filtered(lambda mobility: mobility._ems_documents_to_correct() or mobility.commitment_pending
+                            or mobility._ems_self_assessments_missing())._ems_send(
             'ems.email_template_erasmus_mobility_documents')
         mobilities._ems_remind_guardians()
 
@@ -609,10 +622,66 @@ class EmsErasmusMobility(models.Model):
         self.ensure_one()
         if self.state not in OPEN_STATES:
             raise UserError(_("The documents of this mobility can no longer be changed."))
-        lines = {line.call_document_id.id: line for line in self.document_ids if line.handled_by != 'team'}
+        lines = {line.call_document_id.id: line for line in self.document_ids
+                 if line.handled_by != 'team' and line._ems_is_open()}
         for document_id, files in uploads.items():
             if files and document_id in lines:
                 lines[document_id]._ems_add_files(files)
+
+    # --- during the stay: the weekly self-assessment ----------------------------------------------
+
+    def _ems_self_assessment_weeks(self):
+        """The weeks of the stay, [(week, first day, last day)], counted from its first day; none
+        when the call asks for no self-assessment or the dates are not known yet."""
+        self.ensure_one()
+        if not (self.call_id.self_assessment_question_ids and self.date_start and self.date_end):
+            return []
+        weeks, first = [], self.date_start
+        while first <= self.date_end:
+            weeks.append((len(weeks) + 1, first, min(first + timedelta(days=6), self.date_end)))
+            first += timedelta(days=7)
+        return weeks
+
+    def _ems_self_assessments_open(self):
+        """The weeks the participant can answer now: already begun and not answered yet, while the
+        mobility is in preparation (it stays so until the team closes it, after the return)."""
+        self.ensure_one()
+        if self.state != 'preparing':
+            return []
+        today = self.env['ems.datetime_utils'].get_local_today()
+        answered = set(self.self_assessment_ids.mapped('week'))
+        return [week for week in self._ems_self_assessment_weeks() if week[1] <= today and week[0] not in answered]
+
+    def _ems_self_assessments_missing(self):
+        """The open weeks already over, for the weekly reminder."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        return [week for week in self._ems_self_assessments_open() if week[2] < today]
+
+    def _ems_portal_self_assessment(self, week, answers):
+        """The participant answers the self-assessment of `week` from the portal: {question id:
+        text, or a rating from 1 to 5}. Every question must be answered, and a week only once."""
+        self.ensure_one()
+        week = next((open_week for open_week in self._ems_self_assessments_open() if open_week[0] == week), None)
+        if not week:
+            raise UserError(_("This week's self-assessment cannot be answered now."))
+        lines = []
+        for question in self.call_id.self_assessment_question_ids:
+            value = (answers.get(question.id) or '').strip()
+            if question.kind == 'rating' and value not in ('1', '2', '3', '4', '5'):
+                value = ''
+            if not value:
+                raise UserError(_("Answer every question."))
+            lines.append((0, 0, {'question_id': question.id, 'question': question.name, 'kind': question.kind,
+                                 'rating': int(value) if question.kind == 'rating' else 0,
+                                 'text': value[:5000] if question.kind == 'text' else False}))
+        self.env['ems.erasmus.self_assessment'].sudo().create({
+            'mobility_id': self.id, 'week': week[0], 'date_from': week[1], 'date_to': week[2], 'answer_ids': lines})
+
+    def _ems_mail_self_assessment_list(self):
+        return self.env['ems.base'].build_html_list([
+            _("Week %(week)s (%(start)s - %(end)s)", week=week, start=start.strftime('%d/%m/%Y'),
+              end=end.strftime('%d/%m/%Y'))
+            for week, start, end in self._ems_self_assessments_missing()])
 
     def _ems_choices(self):
         """The destinations the participant can choose now."""
@@ -656,7 +725,7 @@ class EmsErasmusMobility(models.Model):
         self.ensure_one()
         ended = self.date_end and self.date_end <= self.env['ems.datetime_utils'].get_local_today()
         return self.document_ids.filtered(lambda line: (
-            (line.stage == 'preparation' or ended) and line.handled_by != 'team'
+            (line.stage == 'preparation' or ended) and line.handled_by != 'team' and line._ems_is_open()
             and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)
             and (line.review_state == 'needs_change' or (line.is_required and not line.attachment_ids))))
 

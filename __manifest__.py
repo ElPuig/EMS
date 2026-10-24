@@ -351,6 +351,7 @@
         'views/erasmus/interview/views.xml',
         'views/erasmus/plan_rating/views.xml',
         'reports/erasmus/report_erasmus_resolution.xml',
+        'reports/erasmus/report_erasmus_self_assessment.xml',
         'views/erasmus/resolution/views.xml',
         'views/erasmus/offer/views.xml',
         'views/erasmus/claim/views.xml',

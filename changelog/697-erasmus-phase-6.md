@@ -116,6 +116,16 @@
 - The virtual component of a short blended KA131-HED stay (30 days or fewer) is no longer a checklist step the team ticks: it is a mobility document (`requirement='short_blended'`, new value) the student uploads as a PDF with their preparation (the city, getting to the company, transport prices, exercises on the host company's technologies and tasks), due a week before leaving, kept in dossier folder 06 and validated by the team.
 - A `short_blended` document is required only when the mobility `is_short_blended`, and hidden on the portal otherwise; checklist steps keep their own `short_blended` requirement for any step the centre adds.
 - Team and student manuals updated in the three languages.
+## Erasmus+ mobility documents that open some days before leaving:
+
+- New `open_days` on a call's mobility document: the participant only sees it (and can upload it) from that many days before leaving; before that the portal shows the day it opens, and the weekly reminder leaves it out. It still counts for "Ready to leave".
+- The virtual component opens a month before leaving and is due the day before.
+
+## Erasmus+ weekly self-assessment during the stay:
+
+- Each call has its weekly self-assessment questions (text or a rating from 1 to 5; four by default on a students' call: what they did, what they learned, a rating of the week, what was hardest). During the stay the participant answers them on the portal, once per week, for each week already begun.
+- The weekly reminder email adds the weeks already over and not answered. The team reads the answers on the mobility (new "Self-assessment" tab with the weeks answered), prints them as a PDF, and the project dossier adds that PDF per participant to folder 13 (impact evaluation).
+- New models `ems.erasmus.call.question`, `ems.erasmus.self_assessment` and `ems.erasmus.self_assessment.answer` (Erasmus team and administrator, Head of Studies read only). Team and student manuals updated in the three languages.
 
 # Fixes
 

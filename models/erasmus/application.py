@@ -867,6 +867,8 @@ class EmsErasmusApplicationDocument(models.Model):
         help="What the Erasmus team uploads for the participant: the document to sign, or the one it provides (e.g. "
              "the insurance policy).")
     deadline = fields.Date(string="Deadline", compute='_compute_deadline')
+    open_date = fields.Date(string="Opens on", compute='_compute_open_date',
+                            help="Before this day the participant does not see the document on the portal.")
     description = fields.Text(string="Instructions", related='call_document_id.description')
     name = fields.Char(string="Document", related='call_document_id.name')
     sequence = fields.Integer(string="Sequence", related='call_document_id.sequence', store=True)
@@ -899,6 +901,19 @@ class EmsErasmusApplicationDocument(models.Model):
                      'after_end': mobility.date_end}.get(document.due_basis)
             sign = -1 if document.due_basis == 'before_start' else 1
             line.deadline = basis and basis + timedelta(days=sign * document.due_days)
+
+    @api.depends('call_document_id.open_days', 'mobility_id.date_start')
+    def _compute_open_date(self):
+        for line in self:
+            start, days = line.mobility_id.date_start, line.call_document_id.open_days
+            line.open_date = days and start and start - timedelta(days=days)
+
+    def _ems_is_open(self):
+        """A mobility document that opens some days before leaving: only once the dates are known
+        and that day has come."""
+        self.ensure_one()
+        return not self.call_document_id.open_days or bool(
+            self.open_date and self.open_date <= self.env['ems.datetime_utils'].get_local_today())
 
     def action_mark_valid(self):
         self.write({'review_state': 'valid'})

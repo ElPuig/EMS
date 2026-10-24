@@ -167,6 +167,10 @@
                         <p t-if="object.commitment_guardian_pending">
                             Your family has to sign the commitment letter too, from its own access to the portal.
                         </p>
+                        <t t-if="object._ems_self_assessments_missing()">
+                            <p>You still have to answer the weekly self-assessment of:</p>
+                            <t t-out="object._ems_mail_self_assessment_list()"/>
+                        </t>
                         <p>
                             You will find everything on the school portal
                             (<a t-attf-href="{{ object.get_base_url() }}/my/erasmus">Erasmus+</a>), with the team's

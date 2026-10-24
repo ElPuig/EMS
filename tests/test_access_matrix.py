@@ -40,6 +40,7 @@ ACCESS_MATRIX = {
     'ems.erasmus.application.merit': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Issue #687: the Director writes only the decision on a staff proposal (write() guard, test_erasmus_mobility.py).
     'ems.erasmus.destination': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.call.question': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.call.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.mobility': {'teacher': '', 'secretary': '', 'head_of_studies': 'rw', 'erasmus': 'rwcu'},
     'ems.erasmus.project': {'teacher': '', 'secretary': 'r', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
@@ -49,6 +50,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.payment': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.project.document': {'teacher': '', 'secretary': 'rwc', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.erasmus.mobility.task': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.self_assessment': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
+    'ems.erasmus.self_assessment.answer': {'teacher': '', 'secretary': '', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r', 'erasmus': 'r'},
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},

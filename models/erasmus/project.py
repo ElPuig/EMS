@@ -77,7 +77,9 @@ class EmsErasmusProject(models.Model):
         """Every file of the project, as (folder, path inside it, attachment), in SEPIE's folders:
         what the team and the Secretary uploaded to the project, the published calls and resolutions,
         the documents of the applications and mobilities charged to it, its invoices and the transfer
-        receipts. Nothing is copied: the dossier is built from where each file already is."""
+        receipts. Nothing is copied: the dossier is built from where each file already is. The weekly
+        self-assessments are the one exception, printed now as a PDF per participant (its bytes in
+        place of the attachment)."""
         self.ensure_one()
         self._ems_check_dossier_reader()
         # Confidential files (e.g. evidence of fewer opportunities) only for the Erasmus team.
@@ -113,6 +115,11 @@ class EmsErasmusProject(models.Model):
             for payment in mobility.payment_ids:
                 files += [('08_FacturasyTransferencias', f"Transferencias/{person}/{attachment.name}", attachment)
                           for attachment in payment.receipt_ids]
+            if mobility.self_assessment_ids:
+                pdf, _type = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
+                    'ems.action_report_erasmus_self_assessment', mobility.ids)
+                files.append(('13_EvaluacionImpactoDifusion',
+                              f"{person}/{_safe_name(_('Weekly self-assessment'))}.pdf", pdf))
         invoice_files = self._ems_field_attachments(project.invoice_ids, 'document')
         for invoice in project.invoice_ids:
             folder = f"Facturas/{_safe_name(invoice.name)}"
@@ -151,7 +158,7 @@ class EmsErasmusProject(models.Model):
                     counter += 1
                     name = f"{stem} ({counter}){extension}"
                 used.add(name)
-                dossier.writestr(name, attachment.raw or b'')
+                dossier.writestr(name, attachment if isinstance(attachment, bytes) else attachment.raw or b'')
         archive.seek(0)
         return archive
 

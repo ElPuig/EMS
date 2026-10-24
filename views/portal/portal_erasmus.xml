@@ -556,6 +556,11 @@
                                     <span t-attf-class="badge #{'text-bg-success' if line.review_state == 'valid' else 'text-bg-danger' if line.review_state == 'needs_change' else 'text-bg-light'}"
                                           t-esc="review_labels.get(line.review_state) if line.attachment_ids else ''"/>
                                 </div>
+                                <t t-set="line_open" t-value="line._ems_is_open()"/>
+                                <p t-if="not line_open" class="small mb-1 o_ems_erasmus_document_not_open">
+                                    <i class="fa fa-clock-o me-1"/><t t-if="line.open_date">Available from <t t-out="line.open_date" t-options="{'widget': 'date'}"/>.</t>
+                                    <t t-else="">Available <t t-esc="line.call_document_id.open_days"/> days before leaving, once the dates of the stay are known.</t>
+                                </p>
                                 <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
                                 <p t-if="line.signers" class="small mb-1">Signed by: <t t-esc="line.signers"/></p>
                                 <p t-if="line.prepared_attachment_ids" class="small mb-1"><t t-if="line.handled_by == 'team'">To download:</t><t t-else="">To download and sign:</t>
@@ -568,7 +573,7 @@
                                 <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
                                 <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
                                 <p t-if="line.attachment_ids" class="small mb-1">Received: <t t-esc="', '.join(line.attachment_ids.mapped('name'))"/></p>
-                                <input t-if="mobility.state == 'preparing' and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)" class="form-control form-control-sm" type="file"
+                                <input t-if="mobility.state == 'preparing' and line_open and line.review_state != 'valid' and line.handled_by != 'team' and (line.handled_by != 'team_to_sign' or line.prepared_attachment_ids)" class="form-control form-control-sm" type="file"
                                        t-attf-name="document_#{line.call_document_id.id}" multiple="multiple"/>
                             </li>
                         </ul>
@@ -585,6 +590,31 @@
                             <span t-if="task.description" class="d-block text-muted ms-3" t-esc="task.description"/>
                         </li>
                     </ul>
+                </t>
+
+                <!-- Issue #697: during the stay, the weekly self-assessment of the weeks already begun. -->
+                <t t-set="open_weeks" t-value="mobility._ems_self_assessments_open()"/>
+                <t t-if="open_weeks or mobility.self_assessment_ids">
+                    <h6 class="mt-3">During the stay: weekly self-assessment</h6>
+                    <p class="small text-muted mb-2">Every week, think about what you have done and learned. The Erasmus team reads it, and it is kept in your dossier.</p>
+                    <form t-foreach="open_weeks" t-as="week" t-att-action="action + 'self_assessment'" method="post" class="border rounded p-3 mb-2 o_ems_erasmus_self_assessment">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <input type="hidden" name="week" t-att-value="week[0]"/>
+                        <p class="fw-bold mb-2">Week <t t-esc="week[0]"/> (<t t-out="week[1]" t-options="{'widget': 'date'}"/> - <t t-out="week[2]" t-options="{'widget': 'date'}"/>)</p>
+                        <div t-foreach="mobility.call_id.self_assessment_question_ids" t-as="question" class="mb-2">
+                            <label class="form-label small" t-attf-for="question_#{week[0]}_#{question.id}" t-esc="question.name"/>
+                            <select t-if="question.kind == 'rating'" class="form-select form-select-sm" t-attf-name="question_#{question.id}" t-attf-id="question_#{week[0]}_#{question.id}" required="required">
+                                <option value=""/>
+                                <option t-foreach="range(1, 6)" t-as="score" t-att-value="score" t-esc="score"/>
+                            </select>
+                            <textarea t-else="" class="form-control form-control-sm" rows="2" t-attf-name="question_#{question.id}" t-attf-id="question_#{week[0]}_#{question.id}" required="required"/>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_self_assessment_send">Send</button>
+                    </form>
+                    <details t-foreach="mobility.self_assessment_ids" t-as="assessment" class="small mb-1 o_ems_erasmus_self_assessment_sent">
+                        <summary><i class="fa fa-check text-success me-1"/>Week <t t-esc="assessment.week"/> (<t t-out="assessment.date_from" t-options="{'widget': 'date'}"/> - <t t-out="assessment.date_to" t-options="{'widget': 'date'}"/>)</summary>
+                        <div class="mt-2" t-out="assessment.answers_html"/>
+                    </details>
                 </t>
 
                 <!-- Staff: the absence for training EMS requested for the validated dates. -->

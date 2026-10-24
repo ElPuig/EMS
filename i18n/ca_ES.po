@@ -1842,6 +1842,8 @@ msgstr "Marc d'origen"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_authorizations_block model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__kind
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__text
 msgid "Answer"
 msgstr "Resposta"
 
@@ -3076,6 +3078,9 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3159,6 +3164,9 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3516,6 +3524,9 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4366,6 +4377,7 @@ msgstr "Divendres"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__from_date model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_from
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_from
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__date_from
 msgid "From"
 msgstr "De"
 
@@ -4899,6 +4911,9 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__id
 msgid "ID"
 msgstr "ID"
 
@@ -5504,6 +5519,9 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5587,6 +5605,9 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -7942,6 +7963,7 @@ msgstr "Enviat el"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_task__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__sequence
 msgid "Sequence"
 msgstr "Seqüència"
 
@@ -9105,6 +9127,7 @@ msgstr "Avuí"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_to
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_to
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__date_to
 msgid "To"
 msgstr "A"
 
@@ -11956,6 +11979,7 @@ msgstr "Manca de material necessari"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_send_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 msgid "Send"
 msgstr "Enviar"
 
@@ -17979,6 +18003,7 @@ msgstr "Respost per"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__submitted_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__answer_date
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 msgid "Answered on"
 msgstr "Respost el"
 
@@ -24651,6 +24676,7 @@ msgstr "Admesa"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__answer_ids
 msgid "Answers"
 msgstr "Respostes"
 
@@ -24751,6 +24777,7 @@ msgstr "Torna a revisió"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_destination__call_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__call_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__call_id
 msgid "Call"
 msgstr "Convocatòria"
 
@@ -27952,6 +27979,7 @@ msgstr "Mobilitats"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__mobility_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility_task__mobility_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__mobility_id
 msgid "Mobility"
 msgstr "Mobilitat"
 
@@ -28047,6 +28075,7 @@ msgstr "Obre l'elecció de destinació"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__partner_id
 msgid "Participant"
 msgstr "Participant"
 
@@ -28844,6 +28873,10 @@ msgid ""
 "                        <p t-if=\"object.commitment_guardian_pending\">\n"
 "                            Your family has to sign the commitment letter too, from its own access to the portal.\n"
 "                        </p>\n"
+"                        <t t-if=\"object._ems_self_assessments_missing()\">\n"
+"                            <p>You still have to answer the weekly self-assessment of:</p>\n"
+"                            <t t-out=\"object._ems_mail_self_assessment_list()\"/>\n"
+"                        </t>\n"
 "                        <p>\n"
 "                            You will find everything on the school portal\n"
 "                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>), with the team's\n"
@@ -28872,6 +28905,10 @@ msgstr ""
 "                        <p t-if=\"object.commitment_guardian_pending\">\n"
 "                            La teva família també ha de signar la carta de compromís, des del seu propi accés al portal.\n"
 "                        </p>\n"
+"                        <t t-if=\"object._ems_self_assessments_missing()\">\n"
+"                            <p>Encara has de respondre l'autoavaluació setmanal de:</p>\n"
+"                            <t t-out=\"object._ems_mail_self_assessment_list()\"/>\n"
+"                        </t>\n"
 "                        <p>\n"
 "                            Ho trobaràs tot al portal de l'institut\n"
 "                            (<a t-attf-href=\"{{ object.get_base_url() }}/my/erasmus\">Erasmus+</a>), amb els comentaris\n"
@@ -30863,3 +30900,218 @@ msgstr "Estades curtes (30 dies o menys): un PDF amb la teva preparació abans d
 #: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__requirement
 msgid "Required for curricular work placement: when the student's stay is a work placement managed in sBID (the mobility's Placement type); optional for an extracurricular stay or a recent graduate. Short blended mobilities only: asked for in a KA131-HED stay of 30 days or fewer, and not shown otherwise."
 msgstr "Obligatori en formació en empresa curricular: quan l'estada de l'alumne és una formació en empresa gestionada al sBID (el Tipus d'estada de la mobilitat); opcional en una estada extracurricular o d'un titulat recent. Només mobilitats curtes combinades: es demana en una estada KA131-HED de 30 dies o menys, i si no, no es mostra."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "<i class=\"fa fa-check text-success me-1\"/>Week"
+msgstr "<i class=\"fa fa-check text-success me-1\"/>Setmana"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_self_assessment_week_unique
+msgid "A week of a mobility is self-assessed only once."
+msgstr "Cada setmana d'una mobilitat s'autoavalua només una vegada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Answer every question."
+msgstr "Respon totes les preguntes."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__kind
+msgid "Answer type"
+msgstr "Tipus de resposta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__answers_html
+msgid "Answers given"
+msgstr "Respostes donades"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Available"
+msgstr "Disponible"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Available from"
+msgstr "Disponible a partir del"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_application_document__open_date
+msgid "Before this day the participant does not see the document on the portal."
+msgstr "Abans d'aquest dia el participant no veu el document al portal."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "During the stay: weekly self-assessment"
+msgstr "Durant l'estada: autoavaluació setmanal"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_self_assessment_answer
+msgid "Erasmus+ self-assessment answer"
+msgstr "Resposta d'autoavaluació Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_call_question
+msgid "Erasmus+ self-assessment question"
+msgstr "Pregunta d'autoavaluació Erasmus+"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_self_assessment
+msgid "Erasmus+ weekly self-assessment"
+msgstr "Autoavaluació setmanal Erasmus+"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "Every week, think about what you have done and learned. The Erasmus team reads it, and it is kept in your dossier."
+msgstr "Cada setmana, pensa en què has fet i què has après. L'equip Erasmus ho llegeix i es guarda al teu expedient."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "How do you rate your week?"
+msgstr "Com valores la teva setmana?"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__open_days
+msgid "Mobility documents before leaving: the participant sees it and can upload it only from this many days before leaving. 0: as soon as the destination is set."
+msgstr "Documents de la mobilitat abans de marxar: el participant el veu i el pot pujar només a partir d'aquests dies abans de marxar. 0: tan bon punt té la destinació."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_erasmus_self_assessment
+msgid "No week has been self-assessed yet."
+msgstr "Encara no s'ha autoavaluat cap setmana."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__open_days
+msgid "Opens (days before leaving)"
+msgstr "S'obre (dies abans de marxar)"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__open_date
+msgid "Opens on"
+msgstr "S'obre el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_question__name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__question
+msgid "Question"
+msgstr "Pregunta"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__question_id
+msgid "Question of the call"
+msgstr "Pregunta de la convocatòria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__rating
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__rating
+msgid "Rating"
+msgstr "Valoració"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_question__kind__rating
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_self_assessment_answer__kind__rating
+msgid "Rating from 1 to 5"
+msgstr "Valoració de l'1 al 5"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment_answer__assessment_id
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Self-assessment"
+msgstr "Autoavaluació"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__self_assessment_progress
+msgid "Self-assessments answered"
+msgstr "Autoavaluacions respostes"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_question__kind__text
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_self_assessment_answer__kind__text
+msgid "Text"
+msgstr "Text"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_self_assessment__rating
+msgid "The week's rating from 1 to 5, when the self-assessment has one."
+msgstr "La valoració de la setmana de l'1 al 5, quan l'autoavaluació en té."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "This week's self-assessment cannot be answered now."
+msgstr "L'autoavaluació d'aquesta setmana no es pot respondre ara."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_self_assessment__week
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+#: model_terms:ir.ui.view,arch_db:ems.report_erasmus_self_assessment
+msgid "Week"
+msgstr "Setmana"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "Week %(week)s (%(start)s - %(end)s)"
+msgstr "Setmana %(week)s (%(start)s - %(end)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/self_assessment.py:0
+msgid "Week %s"
+msgstr "Setmana %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/project.py:0
+#: model:ir.actions.report,name:ems.action_report_erasmus_self_assessment
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__self_assessment_question_ids
+#: model_terms:ir.ui.view,arch_db:ems.report_erasmus_self_assessment
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
+msgid "Weekly self-assessment"
+msgstr "Autoavaluació setmanal"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__self_assessment_ids
+msgid "Weekly self-assessments"
+msgstr "Autoavaluacions setmanals"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__self_assessment_progress
+msgid "Weeks answered out of the weeks of the stay."
+msgstr "Setmanes respostes del total de setmanes de l'estada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "What did you do this week?"
+msgstr "Què has fet aquesta setmana?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "What have you learned?"
+msgstr "Què has après?"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call__self_assessment_question_ids
+msgid "What the participants answer on the portal every week of the stay. Empty: no self-assessment."
+msgstr "El que els participants responen al portal cada setmana de l'estada. Buit: sense autoavaluació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "What was hardest for you, and what would you improve?"
+msgstr "Què t'ha costat més i què milloraries?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "days before leaving, once the dates of the stay are known."
+msgstr "dies abans de marxar, quan se sàpiguen les dates de l'estada."
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_erasmus_self_assessment
+msgid "object.partner_id.name"
+msgstr "object.partner_id.name"

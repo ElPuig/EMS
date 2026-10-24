@@ -106,6 +106,9 @@ class EmsErasmusCall(models.Model):
         help="What the participants hand in before leaving and on return, once their place is accepted.")
     task_ids = fields.One2many(string="Checklist", comodel_name='ems.erasmus.call.task', inverse_name='call_id',
                                copy=True)
+    self_assessment_question_ids = fields.One2many(
+        string="Weekly self-assessment", comodel_name='ems.erasmus.call.question', inverse_name='call_id', copy=True,
+        help="What the participants answer on the portal every week of the stay. Empty: no self-assessment.")
     destination_ids = fields.One2many(string="Destinations", comodel_name='ems.erasmus.destination',
                                       inverse_name='call_id')
     mobility_ids = fields.One2many(string="Mobilities", comodel_name='ems.erasmus.mobility', inverse_name='call_id')
@@ -231,6 +234,8 @@ class EmsErasmusCall(models.Model):
                 vals['preparation_document_ids'] = self._ems_preparation_documents(audience)
             if 'task_ids' not in vals:
                 vals['task_ids'] = self._ems_preparation_tasks(audience)
+            if audience == 'student' and 'self_assessment_question_ids' not in vals:
+                vals['self_assessment_question_ids'] = self._ems_self_assessment_questions()
             if audience == 'student' and 'commitment_text' not in vals:
                 vals['commitment_text'] = self._ems_commitment_text()
         return super().create(vals_list)
@@ -347,7 +352,8 @@ class EmsErasmusCall(models.Model):
                 # The virtual component of a short blended KA131-HED stay: the student's preparation, kept
                 # in the dossier.
                 {'name': _("Virtual component"), 'project': 'ka131_hed', 'requirement': 'short_blended',
-                 'due_basis': 'before_start', 'due_days': 7, 'sepie_folder': '06_Cursos_programasytasas',
+                 'open_days': 30, 'due_basis': 'before_start', 'due_days': 1,
+                 'sepie_folder': '06_Cursos_programasytasas',
                  'description': _(
                      "Short stays (30 days or fewer): a PDF with your preparation before leaving. Information about the "
                      "city, how you will get to the company and how much transport costs, and the exercises on the "
@@ -367,6 +373,15 @@ class EmsErasmusCall(models.Model):
         return [(0, 0, {'sequence': index, 'stage': vals.get('stage', 'preparation'), 'requirement': 'required',
                         'due_days': 30, 'due_basis': defaults[vals.get('stage', 'preparation')], **vals})
                 for index, vals in enumerate(documents, 1)]
+
+    @api.model
+    def _ems_self_assessment_questions(self):
+        """The weekly self-assessment of a students' call during the stay, editable."""
+        questions = [(_("What did you do this week?"), 'text'), (_("What have you learned?"), 'text'),
+                     (_("How do you rate your week?"), 'rating'),
+                     (_("What was hardest for you, and what would you improve?"), 'text')]
+        return [(0, 0, {'sequence': index, 'name': name, 'kind': kind})
+                for index, (name, kind) in enumerate(questions, 1)]
 
     @api.model
     def _ems_commitment_text(self):
@@ -743,6 +758,9 @@ class EmsErasmusCallDocument(models.Model):
         ('destination', "After the destination is set"), ('before_start', "Before leaving"),
         ('after_end', "After returning")], help="Mobility documents: what the deadline counts from.")
     due_days = fields.Integer(string="Days", help="Mobility documents: days counted from the Due point.")
+    open_days = fields.Integer(string="Opens (days before leaving)",
+                               help="Mobility documents before leaving: the participant sees it and can upload it only "
+                                    "from this many days before leaving. 0: as soon as the destination is set.")
     handled_by = fields.Selection(string="Handled by", default='participant', required=True, selection=[
         ('participant', "The participant uploads it"), ('team_to_sign', "The team fills it in, the participant signs it"),
         ('team', "The team provides it")],

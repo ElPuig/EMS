@@ -149,6 +149,61 @@ class TestErasmusMobility(ErasmusMobilityCase):
         first.date_end = date(2027, 6, 30)
         self.assertFalse(first.preparation_complete, "A short stay: the step and the virtual component count.")
 
+    def test_the_virtual_component_opens_a_month_before_leaving(self):
+        self.modality.project = 'ka131_hed'
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        virtual = self._line(first, "Virtual component")
+        self.assertEqual((virtual.open_date, virtual.deadline), (date(2027, 5, 2), date(2027, 5, 31)),
+                         "Opens a month before leaving, due the day before.")
+        self.assertTrue(virtual.is_required, "The destination's 30 days: short blended.")
+        self.assertFalse(virtual._ems_is_open())
+        self.assertNotIn(virtual, first._ems_documents_to_correct(), "Not reminded before it opens.")
+        first._ems_portal_upload({virtual.call_document_id.id: [('virtual.pdf', PDF)]})
+        self.assertFalse(virtual.attachment_ids, "Not uploaded before it opens.")
+        today = self.env['ems.datetime_utils'].get_local_today()
+        first.write({'date_start': today + timedelta(days=10), 'date_end': today + timedelta(days=20)})
+        self.assertTrue(virtual._ems_is_open())
+        self.assertIn(virtual, first._ems_documents_to_correct())
+        first._ems_portal_upload({virtual.call_document_id.id: [('virtual.pdf', PDF)]})
+        self.assertEqual(virtual.attachment_ids.mapped('name'), ['virtual.pdf'])
+
+    def test_weekly_self_assessment_during_the_stay(self):
+        questions = self.call.self_assessment_question_ids
+        self.assertEqual(questions.mapped('kind'), ['text', 'text', 'rating', 'text'], "A students' call has them.")
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        today = self.env['ems.datetime_utils'].get_local_today()
+        first.write({'date_start': today - timedelta(days=10), 'date_end': today + timedelta(days=10)})
+        self.assertEqual([week[0] for week in first._ems_self_assessment_weeks()], [1, 2, 3])
+        self.assertEqual([week[0] for week in first._ems_self_assessments_open()], [1, 2], "Weeks already begun.")
+        self.assertEqual([week[0] for week in first._ems_self_assessments_missing()], [1], "Weeks already over.")
+        answers = {question.id: '4' if question.kind == 'rating' else 'Test answer' for question in questions}
+        for week, values in ((3, answers), (1, {**answers, questions[0].id: ' '}),
+                             (1, {**answers, questions[2].id: '7'})):
+            with self.assertRaises(UserError):
+                first._ems_portal_self_assessment(week, values)
+        sent = len(self._mails(first))
+        self.env['ems.erasmus.mobility']._cron_remind_documents()
+        self.assertEqual(len(self._mails(first)), sent + 1)
+        self.assertIn((today - timedelta(days=10)).strftime('%d/%m/%Y'), self._mails(first).sorted('id')[-1].body_html,
+                      "Reminded of the week over (the mail is in the student's language).")
+        first._ems_portal_self_assessment(1, answers)
+        assessment = first.self_assessment_ids
+        self.assertEqual((assessment.week, assessment.date_from, assessment.rating), (1, today - timedelta(days=10), 4))
+        self.assertEqual(first.self_assessment_progress, '1 / 3')
+        self.assertFalse(first._ems_self_assessments_missing())
+        with self.assertRaises(UserError):
+            first._ems_portal_self_assessment(1, answers)
+        questions[0].name = 'Changed question'
+        self.assertIn("What did you do this week?", assessment.answers_html, "The question as it was asked.")
+        # Under tests Odoo renders reports as HTML, not PDF.
+        report, _type = self.env['ir.actions.report']._render_qweb_pdf(
+            'ems.action_report_erasmus_self_assessment', first.ids)
+        self.assertIn(b'Test answer', report)
+
     def test_documents_only_for_some_modalities(self):
         gs_only = self.env['ems.erasmus.call.document'].create({
             'call_id': self.call.id, 'stage': 'preparation', 'name': 'GS only',
@@ -656,6 +711,21 @@ class TestPortalErasmusMobility(HttpCase, ErasmusMobilityCase):
         self.assertIn('Virtual component', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
         first.date_end = date(2027, 8, 31)
         self.assertNotIn('Virtual component', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+
+    def test_answer_the_weekly_self_assessment_on_the_portal(self):
+        first, _second = self._accepted()
+        self._destinations(2)
+        self.call.action_open_destination_choice()
+        today = self.env['ems.datetime_utils'].get_local_today()
+        first.write({'date_start': today - timedelta(days=2), 'date_end': today + timedelta(days=20)})
+        self.authenticate(self.student_user.login, self.student_user.login)
+        self.assertIn('o_ems_erasmus_self_assessment', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
+        answers = {f'question_{question.id}': '5' if question.kind == 'rating' else 'Portal answer'
+                   for question in self.call.self_assessment_question_ids}
+        self.assertIn('error=1', self._post('self_assessment', week='2', **answers).url, "Week 2 not begun yet.")
+        self.assertIn('saved=1', self._post('self_assessment', week='1', **answers).url)
+        self.assertEqual((first.self_assessment_ids.week, first.self_assessment_ids.rating), (1, 5))
+        self.assertIn('o_ems_erasmus_self_assessment_sent', self.url_open(f'/my/erasmus/call/{self.call.id}').text)
 
     def test_own_proposal_and_renounce(self):
         first, _second = self._accepted()

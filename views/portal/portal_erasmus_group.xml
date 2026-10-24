@@ -168,6 +168,12 @@
                         <i class="fa fa-check-circle me-1"/>Accepted and signed on
                         <t t-out="participant.commitment_signed_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': tz}"/>.
                     </div>
+                    <div t-if="participant.commitment_provisional" class="alert alert-info small o_ems_erasmus_commitment_provisional">
+                        <i class="fa fa-info-circle me-1"/>Accepted provisionally: the destination or the dates are still to be confirmed. Once they are, you will be asked to accept the letter again.
+                    </div>
+                    <div t-if="participant.commitment_pending and participant.sudo().commitment_version_ids" class="alert alert-warning small o_ems_erasmus_commitment_new_version">
+                        <i class="fa fa-exclamation-triangle me-1"/>The conditions of the mobility changed after you accepted the letter: read the new one and accept it again. The earlier one is kept.
+                    </div>
                     <div t-if="participant.commitment_guardian_pending" class="alert alert-warning small o_ems_erasmus_guardian_pending">
                         <i class="fa fa-exclamation-triangle me-1"/>Your family has to accept it too, from its own portal.
                     </div>
@@ -197,11 +203,11 @@
                                 <div class="d-flex justify-content-between flex-wrap gap-2">
                                     <span>
                                         <strong t-esc="line.name"/>
-                                        <span class="small text-muted"> - <t t-if="line.stage == 'return'">On return</t><t t-else="">Before leaving</t></span>
+                                        <span class="small text-muted"> - <t t-esc="category_labels.get(line.file_category)"/></span>
                                         <span t-if="not line.is_required" class="small text-muted"> (optional)</span>
                                     </span>
-                                    <span t-attf-class="badge #{'text-bg-success' if line.review_state == 'valid' else 'text-bg-danger' if line.review_state == 'needs_change' else 'text-bg-light'}"
-                                          t-esc="review_labels.get(line.review_state) if line.attachment_ids else ''"/>
+                                    <span t-attf-class="badge o_ems_erasmus_file_state #{'text-bg-success' if line.file_state == 'complete' else 'text-bg-danger' if line.file_state in ('missing', 'needs_change') else 'text-bg-warning' if line.file_state == 'to_review' else 'text-bg-light'}"
+                                          t-esc="file_state_labels.get(line.file_state)"/>
                                 </div>
                                 <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
                                 <p t-if="line.signers" class="small mb-1">Signed by: <t t-esc="line.signers"/></p>

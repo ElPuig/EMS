@@ -929,18 +929,22 @@ class EmsErasmusApplicationDocument(models.Model):
             document = line.call_document_id
             line.file_category = document.file_category or STAGE_CATEGORIES.get(document.stage)
 
-    @api.depends('is_required', 'handled_by', 'review_state', 'attachment_ids', 'prepared_attachment_ids')
+    @api.depends('is_required', 'handled_by', 'signers', 'review_state', 'attachment_ids', 'prepared_attachment_ids')
     def _compute_file_state(self):
+        """A document is complete once the team checked it (valid). The only exception: one the team
+        provides that nobody signs (e.g. the insurance policy), complete once uploaded. A document
+        someone has to sign is never complete only because a file is there, whoever uploaded it."""
         for line in self:
+            checked = line.handled_by != 'team' or bool(line.signers)
             if line.handled_by == 'team':
-                done = bool(line.prepared_attachment_ids)
+                uploaded = bool(line.prepared_attachment_ids or line.attachment_ids)
             else:
-                done = line.review_state == 'valid' and bool(line.attachment_ids)
-            if done:
+                uploaded = bool(line.attachment_ids)
+            if uploaded and (line.review_state == 'valid' or not checked):
                 line.file_state = 'complete'
-            elif line.review_state == 'needs_change' and line.handled_by != 'team':
+            elif line.review_state == 'needs_change' and checked:
                 line.file_state = 'needs_change'
-            elif line.attachment_ids and line.handled_by != 'team':
+            elif uploaded:
                 line.file_state = 'to_review'
             elif line.is_required:
                 line.file_state = 'missing'
@@ -981,7 +985,7 @@ class EmsErasmusApplicationDocument(models.Model):
         written in its chatter, with who made it."""
         files = [name for name in ('attachment_ids', 'prepared_attachment_ids') if name in vals]
         kept = {(line, name): line[name] for line in self for name in files
-                if line.review_state == 'valid' or line.mobility_id.state in ('done', 'cancelled')}
+                if line.review_state == 'valid' or line._ems_record_closed()}
         old_states = {line: line.review_state for line in self} if 'review_state' in vals else {}
         result = super().write(vals)
         for (line, name), attachments in kept.items():
@@ -990,10 +994,22 @@ class EmsErasmusApplicationDocument(models.Model):
                                   "instead of removing one.", line.name))
         labels = dict(self._fields['review_state']._description_selection(self.env))
         for line, old_state in old_states.items():
-            if line.mobility_id and line.review_state != old_state:
-                line.mobility_id.sudo().chatter(_("%(document)s: %(state)s.", document=line.name,
-                                           state=labels[line.review_state]))
+            owner = line._ems_record_owner()
+            if owner and line.review_state != old_state:
+                owner.sudo().chatter(_("%(document)s: %(state)s.", document=line._ems_record_label(),
+                                       state=labels[line.review_state]))
         return result
+
+    def _ems_record_closed(self):
+        """Whether the record this document belongs to is closed: its files are kept as they are."""
+        return self.mobility_id.state in ('done', 'cancelled')
+
+    def _ems_record_owner(self):
+        """The record whose chatter keeps the history of this document's review."""
+        return self.mobility_id
+
+    def _ems_record_label(self):
+        return self.name
 
     def action_mark_valid(self):
         self.write({'review_state': 'valid'})

@@ -3121,6 +3121,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3214,6 +3215,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3314,6 +3316,7 @@ msgstr "Datos descargados"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_document__date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__date
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__date model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__issue_date model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__date model:ir.model.fields,field_description:ems.field_ems_minute__date model:ir.model.fields.selection,name:ems.selection__ems_authorization_field__field_type__date model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__date model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__date model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
@@ -3323,6 +3326,7 @@ msgstr "Datos descargados"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__date
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Date"
 msgstr "Fecha"
 
@@ -3458,12 +3462,14 @@ msgid "Description & Notes"
 msgstr "Descripción y notas"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_strike__notes model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_strike_form_issue
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__message
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__details
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__description
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Details"
 msgstr "Detalles"
 
@@ -3583,6 +3589,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4142,8 +4149,10 @@ msgid "Evaluation meeting"
 msgstr "Reunión de evaluación"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__exception model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__exception model:ir.model.fields,field_description:ems.field_ems_notice_line__exception
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__result_override
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Exception"
 msgstr "Excepción"
 
@@ -4357,9 +4366,11 @@ msgid "First name"
 msgstr "Nombre"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_study__follow_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__log_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Follow-up"
 msgstr "Hacer un seguimiento"
 
@@ -5012,6 +5023,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__id
 msgid "ID"
 msgstr "ID"
 
@@ -5645,6 +5657,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5738,6 +5751,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -8488,6 +8502,7 @@ msgid "Street 2"
 msgstr "Calle 2"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__student_id model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__student_id model:ir.model.fields,field_description:ems.field_ems_authorization__partner_id model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__student_id model:ir.model.fields,field_description:ems.field_ems_course_transition_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__student_id model:ir.model.fields,field_description:ems.field_ems_enrollment__student_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__student_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome__student_id model:ir.model.fields,field_description:ems.field_ems_grade_outcome_line__student_id model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__student_id model:ir.model.fields,field_description:ems.field_ems_graduation_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__student_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__student_id model:ir.model.fields,field_description:ems.field_ems_notice_line__student_id model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__student_id model:ir.model.fields,field_description:ems.field_ems_strike__student_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__student_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__student_id model:ir.model.fields,field_description:ems.field_ems_tracking__student_id model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__student_id model:ir.model.fields.selection,name:ems.selection__ems_notice_line__recipient_type__student model:ir.model.fields.selection,name:ems.selection__res_partner__contact_type__student model:res.partner.category,name:ems.partner_category_student model:res.partner.relation.type,name_inverse:ems.relation_type_tutor model_terms:ir.ui.view,arch_db:ems.attendance_report_session model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate model_terms:ir.ui.view,arch_db:ems.report_google_credentials model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_contact_form model_terms:ir.ui.view,arch_db:ems.view_contact_list_tutor model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_enrollment_collection_list model_terms:ir.ui.view,arch_db:ems.view_enrollment_search model_terms:ir.ui.view,arch_db:ems.view_order_form_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_order_tree_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model_terms:ir.ui.view,arch_db:ems.view_sales_order_filter_inherit_ems_enrollment model_terms:ir.ui.view,arch_db:ems.view_student_document_list model_terms:ir.ui.view,arch_db:ems.view_student_document_search model_terms:ir.ui.view,arch_db:ems.view_student_list_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__student_id
@@ -8507,6 +8522,7 @@ msgstr "Calle 2"
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_participant__role__student
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Student"
 msgstr "Alumno"
 
@@ -8794,10 +8810,12 @@ msgid "Suggested subject grade applying the planning ponderations."
 msgstr "Nota de la asignatura sugerida aplicando las ponderaciones de la planificación."
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__name
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Summary"
 msgstr "Resumen"
 
@@ -11318,6 +11336,7 @@ msgstr "Esto expulsa inmediatamente a los estudiantes seleccionados. ¿Quieres c
 
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__kind
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard__exit_kind
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_claim__kind
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__kind
@@ -11326,6 +11345,7 @@ msgstr "Esto expulsa inmediatamente a los estudiantes seleccionados. ¿Quieres c
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_search
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__kind
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__audience
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Kind"
 msgstr "Tipo"
 
@@ -18540,9 +18560,11 @@ msgid "Possible duplicate of"
 msgstr "Posible duplicado de"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__new_value
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__proposed_result
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_registration__substitution_state__proposed
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Proposed"
 msgstr "Propuesto"
 
@@ -25270,12 +25292,16 @@ msgstr "Instrucciones"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_modality__project__ka121_vet
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_project__kind__ka121_vet
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__project__ka121_vet
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__project__ka121_vet
 msgid "KA121-VET"
 msgstr "KA121-VET"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_modality__project__ka131_hed
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_project__kind__ka131_hed
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__project__ka131_hed
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_task__project__ka131_hed
 msgid "KA131-HED"
 msgstr "KA131-HED"
 
@@ -25886,9 +25912,11 @@ msgid "D. Fewer opportunities"
 msgstr "D. Menos oportunidades"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__draw_order
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__draw_order
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__draw_id
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Draw"
 msgstr "Sorteo"
 
@@ -25976,9 +26004,11 @@ msgid "F. Conduct"
 msgstr "F. Convivencia"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__fewer_opportunities_check
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__fewer_opportunities_check
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__fewer_opportunities
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Fewer opportunities accredited"
 msgstr "Menos oportunidades acreditadas"
 
@@ -26160,6 +26190,7 @@ msgstr ""
 "tengan la puntuación completa."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__rank
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer__rank
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_offer_wizard__rank
@@ -26167,6 +26198,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__rank
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__rank
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Rank"
 msgstr "Posición"
 
@@ -26185,8 +26217,10 @@ msgid "Reason for a single evaluation"
 msgstr "Motivo de una sola valoración"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__grade_average
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__grade_average
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Record average"
 msgstr "Nota media del expediente"
 
@@ -26851,8 +26885,10 @@ msgid "Places not accepted nor offered to someone still to answer."
 msgstr "Plazas no aceptadas ni ofrecidas a alguien que aún debe responder."
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__position
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Position"
 msgstr "Posición"
 
@@ -29916,12 +29952,14 @@ msgstr ""
 
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_project_document__mobility_ids
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__mobility_ids
 #: model:ir.actions.act_window,name:ems.action_erasmus_group_participant
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__participant_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__participant_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_list
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Participants"
 msgstr "Participantes"
 
@@ -31039,8 +31077,10 @@ msgid "Conduct this course"
 msgstr "Conducta este curso"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__course_strike_count
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__strike_count
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Conduct warnings this course"
 msgstr "Amonestaciones este curso"
 
@@ -31877,11 +31917,14 @@ msgstr "Auditoría o requerimiento pendiente"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__record_progress
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__res_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__record_progress
 msgid "Record"
 msgstr "Expediente"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__record_progress
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__record_progress
 msgid "Required documents complete out of those required."
 msgstr "Documentos obligatorios completos respecto a los obligatorios."
 
@@ -32015,6 +32058,7 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/export.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__number
 msgid "Version"
 msgstr "Versión"
 
@@ -32513,8 +32557,10 @@ msgid "EMS: Erasmus+, group mobility result"
 msgstr "EMS: Erasmus+, resultado de la movilidad de grupo"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__eu_survey_state
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "EU Survey"
 msgstr "EU Survey"
 
@@ -32585,11 +32631,13 @@ msgid "Enrolled on"
 msgstr "Inscrito el"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__registration_ids
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__state
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__enrolment
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__registration_id
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Enrolment"
 msgstr "Inscripción"
 
@@ -32748,7 +32796,9 @@ msgid "For"
 msgstr "Para"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__frozen_group_id
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Group at closing"
 msgstr "Grupo al cerrar"
 
@@ -32774,6 +32824,8 @@ msgstr "Acuerdo de aprendizaje del grupo"
 #: model:ir.ui.menu,name:ems.menu_erasmus_group_mobilities
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_list
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_search
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_project__group_mobility_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 msgid "Group mobilities"
 msgstr "Movilidades de grupo"
 
@@ -32796,6 +32848,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_invoice__group_mobility_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__group_mobility_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__group_mobility_id
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_export__scope__group
 msgid "Group mobility"
 msgstr "Movilidad de grupo"
 
@@ -32884,7 +32938,9 @@ msgid "Leads or accompanies an Erasmus+ group mobility."
 msgstr "Es responsable o acompañante de una movilidad de grupo Erasmus+."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__eligible
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Meets the requirements"
 msgstr "Cumple los requisitos"
 
@@ -33057,12 +33113,16 @@ msgid "Ranked on"
 msgstr "Clasificación calculada el"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__override_reason
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Reason for the exception"
 msgstr "Motivo de la excepción"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__exclusion
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Reason not eligible"
 msgstr "Motivo por el que no cumple"
 
@@ -33078,17 +33138,22 @@ msgid "Renounced by the student."
 msgstr "El alumno ha renunciado."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__renounce_date
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Renounced on"
 msgstr "Renuncia el"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__substitute_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__superseded_by_id
 msgid "Replaced by"
 msgstr "Sustituido por"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__substitute_for_id
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Replaces"
 msgstr "Sustituye a"
 
@@ -33136,8 +33201,10 @@ msgstr ""
 "de %s."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__selection
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Selection"
 msgstr "Selección"
 
@@ -33511,7 +33578,9 @@ msgid "Write why the proposal goes back first."
 msgstr "Antes, escribe por qué se devuelve la propuesta."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_log__author_id
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Written by"
 msgstr "Escrito por"
 
@@ -33803,7 +33872,9 @@ msgid "Average entered"
 msgstr "Media introducida"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__grade_manual
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Average entered by hand"
 msgstr "Media introducida a mano"
 
@@ -33833,8 +33904,10 @@ msgstr ""
 "%(mobility)s (proyecto %(project)s):"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__draw_ids
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Draws"
 msgstr "Sorteos"
 
@@ -33902,12 +33975,16 @@ msgid "Order drawn"
 msgstr "Orden sorteado"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__user_id
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Run by"
 msgstr "Hecho por"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__date
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Run on"
 msgstr "Hecho el"
 
@@ -34069,12 +34146,16 @@ msgstr ""
 " propio del expediente del alumno."
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__grade_average
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Tied on the average"
 msgstr "Empatados con la media"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_registration__grade_manual_reason
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Where the average comes from"
 msgstr "De dónde sale la media"
 
@@ -34113,3 +34194,331 @@ msgid ""
 msgstr ""
 "alumnos seleccionados todavía no han aceptado la carta de compromiso en el "
 "portal (ellos o, si son menores, su familia)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>The conditions of the mobility"
+" changed after you accepted the letter: read the new one and accept it "
+"again. The earlier one is kept."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>Las condiciones de la "
+"movilidad han cambiado después de que aceptaras la carta: lee la nueva y "
+"vuelve a aceptarla. Se conserva la anterior."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>Accepted provisionally: the destination"
+" or the dates are still to be confirmed. Once they are, you will be asked to"
+" accept the letter again."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/>Aceptada provisionalmente: el destino o"
+" las fechas aún están por confirmar. Cuando se confirmen, te pediremos que "
+"vuelvas a aceptar la carta."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_call_document_one_owner
+msgid "A document belongs to a call or to a group mobility."
+msgstr "Un documento pertenece a una convocatoria o a una movilidad de grupo."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_application_document_one_owner
+msgid "A document belongs to an application or to a group mobility."
+msgstr "Un documento pertenece a una solicitud o a una movilidad de grupo."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__signed_by_id
+msgid "Accepted by"
+msgstr "Aceptada por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__guardian_signed_date
+msgid "Accepted by the family on"
+msgstr "Aceptada por la familia el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__signed_date
+msgid "Accepted on"
+msgstr "Aceptada el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment__commitment_provisional
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__commitment_provisional
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__commitment_provisional
+msgid "Accepted provisionally"
+msgstr "Aceptada provisionalmente"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+msgid ""
+"Accepted provisionally: the destination or the dates are still to be "
+"confirmed. Once they are, the student (and the family of a minor) accept the"
+" letter again."
+msgstr ""
+"Aceptada provisionalmente: el destino o las fechas aún están por confirmar. "
+"Cuando se confirmen, el alumno (y la familia de un menor) vuelven a aceptar "
+"la carta."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/export.py:0
+msgid ""
+"Accepted provisionally: the destination or the dates were still to be "
+"confirmed."
+msgstr ""
+"Aceptada provisionalmente: el destino o las fechas aún estaban por "
+"confirmar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_commitment_version__provisional
+msgid ""
+"Accepted while the destination or the dates were still to be confirmed."
+msgstr "Aceptada cuando el destino o las fechas aún estaban por confirmar."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_commitment__commitment_provisional
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__commitment_provisional
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__commitment_provisional
+msgid ""
+"Accepted while the destination or the dates were still to be confirmed: once"
+" they are, the new letter has to be accepted again."
+msgstr ""
+"Aceptada cuando el destino o las fechas aún estaban por confirmar: cuando se"
+" confirmen, hay que volver a aceptar la carta nueva."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/commitment.py:0
+msgid "An accepted commitment letter is evidence: it cannot be changed."
+msgstr ""
+"Una carta de compromiso aceptada es una evidencia: no se puede modificar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/commitment.py:0
+msgid "An accepted commitment letter is evidence: it cannot be deleted."
+msgstr ""
+"Una carta de compromiso aceptada es una evidencia: no se puede eliminar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/export.py:0
+msgid "Choose the group mobility to export."
+msgstr "Elige la movilidad de grupo que quieres exportar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__documents_valid
+msgid "Documents complete"
+msgstr "Documentos completos"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+msgid "Earlier version"
+msgstr "Versión anterior"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/export.py:0
+msgid "Earlier version %s"
+msgstr "Versión anterior %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/export.py:0
+msgid "Earlier version only: the new one is not accepted yet"
+msgstr "Solo una versión anterior: la nueva aún no se ha aceptado"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment__commitment_version_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__commitment_version_ids
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__commitment_version_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+msgid "Earlier versions"
+msgstr "Versiones anteriores"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_commitment_version
+msgid "Erasmus+ commitment letter version"
+msgstr "Versión de la carta de compromiso Erasmus+"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Every required document must be complete first: %s"
+msgstr ""
+"Primero todos los documentos obligatorios tienen que estar completos: %s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Export the documents"
+msgstr "Exportar los documentos"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/export.py:0
+msgid "Export the group mobility"
+msgstr "Exportar la movilidad de grupo"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__guardian_signed_ip
+msgid "Family from IP address"
+msgstr "Familia desde la dirección IP"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__guardian_signed_by_id
+msgid "Family member"
+msgstr "Familiar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__signed_ip
+msgid "From IP address"
+msgstr "Desde la dirección IP"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__is_short_blended
+msgid "KA131-HED stay of 30 days or fewer: it has a virtual component."
+msgstr "Estancia KA131-HED de 30 días o menos: tiene componente virtual."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__text
+msgid "Letter accepted"
+msgstr "Carta aceptada"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_commitment__commitment_version_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__commitment_version_ids
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__commitment_version_ids
+msgid "Letters accepted before their conditions changed, kept as they were."
+msgstr ""
+"Cartas aceptadas antes de que cambiaran sus condiciones, conservadas tal "
+"como eran."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__record_missing
+msgid "Missing, pending review or needing changes."
+msgstr "Faltan, pendientes de revisión o hay que corregirlos."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__project
+msgid ""
+"Mobility documents: only for the modalities of this project (e.g. the "
+"Europass mobility document, KA121-VET only). Empty: both projects."
+msgstr ""
+"Documentos de la movilidad: solo para las modalidades de este proyecto (p. "
+"ej. el documento de movilidad Europass, solo KA121-VET). Vacío: ambos "
+"proyectos."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__res_model
+msgid "Model"
+msgstr "Modelo"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_task__project
+msgid "Only for the modalities of this project. Empty: both projects."
+msgstr "Solo para las modalidades de este proyecto. Vacío: ambos proyectos."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__provisional
+msgid "Provisional"
+msgstr "Provisional"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__superseded_date
+msgid "Replaced on"
+msgstr "Sustituida el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/export.py:0
+msgid "Replaced on %(date)s: %(reason)s"
+msgstr "Sustituida el %(date)s: %(reason)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__record_missing
+msgid "Required documents not complete"
+msgstr "Documentos obligatorios no completos"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__documents_missing
+msgid "Required documents with no file yet, or needing changes."
+msgstr "Documentos obligatorios aún sin fichero, o que hay que corregir."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_project__keep_until
+msgid ""
+"SEPIE: 3 years after the final payment of the grant, 5 when the grant is "
+"above 60,000 €. Empty until the final payment and the grant are known. "
+"Nothing is ever deleted automatically."
+msgstr ""
+"SEPIE: 3 años después del pago final de la subvención, 5 cuando la "
+"subvención supera los 60.000 €. Vacío hasta que se conocen el pago final y "
+"la subvención. Nunca se elimina nada automáticamente."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_task__requirement
+msgid ""
+"Short blended mobilities only: KA131-HED stays of 30 days or fewer (e.g. the"
+" virtual component)."
+msgstr ""
+"Solo movilidades cortas combinadas: estancias KA131-HED de 30 días o menos "
+"(p. ej. el componente virtual)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_mobility__placement_type
+msgid ""
+"Students: a curricular work placement managed in sBID requires the sBID "
+"documents and, in KA131-HED, the recognition of ECTS credits; an "
+"extracurricular stay or a recent graduate's does not."
+msgstr ""
+"Alumnado: una formación en empresa curricular gestionada en el sBID requiere"
+" los documentos del sBID y, en KA131-HED, el reconocimiento de los créditos "
+"ECTS; una estancia extracurricular o de un titulado reciente, no."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/commitment.py:0
+msgid ""
+"The conditions of the commitment letter changed (%s): the letter accepted is"
+" kept as an earlier version and the new one has to be accepted again."
+msgstr ""
+"Las condiciones de la carta de compromiso han cambiado (%s): la carta "
+"aceptada se conserva como versión anterior y hay que volver a aceptar la "
+"nueva."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"The group's common documents and every participant's record as a ZIP, in the"
+" record's categories, with an index of what is missing and the files' "
+"hashes."
+msgstr ""
+"Los documentos comunes del grupo y el expediente de cada participante en un "
+"ZIP, por categorías del expediente, con un índice de lo que falta y las "
+"huellas de los ficheros."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_project__budget
+msgid ""
+"The project's grant: above 60,000 € its documents are kept 5 years after its"
+" final payment, otherwise 3."
+msgstr ""
+"La subvención del proyecto: por encima de 60.000 € los documentos se "
+"conservan 5 años después del pago final; si no, 3."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__sign_tutor
+msgid "The work placement tutor of the centre that appears in sBID."
+msgstr "El tutor de la formación en empresa del centro que consta en el sBID."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__reason
+msgid "Why it was replaced"
+msgstr "Por qué se sustituyó"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "destination, dates, teachers or additional conditions"
+msgstr "destino, fechas, docentes o condiciones adicionales"

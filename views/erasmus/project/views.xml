@@ -113,6 +113,19 @@
                                         <button name="action_open" type="object" string="Open the record" icon="fa-folder-open-o"/>
                                     </list>
                                 </field>
+                                <separator string="Group mobilities" invisible="not group_mobility_ids"/>
+                                <field name="group_mobility_ids" readonly="1" invisible="not group_mobility_ids">
+                                    <list decoration-muted="state == 'cancelled'">
+                                        <field name="name"/>
+                                        <field name="date_start"/>
+                                        <field name="date_end"/>
+                                        <field name="selected_count"/>
+                                        <field name="documents_missing" decoration-danger="documents_missing"
+                                               decoration-success="not documents_missing"/>
+                                        <field name="documents_to_review"/>
+                                        <field name="state" widget="badge"/>
+                                    </list>
+                                </field>
                             </page>
                             <page string="Invoices" name="invoices" groups="ems.group_erasmus,ems.group_secretary,ems.group_academic_admin">
                                 <field name="invoice_ids" readonly="1">
@@ -174,6 +187,7 @@
                             <field name="scope"/>
                             <field name="project_id" invisible="not project_id"/>
                             <field name="mobility_id" invisible="scope != 'record'"/>
+                            <field name="group_mobility_id" invisible="scope != 'group'"/>
                             <field name="can_audit" invisible="1"/>
                             <field name="include_confidential" invisible="not can_audit"/>
                             <field name="reason" invisible="not include_confidential" required="include_confidential"/>

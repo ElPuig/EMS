@@ -26,8 +26,9 @@ CHUNK = 1024 * 1024
 
 
 class EmsErasmusExport(models.Model):
-    """An export of Erasmus+ documents as a ZIP: one participant's record for one mobility, or a
-    whole project with every mobility's record. Each export is kept as a log line (who, when, what,
+    """An export of Erasmus+ documents as a ZIP: one participant's record for one mobility, one
+    group mobility (its common documents and every participant's record), or a whole project with
+    every mobility's record and every group mobility. Each export is kept as a log line (who, when, what,
     whether it included the confidential documents and why) and is downloaded once, by whoever
     asked for it: the ZIP is built on the fly from the files where they are and never stored. The
     files go in unchanged (signed PDFs included), with an index of every document (also the ones
@@ -38,11 +39,13 @@ class EmsErasmusExport(models.Model):
     _order = 'date desc, id desc'
 
     scope = fields.Selection(string="What", required=True, readonly=True, selection=[
-        ('project', "Whole project"), ('record', "Participant's record")])
+        ('project', "Whole project"), ('record', "Participant's record"), ('group', "Group mobility")])
     project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', readonly=True,
                                  ondelete='restrict', index=True)
     mobility_id = fields.Many2one(string="Mobility", comodel_name='ems.erasmus.mobility', readonly=True,
                                   ondelete='restrict', index=True)
+    group_mobility_id = fields.Many2one(string="Group mobility", comodel_name='ems.erasmus.group.mobility',
+                                        readonly=True, ondelete='restrict', index=True)
     include_confidential = fields.Boolean(
         string="Audit export (with confidential documents)",
         help="Includes the health, inclusion and bank documents. Only the Erasmus coordinator or the "
@@ -66,7 +69,8 @@ class EmsErasmusExport(models.Model):
 
     def _compute_display_name(self):
         for export in self:
-            target = export.mobility_id.display_name if export.scope == 'record' else export.project_id.name
+            target = {'record': export.mobility_id.display_name,
+                      'group': export.group_mobility_id.display_name}.get(export.scope) or export.project_id.name
             export.display_name = f"{target} - {export.date and export._ems_local(export.date)}"
 
     @api.model_create_multi
@@ -80,15 +84,18 @@ class EmsErasmusExport(models.Model):
     # --- requesting it --------------------------------------------------------------------------
 
     @api.model
-    def _ems_open_wizard(self, project_id=False, mobility_id=False):
-        """The dialog that asks for an export of a project or of a participant's record."""
+    def _ems_open_wizard(self, project_id=False, mobility_id=False, group_mobility_id=False):
+        """The dialog that asks for an export of a project, of a participant's record or of a group
+        mobility."""
         self._ems_check_exporter()
+        scope = 'record' if mobility_id else 'group' if group_mobility_id else 'project'
         return {
             'type': 'ir.actions.act_window', 'res_model': self._name, 'view_mode': 'form', 'target': 'new',
-            'name': _("Export the record") if mobility_id else _("Export the project"),
+            'name': {'record': _("Export the record"), 'group': _("Export the group mobility"),
+                     'project': _("Export the project")}[scope],
             'views': [(self.env.ref('ems.view_erasmus_export_form').id, 'form')],
-            'context': {'default_scope': 'record' if mobility_id else 'project',
-                        'default_project_id': project_id, 'default_mobility_id': mobility_id},
+            'context': {'default_scope': scope, 'default_project_id': project_id, 'default_mobility_id': mobility_id,
+                        'default_group_mobility_id': group_mobility_id},
         }
 
     def action_generate(self):
@@ -120,6 +127,8 @@ class EmsErasmusExport(models.Model):
                 raise UserError(_("Write the reason for the audit export first."))
         if self.scope == 'record' and not self.mobility_id:
             raise UserError(_("Choose the mobility whose record to export."))
+        if self.scope == 'group' and not self.group_mobility_id:
+            raise UserError(_("Choose the group mobility to export."))
         if self.scope == 'project' and not self.project_id:
             raise UserError(_("Choose the project to export."))
 
@@ -133,6 +142,8 @@ class EmsErasmusExport(models.Model):
         if self.scope == 'record':
             mobility = self.sudo().mobility_id
             return self._ems_record_entries(mobility, '', shared_paths={})
+        if self.scope == 'group':
+            return self._ems_group_entries(self.sudo().group_mobility_id, '')
         project = self.sudo().project_id
         entries, shared_paths = [], {}
         for document in project.document_ids:
@@ -158,6 +169,8 @@ class EmsErasmusExport(models.Model):
         for mobility in self._ems_project_mobilities(project):
             entries += self._ems_record_entries(mobility, f"02_Mobilitats/{self._ems_record_folder(mobility)}/",
                                                 shared_paths)
+        for group in self._ems_project_group_mobilities(project):
+            entries += self._ems_group_entries(group, f"02_Mobilitats/{self._ems_group_folder(group)}/")
         invoice_files = self._ems_field_attachments(project.invoice_ids, 'document')
         for invoice in project.invoice_ids:
             document = invoice_files.get(invoice.id) or self.env['ir.attachment']
@@ -171,6 +184,11 @@ class EmsErasmusExport(models.Model):
     def _ems_project_mobilities(self, project):
         return project.mobility_ids.filtered(lambda mobility: mobility.state != 'cancelled')
 
+    @api.model
+    def _ems_project_group_mobilities(self, project):
+        return self.env['ems.erasmus.group.mobility'].sudo().search([
+            ('project_id', '=', project.id), ('state', 'not in', ('draft', 'cancelled'))])
+
     def _ems_record_entries(self, mobility, prefix, shared_paths):
         """The record of one participant in one mobility, in the four categories: the call's
         documents that apply (every version uploaded), the commitment letter signed in EMS, the
@@ -178,29 +196,9 @@ class EmsErasmusExport(models.Model):
         In a project export a document shared with others is referenced from the index (its path
         in the common folder), not copied again."""
         self.ensure_one()
-        entries = []
         participant = mobility.partner_id.name
-        for line in mobility._ems_record_lines():
-            if line.confidential and not self.include_confidential:
-                if line.is_required:
-                    entries.append(self._ems_pending(line.file_category, line.name, line._ems_file_state_label(),
-                                                     _("Confidential: only in an audit export."), line, prefix))
-                continue
-            folder = f"{prefix}{line.file_category}/{safe_name(line.name)}"
-            files = self._ems_files(folder, line.attachment_ids) + \
-                self._ems_files(folder, line.prepared_attachment_ids, version_prefix=f"{_('team')}_v")
-            for entry in files:
-                entry.update(category=line.file_category, document=line.name, status=line._ems_file_state_label(),
-                             required=line.is_required, signers=line.signers or '')
-            entries += files or [self._ems_pending(line.file_category, line.name, line._ems_file_state_label(),
-                                                   line=line, prefix=prefix)]
-        if mobility.commitment_signed_date or mobility.commitment_guardian_signed_date:
-            entries.append({
-                'path': f"{prefix}02_Abans_de_la_mobilitat/{safe_name(_('Commitment letter'))}.html",
-                'content': self._ems_commitment_html(mobility), 'category': '02_Abans_de_la_mobilitat',
-                'document': _("Commitment letter"), 'status': _("Signed in EMS"), 'required': True,
-                'date': self._ems_local(mobility.commitment_signed_date or mobility.commitment_guardian_signed_date),
-                'author': (mobility.commitment_signed_by_id or mobility.commitment_guardian_signed_by_id).name})
+        entries = self._ems_line_entries(mobility._ems_record_lines(), prefix)
+        entries += self._ems_commitment_entries(mobility, prefix)
         if mobility.self_assessment_ids:
             pdf, _type = self.env['ir.actions.report'].sudo()._render_qweb_pdf(
                 'ems.action_report_erasmus_self_assessment', mobility.ids)
@@ -227,6 +225,159 @@ class EmsErasmusExport(models.Model):
             entry.setdefault('participant', participant)
             entry.setdefault('mobility', mobility.id)
         return entries
+
+    def _ems_line_entries(self, lines, prefix):
+        """The documents of the engine (`ems.erasmus.application.document`) under `prefix`, each in its
+        category: every version uploaded, or one index line when it has no file (missing, not
+        applicable, or confidential outside an audit export)."""
+        entries = []
+        for line in lines:
+            if line.confidential and not self.include_confidential:
+                if line.is_required:
+                    entries.append(self._ems_pending(line.file_category, line.name, line._ems_file_state_label(),
+                                                     _("Confidential: only in an audit export."), line, prefix))
+                continue
+            folder = f"{prefix}{line.file_category}/{safe_name(line.name)}"
+            files = self._ems_files(folder, line.attachment_ids) + \
+                self._ems_files(folder, line.prepared_attachment_ids, version_prefix=f"{_('team')}_v")
+            for entry in files:
+                entry.update(category=line.file_category, document=line.name, status=line._ems_file_state_label(),
+                             required=line.is_required, signers=line.signers or '')
+            entries += files or [self._ems_pending(line.file_category, line.name, line._ems_file_state_label(),
+                                                   line=line, prefix=prefix)]
+        return entries
+
+    def _ems_commitment_entries(self, record, prefix):
+        """The commitment letter accepted in EMS (`ems.erasmus.commitment`), with its earlier versions."""
+        if not (record.commitment_signed_date or record.commitment_guardian_signed_date
+                or record.commitment_version_ids):
+            return []
+        signed = record.commitment_signed_date or record.commitment_guardian_signed_date
+        return [{
+            'path': f"{prefix}02_Abans_de_la_mobilitat/{safe_name(_('Commitment letter'))}.html",
+            'content': self._ems_commitment_html(record), 'category': '02_Abans_de_la_mobilitat',
+            'document': _("Commitment letter"), 'required': True,
+            'status': _("Signed in EMS") if signed else _("Earlier version only: the new one is not accepted yet"),
+            'date': signed and self._ems_local(signed) or '',
+            'author': (record.commitment_signed_by_id or record.commitment_guardian_signed_by_id).name or ''}]
+
+    # --- group mobilities -----------------------------------------------------------------------
+
+    @api.model
+    def _ems_group_folder(self, group):
+        return safe_name(f"GRUP{group.id:05d}_{group.name}")
+
+    def _ems_group_entries(self, group, prefix):
+        """A group mobility: its common documents once (00_Documentacio_comuna: the shared documents,
+        the selection, the follow-up and the EU Survey), then each active participant's record in the
+        four categories, which references the shared documents instead of copying them. Conduct and
+        fewer-opportunities data only in an audit export."""
+        self.ensure_one()
+        common = f"{prefix}{COMMON_FOLDER}/"
+        label = f"GRUP{group.id:05d}"
+        entries = self._ems_line_entries(group.document_ids, common)
+        shared = [entry for entry in entries if entry.get('path')]
+        entries += self._ems_group_selection_entries(group, common)
+        for log in group.log_ids.sorted(lambda log: (log.date, log.id)):
+            folder = f"{common}03_Durant_la_mobilitat/{safe_name(_('Follow-up'))}/{log.date}_{safe_name(log.name)}"
+            for entry in self._ems_files(folder, log.attachment_ids, versions=False):
+                entries.append({**entry, 'category': '03_Durant_la_mobilitat', 'document': log.name,
+                                'status': _("Complete")})
+        if group.log_ids:
+            entries.append(self._ems_csv_entry(
+                f"{common}03_Durant_la_mobilitat/{safe_name(_('Follow-up'))}.csv", '03_Durant_la_mobilitat',
+                _("Follow-up"), [_("Date"), _("Kind"), _("Summary"), _("Details"), _("Participants"), _("Written by")],
+                [[log.date, dict(log._fields['kind']._description_selection(self.env)).get(log.kind), log.name,
+                  log.description or '', ", ".join(log.participant_ids.partner_id.mapped('name')), log.author_id.name]
+                 for log in group.log_ids.sorted(lambda log: (log.date, log.id))]))
+        for entry in self._ems_files(f"{common}04_Despres_de_la_mobilitat/{safe_name(_('EU Survey'))}",
+                                     group.eu_survey_attachment_ids, versions=False):
+            entries.append({**entry, 'category': '04_Despres_de_la_mobilitat', 'document': _("EU Survey"),
+                            'status': dict(group._fields['eu_survey_state']._description_selection(self.env)).get(
+                                group.eu_survey_state)})
+        for entry in entries:
+            entry.setdefault('participant', group.name)
+            entry.setdefault('mobility', label)
+        participants = group.participant_ids.filtered(lambda participant: participant.state == 'active').sorted(
+            lambda participant: (participant.role != 'student', participant.partner_id.name or ''))
+        for participant in participants:
+            kind = 'ALU' if participant.role == 'student' else 'PROF'
+            folder = f"{prefix}{safe_name(f'{kind}{participant.id:05d}_{participant.partner_id.name}')}/"
+            records = self._ems_line_entries(participant.document_ids, folder)
+            records += self._ems_commitment_entries(participant, folder)
+            records += [{'path': '', 'category': entry['category'], 'document': entry['document'],
+                         'status': entry['status'], 'notes': _("Shared document: %s", entry['path'])}
+                        for entry in shared]
+            for entry in records:
+                entry.setdefault('participant', participant.partner_id.name)
+                entry.setdefault('mobility', label)
+            entries += records
+        return entries
+
+    def _ems_group_selection_entries(self, group, common):
+        """The selection's evidence (the frozen ranking, the results, renouncements and substitutions,
+        and every draw), as two spreadsheets with the participants' data. The fewer opportunities,
+        the conduct warnings and the reason for an exclusion only in an audit export."""
+        registrations = group.registration_ids.sorted(lambda registration: (
+            registration.state != 'enrolled', registration.rank or 999999, registration.partner_id.name or ''))
+        if not registrations:
+            return []
+        Registration = registrations.browse()
+        labels = {name: dict(Registration._fields[name]._description_selection(self.env))
+                  for name in ('state', 'result', 'proposed_result', 'result_override', 'exclusion',
+                               'fewer_opportunities_check')}
+        audit = self.include_confidential
+        header = [_("Rank"), _("Student"), _("Group at closing"), _("Enrolment"), _("Record average"),
+                  _("Average entered by hand"), _("Where the average comes from"), _("Meets the requirements"),
+                  _("Draw"), _("Proposed"), _("Exception"), _("Reason for the exception"), _("Result"),
+                  _("Renounced on"), _("Replaces")]
+        if audit:
+            header += [_("Fewer opportunities accredited"), _("Conduct warnings this course"), _("Reason not eligible")]
+        rows = []
+        for registration in registrations:
+            row = [registration.rank or '', registration.partner_id.name, registration.frozen_group_id.display_name or '',
+                   labels['state'].get(registration.state, ''), registration._ems_average() if registration.has_average
+                   else '', _("Yes") if registration.grade_manual else '', registration.grade_manual_reason or '',
+                   _("Yes") if registration.eligible else _("No"), registration.draw_order or '',
+                   labels['proposed_result'].get(registration.proposed_result, ''),
+                   labels['result_override'].get(registration.result_override, ''), registration.override_reason or '',
+                   labels['result'].get(registration.result, ''),
+                   registration.renounce_date and self._ems_local(registration.renounce_date) or '',
+                   registration.substitute_for_id.partner_id.name or '']
+            if audit:
+                row += [labels['fewer_opportunities_check'].get(registration.fewer_opportunities_check, '')
+                        if registration.fewer_opportunities else '', registration.strike_count,
+                        labels['exclusion'].get(registration.exclusion, '')]
+            rows.append(row)
+        folder = f"{common}01_Dades_i_autoritzacions"
+        entries = [self._ems_csv_entry(f"{folder}/{safe_name(_('Selection'))}.csv", '01_Dades_i_autoritzacions',
+                                       _("Selection"), header, rows)]
+        if group.draw_ids:
+            draw_header = [_("Run on"), _("Run by"), _("Tied on the average"), _("Position"), _("Student")]
+            if audit:
+                draw_header.append(_("Fewer opportunities accredited"))
+            draw_rows = [[self._ems_local(draw.date), draw.user_id.name, draw.grade_average, line.position,
+                          line.partner_id.name, *([_("Yes") if draw.fewer_opportunities else _("No")] if audit else [])]
+                         for draw in group.draw_ids.sorted('date') for line in draw.line_ids]
+            entries.append(self._ems_csv_entry(f"{folder}/{safe_name(_('Draws'))}.csv", '01_Dades_i_autoritzacions',
+                                               _("Draws"), draw_header, draw_rows))
+        return entries
+
+    @api.model
+    def _ems_csv_entry(self, path, category, document, header, rows):
+        buffer = io.StringIO()
+        writer = csv.writer(buffer)
+        writer.writerow(header)
+        writer.writerows(rows)
+        return {'path': path, 'content': ('\ufeff' + buffer.getvalue()).encode(), 'category': category,
+                'document': document, 'status': _("Complete")}
+
+    @api.model
+    def _ems_group_missing(self, group):
+        """Required documents of a group mobility not complete (common and active participants')."""
+        lines = group.document_ids | group.participant_ids.filtered(
+            lambda participant: participant.state == 'active').document_ids
+        return len(lines.filtered(lambda line: line.is_required and line.file_state != 'complete'))
 
     def _ems_files(self, folder, attachments, versions=True, version_prefix='v', names=None):
         """One entry per attachment under `folder`, in upload order: `v1_`, `v2_`... before the
@@ -259,19 +410,36 @@ class EmsErasmusExport(models.Model):
             ('res_model', '=', records._name), ('res_id', 'in', records.ids), ('res_field', '=', field_name)])
         return {attachment.res_id: attachment for attachment in attachments}
 
-    def _ems_commitment_html(self, mobility):
-        """The commitment letter as it was signed in EMS, with who signed it, when and from where."""
-        signatures = [(_("Participant"), mobility.commitment_signed_by_id, mobility.commitment_signed_date,
-                       mobility.commitment_signed_ip),
-                      (_("Family"), mobility.commitment_guardian_signed_by_id,
-                       mobility.commitment_guardian_signed_date, mobility.commitment_guardian_signed_ip)]
-        rows = Markup('').join(
-            Markup('<li>%s: %s, %s (IP %s)</li>') % (label, user.name, self._ems_local(date), ip or '-')
-            for label, user, date, ip in signatures if date)
-        page = Markup('<!DOCTYPE html><html><head><meta charset="utf-8"/><title>%s</title></head><body>'
-                      '<h1>%s</h1><p>%s</p>%s<h2>%s</h2><ul>%s</ul></body></html>') % (
-            _("Commitment letter"), _("Commitment letter"), mobility.display_name,
-            mobility.commitment_signed_text or Markup(''), _("Signed in EMS"), rows)
+    def _ems_commitment_html(self, record):
+        """The commitment letter as it was signed in EMS, with who signed it, when and from where, and
+        every earlier version (each exactly as it was accepted, and why it was replaced)."""
+        def signatures(items):
+            return Markup('').join(
+                Markup('<li>%s: %s, %s (IP %s)</li>') % (label, user.name, self._ems_local(date), ip or '-')
+                for label, user, date, ip in items if date)
+        current = signatures([
+            (_("Participant"), record.commitment_signed_by_id, record.commitment_signed_date,
+             record.commitment_signed_ip),
+            (_("Family"), record.commitment_guardian_signed_by_id, record.commitment_guardian_signed_date,
+             record.commitment_guardian_signed_ip)])
+        body = Markup('<h1>%s</h1><p>%s</p>') % (_("Commitment letter"), record.display_name)
+        if current:
+            body += Markup('%s<h2>%s</h2><ul>%s</ul>') % (
+                record.commitment_signed_text or Markup(''), _("Signed in EMS"), current)
+            if record.commitment_provisional:
+                body += Markup('<p><strong>%s</strong></p>') % _(
+                    "Accepted provisionally: the destination or the dates were still to be confirmed.")
+        for version in record.commitment_version_ids.sorted('number', reverse=True):
+            body += Markup('<hr/><h2>%s</h2><p>%s</p>%s<ul>%s</ul>') % (
+                _("Earlier version %s", version.number),
+                _("Replaced on %(date)s: %(reason)s", date=self._ems_local(version.superseded_date),
+                  reason=version.reason or ''),
+                version.text or Markup(''),
+                signatures([(_("Participant"), version.signed_by_id, version.signed_date, version.signed_ip),
+                            (_("Family"), version.guardian_signed_by_id, version.guardian_signed_date,
+                             version.guardian_signed_ip)]))
+        page = Markup('<!DOCTYPE html><html><head><meta charset="utf-8"/><title>%s</title></head><body>%s'
+                      '</body></html>') % (_("Commitment letter"), body)
         return str(page).encode()
 
     def _ems_local(self, value):
@@ -307,17 +475,29 @@ class EmsErasmusExport(models.Model):
             digest.update(chunk)
         archive.seek(0)
         export = self.sudo()
-        mobilities = export.mobility_id or self._ems_project_mobilities(export.project_id)
-        export.write({'state': 'done', 'file_count': len(hashes), 'missing_count': sum(mobilities.mapped('record_missing')),
+        export.write({'state': 'done', 'file_count': len(hashes), 'missing_count': export._ems_missing_count(),
                       'zip_sha256': digest.hexdigest()})
-        if export.mobility_id:
-            export.mobility_id.chatter(self._ems_log_message())
+        target = export.mobility_id or export.group_mobility_id
+        if target:
+            target.chatter(self._ems_log_message())
         return archive
+
+    def _ems_missing_count(self):
+        """Required documents not complete in what was exported."""
+        if self.scope == 'record':
+            return self.mobility_id.record_missing
+        if self.scope == 'group':
+            return self._ems_group_missing(self.group_mobility_id)
+        return sum(self._ems_project_mobilities(self.project_id).mapped('record_missing')) + sum(
+            self._ems_group_missing(group) for group in self._ems_project_group_mobilities(self.project_id))
 
     def _ems_root_name(self):
         if self.scope == 'record':
             mobility = self.sudo().mobility_id
             return safe_name(f"{self._ems_record_folder(mobility)} - {mobility.call_id.name}")
+        if self.scope == 'group':
+            group = self.sudo().group_mobility_id
+            return safe_name(f"{self._ems_group_folder(group)} - {group.project_id.name}")
         return safe_name(self.sudo().project_id.name)
 
     @api.model
@@ -382,7 +562,8 @@ class EmsErasmusExport(models.Model):
                 'author', 'size', 'sha256')
         return json.dumps({
             'export': export.id, 'scope': export.scope, 'project': export.project_id.name or None,
-            'mobility': export.mobility_id.display_name or None, 'requested_by': export.requester_id.name,
+            'mobility': export.mobility_id.display_name or None,
+            'group_mobility': export.group_mobility_id.display_name or None, 'requested_by': export.requester_id.name,
             'requested_on': self._ems_local(export.date), 'audit': export.include_confidential,
             'reason': export.reason or None,
             'files': [{key: entry.get(key) for key in keys} for entry in entries if entry.get('path')],

@@ -202,9 +202,9 @@
                                         <field name="review_state" optional="hide"/>
                                         <field name="review_comment"/>
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
-                                                invisible="handled_by == 'team' or review_state == 'valid' or not attachment_ids"/>
+                                                invisible="file_state != 'to_review'"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes"
-                                                icon="fa-pencil" invisible="handled_by == 'team' or review_state == 'needs_change'"/>
+                                                icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
                                     </list>
                                 </field>
                                 <separator string="From the application" invisible="not application_document_ids"/>

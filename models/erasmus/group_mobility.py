@@ -23,12 +23,17 @@ ROLES = [('student', "Student"), ('leader', "Leader teacher"), ('companion', "Ac
 # Who a group mobility's document is for.
 GROUP_AUDIENCES = [('collective', "The group (shared)"), ('student', "Each student"),
                    ('teacher', "Each accompanying teacher"), ('participant', "Every participant")]
+# A required document still to hand in (or to correct): it counts as missing on the overviews.
+MISSING_STATES = ('missing', 'needs_change')
 EU_SURVEY_STATES = [('pending', "Pending"), ('done', "Answered"), ('validated', "Validated")]
 LOG_KINDS = [('attendance', "Attendance"), ('incident', "Incident"), ('change', "Change"),
              ('evidence', "Evidence"), ('communication', "Communication")]
 # What the leader teacher may change on their mobility, and the accompanying teacher; the rest is
 # the Erasmus team's. The follow-up and the shared documents are edited from the mobility's form:
 # their own record rules decide which lines each one may change.
+# What the commitment letter states: changing it once a letter is accepted asks for a new acceptance.
+COMMITMENT_TERMS = ('city', 'country_id', 'host_partner_id', 'date_start', 'date_end', 'travel_date_out',
+                    'travel_date_back', 'leader_id', 'companion_ids', 'commitment_extra')
 COMPANION_FIELDS = {'log_ids'}
 LEADER_FIELDS = COMPANION_FIELDS | {'programme', 'leader_notes', 'eu_survey_attachment_ids', 'closure_note',
                                     'proposal_note', 'document_ids'}
@@ -165,8 +170,7 @@ class EmsErasmusGroupMobility(models.Model):
                  'registration_ids.needs_draw', 'registration_ids.grade_incident',
                  'registration_ids.substitution_state', 'participant_ids.state',
                  'participant_ids.commitment_pending', 'participant_ids.commitment_guardian_pending',
-                 'participant_ids.document_ids.review_state', 'participant_ids.document_ids.attachment_ids',
-                 'document_ids.review_state', 'document_ids.attachment_ids', 'student_places')
+                 'participant_ids.document_ids.file_state', 'document_ids.file_state', 'student_places')
     def _compute_counts(self):
         """Counted as the Erasmus team: an accompanying teacher sees the figures, never the
         enrolments themselves."""
@@ -185,9 +189,8 @@ class EmsErasmusGroupMobility(models.Model):
                 and (participant.commitment_pending or participant.commitment_guardian_pending)))
             lines = mobility.document_ids | mobility.participant_ids.filtered(
                 lambda participant: participant.state == 'active').document_ids
-            mobility.documents_missing = len(lines.filtered(lambda line: line._ems_group_missing()))
-            mobility.documents_to_review = len(lines.filtered(
-                lambda line: line.attachment_ids and line.review_state == 'pending'))
+            mobility.documents_missing = len(lines.filtered(lambda line: line.file_state in MISSING_STATES))
+            mobility.documents_to_review = len(lines.filtered(lambda line: line.file_state == 'to_review'))
             mobility.next_reserve = role in ('team', 'leader') and mobility._ems_next_reserve().partner_id.name
 
     @api.depends('state', 'enrolment_open', 'enrolment_close')
@@ -264,10 +267,25 @@ class EmsErasmusGroupMobility(models.Model):
                 allowed = LEADER_FIELDS if role == 'leader' else COMPANION_FIELDS if role == 'companion' else set()
                 if role != 'team' and set(vals) - allowed:
                     raise AccessError(_("Only the Erasmus team changes this of a group mobility."))
+        terms = {mobility: mobility._ems_commitment_terms() for mobility in self} \
+            if set(COMMITMENT_TERMS) & set(vals) else {}
+        provisional = {participant.id: participant.commitment_provisional
+                       for participant in self.sudo().participant_ids} if terms else {}
         result = super().write(vals)
         if {'leader_id', 'companion_ids'} & set(vals):
             self._ems_sync_teachers()
+        for mobility, before in terms.items():
+            if mobility._ems_commitment_terms() != before:
+                mobility.sudo().participant_ids._ems_commitment_supersede(
+                    _("destination, dates, teachers or additional conditions"), provisional)
         return result
+
+    def _ems_commitment_terms(self):
+        """What the students' commitment letter states about this mobility."""
+        self.ensure_one()
+        mobility = self.sudo()
+        return tuple(mobility[name].ids if name.endswith('_ids') or name.endswith('_id') else mobility[name]
+                     for name in COMMITMENT_TERMS)
 
     # --- roles -----------------------------------------------------------------------------------
 
@@ -583,39 +601,40 @@ class EmsErasmusGroupMobility(models.Model):
         team = {'handled_by': 'team'}
         documents = [
             {'group_audience': 'collective', 'name': _("Group learning agreement"), **team, 'sign_coordinator': True,
-             'sign_host': True, 'due_basis': 'before_start', 'sepie_folder': '03_Vinculacion',
+             'sign_host': True, 'due_basis': 'before_start',
              'description': _("The learning programme of the whole group, agreed with the host entity: one document "
                               "shared by every student.")},
             {'group_audience': 'collective', 'name': _("Final list of participants and accompanying teachers"),
-             **team, 'due_basis': 'before_start', 'sepie_folder': '02_Publicacionyseleccion'},
+             **team, 'due_basis': 'before_start'},
             {'group_audience': 'collective', 'name': _("Agreements with the host entity"), **team,
-             'requirement': 'optional', 'sepie_folder': '03_Vinculacion'},
+             'requirement': 'optional'},
             {'group_audience': 'collective', 'name': _("Group travel documents"), **team, 'requirement': 'optional',
-             'sepie_folder': '07_Viajes'},
+             'file_category': '03_Durant_la_mobilitat'},
             {'group_audience': 'collective', 'name': _("Group inclusion documentation"), **team,
-             'requirement': 'optional', 'confidential': True, 'sepie_folder': '11_ApoyoInclusion',
+             'requirement': 'optional', 'confidential': True, 'file_category': '01_Dades_i_autoritzacions',
              'description': _("Only the Erasmus team sees it.")},
             {'group_audience': 'collective', 'stage': 'return', 'name': _("Common evidence of the stay"), **team,
-             'requirement': 'optional', 'sepie_folder': '13_EvaluacionImpactoDifusion'},
+             'requirement': 'optional', 'file_category': '03_Durant_la_mobilitat'},
             {'group_audience': 'participant', 'name': _("Grant agreement"), 'handled_by': 'team_to_sign',
              'sign_participant': True, 'sign_director': True, 'sign_guardian': True, 'due_basis': 'before_start',
              'description': _("The Erasmus team uploads it filled in: download it, sign it and upload it signed.")},
-            {'group_audience': 'student', 'name': _("European Health Insurance Card"), 'sepie_folder': '05_Seguros',
+            # Health information: confidential, only the Erasmus team sees it (as in the calls).
+            {'group_audience': 'student', 'name': _("European Health Insurance Card"),
+             'file_category': '01_Dades_i_autoritzacions', 'confidential': True,
              'description': _("Both sides, valid for the whole stay.")},
             {'group_audience': 'student', 'name': _("Authorisation for minors to travel abroad"),
-             'requirement': 'minor', 'sepie_folder': '03_Vinculacion',
+             'requirement': 'minor', 'file_category': '01_Dades_i_autoritzacions',
              'description': _("Processed with the Mossos d'Esquadra.")},
             {'group_audience': 'student', 'name': _("Insurance policy"), **team, 'due_basis': 'before_start',
-             'sepie_folder': '05_Seguros', 'description': _("The Erasmus team uploads it for you to keep.")},
+             'description': _("The Erasmus team uploads it for you to keep.")},
             {'group_audience': 'student', 'stage': 'return', 'name': _("Europass mobility document"), **team,
              'sign_coordinator': True, 'description': _(
                  "It certifies what you learned during the stay. The Erasmus team issues it from the editable "
                  "template and uploads it for you to download.")},
             {'group_audience': 'teacher', 'stage': 'return', 'name': _("Certificate of stay"), 'sign_host': True,
-             'sepie_folder': '09_Certificados',
              'description': _("It must state the dates and the project number.")},
             {'group_audience': 'teacher', 'name': _("Travel and accommodation documents"), 'requirement': 'optional',
-             'sepie_folder': '07_Viajes'},
+             'file_category': '03_Durant_la_mobilitat'},
         ]
         defaults = {'preparation': 'destination', 'return': 'after_end'}
         return [(0, 0, {'sequence': index, 'stage': vals.get('stage', 'preparation'), 'requirement': 'required',
@@ -696,9 +715,9 @@ class EmsErasmusGroupMobility(models.Model):
         for mobility in self:
             missing = (mobility.document_ids | mobility.participant_ids.filtered(
                 lambda participant: participant.state == 'active').document_ids).filtered(
-                lambda line: line._ems_group_missing(final=True))
+                lambda line: line.is_required and line.file_state != 'complete')
             if missing:
-                raise UserError(_("Every required document must be valid first: %s",
+                raise UserError(_("Every required document must be complete first: %s",
                                   ", ".join(sorted(set(missing.mapped('name'))))))
             if mobility.eu_survey_state != 'validated':
                 raise UserError(_("Validate the EU Survey first."))
@@ -732,6 +751,13 @@ class EmsErasmusGroupMobility(models.Model):
         if not participants:
             raise UserError(_("%s has no participants yet.", self.name))
         return participants
+
+    def action_export_dossier(self):
+        """The group mobility's documents as a ZIP (logged as an export): its common documents and
+        every participant's record."""
+        self.ensure_one()
+        return self.env['ems.erasmus.export']._ems_open_wizard(group_mobility_id=self.id,
+                                                               project_id=self.project_id.id)
 
     def action_view_participants(self):
         self.ensure_one()
@@ -1071,8 +1097,13 @@ class EmsErasmusGroupParticipant(models.Model):
                                    inverse_name='group_participant_id')
     registration_ids = fields.One2many(string="Enrolment", comodel_name='ems.erasmus.group.registration',
                                        inverse_name='participant_id')
-    documents_missing = fields.Integer(string="Documents missing", compute='_compute_documents')
-    documents_valid = fields.Integer(string="Documents valid", compute='_compute_documents')
+    documents_missing = fields.Integer(string="Documents missing", compute='_compute_documents',
+                                       help="Required documents with no file yet, or needing changes.")
+    documents_valid = fields.Integer(string="Documents complete", compute='_compute_documents')
+    record_progress = fields.Char(string="Record", compute='_compute_documents',
+                                  help="Required documents complete out of those required.")
+    record_missing = fields.Integer(string="Required documents not complete", compute='_compute_documents',
+                                    help="Missing, pending review or needing changes.")
     preparation_complete = fields.Boolean(string="Ready to leave", compute='_compute_documents')
 
     @api.depends('partner_id.birth_date', 'role')
@@ -1085,18 +1116,24 @@ class EmsErasmusGroupParticipant(models.Model):
         for participant in self:
             participant.audience = 'student' if participant.role == 'student' else 'staff'
 
-    @api.depends('document_ids.review_state', 'document_ids.attachment_ids', 'document_ids.is_required',
-                 'commitment_pending', 'commitment_guardian_pending')
+    @api.depends('document_ids.file_state', 'document_ids.is_required', 'commitment_pending',
+                 'commitment_guardian_pending', 'commitment_provisional')
     def _compute_documents(self):
-        """Ready to leave: every document before leaving valid and, for a student, the commitment
-        letter accepted (also by the family of a minor)."""
+        """Ready to leave: every required document before leaving complete (`file_state`, the same as
+        the individual mobilities: a document to sign only once the team checked it) and, for a
+        student, the commitment letter accepted (also by the family of a minor), not provisionally."""
         for participant in self:
             lines = participant.document_ids
-            participant.documents_missing = len(lines.filtered(lambda line: line._ems_group_missing()))
-            participant.documents_valid = len(lines.filtered(lambda line: line.review_state == 'valid'))
+            required = lines.filtered('is_required')
+            complete = required.filtered(lambda line: line.file_state == 'complete')
+            participant.documents_missing = len(lines.filtered(lambda line: line.file_state in MISSING_STATES))
+            participant.documents_valid = len(lines.filtered(lambda line: line.file_state == 'complete'))
+            participant.record_progress = f"{len(complete)} / {len(required)}"
+            participant.record_missing = len(required - complete)
             participant.preparation_complete = not (
-                lines.filtered(lambda line: line.stage == 'preparation' and line._ems_group_missing(final=True))
-                or participant.commitment_pending or participant.commitment_guardian_pending)
+                (required - complete).filtered(lambda line: line.stage == 'preparation')
+                or participant.commitment_pending or participant.commitment_guardian_pending
+                or participant.commitment_provisional)
 
     def _compute_display_name(self):
         for participant in self:
@@ -1105,7 +1142,8 @@ class EmsErasmusGroupParticipant(models.Model):
     # --- the commitment letter (ems.erasmus.commitment) -------------------------------------------
 
     def _ems_commitment_depends(self):
-        return super()._ems_commitment_depends() + ['role', 'partner_id.birth_date']
+        return super()._ems_commitment_depends() + ['role', 'partner_id.birth_date', 'group_mobility_id.city',
+                                                    'group_mobility_id.country_id', 'group_mobility_id.date_start']
 
     def _ems_commitment_letter(self):
         """A student's letter: the common template with the mobility's data now (destination and
@@ -1176,6 +1214,12 @@ class EmsErasmusGroupParticipant(models.Model):
 
     def _ems_commitment_is_minor(self):
         return self.is_minor
+
+    def _ems_commitment_is_final(self):
+        """The destination and the dates confirmed: an acceptance before is provisional (the letter
+        says they are still to be confirmed)."""
+        mobility = self.sudo().group_mobility_id
+        return bool((mobility.city or mobility.country_id or mobility.host_partner_id) and mobility.date_start)
 
     def _ems_commitment_open(self):
         """Before leaving, while the student takes part."""
@@ -1388,15 +1432,18 @@ class EmsErasmusApplicationDocument(models.Model):
                 mobility._ems_check_role('team', 'leader')
         return super().write(vals)
 
-    def _ems_group_missing(self, final=False):
-        """A required document with no file yet (provided by the team: none uploaded), or needing
-        changes; `final`, also one not validated yet."""
-        self.ensure_one()
-        if not self.is_required:
-            return False
-        if self.handled_by == 'team':
-            return not (self.prepared_attachment_ids or self.attachment_ids)
-        return self.review_state == 'needs_change' or not self.attachment_ids or (final and self.review_state != 'valid')
+    def _ems_record_closed(self):
+        return super()._ems_record_closed() or self.group_mobility_id.state in ('done', 'cancelled')
+
+    def _ems_record_owner(self):
+        """A group line's review is written in its group mobility's chatter (the participant's name
+        first, for an individual one)."""
+        return self.group_mobility_id or super()._ems_record_owner()
+
+    def _ems_record_label(self):
+        if self.group_participant_id:
+            return f"{self.group_participant_id.partner_id.name} - {self.name}"
+        return super()._ems_record_label()
 
 
 class EmsErasmusInvoice(models.Model):
@@ -1408,6 +1455,27 @@ class EmsErasmusInvoice(models.Model):
     group_mobility_id = fields.Many2one(string="Group mobility", comodel_name='ems.erasmus.group.mobility',
                                         ondelete='set null', index=True,
                                         domain="[('project_id', '=', project_id)]")
+
+
+class EmsErasmusProject(models.Model):
+    """A project's group mobilities and their participants' records, counted with the individual
+    ones (see docs/en/developers/erasmus/records.md)."""
+    _inherit = 'ems.erasmus.project'
+
+    group_mobility_ids = fields.One2many(string="Group mobilities", comodel_name='ems.erasmus.group.mobility',
+                                         inverse_name='project_id')
+
+    def _compute_record_counts(self):
+        """Each active participant of a group mobility (draft and cancelled ones apart) is one more
+        record; the group's common documents count as missing too."""
+        super()._compute_record_counts()
+        Export = self.env['ems.erasmus.export']
+        for project in self:
+            groups = Export._ems_project_group_mobilities(project)
+            participants = groups.participant_ids.filtered(lambda participant: participant.state == 'active')
+            project.record_count += len(participants)
+            project.record_complete_count += len(participants.filtered(lambda participant: not participant.record_missing))
+            project.record_missing_count += sum(Export._ems_group_missing(group) for group in groups)
 
 
 class ResUsers(models.Model):

@@ -38,7 +38,8 @@ class ErasmusMobilityCase(ErasmusResolutionCase):
         provided = lines.filtered(lambda line: line.handled_by == 'team')
         provided.prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'policy.pdf', 'raw': PDF})
         mobility._ems_portal_upload({line.call_document_id.id: [('signed.pdf', PDF)] for line in lines - provided})
-        (lines - provided).action_mark_valid()
+        # What someone signs is complete once the team checks it, its own documents (sBID) included.
+        (lines - provided | provided.filtered('signers')).action_mark_valid()
         mobility.task_ids.filtered(lambda task: task.stage == stage).write({'done': True})
         if stage == 'preparation' and mobility.commitment_pending:
             mobility.action_sign_commitment(True, '127.0.0.1')

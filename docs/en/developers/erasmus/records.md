@@ -3,8 +3,8 @@
 EMS is where the Erasmus team manages every document of a project day to day; the centre's Google
 Drive is where closed records are archived. There is no separate document manager: the records are
 a view, organised in categories, of the documents EMS already holds (the call's documents uploaded
-by each participant, the project's own documents, invoices and transfer receipts), and an export
-that builds a verifiable ZIP from them.
+by each participant, the group mobilities' documents, the project's own documents, invoices and
+transfer receipts), and an export that builds a verifiable ZIP from them.
 
 Code: `models/erasmus/records.py` (categories and file checks), `models/erasmus/export.py`
 (`ems.erasmus.export`), the record fields on `ems.erasmus.application.document`,
@@ -27,11 +27,16 @@ graph TD
 | Level | Categories (code = folder in the ZIP) |
 |---|---|
 | Project | `01_Projecte`, `02_Mobilitats`, `03_Economia`, `04_Impacte_i_difusio`, `05_Informe_final_i_auditoria` (`PROJECT_CATEGORIES`) |
-| Mobility | Inside `02_Mobilitats`: `00_Documentacio_comuna` (project documents in category 02, shared by several participants) and one folder per participant's record |
+| Mobility | Inside `02_Mobilitats`: `00_Documentacio_comuna` (project documents in category 02, shared by several participants), one folder per individual participant's record, and one folder per group mobility (`GRUP<id>_<name>`, below) |
 | Participant | `01_Dades_i_autoritzacions`, `02_Abans_de_la_mobilitat`, `03_Durant_la_mobilitat`, `04_Despres_de_la_mobilitat` (`PARTICIPANT_CATEGORIES`) |
 
 The categories replaced the 13 SEPIE folders the project dossier used before (decided by the
-Erasmus coordinator, 2026-10-24).
+Erasmus coordinator, 2026-10-24). A database that still has the old `sepie_folder` column (only
+development copies: it was never released) gets the category from it on upgrade,
+`EmsErasmusCallDocument._auto_init` running `records.LEGACY_FOLDER_SQL` before Odoo drops the
+column: health card, inclusion and minors' authorisations to 01 (the health card confidential),
+travel to 03, the rest empty (their stage decides). The lines' stored `file_category` and
+`confidential` are recomputed (record rules and exports read them there); files are not touched.
 
 ## The call's documents stay the only list of requirements
 
@@ -45,10 +50,15 @@ checklist of their own:
   New calls preset it (health card, inclusion and travel authorisations → 01, tickets → 03).
 - `ems.erasmus.application.document.file_category`: stored, computed from the call document; the
   lines are ordered by it, so the mobility's *Record* tab and the portal show them by category.
-- `file_state`: `complete` (valid after the team's review, or uploaded when the team provides it),
-  `to_review`, `needs_change`, `missing` (required), `optional` or `not_applicable` (a conditional
-  requirement that does not apply). A document to sign is never complete only because a file was
-  uploaded: `review_state` must be `valid`. `preparation_complete` / `return_complete` use it.
+- `file_state`: `complete`, `to_review`, `needs_change`, `missing` (required), `optional` or
+  `not_applicable` (a conditional requirement that does not apply). A document is complete once the
+  team marks it valid (`review_state`). The only exception is a document the team provides that
+  nobody signs (e.g. the insurance policy): complete once uploaded (in `prepared_attachment_ids`,
+  or in `attachment_ids` for a group's shared document). **A document someone signs (any `sign_*`)
+  is never complete only because a file was uploaded, whoever uploaded it**: the team's own
+  documents to sign (Europass, sBID, the group learning agreement) are `to_review` until the team
+  checks the signatures and marks them valid. `preparation_complete` / `return_complete` (individual)
+  and the group participant's `preparation_complete` / `record_missing` use it.
 
 A participant's record for a mobility (`_ems_record_lines()`) is the application's own documents
 (stage *application*) plus the mobility's: never another mobility's, even of the same person.
@@ -66,9 +76,10 @@ incident) enters a record. `confidential` marks health, inclusion or bank data.
 
 - Every upload is a new attachment: earlier versions are never replaced.
 - A file can never be removed from a valid line, nor from any line of a closed or cancelled mobility
-  (`write()` guard, also for the superuser): a new version is uploaded instead.
-- Every change of `review_state` on a mobility line is posted in the mobility's chatter, with its
-  author. The attachment keeps who uploaded it and when (`create_uid`, `create_date`).
+  or group mobility (`write()` guard, also for the superuser; `_ems_record_closed()`): a new version
+  is uploaded instead.
+- Every change of `review_state` is posted in the chatter of the line's mobility or group mobility
+  (`_ems_record_owner()`), with its author and, for a group, the participant. The attachment keeps who uploaded it and when (`create_uid`, `create_date`).
 - Closing the mobility (`state = done`) closes the record: no more portal uploads, files kept.
 - Uploaded names keep only the file's own name and refuse programs, scripts and HTML/SVG
   (`check_upload`, `FORBIDDEN_EXTENSIONS`).
@@ -95,12 +106,15 @@ sequenceDiagram
     C-->>U: ZIP (streamed, never stored)
 ```
 
-- `scope = record`: one mobility's record (the four categories). `scope = project`: the five
-  categories, the calls and published resolutions (`01_Projecte/Calls/<call>/`), every non-cancelled
-  mobility's record under `02_Mobilitats/<ALU|PROF><mobility id>_<name>/`, invoices
-  (`03_Economia/Invoices/<number>/`) and transfer receipts (`03_Economia/Transfers/<record>/`).
+- `scope = record`: one mobility's record (the four categories). `scope = group`: one group
+  mobility (below). `scope = project`: the five categories, the calls and published resolutions
+  (`01_Projecte/Calls/<call>/`), every non-cancelled mobility's record under
+  `02_Mobilitats/<ALU|PROF><mobility id>_<name>/`, every group mobility that is neither draft nor
+  cancelled under `02_Mobilitats/GRUP<id>_<name>/`, invoices (`03_Economia/Invoices/<number>/`, the
+  group's collective invoices included, once) and transfer receipts (`03_Economia/Transfers/<record>/`).
 - Per record: every file of each line, numbered `v1_`, `v2_`... (`team_v1_` for the team's file);
-  the commitment letter signed in EMS as an HTML page with who signed, when and from which IP; the
+  the commitment letter signed in EMS as an HTML page with who signed, when and from which IP (and
+  every earlier version, see below); the
   weekly self-assessments as a PDF (in 03); the project documents linked to it. In a project export
   a shared document is written once (in its project category) and each record's index row points to
   it.
@@ -129,11 +143,86 @@ mobility's chatter. Without an audit export, confidential documents (call docume
 `confidential`, e.g. the health card and the inclusion documentation; confidential project
 documents) never leave EMS: a required one appears in the index without its file.
 
+### Group mobilities in the export
+
+`_ems_group_entries()` builds the same layout for `scope = group` (at the ZIP's root) and inside a
+project export:
+
+```
+GRUP<id>_<name>/
+├── 00_Documentacio_comuna/            the group's own documents, written once
+│   ├── 01_Dades_i_autoritzacions/     shared lines (e.g. group inclusion documentation), Selection.csv, Draws.csv
+│   ├── 02_Abans_de_la_mobilitat/      group learning agreement, final list, agreements with the host
+│   ├── 03_Durant_la_mobilitat/        group travel documents, common evidence, Follow-up/ (files) and Follow-up.csv
+│   └── 04_Despres_de_la_mobilitat/    EU Survey/ (its evidence)
+├── ALU<participant id>_<name>/        each selected student: their own lines and the commitment letter
+└── PROF<participant id>_<name>/       the leader and the accompanying teachers: their own lines
+```
+
+- Only active participants (a student who renounced keeps every document in EMS, but is not
+  exported, like a cancelled individual mobility).
+- A shared document is never copied into the records: each participant's index rows point to its
+  path ("Shared document: ...").
+- `Selection.csv`: the frozen ranking (rank, group at closing, average and whether it was entered by
+  hand with its source, eligible, draw position, proposed result, exception and reason, result,
+  renouncement, substitution). `Draws.csv`: every draw (who, when, tied average, positions). The
+  fewer opportunities, the conduct warnings and the reason for an exclusion are added only in an audit
+  export: they are confidential and never go in an export meant for anyone else.
+- Exported from the group mobility form (*Actions > Export the documents*, Erasmus team and admin) or
+  inside the project export; logged and posted in the group mobility's chatter. `missing_count`
+  includes the group's required documents not complete (`_ems_group_missing`), and so do the project's
+  record counters (each active group participant is one more record).
+
+### Commitment letter versions
+
+The letter (`ems.erasmus.commitment`, shared by internships and group mobilities) keeps every accepted
+version. A group mobility's `write()` compares what the letter states (`COMMITMENT_TERMS`: city,
+country, host, dates, travel dates, teachers, additional conditions) before and after; when it changed
+and a participant had accepted, `_ems_commitment_supersede()` stores the acceptance as an
+`ems.erasmus.commitment.version` (the exact text, who, when, IP for the participant and the family,
+whether it was provisional, when and why it was replaced; create-only, `write`/`unlink` refuse) and
+clears the signatures, so the new letter is accepted again (the family is emailed again). An
+acceptance while the destination or the start date is still to be confirmed
+(`_ems_commitment_is_final()` false) is `commitment_provisional`: shown as such and the participant is
+not ready to leave. Internships never call it (their letter is the call's annex, fixed once
+published), so they behave as before. Versions are read by the Erasmus team and the administrator only.
+
+### Signatures: what EMS does and what is missing
+
+What EMS has today (no electronic signature system):
+
+| Document | Who signs | How it reaches EMS |
+|---|---|---|
+| Commitment letter (internships and group students) | participant; family of a minor | Accepted on the portal: logged-in user, date, IP, exact text, versions |
+| Grant agreement | participant, Director; family of a minor | Team uploads it filled in, participant uploads it signed (`team_to_sign`) |
+| Learning / mobility agreement (individual) | participant, coordinator, host; family of a minor | Same, `team_to_sign` or participant |
+| Group learning agreement | coordinator, host | Team uploads it signed |
+| sBID agreement and activity plan (REF5, REF6) | Director or centre's tutor, participant, host | Team uploads them from sBID |
+| Europass mobility document | coordinator | Team uploads it |
+| Certificate of stay | host | Participant (or team) uploads it |
+| Report with evidence | participant | Participant uploads it |
+| Family authorisation to travel (individual) | family of a minor | Participant uploads it |
+| Authorisation for minors to travel abroad | Mossos d'Esquadra procedure | Participant uploads it; never replaced by the commitment letter |
+
+- The signers of each document are configured per call document (`sign_participant`, `sign_guardian`
+  (minors only), `sign_director`, `sign_coordinator`, `sign_tutor`, `sign_host`) and shown on every
+  line, the portal and the index.
+- The states of a signed document are the review: uploaded → `to_review` → `complete` (the team
+  checked the signatures and marked it valid) or `needs_change` (with a comment for the participant).
+  Nothing to sign is ever complete on upload, and a mobility cannot be closed, nor a participant be
+  ready to leave, with a required document not complete.
+- Not there yet, and not decided (functional decisions for the Erasmus coordination, not code):
+  which signature has legal value for each document (click acceptance as for the letter, a scanned
+  handwritten signature, or a verifiable electronic signature such as the Catalan idCAT/VALid or an
+  external provider like DocuSeal or OpenSign); one state per signer (today one review for the whole
+  document: EMS does not know which of several signers already signed); how the host entity signs
+  (it has no EMS account); whether the Director and the coordinator sign inside EMS. Automating it
+  needs: a signature request per line and signer (`ems.erasmus.signature`: line, signer role,
+  partner, state, date, evidence), a provider interface (send, webhook, signed PDF stored as a new
+  version), and `file_state` complete only when every required signer signed.
+
 ### Prepared for later
 
-- **Group mobilities** (branch `ems-movgrupo`): the group's common documents fit
-  `02_Mobilitats/00_Documentacio_comuna` via shared project documents; a *mobility* scope (common
-  documents + students + companions) will reuse `_ems_record_entries()`.
 - **Automated archive to a shared Drive**: `_ems_zip()` returns a file object and its log line holds
   the ZIP's hash, so a job could upload it to the institutional shared drive without changing the
   builder.

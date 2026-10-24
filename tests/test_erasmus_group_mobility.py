@@ -377,12 +377,17 @@ class TestErasmusGroupCommitment(ErasmusGroupMobilityCase):
             minor.action_sign_commitment(False, '10.0.0.1')
         minor.action_sign_commitment(True, '10.0.0.1')
         self.assertIn('Test SMX2 morning', minor.commitment_signed_text)
+        accepted = minor.commitment_signed_text
+        self.assertEqual(minor._ems_commitment_text(), accepted, "The family signs the same text.")
         self.mobility.commitment_extra = '<p>Changed later</p>'
-        self.assertNotIn('Changed later', minor.commitment_signed_text, "What was accepted never changes.")
-        self.assertNotIn('Changed later', minor._ems_commitment_text(), "The family signs the same text.")
+        self.assertEqual(minor.commitment_version_ids.text, accepted, "What was accepted never changes: it is kept.")
+        self.assertTrue(minor.commitment_pending, "The new conditions are accepted again.")
+        self.assertIn('Changed later', minor._ems_commitment_text())
         self.assertTrue(minor.commitment_guardian_pending)
         self.assertFalse(minor.preparation_complete)
+        minor.action_sign_commitment(True, '10.0.0.3')
         minor.action_sign_commitment(True, '10.0.0.2', guardian=True)
+        self.assertIn('Changed later', minor.commitment_signed_text)
         self.assertEqual(minor.commitment_guardian_signed_ip, '10.0.0.2')
         self.assertFalse(minor.commitment_guardian_pending)
         with self.assertRaises(UserError):
@@ -577,7 +582,7 @@ class TestErasmusGroupFiles(ErasmusGroupMobilityCase):
     def test_versions_and_review(self):
         self._approved()
         line = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'student')[
-            :1].document_ids.filtered(lambda line: line.handled_by == 'participant')[:1]
+            :1].document_ids.filtered(lambda line: line.handled_by == 'participant' and not line.confidential)[:1]
         line._ems_add_files([('v1.pdf', PDF)])
         line.with_user(self.leader_user).action_mark_needs_change()
         line._ems_add_files([('v2.pdf', PDF)])

@@ -65,8 +65,10 @@ class EmsPortalErasmusGroupController(CustomerPortal):
             'participant': participant,
             'registration': mobility.registration_ids.filtered(lambda registration: registration.participant_id ==
                                                                participant),
-            'review_labels': dict(request.env['ems.erasmus.application.document']._fields[
-                'review_state']._description_selection(request.env)),
+            'file_state_labels': dict(request.env['ems.erasmus.application.document']._fields[
+                'file_state']._description_selection(request.env)),
+            'category_labels': dict(request.env['ems.erasmus.application.document']._fields[
+                'file_category']._description_selection(request.env)),
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
             'saved': kwargs.get('saved'),

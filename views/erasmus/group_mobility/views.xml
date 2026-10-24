@@ -124,6 +124,10 @@
                             <button name="action_export_participants" type="object" string="Export participants (Excel)"
                                     invisible="not participant_ids or user_role != 'team'"
                                     help="The selected students and the accompanying teachers, in the same spreadsheet format as the calls."/>
+                            <button name="action_export_dossier" type="object" string="Export the documents"
+                                    invisible="state in ('draft', 'cancelled')"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="The group's common documents and every participant's record as a ZIP, in the record's categories, with an index of what is missing and the files' hashes."/>
                             <button name="action_propose_substitution" type="object" string="Propose the next reserve"
                                     invisible="not next_reserve or user_role not in ('team', 'leader')"/>
                             <button name="action_sync_requirements" type="object" string="Update documents"
@@ -335,8 +339,10 @@
                                 </group>
                                 <separator string="Shared documents"/>
                                 <field name="document_ids">
-                                    <list editable="bottom" create="false" delete="false">
-                                        <field name="stage"/>
+                                    <list editable="bottom" create="false" delete="false"
+                                          decoration-muted="file_state == 'not_applicable'">
+                                        <field name="file_category"/>
+                                        <field name="stage" optional="hide"/>
                                         <field name="name"/>
                                         <field name="signers"/>
                                         <field name="deadline"/>
@@ -344,13 +350,15 @@
                                         <field name="confidential" column_invisible="1"/>
                                         <field name="handled_by" column_invisible="1"/>
                                         <field name="attachment_ids" widget="many2many_binary"/>
-                                        <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
-                                               decoration-danger="review_state == 'needs_change'"/>
+                                        <field name="file_state" widget="badge" decoration-success="file_state == 'complete'"
+                                               decoration-danger="file_state in ('missing', 'needs_change')"
+                                               decoration-warning="file_state == 'to_review'"/>
+                                        <field name="review_state" optional="hide"/>
                                         <field name="review_comment"/>
                                         <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
-                                                invisible="review_state == 'valid' or not attachment_ids or parent.user_role not in ('team', 'leader')"/>
+                                                invisible="file_state != 'to_review' or parent.user_role not in ('team', 'leader')"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
-                                                invisible="review_state == 'needs_change' or parent.user_role not in ('team', 'leader')"/>
+                                                invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader')"/>
                                     </list>
                                 </field>
                                 <separator string="Documents asked for" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -372,7 +380,7 @@
                                         <field name="sign_director" optional="hide"/>
                                         <field name="sign_coordinator" optional="hide"/>
                                         <field name="sign_host" optional="hide"/>
-                                        <field name="sepie_folder" optional="hide"/>
+                                        <field name="file_category" optional="show"/>
                                         <field name="description" optional="hide"/>
                                     </list>
                                 </field>
@@ -511,29 +519,35 @@
                                 <field name="email" widget="email"/>
                                 <field name="phone" widget="phone"/>
                                 <field name="preparation_complete"/>
+                                <field name="record_progress"/>
                                 <field name="documents_missing"/>
                             </group>
                         </group>
                         <notebook>
                         <page string="Documents" name="documents">
                         <field name="document_ids">
-                            <list editable="bottom" create="false" delete="false">
-                                <field name="stage"/>
+                            <list editable="bottom" create="false" delete="false"
+                                  decoration-muted="file_state == 'not_applicable'">
+                                <field name="file_category"/>
+                                <field name="stage" optional="hide"/>
                                 <field name="name"/>
                                 <field name="signers"/>
                                 <field name="deadline"/>
                                 <field name="is_required"/>
+                                <field name="confidential" column_invisible="1"/>
                                 <field name="handled_by" optional="hide"/>
                                 <field name="prepared_attachment_ids" widget="many2many_binary"
                                        readonly="handled_by == 'participant'"/>
                                 <field name="attachment_ids" widget="many2many_binary" readonly="handled_by == 'team'"/>
-                                <field name="review_state" widget="badge" decoration-success="review_state == 'valid'"
-                                       decoration-danger="review_state == 'needs_change'"/>
+                                <field name="file_state" widget="badge" decoration-success="file_state == 'complete'"
+                                       decoration-danger="file_state in ('missing', 'needs_change')"
+                                       decoration-warning="file_state == 'to_review'"/>
+                                <field name="review_state" optional="hide"/>
                                 <field name="review_comment"/>
                                 <button name="action_mark_valid" type="object" string="Valid" icon="fa-check"
-                                        invisible="handled_by == 'team' or review_state == 'valid' or not attachment_ids"/>
+                                        invisible="file_state != 'to_review'"/>
                                 <button name="action_mark_needs_change" type="object" string="Needs changes"
-                                        icon="fa-pencil" invisible="handled_by == 'team' or review_state == 'needs_change'"/>
+                                        icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
                             </list>
                         </field>
                         </page>
@@ -552,7 +566,44 @@
                                     <field name="commitment_guardian_signed_ip"/>
                                 </group>
                             </group>
+                            <field name="commitment_provisional" invisible="1"/>
+                            <div class="alert alert-warning" role="alert" invisible="not commitment_provisional">
+                                Accepted provisionally: the destination or the dates are still to be confirmed. Once they are, the student (and the family of a minor) accept the letter again.
+                            </div>
                             <field name="commitment_signed_text" invisible="not commitment_signed_date"/>
+                            <separator string="Earlier versions" invisible="not commitment_version_ids"/>
+                            <field name="commitment_version_ids" invisible="not commitment_version_ids"
+                                   groups="ems.group_erasmus,ems.group_academic_admin">
+                                <list>
+                                    <field name="number"/>
+                                    <field name="signed_date"/>
+                                    <field name="signed_by_id"/>
+                                    <field name="guardian_signed_date"/>
+                                    <field name="guardian_signed_by_id"/>
+                                    <field name="provisional"/>
+                                    <field name="superseded_date"/>
+                                    <field name="reason"/>
+                                </list>
+                                <form string="Earlier version">
+                                    <group>
+                                        <group>
+                                            <field name="number"/>
+                                            <field name="signed_date"/>
+                                            <field name="signed_by_id"/>
+                                            <field name="signed_ip"/>
+                                            <field name="provisional"/>
+                                        </group>
+                                        <group>
+                                            <field name="guardian_signed_date"/>
+                                            <field name="guardian_signed_by_id"/>
+                                            <field name="guardian_signed_ip"/>
+                                            <field name="superseded_date"/>
+                                            <field name="reason"/>
+                                        </group>
+                                    </group>
+                                    <field name="text"/>
+                                </form>
+                            </field>
                         </page>
                         </notebook>
                     </sheet>

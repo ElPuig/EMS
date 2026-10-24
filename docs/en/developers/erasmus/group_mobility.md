@@ -128,8 +128,8 @@ reorganises the documents free of conflicts):
 | Which mobility? | `ems.erasmus.application.document.group_mobility_id` (set on every group line). |
 | Which participant (individual document)? | `group_participant_id` → `ems.erasmus.group.participant` (`partner_id`, `employee_id`, `role`). |
 | Is it a shared document of the mobility? | `group_mobility_id` set and `group_participant_id` empty: **one line per mobility** (e.g. the group learning agreement). Individual files reference it through the mobility; no copy is ever made. |
-| Document type and requirement | `call_document_id` → `ems.erasmus.call.document`, which for a group belongs to the mobility (`group_mobility_id`, no `call_id`) and says who it is for (`group_audience`: `collective`, `student`, `teacher`, `participant`), `requirement` (required, optional, minors), `stage`, signers (`sign_*`), `handled_by`, `confidential`, `sepie_folder`, deadline rule. |
-| Validation and signature | The same fields as every line: `review_state` (pending / valid / needs changes), `review_comment`, files (`attachment_ids`, every version kept) and the team's prepared files (`prepared_attachment_ids`); signers from the call document. There is **no signature workflow yet** (see "Pending"). |
+| Document type and requirement | `call_document_id` → `ems.erasmus.call.document`, which for a group belongs to the mobility (`group_mobility_id`, no `call_id`) and says who it is for (`group_audience`: `collective`, `student`, `teacher`, `participant`), `requirement` (required, optional, minors), `stage`, signers (`sign_*`), `handled_by`, `confidential`, `file_category` (the record's category), deadline rule. |
+| Validation and signature | The same fields and rules as every line ([records.md](records.md)): `review_state`, `review_comment`, files (every version kept, never removed from a valid line or a closed group mobility) and the team's prepared files; the record status `file_state` (a document someone signs is complete only once the team marks it valid) and `file_category`. There is no electronic signature workflow (see records.md, "Signatures"). |
 | Read and write permissions | Record rules on `ems.erasmus.application.document` and `ems.erasmus.call.document` for `ems.group_erasmus_group_teacher` (below); the review (`review_state`) only by the team or the leader (`write` override). Attachments follow the line's access. |
 
 Constraints: a line has an application **or** a group mobility (SQL `CHECK`), and a participant's
@@ -160,9 +160,13 @@ once confirmed (otherwise "to be confirmed"), taking part in the programme, the 
 coexistence rules and the teachers' instructions, the measures for a serious breach under the
 centre's rules and protocols, communication and collaboration with the centre, plus the mobility's
 **additional conditions** (`commitment_extra`). The text is stored exactly as at the first
-acceptance (`commitment_signed_text`) and that is what the second one accepts; later changes to
-the mobility never alter it. Until both are done the participant is not ready to leave
-(`preparation_complete`), and the mobility counts the pending ones (`commitments_pending`). The
+acceptance (`commitment_signed_text`) and that is what the second one accepts. When the
+destination, the host, the dates, the travel dates, the teachers or the additional conditions
+change afterwards, the acceptance is kept unchanged as an earlier version and both have to accept
+the new letter (see "Commitment letter versions" in [records.md](records.md)); an acceptance while
+the destination or the start date is still to be confirmed is provisional. Until both are done, and
+not provisionally, the participant is not ready to leave (`preparation_complete`), and the mobility
+counts the pending ones (`commitments_pending`). The
 letter says it does not replace the official authorisation to travel abroad, which stays a
 document of the file. Teachers sign no letter.
 
@@ -181,23 +185,22 @@ the fly, never stored.
 Deadlines count from the group mobility: `destination` = the day the selection was approved
 (`destination_date`), `before_start` / `after_end` = its final dates.
 
-### Extension points for the document archive branch (`ems-carpetas`)
+### On the document records
 
-- The four categories of an individual file (data and authorisations, before, during, after the
-  mobility) and the five of a project: today a group line has the call document's `stage`
-  (`preparation`, `return`) and `sepie_folder`; mapping them to the new categories, as for the
-  individual modalities, is that branch's job.
-- The project dossier ZIP (`ems.erasmus.project._ems_dossier_files`) does **not** include group
-  mobilities yet: a project's group lines are
-  `env['ems.erasmus.application.document'].search([('group_mobility_id.project_id', '=', project.id)])`,
-  shared ones with an empty `group_participant_id`, confidential ones (`confidential`) only for the
-  Erasmus team. The follow-up's files are `ems.erasmus.group.log.attachment_ids`, the EU Survey's
-  `ems.erasmus.group.mobility.eu_survey_attachment_ids`, the collective invoices
-  `ems.erasmus.invoice` with `group_mobility_id`.
+Group mobilities are part of the Erasmus+ document records ([records.md](records.md)):
+
+- Their documents use the same four categories of a participant's record (`file_category` on each
+  requirement: health card, inclusion and minors' authorisation in 01, the group's travel documents
+  and common evidence in 03, the rest by stage), the same `file_state` and the same history rules.
+  The health card is confidential, as in the calls: only the Erasmus team sees it.
+- The project dossier ZIP includes every group mobility that is neither draft nor cancelled
+  (`GRUP<id>_<name>/`: the common documents once, the selection's evidence, the follow-up, the EU
+  Survey and each active participant's record), and a group mobility can be exported on its own.
 - Selection evidence (criteria, enrolments, eligibility, frozen ranking, proposal, approval,
   results, withdrawals and substitutions) lives on `ems.erasmus.group.registration` and the
-  mobility's chatter, never in a participant's travel file. Conduct and fewer-opportunities data
-  must stay out of any export meant for teachers or participants.
+  mobility's chatter, never in a participant's travel file; in the ZIP it is the group's
+  `Selection.csv` and `Draws.csv`, with the conduct and fewer-opportunities data only in an audit
+  export.
 
 ## Follow-up, EU Survey and closure (issue #704)
 
@@ -244,9 +247,7 @@ what each role may change is checked again in the models (`EmsErasmusGroupMobili
 
 ## Pending and open questions
 
-- **Signatures:** documents say who signs them, and the review records the result, but there is
-  no signature workflow (requested, signed with evidence, click acceptance vs scanned vs
-  verifiable signature) nor an interface for an external provider (DocuSeal, OpenSign). It is a
-  change of the shared document model, for every modality, and is left to the document work.
+- **Signatures:** see "Signatures: what EMS does and what is missing" in [records.md](records.md),
+  common to every modality.
 - **Families of minors:** the commitment letter is accepted on the portal (above); the other
   documents the family signs (grant agreement) are uploaded signed.

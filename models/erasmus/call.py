@@ -8,10 +8,11 @@ from pytz import UTC
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+from odoo.tools.sql import column_exists
 
 from .application import RANKED_STATES, SUBMITTED_STATES
 from .offer import HOLDING_STATES
-from .records import PARTICIPANT_CATEGORIES
+from .records import LEGACY_FOLDER_SQL, PARTICIPANT_CATEGORIES
 
 # The centre's two Erasmus+ projects: CFGM goes on KA121-VET, CFGS on KA131-HED.
 PROJECTS = [('ka121_vet', "KA121-VET"), ('ka131_hed', "KA131-HED")]
@@ -768,3 +769,21 @@ class EmsErasmusCallDocument(models.Model):
                   ('sign_tutor', _("centre's tutor")), ('sign_host', _("host entity"))]
         for document in self:
             document.signers = ", ".join(label for name, label in labels if document[name])
+
+    def _auto_init(self):
+        """A database that still has the SEPIE folder of each document (the dossier before the records,
+        never released) gets the record's category from it, before Odoo drops the old column: the health
+        card stays with the data and authorisations (and confidential), the tickets during the mobility.
+        Nothing to do anywhere else."""
+        legacy = column_exists(self.env.cr, self._table, 'sepie_folder')
+        result = super()._auto_init()
+        if legacy:
+            self.env.cr.execute(LEGACY_FOLDER_SQL)
+            if self.env.cr.rowcount:
+                # Both are stored on the lines: the category, and whether it is confidential (record rules
+                # and exports read it there).
+                Line = self.env['ems.erasmus.application.document']
+                lines = Line.search([])
+                for name in ('file_category', 'confidential'):
+                    self.env.add_to_compute(Line._fields[name], lines)
+        return result

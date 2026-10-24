@@ -114,6 +114,7 @@ class EmsExternalRecordWizard(models.TransientModel):
             self.certificate_message = _("Every course of the certificate is already in the student's "
                                          "academic history.")
             return None
+        self._mark_other_centre_optionals(courses)
         self.certificate_student_identifier = certificate['student_identifier']
         self.certificate_student_name = certificate['student_name']
         self.origin_centre_code = courses[0]['centre_code']
@@ -122,6 +123,17 @@ class EmsExternalRecordWizard(models.TransientModel):
         self.line_ids = self._line_commands(courses, certificate['study_code'])
         self.course_id = self.line_ids.course_id[:1]
         return self._certificate_warning()
+
+    def _mark_other_centre_optionals(self, courses):
+        """A module coded "OPT..." of another centre is that centre's own optional module, whatever
+        its type column says (a printed record shows "MP", not "MP_OP_CEN"): it is read like one."""
+        own_code = self.env.company.center_code
+        for course in courses:
+            if course['centre_code'] == own_code:
+                continue
+            for module in course['modules']:
+                if module['code'].upper().startswith('OPT'):
+                    module['is_optional'] = True
 
     def _course_available(self, course):
         # By id: inside an onchange both sides may be new records wrapping the real ones.

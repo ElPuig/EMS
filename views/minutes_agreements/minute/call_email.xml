@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The call to a meeting, emailed to everybody convened (ems.minute.action_send_call). -->
+        <template id="minute_call_email" name="Minute: call to the meeting">
+            <div style="font-family: Arial, Helvetica, sans-serif; font-size: 14px; color: #222;">
+                <p t-if="is_update" style="background: #fff4d6; border-left: 4px solid #e0a800; padding: 8px 12px;">
+                    This call replaces the one sent before: check the date, the time, the place and the agenda.
+                </p>
+                <p>Hello! Here are the details of our next meeting.</p>
+                <h2 style="font-size: 18px; margin: 12px 0 4px 0;" t-out="minute.name"/>
+                <table style="border-collapse: collapse; margin: 8px 0 16px 0;">
+                    <tr><td style="padding: 2px 16px 2px 0; color: #666;">Date</td><td t-out="date_label"/></tr>
+                    <tr><td style="padding: 2px 16px 2px 0; color: #666;">Time</td><td t-out="minute.time"/></tr>
+                    <tr t-if="minute.place_name"><td style="padding: 2px 16px 2px 0; color: #666;">Place</td><td t-out="minute.place_name"/></tr>
+                    <tr><td style="padding: 2px 16px 2px 0; color: #666;">Modality</td><td t-out="modality_label"/></tr>
+                    <tr><td style="padding: 2px 16px 2px 0; color: #666;">Nature</td><td t-out="nature_label"/></tr>
+                </table>
+                <p t-if="calendar_url" style="margin: 0 0 16px 0;">
+                    <a t-att-href="calendar_url" target="_blank"
+                       style="display: inline-block; background: #1a73e8; color: #ffffff; text-decoration: none; padding: 8px 14px; border-radius: 4px;">
+                        Add this meeting to my Google Calendar
+                    </a>
+                </p>
+                <h3 style="font-size: 15px; border-bottom: 1px solid #dadce0; padding-bottom: 4px;">Agenda</h3>
+                <div t-if="minute.agenda_html" t-out="minute.agenda_html"/>
+                <p t-else="">The agenda has not been set yet.</p>
+                <p t-if="previous_url">
+                    The minute of the previous meeting can be read before it is approved:
+                    <a t-att-href="previous_url" t-out="minute.previous_minute_id.display_name"/>
+                </p>
+                <p style="margin-top: 16px;">Called by <span t-out="convener_name or minute.env.user.name"/>.</p>
+            </div>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,9 @@
+id,code,name,kind,sequence
+__import__.quality_process_pe1,PE1,Planificar i organitzar el centre,strategic,10
+__import__.quality_process_pe2,PE2,"Gestionar la informació, la comunicació i el coneixement",strategic,20
+__import__.quality_process_pe3,PE3,Desenvolupar i gestionar la qualitat,strategic,30
+__import__.quality_process_pc1,PC1,Gestionar la informació i l'admissió,key,40
+__import__.quality_process_pc2,PC2,Gestionar l'ensenyament i aprenentatge de l'FP,key,50
+__import__.quality_process_pc3,PC3,Gestionar la gestió acadèmica i administrativa,key,60
+__import__.quality_process_ps1,PS1,Gestionar l'equip humà,support,70
+__import__.quality_process_ps2,PS2,Gestionar els recursos,support,80

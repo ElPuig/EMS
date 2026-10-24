@@ -37,7 +37,7 @@ A student record that already existed with no Student ID keeps working normally 
 
 The top of the form gathers the student's data without switching tabs:
 
-- **First name** and **Last name**, with the **Personal email** and the **Corporate email** below.
+- **First name** and **Last name**, with the **Personal email** and the **Corporate email** below. A name typed all in capitals or all in lower case is saved with capital initials ("ASHLEY BUENO" becomes "Ashley Bueno"); one with mixed case is saved as typed.
 - Three columns: **Contact** (address, phones and language), **Identification** (ID card/NIE, passport, Student ID, medical ID, NUSS and car plate) and **Personal data** (birth date, whether they are an adult, birth country, citizenship, benefits and special educational needs).
 - **Authorizations**: the Yes/No summary of image rights, school trips, health data and sharing with the family.
 

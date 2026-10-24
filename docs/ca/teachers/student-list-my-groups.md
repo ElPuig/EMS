@@ -29,6 +29,11 @@ Els teus grups són els del teu horari més qualsevol grup del qual siguis tutor
 Un alumne surt a la llista quan aquest grup és el seu grup principal, o quan hi està
 matriculat en alguna de les teves matèries — incloent-hi grups de reforç i desdoblaments.
 
+La llista mostra el nom i els cognoms en columnes separades i està ordenada per cognoms, en el
+mateix ordre que el passi de llista. Fes clic a la capçalera d'una columna per ordenar la llista per
+aquesta columna. El nom complet està amagat: per mostrar-lo, obre el menú de columnes opcionals a
+l'extrem dret de les capçaleres.
+
 ![La llista d'Alumnat amb els dos filtres aplicats, mostrant només un alumne del propi grup del professor](../../assets/teachers/alumnat-01-els-meus-grups.png)
 
 ---

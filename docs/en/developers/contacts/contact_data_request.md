@@ -20,6 +20,8 @@ levels), answered on `/my/dades-contacte`, and applied only once a reviewer appr
 | `views/portal/portal_contact_data.xml` | The portal page (`portal_contact_data_new_family_extras`: the repeated-contact question and the other-children checkboxes); the home banner (only while a request is pending) is in `portal_main.xml`, the **Update contact details** button of the Profile tab in `portal_account_readonly.xml` |
 | `views/community/contact_data_request/` | Send wizard, bindings (students list/form, groups list/form), request list/form/search, return wizard, menu |
 | `mails/contacts/contact_data_request.xml` | `ems.email_template_contact_data_request` (first request, reminder, returned) |
+| `data/main/mail.message.subtype.csv`, `data/main/mail.activity.type.csv` | `ems.mt_contact_data_request` (the Communications log) and `ems.mail_activity_contact_data_review` (the tutor's review activity) |
+| `controllers/portal_comms.py` | The student's Communications page, which lists the request's log |
 
 The menu is **Educational Community > Students > Data request** (`menu_contact_data_requests`,
 groups: academic admin, secretary, head of studies, tutor). *Students* is a section
@@ -214,6 +216,32 @@ sequenceDiagram
   recipient's language by `_ems_send_request_email()`), not written inside the template's `{{ }}`:
   a translator must not touch its expressions (`tests/test_mail_template_translations.py`).
 
+## Communications log and the tutor's activity (issue #700)
+
+The request is a `mail.thread` + `mail.activity.mixin`, with a chatter on its form. Each step of the
+review leaves a line on its thread through `_ems_log()`:
+
+| When | Logged by | Text |
+|---|---|---|
+| `_ems_mark_sent()` (the send wizard; not the reminders) | the sender | the centre asks to review the contact details for the academic year |
+| `_ems_submit()` with changes | whoever answers on the portal | the changes sent for review: one item per person naming the fields, not their values (`ems.contact.data.request.line._ems_change_summary()`), the photo included; a new family contact with its relation, a removed one |
+| `action_approve()` | the reviewer | approved |
+| `_ems_reject()` | the reviewer | returned, with the reason |
+
+An answer without changes goes straight to `done` and logs nothing. The log uses the subtype
+`ems.mt_contact_data_request` (`default=False`, `hidden=True`): no follower is subscribed to it, so
+posting it emails no one. It is written in the language of whoever acts for the student on the portal
+(the first of `_ems_notification_recipients()`, else the student's), whoever triggers it: the reader
+is the family. The student's **Communications** page (`/my/comunicaciones`) lists the thread's
+messages of that subtype only (for an account that acts for the student, like the enrollment and
+document threads), so the tutor's activity marked as done never shows there.
+
+`_ems_assign_review()` schedules `ems.mail_activity_contact_data_review` for the student's tutor
+(`tutor_id.user_id`) when an answer with changes arrives, whoever asked for it, and only once per
+request even if the family sends it again before the review. No tutor, no activity: the request still
+waits in the list, where a tutor assigned later finds it. Approving or returning it marks the activity
+as done (`_ems_close_review()`).
+
 ## Who may answer on the portal
 
 `res.partner._ems_portal_contact_data_student()` returns the student or applicant whose data a portal
@@ -250,12 +278,15 @@ request is pending (`_ems_contact_data_requested()`), and the email links to the
 
 - `tests/test_contact_data_request.py`: missing/mandatory rules and formats, `_ems_find_family`,
   submit/approve/return/remind (reminder subject in the recipient's language), portal login move on
-  email change, tutor scope, teacher access; `TestContactDataRequestCorporateEmail`: the corporate
+  email change, tutor scope, teacher access, the Communications log (request but not reminders, the
+  summary, nothing for an answer without changes, approval and return, the family's language, no
+  notification) and the tutor's activity (one per request, none without a tutor, closed on review); `TestContactDataRequestCorporateEmail`: the corporate
   domain refused for the student and every family contact, left alone when already on file.
 - `tests/test_contact_data_request_send_wizard.py`: scope, "only incomplete", reopen, unreachable,
   portal grant, preview, tutor limits, and that a minor's own account is never asked.
 - `tests/test_portal_contact_data.py`: the portal page, validation, staging, foreign family contacts
-  ignored, home banner, Profile button; `TestPortalContactDataPhoto`: a photo is staged re-encoded
+  ignored, home banner, Profile button, Communications listing what was sent and approved (not the
+  closed activity); `TestPortalContactDataPhoto`: a photo is staged re-encoded
   as JPEG without its EXIF, a file that is not a JPEG/PNG image is refused under its input, the
   photo sent survives an answer with errors and a second answer without a new file;
   `TestPortalContactDataRules`: a minor's own account and a family looking at an adult child cannot

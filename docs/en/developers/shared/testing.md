@@ -76,6 +76,11 @@ reject records stamped by the real clock. `weekdays` (a collection of `date.week
 0=Monday) moves it further on to the next of those days, for a fixture that needs a school day:
 the guard duty board's tour passes `range(5)`, since the board shows no weekend.
 
+The shift is computed in UTC, so it holds across a daylight saving change: a run on a summer-time
+Friday shifted to the Monday after the change lands on that Monday's `hour`, not an hour off
+(between two datetimes of the same zone Python counts wall-clock time, which is what went wrong
+before, found on 2026-10-23).
+
 Call it first thing in `setUpClass` (pass `cls`, restored at the end of the class) or in the test
 (pass `self`, restored after it), and take every date and weekday from what it returns:
 

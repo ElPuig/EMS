@@ -9,7 +9,9 @@
             <field name="context">{'search_default_current_course': 1}</field>
         </record>
 
-        <menuitem name="Attendance" sequence="1" id="menu_meeting_presence"
-                  parent="menu_minutes" action="action_meeting_presence"/>
+        <!-- Teachers see only the sessions of the minutes they may write (security/rules/quality.xml). -->
+        <menuitem name="Attendance" sequence="3" id="menu_meeting_presence"
+                  parent="menu_minutes" action="action_meeting_presence"
+                  groups="ems.group_teacher,ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin"/>
     </data>
 </odoo>

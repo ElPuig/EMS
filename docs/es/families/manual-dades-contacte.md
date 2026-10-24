@@ -62,3 +62,5 @@ Haced clic en **Enviar**. Si falta un campo o no es válido, aparece marcado en 
 ![El formulario enviado incompleto: un mensaje arriba y los campos que faltan marcados en rojo](../../assets/families/dades-contacte-04-errors.png)
 
 El centro revisa los cambios antes de aplicarlos. Mientras tanto, podéis volver a abrir la página, corregirlos y volver a enviarlos. Si el centro os los devuelve, recibís un correo que indica qué hay que corregir.
+
+En la página **Comunicaciones** queda registrado lo que habéis enviado y si el centro lo aprueba u os lo devuelve, con el motivo.

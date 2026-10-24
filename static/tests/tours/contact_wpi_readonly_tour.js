@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // Regression (found 2026-09-06, alongside issue #395): 'wpi_enrolled' was missing
 // 'read_only_user' from its readonly condition - is_tutor_readonly alone is False for a
@@ -28,8 +29,9 @@ registry.category("web_tour.tours").add("ems_contact_wpi_readonly_for_non_tutora
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("0001 Group Change Tour Non-Tutorand"),
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('0001 Group Change Tour Non-Tutorand')",
+            trigger: `.o_list_view ${studentCell("0001 Group Change Tour Non-Tutorand")}`,
             content: "Open a student this teacher/tutor does NOT tutor",
             run: "click",
         },

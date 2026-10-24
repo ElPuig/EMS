@@ -157,8 +157,10 @@
              had no ir.model.access.csv row at all for these 4 models, despite the "Surveys" menu
              already listing group_academic_admin as one of its visible groups.
 
-             The Quality coordinator (group_quality_admin) reads every survey centre-wide but only
-             creates/edits/deletes the ones they created themselves - two rules per model (read-all,
+             The quality committee (group_quality, implied by the Quality coordinator's
+             group_quality_admin) reads every survey centre-wide but each member only
+             creates/edits/deletes the ones they created themselves (agreed with the author of the
+             survey integration, 2026-10-20) - two rules per model (read-all,
              write/create/unlink-own), the same idiom already used for ems.strike's coexistence
              rules in security/rules/coexistence.xml. Every header/block/recipient/enrollment
              record is created directly by whichever coordinator is operating that survey (no
@@ -181,9 +183,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_header_quality_admin_read">
-            <field name="name">Survey: quality coordinator sees all (read only)</field>
+            <field name="name">Survey: quality committee sees all (read only)</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_header"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
@@ -192,9 +194,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_header_quality_admin_own">
-            <field name="name">Survey: quality coordinator edits own</field>
+            <field name="name">Survey: quality committee edits own</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_header"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
@@ -214,9 +216,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_block_quality_admin_read">
-            <field name="name">Survey block: quality coordinator sees all (read only)</field>
+            <field name="name">Survey block: quality committee sees all (read only)</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_block"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
@@ -225,9 +227,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_block_quality_admin_own">
-            <field name="name">Survey block: quality coordinator edits own</field>
+            <field name="name">Survey block: quality committee edits own</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_block"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
@@ -247,9 +249,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_recipient_quality_admin_read">
-            <field name="name">Survey recipient: quality coordinator sees all (read only)</field>
+            <field name="name">Survey recipient: quality committee sees all (read only)</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_recipient"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
@@ -258,9 +260,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_recipient_quality_admin_own">
-            <field name="name">Survey recipient: quality coordinator edits own</field>
+            <field name="name">Survey recipient: quality committee edits own</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_recipient"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>
@@ -280,9 +282,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_enrollment_quality_admin_read">
-            <field name="name">Survey enrollment: quality coordinator sees all (read only)</field>
+            <field name="name">Survey enrollment: quality committee sees all (read only)</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_enrollment"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[]</field>
             <field name="perm_read" eval="True"/>
             <field name="perm_write" eval="False"/>
@@ -291,9 +293,9 @@
         </record>
 
         <record model="ir.rule" id="rule_limesurvey_enrollment_quality_admin_own">
-            <field name="name">Survey enrollment: quality coordinator edits own</field>
+            <field name="name">Survey enrollment: quality committee edits own</field>
             <field name="model_id" ref="ems.model_ems_limesurvey_enrollment"/>
-            <field name="groups" eval="[(4, ref('ems.group_quality_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="domain_force">[('create_uid', '=', user.id)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>

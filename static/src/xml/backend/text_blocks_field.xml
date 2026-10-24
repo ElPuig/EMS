@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="ems.HtmlBlockField" t-inherit="html_editor.HtmlField" t-inherit-mode="primary">
+        <xpath expr="//Wysiwyg" position="attributes">
+            <attribute name="toolbar">true</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="ems.TextBlocksField">
+        <div class="o_ems_text_blocks">
+            <div t-foreach="lines" t-as="line" t-key="line.id" class="o_ems_text_block">
+                <div class="o_ems_text_block_title d-flex align-items-baseline gap-2">
+                    <span t-if="props.numbered" class="o_ems_text_block_number" t-esc="(line_index + 1) + '.'"/>
+                    <div t-if="props.titleEditable and !props.readonly" class="o_field_widget o_field_char flex-grow-1" t-att-name="props.titleField">
+                        <CharField name="props.titleField" record="line" readonly="false" placeholder="titlePlaceholder"/>
+                    </div>
+                    <span t-else="" class="flex-grow-1" t-esc="line.data[props.titleField]"/>
+                    <button t-if="props.canDelete and !props.readonly" type="button" class="btn btn-link p-0 text-muted"
+                            t-att-title="deleteLabel" t-att-aria-label="deleteLabel" t-on-click="() => this.remove(line)">
+                        <i class="fa fa-trash-o"/>
+                    </button>
+                </div>
+                <div class="o_field_widget o_field_html o_ems_text_block_body" t-att-name="props.bodyField">
+                    <EmsHtmlBlockField name="props.bodyField" record="line" readonly="props.readonly" t-props="bodyProps"/>
+                </div>
+            </div>
+            <button t-if="props.canAdd and !props.readonly" type="button" class="btn btn-link px-0 o_ems_text_block_add" t-on-click="add">
+                <i class="fa fa-plus me-1"/><t t-esc="addLabel"/>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="ems.RecordCardsField">
+        <div class="o_ems_record_cards">
+            <div t-foreach="list.records" t-as="line" t-key="line.id" class="o_ems_record_card">
+                <div class="o_ems_record_card_header d-flex flex-wrap align-items-baseline">
+                    <div t-foreach="props.headerFields" t-as="fieldName" t-key="fieldName"
+                         class="o_ems_record_card_cell d-flex align-items-baseline gap-2" t-att-data-name="fieldName">
+                        <span class="o_ems_record_card_label" t-esc="label(fieldName)"/>
+                        <EmsOpenField name="fieldName" record="line" fieldInfo="fieldInfo(fieldName)" readonly="props.readonly"/>
+                    </div>
+                    <button t-if="props.canDelete and !props.readonly" type="button" class="btn btn-link p-0 text-muted ms-auto"
+                            t-att-title="deleteLabel" t-att-aria-label="deleteLabel" t-on-click="() => this.remove(line)">
+                        <i class="fa fa-trash-o"/>
+                    </button>
+                </div>
+                <div t-foreach="props.bodyFields" t-as="fieldName" t-key="fieldName" class="o_ems_record_card_body" t-att-data-name="fieldName">
+                    <div class="o_ems_record_card_label" t-esc="label(fieldName)"/>
+                    <EmsOpenField name="fieldName" record="line" fieldInfo="fieldInfo(fieldName)" readonly="props.readonly"/>
+                </div>
+            </div>
+            <button t-if="props.canAdd and !props.readonly" type="button" class="btn btn-link px-0 o_ems_record_card_add" t-on-click="add">
+                <i class="fa fa-plus me-1"/><t t-esc="addLabel"/>
+            </button>
+        </div>
+    </t>
+
+    <t t-name="ems.PeopleSummaryField">
+        <t t-if="!isLong">
+            <span t-foreach="names" t-as="name" t-key="name_index" class="badge rounded-pill text-bg-light me-1" t-esc="name"/>
+        </t>
+        <a t-else="" href="#" class="o_ems_people_summary" t-att-title="tooltip" t-on-click.prevent.stop="open" t-esc="countLabel"/>
+    </t>
+</templates>

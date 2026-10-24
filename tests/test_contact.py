@@ -1028,3 +1028,91 @@ class TestContactStudentId(TransactionCase):
         self.env['base.partner.merge.automatic.wizard']._merge((former | current).ids, former)
         self.assertFalse(current.exists())
         self.assertEqual(former.student_id, student_id)
+
+
+class TestContactNameNormalization(TransactionCase):
+    """Students' and families' names typed all in capitals or all in lower case are stored with
+    capital initials (issue #472), whatever the way in: created, edited, or fixed afterwards by the
+    18.0.0.40.0 migration. A name with mixed case was written on purpose and is left alone."""
+
+    def _student(self, **vals):
+        return self.env['res.partner'].create({'contact_type': 'student', 'student_id': next_student_id(), **vals})
+
+    def test_a_student_typed_in_capitals_gets_capital_initials(self):
+        student = self._student(firstname='ASHLEY CRISTINA', lastname='BUENO RIVADENEYRA')
+        self.assertEqual((student.firstname, student.lastname), ('Ashley Cristina', 'Bueno Rivadeneyra'))
+        self.assertEqual(student.name, 'Ashley Cristina Bueno Rivadeneyra')
+
+    def test_a_family_contact_typed_in_lower_case_gets_capital_initials(self):
+        family = self.env['res.partner'].create({'name': 'laila el amrani', 'contact_type': 'family'})
+        self.assertEqual((family.firstname, family.lastname), ('Laila', 'El Amrani'))
+
+    def test_a_complete_name_gives_the_same_last_names_as_typed_on_their_own(self):
+        family = self.env['res.partner'].create({'name': 'MARIA DE LA FUENTE', 'contact_type': 'family'})
+        self.assertEqual((family.firstname, family.lastname), ('Maria', 'De la Fuente'))
+
+    def test_particles_hyphens_and_apostrophes(self):
+        student = self._student(firstname="JOSÉ MARÍA", lastname="DE LA FUENTE-PÉREZ I D'AMICO")
+        self.assertEqual(student.firstname, 'José María')
+        self.assertEqual(student.lastname, "De la Fuente-Pérez i D'Amico")
+
+    def test_a_name_with_mixed_case_is_left_alone(self):
+        student = self._student(firstname='McKenzie', lastname='DiMaria de la Fuente')
+        self.assertEqual((student.firstname, student.lastname), ('McKenzie', 'DiMaria de la Fuente'))
+        # Decided on the whole complete name, not on each of its words.
+        family = self.env['res.partner'].create({'name': 'IDALU Holder', 'contact_type': 'family'})
+        self.assertEqual(family.name, 'IDALU Holder')
+        # A word with digits is a code, not a name.
+        student = self._student(firstname='E2E', lastname='IMPORT TEST')
+        self.assertEqual((student.firstname, student.lastname), ('E2E', 'Import Test'))
+
+    def test_editing_a_students_name_in_capitals(self):
+        student = self._student(firstname='Erick', lastname='Palma')
+        student.write({'lastname': 'PALMA ALBAN'})
+        self.assertEqual(student.lastname, 'Palma Alban')
+
+    def test_other_contacts_are_not_touched(self):
+        provider = self.env['res.partner'].create({'name': 'ACME SL', 'contact_type': 'provider'})
+        self.assertEqual(provider.name, 'ACME SL')
+
+    def test_the_migration_fixes_the_names_already_stored(self):
+        student = self._student(firstname='Simranjit', lastname='Singh')
+        family = self.env['res.partner'].create({'name': 'Antonio', 'contact_type': 'family'})
+        mixed = self._student(firstname='McKenzie', lastname='DiMaria')
+        # As they were stored before the normalization existed.
+        self.env.cr.execute("UPDATE res_partner SET firstname = 'SIMRANJIT', lastname = 'SINGH SINGH' WHERE id = %s",
+                            (student.id,))
+        self.env.cr.execute("UPDATE res_partner SET firstname = 'antonio' WHERE id = %s", (family.id,))
+        self.env.invalidate_all()
+        self.env['res.partner']._ems_normalize_stored_person_names()
+        self.assertEqual((student.firstname, student.lastname), ('Simranjit', 'Singh Singh'))
+        self.assertEqual(student.name, 'Simranjit Singh Singh')
+        self.assertEqual(family.firstname, 'Antonio')
+        self.assertEqual((mixed.firstname, mixed.lastname), ('McKenzie', 'DiMaria'))
+
+
+class TestStudentListColumns(TransactionCase):
+    """Educational Community > Students, list view (issue #655): first name and last name as
+    columns of their own, sorted by last name like the roll-call; the complete name is hidden by
+    default. Only this list: Families and Providers share the contact list and stay as they were."""
+
+    def _list_arch(self, action_xmlid):
+        action = self.env.ref(action_xmlid)
+        view_id = dict((mode, view) for view, mode in action.read(['views'])[0]['views']).get('list')
+        context = eval(action.context.strip()) if action.context else {}
+        return self.env['res.partner'].with_context(**context).get_views([(view_id, 'list')])['views']['list']['arch']
+
+    def test_students_list_has_first_and_last_name_sorted_by_last_name(self):
+        action = self.env.ref('ems.action_student_kanban')
+        modes = [mode for _view, mode in action.read(['views'])[0]['views']]
+        self.assertEqual(modes[0], 'kanban', "The Students menu still opens on the kanban")
+        arch = self._list_arch('ems.action_student_kanban')
+        self.assertIn('default_order="lastname, firstname"', arch)
+        self.assertIn('name="firstname"', arch)
+        self.assertIn('name="lastname"', arch)
+        self.assertRegex(arch, r'name="complete_name"[^>]*optional="hide"')
+
+    def test_families_list_keeps_the_complete_name(self):
+        arch = self._list_arch('ems.action_family_list')
+        self.assertNotIn('name="lastname"', arch)
+        self.assertNotRegex(arch, r'name="complete_name"[^>]*optional="hide"')

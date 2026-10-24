@@ -14,6 +14,9 @@ ACCESS_MATRIX = {
     # Every write goes through the guard duty board's own methods, which check the hierarchy and
     # write with sudo() (see models/attendance/absence_coverage.py).
     'ems.absence_cover': {'teacher': 'r', 'department_chief': 'r', 'head_of_studies': 'r'},
+    # Issue #696: a teacher reads their own detected absences (rule_absence_pending_own); the
+    # chiefs above them manage them (rule_absence_pending_hierarchy).
+    'ems.absence_pending': {'teacher': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
     # Issue #656: tutors justify absences from it; the secretariat only reads justifications.
@@ -40,6 +43,25 @@ ACCESS_MATRIX = {
     'ems.title_import_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.title_register_wizard': {'teacher': '', 'head_of_studies': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.workgroup': {'teacher': 'r', 'secretary': 'r'},
+    # The quality committee reads the documentary structure and works on the actions (issue #497);
+    # minutes and actions also carry record rules, tested in test_quality_minute_rules.
+    'ems.quality.process': {'teacher': '', 'quality': 'r'},
+    'ems.quality.procedure': {'teacher': '', 'quality': 'r'},
+    'ems.quality.document': {'teacher': 'r', 'quality': 'r'},
+    'ems.quality.followup': {'teacher': 'rwc', 'quality': 'rwc'},
+    'ems.quality.document.link.import': {'teacher': '', 'quality': '', 'quality_admin': 'rwcu'},
+    # The minute's catalogue: read by whoever writes minutes, maintained by quality coordination and the Director.
+    'ems.minute.section': {'teacher': 'r', 'secretary': 'r', 'quality': '', 'quality_admin': 'rwcu', 'director': 'rwcu'},
+    'ems.minute.type': {'teacher': 'r', 'secretary': 'r', 'quality': '', 'quality_admin': 'rwcu', 'director': 'rwcu'},
+    'ems.minute.type.section': {'teacher': 'r', 'secretary': 'r', 'quality': '', 'quality_admin': 'rwcu', 'director': 'rwcu'},
+    # A minute's own lines carry no record rule of their own: the minute's rules decide who reaches them.
+    'ems.minute.agenda': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.agreement.review': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.guest': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.member.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.objective.line': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.pending.topic': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
+    'ems.minute.section.value': {'teacher': 'rwcu', 'secretary': 'rwcu', 'quality': '', 'quality_admin': 'rwcu'},
     'resource.calendar': {'teacher': 'r'},
     'resource.calendar.attendance': {'teacher': 'r'},
 }

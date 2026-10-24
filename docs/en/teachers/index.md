@@ -31,6 +31,7 @@ This section contains the manuals for **teachers**.
 | [Plannings: checking your subjects' grading ponderations](planning.md) | Check where the internal/work-placement split and the per-learning-outcome weighting of the subjects you teach comes from |
 | [A Student's Public and Private Notes](student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |
 | [The Presence Dot on the Teachers Screen](staff-presence.md) | What the green, yellow and grey dot next to each colleague's name means, and what it is based on |
+| [Meeting minutes](minutes.md) | Writing department, staff meeting, teaching team or improvement team minutes, with attendees and agreements carried over automatically |
 
 ---
 

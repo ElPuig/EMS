@@ -49,6 +49,8 @@ A **Comunitat Educativa → Estudiants → Sol·licitud de dades**:
 
 Feu servir els filtres **Pendent de resposta**, **Per revisar**, **Pendents fa més d'una setmana** i **Possible duplicat**, i agrupeu per **Grup**.
 
+Quan la família d'un dels vostres alumnes envia canvis, encara que no els hàgiu demanat, rebeu una activitat **Revisar canvis de dades de contacte** a la sol·licitud. Es marca com a feta quan aproveu els canvis o els retorneu. L'historial de la sol·licitud (la petició, els canvis enviats i l'aprovació o la devolució amb el motiu) és a la part de baix de la fitxa. La família veu el mateix historial a **Comunicacions**, al portal.
+
 ## Aprovar els canvis
 
 ![Sol·licitud per revisar: els canvis proposats per la família, amb els botons Aprovar i Retorna a la família](../../assets/tutors/dades-contacte-04-revisio.png)

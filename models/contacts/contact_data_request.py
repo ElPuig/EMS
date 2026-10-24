@@ -2,6 +2,8 @@
 import base64
 import re
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_normalize
@@ -183,6 +185,7 @@ class EmsContactDataRequest(models.Model):
     docs/en/developers/contacts/contact_data_request.md.
     """
     _name = 'ems.contact.data.request'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = 'Contact data update request'
     _order = 'id desc'
     _rec_name = 'student_id'
@@ -365,6 +368,10 @@ class EmsContactDataRequest(models.Model):
         file now. Nothing changed at all means the data was confirmed as it is: done, with nothing
         to review."""
         self.ensure_one()
+        # The names as they would be stored (issue #472): typed in capitals, the one on file is
+        # not a change.
+        for entry in proposal['family']:
+            self.env['res.partner']._ems_normalize_person_name_values(entry)
         current = self.student_id._ems_contact_data()
         lines = self._ems_diff_lines(self.student_id, current, proposal)
         self.line_ids.unlink()
@@ -377,6 +384,11 @@ class EmsContactDataRequest(models.Model):
             'review_uid': False,
             'review_date': False,
         })
+        if lines:
+            self._ems_log(lambda request: Markup("{}{}").format(
+                request.env._("Contact data changes sent for review:"),
+                request.env['ems.base'].build_html_list(request.line_ids._ems_change_summary())))
+            self._ems_assign_review()
 
     @api.model
     def _ems_diff_lines(self, student, current, proposal):
@@ -478,6 +490,8 @@ class EmsContactDataRequest(models.Model):
                 'review_date': fields.Datetime.now(),
                 'missing_fields': '\n'.join(request.student_id._ems_contact_data_missing()),
             })
+        requests._ems_close_review()
+        requests._ems_log(lambda request: request.env._("Contact data changes approved."))
         return True
 
     def _ems_apply(self):
@@ -536,6 +550,8 @@ class EmsContactDataRequest(models.Model):
             'review_uid': self.env.uid,
             'review_date': fields.Datetime.now(),
         })
+        self._ems_close_review()
+        self._ems_log(lambda request: request.env._("Contact data changes returned to correct them: %s", reason))
         for request in self:
             request._ems_send_request_email()
 
@@ -547,6 +563,40 @@ class EmsContactDataRequest(models.Model):
                     'reminder_count': 0, 'last_reminder_date': False})
         for request in self:
             request.missing_fields = '\n'.join(request.student_id._ems_contact_data_missing())
+        # The reminders are not logged: only the request itself.
+        self._ems_log(lambda request: request.env._(
+            "The centre asks to review the contact details for the %s academic year.", request.course_id.name))
+
+    # ------------------------------------------------------------------
+    # Communications log and the tutor's review activity (issue #700)
+    # ------------------------------------------------------------------
+    def _ems_log(self, build_body):
+        """Post `build_body(request)` on each request's thread, which the student's Communications
+        page in the portal lists (controllers/portal_comms.py). Its subtype is followed by nobody
+        (default and hidden), so the log emails no one. Written in the language of whoever acts for
+        the student on the portal, the reader, whoever triggers it."""
+        for request in self:
+            student = request.student_id
+            lang = student._ems_notification_recipients()[:1].lang or student.lang
+            localized = request.with_context(lang=lang)
+            request.message_post(body=build_body(localized), message_type='notification',
+                                 subtype_xmlid='ems.mt_contact_data_request')
+
+    def _ems_assign_review(self):
+        """An activity for the student's tutor to review what was sent, whoever asked for it. No
+        tutor, no activity: the request still waits in the list, where the tutor assigned later
+        finds it. One per request, even if the family sends it again before the review."""
+        for request in self:
+            tutor_user = request.tutor_id.user_id
+            if tutor_user and not request._ems_review_activities():
+                request.activity_schedule('ems.mail_activity_contact_data_review', user_id=tutor_user.id)
+
+    def _ems_close_review(self):
+        self._ems_review_activities().action_feedback()
+
+    def _ems_review_activities(self):
+        review_type = self.env.ref('ems.mail_activity_contact_data_review')
+        return self.activity_ids.filtered(lambda activity: activity.activity_type_id == review_type)
 
     def action_send_reminder(self):
         """Email again whoever has not answered yet."""
@@ -659,6 +709,7 @@ class EmsContactDataRequestLine(models.Model):
             line.person_name = ' '.join(filter(None, (names.get('firstname'), names.get('lastname'))))
 
     @api.depends('field_name')
+    @api.depends_context('lang')
     def _compute_field_label(self):
         partner_fields = self.env['res.partner']._fields
         for line in self:
@@ -667,6 +718,22 @@ class EmsContactDataRequestLine(models.Model):
                 line.field_label = _("Photo")
             else:
                 line.field_label = field.get_description(self.env)['string'] if field else False
+
+    def _ems_change_summary(self):
+        """One sentence per person of these lines, naming the fields to change but not their values
+        (for the Communications log)."""
+        summary = []
+        for person_key in dict.fromkeys(self.mapped('person_key')):
+            lines = self.filtered(lambda line: line.person_key == person_key)
+            first = lines[0]
+            if first.action == 'remove':
+                summary.append(self.env._("%s: no longer a contact", first.person_name))
+            elif first.action == 'create':
+                summary.append(self.env._("New family contact: %(name)s (%(relation)s)",
+                                 name=first.person_name, relation=first.relation_type_id.name))
+            else:
+                summary.append(f"{first.person_name}: {', '.join(lines.mapped('field_label'))}")
+        return summary
 
     def _ems_new_value(self):
         self.ensure_one()

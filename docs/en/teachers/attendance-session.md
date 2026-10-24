@@ -42,7 +42,8 @@ The selector on the right lists what's available for the chosen date, split into
   students' statuses.
 - **Planned (no session)**: a scheduled slot (from your weekly timetable) for which no session has
   been created yet. Selecting one shows a **Start session** button — click it to create the
-  session and load its students.
+  session and load its students. A class whose roll-call has already been taken that day only
+  appears under **Sessions**, even if its timetable entry changed afterwards (e.g. its classroom).
 
 > If more than one session or planned slot matches the current time slot, you'll see a warning
 > telling you to pick one manually or switch to **Manual** mode — this can happen if your

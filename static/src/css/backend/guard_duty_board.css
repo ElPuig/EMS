@@ -220,6 +220,12 @@
     color: #b52a37;
 }
 
+/* Issue #692: not checked in yet - maybe in the building, maybe not. */
+.o_guard_board_absent_unchecked {
+    color: #b52a37;
+    text-decoration: underline dotted;
+}
+
 /* A co-taught class whose other teacher is in: still listed so everyone knows who is away, but
    struck through because nobody needs to cover it. */
 .o_guard_board_absence_covered .o_guard_board_absence_text,
@@ -352,6 +358,11 @@
 .o_guard_board_moved_tag {
     border-style: dashed;
     color: #6c757d;
+}
+
+.o_guard_board_unchecked_tag {
+    border-style: dotted;
+    color: #b52a37;
 }
 
 /* Issue #645: the proposals box, one section per group (with the groups sharing lessons with it):

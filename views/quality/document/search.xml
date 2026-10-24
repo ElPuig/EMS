@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_document_search">
+            <field name="name">ems.quality.document.search</field>
+            <field name="model">ems.quality.document</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="process_id"/>
+                    <field name="procedure_id"/>
+                    <filter name="uncoded" string="Not coded yet" domain="[('code', '=', False)]"/>
+                    <filter name="no_link" string="No link" domain="[('url', '=', False)]"/>
+                    <separator/>
+                    <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                    <group expand="0" string="Group by">
+                        <filter name="group_by_process" string="Process" context="{'group_by': 'process_id'}"/>
+                        <filter name="group_by_procedure" string="Procedure" context="{'group_by': 'procedure_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+    </data>
+</odoo>

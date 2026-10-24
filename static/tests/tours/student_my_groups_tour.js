@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { searchStudent, studentCell, studentRow } from "@ems/../tests/tours/student_list_helpers";
 
 // Issue #421: the Students action opens with a second default facet ("My students") that
 // scopes the list to the groups the logged-in teacher actually teaches or tutors. Runs as a
@@ -23,12 +24,13 @@ registry.category("web_tour.tours").add("ems_student_my_groups", {
             content: "Switch to list view",
             run: "click",
         },
+        ...searchStudent("My Groups"),
         {
-            trigger: ".o_list_view .o_data_cell:contains('0000 My Groups Own Student')",
+            trigger: `.o_list_view ${studentCell("0000 My Groups Own Student")}`,
             content: "The student of the teacher's own group is listed",
         },
         {
-            trigger: ".o_list_view:not(:has(.o_data_cell:contains('0001 My Groups Other Student')))",
+            trigger: `.o_list_view:not(:has(${studentRow("0001 My Groups Other Student")}))`,
             content: "A student of a group this teacher does not teach is filtered out",
         },
         {
@@ -37,7 +39,7 @@ registry.category("web_tour.tours").add("ems_student_my_groups", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_cell:contains('0001 My Groups Other Student')",
+            trigger: `.o_list_view ${studentCell("0001 My Groups Other Student")}`,
             content: "Every student is visible again once the facet is cleared",
         },
         {

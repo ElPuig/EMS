@@ -6,13 +6,13 @@ from unittest.mock import patch
 
 from lxml import etree
 
-from odoo import Command
+from odoo import Command, fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 from odoo.tools.safe_eval import safe_eval
 
 from ..models.employees.absence import TIME_OFF_GROUP_XMLIDS
-from .common import create_role_employee, create_role_user, mock_outgoing_email
+from .common import create_role_employee, create_role_user, make_working_day, mock_outgoing_email
 
 ATRI_OVERDUE = 'ems.mail_activity_absence_atri_overdue'
 
@@ -1153,8 +1153,13 @@ class TestAbsenceRequest(TransactionCase):
 
     # --- Reminders ----------------------------------------------------------------------------
 
-    def _run_reminders_on(self, today):
-        with patch.object(type(self.env['ems.datetime_utils']), 'get_local_today', return_value=today):
+    def _run_reminders_on(self, today, hour=12.0):
+        """Runs the reminders at `hour` of `today` in the company's time: each message waits for
+        its reader's working day to start (issue #696)."""
+        utils = self.env['ems.datetime_utils']
+        now = utils.datetime_to_odoo(utils.time_float_to_utc_datetime(today, hour))
+        with patch.object(type(utils), 'get_local_today', return_value=today), \
+                patch.object(fields.Datetime, 'now', return_value=now):
             self.env['hr.leave']._cron_ems_document_reminder()
 
     def test_the_employee_is_reminded_every_day_once_the_absence_is_over(self):
@@ -1175,6 +1180,23 @@ class TestAbsenceRequest(TransactionCase):
         self._attach(leave, owner)
         self._run_reminders_on(leave.request_date_to + timedelta(days=3))
         self.assertEqual(len(reminders()), 2, 'nothing once the document is in')
+
+    def test_reminders_wait_for_the_working_day_to_start(self):
+        """Issue #696: never outside the employee's working hours, nor on a day they don't work."""
+        owner = self._employee_user('Test Absence Reminded Later', 'absence_reminded_later@absence.test')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True)
+        leave.action_approve()
+        reminders = lambda: leave.message_ids.filtered(
+            lambda m: owner.partner_id in m.partner_ids and 'Reminder' in m.body)
+        saturday = leave.request_date_to + timedelta(days=5 - leave.request_date_to.weekday())
+        make_working_day(self, saturday + timedelta(days=2))
+
+        self._run_reminders_on(saturday, hour=12.0)
+        self.assertFalse(reminders(), 'no working day on a Saturday')
+        self._run_reminders_on(saturday + timedelta(days=2), hour=0.5)
+        self.assertFalse(reminders(), 'not before their working day starts')
+        self._run_reminders_on(saturday + timedelta(days=2), hour=12.0)
+        self.assertEqual(len(reminders()), 1)
 
     def test_the_head_is_told_once_after_the_escalation_days(self):
         owner = self._employee_user('Test Absence Escalated', 'absence_escalated@absence.test')
@@ -1305,7 +1327,8 @@ class TestAbsenceRequest(TransactionCase):
         be an officer - proving nothing about what an ordinary employee can do.
         """
         user = self.env['res.users'].with_context(no_reset_password=True).create({
-            'name': name, 'login': login,
+            # English: the reminders are written in their reader's language.
+            'name': name, 'login': login, 'lang': 'en_US',
             'groups_id': [Command.link(self.env.ref('base.group_user').id),
                           Command.link(self.env.ref('ems.group_teacher').id)],
         })

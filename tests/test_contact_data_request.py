@@ -190,6 +190,16 @@ class TestContactDataRequest(TransactionCase):
         self.assertEqual(request.state, 'done')
         self.assertFalse(request.line_ids)
 
+    def test_a_name_typed_in_capitals_is_not_a_change(self):
+        """Issue #472: the name on file has capital initials, and so would the one typed in
+        capitals once approved: it is not a change to review."""
+        data = self._complete(self.minor._ems_contact_data())
+        data['family'][0]['firstname'] = 'CONTACT'
+        request = self._request()
+        request._ems_submit(data)
+        self.assertFalse(request.line_ids.filtered(lambda line: line.field_name == 'firstname'))
+        self.assertEqual(request.line_ids.filtered(lambda line: line.field_name == 'lastname').new_value, 'Surname')
+
     def test_approve_writes_student_family_and_new_contact(self):
         data = self._complete(self.minor._ems_contact_data())
         data['family'].append({
@@ -345,6 +355,94 @@ class TestContactDataRequest(TransactionCase):
         self.assertEqual(len(subjects), 2)
         self.assertTrue(subjects[0].startswith('Reviseu les dades de contacte de'), subjects[0])
         self.assertTrue(subjects[1].startswith('Recordatori: Reviseu les dades de contacte de'), subjects[1])
+
+    # --- Communications log and the tutor's activity (issue #700) ---------------------------
+
+    def _english_family(self):
+        # The log is written in the family's language, which otherwise follows this box's default.
+        self.family.lang = 'en_US'
+
+    def _logs(self, request):
+        return request.message_ids.filtered(
+            lambda message: message.subtype_id == self.env.ref('ems.mt_contact_data_request'))
+
+    def _review_activities(self, request):
+        return request.activity_ids.filtered(
+            lambda activity: activity.activity_type_id == self.env.ref('ems.mail_activity_contact_data_review'))
+
+    def test_the_request_is_logged_but_not_its_reminders(self):
+        request = self._request()
+        request._ems_mark_sent()
+        request.action_send_reminder()
+        logs = self._logs(request)
+        self.assertEqual(len(logs), 1)
+        self.assertIn(self.course.name, logs.body)
+        self.assertFalse(logs.notification_ids, "A log entry notifies nobody")
+
+    def test_a_submission_is_logged_with_its_summary_and_the_tutor_gets_an_activity(self):
+        self._english_family()
+        data = self._complete(self.minor._ems_contact_data())
+        data['photo'], _error = self.Request._ems_photo_from_upload(make_test_photo())
+        request = self._request()
+        request._ems_submit(data)
+        log = self._logs(request)
+        self.assertEqual(len(log), 1)
+        self.assertIn(self.minor.name, log.body)
+        self.assertIn('Street', log.body)
+        self.assertIn('Photo', log.body)
+        self.assertNotIn('Test Street 2', log.body, "The summary names the fields, not their values")
+        self.assertFalse(log.notification_ids)
+        activity = self._review_activities(request)
+        self.assertEqual(activity.user_id, self.tutor)
+
+    def test_a_submission_without_changes_is_neither_logged_nor_assigned(self):
+        request = self._request(self.adult)
+        request._ems_submit(self.adult._ems_contact_data())
+        self.assertEqual(request.state, 'done')
+        self.assertFalse(self._logs(request))
+        self.assertFalse(self._review_activities(request))
+
+    def test_sending_again_before_the_review_keeps_one_activity(self):
+        request = self._request()
+        request._ems_submit(self._complete(self.minor._ems_contact_data()))
+        request._ems_submit(self._complete(self.minor._ems_contact_data()))
+        self.assertEqual(len(self._review_activities(request)), 1)
+        self.assertEqual(len(self._logs(request)), 2)
+
+    def test_without_a_tutor_nobody_gets_the_activity(self):
+        self.group.tutor_id = False
+        request = self._request()
+        request._ems_submit(self._complete(self.minor._ems_contact_data()))
+        self.assertEqual(request.state, 'submitted')
+        self.assertFalse(self._review_activities(request))
+
+    def test_approving_logs_it_and_closes_the_activity(self):
+        self._english_family()
+        request = self._request()
+        request._ems_submit(self._complete(self.minor._ems_contact_data()))
+        request.with_user(self.tutor).action_approve()
+        self.assertFalse(self._review_activities(request))
+        self.assertIn('approved', self._logs(request)[0].body)
+
+    def test_returning_it_logs_the_reason_and_closes_the_activity(self):
+        request = self._request()
+        request._ems_submit(self._complete(self.minor._ems_contact_data()))
+        self.env['ems.contact.data.request.reject.wizard'].with_user(self.tutor).create({
+            'request_ids': [(6, 0, request.ids)], 'reason': 'The DNI photo is missing',
+        }).action_reject()
+        self.assertFalse(self._review_activities(request))
+        self.assertIn('The DNI photo is missing', self._logs(request)[0].body)
+
+    def test_the_log_is_written_in_the_familys_language(self):
+        self.family.lang = 'ca_ES'
+        request = self._request()
+        request._ems_submit(self._complete(self.minor._ems_contact_data()))
+        body = self._logs(request).body
+        self.assertIn('Canvis de dades de contacte enviats per revisar', body)
+        # An EMS field's label: a native one (Street) depends on the base translations the database
+        # has loaded, which a CI database hasn't.
+        self.assertIn("Document d'identitat", body)
+        self.assertNotIn('Document ID', body)
 
     # --- access -----------------------------------------------------------------------------
 

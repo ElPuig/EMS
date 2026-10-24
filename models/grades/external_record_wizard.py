@@ -114,6 +114,7 @@ class EmsExternalRecordWizard(models.TransientModel):
             self.certificate_message = _("Every course of the certificate is already in the student's "
                                          "academic history.")
             return None
+        self._mark_other_centre_optionals(courses)
         self.certificate_student_identifier = certificate['student_identifier']
         self.certificate_student_name = certificate['student_name']
         self.origin_centre_code = courses[0]['centre_code']
@@ -122,6 +123,17 @@ class EmsExternalRecordWizard(models.TransientModel):
         self.line_ids = self._line_commands(courses, certificate['study_code'])
         self.course_id = self.line_ids.course_id[:1]
         return self._certificate_warning()
+
+    def _mark_other_centre_optionals(self, courses):
+        """A module coded "OPT..." of another centre is that centre's own optional module, whatever
+        its type column says (a printed record shows "MP", not "MP_OP_CEN"): it is read like one."""
+        own_code = self.env.company.center_code
+        for course in courses:
+            if course['centre_code'] == own_code:
+                continue
+            for module in course['modules']:
+                if module['code'].upper().startswith('OPT'):
+                    module['is_optional'] = True
 
     def _course_available(self, course):
         # By id: inside an onchange both sides may be new records wrapping the real ones.
@@ -231,15 +243,28 @@ class EmsExternalRecordWizard(models.TransientModel):
         return match.group(1) if match else None
 
     def _certificate_warning(self):
-        identifier = self.certificate_student_identifier
-        if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
-            return {'warning': {
-                'title': _("Another student's certificate"),
-                'message': _("The certificate belongs to %(name)s (%(identifier)s), not to this "
-                             "student (%(own)s).", name=self.certificate_student_name,
-                             identifier=identifier, own=self.student_id.student_id),
-            }}
+        problem = self._certificate_student_problem()
+        if problem:
+            return {'warning': {'title': _("Check the certificate's student"), 'message': problem}}
         return None
+
+    def _certificate_student_problem(self):
+        """Why the certificate cannot be told to be this student's, if it cannot: its identifier was
+        not read, the student has no IDALU to check it against, or they differ."""
+        identifier = self.certificate_student_identifier
+        own = self.student_id.student_id
+        if not identifier:
+            return _("The student identifier could not be read from the certificate, so it cannot "
+                     "be checked against the student's IDALU.")
+        if not own:
+            return _("%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) "
+                     "against: fill it in first.", student=self.student_id.display_name,
+                     identifier=identifier)
+        if identifier != own:
+            return _("The certificate belongs to %(name)s (%(identifier)s), not to this "
+                     "student (%(own)s).", name=self.certificate_student_name,
+                     identifier=identifier, own=own)
+        return False
 
     @api.onchange('study_id')
     def _onchange_study_id(self):
@@ -301,9 +326,9 @@ class EmsExternalRecordWizard(models.TransientModel):
         })
 
     def _create_from_certificate(self):
-        identifier = self.certificate_student_identifier
-        if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
-            raise UserError(self._certificate_warning()['warning']['message'])
+        problem = self._certificate_student_problem()
+        if problem:
+            raise UserError(problem)
         modules = self.line_ids.filtered(lambda line: line.kind in ('module', 'optional') and line.to_import)
         if not modules:
             raise UserError(_("Tick at least one module to import."))

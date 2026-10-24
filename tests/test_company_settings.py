@@ -68,7 +68,9 @@ class TestCompanySettings(TransactionCase):
 
     def test_register_hook_silent_when_environment_type_set(self):
         self.env['ir.config_parameter'].sudo().set_param('ems.environment_type', 'dev')
-        with patch.dict(config.options, {'test_enable': False}):
+        # A development database is only silent on a machine declared as one (issue #691): pinned, so
+        # the result doesn't depend on the odoo.conf of the machine running the suite (CI has none).
+        with patch.dict(config.options, {'test_enable': False, 'ems_server_role': 'dev'}):
             with self.assertRaises(AssertionError):
                 # assertLogs itself raises AssertionError when nothing was logged - the most
                 # portable way to assert "no warning fired" across Python versions.

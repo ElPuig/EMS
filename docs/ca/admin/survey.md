@@ -4,7 +4,7 @@
 
 # Enquestes: integració amb LimeSurvey
 
-**Rol necessari:** Administrador o Coordinador de qualitat (vegeu [Visibilitat](#visibilitat-qui-veu-quines-enquestes) més avall per a la diferència entre els dos)
+**Rol necessari:** Administrador, coordinador de qualitat o membre de la comissió de qualitat (vegeu [Visibilitat](#visibilitat-qui-veu-quines-enquestes) més avall per a la diferència)
 
 ---
 
@@ -44,7 +44,7 @@ zero) en qualsevol moment abans de tancar-la.
 
 ## Visibilitat: qui veu quines enquestes
 
-Tothom amb accés a Enquestes — administradors i coordinador de qualitat per igual — veu totes
+Tothom amb accés a Enquestes (administradors, coordinador i membres de la comissió de qualitat) veu totes
 les enquestes de tot el centre, però la llista sempre s'obre filtrada amb **"Mostra només les
 meves"** per defecte (una etiqueta a la barra de cerca), de manera que dia a dia tothom treballa
 còmodament només amb les seves. Si traieu aquest filtre veureu totes les enquestes de tot el
@@ -52,12 +52,9 @@ centre, per quan necessiteu revisar la feina d'algú altre.
 
 - Els **Administradors** poden gestionar completament qualsevol enquesta independentment del
   filtre — només afecta què es **mostra** per defecte, no què poden fer.
-- El **Coordinador de qualitat** només pot **crear, editar o eliminar les enquestes que ell
-  mateix hagi creat** — l'enquesta d'una altra persona s'obre en mode només lectura fins i tot
-  amb el filtre tret.
-- Un membre normal de l'**equip de qualitat** (que no sigui el coordinador) conserva l'accés
-  sense restriccions de crear/editar totes les enquestes, igual que abans — aquesta distinció
-  només s'aplica al rol de coordinador.
+- El **coordinador de qualitat** i els **membres de la comissió de qualitat** només poden
+  **crear, editar o eliminar les enquestes que ells mateixos hagin creat**: l'enquesta d'una
+  altra persona s'obre en mode només lectura fins i tot amb el filtre tret.
 
 Si el vostre compte no està vinculat a cap docent i preferiu no veure mai marcat "Mostra només
 les meves", traieu-lo un cop i utilitzeu **Favorits → Desar cerca actual** a la barra de cerca,

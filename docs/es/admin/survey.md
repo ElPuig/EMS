@@ -4,7 +4,7 @@
 
 # Encuestas: integración con LimeSurvey
 
-**Rol necesario:** Administrador o Coordinador de calidad (vea [Visibilidad](#visibilidad-quién-ve-qué-encuestas) más abajo para la diferencia entre ambos)
+**Rol necesario:** Administrador, coordinador de calidad o miembro de la comisión de calidad (vea [Visibilidad](#visibilidad-quién-ve-qué-encuestas) más abajo para la diferencia)
 
 ---
 
@@ -45,7 +45,7 @@ desde cero) en cualquier momento antes de cerrarla.
 
 ## Visibilidad: quién ve qué encuestas
 
-Todo el mundo con acceso a Encuestas — administradores y coordinador de calidad por igual — ve
+Todo el mundo con acceso a Encuestas (administradores, coordinador y miembros de la comisión de calidad) ve
 todas las encuestas de todo el centro, pero la lista siempre se abre filtrada con **"Mostrar
 solo las mías"** por defecto (una etiqueta en la barra de búsqueda), de modo que en el día a día
 todo el mundo trabaja cómodamente solo con las suyas. Si quita ese filtro verá todas las
@@ -53,12 +53,9 @@ encuestas de todo el centro, para cuando necesite revisar el trabajo de otra per
 
 - Los **Administradores** pueden gestionar completamente cualquier encuesta independientemente
   del filtro — solo afecta a lo que se **muestra** por defecto, no a lo que pueden hacer.
-- El **Coordinador de calidad** solo puede **crear, editar o eliminar las encuestas que él
-  mismo haya creado** — la encuesta de otra persona se abre en modo solo lectura incluso con el
-  filtro quitado.
-- Un miembro normal del **equipo de calidad** (que no sea el coordinador) conserva el acceso
-  sin restricciones para crear/editar todas las encuestas, igual que antes — esta distinción
-  solo se aplica al rol de coordinador.
+- El **coordinador de calidad** y los **miembros de la comisión de calidad** solo pueden
+  **crear, editar o eliminar las encuestas que ellos mismos hayan creado**: la encuesta de otra
+  persona se abre en modo solo lectura incluso con el filtro quitado.
 
 Si su cuenta no está vinculada a ningún docente y prefiere no ver nunca marcado "Mostrar solo
 las mías", quítelo una vez y use **Favoritos → Guardar búsqueda actual** en la barra de

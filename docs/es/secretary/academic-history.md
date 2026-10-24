@@ -95,7 +95,7 @@ Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **A
    - Las líneas con **Aviso** necesitan atención: un curso que no existe en EMS no se importa (la administración académica tiene que crearlo antes); un módulo que no es del estudio no se importa; si hay uno equivalente, elegidlo en **Módulo** y marcad **Importar**.
    - Las optativas propias del otro centro no se importan como tales. Si hay alguna aprobada y sus horas suman al menos las de la optativa del centro, aparece una línea **Optativa reconocida** que la aprueba con la media de sus notas ponderada por horas; si no llegan, la línea queda con aviso y no se importa. La optativa reconocida queda en el histórico con la marca **Reconocido** y sin resultados de aprendizaje.
    - Cuando la nota del módulo del certificado no coincide con la que dan los RA con las ponderaciones del centro, se aplica la del certificado, siempre que ambas coincidan en superado o no superado.
-4. Comprobad que **Alumno del certificado** es el alumno/a: si el identificador no coincide con su IDALU, el expediente no se crea.
+4. Comprobad que **Alumno del certificado** es el alumno/a: si el identificador no coincide con su IDALU, o no se puede comprobar (el PDF no lo trae o el alumno/a no tiene IDALU), el expediente no se crea.
 5. Haced clic en **Crear el expediente**. Se crean el registro y todos los módulos marcados a la vez, con el PDF adjunto.
 
 ![Asistente de expediente anterior con la rejilla de revisión leída del PDF: módulos, resultados de aprendizaje, estancia pendiente y optativa reconocida](../../assets/secretary/academic-history-previous-record-review.png)

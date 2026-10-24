@@ -406,6 +406,26 @@ class TestExternalRecord(TransactionCase):
             wizard.action_create()
         self.assertFalse(self.student.year_record_ids)
 
+    def test_a_certificate_whose_student_identifier_cannot_be_read_is_rejected(self):
+        pdf = build_academic_record_pdf('', 'EXR1', [('08999999', 'Institut Inventat', '2080/2081', [
+            ('EXRSUBB_EXR1', 'Module B', 'MP', '9'),
+            ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-8'),
+        ])])
+        wizard = self._read(pdf).save()
+        self.assertFalse(wizard.certificate_student_identifier)
+        with self.assertRaises(UserError):
+            wizard.action_create()
+        self.assertFalse(self.student.year_record_ids)
+
+    def test_a_student_without_an_idalu_cannot_take_a_certificate(self):
+        # A legacy student, from before the IDALU was required (issue #460).
+        self.env.cr.execute("UPDATE res_partner SET student_id = NULL WHERE id = %s", [self.student.id])
+        self.student.invalidate_recordset(['student_id'])
+        wizard = self._read(self._certificate(identifier='TEST999998')).save()
+        with self.assertRaises(UserError):
+            wizard.action_create()
+        self.assertFalse(self.student.year_record_ids)
+
     def test_a_module_ticked_without_a_teaching_plan_is_rejected(self):
         wizard = self._read(self._certificate()).save()
         self._module_line(wizard, 'EXRSUBC_EXR1').to_import = True

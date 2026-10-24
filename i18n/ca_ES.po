@@ -20034,8 +20034,8 @@ msgstr "%s resultats d'aprenentatge de la programació no consten al certificat.
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/external_record_wizard.py:0
-msgid "Another student's certificate"
-msgstr "Certificat d'un altre alumne"
+msgid "Check the certificate's student"
+msgstr "Comproveu l'alumne/a del certificat"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__certificate_code
@@ -23825,3 +23825,16 @@ msgstr "Replicar"
 #: code:addons/ems/static/src/js/backend/group_form_controller.js:0
 msgid "Keep each half's own"
 msgstr "Cada meitat manté els seus"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+msgid "The student identifier could not be read from the certificate, so it cannot be checked against the student's IDALU."
+msgstr "No s'ha pogut llegir l'identificador de l'alumne/a del certificat i no es pot comprovar amb el seu IDALU."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/external_record_wizard.py:0
+#, python-format
+msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
+msgstr "%(student)s no té IDALU per comprovar el del certificat (%(identifier)s): empleneu-lo primer."

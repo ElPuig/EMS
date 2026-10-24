@@ -243,15 +243,28 @@ class EmsExternalRecordWizard(models.TransientModel):
         return match.group(1) if match else None
 
     def _certificate_warning(self):
-        identifier = self.certificate_student_identifier
-        if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
-            return {'warning': {
-                'title': _("Another student's certificate"),
-                'message': _("The certificate belongs to %(name)s (%(identifier)s), not to this "
-                             "student (%(own)s).", name=self.certificate_student_name,
-                             identifier=identifier, own=self.student_id.student_id),
-            }}
+        problem = self._certificate_student_problem()
+        if problem:
+            return {'warning': {'title': _("Check the certificate's student"), 'message': problem}}
         return None
+
+    def _certificate_student_problem(self):
+        """Why the certificate cannot be told to be this student's, if it cannot: its identifier was
+        not read, the student has no IDALU to check it against, or they differ."""
+        identifier = self.certificate_student_identifier
+        own = self.student_id.student_id
+        if not identifier:
+            return _("The student identifier could not be read from the certificate, so it cannot "
+                     "be checked against the student's IDALU.")
+        if not own:
+            return _("%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) "
+                     "against: fill it in first.", student=self.student_id.display_name,
+                     identifier=identifier)
+        if identifier != own:
+            return _("The certificate belongs to %(name)s (%(identifier)s), not to this "
+                     "student (%(own)s).", name=self.certificate_student_name,
+                     identifier=identifier, own=own)
+        return False
 
     @api.onchange('study_id')
     def _onchange_study_id(self):
@@ -313,9 +326,9 @@ class EmsExternalRecordWizard(models.TransientModel):
         })
 
     def _create_from_certificate(self):
-        identifier = self.certificate_student_identifier
-        if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
-            raise UserError(self._certificate_warning()['warning']['message'])
+        problem = self._certificate_student_problem()
+        if problem:
+            raise UserError(problem)
         modules = self.line_ids.filtered(lambda line: line.kind in ('module', 'optional') and line.to_import)
         if not modules:
             raise UserError(_("Tick at least one module to import."))

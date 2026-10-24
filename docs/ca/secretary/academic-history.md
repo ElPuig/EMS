@@ -95,7 +95,7 @@ Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix
    - Les línies amb **Avís** necessiten atenció: un curs que no existeix a EMS no s'importa (l'administració acadèmica l'ha de crear abans); un mòdul que no és de l'estudi no s'importa; si n'hi ha un d'equivalent, trieu-lo a **Mòdul** i marqueu **Importa**.
    - Les optatives pròpies de l'altre centre no s'importen com a tals. Si n'hi ha d'aprovades i les seves hores sumen almenys les de l'optativa del centre, apareix una línia **Optativa reconeguda** que l'aprova amb la mitjana de les seves notes ponderada per hores; si no hi arriben, la línia queda amb avís i no s'importa. L'optativa reconeguda queda a l'històric amb la marca **Reconegut** i sense resultats d'aprenentatge.
    - Quan la nota del mòdul del certificat no coincideix amb la que donen els RA amb les ponderacions del centre, s'aplica la del certificat, sempre que totes dues coincideixin en superat o no superat.
-4. Comproveu que **Alumne del certificat** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, l'expedient no es crea.
+4. Comproveu que **Alumne del certificat** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, o no es pot comprovar (el PDF no el porta o l'alumne/a no té IDALU), l'expedient no es crea.
 5. Feu clic a **Crea l'expedient**. Es creen el registre i tots els mòduls marcats alhora, amb el PDF adjunt.
 
 ![Assistent d'expedient anterior amb la graella de revisió llegida del PDF: mòduls, resultats d'aprenentatge, estada pendent i optativa reconeguda](../../assets/secretary/academic-history-previous-record-review.png)

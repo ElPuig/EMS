@@ -95,7 +95,7 @@ Open the student's form and, in the **Actions** dropdown, click **Add a previous
    - Lines with a **Warning** need attention: a course that does not exist in EMS is not imported (the academic administration has to create it first); a module that is not part of the study is not imported; if there is an equivalent one, pick it in **Module** and tick **Import**.
    - The other centre's own optional modules are not imported as such. If some are passed and their hours add up to at least this centre's optional module's, a **Recognised optional module** line passes it with their hours-weighted average grade; if they fall short, the line is flagged and not imported. The recognised optional module is kept in the history with the **Recognised** mark and no learning outcomes.
    - When the certificate's module grade differs from the one the RAs give with this centre's weights, the certificate's is applied, as long as both agree on passed or not passed.
-4. Check that **Certificate student** is the student: if the identifier does not match their IDALU, the record is not created.
+4. Check that **Certificate student** is the student: if the identifier does not match their IDALU, or cannot be checked (the PDF does not carry it or the student has no IDALU), the record is not created.
 5. Click **Create record**. The record and every ticked module are created at once, with the PDF attached.
 
 ![Previous record wizard with the review grid read from the PDF: modules, learning outcomes, pending work placement and recognised optional module](../../assets/secretary/academic-history-previous-record-review.png)

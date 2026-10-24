@@ -761,11 +761,11 @@ the approver's daily pending-tasks digest (`models/shared/task_digest.py`), whic
 they work from. It is marked done as soon as the entry leaves `pending`, by one of the actions or
 by an automatic transition (`write()`).
 
-**Who reviews** (`_ems_can_review()`): the teacher's attendance approvers, as above, and the
+**Who reviews** (`_ems_reviewable()`, the reviewers resolved once per teacher): the teacher's attendance approvers, as above, and the
 administrators (`base.group_system`, `ems.group_academic_admin`), always on top of the hierarchy.
 A Head of Studies of another branch, a Department or Seminar Chief and the teacher can't, even
 when they can read the entry. Checked server-side on every record by each action
-(`_ems_check_reviewer()`); `can_review` only drives the buttons.
+(`_ems_review_targets()`); `can_review` only drives the buttons.
 
 **The four actions.** Each one is a method on the recordset, offered from the form's Actions
 dropdown (`can_review`) and as a header button of the list once records are selected (the list
@@ -814,8 +814,7 @@ draft state, it starts as "To Approve", and in that state it already blocks over
 shows on the guard duty board, tells the Department and Seminar Chiefs and opens the approval
 activity. So the draft lives on the entry itself (`prepared` + `proposed_leave_type_id`), and the
 teacher's **Request the absence** opens the usual request form with the type, the day and the
-hours already filled in (`_ems_request_context()`, shared with the detected range's own
-prefill); the teacher checks it, accepts the declaration and sends it with **Send request** as
+hours already filled in (`_ems_request_context()`); the teacher checks it, accepts the declaration and sends it with **Send request** as
 always, which links the entry. The types offered are the active ones a request can use
 (`requires_allocation = 'no'`).
 
@@ -956,7 +955,7 @@ and `rule_absence_pending_system`, `[('employee_id.employee_type', '=', 'teacher
 different groups are OR-ed, so it widens their reach to every teacher without touching anyone
 else's. The teacher picker's domain (`_domain_employee_id`) mirrors both rules.
 
-Reading an entry is not reviewing it: the four actions also need `_ems_can_review()` (see
+Reading an entry is not reviewing it: the four actions also need `_ems_reviewable()` (see
 *The review*), so a Department or Seminar Chief keeps entering and editing informed entries but
 leaves the decision to the Head of Studies.
 

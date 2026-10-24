@@ -16,9 +16,9 @@
 |---|---|---|
 | Whole-day absence | 7:30 | Hours a whole-day absence is worth. It always counts that much, however many lessons the person had scheduled that day |
 | Health absence allowance | 15:00 | Hours of self-declared health absence each person may use per course |
-| Absence reminder | 1 day | Once an absence is over and still waits for the employee (its supporting document, or requesting a detected absence), they are reminded every this many days |
-| Absence report | 3 days | This many days after the absence, what is still missing is also reported: a supporting document to the Head who approves the absence, a detected absence not requested yet to the teacher's Head of Studies |
-| Detected absences | (empty) | The areas whose teachers go through the detected absences circuit: a day a teacher did not check in (or checked in after their first lesson) becomes a detected absence, and every detected absence reminds the teacher to request it. Empty, the circuit is off. To start with, choose only the VET area |
+| Absence reminder | 1 day | Once an absence is over and still waits for the employee (its supporting document, or a detected absence they were asked about), they are reminded every this many days |
+| Absence report | 3 days | What is still missing is also reported this many days later: a supporting document to the Head who approves the absence, counting from the absence; a detected absence the teacher was asked about and has not requested yet to whoever reviewed it, counting from the day they asked |
+| Detected absences | (empty) | The areas whose teachers go through the detected absences circuit: a day a teacher did not check in (or checked in after their first lesson) becomes a detected absence, which the teacher's Head of Studies reviews before the teacher is told anything. Empty, the circuit is off. To start with, choose only the VET area |
 
 The allowance **warns, it does not block**: someone going over it is warned and the request is flagged for the Head of Studies, but it goes through.
 

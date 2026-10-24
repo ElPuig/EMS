@@ -75,8 +75,13 @@ Python syntax (`py_compile`), XML well-formedness, `.po` parsing (`polib`), `pyl
 7. Quality audit (CLAUDE.md, "Quality audit when closing") and permission audit (CLAUDE.md,
    "Permission audit") of Absences > Management > Detected absences for every role; efficiency of
    `create()` (review activity per entry) and of the reminder cron, measured cold on the dev DB.
-8. Screenshots for the Head of Studies manual if wanted (`tests/test_docs_screenshots_head_of_studies.py`):
-   the list with the Actions dropdown and the "Create absence" wizard. None were added here.
+8. Screenshots. Two existing ones are now out of date, since the status labels changed
+   ("Detected" is now "To review", there are new states): `docs/assets/head_of_studies/hos-detected-absences-list.png`
+   and `docs/assets/teachers/teachers-detected-absence.png` (the teacher one now needs an entry in
+   "Justification requested", or the teacher can't open it). Regenerate them with the existing
+   capture tests (`tests/test_docs_screenshots_head_of_studies.py`, `tests/test_docs_screenshots_teachers.py`;
+   their fixtures may need the new state) and consider adding the list's Actions dropdown and the
+   "Create absence" wizard to the Head of Studies manual. None were added or regenerated here.
 9. Update `changelog/707-detected-absences-review.md` with anything that changed, delete this
    file, push, closing checklist table, card to "Ready to merge".
 
@@ -99,3 +104,14 @@ Python syntax (`py_compile`), XML well-formedness, `.po` parsing (`polib`), `pyl
   with its default (`True`) for existing rows; `post-migrate.py` then moves the old entries.
 - `mail_activity_quick_update=True` keeps the review activity from emailing the approver (the
   digest is their notice), as in `_ems_report_at_workday_start()`.
+- The `.po` entries were written by hand (`i18n/{ca,es}_ES.po`): 31 new blocks, 7 changed msgids
+  (state help, the action's help, three settings helps, the "discarded" error) and references
+  added to existing labels ("Active", "Archived", "Discard", "Status", "Cancel", "Absence type",
+  "Detected absences", "To review"; the old "Detected" block was removed). The two paragraphs
+  (the action's help and the wizard's intro) were put on one line in the XML so their msgid has
+  no inner whitespace to guess. Verify with the export diff and the DB read-back (step 5).
+- The display_notification `next`: `soft_reload` after a form or list action, `act_window_close`
+  from the wizard (`ems_review_wizard` context). Check in the tour that the list refreshes after
+  the wizard and the form after "Request justification".
+- `_ems_review_detected_absences()` still only reviews `origin = 'check_in'` entries on a
+  check-in (as before #707); informed ones are settled by the reviewer or the teacher's request.

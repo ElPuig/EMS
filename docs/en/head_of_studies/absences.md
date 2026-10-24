@@ -200,18 +200,31 @@ This list holds the teachers' absences that nobody has requested yet. They come 
 1. Click **New**.
 2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Department and Seminar Chiefs can also enter them, for the teachers of their own department. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET. Teachers of other departments who teach a group the department manages (the **Managed by the department** field of the group's study), or who name the department in the **Also managed by the departments** field of their form, are offered too.
 3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
-4. Optionally, add **Notes** for your own reference. The teacher can open the entry but never sees the notes.
+4. Optionally, add **Notes** for your own reference. The teacher only sees the entry if you ask them about it (see below), and never sees the notes.
 5. Save.
 
 From that moment the teacher appears on the guard duty schedule as absent with a request still awaiting approval (lighter italic red), for the hours you entered.
 
-### What happens next
+### Reviewing a detected absence
 
-When the teacher requests the absence themselves, the entry is linked to it automatically and its status changes from **Detected** to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
+Nobody tells the teacher about a detected absence on their own: **you review it first**. Every new entry, detected or entered by hand, is a task for the teacher's Head of Studies or Deputy (whoever corrects their attendance), and appears in your **daily summary of pending tasks**. The list opens on the entries **To review**.
 
-Until then, once the absence is over, EMS reminds the teacher to request it at the start of their working day, every day unless the centre has set otherwise. The message is not the same for both origins: for a missing check-in it also tells them that, if they were at the centre and forgot to check in, they should ask you to record their check-in. If it is still not requested a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up. These reminders reach the teachers of the areas the administrator has chosen.
+Open one, or select several in the list, and choose what to do in **Actions**:
 
-**If the teacher was at the centre after all**, record their check-in for that day (**Employee Attendances → Attendance → Overview**, **New**; see also [Attendance corrections](attendance-corrections.md)): a detected absence from a missing check-in is then **Discarded** on its own, or shortened if they arrived earlier than it said. An informed one you entered by mistake is deleted by hand.
+| Action | What happens | Who is told |
+|---|---|---|
+| **Request justification** | The teacher is asked to request the absence and justify it or, if they were at the centre and forgot to check in, to ask you to record the check-in. It changes to **Justification requested** | The teacher, right away |
+| **Correct check-in** | EMS records the teacher's check-in for the detected hours (if they arrived late, their check-in is moved back to the start). It changes to **Check-in corrected**. Only for an absence that is already over and within one day | Nobody |
+| **Create absence** | Choose the absence type: EMS prepares the teacher's absence request with that type and the day and hours of the absence. It changes to **Absence prepared**. It is not sent on the teacher's behalf: the teacher checks it, accepts the responsible declaration and sends it | The teacher, right away |
+| **Discard** | It changes to **Discarded** and is archived (find it again with the **Archived** filter) | Nobody |
+
+Use **Correct check-in** or **Discard** when the teacher had no reason to be checked in at that time, for example a meeting they were not convened to, a training day or an outing: the teacher never hears about it. With several selected, each action is applied to those it can be applied to, and EMS tells you how many were left as they were.
+
+When the teacher requests the absence themselves, the entry is linked to it automatically and its status changes to **Requested**, whether you had reviewed it yet or not. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested, corrected or discarded entry can no longer be edited; it stays in the list as a record.
+
+**Reminders.** Only once you have asked the teacher (**Justification requested** or **Absence prepared**) and the absence is over, EMS reminds them at the start of their working day, every day unless the centre has set otherwise. If they still have not requested it a few days after you asked (three, unless the centre has set otherwise), you receive a message and an activity to follow it up. These reminders reach the teachers of the areas the administrator has chosen.
+
+**If the teacher was at the centre after all** and you record their check-in for that day some other way (**Employee Attendances → Attendance → Overview**, or a check-in correction request; see [Attendance corrections](attendance-corrections.md)), a detected absence from a missing check-in is **Discarded** on its own, or shortened if they arrived earlier than it said.
 
 ![Detected absences list, with their origin: one informed, one from a missing check-in and one already requested by the teacher](../../assets/head_of_studies/hos-detected-absences-list.png)
 

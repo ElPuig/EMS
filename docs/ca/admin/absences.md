@@ -16,9 +16,9 @@
 |---|---|---|
 | Absència de dia sencer | 7:30 | Hores que val una absència de dia sencer. Sempre compta aquestes hores, tingui la persona les classes que tingui programades aquell dia |
 | Crèdit d'hores per motius de salut | 15:00 | Hores d'absència per motius de salut que pot fer servir cada persona per curs |
-| Recordatori d'absències | 1 dia | Un cop passada una absència que encara espera la persona (el justificant, o sol·licitar una absència detectada), se li recorda cada aquest nombre de dies |
-| Avís d'absències pendents | 3 dies | Passats aquests dies des de l'absència, el que encara falta també es comunica: un justificant, a qui aprova l'absència; una absència detectada encara no sol·licitada, al cap d'estudis del docent |
-| Absències detectades | (buit) | Les àrees els docents de les quals segueixen el circuit d'absències detectades: un dia que un docent no ha fitxat (o ha fitxat després de la primera classe) es converteix en una absència detectada, i cada absència detectada recorda al docent que la sol·liciti. Buit, el circuit està desactivat. Per començar, tria només l'àrea d'FP |
+| Recordatori d'absències | 1 dia | Un cop passada una absència que encara espera la persona (el justificant, o una absència detectada sobre la qual se li ha demanat), se li recorda cada aquest nombre de dies |
+| Avís d'absències pendents | 3 dies | Passats aquests dies, el que encara falta també es comunica: un justificant, a qui aprova l'absència, comptant des de l'absència; una absència detectada sobre la qual s'ha demanat al docent i que encara no ha sol·licitat, a qui l'ha revisada, comptant des del dia que l'hi va demanar |
+| Absències detectades | (buit) | Les àrees els docents de les quals segueixen el circuit d'absències detectades: un dia que un docent no ha fitxat (o ha fitxat després de la primera classe) es converteix en una absència detectada, que el cap d'estudis del docent revisa abans que se li digui res. Buit, el circuit està desactivat. Per començar, tria només l'àrea d'FP |
 
 El crèdit **avisa, no bloqueja**: qui el supera rep un avís i la sol·licitud queda marcada per al cap d'estudis, però es tramita igual.
 

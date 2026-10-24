@@ -124,13 +124,7 @@
                 <p class="o_view_nocontent_smiling_face">
                     Announce an absence a teacher has not requested yet
                 </p>
-                <p>
-                    It shows on the guard duty schedule as a pending absence until the teacher
-                    requests it, and from then on only their own request counts. The days a
-                    teacher does not check in are added here on their own. Each one is reviewed
-                    first by whoever corrects the teacher's attendance: the teacher is only told
-                    when asked for a justification or when an absence is prepared for them.
-                </p>
+                <p>It shows on the guard duty schedule as a pending absence until the teacher requests it, and from then on only their own request counts. The days a teacher does not check in are added here on their own. Each one is reviewed first by whoever corrects the teacher's attendance: the teacher is only told when asked for a justification or when an absence is prepared for them.</p>
             </field>
         </record>
 
@@ -140,11 +134,7 @@
             <field name="model">ems.absence_pending.prepare_wizard</field>
             <field name="arch" type="xml">
                 <form string="Create absence">
-                    <p class="text-muted">
-                        An absence request is prepared for each teacher with this type and the
-                        detected day and hours. Nothing is sent on their behalf: each teacher is
-                        asked to check it, accept the responsible declaration and send it.
-                    </p>
+                    <p class="text-muted">An absence request is prepared for each teacher with this type and the detected day and hours. Nothing is sent on their behalf: each teacher is asked to check it, accept the responsible declaration and send it.</p>
                     <field name="absence_ids" invisible="1"/>
                     <group>
                         <field name="leave_type_id" widget="radio" options="{'no_create': True}"/>

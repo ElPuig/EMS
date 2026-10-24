@@ -202,10 +202,11 @@ overlap test `_guard_duty_absence_state` uses.
 teacher's chief, the Head of Studies or their Deputy on the teacher's behalf or found from a
 missing check-in once the day was over (see
 [Detected absences](../employees/absence.md#detected-absences)), is added as a
-`'pending'` interval while its own state is `pending`, clipped to the requested day in the
-company's timezone by `_get_local_hours()`. Once the teacher files the real absence the entry is
-linked to it and ignored here for good: only the teacher's own request counts, with its own range
-and state, whatever becomes of it.
+`'pending'` interval while it is unresolved (`ems.absence_pending._ems_unresolved_domain()`: still
+to review, justification requested or absence prepared, issue #707), clipped to the requested day
+in the company's timezone by `_get_local_hours()`. Once the teacher files the real absence the
+entry is linked to it and ignored here for good: only the teacher's own request counts, with its
+own range and state, whatever becomes of it. A corrected or discarded entry is ignored too.
 
 **Whole day vs part of one.** The interval is read from `request_unit_hours` rather than
 `ems_full_day`: it is the field that actually decides whether `request_hour_from`/`_to` carry

@@ -198,18 +198,31 @@ Esta lista recoge las ausencias de los docentes que todavía no ha solicitado na
 1. Haz clic en **Nuevo**.
 2. Elige el **Profesor**. Solo aparecen los docentes de tu área: el jefe de estudios o el jefe de estudios adjunto ve a sus docentes, y Dirección los ve a todos. Los jefes de departamento y de seminario también pueden introducirlas, para los docentes de su propio departamento. Los miembros del equipo directivo (como el secretario) cuentan como docentes del área a la que pertenece su departamento: el secretario, que da clase en un departamento de FP, aparece al jefe de estudios o jefe de estudios adjunto responsable de FP. También aparecen los docentes de otros departamentos que dan clase a un grupo que gestiona el departamento (campo **Gestionado por el departamento** de los estudios del grupo) y los que tienen el departamento en el campo **También gestionado por los departamentos** de su ficha.
 3. Indica **Desde** y **Hasta**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede ocupar varios días.
-4. Si quieres, añade **Notas** para ti. El docente puede abrir la entrada, pero nunca ve las notas.
+4. Si quieres, añade **Notas** para ti. El docente solo ve la entrada si le avisas (ver más abajo), y nunca ve las notas.
 5. Guarda.
 
 A partir de ese momento, el docente aparece en el horario de guardias como ausente con una solicitud pendiente de aprobar (rojo más claro y en cursiva), durante las horas que has indicado.
 
-### Qué pasa después
+### Revisar una ausencia detectada
 
-Cuando el docente solicita la ausencia, la entrada se vincula a ella automáticamente y su estado pasa de **Detectada** a **Solicitada**. Desde entonces solo cuenta la solicitud del docente, con sus fechas y horas: si después se rechaza o se cancela, la entrada no vuelve al horario de guardias. Una entrada solicitada ya no se puede modificar; queda en la lista, con el filtro **Solicitada**, como registro.
+EMS no avisa al docente de una ausencia detectada por su cuenta: **primero la revisas tú**. Cada entrada nueva, detectada o introducida a mano, es una tarea para el jefe de estudios o el jefe de estudios adjunto del docente (quien corrige sus fichajes), y aparece en tu **resumen diario de tareas pendientes**. La lista se abre con las entradas **Por revisar**.
 
-Mientras tanto, una vez terminada la ausencia, EMS recuerda al docente que la solicite al inicio de su jornada, cada día si el centro no lo ha cambiado. El mensaje no es el mismo para los dos orígenes: para un fichaje que falta también le dice que, si estaba en el centro y olvidó fichar, te pida que registres su fichaje. Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) todavía no la ha solicitado, recibes un mensaje y una actividad para hacer el seguimiento. Estos recordatorios llegan a los docentes de las áreas que ha elegido el administrador.
+Abre una, o selecciona varias en la lista, y elige qué hacer en **Acciones**:
 
-**Si al final el docente sí estaba en el centro**, registra su fichaje de ese día (**Asistencia del personal → Asistencia → Vista general**, **Nuevo**; ver también [Correcciones de fichajes](attendance-corrections.md)): una ausencia detectada por un fichaje que faltaba pasa sola a **Descartada**, o se acorta si llegó antes de lo que decía. Una informada que introdujiste por error se borra a mano.
+| Acción | Qué pasa | Quién recibe el aviso |
+|---|---|---|
+| **Solicitar justificación** | Se pide al docente que solicite la ausencia y la justifique o, si estaba en el centro y olvidó fichar, que te pida que registres el fichaje. Pasa a **Justificación solicitada** | El docente, enseguida |
+| **Corregir fichaje** | EMS registra el fichaje del docente para las horas detectadas (si llegó tarde, su fichaje se adelanta hasta el inicio). Pasa a **Fichaje corregido**. Solo para una ausencia que ya ha terminado y que no ocupa más de un día | Nadie |
+| **Generar ausencia** | Elige el tipo de ausencia: EMS prepara la solicitud de ausencia del docente con ese tipo y el día y las horas de la ausencia. Pasa a **Ausencia preparada**. No se envía en nombre del docente: el docente la revisa, acepta la declaración responsable y la envía | El docente, enseguida |
+| **Descartar** | Pasa a **Descartada** y se archiva (se vuelve a encontrar con el filtro **Archivado**) | Nadie |
+
+Usa **Corregir fichaje** o **Descartar** cuando el docente no tenía que fichar a esa hora, por ejemplo una reunión a la que no estaba convocado, una formación o una salida: el docente no se entera nunca. Si seleccionas varias, cada acción se aplica a las que se puede aplicar, y EMS te dice cuántas se han dejado como estaban.
+
+Cuando el docente solicita la ausencia, la entrada se vincula a ella automáticamente y su estado pasa a **Solicitada**, tanto si la habías revisado como si no. Desde entonces solo cuenta la solicitud del docente, con sus fechas y horas: si después se rechaza o se cancela, la entrada no vuelve al horario de guardias. Una entrada solicitada, corregida o descartada ya no se puede modificar; queda en la lista como registro.
+
+**Recordatorios.** Solo una vez que has avisado al docente (**Justificación solicitada** o **Ausencia preparada**) y la ausencia ha terminado, EMS se lo recuerda al inicio de su jornada, cada día si el centro no lo ha cambiado. Si unos días después de avisarle (tres, si el centro no lo ha cambiado) todavía no la ha solicitado, recibes un mensaje y una actividad para hacer el seguimiento. Estos recordatorios llegan a los docentes de las áreas que ha elegido el administrador.
+
+**Si al final el docente sí estaba en el centro** y registras su fichaje de ese día de otra manera (**Asistencia del personal → Asistencia → Vista general**, o una solicitud de corrección de fichaje; ver [Correcciones de fichajes](attendance-corrections.md)), una ausencia detectada por un fichaje que faltaba pasa sola a **Descartada**, o se acorta si llegó antes de lo que decía.
 
 ![Lista de ausencias detectadas con su origen: una informada, una por un fichaje que falta y una ya solicitada por el docente](../../assets/head_of_studies/hos-detected-absences-list.png)
 

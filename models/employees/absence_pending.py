@@ -104,8 +104,8 @@ class EmsAbsencePending(models.Model):
         string="Reported", readonly=True, copy=False,
         help="Already reported to the teacher's Head of Studies, who got an activity to follow it up.")
     can_request = fields.Boolean(compute="_compute_can_request")
-    can_review = fields.Boolean(compute="_compute_can_review")
-    can_correct = fields.Boolean(compute="_compute_can_review")
+    can_review = fields.Boolean(string="Can review", compute="_compute_can_review")
+    can_correct = fields.Boolean(string="Can correct", compute="_compute_can_review")
 
     def _domain_employee_id(self):
         """The same reach as the record rules: every teacher for a technical administrator
@@ -152,12 +152,9 @@ class EmsAbsencePending(models.Model):
         """The review actions (issue #707), for whoever may review the entry while it is still to
         review; 'can_correct' for the check-in correction, which also needs it to be over and
         within one day. Only what the screens offer: every action checks it again."""
-        reviewers = {}
+        reviewable = self._ems_reviewable()
         for absence in self:
-            employee = absence.employee_id
-            if employee.id not in reviewers:
-                reviewers[employee.id] = absence._ems_can_review()
-            absence.can_review = absence.state == 'pending' and reviewers[employee.id]
+            absence.can_review = absence.state == 'pending' and absence in reviewable
             absence.can_correct = absence.can_review and absence._ems_can_correct()
 
     @api.constrains('date_from', 'date_to')
@@ -193,22 +190,28 @@ class EmsAbsencePending(models.Model):
 
     # --- The review (issue #707) ----------------------------------------------------------------
 
-    def _ems_reviewers(self):
-        """Who reviews this entry and gets its task: whoever corrects the teacher's attendance
-        (hr.employee._find_attendance_approvers: their nearest Head or Deputy Head of Studies, else
-        their area's attendance manager, else the academic administrators), people only."""
-        self.ensure_one()
-        return self.employee_id._find_attendance_approvers().filtered(
+    @api.model
+    def _ems_employee_reviewers(self, employee):
+        """Who reviews the entries of `employee` and gets their task: whoever corrects the
+        teacher's attendance (hr.employee._find_attendance_approvers: their nearest Head or Deputy
+        Head of Studies, else their area's attendance manager, else the academic administrators),
+        people only."""
+        return employee._find_attendance_approvers().filtered(
             lambda user: user.active and not user.share and user.id != SUPERUSER_ID)
 
-    def _ems_can_review(self):
-        """Whether the current user may review this entry: one of its reviewers, or an
-        administrator, who is always above the hierarchy."""
+    def _ems_reviewers(self):
         self.ensure_one()
+        return self._ems_employee_reviewers(self.employee_id)
+
+    def _ems_reviewable(self):
+        """The entries of `self` the current user may review, whatever their state: those of the
+        teachers they are a reviewer of, and every one for an administrator, who is always above
+        the hierarchy. The reviewers are resolved once per teacher, not per entry."""
         user = self.env.user
         if self.env.su or user.has_group('base.group_system') or user.has_group('ems.group_academic_admin'):
-            return True
-        return user in self._ems_reviewers()
+            return self
+        allowed = {employee.id for employee in self.employee_id if user in self._ems_employee_reviewers(employee)}
+        return self.filtered(lambda absence: absence.employee_id.id in allowed)
 
     @api.model
     def _ems_unresolved_domain(self):
@@ -237,8 +240,8 @@ class EmsAbsencePending(models.Model):
     def _ems_review_targets(self, condition=None):
         """The selected entries the current user may act on now: still to review, theirs to
         review and, when given, meeting `condition`. Raises when there is none at all."""
-        targets = self.filtered(lambda absence: absence.state == 'pending' and absence._ems_can_review()
-                                and (condition is None or condition(absence)))
+        targets = self._ems_reviewable().filtered(
+            lambda absence: absence.state == 'pending' and (condition is None or condition(absence)))
         if not targets:
             raise UserError(_("None of the selected detected absences can be dealt with this way: only "
                               "those still to review, of teachers whose attendance you correct (and, to "

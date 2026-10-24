@@ -79,8 +79,8 @@ class ems_company(models.Model):
     ems_absence_document_escalation_days = fields.Integer(
         string="Absence report (days)", default=3)
     # Issue #696: the areas (top-level departments) whose teachers go through the detected
-    # absences circuit: missing check-ins become detected absences, and every detected absence
-    # (also the ones entered by hand) reminds the teacher to request it. Empty, the circuit is off.
+    # absences circuit: missing check-ins become detected absences, and the reminders of the ones
+    # the teacher was asked about (issue #707) reach them. Empty, the circuit is off.
     ems_absence_circuit_area_ids = fields.Many2many(
         string="Detected absences: areas", comodel_name="hr.department",
         relation="ems_company_absence_circuit_area_rel", column1="company_id", column2="department_id",

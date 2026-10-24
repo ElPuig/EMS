@@ -663,7 +663,7 @@ surfaces only in a browser, never in `./upgrade.sh`, which merely checks the XML
 ## Detected absences
 
 A teacher's absence nobody has requested yet, in `ems.absence_pending`
-(`models/employees/absence_pending.py`, issues #509 and #696). It has two origins (`origin`):
+(`models/employees/absence_pending.py`, issues #509, #696 and #707). It has two origins (`origin`):
 
 - **Informed** (`informed`): the teacher's Department or Seminar Chief, the Head of Studies or
   their Deputy knows a teacher will be away before the teacher files anything (a phone call first
@@ -672,20 +672,31 @@ A teacher's absence nobody has requested yet, in `ems.absence_pending`
 - **No check-in** (`check_in`): found once the day is over, from a missing check-in (issue #696,
   see *Missing check-ins* below).
 
-The guard duty board plans around both alike, and the teacher is reminded to request it. It is
-not an `hr.leave`: it has no type, no approval and no hours to count.
+It is not an `hr.leave`: it has no type, no approval and no hours to count. The guard duty board
+plans around both origins alike while they are unresolved.
+
+**Nobody tells the teacher about it on their own (issue #707).** Every new entry, whatever its
+origin, goes first to the teacher's attendance approver as a task to review; the teacher only
+hears about it if the reviewer asks them for a justification or prepares an absence for them.
+Detecting absences from missing check-ins produces false positives the teacher should never be
+bothered with: the Wednesday 14:00-16:00 meeting slot is in everyone's schedule, but not everyone
+is convened, so whoever is not checks in at 16:00 and is detected; a training day, an outing or a
+check-in forgotten by someone who was in the building look the same.
 
 ```mermaid
 erDiagram
     HR_EMPLOYEE ||--o{ EMS_ABSENCE_PENDING : "employee_id (teachers only)"
     HR_LEAVE |o--o{ EMS_ABSENCE_PENDING : "leave_id (set once, for good)"
+    HR_LEAVE_TYPE |o--o{ EMS_ABSENCE_PENDING : "proposed_leave_type_id (prepared)"
     RES_COMPANY }o--o{ HR_DEPARTMENT : "ems_absence_circuit_area_ids (areas)"
     EMS_ABSENCE_PENDING {
         datetime date_from
         datetime date_to
         selection origin "informed / check_in"
-        selection state "pending / linked / discarded"
+        selection state "pending / justification_requested / prepared / linked / corrected / discarded"
+        boolean active "False once discarded by hand"
         text note "chiefs only"
+        date requested_date "when the teacher was first asked"
         date reminder_date
         boolean escalated
     }
@@ -697,31 +708,132 @@ erDiagram
 | `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from` |
 | `origin` | `informed` (default: every entry created by hand) or `check_in`. Readonly |
 | `note` | Optional, for the author's own reference. `groups="ems.group_department_chief,base.group_system"`: the teacher never reads it |
-| `state` | `pending` (labelled *Detected*) until linked, then `linked` (*Requested*) for good; `discarded` when the check-in shows up after all (only `check_in` entries). Stored, not computed from `leave_id` |
-| `leave_id` | The teacher's own request it was linked to. `ondelete='set null'` |
-| `reminder_date`, `escalated` | The reminder markers, as on `hr.leave` (see *Reminders* above) |
-| `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry is `pending`. Shows **Request the absence** |
+| `state` | See *States* below. Stored, readonly, only moved by the actions and the automatic transitions |
+| `active` | `False` once discarded by hand (**Discard**): it leaves the default list and is still found with the Archived filter |
+| `leave_id` | The absence request it was linked to. `ondelete='set null'` |
+| `proposed_leave_type_id` | The absence type the reviewer chose with **Create absence** (`prepared` only): the teacher's request opens with it |
+| `requested_date` | The day the reviewer asked the teacher (**Request justification** or **Create absence**). The reminders count from it |
+| `reminder_date`, `escalated` | The reminder markers, as on `hr.leave` (see *Reminders* below) |
+| `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry waits for them (`justification_requested` or `prepared`). Shows **Request the absence** |
+| `can_review` | Non-stored, `@api.depends_context('uid')`: the user may review this entry (see *Who reviews*) and it is still `pending`. Shows the four review actions |
+
+### States
+
+```mermaid
+stateDiagram-v2
+    [*] --> pending: created (detected, or entered by hand)<br/>review activity for the approver
+    pending --> justification_requested: Request justification<br/>(teacher notified)
+    pending --> prepared: Create absence<br/>(teacher notified)
+    pending --> corrected: Correct check-in<br/>(nobody notified)
+    pending --> discarded: Discard (archived)<br/>or a check-in turns up
+    justification_requested --> linked: the teacher files the absence
+    prepared --> linked: the teacher sends the prepared request
+    justification_requested --> discarded: a check-in turns up
+    prepared --> discarded: a check-in turns up
+    pending --> linked: the teacher files an absence anyway
+    linked --> [*]
+    corrected --> [*]
+    discarded --> [*]
+```
+
+| State | Label | Meaning | Guard duty board | Teacher reads it |
+|---|---|---|---|---|
+| `pending` | To review | Waiting for the reviewer. Nobody else is told | Yes | No |
+| `justification_requested` | Justification requested | The teacher was asked to request the absence and justify it, or to ask for a check-in correction | Yes | Yes |
+| `prepared` | Absence prepared | The reviewer chose the absence type; the teacher reviews the request, accepts the responsible declaration and sends it | Yes | Yes |
+| `linked` | Requested | An absence request covers it: from then on only that request counts | No | Yes |
+| `corrected` | Check-in corrected | The reviewer recorded the check-in for the detected hours | No | No |
+| `discarded` | Discarded | Discarded by the reviewer (archived), or the teacher's check-in turned up | No | No |
+
+`UNRESOLVED_STATES` (`pending`, `justification_requested`, `prepared`) is what the board, the
+linking and the check-in review look at. `linked`, `corrected` and `discarded` are final: the
+entry's employee and dates can no longer be edited (`write()` raises), and nothing sends it back.
+
+### The review (issue #707)
+
+**The task.** `create()` schedules one activity of type `ems.mail_activity_absence_review`
+("Review detected absence") on every new entry for each of the teacher's attendance approvers,
+`hr.employee._find_attendance_approvers()`: the nearest Head of Studies or Deputy up the
+teacher's `parent_id` chain, else the area's attendance manager, else the academic administrators
+(the same people who decide an attendance correction request). It is scheduled with
+`mail_activity_quick_update`, so it sends no email of its own: being an activity, it is listed in
+the approver's daily pending-tasks digest (`models/shared/task_digest.py`), which is the report
+they work from. It is marked done as soon as the entry leaves `pending`, by one of the actions or
+by an automatic transition (`write()`).
+
+**Who reviews** (`_ems_can_review()`): the teacher's attendance approvers, as above, and the
+administrators (`base.group_system`, `ems.group_academic_admin`), always on top of the hierarchy.
+A Head of Studies of another branch, a Department or Seminar Chief and the teacher can't, even
+when they can read the entry. Checked server-side on every record by each action
+(`_ems_check_reviewer()`); `can_review` only drives the buttons.
+
+**The four actions.** Each one is a method on the recordset, offered from the form's Actions
+dropdown (`can_review`) and as a header button of the list once records are selected (the list
+has `class="o_ems_header_actions"`, so they share one dropdown there too). They only act on the
+selected entries still `pending` that the user may review; the others are skipped and counted in
+the notification the action returns (`_ems_review_result()`).
+
+| Action | Method | What it does | Who is told |
+|---|---|---|---|
+| Request justification | `action_request_justification()` | `justification_requested`; `requested_date` = today; the teacher gets the reminder note at once (`_ems_reminder_message()`), then the scheduled reminders follow (see *Reminders*) | The teacher |
+| Correct check-in | `action_correct_check_in()` | Records the attendance for the detected hours (see below); `corrected` | Nobody |
+| Create absence | `action_prepare_absence()` | Opens `ems.absence_pending.prepare_wizard` (one required absence type for every selected entry); its button calls `_ems_prepare_absence(leave_type)`: `prepared`, `proposed_leave_type_id`, `requested_date` = today, and the teacher gets a note asking them to review and send the request (`_ems_prepared_message()`) | The teacher |
+| Discard | `action_discard()` | `discarded` and archived, with a note naming who discarded it | Nobody |
+
+Every action posts an internal note on the entry (`mail.mt_note`, no recipients) saying who did
+what, which is how the history tells a person's decision apart from the system's (a check-in that
+turned up posts its own note, "the teacher's check-in of that day has been recorded").
+
+**Correct check-in** (`_ems_correct_check_in()`) needs an entry that is over and within one day in
+the company's timezone; any other is skipped. Reading the teacher's attendances of that day
+(technical ones aside):
+
+- An attendance starting inside the detected range (a late arrival: detection ends the range at
+  the arrival) has its `check_in` moved back to `date_from`.
+- Otherwise a closed `hr.attendance` is created from `date_from` to `date_to`
+  (`in_mode='manual'`).
+
+Either way `ems_checked_in_by_id` is the reviewer, as when a check-in is registered from the guard
+duty board, but `_notify_checked_in_by()` is **not** called: nobody is told. It is written under
+the `ems_absence_correcting` context key (the entry ids), so
+`hr.attendance._ems_review_detected_absences()` leaves those entries alone and the action itself
+sets `corrected` (otherwise they would end up `discarded`). `hr.attendance`'s own validity
+constraint (no overlap, one open attendance) still applies: an entry it refuses raises.
+
+*Why not an accepted `ems.attendance_correction`:* a correction request needs an existing
+attendance (a day with no check-in at all has none), a reason typed by the teacher, and routes an
+approval activity and notifications to the approver, who here is the one acting. The attendance
+keeps who registered it (`ems_checked_in_by_id`) and the entry's chatter keeps the note, which is
+the trail this needs.
+
+**Create absence** prepares the request, it doesn't file it: an absence request is the teacher
+declaring, under their own responsibility, that its details and reason are true
+(`ems_responsible_declaration`, required for every type, see *The responsible declaration*), so
+nobody can send one on their behalf. Nor is the draft an `hr.leave`: Odoo 18's `hr.leave` has no
+draft state, it starts as "To Approve", and in that state it already blocks overlapping requests,
+shows on the guard duty board, tells the Department and Seminar Chiefs and opens the approval
+activity. So the draft lives on the entry itself (`prepared` + `proposed_leave_type_id`), and the
+teacher's **Request the absence** opens the usual request form with the type, the day and the
+hours already filled in (`_ems_request_context()`, shared with the detected range's own
+prefill); the teacher checks it, accepts the declaration and sends it with **Send request** as
+always, which links the entry. The types offered are the active ones a request can use
+(`requires_allocation = 'no'`).
 
 **Linking is automatic and final.** `hr.leave.create()` and, when its dates, hours, employee or
-state change, `hr.leave.write()` call `ems.absence_pending._link_to_leaves()`: every `pending`
-entry of the same employee that overlaps the absence becomes `linked` to it. The absence's range
-is read by `hr.leave._ems_utc_range()` exactly as the guard duty board reads it (the requested
-hours of a partial one-day absence, whole days in the company's timezone otherwise), not from
-Odoo's own `date_from`/`date_to`, which clip a whole day to the employee's working hours. It runs
-under `sudo()`, since the teacher filing the absence can only read their own entries.
-
-Only absences in a state the board plans around (`confirm`, `validate1`, `validate`) link. Once
-linked, the entry has done its job and stays as history: refusing, cancelling, moving or deleting
-the teacher's absence never sends it back to `pending`, and its employee and dates can no longer
-be edited (`write()` raises, for `discarded` too). From then on only the real absence counts.
-
-**Requesting it.** **Request the absence** (in the form's Actions dropdown, for the teacher only)
-calls `action_request_absence()`: a new `hr.leave` form with the employee, the day and, for a
-one-day entry, the hours as defaults. Saving it links the entry through the mechanism above.
+state change, `hr.leave.write()` call `ems.absence_pending._link_to_leaves()`: every unresolved
+entry of the same employee that overlaps the absence becomes `linked` to it, whichever state it
+was in (a teacher who files the absence before anyone reviewed it closes the review too). The
+absence's range is read by `hr.leave._ems_utc_range()` exactly as the guard duty board reads it
+(the requested hours of a partial one-day absence, whole days in the company's timezone
+otherwise), not from Odoo's own `date_from`/`date_to`, which clip a whole day to the employee's
+working hours. It runs under `sudo()`, since the teacher filing the absence can only read their
+own entries. Only absences in a state the board plans around (`confirm`, `validate1`, `validate`)
+link, and refusing, cancelling, moving or deleting that absence afterwards never sends the entry
+back.
 
 **On the guard duty board**, `ems.course._get_guard_duty_absence_intervals()` adds every
-`pending` entry touching the requested day as a `pending` interval, clipped to that day in the
-company's timezone (`_get_local_hours()`). Linked and discarded entries are ignored. See
+unresolved entry touching the requested day as a `pending` interval, clipped to that day in the
+company's timezone (`_get_local_hours()`). See
 [guard_duty_board.md](../attendance/guard_duty_board.md).
 
 ### The circuit: which teachers
@@ -744,8 +856,9 @@ flowchart TD
     H -- no --> S["_ems_missing_check_ins(day, teachers)<br/>periods vs first check-in"]
     S --> O{"overlaps an active hr.leave<br/>or a non-discarded entry?"}
     O -- yes --> X
-    O -- no --> N["create origin=check_in"]
-    C --> R["reminders and report<br/>(see Reminders below)"]
+    O -- no --> N["create origin=check_in, state=pending"]
+    N --> T["review activity for the approver<br/>(see The review above)"]
+    C --> R["reminders and report of what the reviewer<br/>sent to the teacher (see Reminders below)"]
 ```
 
 `_ems_missing_check_ins(day, employees)` reads each teacher's periods that weekday with the guard
@@ -764,32 +877,37 @@ about (the summer, a school holiday) and skipped; a public holiday too.
 
 **A check-in recorded afterwards** (from the guard duty board's "The teacher is in the
 classroom", entered by the Head of Studies, a correction) goes through
-`hr.attendance._ems_review_detected_absences()`, from `create()`/`write()`: that day's `check_in`
-entry of the teacher is computed again, and becomes `discarded` when nothing is missing any more,
-or ends earlier when the check-in came earlier.
+`hr.attendance._ems_review_detected_absences()`, from `create()`/`write()`: that day's unresolved
+`check_in` entry of the teacher is computed again, and becomes `discarded` when nothing is missing
+any more (with a note saying the check-in was recorded, and its review activity done), or ends
+earlier when the check-in came earlier. Entries the reviewer is correcting with **Correct
+check-in** are skipped (`ems_absence_correcting` context key): the action sets `corrected` itself.
 
 ### Reminders
 
-The same scheduled action then reminds, for the teachers of the circuit, every `pending` entry
-whose end is before today, with the supporting document's two settings
-(`ems_absence_document_reminder_days`, `ems_absence_document_escalation_days`) and the same rule
-that every message waits for its reader's working day to start (`res.users._ems_workday_started()`,
-see *Reminders* above):
+Only what the reviewer sent to the teacher is reminded (issue #707): entries in
+`justification_requested` or `prepared`, for the teachers of the circuit, whose end is before
+today. Until then nobody but the reviewer hears about an entry. The same scheduled action uses the
+supporting document's two settings (`ems_absence_document_reminder_days`,
+`ems_absence_document_escalation_days`), both counted from `requested_date`, the day the reviewer
+asked, and the same rule that every message waits for its reader's working day to start
+(`res.users._ems_workday_started()`, see *Reminders* above):
 
-- **The teacher** gets a note on the entry (`_ems_notify()`, shared with `hr.leave` through
-  `mail.thread`) every `reminder_days`. The wording depends on the origin
-  (`_ems_reminder_message()`): a missing check-in tells them to request the absence, or to ask
-  their Head of Studies to record the check-in if they were at the centre; an informed absence
-  reminds them that it was announced and is still not requested. The email's link opens the entry,
-  which they can read.
-- **Their Head of Studies** gets a note and the activity `ems.mail_activity_absence_not_requested`,
-  once (`escalated`), `escalation_days` after the absence's last day. Who: whoever corrects the
-  teacher's attendance, `hr.employee._find_attendance_approvers()` (the nearest Head of Studies or
-  Deputy up the teacher's `parent_id` chain, else the area's attendance manager, else the
-  administrators), never a Head of Studies of another branch. The activity is marked done when the
-  entry is linked or discarded.
+- **The teacher** gets the first note from the action itself, when the reviewer asks
+  (`reminder_date` = that day), and then one every `reminder_days` (`_ems_remind_at_workday_start()`,
+  shared with `hr.leave` through `mail.thread`). The wording depends on the state and the origin
+  (`_ems_reminder_message()`): a prepared absence asks them to review the request prepared for
+  them and send it; a missing check-in tells them to request the absence, or to ask their Head of
+  Studies to record the check-in if they were at the centre; an informed absence reminds them that
+  it was announced and is still not requested. The email's link opens the entry, which they can
+  read from then on.
+- **Their attendance approver** (`_find_attendance_approvers()`, never a Head of Studies of
+  another branch) gets a note and the activity `ems.mail_activity_absence_not_requested`, once
+  (`escalated`), `escalation_days` after `requested_date` (`_ems_report_message()`). The activity
+  is marked done when the entry is linked, corrected or discarded.
 
-**Cost**, measured on the development database with every area in the circuit (121 teachers),
+**Cost**, measured before issue #707 (to measure again: the review activity adds one
+`activity_schedule` per new entry, and the reminders now search fewer entries), on the development database with every area in the circuit (121 teachers),
 cold: detecting one day takes 0.06 s (28 queries); the first reminder run of a day 0.4 s; every
 later run of the same day 0.07 s, since only what is still due is searched.
 
@@ -823,16 +941,24 @@ For every other teacher both ways give the same answer (their `parent_id` chain 
 their Seminar Chief and Department Chief up to their area's manager). So a Department or Seminar
 Chief reaches their whole department, and neither reaches another department.
 
-**The teacher** reads their own entries, both origins (issue #696): `ems.group_teacher` has a
-read-only ACL and `rule_absence_pending_own`, `[('employee_id.user_id', '=', user.id)]`. Rules of
-different groups are OR-ed, so it only adds their own entries to whatever else the user reaches.
-The note stays out of their reach through the field's `groups`.
+**The teacher** reads their own entries once the reviewer has involved them (issues #696, #707):
+`ems.group_teacher` has a read-only ACL and `rule_absence_pending_own`,
+`[('employee_id.user_id', '=', user.id), ('state', 'in', ['justification_requested', 'prepared',
+'linked'])]`. An entry still to review, corrected or discarded is invisible to them, so a review
+that ends without asking them anything never reaches them. Rules of different groups are OR-ed,
+so it only adds their own entries to whatever else the user reaches (a Head of Studies also
+reaches their own entries through the hierarchy rule, `child_of` includes themselves). The note
+stays out of their reach through the field's `groups`.
 
 Technical administrators (`base.group_system`, e.g. `admin`) usually have no place in the org
 chart, so the hierarchy rule alone would leave them no teacher to choose. They get their own ACL
 and `rule_absence_pending_system`, `[('employee_id.employee_type', '=', 'teacher')]`; rules of
 different groups are OR-ed, so it widens their reach to every teacher without touching anyone
 else's. The teacher picker's domain (`_domain_employee_id`) mirrors both rules.
+
+Reading an entry is not reviewing it: the four actions also need `_ems_can_review()` (see
+*The review*), so a Department or Seminar Chief keeps entering and editing informed entries but
+leaves the decision to the Head of Studies.
 
 The menu entry, **Absences > Management > Detected absences**, carries
 `groups="ems.group_department_chief,base.group_system"`. Management, its parent, opens to

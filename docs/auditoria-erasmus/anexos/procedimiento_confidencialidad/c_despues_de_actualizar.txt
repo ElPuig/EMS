@@ -1,0 +1,6 @@
+     kind      |  id  | owner |    stage    | confidential | file_category |           name            
+---------------+------+-------+-------------+--------------+---------------+---------------------------
+ call document | 3198 | 449   | preparation |              |               | Targeta sanitària europea
+ call document | 3211 | 450   | preparation |              |               | Targeta sanitària europea
+(2 rows)
+

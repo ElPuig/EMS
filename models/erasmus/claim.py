@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from odoo import _, fields, models
-from odoo.exceptions import UserError
+from odoo import _, api, fields, models
+from odoo.exceptions import AccessError, UserError
+
+from .workflow import check_workflow_create, check_workflow_write
 
 
 class EmsErasmusClaim(models.Model):
@@ -35,10 +37,26 @@ class EmsErasmusClaim(models.Model):
         for claim in self:
             claim.display_name = f"{kinds.get(claim.kind, '')} - {claim.partner_id.name}"
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        check_workflow_create(self, vals_list)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Resolved, and when, only through the actions (audit R-25)."""
+        check_workflow_write(self, vals)
+        return super().write(vals)
+
     def action_resolve(self):
+        self._ems_check_manager()
         if self.filtered(lambda claim: not (claim.response or '').strip()):
             raise UserError(_("Write the response first."))
-        self.write({'state': 'resolved', 'resolved_date': self.env['ems.datetime_utils'].get_local_today()})
+        self.sudo().write({'state': 'resolved', 'resolved_date': self.env['ems.datetime_utils'].get_local_today()})
 
     def action_reopen(self):
-        self.write({'state': 'open', 'resolved_date': False})
+        self._ems_check_manager()
+        self.sudo().write({'state': 'open', 'resolved_date': False})
+
+    def _ems_check_manager(self):
+        if not self.env['ems.erasmus.application']._ems_can_manage():
+            raise AccessError(_("Only the Erasmus team records the answer to a claim."))

@@ -10,6 +10,8 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import format_date
 from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 
+from .workflow import check_kept, check_workflow_create, check_workflow_write
+
 STATES = [('draft', "Draft"), ('enrolment', "Enrolment"), ('selection', "Selection"),
           ('validation', "Waiting for validation"), ('preparation', "Preparation"), ('stay', "During the stay"),
           ('return', "On return"), ('done', "Closed"), ('cancelled', "Cancelled")]
@@ -253,6 +255,7 @@ class EmsErasmusGroupMobility(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         """A new group mobility asks for the documents of a KA121-VET group mobility by default."""
+        check_workflow_create(self, vals_list)
         for vals in vals_list:
             if 'requirement_ids' not in vals:
                 vals['requirement_ids'] = self._ems_default_requirements()
@@ -261,7 +264,8 @@ class EmsErasmusGroupMobility(models.Model):
         return mobilities
 
     def write(self, vals):
-        if not self.env.su and not self.env.context.get('ems_erasmus_state'):
+        check_workflow_write(self, vals)
+        if not self.env.su:
             for mobility in self:
                 role = mobility._ems_role()
                 allowed = LEADER_FIELDS if role == 'leader' else COMPANION_FIELDS if role == 'companion' else set()
@@ -279,6 +283,20 @@ class EmsErasmusGroupMobility(models.Model):
                 mobility.sudo().participant_ids._ems_commitment_supersede(
                     _("destination, dates, teachers or additional conditions"), provisional)
         return result
+
+    def unlink(self):
+        """Once anyone enrolled, signed or uploaded a file, the group mobility is evidence: its
+        draws, enrolments and records would go in cascade, skipping the draws' own guard. It is
+        cancelled instead."""
+        check_kept(self, self.filtered(lambda mobility: mobility._ems_has_evidence()))
+        return super().unlink()
+
+    def _ems_has_evidence(self):
+        self.ensure_one()
+        mobility = self.sudo().with_context(active_test=False)
+        return bool(mobility.draw_ids or mobility.registration_ids or mobility.log_ids
+                    or mobility.eu_survey_attachment_ids or mobility.document_ids._ems_evidence()
+                    or mobility.participant_ids.filtered(lambda participant: participant._ems_has_evidence()))
 
     def _ems_commitment_terms(self):
         """What the students' commitment letter states about this mobility."""
@@ -320,7 +338,7 @@ class EmsErasmusGroupMobility(models.Model):
                 raise UserError(_("The group mobility %s is not in the right state for this.", mobility.name))
 
     def _ems_set_state(self, state, **vals):
-        self.with_context(ems_erasmus_state=True).sudo().write({'state': state, **vals})
+        self.sudo().write({'state': state, **vals})
 
     def _ems_sync_teachers(self):
         """One participant per accompanying teacher, the leader marked as such; a teacher removed
@@ -698,7 +716,7 @@ class EmsErasmusGroupMobility(models.Model):
             if mobility.eu_survey_state != 'done':
                 raise UserError(_("The EU Survey of %s is not answered yet.", mobility.name))
         self._ems_activities_done()
-        self.with_context(ems_erasmus_state=True).write({'eu_survey_state': 'validated'})
+        self.sudo().write({'eu_survey_state': 'validated'})
 
     def action_propose_closure(self):
         """The leader says the group's part is over; the team closes the file."""
@@ -877,7 +895,7 @@ class EmsErasmusGroupRegistration(models.Model):
         """The Erasmus team checks the fewer opportunities and sets tie orders and exceptions (the
         coordinator alone, before approving); the leader only requests an exception. The rest
         changes through the actions."""
-        if not self.env.su and not self.env.context.get('ems_erasmus_state'):
+        if not self.env.su:
             for registration in self:
                 role = registration.group_mobility_id._ems_role()
                 allowed = {'fewer_opportunities_check', 'result_override', 'override_reason', 'exception_request',
@@ -908,7 +926,7 @@ class EmsErasmusGroupRegistration(models.Model):
                 raise ValidationError(_("An exception to the ranking needs a reason."))
 
     def _ems_write(self, vals):
-        self.with_context(ems_erasmus_state=True).sudo().write(vals)
+        self.sudo().write(vals)
 
     # --- portal ----------------------------------------------------------------------------------
 
@@ -932,7 +950,7 @@ class EmsErasmusGroupRegistration(models.Model):
             registration._ems_write(vals)
             registration.chatter(_("Enrolled again."))
         else:
-            registration = self.sudo().with_context(ems_erasmus_state=True).create(
+            registration = self.sudo().create(
                 {'group_mobility_id': mobility.id, 'partner_id': partner.id, **vals})
         return registration
 
@@ -1138,6 +1156,29 @@ class EmsErasmusGroupParticipant(models.Model):
     def _compute_display_name(self):
         for participant in self:
             participant.display_name = f"{participant.partner_id.name} - {participant.group_mobility_id.name}"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        check_workflow_create(self, vals_list)
+        return super().create(vals_list)
+
+    def write(self, vals):
+        """Who takes part, as what, whether withdrawn and the commitment letter's signatures only
+        change through the actions (audit R-25)."""
+        check_workflow_write(self, vals)
+        return super().write(vals)
+
+    def unlink(self):
+        check_kept(self, self.filtered(lambda participant: participant._ems_has_evidence()))
+        return super().unlink()
+
+    def _ems_has_evidence(self):
+        """A file, a signature or an earlier version of the letter: a withdrawn participant keeps them."""
+        self.ensure_one()
+        participant = self.sudo()
+        return bool(participant.document_ids._ems_evidence() or participant.commitment_signed_date
+                    or participant.commitment_guardian_signed_date or participant.commitment_version_ids
+                    or participant.registration_ids)
 
     # --- the commitment letter (ems.erasmus.commitment) -------------------------------------------
 

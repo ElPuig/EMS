@@ -66,6 +66,8 @@ Per cancel·lar una mobilitat (per exemple, no s'han lliurat a temps els documen
 
 > **Persones titulades:** un alumne que es titula i fa la mobilitat a l'estiu manté l'accés al portal després del canvi de curs, fins que la mobilitat es tanca o es cancel·la. Llavors l'EMS li treu l'accés, tal com hauria fet el canvi de curs.
 
+> **El que és evidència no se suprimeix mai.** Una mobilitat, una sol·licitud o un document que ja té un fitxer, una signatura, un pagament o una autoavaluació no es pot suprimir, i el fitxer d'un document vàlid no es pot suprimir ni substituir: cancel·leu la mobilitat o pugeu-ne una versió nova. Una mobilitat arxivada continua dins l'exportació del projecte, marcada com a *Arxivat*, i l'índex i el manifest de l'exportació llisten el que en queda fora (mobilitats cancel·lades, participants retirats). Si la secretaria desfà una transferència, l'historial del pagament conserva qui l'ha desfeta, quan s'havia pagat i els justificants. Només es pot demanar un pagament mentre la mobilitat està en preparació o tancada.
+
 ---
 
 [← Tornar als manuals d'Erasmus+](index.md)

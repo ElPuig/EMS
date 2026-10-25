@@ -3,7 +3,10 @@
     <data>
         <!-- Issue #683: confidential documents (e.g. evidence of fewer opportunities) are only for
              the Erasmus team and the administrator. A Head of Studies reads the applications
-             but never sees those files. -->
+             but never sees those files. Every rule of the Head of Studies is read only: rules add
+             up across a user's groups, so a write-all rule would let a Head of Studies who also
+             teaches in a group mobility (whose group writes documents) change any record (audit
+             2026-10-25). -->
         <record id="rule_erasmus_application_document_all" model="ir.rule">
             <field name="name">Erasmus application document: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
@@ -16,6 +19,10 @@
             <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
             <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
             <field name="domain_force">[('confidential', '=', False)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
 
         <!-- Issue #684: an evaluator sees only the interviews assigned to them, never the other
@@ -122,10 +129,20 @@
              ranking, only the leader; never a confidential document. What each one may change is
              checked again in the models (EmsErasmusGroupMobility._ems_role). -->
         <record id="rule_erasmus_group_mobility_all" model="ir.rule">
-            <field name="name">Erasmus group mobility: all (team, admin, Head of Studies)</field>
+            <field name="name">Erasmus group mobility: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_mobility"/>
-            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_erasmus'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_mobility_head_of_studies" model="ir.rule">
+            <field name="name">Erasmus group mobility: all, read only (Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_mobility"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
         <record id="rule_erasmus_group_mobility_teacher" model="ir.rule">
             <field name="name">Erasmus group mobility: own (leader, accompanying teacher)</field>
@@ -134,10 +151,20 @@
             <field name="domain_force">['|', ('leader_id.user_id', '=', user.id), ('companion_ids.user_id', '=', user.id)]</field>
         </record>
         <record id="rule_erasmus_group_participant_all" model="ir.rule">
-            <field name="name">Erasmus group participant: all (team, admin, Head of Studies)</field>
+            <field name="name">Erasmus group participant: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_participant"/>
-            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_erasmus'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_participant_head_of_studies" model="ir.rule">
+            <field name="name">Erasmus group participant: all, read only (Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_participant"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
         <record id="rule_erasmus_group_participant_teacher" model="ir.rule">
             <field name="name">Erasmus group participant: own mobilities (leader, accompanying teacher)</field>
@@ -146,10 +173,20 @@
             <field name="domain_force">['|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
         </record>
         <record id="rule_erasmus_group_follow_up_all" model="ir.rule">
-            <field name="name">Erasmus group follow-up: all (team, admin, Head of Studies)</field>
+            <field name="name">Erasmus group follow-up: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_log"/>
-            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_erasmus'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_follow_up_head_of_studies" model="ir.rule">
+            <field name="name">Erasmus group follow-up: all, read only (Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_log"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
         <record id="rule_erasmus_group_follow_up_teacher" model="ir.rule">
             <field name="name">Erasmus group follow-up: own mobilities (leader, accompanying teacher)</field>
@@ -158,10 +195,20 @@
             <field name="domain_force">['|', ('group_mobility_id.leader_id.user_id', '=', user.id), ('group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
         </record>
         <record id="rule_erasmus_group_registration_all" model="ir.rule">
-            <field name="name">Erasmus group enrolment: all (team, admin, Head of Studies)</field>
+            <field name="name">Erasmus group enrolment: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_registration"/>
-            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_erasmus'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_group_registration_head_of_studies" model="ir.rule">
+            <field name="name">Erasmus group enrolment: all, read only (Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_registration"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
         <record id="rule_erasmus_group_registration_leader" model="ir.rule">
             <field name="name">Erasmus group enrolment: own mobilities (leader)</field>
@@ -172,10 +219,20 @@
         <!-- With a rule for the group teachers on call documents, the groups that read every call's
              documents need theirs, or a team member who also leads a group would lose them. -->
         <record id="rule_erasmus_call_document_all" model="ir.rule">
-            <field name="name">Erasmus call document: all (team, admin, Head of Studies)</field>
+            <field name="name">Erasmus call document: all (team, admin)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_call_document"/>
-            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="groups" eval="[(6, 0, [ref('ems.group_erasmus'), ref('ems.group_academic_admin')])]"/>
             <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_call_document_head_of_studies" model="ir.rule">
+            <field name="name">Erasmus call document: all, read only (Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_call_document"/>
+            <field name="groups" eval="[(4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
         </record>
         <record id="rule_erasmus_call_document_group_teacher" model="ir.rule">
             <field name="name">Erasmus call document: own group mobilities (leader, accompanying teacher)</field>

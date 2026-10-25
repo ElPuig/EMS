@@ -6,3 +6,4 @@ from . import commitment
 from . import (evaluation, call, application, interview, plan_rating, partner, resolution, offer, claim,
                mobility, self_assessment, project, grant, export)
 from . import group_mobility
+from . import attachment

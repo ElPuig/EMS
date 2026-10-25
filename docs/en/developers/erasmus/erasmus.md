@@ -157,6 +157,38 @@ coordinator alone approves them). The administrator is a member of both.
 
 Menu *Erasmus+*: *Applications* (team, Head of Studies, Director) and *Calls* (team).
 
+### Workflow fields and evidence (audit 2026-10-25)
+
+`models/erasmus/workflow.py` holds what every Erasmus+ model applies on top of the table above:
+
+- **Workflow fields only change through the actions.** A field declared `readonly=True` (stored, not
+  computed nor related) plus `state` is written only by EMS's own actions, which check who may act
+  and then write it as superuser: `check_workflow_write()` in `write()` and `check_workflow_create()`
+  in `create()` (a new record may only carry the field's default, which a form sends for its status
+  bar) refuse any other write with `AccessError`. Applied to the call, application, resolution,
+  claim, interview and plan rating, mobility (its state, destination, decision on a proposal and the
+  commitment letter's signatures), group mobility and participant; the payment and the invoice keep
+  `_check_transfer_fields()`. `readonly=True` alone only hid the field in the views: an RPC `write`
+  accepted it from anyone with write access on the model.
+- **No context key opens the workflow.** The guards used to trust `ems_erasmus_state`,
+  `ems_erasmus_payment_state` and `ems_erasmus_publish` in the context, which a client sends with any
+  `call_kw` (`odoo/service/model.py` passes the context through as is). Only `env.su` passes now, so
+  every internal write that needs it goes through `sudo()` after its own check (e.g.
+  `EmsErasmusCall._ems_check_manager()`, `EmsErasmusClaim._ems_check_manager()`).
+- **Evidence is never deleted** (`check_kept()`, also as superuser, except while uninstalling): a
+  document line with a file or valid; an application, mobility, participant or group mobility that
+  holds one, a signature, an earlier version of the letter, a self-assessment, a payment, an
+  enrolment, a draw or a follow-up entry; a submitted interview or plan rating. A database cascade
+  from a parent would skip the children's guards, so the parent checks them. A record without any
+  of it can still be deleted (one created by mistake).
+- **The file itself is kept too** (`models/erasmus/attachment.py`): an `ir.attachment` of a valid
+  line, of a closed record or a paid transfer's receipt cannot be deleted, nor its content, type or
+  owner (`res_model`/`res_id`/`res_field`) changed. Its name and description can.
+- **The Head of Studies only reads.** Their record rules are read only (`perm_write`, `perm_create`,
+  `perm_unlink` False): rules add up across a user's groups, so a write-all rule plus the group
+  teacher's write access let a Head of Studies who teaches in a group mobility change any
+  individual record's documents.
+
 ## Scoring (phase 2, #684)
 
 Art. 12 of the call: up to 100 points, 50 to be eligible (`ems.erasmus.call.min_score`).
@@ -878,6 +910,14 @@ logged) are described in [records.md](records.md). The host entity also has its 
 | `ems.erasmus.project.document` | rwcu | rwc | r |
 | `ems.erasmus.transfer.wizard` | - | rwcu | - |
 | `ems.erasmus.payment` | rwcu (unpaid only; `write()` guard) | r + register the transfer (wizard) | - |
+
+Undoing a transfer (`action_mark_unpaid`, Secretary) posts in the payment's or invoice's chatter who
+undid it, when it had been paid and by whom, with its receipts attached; its state is tracked. A paid
+invoice cannot change, as a paid payment cannot. The first payment (prefinancing or single) and the
+final one exist once per mobility: a unique index (`ems_erasmus_payment_once_per_mobility`, created in
+`init()`, so on install and on upgrade) refuses a second one requested at the same moment, which the
+check in `action_request_*` cannot see from its own transaction. A payment is only requested for a
+mobility in preparation or closed.
 | `ems.erasmus.call`, `.project` | rwcu | r | r |
 | `res.partner` | r every contact; wc only host entities and their contacts (`rule_contact_erasmus_*`) | (unchanged) | (unchanged) |
 

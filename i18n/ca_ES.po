@@ -1919,12 +1919,14 @@ msgstr "Aprovat"
 
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_form
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_enrollment_items_search model_terms:ir.ui.view,arch_db:ems.view_attendance_template_search model_terms:ir.ui.view,arch_db:ems.view_attendance_session_search model_terms:ir.ui.view,arch_db:ems.view_notice_search model_terms:ir.ui.view,arch_db:ems.view_limesurvey_header_search
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_form model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_info_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_project_search
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -31902,10 +31904,12 @@ msgid "Pending audit or request"
 msgstr "Auditoria o requeriment pendent"
 
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_mobility__record_progress
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_commitment_version__res_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__record_progress
+#: code:addons/ems/models/erasmus/export.py:0
 msgid "Record"
 msgstr "Expedient"
 
@@ -34502,3 +34506,57 @@ msgstr "Per què es va substituir"
 #: code:addons/ems/models/erasmus/group_mobility.py:0
 msgid "destination, dates, teachers or additional conditions"
 msgstr "destinació, dates, docents o condicions addicionals"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/attachment.py:0
+msgid "These files are kept as evidence of an Erasmus+ record and cannot be changed, moved or deleted (upload a new version instead): %s"
+msgstr "Aquests fitxers es conserven com a evidència d'un expedient Erasmus+ i no es poden modificar, moure ni suprimir (pugeu-ne una versió nova): %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Only the Erasmus team manages a call."
+msgstr "Només l'equip Erasmus gestiona una convocatòria."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/claim.py:0
+msgid "Only the Erasmus team records the answer to a claim."
+msgstr "Només l'equip Erasmus registra la resposta a una reclamació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/export.py:0
+msgid "Not exported: %s"
+msgstr "No s'exporta: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "A paid invoice cannot change."
+msgstr "Una factura ja pagada no es pot modificar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/grant.py:0
+msgid "Transfer undone by %(user)s. It had been marked paid on %(date)s by %(payer)s; its receipts are attached here."
+msgstr "Transferència desfeta per %(user)s. S'havia marcat com a pagada el %(date)s per %(payer)s; els justificants s'adjunten aquí."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/mobility.py:0
+msgid "The mobility of %s is not under way: no payment can be requested."
+msgstr "La mobilitat de %s no està en curs: no s'hi pot demanar cap pagament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/workflow.py:0
+msgid "These fields of %(model)s are set by its actions, never by hand: %(fields)s."
+msgstr "Aquests camps de %(model)s els estableixen les seves accions, mai a mà: %(fields)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/workflow.py:0
+msgid "These records keep evidence of an Erasmus+ record and cannot be deleted (cancel or withdraw them instead): %(records)s."
+msgstr "Aquests registres conserven evidències d'un expedient Erasmus+ i no es poden suprimir (cancel·leu-los o retireu-los): %(records)s."

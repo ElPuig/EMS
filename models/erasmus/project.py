@@ -63,7 +63,7 @@ class EmsErasmusProject(models.Model):
     @api.depends('mobility_ids.state', 'mobility_ids.record_missing')
     def _compute_record_counts(self):
         for project in self:
-            mobilities = project.mobility_ids.filtered(lambda mobility: mobility.state != 'cancelled')
+            mobilities = self.env['ems.erasmus.export']._ems_project_mobilities(project)
             project.record_count = len(mobilities)
             project.record_complete_count = len(mobilities.filtered(lambda mobility: not mobility.record_missing))
             project.record_missing_count = sum(mobilities.mapped('record_missing'))

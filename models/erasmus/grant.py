@@ -2,7 +2,10 @@
 
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
-from odoo.tools import float_round, formatLang
+from odoo.tools import float_round, format_date, formatLang
+from odoo.tools.sql import create_unique_index
+
+from .workflow import check_workflow_create
 
 # What the centre may pay directly out of a participant's grant (issue #697).
 CONCEPTS = [('travel', "Travel"), ('accommodation', "Accommodation"), ('course', "Course fees"), ('other', "Other")]
@@ -13,8 +16,7 @@ PAYMENT_STATE_FIELDS = {'state', 'paid_date', 'paid_by_id', 'receipt_ids'}
 
 def _check_transfer_fields(records, vals):
     """A payment or an invoice is paid, with its receipt, only through the transfer wizard."""
-    if not records.env.su and not records.env.context.get('ems_erasmus_payment_state') \
-            and PAYMENT_STATE_FIELDS & set(vals):
+    if not records.env.su and PAYMENT_STATE_FIELDS & set(vals):
         raise AccessError(_("A payment is marked as paid by registering its transfer."))
 
 
@@ -94,7 +96,7 @@ class EmsErasmusInvoice(models.Model):
                                     relation='ems_erasmus_invoice_mobility_rel',
                                     help="Who the invoice covers: its amount is split equally among them.")
     provision_ids = fields.One2many(string="Shares", comodel_name='ems.erasmus.provision', inverse_name='invoice_id')
-    state = fields.Selection(string="State", required=True, default='to_pay', readonly=True,
+    state = fields.Selection(string="State", required=True, default='to_pay', readonly=True, tracking=True,
                              selection=[('to_pay', "To pay"), ('paid', "Paid")])
     paid_date = fields.Date(string="Paid on", readonly=True)
     paid_by_id = fields.Many2one(string="Marked paid by", comodel_name='res.users', readonly=True)
@@ -111,6 +113,7 @@ class EmsErasmusInvoice(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        check_workflow_create(self, vals_list)
         invoices = super().create(vals_list)
         invoices._ems_split()
         _ask_transfer(invoices)
@@ -118,6 +121,8 @@ class EmsErasmusInvoice(models.Model):
 
     def write(self, vals):
         _check_transfer_fields(self, vals)
+        if not self.env.su and self.filtered(lambda invoice: invoice.state == 'paid'):
+            raise UserError(_("A paid invoice cannot change."))
         result = super().write(vals)
         if {'amount', 'mobility_ids'} & set(vals):
             self._ems_split()
@@ -185,7 +190,7 @@ class EmsErasmusPayment(models.Model):
     amount = fields.Monetary(string="Amount", required=True)
     request_date = fields.Date(string="Requested on", readonly=True,
                                default=lambda self: self.env['ems.datetime_utils'].get_local_today())
-    state = fields.Selection(string="State", required=True, default='to_pay', readonly=True,
+    state = fields.Selection(string="State", required=True, default='to_pay', readonly=True, tracking=True,
                              selection=[('to_pay', "To pay"), ('paid', "Paid")])
     paid_date = fields.Date(string="Paid on", readonly=True)
     paid_by_id = fields.Many2one(string="Marked paid by", comodel_name='res.users', readonly=True)
@@ -201,8 +206,15 @@ class EmsErasmusPayment(models.Model):
         for payment in self:
             payment.display_name = f"{payment.partner_id.name} - {kinds.get(payment.kind, '')}"
 
+    def init(self):
+        """The first payment (prefinancing or single) and the final one, once per mobility: the check in
+        action_request_* cannot see a request made at the same moment in another transaction."""
+        create_unique_index(self.env.cr, 'ems_erasmus_payment_once_per_mobility', self._table,
+                            ['mobility_id', "(kind = 'final')"])
+
     @api.model_create_multi
     def create(self, vals_list):
+        check_workflow_create(self, vals_list)
         payments = super().create(vals_list)
         _ask_transfer(payments)
         return payments
@@ -222,8 +234,7 @@ class EmsErasmusPayment(models.Model):
 
     def write(self, vals):
         _check_transfer_fields(self, vals)
-        if not self.env.su and not self.env.context.get('ems_erasmus_payment_state') \
-                and self.filtered(lambda payment: payment.state == 'paid'):
+        if not self.env.su and self.filtered(lambda payment: payment.state == 'paid'):
             raise UserError(_("A paid payment cannot change."))
         return super().write(vals)
 
@@ -242,12 +253,22 @@ class EmsErasmusPayment(models.Model):
 
 
 def _mark_paid(records, paid_date, receipts=None):
-    """Paid on `paid_date` with `receipts` added, or (paid_date False) back to pay without them."""
+    """Paid on `paid_date` with `receipts` added, or (paid_date False) back to pay without them: who
+    undid it, when it had been paid and by whom, and its receipts stay in each one's history (audit
+    R-24)."""
     vals = {'state': 'paid', 'paid_by_id': records.env.uid, 'paid_date': paid_date} if paid_date else \
         {'state': 'to_pay', 'paid_by_id': False, 'paid_date': False, 'receipt_ids': [(5, 0, 0)]}
     if paid_date and receipts:
         vals['receipt_ids'] = [(4, receipt.id) for receipt in receipts]
-    records.with_context(ems_erasmus_payment_state=True).sudo().write(vals)
+    undone = {record: (record.paid_date, record.paid_by_id, record.receipt_ids) for record in records.sudo()} \
+        if not paid_date else {}
+    records.sudo().write(vals)
+    for record, (was_paid_on, was_paid_by, was_receipts) in undone.items():
+        record.message_post(
+            body=_("Transfer undone by %(user)s. It had been marked paid on %(date)s by %(payer)s; its receipts "
+                   "are attached here.", user=records.env.user.name, date=format_date(records.env, was_paid_on),
+                   payer=was_paid_by.name), attachment_ids=was_receipts.ids,
+            message_type='notification', subtype_xmlid='mail.mt_note')
     if paid_date:
         records.sudo().activity_ids.action_feedback()
     else:

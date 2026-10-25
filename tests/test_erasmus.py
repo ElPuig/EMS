@@ -218,8 +218,8 @@ class TestErasmusApplication(TransactionCase):
 
     def test_state_only_changes_through_the_actions(self):
         application = self._apply()
-        with self.assertRaises(UserError):
-            application.state = 'admitted'
+        with self.assertRaises(AccessError):
+            application.with_user(self.erasmus_user).state = 'admitted'
 
     def test_subsanation_round_trip(self):
         application = self._apply()

@@ -7,12 +7,13 @@ from markupsafe import Markup
 from pytz import UTC
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools.sql import column_exists
 
 from .application import RANKED_STATES, SUBMITTED_STATES
 from .offer import HOLDING_STATES
 from .records import LEGACY_FOLDER_SQL, PARTICIPANT_CATEGORIES
+from .workflow import check_workflow_create, check_workflow_write
 
 # The centre's two Erasmus+ projects: CFGM goes on KA121-VET, CFGS on KA131-HED.
 PROJECTS = [('ka121_vet', "KA121-VET"), ('ka131_hed', "KA131-HED")]
@@ -197,6 +198,7 @@ class EmsErasmusCall(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        check_workflow_create(self, vals_list)
         for vals in vals_list:
             audience = vals.get('audience', 'student')
             if audience == 'staff':
@@ -400,6 +402,7 @@ class EmsErasmusCall(models.Model):
                 for index, step in enumerate(names, 1)]
 
     def write(self, vals):
+        check_workflow_write(self, vals)
         if 'audience' in vals and self.filtered(
                 lambda call: call.audience != vals['audience'] and call.application_ids):
             raise UserError(_("A call with applications cannot change who it is for."))
@@ -511,7 +514,8 @@ class EmsErasmusCall(models.Model):
                 raise UserError(_("The destinations are chosen after the definitive resolution of a students' call."))
             if not call.destination_ids:
                 raise UserError(_("Add the destinations first."))
-        self.write({'choice_open': True})
+        self._ems_check_manager()
+        self.sudo().write({'choice_open': True})
         self._ems_advance_choice()
 
     def _ems_advance_choice(self):
@@ -533,12 +537,12 @@ class EmsErasmusCall(models.Model):
                     continue
                 in_order = waiting.filtered(lambda mobility: not mobility.turn_missed)
                 for mobility in in_order[:1]:
-                    mobility.with_context(ems_erasmus_state=True).write(
+                    mobility.write(
                         {'turn_deadline': now + timedelta(hours=call.choice_turn_hours)})
                     mobility._ems_send('ems.email_template_erasmus_choice_turn')
                 if not in_order:
                     left = waiting.filtered(lambda mobility: not mobility.free_choice)
-                    left.with_context(ems_erasmus_state=True).write({'free_choice': True})
+                    left.write({'free_choice': True})
                     left._ems_send('ems.email_template_erasmus_choice_turn')
 
     def _ems_candidate_partners(self):
@@ -587,10 +591,16 @@ class EmsErasmusCall(models.Model):
         return action
 
     def _ems_set_state(self, from_state, to_state):
+        self._ems_check_manager()
         for call in self:
             if call.state != from_state:
                 raise UserError(_("The call %s is not in the right state for this action.", call.name))
-        self.write({'state': to_state})
+        self.sudo().write({'state': to_state})
+
+    def _ems_check_manager(self):
+        """The actions write the call's workflow fields as superuser: only once this is checked."""
+        if not self.env['ems.erasmus.application']._ems_can_manage():
+            raise AccessError(_("Only the Erasmus team manages a call."))
 
     def _ems_now(self):
         """Now, from the centre's clock (ems.datetime_utils), as Odoo stores datetimes: naive UTC."""

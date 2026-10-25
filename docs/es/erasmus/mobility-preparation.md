@@ -66,6 +66,8 @@ Para cancelar una movilidad (por ejemplo, no se han entregado a tiempo los docum
 
 > **Personas tituladas:** un alumno que se titula y hace la movilidad en verano mantiene el acceso al portal después del cambio de curso, hasta que la movilidad se cierra o se cancela. Entonces EMS le quita el acceso, tal como habría hecho el cambio de curso.
 
+> **Lo que es evidencia no se elimina nunca.** Una movilidad, una solicitud o un documento que ya tiene un archivo, una firma, un pago o una autoevaluación no se puede eliminar, y el archivo de un documento válido no se puede eliminar ni sustituir: cancele la movilidad o suba una versión nueva. Una movilidad archivada sigue dentro de la exportación del proyecto, marcada como *Archivado*, y el índice y el manifiesto de la exportación enumeran lo que queda fuera (movilidades canceladas, participantes retirados). Si la secretaría deshace una transferencia, el historial del pago conserva quién la deshizo, cuándo se había pagado y los justificantes. Solo se puede solicitar un pago mientras la movilidad está en preparación o cerrada.
+
 ---
 
 [← Volver a los manuales de Erasmus+](index.md)

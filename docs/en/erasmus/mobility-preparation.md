@@ -66,6 +66,8 @@ To cancel a mobility (for example, the travel documents were not handed in on ti
 
 > **Graduates:** a student who graduates and does the mobility in the summer keeps access to the portal after the course transition, until the mobility is closed or cancelled. Then EMS removes the access, as the course transition would have done.
 
+> **What is evidence is never deleted.** A mobility, an application or a document that already has a file, a signature, a payment or a self-assessment cannot be deleted, nor can the file of a valid document be deleted or replaced: cancel the mobility, or upload a new version. An archived mobility still goes in the project's export, marked *Archived*, and the export's index and manifest list what it leaves out (cancelled mobilities, withdrawn participants). If the Secretary undoes a transfer, the payment's history keeps who undid it, when it had been paid and its receipts. A payment can only be requested while the mobility is in preparation or closed.
+
 ---
 
 [← Back to Erasmus+ manuals](index.md)

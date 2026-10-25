@@ -14,6 +14,7 @@ from odoo.exceptions import AccessError, UserError
 
 from .plan_rating import PROJECT_MERITS
 from .records import PARTICIPANT_CATEGORIES, STAGE_CATEGORIES, check_upload
+from .workflow import check_kept, check_workflow_create, check_workflow_write
 
 CHECK_STATES = [('pending', "Pending"), ('met', "Met"), ('not_met', "Not met")]
 YES_NO = [('yes', "Yes"), ('no', "No")]
@@ -443,6 +444,7 @@ class EmsErasmusApplication(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         """One document line per document the call asks for."""
+        check_workflow_create(self, vals_list)
         Call = self.env['ems.erasmus.call']
         for vals in vals_list:
             if vals.get('call_id') and 'document_ids' not in vals:
@@ -451,8 +453,9 @@ class EmsErasmusApplication(models.Model):
         return super().create(vals_list)
 
     def write(self, vals):
-        if 'state' in vals and not self.env.context.get('ems_erasmus_state'):
-            raise UserError(_("The state of an application only changes through its actions."))
+        """The state, the frozen scoring data and who checked what only change through the actions
+        (ems.erasmus.workflow, audit R-25)."""
+        check_workflow_write(self, vals)
         if not self.env.su and not self._ems_can_manage():
             raise AccessError(_("Only the Erasmus team changes an application."))
         now = fields.Datetime.now()
@@ -464,6 +467,11 @@ class EmsErasmusApplication(models.Model):
             # Issue #687: a staff member's modality, assigned after selection, brings its documents.
             self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
         return result
+
+    def unlink(self):
+        """An application whose documents are evidence is kept (its lines would go in cascade)."""
+        check_kept(self, self.filtered(lambda application: application.document_ids._ems_evidence()))
+        return super().unlink()
 
     # --- team actions ----------------------------------------------------------------------
 
@@ -820,7 +828,7 @@ class EmsErasmusApplication(models.Model):
                               self.partner_id.name))
 
     def _ems_set_state(self, state):
-        self.with_context(ems_erasmus_state=True).sudo().write({'state': state})
+        self.sudo().write({'state': state})
 
     def _ems_ask_review(self):
         """A task for each member of the Erasmus team to review the corrected application; it is
@@ -999,6 +1007,20 @@ class EmsErasmusApplicationDocument(models.Model):
                 owner.sudo().chatter(_("%(document)s: %(state)s.", document=line._ems_record_label(),
                                        state=labels[line.review_state]))
         return result
+
+    def unlink(self):
+        check_kept(self, self._ems_evidence())
+        return super().unlink()
+
+    def _ems_evidence(self):
+        """The lines that are evidence of the record (audit R-01): with a file, or valid."""
+        return self.filtered(lambda line: line.attachment_ids or line.prepared_attachment_ids
+                             or line.review_state == 'valid')
+
+    def _ems_kept_attachments(self):
+        """The files kept as they are (see write()): those of a valid line or of a closed record."""
+        lines = self.filtered(lambda line: line.review_state == 'valid' or line._ems_record_closed())
+        return lines.attachment_ids | lines.prepared_attachment_ids
 
     def _ems_record_closed(self):
         """Whether the record this document belongs to is closed: its files are kept as they are."""

@@ -171,6 +171,11 @@ class EmsErasmusExport(models.Model):
                                                 shared_paths)
         for group in self._ems_project_group_mobilities(project):
             entries += self._ems_group_entries(group, f"02_Mobilitats/{self._ems_group_folder(group)}/")
+        excluded = project.with_context(active_test=False).mobility_ids - self._ems_project_mobilities(project)
+        entries += [self._ems_excluded(mobility, mobility.partner_id.name, mobility.id) for mobility in excluded]
+        entries += [self._ems_excluded(group, group.name, f"GRUP{group.id:05d}") for group in
+                    self.env['ems.erasmus.group.mobility'].sudo().with_context(active_test=False).search([
+                        ('project_id', '=', project.id)]) - self._ems_project_group_mobilities(project)]
         invoice_files = self._ems_field_attachments(project.invoice_ids, 'document')
         for invoice in project.invoice_ids:
             document = invoice_files.get(invoice.id) or self.env['ir.attachment']
@@ -182,12 +187,33 @@ class EmsErasmusExport(models.Model):
 
     @api.model
     def _ems_project_mobilities(self, project):
-        return project.mobility_ids.filtered(lambda mobility: mobility.state != 'cancelled')
+        """The project's mobilities in its export, archived ones too (audit R-02): only the cancelled
+        are left out, and listed as such (`_ems_excluded`)."""
+        return project.with_context(active_test=False).mobility_ids.filtered(
+            lambda mobility: mobility.state != 'cancelled')
 
     @api.model
     def _ems_project_group_mobilities(self, project):
-        return self.env['ems.erasmus.group.mobility'].sudo().search([
+        return self.env['ems.erasmus.group.mobility'].sudo().with_context(active_test=False).search([
             ('project_id', '=', project.id), ('state', 'not in', ('draft', 'cancelled'))])
+
+    @api.model
+    def _ems_excluded(self, record, participant, mobility):
+        """The index line of a record an export leaves out on purpose (a cancelled mobility, a group
+        mobility in draft or cancelled, a withdrawn participant), also listed in the manifest: nothing
+        is left out silently. Its documents stay in EMS and in its own record's export."""
+        reason = dict(record._fields['state']._description_selection(self.env)).get(record.state, record.state)
+        return {'path': '', 'participant': participant, 'mobility': mobility, 'document': _("Record"),
+                'status': reason, 'notes': _("Not exported: %s", reason), 'excluded': reason,
+                'record': record.display_name}
+
+    @api.model
+    def _ems_archived(self, record, entries):
+        """An archived record is exported as any other, each of its lines marked as archived."""
+        if not record.active:
+            for entry in entries:
+                entry['notes'] = ". ".join(filter(None, [_("Archived"), entry.get('notes')]))
+        return entries
 
     def _ems_record_entries(self, mobility, prefix, shared_paths):
         """The record of one participant in one mobility, in the four categories: the call's
@@ -224,7 +250,7 @@ class EmsErasmusExport(models.Model):
         for entry in entries:
             entry.setdefault('participant', participant)
             entry.setdefault('mobility', mobility.id)
-        return entries
+        return self._ems_archived(mobility, entries)
 
     def _ems_line_entries(self, lines, prefix):
         """The documents of the engine (`ems.erasmus.application.document`) under `prefix`, each in its
@@ -298,7 +324,8 @@ class EmsErasmusExport(models.Model):
         for entry in entries:
             entry.setdefault('participant', group.name)
             entry.setdefault('mobility', label)
-        participants = group.participant_ids.filtered(lambda participant: participant.state == 'active').sorted(
+        everyone = group.with_context(active_test=False).participant_ids
+        participants = everyone.filtered(lambda participant: participant.state == 'active').sorted(
             lambda participant: (participant.role != 'student', participant.partner_id.name or ''))
         for participant in participants:
             kind = 'ALU' if participant.role == 'student' else 'PROF'
@@ -311,8 +338,10 @@ class EmsErasmusExport(models.Model):
             for entry in records:
                 entry.setdefault('participant', participant.partner_id.name)
                 entry.setdefault('mobility', label)
-            entries += records
-        return entries
+            entries += self._ems_archived(participant, records)
+        entries += [self._ems_excluded(participant, participant.partner_id.name, label)
+                    for participant in everyone - participants]
+        return self._ems_archived(group, entries)
 
     def _ems_group_selection_entries(self, group, common):
         """The selection's evidence (the frozen ranking, the results, renouncements and substitutions,
@@ -375,7 +404,7 @@ class EmsErasmusExport(models.Model):
     @api.model
     def _ems_group_missing(self, group):
         """Required documents of a group mobility not complete (common and active participants')."""
-        lines = group.document_ids | group.participant_ids.filtered(
+        lines = group.document_ids | group.with_context(active_test=False).participant_ids.filtered(
             lambda participant: participant.state == 'active').document_ids
         return len(lines.filtered(lambda line: line.is_required and line.file_state != 'complete'))
 
@@ -569,6 +598,8 @@ class EmsErasmusExport(models.Model):
             'files': [{key: entry.get(key) for key in keys} for entry in entries if entry.get('path')],
             'not_complete': [{key: entry.get(key) for key in ('participant', 'category', 'document', 'status')}
                              for entry in entries if not entry.get('path') and entry.get('required')],
+            'excluded': [{'record': entry['record'], 'reason': entry['excluded']}
+                         for entry in entries if entry.get('excluded')],
         }, ensure_ascii=False, indent=1, default=str)
 
     def _ems_log_message(self):

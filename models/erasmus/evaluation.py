@@ -5,6 +5,8 @@ from pytz import UTC
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 
+from .workflow import check_kept, check_workflow_create, check_workflow_write
+
 
 class EmsErasmusEvaluation(models.AbstractModel):
     """Issue #686 - what an interview (students, #684) and a mobility plan rating (staff) share:
@@ -51,6 +53,7 @@ class EmsErasmusEvaluation(models.AbstractModel):
     def create(self, vals_list):
         if not self.env.su and not self._ems_can_manage():
             raise AccessError(_("Only the Erasmus team assigns evaluations."))
+        check_workflow_create(self, vals_list)
         evaluations = super().create(vals_list)
         for evaluation in evaluations.filtered('evaluator_id'):
             evaluation._ems_schedule_activity()
@@ -58,6 +61,7 @@ class EmsErasmusEvaluation(models.AbstractModel):
         return evaluations
 
     def write(self, vals):
+        check_workflow_write(self, vals)
         if not self.env.su and not self._ems_can_manage():
             if set(vals) - set(self._ems_criteria) - self._ems_evaluator_extra_fields:
                 raise AccessError(_("An evaluator only scores the rubric of their evaluations."))
@@ -75,6 +79,9 @@ class EmsErasmusEvaluation(models.AbstractModel):
         return result
 
     def unlink(self):
+        """A submitted evaluation is part of the selection (audit R-10): reopen it to change it, never
+        delete it. One still to score is deleted, e.g. assigned by mistake."""
+        check_kept(self, self.filtered(lambda evaluation: evaluation.state == 'submitted'))
         evaluators = self.evaluator_id
         result = super().unlink()
         evaluators._ems_sync_erasmus_evaluator_group()

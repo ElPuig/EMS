@@ -108,7 +108,7 @@ class EmsErasmusCommitment(models.AbstractModel):
             raise UserError(_("There is no commitment letter to sign."))
         if not accepted:
             raise UserError(_("Tick that you accept the commitments first."))
-        self.with_context(ems_erasmus_state=True).sudo().write({
+        self.sudo().write({
             f'{prefix}signed_date': fields.Datetime.now(), f'{prefix}signed_by_id': self.env.uid,
             f'{prefix}signed_ip': ip_address, 'commitment_signed_text': self._ems_commitment_text()})
         self.sudo().chatter(_("Commitment letter accepted and signed in EMS by the family.") if guardian
@@ -132,7 +132,7 @@ class EmsErasmusCommitment(models.AbstractModel):
                 'guardian_signed_by_id': record.commitment_guardian_signed_by_id.id,
                 'guardian_signed_ip': record.commitment_guardian_signed_ip,
             })
-            record.with_context(ems_erasmus_state=True).write(dict.fromkeys(SIGNATURE_FIELDS, False))
+            record.write(dict.fromkeys(SIGNATURE_FIELDS, False))
             record.invalidate_recordset(['commitment_version_ids'])
             record.chatter(_("The conditions of the commitment letter changed (%s): the letter accepted is kept as an "
                              "earlier version and the new one has to be accepted again.", reason))

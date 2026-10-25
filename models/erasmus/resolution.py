@@ -7,6 +7,7 @@ from odoo.exceptions import AccessError, UserError
 from odoo.tools.misc import formatLang
 
 from .application import RANKED_STATES, SCORE_FIELDS, STAFF_SCORE_FIELDS
+from .workflow import check_workflow_create, check_workflow_write
 
 KINDS = [('admission', "Admission list"), ('provisional', "Provisional resolution"),
          ('definitive', "Definitive resolution"), ('rectification', "Rectification")]
@@ -66,9 +67,16 @@ class EmsErasmusResolution(models.Model):
         for resolution in self:
             resolution.name = f"{kinds.get(resolution.kind, '')} - {resolution.call_id.name or ''}"
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        check_workflow_create(self, vals_list)
+        return super().create(vals_list)
+
     def write(self, vals):
-        if self.filtered(lambda resolution: resolution.state == 'published') \
-                and not self.env.context.get('ems_erasmus_publish'):
+        """Published, by whom, when and the frozen lines only through action_prepare and
+        action_publish (audit R-25); a published resolution never changes."""
+        check_workflow_write(self, vals)
+        if not self.env.su and self.filtered(lambda resolution: resolution.state == 'published'):
             raise UserError(_("A published resolution cannot be changed: publish a rectification instead."))
         return super().write(vals)
 
@@ -87,7 +95,7 @@ class EmsErasmusResolution(models.Model):
             values = resolution._ems_line_values()
             resolution.line_ids.sudo().unlink()
             Line.create([{**vals, 'resolution_id': resolution.id} for vals in values])
-            resolution.prepare_date = fields.Datetime.now()
+            resolution.sudo().prepare_date = fields.Datetime.now()
 
     def action_publish(self):
         """Publish on the portal and email every applicant their result. A definitive resolution or
@@ -108,7 +116,7 @@ class EmsErasmusResolution(models.Model):
             if resolution.kind in FINAL_KINDS and not (
                     call.acceptance_deadline and call.acceptance_deadline > call._ems_now()):
                 raise UserError(_("Set a future acceptance deadline on the call before publishing who goes."))
-        self.with_context(ems_erasmus_publish=True).write({
+        self.sudo().write({
             'state': 'published', 'publish_date': fields.Datetime.now(), 'published_by_id': self.env.uid})
         for resolution in self:
             if resolution.kind in FINAL_KINDS:

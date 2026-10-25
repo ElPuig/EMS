@@ -82,7 +82,12 @@ incident) enters a record. `confidential` marks health, inclusion or bank data.
   (`_ems_record_owner()`), with its author and, for a group, the participant. The attachment keeps who uploaded it and when (`create_uid`, `create_date`).
 - Closing the mobility (`state = done`) closes the record: no more portal uploads, files kept.
 - Uploaded names keep only the file's own name and refuse programs, scripts and HTML/SVG
-  (`check_upload`, `FORBIDDEN_EXTENSIONS`).
+  (`check_upload`, `FORBIDDEN_EXTENSIONS`), the host's commitment of an own destination proposal
+  included.
+- The attachment itself is kept as well: the file of a valid line or of a closed record cannot be
+  deleted, overwritten or moved to another record (`ir.attachment` guard), and a line, mobility,
+  participant or group mobility holding files is never deleted (see "Workflow fields and evidence" in
+  [erasmus.md](erasmus.md)).
 
 ## Keeping period
 
@@ -120,9 +125,14 @@ sequenceDiagram
   it.
 - `index.csv` (UTF-8 with BOM): one row per document, also the missing and not applicable ones, with
   category, required, status, signers, version, path, upload date and author, size and SHA-256.
-  `manifest.json`: the export (id, scope, who, when, audit, reason) and every file. `SHA256SUMS`: the
+  `manifest.json`: the export (id, scope, who, when, audit, reason), every file and `excluded`. `SHA256SUMS`: the
   files' hashes in `sha256sum -c` format, to verify the copy archived in Drive. Only folders with
   files appear.
+- Archived records (mobilities, group mobilities, participants) are exported and counted like the
+  others, each of their index rows noted "Archived". What is left out on purpose (a cancelled
+  mobility, a group mobility in draft or cancelled, a withdrawn participant) gets one index row
+  ("Not exported: <state>") and an entry in the manifest's `excluded` list: nothing is left out
+  silently. Its documents stay in EMS and in its own record's export.
 - Files are copied from the file store in 1 MB chunks into a temporary, uncompressed ZIP (PDFs,
   photos and videos hardly shrink) and streamed: a large project never sits in memory.
 - Names go through `safe_name()`: no separators, control or reserved characters, no `..`, so no path

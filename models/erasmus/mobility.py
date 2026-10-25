@@ -7,6 +7,8 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 
 from .application import STAFF_ACTIVITIES
 from .call import PROJECTS
+from .records import check_upload
+from .workflow import check_kept, check_workflow_create, check_workflow_write
 
 # A mobility still going on: its place is held and a graduate keeps the portal (issue #687).
 OPEN_STATES = ('choosing', 'preparing')
@@ -348,8 +350,16 @@ class EmsErasmusMobility(models.Model):
         for mobility in self:
             mobility.display_name = f"{mobility.partner_id.name} - {mobility.call_id.name}"
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        check_workflow_create(self, vals_list)
+        return super().create(vals_list)
+
     def write(self, vals):
-        if not self.env.su and not self.env.context.get('ems_erasmus_state'):
+        """The state, the destination, the decision on a proposal and the commitment letter's
+        signatures only change through the actions (ems.erasmus.workflow, audit R-25)."""
+        check_workflow_write(self, vals)
+        if not self.env.su:
             touched = set(vals)
             if touched & DECISION_FIELDS and not (self._ems_can_manage() or all(
                     mobility._ems_can_validate() for mobility in self)):
@@ -360,6 +370,19 @@ class EmsErasmusMobility(models.Model):
         if {'date_start', 'date_end', 'state'} & set(vals):
             self._ems_sync_training_leave()
         return result
+
+    def unlink(self):
+        """A mobility with evidence (a file, a signature, a self-assessment, a payment) is cancelled,
+        never deleted: its documents would go in cascade (audit R-01)."""
+        check_kept(self, self.filtered(lambda mobility: mobility._ems_has_evidence()))
+        return super().unlink()
+
+    def _ems_has_evidence(self):
+        self.ensure_one()
+        mobility = self.sudo()
+        return bool(mobility.document_ids._ems_evidence() or mobility.commitment_signed_date
+                    or mobility.commitment_guardian_signed_date or mobility.commitment_version_ids
+                    or mobility.self_assessment_ids or mobility.payment_ids or mobility.proposal_attachment_ids)
 
     # --- creation ----------------------------------------------------------------------------
 
@@ -461,7 +484,7 @@ class EmsErasmusMobility(models.Model):
         among the destinations left once the others have chosen (art. 15). The place is kept."""
         Call = self.env['ems.erasmus.call']
         expired = self.sudo().search([('state', '=', 'choosing'), ('turn_deadline', '<=', Call._ems_now())])
-        expired.with_context(ems_erasmus_state=True).write({'turn_deadline': False, 'turn_missed': True})
+        expired.write({'turn_deadline': False, 'turn_missed': True})
         for mobility in expired:
             mobility.chatter(_("No destination chosen in the turn: chooses among what is left at the end."))
         expired.call_id._ems_advance_choice()
@@ -500,7 +523,7 @@ class EmsErasmusMobility(models.Model):
                 raise UserError(_("Accept the responsible declaration first."))
             values['leave_declaration'] = True
         attachments = self.env['ir.attachment'].sudo().create([{
-            'name': name, 'raw': content, 'res_model': self._name, 'res_id': self.id} for name, content in files])
+            'name': check_upload(name), 'raw': content, 'res_model': self._name, 'res_id': self.id} for name, content in files])
         self._ems_set_state(self.state if changing else 'choosing', **values, proposal_state='pending',
                             turn_deadline=False, proposal_date=fields.Datetime.now(), decision_note=False,
                             decided_by_id=False, decision_date=False,
@@ -541,7 +564,7 @@ class EmsErasmusMobility(models.Model):
             if not (mobility.decision_note or '').strip():
                 raise UserError(_("Write the reason of the decision first."))
         self._ems_activities_done()
-        self.sudo().with_context(ems_erasmus_state=True).write({
+        self.sudo().write({
             'proposal_state': 'rejected', 'decided_by_id': self.env.uid, 'decision_date': fields.Datetime.now()})
         self._ems_send('ems.email_template_erasmus_proposal_rejected')
         self.call_id.filtered('choice_open')._ems_advance_choice()
@@ -708,7 +731,7 @@ class EmsErasmusMobility(models.Model):
                     'holiday_status_id': self.env.ref('ems.leave_type_training').id,
                     'private_name': _("Erasmus+ mobility: %s", mobility.call_id.name),
                     'ems_full_day': True, 'ems_submitted': True, 'ems_responsible_declaration': True, **dates})
-                mobility.with_context(ems_erasmus_state=True).sudo().leave_id = leave
+                mobility.sudo().leave_id = leave
             elif leave and (leave.request_date_from, leave.request_date_to) != (mobility.date_start, mobility.date_end):
                 if pending:
                     leave.write(dates)
@@ -747,7 +770,11 @@ class EmsErasmusMobility(models.Model):
             mobility._ems_request_payment('final', mobility.grant_net - sum(mobility.payment_ids.mapped('amount')))
 
     def _ems_request_payment(self, kind, amount):
+        """Only for a mobility under way or closed, as the form offers it (audit R-13)."""
         self.ensure_one()
+        if self.state not in ('preparing', 'done'):
+            raise UserError(_("The mobility of %s is not under way: no payment can be requested.",
+                              self.partner_id.name))
         amount = self.currency_id.round(amount)
         if self.currency_id.compare_amounts(amount, 0) <= 0:
             raise UserError(_("There is nothing to pay to %s: check the grant and the services the centre pays.",
@@ -822,7 +849,7 @@ class EmsErasmusMobility(models.Model):
     # --- helpers -----------------------------------------------------------------------------
 
     def _ems_set_state(self, state, **vals):
-        mobilities = self.with_context(ems_erasmus_state=True).sudo()
+        mobilities = self.sudo()
         if state == 'preparing' and 'destination_date' not in vals:
             # Set when the destination is; a change validated later keeps it.
             mobilities.filtered(lambda mobility: not mobility.destination_date).destination_date = \

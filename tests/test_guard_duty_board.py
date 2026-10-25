@@ -793,13 +793,17 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
             guard_duty_weekday='0', guard_duty_view='table').\
             _render_qweb_pdf('ems.report_guard_duty_board', [self.course.id])
 
+        def badge(content, teacher):
+            """The teacher's own badge, up to its closing tag: a fixed window after the name reached
+            the next badge, which on a database with real schedules can be another teacher's WC guard
+            in the same period (Erasmus+ audit, 2026-10-25)."""
+            start = content.find(teacher.name.encode())
+            self.assertNotEqual(start, -1, teacher.name)
+            return content[start:content.find(b'</span>', start)]
+
         for content in (schedule_content, table_content):
-            self.assertIn(self.teacher_guard.name.encode(), content)
-            self.assertIn(self.teacher_a.name.encode(), content)
-            wc_marker_index = content.find(self.teacher_guard.name.encode())
-            self.assertIn(b'(WC)', content[wc_marker_index:wc_marker_index + 200])
-            plain_marker_index = content.find(self.teacher_a.name.encode())
-            self.assertNotIn(b'(WC)', content[plain_marker_index:plain_marker_index + 200])
+            self.assertIn(b'(WC)', badge(content, self.teacher_guard))
+            self.assertNotIn(b'(WC)', badge(content, self.teacher_a))
 
     def test_get_guard_duty_board_areas(self):
         """Every top-level department that manages some study, itself or through one of its

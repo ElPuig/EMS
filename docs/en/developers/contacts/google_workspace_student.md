@@ -109,8 +109,9 @@ re-derives the correct one instead). There is no manual button for this — it i
 queue-job-only, same as the staff doc notes for its own internal-only steps.
 
 The same relocation runs when a student **turns 18** (issue #690): `is_adult` changes with
-no write on the record, so the daily lifecycle cron (below) enqueues it for every active
-student with an account, not suspended, whose 18th birthday falls since its previous run.
+no write on the record, so this integration extends the coming-of-age hook
+(`_ems_on_coming_of_age`, see [Students coming of age](coming_of_age.md)) to enqueue it; the
+relocation's own guard skips students without an account or with a suspended one.
 
 **Bug found and fixed in this pass (2026-07-28):** `action_relocate_google_account` called
 `self._gw_get_service()` directly — a method that does not exist on this model (it lives
@@ -172,7 +173,7 @@ flowchart LR
 |---|---|
 | Admitted / data completed (ready) | created (queued), OU by current `is_adult` |
 | `birth_date` arrives/changes | relocated to the OU matching the new `is_adult` (queued) |
-| Turns 18 (daily cron) | relocated to the adults OU (queued) |
+| Turns 18 (coming-of-age cron) | relocated to the adults OU (queued) |
 | Archived / withdrawal / graduation conversion | **nothing yet**: `google_ws_deactivation_date` set to today + `GW_DEACTIVATION_DELAY_DAYS`, warning email sent, chatter note posted |
 | Deactivation date reached (daily cron) | suspended, moved to the suspended OU (queued); `google_ws_deletion_date` set to today + `GW_DELETION_DELAY_DAYS` |
 | Deletion date reached (daily cron) | **deleted** in Google (queued); `google_ws_deleted = True`, `student_email` kept for traceability |
@@ -191,9 +192,8 @@ only add a way to get it wrong.
 `ems.ir_cron_gw_student_lifecycle` (`data/main/ir_cron_google_workspace.csv`) runs
 `res.partner._gw_cron_process_lifecycle()` once a day. It does no Google API call itself:
 it only finds the partners whose scheduled date has arrived and enqueues the existing
-`action_suspend_google_account` / `action_delete_google_account` /
-`action_relocate_google_account` jobs, so a slow or failing Directory API call never blocks
-the cron.
+`action_suspend_google_account` / `action_delete_google_account` jobs, so a slow or failing
+Directory API call never blocks the cron.
 
 ```python
 # suspension due: archived students whose deactivation date has arrived
@@ -202,18 +202,7 @@ the cron.
 # deletion due: already suspended, deletion date arrived, not deleted yet
 [('active', '=', False), ('google_ws_deletion_date', '<=', today),
  ('google_ws_suspended', '=', True), ('google_ws_deleted', '=', False)]
-# turned 18 since the previous run (_gw_relocate_students_turning_18): active students only
-[('contact_type', '=', 'student'), ('student_email', '!=', False),
- ('google_ws_suspended', '=', False),
- ('birth_date', '>', since - 18 years), ('birth_date', '<=', today - 18 years)]
 ```
-
-`since` is the local date of the cron's previous successful run, which Odoo passes to the
-job in the context (`lastcall`; `ir.cron.lastcall`'s own help says so): a failed or skipped
-run widens the next window instead of leaving a student in the minors OU, and a second run
-on the same day finds nobody. Called without it (first run, from code), only today's
-birthdays count. One search over `res.partner`, a few milliseconds on the
-centre's data; no stored "current OU" field is needed for it.
 
 Both searches use `active_test=False` — every record they look for is archived by
 definition.
@@ -459,10 +448,9 @@ that file's `test_gw_*`/`test_migration_backfills_suspended_for_alumni_and_withd
 the warning email, cancelling, the deletion schedule set by the suspension and cancelled
 by the reactivation, `action_delete_google_account` (dry-run, the real `users().delete()`
 call, idempotence, the not-suspended guard, the address staying reserved), recreation
-after deletion, and the three cron stages - including the check that a student suspended
-before this feature existed, with no `google_ws_deletion_date`, is never deleted, and that
-the turning-18 window follows `lastcall` (catches up after missed runs, never relocates
-twice, skips minors and archived students). The cron tests patch the enqueueing helpers,
+after deletion, both cron stages - including the check that a student suspended before
+this feature existed, with no `google_ws_deletion_date`, is never deleted - and the
+coming-of-age hook enqueueing the relocation. The cron tests patch the enqueueing helpers,
 not the jobs, since the development data the test shards clone may have real students
 falling due that day.
 

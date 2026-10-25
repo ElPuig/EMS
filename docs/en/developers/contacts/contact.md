@@ -6,6 +6,7 @@ EMS does not define its own "contact" model: every student, family member, appli
 
 **Module files:**
 - `models/contacts/contact.py` — `ResPartner` (`_inherit = 'res.partner'`), `EmsStudentBenefit`
+- `models/contacts/coming_of_age.py` — `ResPartnerComingOfAge`, the daily check and hook for students turning 18 (`ADULT_AGE`, shared with `is_adult`; see [Students coming of age](coming_of_age.md))
 - `models/contacts/contact_relation.py` — `EmsContactRelationWizard`, `ResPartnerRelationAll` (`_inherit = 'res.partner.relation.all'`, from the `partner_multi_relation` OCA module)
 - `models/contacts/google_workspace_integration.py` — `ResPartnerGoogleWorkspace`, the corporate-account side of the lifecycle (not covered here — see [Google Workspace student integration](google_workspace_student.md))
 

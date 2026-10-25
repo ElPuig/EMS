@@ -2,8 +2,6 @@
 import base64
 import logging
 
-from dateutil.relativedelta import relativedelta
-
 from odoo import models, fields, api, _
 from odoo.exceptions import AccessError, UserError
 
@@ -265,6 +263,12 @@ class ResPartnerGoogleWorkspace(models.Model):
                 description="Relocate Google Workspace account: %s" % partner.name,
             ).action_relocate_google_account()
 
+    def _ems_on_coming_of_age(self):
+        """A student who turns 18 moves to the adults OU (issue #690): is_adult changes with
+        no write on the record, so nothing else would trigger the relocation."""
+        super()._ems_on_coming_of_age()
+        self._gw_enqueue_relocate()
+
     def _gw_enqueue_rename(self):
         """Enqueue the Google account name sync for students that already have an
         account (deduplicated), so fixing a name in EMS also fixes it in Google (#542)."""
@@ -339,12 +343,11 @@ class ResPartnerGoogleWorkspace(models.Model):
     def _gw_cron_process_lifecycle(self):
         """Daily cron: run whichever lifecycle step has fallen due.
 
-        Three independent stages - suspension after the first grace period, deletion after
-        the second, and the move to the adults OU of the students who just turned 18 - all
-        of which only enqueue the existing job, so a slow or failing Directory API call never
-        blocks the cron. Every suspension/deletion candidate is archived by definition, hence
-        active_test=False. Students suspended before this feature existed have no
-        google_ws_deletion_date and are therefore never deleted.
+        Two independent stages - suspension after the first grace period, deletion after
+        the second - both of which only enqueue the existing job, so a slow or failing
+        Directory API call never blocks the cron. Every candidate is archived by
+        definition, hence active_test=False. Students suspended before this feature
+        existed have no google_ws_deletion_date and are therefore never deleted.
         """
         if not self.env.company.google_ws_enabled:
             return
@@ -362,28 +365,6 @@ class ResPartnerGoogleWorkspace(models.Model):
             ('google_ws_suspended', '=', True),
             ('google_ws_deleted', '=', False),
         ])._gw_enqueue_delete()
-        self._gw_relocate_students_turning_18(today)
-
-    @api.model
-    def _gw_relocate_students_turning_18(self, today):
-        """Move to the adults OU the accounts of the students who turned 18 since the
-        previous run (issue #690).
-
-        Odoo passes that run's time in the context ('lastcall'), so a failed or skipped run
-        never leaves anyone behind, and nobody is moved twice. Without it (a first run, a
-        call from code) only today's birthdays count.
-        """
-        lastcall = self.env.context.get('lastcall')
-        since = (self.env['ems.datetime_utils'].utc_datetime_to_local(lastcall).date()
-                 if lastcall else today - relativedelta(days=1))
-        adult_age = relativedelta(years=18)
-        self.search([
-            ('contact_type', '=', 'student'),
-            ('student_email', '!=', False),
-            ('google_ws_suspended', '=', False),
-            ('birth_date', '>', since - adult_age),
-            ('birth_date', '<=', today - adult_age),
-        ])._gw_enqueue_relocate()
 
     def _gw_enqueue_delete(self):
         """Enqueue the permanent deletion of already-suspended accounts (deduplicated)."""

@@ -26658,3 +26658,8 @@ msgstr "No se ha podido leer el identificador del alumno/a del certificado y no 
 #, python-format
 msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
 msgstr "%(student)s no tiene IDALU para comprobar el del certificado (%(identifier)s): rellenadlo primero."
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_students_coming_of_age_ir_actions_server
+msgid "EMS: Students coming of age"
+msgstr "EMS: alumnado que cumple 18 años"

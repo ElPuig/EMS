@@ -25,6 +25,8 @@ Si un alumno aún no tiene cuenta:
 
 La cuenta se crea en la unidad organizativa de menores o de mayores de edad, según la edad del alumno, con el IDALU del alumno como **ID de empleado** (Employee ID) en Google (si después se corrige el IDALU en EMS, también se actualiza en Google). En la sección **Documentación** de la pestaña **Secretaría** aparece el PDF de **Credenciales de Google Workspace**, y si el alumno tiene correo personal, también las recibe por correo.
 
+Cuando el alumno cumple 18 años, EMS mueve la cuenta a la unidad organizativa de mayores de edad automáticamente ese mismo día. También la mueve cuando se corrige la fecha de nacimiento.
+
 Pueden crear cuentas administración, coordinación TAC, secretaría y el tutor o tutora del alumno (y los jefes por encima de ese tutor: jefe de seminario, jefe de departamento, jefe de estudios y dirección).
 
 ### Cuentas creadas fuera de EMS

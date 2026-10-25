@@ -25,6 +25,8 @@ If a student has no account yet:
 
 The account is created in the organizational unit for minors or adults, depending on the student's age, with the student's IDALU as its **Employee ID** in Google (if the IDALU is corrected in EMS later, Google's copy is updated too). A **Google Workspace credentials** PDF appears in the **Documentation** section of the **Secretary** tab, and if the student has a personal email, they also receive the credentials by email.
 
+When the student turns 18, EMS moves the account to the adults' organizational unit on its own that same day. It also moves it whenever the birth date is corrected.
+
 Accounts can be created by administration, TAC coordination, the secretary's office and the student's own tutor (plus the chiefs above that tutor: Seminar Chief, Department Chief, Head of Studies and Director).
 
 ### Accounts created outside EMS

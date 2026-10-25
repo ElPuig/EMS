@@ -9,6 +9,7 @@ from odoo.addons.ems.models.shared.google_workspace_mixin import (
     GW_DELETION_DELAY_DAYS,
     HttpError,
 )
+from odoo import fields
 from odoo.exceptions import AccessError, UserError
 from odoo.tests.common import TransactionCase
 
@@ -542,13 +543,24 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
 
     # --- the cron ----------------------------------------------------------
 
+    def _enqueued_by_cron(self, helper, lastcall=None):
+        """The students the cron hands to one of its enqueueing helpers, patched out: a mock
+        can't be a queue_job job, and the development data the test shards clone may well
+        have real students falling due today."""
+        partners = self.env['res.partner']
+        if lastcall:
+            partners = partners.with_context(lastcall=lastcall)
+        with patch.object(type(partners), helper, autospec=True) as enqueue:
+            partners._gw_cron_process_lifecycle()
+        return partners.union(*(call.args[0] for call in enqueue.call_args_list))
+
     def test_cron_does_nothing_before_the_dates(self):
         student = self._new_student()
         student.write({'active': False})
-        with patch.object(type(student), 'action_suspend_google_account') as suspend:
-            self.env['res.partner'].with_context(
-            queue_job__no_delay=True)._gw_cron_process_lifecycle()
-        suspend.assert_not_called()
+        # Patched one level up, at the enqueueing helper: a real former student falling due
+        # today in the development data the test shards clone would otherwise hand a mock to
+        # queue_job, which refuses it.
+        self.assertNotIn(student, self._enqueued_by_cron('_gw_enqueue_suspend'))
 
     def test_cron_suspends_once_the_deactivation_date_is_reached(self):
         student = self._new_student()
@@ -587,6 +599,41 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertFalse(student.google_ws_suspended)
+
+    # --- the cron: students turning 18 (issue #690) -------------------------
+
+    def _student_aged(self, login, **age):
+        return self._new_student(
+            student_id=next_student_id(), student_email=f'{login}@elpuig.xeill.net',
+            birth_date=self._today() - relativedelta(years=18) + relativedelta(**age))
+
+    def _relocated_by_cron(self, lastcall=None):
+        return self._enqueued_by_cron('_gw_enqueue_relocate', lastcall)
+
+    def test_cron_relocates_students_turning_18_today(self):
+        birthday = self._student_aged('gw.birthday')
+        minor = self._student_aged('gw.minor', days=1)
+        archived = self._student_aged('gw.archived')
+        archived.write({'active': False})
+        relocated = self._relocated_by_cron()
+        self.assertIn(birthday, relocated)
+        self.assertNotIn(minor, relocated)
+        self.assertNotIn(archived, relocated)
+
+    def test_cron_catches_up_on_birthdays_since_its_last_run(self):
+        # A run that failed or was skipped must not leave a student in the minors OU: the
+        # window starts at the previous successful run Odoo passes in the context.
+        three_days_ago = self._student_aged('gw.three.days', days=-3)
+        long_ago = self._student_aged('gw.long.ago', days=-10)
+        four_days = fields.Datetime.now() - relativedelta(days=4)
+        relocated = self._relocated_by_cron(lastcall=four_days)
+        self.assertIn(three_days_ago, relocated)
+        self.assertNotIn(long_ago, relocated)
+
+    def test_cron_does_not_relocate_twice(self):
+        three_days_ago = self._student_aged('gw.three.days', days=-3)
+        yesterday = fields.Datetime.now() - relativedelta(days=1)
+        self.assertNotIn(three_days_ago, self._relocated_by_cron(lastcall=yesterday))
 
     # --- withdrawal / graduation path --------------------------------------
 

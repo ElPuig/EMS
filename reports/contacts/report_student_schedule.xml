@@ -19,11 +19,16 @@
                         <div class="page">
                             <style>
                                 .gs-group-title { font-size: 22px; margin-bottom: 2px; }
-                                .gs-tutor-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 14px 0; }
+                                .gs-header-subtitle-block { margin: 0 0 14px 0; }
+                                .gs-tutor-title { font-size: 14px; font-weight: 500; color: #444; margin: 0 0 2px 0; }
+                                .gs-tutor-title:last-child { margin-bottom: 0; }
                             </style>
 
                             <h1 class="gs-group-title"><span t-field="student.name"/> (<span t-field="student.env.company.current_course_id.name"/>)</h1>
-                            <h2 t-if="student.main_group_id" class="gs-tutor-title">Group: <span t-field="student.main_group_id.name"/></h2>
+                            <div t-if="student.main_group_id or student.tutor_id" class="gs-header-subtitle-block">
+                                <h2 t-if="student.main_group_id" class="gs-tutor-title">Group: <span t-field="student.main_group_id.name"/></h2>
+                                <h2 t-if="student.tutor_id" class="gs-tutor-title">Tutor: <span t-field="student.tutor_id.name"/><t t-if="student.tutor_id.work_email"> (<a t-att-href="'mailto:%s' % student.tutor_id.work_email" t-out="student.tutor_id.work_email"/>)</t></h2>
+                            </div>
 
                             <t t-set="lines" t-value="student.get_schedule_report_lines()"/>
                             <t t-if="lines">

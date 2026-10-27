@@ -26642,13 +26642,13 @@ msgstr "Se archiva cuando quien la revisa la descarta."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__justification_date
-msgid "Justification requested on"
-msgstr "Fecha de la solicitud de justificación"
+msgid "Teacher notified on"
+msgstr "Fecha del aviso al docente"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__justification_date
-msgid "The reminders to the teacher and the report to their Head of Studies count from this day."
-msgstr "Los recordatorios al docente y el aviso a su jefe de estudios cuentan desde este día."
+msgid "The day the Head of Studies asked the teacher for a justification or prepared the absence for them: the reminders to the teacher and the report to their Head of Studies count from it."
+msgstr "El día que el jefe de estudios pidió una justificación al docente o le preparó la ausencia: los recordatorios al docente y el aviso a su jefe de estudios cuentan desde ese día."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_review

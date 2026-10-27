@@ -86,8 +86,9 @@ class EmsAbsencePending(models.Model):
         string="Absence type", comodel_name="hr.leave.type", readonly=True, copy=False,
         help="Chosen by the Head of Studies: the teacher's request opens with it.")
     justification_date = fields.Date(
-        string="Justification requested on", readonly=True, copy=False,
-        help="The reminders to the teacher and the report to their Head of Studies count from this day.")
+        string="Teacher notified on", readonly=True, copy=False,
+        help="The day the Head of Studies asked the teacher for a justification or prepared the absence for them: "
+             "the reminders to the teacher and the report to their Head of Studies count from it.")
     leave_id = fields.Many2one(
         string="Absence requested", comodel_name="hr.leave", readonly=True, copy=False,
         ondelete="set null")

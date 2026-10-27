@@ -26644,13 +26644,13 @@ msgstr "S'arxiva quan qui la revisa la descarta."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__justification_date
-msgid "Justification requested on"
-msgstr "Data de la sol·licitud de justificació"
+msgid "Teacher notified on"
+msgstr "Data de l'avís al docent"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__justification_date
-msgid "The reminders to the teacher and the report to their Head of Studies count from this day."
-msgstr "Els recordatoris al docent i l'avís al seu cap d'estudis compten des d'aquest dia."
+msgid "The day the Head of Studies asked the teacher for a justification or prepared the absence for them: the reminders to the teacher and the report to their Head of Studies count from it."
+msgstr "El dia que el cap d'estudis va demanar una justificació al docent o li va preparar l'absència: els recordatoris al docent i l'avís al seu cap d'estudis compten des d'aquest dia."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_review

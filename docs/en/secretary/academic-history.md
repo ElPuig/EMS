@@ -16,7 +16,8 @@ This guide explains the **academic history**: a permanent, per-course summary of
 4. [Adjusting the academic result](#adjusting-the-academic-result)
 5. [Applying a grade review](#applying-a-grade-review)
 6. [Adding a previous record](#adding-a-previous-record)
-7. [Finals pending the work placement](#finals-pending-the-work-placement)
+7. [Importing a previous curriculum record](#importing-a-previous-curriculum-record)
+8. [Finals pending the work placement](#finals-pending-the-work-placement)
 
 ---
 
@@ -114,6 +115,23 @@ If the certificate does not have a module's work placement (EM) grade yet, the m
 ![Previous record created in the history, with the Previous record ribbon, the origin centre, the certificate and the modules](../../assets/secretary/academic-history-previous-record.png)
 
 The record shows with the **Previous record** ribbon, the origin centre and the certificate. The **Previous records** filter of the history list shows all of them. To correct it later, use the grade review as on any other record.
+
+## Importing a previous curriculum record
+
+A cycle the student studied under a **previous curriculum** (the LOE cycles organised in units, UF, which SAGA managed) does not fit the per-course history: it is kept apart, exactly as printed on its academic history document, so it can be looked up, for example to decide a convalidation request. Secretariat, administration, Head of Studies and Director can import it.
+
+1. Open the student's form and, in the **Actions** dropdown, click **Import a previous curriculum record**.
+2. In **Academic history document**, upload the academic history (*Historial acadèmic*) PDF.
+3. The curriculum, the centre, the years and a grid with every module and, under it, its units are filled in, with their hours, grade and sitting. Correct any grade or sitting that was not read right.
+4. **Title obtained** is ticked when every module listed is passed, since the document does not say whether the student graduated. Confirm or correct it and, if you know it, fill in **Title date**.
+5. Check that **Document student** is the student: if the identifier does not match their IDALU, or cannot be checked, the record is not created.
+6. Click **Create record**.
+
+![Previous curriculum import wizard with the review grid read from the PDF: modules, units, grades and sittings](../../assets/secretary/academic-history-previous-curriculum-review.png)
+
+![Previous curriculum record with its modules and units, the title and the attached document](../../assets/secretary/academic-history-previous-curriculum.png)
+
+The record shows in the **Previous curricula** section of the **Studies** tab, and in the **Academic history** tab of the student's convalidation requests. **Planning and Grading → Grades → Previous curricula** lists all of them. A title obtained at this centre also shows the **Holds a title obtained at this centre** notice on the convalidation request. To correct a grade, the title or the notes later, open the record and edit it.
 
 ## Finals pending the work placement
 

@@ -32,8 +32,14 @@ ACCESS_MATRIX = {
     'ems.level': {'teacher': 'r', 'secretary': 'r'},
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},
     'ems.outcome': {'teacher': 'r', 'secretary': 'r'},
+    'ems.previous_curriculum_wizard': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
+    'ems.previous_curriculum_wizard.line': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.space': {'teacher': 'r', 'secretary': 'r'},
     'ems.space_type': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #672: read by the whole teaching staff, like the academic history; written only
+    # through the import wizard (sudo) or corrected by the secretariat and the administration.
+    'ems.student.previous_curriculum_record': {'teacher': 'r', 'secretary': 'rwc', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
+    'ems.student.previous_curriculum_record.line': {'teacher': 'r', 'secretary': 'rwc', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
     'ems.study': {'teacher': 'r', 'secretary': 'r'},
     'ems.subject': {'teacher': 'r', 'secretary': 'r'},
     'ems.teaching': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'rwc'},

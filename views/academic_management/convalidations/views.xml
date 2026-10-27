@@ -173,6 +173,10 @@
                             <page name="academic_history" string="Academic history"
                                   groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin">
                                 <field name="student_year_record_ids" context="{'list_view_ref': 'ems.view_year_record_history_list'}"/>
+                                <separator string="Previous curricula" invisible="not student_previous_curriculum_record_ids"/>
+                                <field name="student_previous_curriculum_record_ids"
+                                       invisible="not student_previous_curriculum_record_ids"
+                                       context="{'list_view_ref': 'ems.view_previous_curriculum_record_history_list'}"/>
                             </page>
                             <page name="documents" string="Supporting documents">
                                 <field name="attachment_ids" widget="many2many_binary"/>

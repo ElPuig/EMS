@@ -183,6 +183,8 @@ is already right, only the weighted average disagrees with Esfera).
 
 A course a student took before the history was kept in EMS - at another centre (typically the first year of a study whose second year they come here to take) or at this one (a former student from before EMS) - is typed in from the academic certificate, per learning outcome (RA), instead of generated from this centre's grade sessions. Such a record is marked `is_external`, with `origin_centre_name`, `origin_centre_code` and an optional `certificate_file`. It has no group, tutor or attendance. There are two ways in: reading the Esfera academic record PDF, or typing any other certificate in module by module.
 
+A cycle studied under a **previous curriculum** (LOE by units, from SAGA) is not a year record: it is kept as printed in its own model, see [`previous_curriculum_record.md`](previous_curriculum_record.md).
+
 ### Manual way (any certificate)
 
 ```mermaid

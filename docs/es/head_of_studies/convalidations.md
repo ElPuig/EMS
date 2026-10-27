@@ -73,9 +73,9 @@ Abre la solicitud desde la lista. El formulario muestra:
 - El documento de identidad del alumno (**Documento de identidad (DNI/NIE)**), justo debajo del IDALU y con el mismo botón de copiar, para encontrar al alumno en otras aplicaciones. También puedes buscarlo en *Alumno*.
 - **Estudio**, **Curso** y **Motivo**. Estos datos, el alumno y las observaciones del solicitante son los de la solicitud y no se pueden modificar.
 - **Estudios superados** (solo estudios previos): en este centro o en otro centro o en la universidad. Una solicitud del portal por estudios superados en otro sitio, o por cualquier otro motivo, siempre llega con documentación justificativa; solo los estudios superados aquí pueden llegar sin ella.
-- Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico consta un título obtenido aquí.
+- Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico, o en un expediente de un plan de estudios anterior, consta un título obtenido aquí.
 - Pestaña **Asignaturas**: una línea por cada módulo solicitado.
-- Pestaña **Histórico académico** (JE, JEA, dirección, secretaría y administrador): el histórico del alumno en el centro, una línea por curso, el mismo que muestra su ficha. Abre una línea para ver sus asignaturas y notas.
+- Pestaña **Histórico académico** (JE, JEA, dirección, secretaría y administrador): el histórico del alumno en el centro, una línea por curso, el mismo que muestra su ficha. Abre una línea para ver sus asignaturas y notas. Debajo, **Planes de estudios anteriores** muestra los ciclos cursados con un plan de estudios anterior (LOE por unidades formativas), con todos los módulos y unidades tal como figuran en el documento.
 - Pestaña **Documentación justificativa**: los ficheros adjuntados.
 - Pestaña **Observaciones del solicitante**: lo que ha escrito el alumno o la familia.
 - Pestaña **Documentación solicitada**: la última documentación que has pedido, si has pedido alguna.

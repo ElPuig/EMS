@@ -880,6 +880,20 @@ class TestConvalidation(TransactionCase):
         request.invalidate_recordset(['has_centre_title'])
         self.assertTrue(request.has_centre_title)
 
+    def test_previous_curriculum_title_at_the_centre_is_flagged(self):
+        """A previous curriculum's title (issue #672) counts only when this centre granted it."""
+        self.env.company.center_code = '08000777'
+        request = self._request()
+        record = self.env['ems.student.previous_curriculum_record'].sudo().create({
+            'student_id': self.student.id, 'curriculum_code': 'CFPS ICX0',
+            'curriculum_name': 'CFPS Cicle Inventat (LOE)', 'centre_code': '08999999',
+            'title_obtained': True})
+        self.assertFalse(request.has_centre_title)
+        record.centre_code = '08000777'
+        request.invalidate_recordset(['has_centre_title'])
+        self.assertTrue(request.has_centre_title)
+        self.assertEqual(request.with_user(self.secretary).student_previous_curriculum_record_ids, record)
+
     # --- grades --------------------------------------------------------------
 
     def test_grades_only_change_once_the_secretariat_completes(self):

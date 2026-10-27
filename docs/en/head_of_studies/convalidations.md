@@ -73,9 +73,9 @@ Open the request from the list. The form shows:
 - The student's identity document (**Document ID**), right under the IDALU and with the same copy button, to look the student up in other applications. You can also search for it under *Student*.
 - **Study**, **Course** and **Grounds**. These, the student and the applicant's comments come from the request and cannot be changed.
 - **Studies passed** (prior studies only): at this centre or at another centre or university. A request from the portal for studies passed elsewhere, or on any other grounds, always comes with supporting documents; only studies passed here may come without them.
-- Under the student's name, the notice **Holds a title obtained at this centre** when the academic history records a title obtained here.
+- Under the student's name, the notice **Holds a title obtained at this centre** when the academic history, or a previous curriculum record, records a title obtained here.
 - **Subjects** tab: one line for each module requested.
-- **Academic history** tab (Head of Studies, Deputy, Director, secretariat and administrator): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades.
+- **Academic history** tab (Head of Studies, Deputy, Director, secretariat and administrator): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades. Below, **Previous curricula** shows the cycles studied under a previous curriculum (LOE by units), with every module and unit as printed on their document.
 - **Supporting documents** tab: the attached files.
 - **Applicant's comments** tab: what the student or the family wrote.
 - **Documentation requested** tab: the last documentation you asked for, if any.

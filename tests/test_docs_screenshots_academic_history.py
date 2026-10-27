@@ -13,8 +13,9 @@ import base64
 
 from odoo.tests.common import Form, HttpCase, tagged
 
-from .common import DocsScreenshotMixin, build_academic_record_pdf, create_level_study, mock_outgoing_email, \
-    create_level_study_group, create_role_employee, create_role_user, next_student_id
+from .common import DocsScreenshotMixin, build_academic_record_pdf, build_previous_curriculum_pdf, \
+    create_level_study, mock_outgoing_email, create_level_study_group, create_role_employee, create_role_user, \
+    next_student_id
 
 
 @tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
@@ -188,6 +189,69 @@ class TestDocsScreenshotsPreviousRecord(DocsScreenshotMixin, HttpCase):
             f'/odoo/action-ems.action_year_record_list/{record.id}', '.o_form_sheet',
             'academic-history-previous-record.png', login='doc_shot_previous_secretary',
             wait_for=".o_form_sheet div[name='subject_record_ids'] .o_data_row",
+        )
+
+
+@tagged('-standard', 'ems_screenshots', 'post_install', '-at_install')
+class TestDocsScreenshotsPreviousCurriculum(DocsScreenshotMixin, HttpCase):
+    """The previous curriculum import (issue #672): its review grid, and the record it creates.
+    The academic history is an invented one - a real one carries a real student's name, document
+    number and signatures."""
+    allow_end_on_form = True
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.secretary = create_role_user(cls, 'secretary', 'doc_shot_curriculum_secretary',
+                                         lang='ca_ES', name='Secretaria',
+                                         email='secretaria.curriculum@example.com')
+        create_role_employee(cls, cls.secretary, employee_type='asp', name='0000 Secretaria')
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Laia Puig Serra', 'contact_type': 'alumni', 'student_id': next_student_id()})
+        cls.document = build_previous_curriculum_pdf(cls.student.student_id, [
+            ('001', 'MP1. Sistemes informàtics', 198, '6', 'Ord.', [
+                ('00101', 'UF1. Instal·lació, configuració i|explotació del sistema informàtic', 71, '7', '1'),
+                ('00102', 'UF2. Gestió de la informació i de|recursos en una xarxa', 91, '5', '2'),
+                ('00103', 'UF3. Implantació de programari|específic', 36, '6', '1'),
+            ]),
+            ('002', 'MP2. Bases de dades', 231, '7', 'Ord.', [
+                ('00201', 'UF1. Introducció a les bases de|dades', 55, '7', '1'),
+                ('00202', 'UF2. Llenguatges SQL: DML i DDL', 77, '8', '1'),
+                ('00203', 'UF3. Llenguatge SQL: DCL i|extensió procedimental', 66, '5', '1'),
+                ('00204', 'UF4. Bases de dades objecte-|relacionals', 33, '6', '1'),
+            ]),
+            ('003', 'MP3. Programació', 0, '', '', [
+                ('00301', 'UF1. Programació estructurada', 85, '5', '1'),
+                ('00302', 'UF2. Disseny modular', 50, 'NP', ''),
+            ]),
+            ('014', 'MP14. Formació en centres de|treball', 317, 'Ap', 'Ord.', [
+                ('01401', 'Formació en centres de treball', 317, 'Ap', '1'),
+            ]),
+        ], student_name='Puig Serra, Laia', centre=('08999999', "Institut de l'Exemple"),
+            curriculum=('CFPS ICX0', "CFPS Desenvolupament d'aplicacions inventades (LOE)"),
+            years='De 2019 a 2021')
+        attachment = cls.env['ir.attachment'].create({
+            'name': 'historial.pdf', 'datas': base64.b64encode(cls.document), 'public': True,
+            'mimetype': 'application/pdf'})
+        cls.env['ir.model.data'].create({
+            'module': 'ems', 'name': 'doc_shot_previous_curriculum_document',
+            'model': 'ir.attachment', 'res_id': attachment.id})
+
+    def test_capture_previous_curriculum_screenshots(self):
+        self._capture(
+            f'/odoo/action-ems.action_student_kanban/{self.student.id}', '.modal-content',
+            'academic-history-previous-curriculum-review.png',
+            login='doc_shot_curriculum_secretary', tour='ems_doc_shot_previous_curriculum', padding=0,
+        )
+        form = Form(self.env['ems.previous_curriculum_wizard'].with_user(self.secretary)
+                    .with_context(default_student_id=self.student.id))
+        form.certificate_file = base64.b64encode(self.document)
+        form.save().action_create()
+        record = self.student.previous_curriculum_record_ids
+        self._capture(
+            f'/odoo/action-ems.action_previous_curriculum_record_list/{record.id}', '.o_form_sheet',
+            'academic-history-previous-curriculum.png', login='doc_shot_curriculum_secretary',
+            wait_for=".o_form_sheet div[name='line_ids'] .o_data_row",
         )
 
 

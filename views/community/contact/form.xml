@@ -141,6 +141,11 @@
                                     string="Add a previous record"
                                     invisible="contact_type != 'student'"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
+                            <!-- Issue #672: same roles as the previous record above. -->
+                            <button name="action_previous_curriculum_wizard" type="object"
+                                    string="Import a previous curriculum record"
+                                    invisible="contact_type not in ('student', 'alumni', 'withdrawal')"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                             <!-- Issue #635: the roles that may edit the academic history. A
                                  withdrawal with a title becomes alumni. -->
                             <button name="action_title_register_wizard" type="object"
@@ -606,6 +611,11 @@
                         <separator string="Academic history"/>
                         <field name="year_record_ids" readonly="1"
                                context="{'list_view_ref': 'ems.view_year_record_history_list'}"/>
+                        <!-- Issue #672: studied under a previous curriculum, kept as printed. -->
+                        <separator string="Previous curricula" invisible="not previous_curriculum_record_ids"/>
+                        <field name="previous_curriculum_record_ids" readonly="1"
+                               invisible="not previous_curriculum_record_ids"
+                               context="{'list_view_ref': 'ems.view_previous_curriculum_record_history_list'}"/>
                     </page>
                 </xpath>
 

@@ -119,7 +119,7 @@ class EmsExternalRecordWizard(models.TransientModel):
         self.certificate_student_name = certificate['student_name']
         self.origin_centre_code = courses[0]['centre_code']
         self.origin_centre_name = courses[0]['centre_name']
-        self.study_id = self._study_from_code(certificate['study_code'])
+        self.study_id = self.env['ems.study'].find_by_code_token(certificate['study_code'])
         self.line_ids = self._line_commands(courses, certificate['study_code'])
         self.course_id = self.line_ids.course_id[:1]
         return self._certificate_warning()
@@ -138,13 +138,6 @@ class EmsExternalRecordWizard(models.TransientModel):
     def _course_available(self, course):
         # By id: inside an onchange both sides may be new records wrapping the real ones.
         return bool(course) and course._origin.id in self.available_course_ids._origin.ids
-
-    def _study_from_code(self, study_code):
-        """The study whose EMS code ends with the certificate's (CFPM IC10 -> CFGM_IC10)."""
-        if not study_code:
-            return self.env['ems.study']
-        return self.env['ems.study'].search([('code', '=like', f"%\\_{study_code}"),
-                                             ('deprecated', '=', False)], limit=1)
 
     def _line_commands(self, courses, study_code):
         """One review line per module, learning outcome and work placement of the certificate, in
@@ -249,22 +242,8 @@ class EmsExternalRecordWizard(models.TransientModel):
         return None
 
     def _certificate_student_problem(self):
-        """Why the certificate cannot be told to be this student's, if it cannot: its identifier was
-        not read, the student has no IDALU to check it against, or they differ."""
-        identifier = self.certificate_student_identifier
-        own = self.student_id.student_id
-        if not identifier:
-            return _("The student identifier could not be read from the certificate, so it cannot "
-                     "be checked against the student's IDALU.")
-        if not own:
-            return _("%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) "
-                     "against: fill it in first.", student=self.student_id.display_name,
-                     identifier=identifier)
-        if identifier != own:
-            return _("The certificate belongs to %(name)s (%(identifier)s), not to this "
-                     "student (%(own)s).", name=self.certificate_student_name,
-                     identifier=identifier, own=own)
-        return False
+        return self.env['ems.base'].get_certificate_student_problem(
+            self.student_id, self.certificate_student_identifier, self.certificate_student_name)
 
     @api.onchange('study_id')
     def _onchange_study_id(self):

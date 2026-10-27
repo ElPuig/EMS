@@ -13,7 +13,8 @@ class EmsStudentHistoryLine(models.Model):
     _name = 'ems.student.history_line'
     _description = 'Academic history line: a course of the history or a previous curriculum record.'
     _auto = False
-    _order = 'start_year asc, id asc'
+    # Newest first, as the history is read: the oldest course (or previous curriculum) at the bottom.
+    _order = 'start_year desc, id desc'
 
     student_id = fields.Many2one(string="Student", comodel_name='res.partner', readonly=True)
     year_record_id = fields.Many2one(string="Year record", comodel_name='ems.student.year_record',

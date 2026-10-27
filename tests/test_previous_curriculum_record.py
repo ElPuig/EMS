@@ -134,7 +134,8 @@ class TestPreviousCurriculumRecord(TransactionCase):
             'student_id': self.student.id, 'course_id': course.id, 'study_name': 'Current Study'})
         self.env.flush_all()
         self.student.invalidate_recordset(['history_line_ids'])
-        previous, current = self.student.history_line_ids
+        # Newest first: the previous curriculum (2080) after the course (2083).
+        current, previous = self.student.history_line_ids
         self.assertEqual(previous.previous_curriculum_record_id, self.student.previous_curriculum_record_ids)
         self.assertTrue(previous.is_previous_curriculum)
         self.assertEqual((previous.course_name, previous.study_name, previous.subject_count),

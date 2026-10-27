@@ -189,6 +189,9 @@ class ResPartner(models.Model):
     previous_curriculum_record_ids = fields.One2many(
         string="Previous curricula", comodel_name='ems.student.previous_curriculum_record',
         inverse_name='student_id')
+    # Both of them in one list, the "Academic history" the student form shows (issue #672).
+    history_line_ids = fields.One2many(string="Whole academic history", comodel_name='ems.student.history_line',
+                                       inverse_name='student_id')
     # Derived transition state (not stored). Consumed by the "no destination" report.
     transition_status = fields.Selection([
         ('enrolled', 'Enrolled next course'),

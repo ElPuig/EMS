@@ -68,7 +68,7 @@ registry.category("web_tour.tours").add("ems_guidance_student_file", {
             run: "click",
         },
         {
-            trigger: ".o_notebook .tab-pane.active .o_field_widget[name='year_record_ids'] .o_data_row",
+            trigger: ".o_notebook .tab-pane.active .o_field_widget[name='history_line_ids'] .o_data_row",
             content: "The frozen per-course academic history is readable",
         },
     ],

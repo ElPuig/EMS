@@ -75,7 +75,7 @@ Open the request from the list. The form shows:
 - **Studies passed** (prior studies only): at this centre or at another centre or university. A request from the portal for studies passed elsewhere, or on any other grounds, always comes with supporting documents; only studies passed here may come without them.
 - Under the student's name, the notice **Holds a title obtained at this centre** when the academic history, or a previous curriculum record, records a title obtained here.
 - **Subjects** tab: one line for each module requested.
-- **Academic history** tab (Head of Studies, Deputy, Director, secretariat and administrator): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades. Below, **Previous curricula** shows the cycles studied under a previous curriculum (LOE by units), with every module and unit as printed on their document.
+- **Academic history** tab (Head of Studies, Deputy, Director, secretariat and administrator): the student's history at the centre, one line per course, the same one their form shows. Open a line to see its subjects and grades. The cycles studied under a previous curriculum (LOE by units) are listed too, with **Previous curriculum** ticked: opening one shows every module and unit as printed on its document.
 - **Supporting documents** tab: the attached files.
 - **Applicant's comments** tab: what the student or the family wrote.
 - **Documentation requested** tab: the last documentation you asked for, if any.

@@ -131,7 +131,7 @@ A cycle the student studied under a **previous curriculum** (the LOE cycles orga
 
 ![Previous curriculum record with its modules and units, the title and the attached document](../../assets/secretary/academic-history-previous-curriculum.png)
 
-The record shows in the **Previous curricula** section of the **Studies** tab, and in the **Academic history** tab of the student's convalidation requests. **Planning and Grading → Grades → Previous curricula** lists all of them. A title obtained at this centre also shows the **Holds a title obtained at this centre** notice on the convalidation request. To correct a grade, the title or the notes later, open the record and edit it.
+The record shows as one more line of the student's **Academic history** (**Studies** tab), with its years in the **Course** column and **Previous curriculum** ticked, and in the **Academic history** tab of the student's convalidation requests. Click the line to open it. **Planning and Grading → Grades → Previous curricula** lists all of them. A title obtained at this centre also shows the **Holds a title obtained at this centre** notice on the convalidation request. To correct a grade, the title or the notes later, open the record and edit it.
 
 ## Finals pending the work placement
 

@@ -36,6 +36,8 @@ ACCESS_MATRIX = {
     'ems.previous_curriculum_wizard.line': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.space': {'teacher': 'r', 'secretary': 'r'},
     'ems.space_type': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #672: read-only SQL view joining both histories in one list.
+    'ems.student.history_line': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'r'},
     # Issue #672: read by the whole teaching staff, like the academic history; written only
     # through the import wizard (sudo) or corrected by the secretariat and the administration.
     'ems.student.previous_curriculum_record': {'teacher': 'r', 'secretary': 'rwc', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},

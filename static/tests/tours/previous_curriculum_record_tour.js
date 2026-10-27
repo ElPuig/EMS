@@ -47,8 +47,18 @@ registry.category("web_tour.tours").add("ems_previous_curriculum_record", {
             run: "click",
         },
         {
-            trigger: ".o_form_view div[name='previous_curriculum_record_ids'] .o_data_row:contains('CFPS Cicle Tour (LOE)')",
-            content: "The record shows in the student's history",
+            trigger: ".o_form_view div[name='history_line_ids'] .o_data_row:contains('CFPS Cicle Tour (LOE)') td[name='study_name']",
+            content: "The record shows in the student's academic history, with the courses",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view div[name='line_ids'] .o_data_row:contains('UF1. Unitat pendent')",
+            content: "Opening the line opens the previous curriculum record",
+        },
+        {
+            trigger: ".modal .btn-close",
+            content: "Close it",
+            run: "click",
         },
         {
             trigger: ".o_main_navbar",

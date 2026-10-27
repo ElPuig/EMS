@@ -892,7 +892,8 @@ class TestConvalidation(TransactionCase):
         record.centre_code = '08000777'
         request.invalidate_recordset(['has_centre_title'])
         self.assertTrue(request.has_centre_title)
-        self.assertEqual(request.with_user(self.secretary).student_previous_curriculum_record_ids, record)
+        # Listed in the request's academic history, next to the courses.
+        self.assertEqual(request.with_user(self.secretary).student_history_line_ids.previous_curriculum_record_id, record)
 
     # --- grades --------------------------------------------------------------
 

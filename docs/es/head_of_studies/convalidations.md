@@ -75,7 +75,7 @@ Abre la solicitud desde la lista. El formulario muestra:
 - **Estudios superados** (solo estudios previos): en este centro o en otro centro o en la universidad. Una solicitud del portal por estudios superados en otro sitio, o por cualquier otro motivo, siempre llega con documentación justificativa; solo los estudios superados aquí pueden llegar sin ella.
 - Bajo el nombre del alumno, el aviso **Tiene una titulación obtenida en el centro** cuando en el historial académico, o en un expediente de un plan de estudios anterior, consta un título obtenido aquí.
 - Pestaña **Asignaturas**: una línea por cada módulo solicitado.
-- Pestaña **Histórico académico** (JE, JEA, dirección, secretaría y administrador): el histórico del alumno en el centro, una línea por curso, el mismo que muestra su ficha. Abre una línea para ver sus asignaturas y notas. Debajo, **Planes de estudios anteriores** muestra los ciclos cursados con un plan de estudios anterior (LOE por unidades formativas), con todos los módulos y unidades tal como figuran en el documento.
+- Pestaña **Histórico académico** (JE, JEA, dirección, secretaría y administrador): el histórico del alumno en el centro, una línea por curso, el mismo que muestra su ficha. Abre una línea para ver sus asignaturas y notas. También aparecen los ciclos cursados con un plan de estudios anterior (LOE por unidades formativas), con **Plan de estudios anterior** marcado: al abrir uno se ven todos los módulos y unidades tal como figuran en el documento.
 - Pestaña **Documentación justificativa**: los ficheros adjuntados.
 - Pestaña **Observaciones del solicitante**: lo que ha escrito el alumno o la familia.
 - Pestaña **Documentación solicitada**: la última documentación que has pedido, si has pedido alguna.

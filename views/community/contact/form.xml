@@ -609,13 +609,9 @@
                              the section above, it stays visible for alumni/withdrawals/expelled -
                              it is their permanent record. -->
                         <separator string="Academic history"/>
-                        <field name="year_record_ids" readonly="1"
-                               context="{'list_view_ref': 'ems.view_year_record_history_list'}"/>
-                        <!-- Issue #672: studied under a previous curriculum, kept as printed. -->
-                        <separator string="Previous curricula" invisible="not previous_curriculum_record_ids"/>
-                        <field name="previous_curriculum_record_ids" readonly="1"
-                               invisible="not previous_curriculum_record_ids"
-                               context="{'list_view_ref': 'ems.view_previous_curriculum_record_history_list'}"/>
+                        <!-- Issue #672: the courses and the previous curriculum records in one list. -->
+                        <field name="history_line_ids" readonly="1" widget="ems_history_lines"
+                               context="{'list_view_ref': 'ems.view_student_history_line_list'}"/>
                     </page>
                 </xpath>
 

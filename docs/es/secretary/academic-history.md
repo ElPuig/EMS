@@ -131,7 +131,7 @@ Un ciclo que el alumno/a cursó con un **plan de estudios anterior** (los ciclos
 
 ![Expediente de plan de estudios anterior con los módulos y las unidades formativas, el título y el documento adjunto](../../assets/secretary/academic-history-previous-curriculum.png)
 
-El expediente aparece en la sección **Planes de estudios anteriores** de la pestaña **Estudios** y en la pestaña **Histórico académico** de las solicitudes de convalidación del alumno/a. **Planificación y evaluación → Notas → Planes de estudios anteriores** los muestra todos. Un título obtenido en este centro también hace aparecer el aviso **Tiene una titulación obtenida en el centro** en la solicitud de convalidación. Para corregir más adelante una nota, el título o las observaciones, abrid el expediente y modificadlo.
+El expediente aparece como una línea más del **Histórico académico** del alumno/a (pestaña **Estudios**), con los años en la columna **Curso** y **Plan de estudios anterior** marcado, y en la pestaña **Histórico académico** de las solicitudes de convalidación del alumno/a. Haced clic en la línea para abrirlo. **Planificación y evaluación → Notas → Planes de estudios anteriores** los muestra todos. Un título obtenido en este centro también hace aparecer el aviso **Tiene una titulación obtenida en el centro** en la solicitud de convalidación. Para corregir más adelante una nota, el título o las observaciones, abrid el expediente y modificadlo.
 
 ## Finales pendientes de la estancia
 

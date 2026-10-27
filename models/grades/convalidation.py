@@ -59,10 +59,10 @@ class EmsConvalidation(models.Model):
     student_year_record_ids = fields.One2many(
         string="Academic history", related='student_id.year_record_ids',
         groups='ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin')
-    # The same, under a previous curriculum (issue #672): what the student studied before the
-    # current one, often what the request is based on.
-    student_previous_curriculum_record_ids = fields.One2many(
-        string="Previous curricula", related='student_id.previous_curriculum_record_ids',
+    # What the tab shows: the history above together with the previous curriculum records (issue
+    # #672), often what the request is based on.
+    student_history_line_ids = fields.One2many(
+        string="Whole academic history", related='student_id.history_line_ids',
         groups='ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin')
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', ondelete='set null',
                                    help="Portal user who submitted the request: the student or a family contact.")

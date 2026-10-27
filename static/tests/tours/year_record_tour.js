@@ -80,8 +80,17 @@ registry.category("web_tour.tours").add("ems_year_record_partner_tab", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='year_record_ids'] .o_data_row",
-            content: "The embedded year_record_ids list rendered on the partner's own form (a separate rendering path from the standalone list/form tour)",
+            trigger: ".o_field_widget[name='history_line_ids'] .o_data_row",
+            content: "The embedded academic history list rendered on the partner's own form (a separate rendering path from the standalone list/form tour)",
+        },
+        {
+            trigger: ".o_field_widget[name='history_line_ids'] .o_data_row td[name='study_name']",
+            content: "Open a course of the history (issue #672: the line opens the record behind it)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view div[name='subject_record_ids']",
+            content: "The course's own record opened, with its subjects",
         },
     ],
 });

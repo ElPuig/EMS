@@ -131,7 +131,7 @@ Un cicle que l'alumne/a va cursar amb un **currículum anterior** (els cicles LO
 
 ![Expedient de currículum anterior amb els mòduls i les unitats formatives, el títol i el document adjunt](../../assets/secretary/academic-history-previous-curriculum.png)
 
-L'expedient apareix a la secció **Currículums anteriors** de la pestanya **Estudis** i a la pestanya **Històric acadèmic** de les sol·licituds de convalidació de l'alumne/a. **Planificació i avaluació → Notes → Currículums anteriors** els mostra tots. Un títol obtingut en aquest centre també fa sortir l'avís **Té una titulació obtinguda al centre** a la sol·licitud de convalidació. Per corregir més endavant una nota, el títol o les observacions, obriu l'expedient i modifiqueu-lo.
+L'expedient apareix com una línia més de l'**Històric acadèmic** de l'alumne/a (pestanya **Estudis**), amb els anys a la columna **Curs** i **Currículum anterior** marcat, i a la pestanya **Històric acadèmic** de les sol·licituds de convalidació de l'alumne/a. Feu clic a la línia per obrir-lo. **Planificació i avaluació → Notes → Currículums anteriors** els mostra tots. Un títol obtingut en aquest centre també fa sortir l'avís **Té una titulació obtinguda al centre** a la sol·licitud de convalidació. Per corregir més endavant una nota, el títol o les observacions, obriu l'expedient i modifiqueu-lo.
 
 ## Finals pendents de l'estada
 

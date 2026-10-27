@@ -126,3 +126,20 @@ class TestPreviousCurriculumRecord(TransactionCase):
         self.assertFalse(form.line_ids)
         with self.assertRaises(UserError):
             form.save().action_create()
+
+    def test_the_academic_history_lists_courses_and_previous_curricula_together(self):
+        self._read(self._document()).save().action_create()
+        course = self.env['ems.course'].create({'start': 2083, 'end': 2084})
+        year_record = self.env['ems.student.year_record'].create({
+            'student_id': self.student.id, 'course_id': course.id, 'study_name': 'Current Study'})
+        self.env.flush_all()
+        self.student.invalidate_recordset(['history_line_ids'])
+        previous, current = self.student.history_line_ids
+        self.assertEqual(previous.previous_curriculum_record_id, self.student.previous_curriculum_record_ids)
+        self.assertTrue(previous.is_previous_curriculum)
+        self.assertEqual((previous.course_name, previous.study_name, previous.subject_count),
+                         ('2080-2082', 'CFPS Cicle Inventat (LOE)', 3))
+        self.assertEqual(current.year_record_id, year_record)
+        self.assertEqual((current.course_name, current.study_name), (course.name, 'Current Study'))
+        self.assertEqual(previous.action_open_record()['res_model'], 'ems.student.previous_curriculum_record')
+        self.assertEqual(current.action_open_record()['res_id'], year_record.id)

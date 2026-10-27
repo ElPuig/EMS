@@ -22,25 +22,6 @@
             </field>
         </record>
 
-        <!-- One student's, without the student column: the student form and the convalidation
-             request show it. Above the default priority so it never replaces the list above. -->
-        <record model="ir.ui.view" id="view_previous_curriculum_record_history_list">
-            <field name="name">ems.student.previous_curriculum_record.history.list</field>
-            <field name="model">ems.student.previous_curriculum_record</field>
-            <field name="priority">20</field>
-            <field name="arch" type="xml">
-                <list create="0">
-                    <field name="curriculum_name"/>
-                    <field name="centre_name"/>
-                    <field name="start_year" options="{'enable_formatting': false}"/>
-                    <field name="end_year" options="{'enable_formatting': false}"/>
-                    <field name="passed_module_count"/>
-                    <field name="module_count"/>
-                    <field name="title_obtained"/>
-                </list>
-            </field>
-        </record>
-
         <record model="ir.ui.view" id="view_previous_curriculum_record_form">
             <field name="name">ems.student.previous_curriculum_record.form</field>
             <field name="model">ems.student.previous_curriculum_record</field>

@@ -21,6 +21,7 @@ of the current curriculum from an Esfera certificate), [`convalidation.md`](conv
 classDiagram
     class res_partner {
         previous_curriculum_record_ids
+        history_line_ids
     }
     class ems_student_previous_curriculum_record {
         student_id
@@ -43,13 +44,18 @@ classDiagram
         sitting
         is_passed
     }
+    class ems_student_history_line {
+        SQL view: year records + previous curriculum records
+        year_record_id / previous_curriculum_record_id
+    }
     class ems_convalidation {
-        student_previous_curriculum_record_ids
+        student_history_line_ids
         has_centre_title
     }
     res_partner "1" --> "*" ems_student_previous_curriculum_record
     ems_student_previous_curriculum_record "1" --> "*" ems_student_previous_curriculum_record_line
-    ems_convalidation ..> ems_student_previous_curriculum_record : related, read only
+    ems_student_history_line ..> ems_student_previous_curriculum_record
+    ems_convalidation ..> ems_student_history_line : related, read only
 ```
 
 - **One record per student and curriculum** (`unique (student_id, curriculum_code)`).
@@ -115,10 +121,16 @@ sequenceDiagram
 
 ## Where it is shown
 
-- **Student form**, *Studies* tab, under the academic history (`previous_curriculum_record_ids`,
-  only when there is one).
-- **Convalidation request**, *Academic history* tab (`student_previous_curriculum_record_ids`,
-  related, same groups as the per-course history).
+- **One academic history list**, on the student form (*Studies* tab, `res.partner.history_line_ids`)
+  and on the convalidation request (*Academic history* tab, `student_history_line_ids`, related, same
+  groups as the per-course history). Its lines are `ems.student.history_line`, a read-only SQL view
+  (`_auto = False`) that joins the courses of `ems.student.year_record` (even ids) and the previous
+  curriculum records (odd ids): course or years, study or curriculum name, group, centre, result,
+  title, subjects or modules count, attendance. No data is copied and no process reads it: every
+  process keeps working on its own model. The `ems_history_lines` widget
+  (`static/src/js/backend/history_lines_field.js`) opens the record behind a clicked line
+  (`action_open_record()`, in a dialog) and reloads the form when it closes. The view's ACL is
+  read-only, for the same groups that read the history.
 - **Planning and Grading → Grades → Previous curricula**: every record.
 - **`has_centre_title`** on a convalidation request also counts a previous curriculum record with
   the title obtained whose `centre_code` is this centre's (`res.company.center_code`).

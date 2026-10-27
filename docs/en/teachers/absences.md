@@ -168,13 +168,13 @@ Sometimes EMS knows about an absence of yours that you have not requested yet. I
 - **You did not check in.** Once the day is over, if you did not check in at all, or checked in after your first lesson had ended, EMS records a *detected absence* from your first lesson to your last one (or to the time you checked in). This only happens in the areas where the centre has switched it on.
 - **Somebody announced it.** You warned your Department Chief or the Head of Studies that you would be away, and they entered it so your classes could be covered.
 
-Either way, your Head of Studies reviews it first, and you are only told if they ask you to justify it. Often it is nothing (you were at a meeting, or a training, and checked in later): then they correct your check-in or discard it, and you hear nothing about it. They can also create the absence request for you; then you are told, and you only have to follow it (for instance, attaching the supporting document).
+Either way, your Head of Studies reviews it first, and you are only told if they ask you to justify it. Often it is nothing (you were at a meeting, or a training, and checked in later): then they correct your check-in or discard it, and you hear nothing about it. They can also prepare the absence request for you: then you are told, and you open it already filled in, check it, accept the responsible declaration and send it as usual. Until you send it, nothing is requested.
 
 If they ask you to justify it, at the start of your next working day you receive a message with the day and the hours, and a link to it. Until you deal with it, you are reminded every day (unless the centre has set otherwise), and a few days later your Head of Studies is told too. You never get these messages outside your working hours.
 
 What to do:
 
-- **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in: choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop.
+- **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in (and the type, if your Head of Studies prepared it): choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop.
 - **If you were at the centre and forgot to check in**, ask your Head of Studies to record your check-in for that day. As soon as it is recorded, the detected absence is discarded on its own and the reminders stop.
 
 ![A detected absence as the teacher sees it, with the Request the absence button](../../assets/teachers/teachers-detected-absence.png)

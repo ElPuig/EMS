@@ -94,7 +94,7 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
 
 // Issue #707: the Head of Studies reviews detected absences. One from its form's Actions
 // dropdown (Request justification), two at once from the list's action menu (Discard), and one
-// through the Create absence wizard, also from the list. Fixtures: test_absence_pending_tour.py.
+// through the Create absence wizard, also from the list, which prepares it for the teacher. Fixtures: test_absence_pending_tour.py.
 function selectRow(name) {
     return {
         trigger: `.o_list_view .o_data_row:contains('${name}') .o_list_record_selector input`,
@@ -158,8 +158,8 @@ registry.category("web_tour.tours").add("ems_absence_pending_review", {
             run: "click",
         },
         {
-            trigger: "body:not(:has(.modal)) .o_list_view:not(:has(.o_data_row:contains('Review Teacher D')))",
-            content: "Requested now, so out of the list",
+            trigger: "body:not(:has(.modal)) .o_list_view .o_data_row:contains('Review Teacher D') td[name='state']:contains('Absence prepared')",
+            content: "Prepared for the teacher to send: still listed, not resolved yet",
         },
     ],
 });

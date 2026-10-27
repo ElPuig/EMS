@@ -5,7 +5,7 @@ from odoo import api, fields, models
 
 class EmsAbsencePendingLeaveWizard(models.TransientModel):
     """"Create absence" on detected absences (issue #707): the absence type, chosen once for
-    every selected entry, of the requests filed on the teachers' behalf."""
+    every selected entry, of the requests prepared for the teachers to send."""
     _name = "ems.absence_pending.leave_wizard"
     _description = "Create absence from detected absences"
 
@@ -28,7 +28,7 @@ class EmsAbsencePendingLeaveWizard(models.TransientModel):
         """Closing the dialog reloads whatever opened it; a notice of what was skipped, if any,
         is shown on the way."""
         self.ensure_one()
-        result = self.absence_ids._ems_create_absences(self.holiday_status_id)
+        result = self.absence_ids._ems_prepare_absences(self.holiday_status_id)
         close = {'type': 'ir.actions.act_window_close'}
         if result.get('tag') != 'display_notification':
             return close

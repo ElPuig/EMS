@@ -15,7 +15,7 @@
                     <field name="leave_id" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-warning="state == 'pending'"
-                           decoration-info="state == 'justification_requested'"
+                           decoration-info="state in ('justification_requested', 'absence_prepared')"
                            decoration-success="state in ('linked', 'corrected')"
                            decoration-muted="state == 'discarded'"/>
                 </list>
@@ -50,18 +50,19 @@
                         <field name="active" invisible="1"/>
                         <group>
                             <group>
-                                <field name="employee_id" readonly="state not in ('pending', 'justification_requested')"
+                                <field name="employee_id" readonly="state not in ('pending', 'justification_requested', 'absence_prepared')"
                                        options="{'no_create': True, 'no_open': True}"/>
                                 <field name="origin"/>
                                 <field name="leave_id" invisible="not leave_id"/>
+                                <field name="leave_type_id" invisible="not leave_type_id" options="{'no_open': True}"/>
                                 <field name="justification_date" invisible="not justification_date"/>
                                 <field name="can_request" invisible="1"/>
                                 <field name="can_review" invisible="1"/>
                                 <field name="can_correct_check_in" invisible="1"/>
                             </group>
                             <group>
-                                <field name="date_from" readonly="state not in ('pending', 'justification_requested')"/>
-                                <field name="date_to" readonly="state not in ('pending', 'justification_requested')"/>
+                                <field name="date_from" readonly="state not in ('pending', 'justification_requested', 'absence_prepared')"/>
+                                <field name="date_to" readonly="state not in ('pending', 'justification_requested', 'absence_prepared')"/>
                             </group>
                         </group>
                         <field name="note" placeholder="Why the teacher will be absent, for your own reference"/>
@@ -80,6 +81,7 @@
                     <filter name="pending" string="To review" domain="[('state', '=', 'pending')]"/>
                     <filter name="justification_requested" string="Justification requested"
                             domain="[('state', '=', 'justification_requested')]"/>
+                    <filter name="absence_prepared" string="Absence prepared" domain="[('state', '=', 'absence_prepared')]"/>
                     <filter name="corrected" string="Check-in corrected" domain="[('state', '=', 'corrected')]"/>
                     <filter name="linked" string="Requested" domain="[('state', '=', 'linked')]"/>
                     <filter name="discarded" string="Discarded" domain="[('state', '=', 'discarded')]"/>
@@ -102,7 +104,7 @@
             <field name="name">Detected absences</field>
             <field name="res_model">ems.absence_pending</field>
             <field name="view_mode">list,form</field>
-            <field name="context">{'search_default_pending': 1, 'search_default_justification_requested': 1}</field>
+            <field name="context">{'search_default_pending': 1, 'search_default_justification_requested': 1, 'search_default_absence_prepared': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Announce an absence a teacher has not requested yet
@@ -154,9 +156,9 @@
             <field name="arch" type="xml">
                 <form string="Create absence">
                     <p class="text-muted">
-                        An absence request is created for each teacher, for the day and hours
-                        detected, and acknowledged by you when you approve that teacher's
-                        absences. The teacher is told, and continues it as any other request.
+                        An absence request of this type is prepared for each teacher, for the day
+                        and hours detected. It is not sent: the teacher is told, checks it, accepts
+                        the responsible declaration and sends it, and it is then approved as usual.
                     </p>
                     <group>
                         <field name="holiday_status_id" options="{'no_create': True, 'no_open': True}"/>

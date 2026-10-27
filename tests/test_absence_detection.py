@@ -476,45 +476,45 @@ class TestAbsenceDetection(TransactionCase):
                 'holiday_status_id': self.env.ref('ems.leave_type_justified').id})
         return wizard.action_confirm()
 
-    def test_create_absence(self):
+    def test_create_absence_prepares_it_for_the_teacher_to_send(self):
+        """Never filed nor approved on the teacher's behalf: they check it, accept the responsible
+        declaration and send it themselves (developer's decision)."""
         absence, _arrival = self._late_absence()
+        justified = self.env.ref('ems.leave_type_justified')
         self._create_absence(absence, self.head_of_studies)
 
-        leave = absence.leave_id
-        self.assertEqual(absence.state, 'linked')
-        self.assertEqual(leave.employee_id, self.teacher)
-        self.assertEqual((leave.request_date_from, leave.request_hour_from, leave.request_hour_to),
-                         (self.yesterday, 9.0, 10.5))
-        self.assertEqual(leave.ems_filed_by_id, self.head_of_studies)
-        self.assertFalse(leave.ems_responsible_declaration, 'the teacher declared nothing')
-        self.assertNotEqual(leave.state, 'confirm', "acknowledged by the reviewer, who approves the teacher's absences")
-        self.assertIn(self.teacher_user.partner_id, leave.message_partner_ids)
-        self.assertTrue(self._teacher_messages(leave).filtered(lambda message: 'created this absence request for you' in message.body))
+        self.assertEqual(absence.state, 'absence_prepared')
+        self.assertEqual(absence.leave_type_id, justified)
+        self.assertFalse(absence.leave_id)
+        self.assertFalse(self.env['hr.leave'].search([('employee_id', '=', self.teacher.id)]), 'nothing filed yet')
         self.assertFalse(self._review_activities(absence))
-        self._run_cron_on(self.today)
-        self.assertFalse(self._teacher_messages(absence), 'no "please request it" reminder')
 
-    def test_create_absence_waits_for_its_approver_when_the_reviewer_cannot_approve(self):
-        """The Director reviews every teacher's attendance, but only approves the Area Managers'
-        absences: the request stays submitted for its usual approver (developer's decision)."""
-        director = create_role_user(self, 'director', 'test_director_tad', name='TAD Director')
-        self.head.parent_id = create_role_employee(self, director)
-        absence, _arrival = self._late_absence()
-        self._create_absence(absence, director)
+        self._run_cron_on(self.today)
+        self.assertEqual(len(self._messages_to(absence, self.teacher_user, 'has been prepared for you')), 1)
+
+        mine = absence.with_user(self.teacher_user)
+        self.assertTrue(mine.can_request)
+        context = mine.action_request_absence()['context']
+        self.assertEqual(context['default_holiday_status_id'], justified.id)
+        self.assertEqual((context['default_request_hour_from'], context['default_request_hour_to']), (9.0, 10.5))
+        values = {key.removeprefix('default_'): value for key, value in context.items()}
+        Leave = self.env['hr.leave'].with_user(self.teacher_user)
+        with self.assertRaises(ValidationError):
+            Leave.create({**values, 'ems_submitted': True})
+        leave = Leave.create({**values, 'ems_submitted': True, 'ems_responsible_declaration': True})
 
         self.assertEqual(absence.state, 'linked')
-        self.assertEqual(absence.leave_id.state, 'confirm')
+        self.assertEqual(absence.leave_id, leave)
+        self.assertEqual(leave.state, 'confirm', 'waits for its approver, as any request')
 
-    def test_an_administrator_creates_and_acknowledges_it(self):
-        """The administrator sits above the whole hierarchy: the absence is acknowledged by them."""
-        admin = create_role_user(self, 'academic_admin', 'test_admin_tad', name='TAD Administrator',
-                                 email='tad.admin@example.com')
+    def test_an_administrator_reviews_too(self):
+        """The administrator sits above the whole hierarchy, though outside it."""
+        admin = create_role_user(self, 'academic_admin', 'test_admin_tad', name='TAD Administrator')
         absence, _arrival = self._late_absence()
         self.assertTrue(absence.with_user(admin).can_review)
         self._create_absence(absence, admin)
 
-        self.assertEqual(absence.state, 'linked')
-        self.assertNotEqual(absence.leave_id.state, 'confirm')
+        self.assertEqual(absence.state, 'absence_prepared')
 
     def test_discard(self):
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
@@ -559,16 +559,15 @@ class TestAbsenceDetection(TransactionCase):
             absence.action_discard()
         self.assertEqual(absence.state, 'pending')
 
-    def test_bulk_create_absence_one_per_entry(self):
+    def test_bulk_create_absence_prepares_each_entry(self):
         second_user = create_role_user(self, 'teacher', 'test_second_teacher_tad', name='TAD Second Teacher')
         second = self._teacher('TAD Second Teacher', user=second_user)
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
         absences = self._detected() | self._detected(second)
         self._create_absence(absences, self.head_of_studies)
 
-        self.assertEqual(set(absences.mapped('state')), {'linked'})
-        self.assertEqual(absences.leave_id.employee_id, self.teacher | second)
-        self.assertEqual(set(absences.leave_id.mapped('holiday_status_id')), {self.env.ref('ems.leave_type_justified')})
+        self.assertEqual(set(absences.mapped('state')), {'absence_prepared'})
+        self.assertEqual(absences.leave_type_id, self.env.ref('ems.leave_type_justified'))
 
     def test_another_branch_cannot_review(self):
         self.Pending._ems_detect_missing_check_ins(self.yesterday)

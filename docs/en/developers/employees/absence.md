@@ -686,12 +686,14 @@ stateDiagram-v2
     [*] --> pending: detected (cron) or informed (by hand)<br/>review activity to the approver
     pending --> justification_requested: Request justification
     pending --> corrected: Correct check-in
-    pending --> linked: Create absence (wizard)
+    pending --> absence_prepared: Create absence (wizard)
     pending --> discarded: Discard (archived)
     pending --> linked: the teacher files an overlapping absence
     pending --> discarded: the check-in shows up (check_in only)
     justification_requested --> linked: the teacher files the absence
     justification_requested --> discarded: the check-in shows up (check_in only)
+    absence_prepared --> linked: the teacher checks it, accepts the declaration and sends it
+    absence_prepared --> discarded: the check-in shows up (check_in only)
     linked --> [*]
     corrected --> [*]
     discarded --> [*]
@@ -706,7 +708,8 @@ erDiagram
         datetime date_from
         datetime date_to
         selection origin "informed / check_in"
-        selection state "pending / justification_requested / corrected / linked / discarded"
+        selection state "pending / justification_requested / absence_prepared / corrected / linked / discarded"
+        many2one leave_type_id "absence_prepared only"
         boolean active "false once discarded by a person"
         text note "chiefs only"
         date justification_date
@@ -718,15 +721,16 @@ erDiagram
 | Field | Notes |
 |---|---|
 | `employee_id` | Required. The picker's domain (`_domain_employee_id`) offers only teachers in the user's own branch, the same domain the record rule enforces, never the user themselves (their own absence they request, and their own entry under review would be hidden from them) |
-| `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from`. Editable while `pending` or `justification_requested` |
+| `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from`. Editable while unresolved (`pending`, `justification_requested`, `absence_prepared`) |
 | `origin` | `informed` (default: every entry created by hand) or `check_in`. Readonly |
 | `note` | Optional, for the author's own reference. `groups="ems.group_department_chief,base.group_system"`: the teacher never reads it |
-| `state` | `pending` (*To review*), `justification_requested` (*Justification requested*), `corrected` (*Check-in corrected*), `linked` (*Requested*), `discarded` (*Discarded*). Stored, not computed from `leave_id`. `pending` and `justification_requested` both mean "not resolved yet" (the board plans around them) |
+| `state` | `pending` (*To review*), `justification_requested` (*Justification requested*), `absence_prepared` (*Absence prepared*), `corrected` (*Check-in corrected*), `linked` (*Requested*), `discarded` (*Discarded*). Stored, not computed from `leave_id`. `pending`, `justification_requested` and `absence_prepared` mean "not resolved yet" (`UNRESOLVED_STATES`: the board plans around them); the last two mean "the teacher has been asked to act" (`ASKED_STATES`: the reminders go on) |
+| `leave_type_id` | The absence type the reviewer chose with **Create absence**: the teacher's request opens with it |
 | `active` | Archived when a person discards the entry (it leaves the default list, still found with the *Archived* filter). A discard by the system (the check-in turned up) leaves it active; the chatter says which of the two it was |
 | `leave_id` | The teacher's own request it was linked to, or the one the reviewer created. `ondelete='set null'` |
 | `justification_date` | The day the reviewer asked for a justification: the reminder and report delays count from it |
 | `reminder_date`, `escalated` | The reminder markers, as on `hr.leave` (see *Reminders* above) |
-| `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry is `justification_requested`. Shows **Request the absence** |
+| `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry is in `ASKED_STATES`. Shows **Request the absence** |
 | `can_review`, `can_correct_check_in` | Non-stored, `@api.depends_context('uid')`: the entry is `pending` and the user may review it (below); the second also needs the entry to be over (no check-in can be recorded for a time still to come). Drive the four actions' `invisible=` |
 
 ### Reviewing
@@ -772,22 +776,24 @@ review / still going on). Nothing eligible raises a `UserError` with the same re
    finds the entry and cannot discard it. Not an accepted `ems.attendance_correction`: that model
    is the teacher's own request about an existing attendance (it needs one, and messages its
    author on every decision); `ems_checked_in_by_id` plus the note already say who recorded what.
-3. **Create absence** (`ems.absence_pending.leave_wizard`, one required absence type, the same
-   ones a teacher can choose): one `hr.leave` per entry, for its day and hours
-   (`_ems_leave_values()`, the same values **Request the absence** prefills: partial day with the
-   detected hours within one day, whole days otherwise), filed with `ems_submitted` and
-   `ems_filed_by_id` = the reviewer, which waives the teacher's responsible declaration
-   (`_check_ems_submitted`): the teacher did not declare anything. It is then approved by the
-   reviewer (`action_approve`, the Head's acknowledgement) when they may approve that teacher's
-   absences (`can_approve`, or administrator); otherwise it stays submitted for its usual
-   approver, the teacher's Area Manager (developer's decision). From there it follows its normal
-   circuit (supporting document, ATRI, Direction). The teacher follows it and gets a note saying
-   who created it for them. The entry is linked to it (`linked`), which also closes the review.
+3. **Create absence** (`ems.absence_pending.leave_wizard`, one required absence type for the whole
+   selection, the same ones a teacher can choose): prepares the request, never files it
+   (`_ems_prepare_absences`). The entry becomes `absence_prepared` with `leave_type_id`, and from
+   there it is the same as **Request justification** (same `justification_date`, same reminders,
+   with their own wording telling the teacher a request was prepared for them). The teacher opens
+   **Request the absence**, which prefills the type as well as the day and hours, checks it,
+   accepts the responsible declaration and sends it; `_link_to_leaves` then links the entry. The
+   request is the teacher's in every respect: their declaration, their approver, the usual circuit.
+   Developer's decision: an absence created on the teacher's behalf must never skip the
+   responsible declaration nor be approved before the teacher sends it, so no `hr.leave` exists
+   until then. Not a draft state on `hr.leave` either: Odoo 18 has none (requests start at
+   `confirm`), and every overlap check, the guard duty board, the hour reports and the linking
+   treat any request not refused or cancelled as a real absence.
 4. **Discard** (`action_discard`): `discarded` and archived, with a note saying who. Nothing else.
 
 **Existing automatic transitions** keep working at any stage before the entry is resolved: the
-teacher filing an overlapping absence links `pending` and `justification_requested` entries
-(`_link_to_leaves`), and a check-in recorded afterwards reviews `check_in` entries in either state
+teacher filing an overlapping absence links every unresolved entry (`_link_to_leaves`), and a
+check-in recorded afterwards reviews unresolved `check_in` entries
 (`_ems_review_detected_absences`). Both close the review activity.
 
 **Linking is automatic and final.** `hr.leave.create()` and, when its dates, hours, employee or
@@ -804,12 +810,13 @@ the teacher's absence never sends it back, and its employee and dates can no lon
 (`write()` raises, for `corrected` and `discarded` too). From then on only the real absence counts.
 
 **Requesting it.** **Request the absence** (in the form's Actions dropdown, for the teacher only,
-once a justification was requested) calls `action_request_absence()`: a new `hr.leave` form with
-the employee, the day and, for a one-day entry, the hours as defaults. Saving it links the entry
+once a justification was requested or the absence prepared) calls `action_request_absence()`: a new
+`hr.leave` form with the employee, the day and, for a one-day entry, the hours as defaults, plus the
+type for a prepared one. Saving it links the entry
 through the mechanism above.
 
 **On the guard duty board**, `ems.course._get_guard_duty_absence_intervals()` adds every
-`pending` or `justification_requested` entry touching the requested day as a `pending` interval,
+unresolved entry touching the requested day as a `pending` interval,
 clipped to that day in the company's timezone (`_get_local_hours()`). Resolved entries are
 ignored. See [guard_duty_board.md](../attendance/guard_duty_board.md).
 
@@ -860,7 +867,7 @@ or ends earlier when the check-in came earlier.
 ### Reminders
 
 The same scheduled action then reminds, for the teachers of the circuit, every
-`justification_requested` entry whose end is before today (an entry still `pending` reminds nobody:
+`justification_requested` or `absence_prepared` entry whose end is before today (an entry still `pending` reminds nobody:
 its reviewer has not decided yet, issue #707), with the supporting document's two settings
 (`ems_absence_document_reminder_days`, `ems_absence_document_escalation_days`) and the same rule
 that every message waits for its reader's working day to start (`res.users._ems_workday_started()`,
@@ -936,7 +943,6 @@ those same three groups.
 | Read the branch's entries | yes | yes | yes | yes | own, once not `pending` |
 | Enter / edit an entry | yes | yes | yes | yes | no |
 | Request justification, Correct check-in, Create absence, Discard | no | yes | yes | yes | no |
-| Approve the absence created | - | if they approve the teacher's absences | only an Area Manager's | yes | - |
 | Request the absence | no | no | no | no | own, once asked |
 
 Technical and academic administrators (`base.group_system`, e.g. `admin`, and

@@ -237,10 +237,6 @@ class EmsAbsenceLeave(models.Model):
         string="Responsible declaration",
         help="I declare, under my own responsibility, that the details and the reason given for "
              "this absence are true.")
-    # Issue #707: an absence the Head of Studies created for the teacher from a detected one. The
-    # teacher declared nothing, so the responsible declaration is not asked of it.
-    ems_filed_by_id = fields.Many2one(
-        string="Created on the employee's behalf by", comodel_name="res.users", readonly=True, copy=False)
     ems_direction_state = fields.Selection(
         string="Direction status",
         selection=[('not_done', 'Pending'), ('done', 'Done'), ('refused', 'Refused')],
@@ -1688,7 +1684,7 @@ class EmsAbsenceLeave(models.Model):
             restored['ems_atri_state'] = values['ems_atri_state']
         self.write(restored)
 
-    @api.constrains('ems_submitted', 'ems_responsible_declaration', 'ems_filed_by_id')
+    @api.constrains('ems_submitted', 'ems_responsible_declaration')
     def _check_ems_submitted(self):
         """Two conditions, neither of which can live in the view alone.
 
@@ -1700,8 +1696,6 @@ class EmsAbsenceLeave(models.Model):
 
         The responsible declaration is required for every absence type: it is the employee
         asserting that the reason they gave is true, not a formality attached to some of them.
-        Except when the employee did not file it: created for them from a detected absence
-        (ems_filed_by_id, issue #707).
         """
         for leave in self:
             if not leave.ems_submitted:
@@ -1709,7 +1703,7 @@ class EmsAbsenceLeave(models.Model):
                     "This absence request has not been sent. Fill it in and use the "
                     "\u201cSend request\u201d button at the bottom of the form; to leave without "
                     "requesting anything, discard it instead."))
-            if not leave.ems_responsible_declaration and not leave.ems_filed_by_id:
+            if not leave.ems_responsible_declaration:
                 raise ValidationError(_(
                     "The responsible declaration has to be accepted before an absence request "
                     "can be sent."))

@@ -14219,6 +14219,7 @@ msgstr "Se eliminará \"%s\" de esta ausencia. Esta acción no se puede deshacer
 #: model_terms:ir.ui.view,arch_db:ems.view_holiday_list_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__holiday_status_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__leave_type_id
 msgid "Absence type"
 msgstr "Tipo de ausencia"
 
@@ -26631,8 +26632,8 @@ msgstr "Fichaje corregido"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__state
-msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence. Check-in corrected: the teacher was at the centre. Requested: linked for good to an absence request, whatever becomes of it. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all."
-msgstr "Por revisar: el jefe de estudios decide qué hacer con ella; no se avisa al docente. Justificación solicitada: se recuerda al docente que solicite la ausencia. Fichaje corregido: el docente estaba en el centro. Solicitada: vinculada para siempre a una solicitud de ausencia, pase lo que pase con ella. Descartada: por quien la revisa, o porque al final ha aparecido el fichaje del docente de ese día."
+msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence. Absence prepared: the same, with the absence type already chosen for them. Check-in corrected: the teacher was at the centre. Requested: linked for good to an absence request, whatever becomes of it. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all."
+msgstr "Por revisar: el jefe de estudios decide qué hacer con ella; no se avisa al docente. Justificación solicitada: se recuerda al docente que solicite la ausencia. Ausencia preparada: lo mismo, con el tipo de ausencia ya elegido. Fichaje corregido: el docente estaba en el centro. Solicitada: vinculada para siempre a una solicitud de ausencia, pase lo que pase con ella. Descartada: por quien la revisa, o porque al final ha aparecido el fichaje del docente de ese día."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__active
@@ -26658,11 +26659,6 @@ msgstr "Puede revisarla"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_correct_check_in
 msgid "Can correct check-in"
 msgstr "Puede corregir el fichaje"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_filed_by_id
-msgid "Created on the employee's behalf by"
-msgstr "Creada en nombre de la persona por"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending_leave_wizard
@@ -26707,28 +26703,16 @@ msgstr "Sale en el horario de guardias como ausencia pendiente hasta que se resu
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 msgid ""
-"An absence request is created for each teacher, for the day and hours\n"
-"                        detected, and acknowledged by you when you approve that teacher's\n"
-"                        absences. The teacher is told, and continues it as any other request."
-msgstr "Se crea una solicitud de ausencia para cada docente, para el día y las horas detectados, y queda aprobada por ti si eres quien aprueba las ausencias de ese docente. Se avisa al docente, que la continúa como cualquier otra solicitud."
+"An absence request of this type is prepared for each teacher, for the day\n"
+"                        and hours detected. It is not sent: the teacher is told, checks it, accepts\n"
+"                        the responsible declaration and sends it, and it is then approved as usual."
+msgstr "Se prepara una solicitud de ausencia de este tipo para cada docente, para el día y las horas detectados. No se envía: se avisa al docente, que la revisa, acepta la declaración responsable y la envía, y después se aprueba como siempre."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "%(count)s %(reason)s"
 msgstr "%(count)s %(reason)s"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/absence_pending.py:0
-msgid "%(user)s has created this absence request for you, from an absence detected on your attendance. Follow it from here: attach the supporting document if its type asks for one."
-msgstr "%(user)s ha creado esta solicitud de ausencia por ti, a partir de una ausencia detectada en tu asistencia. Síguela desde aquí: adjunta el justificante si su tipo lo pide."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/absence_pending.py:0
-msgid "Absence created by %(user)s."
-msgstr "Ausencia creada por %(user)s."
 
 #. module: ems
 #. odoo-python
@@ -26800,3 +26784,25 @@ msgstr "Esta ausencia se ha descartado."
 #: model_terms:ir.actions.act_window,help:ems.action_absence_pending
 msgid "Announce an absence a teacher has not requested yet"
 msgstr "Anticipa una ausencia que el docente todavía no ha solicitado"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__absence_prepared model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Absence prepared"
+msgstr "Ausencia preparada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Absence prepared by %(user)s."
+msgstr "Ausencia preparada por %(user)s."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__leave_type_id
+msgid "Chosen by the Head of Studies: the teacher's request opens with it."
+msgstr "Elegido por el jefe de estudios: la solicitud del docente se abre con este tipo."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "An absence request for %(when)s has been prepared for you, as %(type)s. Please open it from this page, check it, accept the responsible declaration and send it so it can be validated."
+msgstr "Se ha preparado para ti una solicitud de ausencia para el %(when)s, como %(type)s. Ábrela desde esta página, revísala, acepta la declaración responsable y envíala para que se pueda validar."

@@ -5,8 +5,6 @@ from datetime import time, timedelta
 
 from pytz import UTC
 
-from markupsafe import Markup
-
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -28,7 +26,9 @@ NOT_REQUESTED_ACTIVITY_XMLID = 'ems.mail_activity_absence_not_requested'
 REVIEW_ACTIVITY_XMLID = 'ems.mail_activity_absence_pending_review'
 # Not resolved yet: the guard duty board plans around them, a check-in or the teacher's own
 # absence still resolves them.
-UNRESOLVED_STATES = ('pending', 'justification_requested')
+UNRESOLVED_STATES = ('pending', 'justification_requested', 'absence_prepared')
+# The teacher has been asked to act: reminded until they do.
+ASKED_STATES = ('justification_requested', 'absence_prepared')
 
 
 class EmsAbsencePending(models.Model):
@@ -37,9 +37,10 @@ class EmsAbsencePending(models.Model):
     of Studies or their Deputy already knows it is coming and enters it on the teacher's behalf;
     or detected at the end of the day from a missing check-in (issue #696). The guard duty board
     plans around it. The teacher's attendance approver reviews it first (issue #707), unseen by
-    the teacher, and decides: ask the teacher for a justification (who is then reminded to
-    request it), correct the check-in, create the absence for them, or discard it. Once an
-    absence is filed, the two are linked for good and the real one is all that counts."""
+    the teacher, and decides: ask the teacher for a justification, prepare the absence request
+    for them (the teacher still checks it, accepts the responsible declaration and sends it), both
+    with reminders until the teacher acts; correct the check-in; or discard it. Once an absence is
+    filed, the two are linked for good and the real one is all that counts."""
     _name = "ems.absence_pending"
     _description = "Detected absence"
     # The guard duty board reloads when an expected absence changes (issue #692).
@@ -69,14 +70,21 @@ class EmsAbsencePending(models.Model):
     state = fields.Selection(
         string="Status",
         selection=[('pending', 'To review'), ('justification_requested', 'Justification requested'),
-                   ('corrected', 'Check-in corrected'), ('linked', 'Requested'), ('discarded', 'Discarded')],
+                   ('absence_prepared', 'Absence prepared'), ('corrected', 'Check-in corrected'),
+                   ('linked', 'Requested'), ('discarded', 'Discarded')],
         default='pending', required=True, readonly=True, copy=False, tracking=True,
         help="To review: the Head of Studies decides what to do with it; the teacher is not told. "
-             "Justification requested: the teacher is reminded to request the absence. Check-in "
+             "Justification requested: the teacher is reminded to request the absence. Absence prepared: "
+             "the same, with the absence type already chosen for them. Check-in "
              "corrected: the teacher was at the centre. Requested: linked for good to an absence "
              "request, whatever becomes of it. Discarded: by the reviewer, or because the "
              "teacher's check-in of that day showed up after all.")
     active = fields.Boolean(default=True, help="Archived when the reviewer discards it.")
+    # Issue #707: "Create absence" prepares the request for the teacher, never files it: only the
+    # teacher accepts the responsible declaration and sends it.
+    leave_type_id = fields.Many2one(
+        string="Absence type", comodel_name="hr.leave.type", readonly=True, copy=False,
+        help="Chosen by the Head of Studies: the teacher's request opens with it.")
     justification_date = fields.Date(
         string="Justification requested on", readonly=True, copy=False,
         help="The reminders to the teacher and the report to their Head of Studies count from this day.")
@@ -131,8 +139,7 @@ class EmsAbsencePending(models.Model):
     def _compute_can_request(self):
         """Only the teacher themselves requests their absence, once asked to and while nobody has."""
         for absence in self:
-            absence.can_request = (absence.state == 'justification_requested'
-                                   and absence.employee_id.user_id == self.env.user)
+            absence.can_request = absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
 
     @api.depends('state', 'employee_id', 'date_to')
     @api.depends_context('uid')
@@ -236,13 +243,18 @@ class EmsAbsencePending(models.Model):
         for absence in self.sudo():
             absence.message_post(body=message, subtype_xmlid='mail.mt_note')
 
+    def _ems_ask_teacher(self, values, note):
+        """The teacher is asked to act: the reminders start (see _cron_ems_detected_absences),
+        counted from today."""
+        self.sudo().write({**values, 'justification_date': self.get_local_today(),
+                           'reminder_date': False, 'escalated': False})
+        self._ems_post_review_note(note)
+
     def action_request_justification(self):
-        """The teacher is asked to justify it: the reminders start (see _cron_ems_detected_absences)."""
-        def apply(absences):
-            absences.sudo().write({'state': 'justification_requested', 'justification_date': self.get_local_today(),
-                                   'reminder_date': False, 'escalated': False})
-            absences._ems_post_review_note(_("Justification requested by %(user)s.", user=self.env.user.name))
-        return self._ems_review(apply)
+        """The teacher is asked to justify it."""
+        return self._ems_review(lambda absences: absences._ems_ask_teacher(
+            {'state': 'justification_requested'},
+            _("Justification requested by %(user)s.", user=self.env.user.name)))
 
     def action_correct_check_in(self):
         """The teacher was at the centre: their attendance is completed for the hours detected,
@@ -280,39 +292,13 @@ class EmsAbsencePending(models.Model):
             absences._ems_post_review_note(_("Discarded by %(user)s.", user=self.env.user.name))
         return self._ems_review(apply)
 
-    def _ems_create_absences(self, leave_type):
-        """One absence request per entry, of `leave_type`, filed on the teacher's behalf and
-        acknowledged by the reviewer when they may approve that teacher's absences (otherwise it
-        waits for its usual approver). The teacher follows it and is told."""
-        def apply(absences):
-            is_admin = self.env.user.has_group('base.group_system') or self.env.user.has_group('ems.group_academic_admin')
-            for absence in absences:
-                leave = self.env['hr.leave'].sudo().create({
-                    **absence._ems_leave_values(), 'holiday_status_id': leave_type.id,
-                    'ems_submitted': True, 'ems_filed_by_id': self.env.uid,
-                })
-                absence.sudo().write({'state': 'linked', 'leave_id': leave.id})
-                own = leave.with_env(self.env)
-                if own.can_approve:
-                    own.action_approve()
-                elif is_admin:
-                    leave.action_approve()
-                absence._ems_tell_teacher_about(leave)
-            absences._ems_post_review_note(_("Absence created by %(user)s.", user=self.env.user.name))
-        return self._ems_review(apply)
-
-    def _ems_tell_teacher_about(self, leave):
-        user = self.employee_id.user_id
-        partner = user.partner_id or self.employee_id.work_contact_id
-        if not partner:
-            return
-        leave = leave.sudo()
-        leave.message_subscribe(partner_ids=partner.ids)
-        leave = leave.with_context(lang=partner.lang or self.env.lang)
-        leave._ems_notify(partner, Markup("%s<p>%s</p>") % (leave._ems_summary(), leave.env._(
-            "%(user)s has created this absence request for you, from an absence detected on your "
-            "attendance. Follow it from here: attach the supporting document if its type asks for one.",
-            user=self.env.user.name)))
+    def _ems_prepare_absences(self, leave_type):
+        """The absence request is prepared for the teacher with `leave_type`, never filed: they
+        open it from the entry already filled in, check it, accept the responsible declaration and
+        send it, which links the two (_link_to_leaves). Reminded until they do."""
+        return self._ems_review(lambda absences: absences._ems_ask_teacher(
+            {'state': 'absence_prepared', 'leave_type_id': leave_type.id},
+            _("Absence prepared by %(user)s.", user=self.env.user.name)))
 
     def _ems_uncovered_spans(self):
         """[(start, stop)] of this entry's span that none of the teacher's attendances covers."""
@@ -352,6 +338,8 @@ class EmsAbsencePending(models.Model):
         hours. Saving it links the two (_link_to_leaves)."""
         self.ensure_one()
         context = {f'default_{field}': value for field, value in self._ems_leave_values().items()}
+        if self.state == 'absence_prepared':
+            context['default_holiday_status_id'] = self.leave_type_id.id
         return {
             'type': 'ir.actions.act_window',
             'res_model': 'hr.leave',
@@ -507,7 +495,7 @@ class EmsAbsencePending(models.Model):
         report_bound = today - timedelta(days=escalation)
         # Only what is due today, so an entry leaves the search once it has been dealt with.
         absences = self.sudo().search([
-            ('state', '=', 'justification_requested'), ('employee_id', 'any', domain), ('date_to', '<=', today_start),
+            ('state', 'in', ASKED_STATES), ('employee_id', 'any', domain), ('date_to', '<=', today_start),
             '|', '|', ('reminder_date', '=', False), ('reminder_date', '<=', today - timedelta(days=interval)),
             '&', ('escalated', '=', False), ('justification_date', '<=', report_bound),
         ])
@@ -533,9 +521,13 @@ class EmsAbsencePending(models.Model):
         return _("%(start)s to %(stop)s", start=start.strftime('%d/%m/%Y %H:%M'), stop=stop.strftime('%d/%m/%Y %H:%M'))
 
     def _ems_reminder_message(self):
-        """What the teacher is told: a missing check-in is not the same as an absence they
-        announced and have not requested yet."""
+        """What the teacher is told: an absence prepared for them, a missing check-in, or an
+        absence they announced and have not requested yet."""
         self.ensure_one()
+        if self.state == 'absence_prepared':
+            return _("An absence request for %(when)s has been prepared for you, as %(type)s. Please "
+                     "open it from this page, check it, accept the responsible declaration and send it "
+                     "so it can be validated.", when=self._ems_when(), type=self.leave_type_id.name)
         if self.origin == 'check_in':
             return _("No check-in of yours was recorded on %(when)s, and no absence is requested for "
                      "it. If you were absent, please request the absence from this page. If you were "

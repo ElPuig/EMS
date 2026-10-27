@@ -1400,6 +1400,7 @@ msgstr "Acció Necessària"
 #: model:ir.model.fields,field_description:ems.field_hr_attendance__active
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__active model:ir.model.fields,field_description:ems.field_ems_quality_document__active model:ir.model.fields,field_description:ems.field_ems_quality_procedure__active model:ir.model.fields,field_description:ems.field_ems_quality_process__active
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section__active model:ir.model.fields,field_description:ems.field_ems_minute_type__active
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__active
 msgid "Active"
 msgstr "Actiu"
 
@@ -1833,6 +1834,8 @@ msgstr "Aprovat"
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_rejection_reason_form
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_form model_terms:ir.ui.view,arch_db:ems.view_quality_document_search model_terms:ir.ui.view,arch_db:ems.view_quality_procedure_form model_terms:ir.ui.view,arch_db:ems.view_quality_process_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 msgid "Archived"
 msgstr "Arxivat"
 
@@ -2439,6 +2442,7 @@ msgstr "Pot editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 msgid "Cancel"
 msgstr "Cancel·la"
 
@@ -2693,6 +2697,7 @@ msgstr "Empreses"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_provider_search
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__company_id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__company_id
 msgid "Company"
 msgstr "Empresa"
 
@@ -14213,6 +14218,7 @@ msgstr "S'eliminarà \"%s\" d'aquesta absència. Aquesta acció no es pot desfer
 #: model:ir.model.fields,field_description:ems.field_hr_leave__ems_type_short_name
 #: model_terms:ir.ui.view,arch_db:ems.view_holiday_list_ems
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_monthly_list
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__holiday_status_id
 msgid "Absence type"
 msgstr "Tipus d'absència"
 
@@ -17807,6 +17813,8 @@ msgstr ""
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_contact_data_request__state__submitted
 #: model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__pending
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 msgid "To review"
 msgstr "Per revisar"
 
@@ -19462,17 +19470,6 @@ msgid "Absence requested"
 msgstr "Absència sol·licitada"
 
 #. module: ems
-#: model_terms:ir.actions.act_window,help:ems.action_absence_pending
-msgid "Announce an absence a teacher has not requested yet"
-msgstr "Avança una absència que el docent encara no ha sol·licitat"
-
-#. module: ems
-#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__pending
-#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
-msgid "Detected"
-msgstr "Detectada"
-
-#. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending
 msgid "Detected absence"
 msgstr "Absència detectada"
@@ -19485,32 +19482,9 @@ msgstr "Absència detectada"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_list
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__absence_ids
 msgid "Detected absences"
 msgstr "Absències detectades"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_absence_pending__state
-msgid ""
-"Detected until the teacher requests the absence themselves, then linked to "
-"their request for good: from that moment only the request counts, whatever "
-"becomes of it. Discarded when the teacher's check-in of that day shows up "
-"after all."
-msgstr ""
-"Detectada fins que el docent sol·licita l'absència ell mateix; llavors queda"
-" vinculada a la seva sol·licitud per sempre: des d'aquell moment només "
-"compta la sol·licitud, passi el que passi amb ella. Descartada quan "
-"finalment apareix el fitxatge del docent d'aquell dia."
-
-#. module: ems
-#: model_terms:ir.actions.act_window,help:ems.action_absence_pending
-msgid ""
-"It shows on the guard duty schedule as a pending absence until the teacher\n"
-"                    requests it, and from then on only their own request counts. The days a\n"
-"                    teacher does not check in are added here on their own."
-msgstr ""
-"Surt a l'horari de guàrdies com a absència pendent fins que el docent la "
-"sol·licita, i a partir d'aleshores només compta la seva pròpia sol·licitud. "
-"Els dies que un docent no fitxa s'hi afegeixen sols."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__employee_id
@@ -19533,14 +19507,6 @@ msgstr "Absències sol·licitades"
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "The end of an absence must come after its start."
 msgstr "El final d'una absència ha de ser posterior al seu inici."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/absence_pending.py:0
-msgid ""
-"This absence has already been requested by the teacher: only their own "
-"request counts now."
-msgstr "El docent ja ha sol·licitat aquesta absència: ara només compta la seva pròpia sol·licitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
@@ -19704,6 +19670,7 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_group_form
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -26106,6 +26073,8 @@ msgstr "Els que m'impliquen"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_followup_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+#: model:ir.actions.server,name:ems.action_absence_pending_discard
 msgid "Discard"
 msgstr "Descarta"
 
@@ -26531,15 +26500,6 @@ msgstr "Absència detectada no sol·licitada"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/absence_pending.py:0
-msgid ""
-"This absence was discarded: the teacher's check-in of that day showed up."
-msgstr ""
-"Aquesta absència s'ha descartat: ha aparegut el fitxatge del docent d'aquell"
-" dia."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/employees/absence_pending.py:0
 msgid "%(day)s from %(start)s to %(stop)s"
 msgstr "%(day)s de %(start)s a %(stop)s"
 
@@ -26660,3 +26620,185 @@ msgstr "No s'ha pogut llegir l'identificador de l'alumne/a del certificat i no e
 #, python-format
 msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
 msgstr "%(student)s no té IDALU per comprovar el del certificat (%(identifier)s): empleneu-lo primer."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justification_requested model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Justification requested"
+msgstr "Justificació sol·licitada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__corrected model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Check-in corrected"
+msgstr "Fitxatge corregit"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__state
+msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence. Check-in corrected: the teacher was at the centre. Requested: linked for good to an absence request, whatever becomes of it. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all."
+msgstr "Per revisar: el cap d'estudis decideix què en fa; no s'avisa el docent. Justificació sol·licitada: es recorda al docent que sol·liciti l'absència. Fitxatge corregit: el docent era al centre. Sol·licitada: vinculada per sempre a una sol·licitud d'absència, en passi el que en passi. Descartada: per qui la revisa, o perquè al final ha aparegut el fitxatge del docent d'aquell dia."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__active
+msgid "Archived when the reviewer discards it."
+msgstr "S'arxiva quan qui la revisa la descarta."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__justification_date
+msgid "Justification requested on"
+msgstr "Data de la sol·licitud de justificació"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_absence_pending__justification_date
+msgid "The reminders to the teacher and the report to their Head of Studies count from this day."
+msgstr "Els recordatoris al docent i l'avís al seu cap d'estudis compten des d'aquest dia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_review
+msgid "Can review"
+msgstr "Pot revisar-la"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_correct_check_in
+msgid "Can correct check-in"
+msgstr "Pot corregir el fitxatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_hr_leave__ems_filed_by_id
+msgid "Created on the employee's behalf by"
+msgstr "Creada en nom de la persona per"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_pending_leave_wizard
+msgid "Create absence from detected absences"
+msgstr "Crear l'absència a partir d'absències detectades"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_absence_pending_review
+msgid "Review detected absence"
+msgstr "Revisar absència detectada"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_absence_pending_request_justification model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Request justification"
+msgstr "Demana justificació"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_absence_pending_correct_check_in model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Correct check-in"
+msgstr "Corregeix el fitxatge"
+
+#. module: ems
+#. odoo-python
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form model:ir.actions.act_window,name:ems.action_absence_pending_leave_wizard model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form code:addons/ems/models/employees/absence_pending.py:0
+msgid "Create absence"
+msgstr "Crea l'absència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Discard this detected absence? Nobody is told and it is archived."
+msgstr "Vols descartar aquesta absència detectada? No s'avisa ningú i s'arxiva."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending
+msgid ""
+"It shows on the guard duty schedule as a pending absence until it is\n"
+"                    resolved. The days a teacher does not check in are added here on their own.\n"
+"                    The Head of Studies reviews each one first: the teacher only hears about it\n"
+"                    when asked to justify it."
+msgstr "Surt a l'horari de guàrdies com a absència pendent fins que es resol. Els dies que un docent no fitxa s'hi afegeixen sols. El cap d'estudis les revisa primer: el docent només se n'assabenta quan se li demana que la justifiqui."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
+msgid ""
+"An absence request is created for each teacher, for the day and hours\n"
+"                        detected, and acknowledged by you when you approve that teacher's\n"
+"                        absences. The teacher is told, and continues it as any other request."
+msgstr "Es crea una sol·licitud d'absència per a cada docent, per al dia i les hores detectats, i queda aprovada per tu si ets qui aprova les absències d'aquest docent. S'avisa el docent, que la continua com qualsevol altra sol·licitud."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "%(count)s %(reason)s"
+msgstr "%(count)s %(reason)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "%(user)s has created this absence request for you, from an absence detected on your attendance. Follow it from here: attach the supporting document if its type asks for one."
+msgstr "%(user)s ha creat aquesta sol·licitud d'absència per tu, a partir d'una absència detectada en la teva assistència. Segueix-la des d'aquí: adjunta-hi el justificant si el seu tipus en demana."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Absence created by %(user)s."
+msgstr "Absència creada per %(user)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Check-in corrected by %(user)s."
+msgstr "Fitxatge corregit per %(user)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Discarded by %(user)s."
+msgstr "Descartada per %(user)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Justification requested by %(user)s."
+msgstr "Justificació sol·licitada per %(user)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Done for %(done)s detected absences. Skipped: %(reasons)s."
+msgstr "Fet per a %(done)s absències detectades. No s'han tractat: %(reasons)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Nothing was done: %(reasons)s."
+msgstr "No s'ha fet res: %(reasons)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "no longer waiting for review"
+msgstr "sense revisió pendent"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "not yours to review"
+msgstr "que no et toca revisar"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "still going on"
+msgstr "encara en curs"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "This absence has already been requested: only the request counts now."
+msgstr "Aquesta absència ja s'ha sol·licitat: ara només compta la sol·licitud."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "This absence was resolved by correcting the teacher's check-in."
+msgstr "Aquesta absència s'ha resolt corregint el fitxatge del docent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "This absence was discarded."
+msgstr "Aquesta absència s'ha descartat."
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending
+msgid "Announce an absence a teacher has not requested yet"
+msgstr "Avança una absència que el docent encara no ha sol·licitat"

@@ -169,7 +169,9 @@ De vegades l'EMS sap d'una absència teva que encara no has sol·licitat. Passa 
 - **No vas fitxar.** En acabar el dia, si no vas fitxar, o vas fitxar quan ja havia acabat la teva primera classe, l'EMS registra una *absència detectada* de la teva primera classe a l'última (o fins a l'hora en què vas fitxar). Només passa a les àrees on el centre ho ha activat.
 - **Algú l'ha avisada.** Vas avisar el teu cap de departament o el cap d'estudis que faltaries, i la va introduir perquè es poguessin cobrir les teves classes.
 
-En tots dos casos, a l'inici de la teva jornada següent reps un missatge amb el dia i les hores, i un enllaç per obrir-la. Mentre no la resolguis, t'ho recorda cada dia (si el centre no ho ha canviat), i uns dies després també s'avisa el teu cap d'estudis. Aquests missatges no t'arriben mai fora del teu horari.
+En tots dos casos, primer la revisa el teu cap d'estudis, i només te n'assabentes si et demana que la justifiquis. Sovint no és res (eres en una reunió o en una formació i vas fitxar més tard): llavors et corregeix el fitxatge o la descarta, i no en reps cap avís. També pot crear la sol·licitud d'absència per tu; llavors se t'avisa, i només l'has de seguir (per exemple, adjuntant-hi el justificant).
+
+Si et demana que la justifiquis, a l'inici de la teva jornada següent reps un missatge amb el dia i les hores, i un enllaç per obrir-la. Mentre no la resolguis, t'ho recorda cada dia (si el centre no ho ha canviat), i uns dies després també s'avisa el teu cap d'estudis. Aquests missatges no t'arriben mai fora del teu horari.
 
 Què has de fer:
 

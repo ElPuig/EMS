@@ -6,6 +6,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.tools import format_list
 
+from ..employees.absence_pending import UNRESOLVED_STATES
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 from .absence_coverage import (
     BREAK_CHANGES, CHANGE_SIDES, COMMUNICATED_NOTICE_STATES, NORMAL_CHANGE, WC_GUARD_CODE, overlaps,
@@ -406,11 +407,12 @@ class EmsCourseGuardDutyBoard(models.Model):
             hours = (leave.request_hour_from, leave.request_hour_to) if partial else WHOLE_DAY
             intervals[leave.employee_id.id].append((*hours, ABSENCE_STATES[leave.state]))
         # An absence the Head of Studies already knows about but the teacher has not filed yet
-        # (issue #509) reads as a pending one. Once filed, the teacher's own request above is all
-        # that counts, so a linked entry is left out whatever became of that request.
+        # (issue #509) reads as a pending one, under review or waiting for the teacher's
+        # justification (issue #707). Once resolved, it is left out: a filed request above is all
+        # that counts, whatever became of it.
         pending = self.env['ems.absence_pending'].sudo().search([
             ('employee_id', 'in', employees.ids),
-            ('state', '=', 'pending'),
+            ('state', 'in', UNRESOLVED_STATES),
         ])
         for absence in pending:
             hours = absence._get_local_hours(day)

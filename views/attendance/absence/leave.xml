@@ -157,9 +157,12 @@
                     <div class="o_row" colspan="2">
                         <field name="ems_responsible_declaration" class="oe_inline"
                                string="I declare, under my own responsibility, that the details and the reason for my absence that I have given are true."
-                               required="1" readonly="state != 'confirm'"/>
+                               required="not ems_filed_by_id" readonly="state != 'confirm'"/>
                         <label for="ems_responsible_declaration"/>
                     </div>
+                    <!-- Issue #707: created for the employee from a detected absence, who declared nothing. -->
+                    <field name="ems_filed_by_id" invisible="not ems_filed_by_id" colspan="2"
+                           options="{'no_open': True}"/>
                     <!-- Derived from the absence type, never picked by the employee - only the
                          manager or Direction corrects it when the type was chosen wrongly. The ATRI
                          flag is not shown at all: it only drives the ATRI notice above, and a

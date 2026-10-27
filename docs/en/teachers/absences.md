@@ -168,7 +168,9 @@ Sometimes EMS knows about an absence of yours that you have not requested yet. I
 - **You did not check in.** Once the day is over, if you did not check in at all, or checked in after your first lesson had ended, EMS records a *detected absence* from your first lesson to your last one (or to the time you checked in). This only happens in the areas where the centre has switched it on.
 - **Somebody announced it.** You warned your Department Chief or the Head of Studies that you would be away, and they entered it so your classes could be covered.
 
-Either way, at the start of your next working day you receive a message with the day and the hours, and a link to it. Until you deal with it, you are reminded every day (unless the centre has set otherwise), and a few days later your Head of Studies is told too. You never get these messages outside your working hours.
+Either way, your Head of Studies reviews it first, and you are only told if they ask you to justify it. Often it is nothing (you were at a meeting, or a training, and checked in later): then they correct your check-in or discard it, and you hear nothing about it. They can also create the absence request for you; then you are told, and you only have to follow it (for instance, attaching the supporting document).
+
+If they ask you to justify it, at the start of your next working day you receive a message with the day and the hours, and a link to it. Until you deal with it, you are reminded every day (unless the centre has set otherwise), and a few days later your Head of Studies is told too. You never get these messages outside your working hours.
 
 What to do:
 

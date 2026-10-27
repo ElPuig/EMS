@@ -210,10 +210,14 @@ class TestAbsencePending(TransactionCase):
                 self._pending(user=user)
 
     def test_teachers_only_read_their_own(self):
-        """Issue #696: so the reminder's link opens. Nothing else, and never their colleagues'."""
-        mine, theirs = self._pending(), self._pending(employee=self.other_teacher)
+        """Issue #696: so the reminder's link opens. Nothing else, and never their colleagues'.
+        Issue #707: not while it waits for review either."""
+        mine, under_review, theirs = self._pending(), self._pending(hour_from=12.0, hour_to=13.0), \
+            self._pending(employee=self.other_teacher)
+        mine.state = 'justification_requested'
 
-        self.assertEqual(self.Pending.with_user(self.teacher_user).search([('id', 'in', (mine | theirs).ids)]), mine)
+        self.assertEqual(self.Pending.with_user(self.teacher_user).search(
+            [('id', 'in', (mine | under_review | theirs).ids)]), mine)
         with self.assertRaises(AccessError):
             self._pending(user=self.teacher_user)
 

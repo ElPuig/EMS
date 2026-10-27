@@ -120,7 +120,7 @@
             <field name="name">ems.previous_curriculum_wizard.form</field>
             <field name="model">ems.previous_curriculum_wizard</field>
             <field name="arch" type="xml">
-                <form string="Import a previous curriculum record">
+                <form string="Add a previous curriculum record">
                     <sheet>
                         <div class="alert alert-info" role="alert" invisible="line_ids">
                             Adds to the academic history a cycle the student studied under a
@@ -187,7 +187,7 @@
         </record>
 
         <record model="ir.actions.act_window" id="action_previous_curriculum_wizard">
-            <field name="name">Import a previous curriculum record</field>
+            <field name="name">Add a previous curriculum record</field>
             <field name="res_model">ems.previous_curriculum_wizard</field>
             <field name="view_mode">form</field>
             <field name="target">new</field>

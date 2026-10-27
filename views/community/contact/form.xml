@@ -143,7 +143,7 @@
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                             <!-- Issue #672: same roles as the previous record above. -->
                             <button name="action_previous_curriculum_wizard" type="object"
-                                    string="Import a previous curriculum record"
+                                    string="Add a previous curriculum record"
                                     invisible="contact_type not in ('student', 'alumni', 'withdrawal')"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                             <!-- Issue #635: the roles that may edit the academic history. A

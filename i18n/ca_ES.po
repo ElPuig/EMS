@@ -26807,8 +26807,9 @@ msgstr "Des de l'any"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_previous_curriculum_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
-msgid "Import a previous curriculum record"
-msgstr "Importa un expedient de currículum anterior"
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Add a previous curriculum record"
+msgstr "Afegeix un expedient de currículum anterior"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__line_ids
@@ -26837,6 +26838,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_res_partner__previous_curriculum_record_ids
 #: model:ir.model.fields,field_description:ems.field_res_users__previous_curriculum_record_ids
 #: model:ir.ui.menu,name:ems.menu_previous_curriculum_record
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Previous curricula"
 msgstr "Currículums anteriors"
 

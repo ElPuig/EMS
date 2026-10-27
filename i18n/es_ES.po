@@ -26805,8 +26805,9 @@ msgstr "Desde el año"
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_previous_curriculum_wizard
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
-msgid "Import a previous curriculum record"
-msgstr "Importar un expediente de un plan de estudios anterior"
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Add a previous curriculum record"
+msgstr "Añadir un expediente de un plan de estudios anterior"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__line_ids
@@ -26835,6 +26836,8 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_res_partner__previous_curriculum_record_ids
 #: model:ir.model.fields,field_description:ems.field_res_users__previous_curriculum_record_ids
 #: model:ir.ui.menu,name:ems.menu_previous_curriculum_record
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
 msgid "Previous curricula"
 msgstr "Planes de estudios anteriores"
 

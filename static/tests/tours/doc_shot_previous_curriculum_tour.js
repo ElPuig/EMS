@@ -10,7 +10,7 @@ registry.category("web_tour.tours").add("ems_doc_shot_previous_curriculum", {
     test: true,
     steps: () => [
         { trigger: ".o_form_view .o_form_sheet", content: "The student form is loaded" },
-        ...clickAction("action_previous_curriculum_wizard", "Import a previous curriculum record"),
+        ...clickAction("action_previous_curriculum_wizard", "Add a previous curriculum record"),
         uploadCertificate("ems.doc_shot_previous_curriculum_document"),
         {
             trigger: ".modal div[name='line_ids'] .o_data_row:contains('01401')",

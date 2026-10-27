@@ -16,7 +16,7 @@ Esta guía explica el **histórico académico**: un resumen permanente por curso
 4. [Ajustar el resultado académico](#ajustar-el-resultado-académico)
 5. [Aplicar una revisión de calificaciones](#aplicar-una-revisión-de-calificaciones)
 6. [Añadir un expediente anterior](#añadir-un-expediente-anterior)
-7. [Importar un expediente de un plan de estudios anterior](#importar-un-expediente-de-un-plan-de-estudios-anterior)
+7. [Añadir un expediente de un plan de estudios anterior](#añadir-un-expediente-de-un-plan-de-estudios-anterior)
 8. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
 
 ---
@@ -116,18 +116,18 @@ Si el certificado todavía no tiene la nota de la estancia (EM) de un módulo, e
 
 El registro se muestra con la cinta **Expediente anterior**, el centro de procedencia y el certificado. El filtro **Expedientes anteriores** de la lista del histórico los muestra todos. Para corregirlo más adelante, usad la revisión de calificaciones como en cualquier otro registro.
 
-## Importar un expediente de un plan de estudios anterior
+## Añadir un expediente de un plan de estudios anterior
 
-Un ciclo que el alumno/a cursó con un **plan de estudios anterior** (los ciclos LOE organizados en unidades formativas, UF, que gestionaba SAGA) no encaja en el histórico por cursos: se guarda aparte, tal como figura en el documento del historial académico, para poder consultarlo, por ejemplo para resolver una solicitud de convalidación. Lo pueden importar secretaría, administración, jefatura de estudios y dirección.
+Un ciclo que el alumno/a cursó con un **plan de estudios anterior** (los ciclos LOE organizados en unidades formativas, UF, que gestionaba SAGA) no encaja en el histórico por cursos: se guarda aparte, tal como figura en el documento del historial académico, para poder consultarlo, por ejemplo para resolver una solicitud de convalidación. Lo pueden añadir secretaría, administración, jefatura de estudios y dirección.
 
-1. Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Importar un expediente de un plan de estudios anterior**.
+1. Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Añadir un expediente de un plan de estudios anterior**.
 2. En **Documento del historial académico**, subid el PDF del historial académico (*Historial acadèmic*).
 3. Se rellenan el plan de estudios, el centro, los años y una tabla con todos los módulos y, debajo de cada uno, sus unidades formativas, con las horas, la nota y la convocatoria. Corregid cualquier nota o convocatoria que no se haya leído bien.
 4. **Título obtenido** queda marcado cuando todos los módulos de la lista están superados, porque el documento no dice si el alumno/a se tituló. Confirmadlo o corregidlo y, si la sabéis, rellenad la **Fecha del título**.
 5. Comprobad que el **Alumno del documento** es el alumno/a: si el identificador no coincide con su IDALU, o no se puede comprobar, el expediente no se crea.
 6. Haced clic en **Crear el expediente**.
 
-![Asistente de importación de un plan de estudios anterior con la tabla leída del PDF: módulos, unidades formativas, notas y convocatorias](../../assets/secretary/academic-history-previous-curriculum-review.png)
+![Asistente para añadir un expediente de un plan de estudios anterior con la tabla leída del PDF: módulos, unidades formativas, notas y convocatorias](../../assets/secretary/academic-history-previous-curriculum-review.png)
 
 ![Expediente de plan de estudios anterior con los módulos y las unidades formativas, el título y el documento adjunto](../../assets/secretary/academic-history-previous-curriculum.png)
 

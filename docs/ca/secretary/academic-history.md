@@ -16,7 +16,7 @@ Aquesta guia explica l'**històric acadèmic**: un resum permanent per curs de c
 4. [Ajustar el resultat acadèmic](#ajustar-el-resultat-acadèmic)
 5. [Aplicar una revisió de qualificacions](#aplicar-una-revisió-de-qualificacions)
 6. [Afegir un expedient anterior](#afegir-un-expedient-anterior)
-7. [Importar un expedient de currículum anterior](#importar-un-expedient-de-currículum-anterior)
+7. [Afegir un expedient de currículum anterior](#afegir-un-expedient-de-currículum-anterior)
 8. [Finals pendents de l'estada](#finals-pendents-de-lestada)
 
 ---
@@ -116,18 +116,18 @@ Si el certificat encara no té la nota de l'estada (EM) d'un mòdul, el mòdul q
 
 El registre es mostra amb la cinta **Expedient anterior**, el centre de procedència i el certificat. El filtre **Expedients anteriors** de la llista de l'històric els mostra tots. Per corregir-lo més endavant, feu servir la revisió de qualificacions com en qualsevol altre registre.
 
-## Importar un expedient de currículum anterior
+## Afegir un expedient de currículum anterior
 
-Un cicle que l'alumne/a va cursar amb un **currículum anterior** (els cicles LOE organitzats en unitats formatives, UF, que gestionava SAGA) no encaixa a l'històric per cursos: es guarda a part, tal com figura al document de l'historial acadèmic, per poder-lo consultar, per exemple per resoldre una sol·licitud de convalidació. El poden importar secretaria, administració, cap d'estudis i direcció.
+Un cicle que l'alumne/a va cursar amb un **currículum anterior** (els cicles LOE organitzats en unitats formatives, UF, que gestionava SAGA) no encaixa a l'històric per cursos: es guarda a part, tal com figura al document de l'historial acadèmic, per poder-lo consultar, per exemple per resoldre una sol·licitud de convalidació. El poden afegir secretaria, administració, cap d'estudis i direcció.
 
-1. Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Importa un expedient de currículum anterior**.
+1. Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix un expedient de currículum anterior**.
 2. A **Document de l'historial acadèmic**, pugeu el PDF de l'historial acadèmic.
 3. S'emplenen el currículum, el centre, els anys i una graella amb tots els mòduls i, a sota de cadascun, les seves unitats formatives, amb les hores, la nota i la convocatòria. Corregiu qualsevol nota o convocatòria que no s'hagi llegit bé.
 4. **Títol obtingut** queda marcat quan tots els mòduls de la llista estan superats, perquè el document no diu si l'alumne/a es va titular. Confirmeu-ho o corregiu-ho i, si la sabeu, ompliu la **Data del títol**.
 5. Comproveu que l'**Alumne del document** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, o no es pot comprovar, l'expedient no es crea.
 6. Feu clic a **Crea l'expedient**.
 
-![Assistent d'importació d'un currículum anterior amb la graella llegida del PDF: mòduls, unitats formatives, notes i convocatòries](../../assets/secretary/academic-history-previous-curriculum-review.png)
+![Assistent per afegir un expedient de currículum anterior amb la graella llegida del PDF: mòduls, unitats formatives, notes i convocatòries](../../assets/secretary/academic-history-previous-curriculum-review.png)
 
 ![Expedient de currículum anterior amb els mòduls i les unitats formatives, el títol i el document adjunt](../../assets/secretary/academic-history-previous-curriculum.png)
 

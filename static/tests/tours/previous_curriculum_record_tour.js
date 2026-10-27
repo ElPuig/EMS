@@ -16,7 +16,7 @@ registry.category("web_tour.tours").add("ems_previous_curriculum_record", {
             trigger: ".o_form_view .o_field_widget[name='name']:contains('Previous Curriculum Tour Student'), .o_form_view .o_field_widget[name='name'] input",
             content: "The student form is loaded",
         },
-        ...clickAction("action_previous_curriculum_wizard", "Import a previous curriculum record"),
+        ...clickAction("action_previous_curriculum_wizard", "Add a previous curriculum record"),
         uploadCertificate("ems.tour_previous_curriculum_document"),
         {
             trigger: ".modal div[name='curriculum_name'] input:value(CFPS Cicle Tour (LOE))",

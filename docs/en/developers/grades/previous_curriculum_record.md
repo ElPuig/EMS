@@ -91,7 +91,7 @@ sequenceDiagram
     participant P as Student form
     participant W as Import wizard
     participant R as Previous curriculum record
-    S->>P: Actions > Import a previous curriculum record
+    S->>P: Actions > Add a previous curriculum record
     P->>W: open (default_student_id)
     S->>W: upload the Historial acadèmic PDF
     W->>W: read it: header + review grid (modules and units)

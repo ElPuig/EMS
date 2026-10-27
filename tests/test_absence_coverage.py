@@ -1692,7 +1692,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         """`rows`: (hour_from, hour_to, groups), or a guard duty ('guard', or 'wc' for one that is
         not regular) instead of the groups. A class of group_a (alone or with others) is in its
         room, any other in space_b, so that no two classes share a room at once."""
-        duties = {'guard': self.non_teaching_guard, 'wc': self.env.ref('ems.non_teaching_gwc')}
+        duties = {'guard': self.non_teaching_guard, 'wc': self.env.ref('ems.non_teaching_gwc'),
+                  'meeting': self.env.ref('ems.non_teaching_cm')}
         calendar = self._new_calendar(teacher, f'TABC 645 {teacher.name}')
         calendar.apply_schedule_changes([{
             'dayofweek': '0', 'hour_from': hour_from, 'hour_to': hour_to, 'day_period': 'morning',
@@ -1715,8 +1716,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
                          [('entry', 8, 9), ('exit', 13, 14)])
         self.assertIsNone(schedule_shift(periods, [(9, 10)], [(13, 14)]))
 
-    def _two_groups_day(self):
-        """group_a and group_b's Monday. teacher_a, away all day, teaches both together at 8 and 12;
+    def _two_groups_day(self, guard_duty='guard'):
+        """group_a and group_b's Monday (`guard_duty`: teacher_guard's 10-11 duty). teacher_a, away all day, teaches both together at 8 and 12;
         teacher_b (group_a) and teacher_c (group_b) are on guard at 8 and teach their group 9-11;
         teacher_guard_2 is on WC duty at 8 and teaches both at 11; teacher_guard is on WC duty at 8,
         on guard 10-11 and 12-13 and teaches both groups at 13. Without arrangements: they come in at 9, and a guard
@@ -1726,7 +1727,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self._calendar_rows(self.teacher_b, ((8, 9, 'guard'), (9, 10, self.group_a), (10, 11, self.group_a)))
         self._calendar_rows(self.teacher_c, ((8, 9, 'guard'), (9, 10, self.group_b), (10, 11, self.group_b)))
         self._calendar_rows(self.teacher_guard_2, ((8, 9, 'wc'), (11, 12, both)))
-        self._calendar_rows(self.teacher_guard, ((8, 9, 'wc'), (10, 11, 'guard'), (12, 13, 'guard'), (13, 14, both)))
+        self._calendar_rows(self.teacher_guard, ((8, 9, 'wc'), (10, 11, guard_duty), (12, 13, 'guard'), (13, 14, both)))
         self._absence(self.teacher_a, self.day)
         return both
 
@@ -1877,6 +1878,43 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(plans[0]['steps'][2]['shifts'], [])
         self.assertEqual(plans[0]['steps'][0]['shifts'], [])
         self.assertEqual(self._plans(self.group_b), plans, "one set of plans for both groups")
+
+    def test_a_guard_swapped_with_a_lesson_moves_on_the_board(self):
+        """Issue #709: teacher_b and teacher_guard take their lessons to their regular guards (8 and
+        10): each is struck out at the guard's hour, with the group, and on guard at the lesson's
+        hour instead, where they can be sent to cover a class."""
+        self._two_groups_day()
+        self._apply(self._plans()[0], keep=[0, 1, 2])
+
+        data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
+            '0', 'morning', day=str(self.day))
+
+        def guard(hour, teacher):
+            return next((guard for line in data['lines'] if line['hour_from'] == hour
+                         for guard in line['guards'] if guard['id'] == teacher.id), None)
+        self.assertEqual(guard(13, self.teacher_guard)['stayed'], 'guard moved from 10:00')
+        self.assertTrue(guard(10, self.teacher_guard)['busy'], "with the groups at their guard's hour")
+        self.assertEqual(guard(10, self.teacher_b)['stayed'], 'guard moved from 08:00')
+        self.assertTrue(guard(8, self.teacher_b)['busy'])
+        candidates = self.env['ems.course']._get_guard_candidates
+        self.assertIn(self.teacher_guard, candidates(self.day, 13, 14))
+        self.assertNotIn(self.teacher_guard, candidates(self.day, 10, 11))
+        html, _content_type = self.env['ir.actions.report'].with_context(
+            guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
+            _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
+        self.assertIn(b'(guard moved from 10:00)', html)
+
+    def test_a_meeting_swapped_with_a_lesson_is_no_guard(self):
+        """Issue #709: a lesson taken to a meeting swaps with it too (the teacher's day does not
+        change), but a meeting is no guard: nobody is put on guard at the lesson's hour."""
+        self._two_groups_day(guard_duty='meeting')
+        plan = self._plans()[0]
+        step = next(step for step in plan['steps'] if step['kind'] == 'move' and step['teacher'] == self.teacher_guard)
+        self.assertEqual(step['shifts'], [])
+        self._apply(plan, keep=[index for index, step in enumerate(plan['steps']) if step['kind'] == 'move'])
+
+        self.assertNotIn(self.teacher_guard, self._teaching_line(self.day, 13, 14)['stayed_guards'])
+        self.assertNotIn(self.teacher_guard, self.env['ems.course']._get_guard_candidates(self.day, 13, 14))
 
     def test_applying_the_whole_chain_needs_no_guard_and_one_notice_per_group(self):
         both = self._two_groups_day()

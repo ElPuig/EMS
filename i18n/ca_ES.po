@@ -26684,3 +26684,10 @@ msgstr "Sí, aplica-ho"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Not yet"
 msgstr "Encara no"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "guard moved from %s"
+msgstr "guàrdia moguda des de les %s"

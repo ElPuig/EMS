@@ -1038,6 +1038,11 @@ returns it with the groups' timetable-change states it was built from.
   timetable period with no subject and no group, `_duty_periods()`) swaps with it: the duty goes to
   the hour the lesson leaves, so that hour stays in their day and their entry and exit do not change
   (#709). Only a lesson taken to an hour off their timetable can change them.
+  On the board, a swapped **regular guard** moves too (`_moved_guards()`, which also gives the
+  co-teachers left on guard, #678): once the arrangement is in effect the teacher is struck out at
+  the guard's hour (`_arrangement_busy()`, they are with the group) and on guard at the lesson's
+  usual hour, tagged "guard moved from HH:MM", in the guard column, the PDF and
+  `_get_guard_candidates()`. Any other swapped duty shows nowhere.
 - **Evaluation** (`_evaluate()`): `_allowed_absence_changes()` on the simulated day gives, per
   side, the largest change still to come (`_change_start()` against `_board_day_hour()`); a side the
   families were already told about keeps its change and gets no new notice. The score, lower is

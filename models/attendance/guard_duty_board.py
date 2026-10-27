@@ -953,14 +953,15 @@ class EmsCourseGuardDutyBoard(models.Model):
         the period, consecutive duties joined, the longest piece if they are not consecutive. A
         guard away (`intervals`) or with a group through an internal arrangement (`covers`, issue
         #605) during their piece cannot. A co-teacher who could not follow a lesson an arrangement
-        moved (issue #678) is on guard while it is gone. No query: the board calls it once per line
+        moved (issue #678) is on guard while it is gone, and so is a teacher who took their lesson to
+        their own regular guard (issue #709, see _moved_guards). No query: the board calls it once per line
         with data it already holds, the board actions through _get_guard_candidates()."""
         pieces = defaultdict(list)
         for attendance in guard_entries:
             start, stop = max(attendance.hour_from, hour_from), min(attendance.hour_to, hour_to)
             if stop - start > HOUR_EPSILON:
                 pieces[attendance.employee_id].append((start, stop))
-        for teacher, piece in self._stayed_on_guard(covers, hour_from, hour_to).items():
+        for teacher, (piece, _label) in self._moved_guards(covers, guard_entries, hour_from, hour_to).items():
             pieces[teacher].append(piece)
         spans = {}
         for guard, guard_pieces in pieces.items():
@@ -980,26 +981,36 @@ class EmsCourseGuardDutyBoard(models.Model):
     def _get_guard_candidates(self, day, hour_from, hour_to):
         """The guards who can be sent to cover a class, or a guard duty that is not regular, in the
         period, and for which part of it - see _guard_spans()."""
+        # The whole day's: a guard an arrangement moved (issue #709) comes from another hour.
         guard_entries = self._get_guard_duty_board_attendance_ids([
-            ('dayofweek', '=', str(day.weekday())), ('non_teaching.is_regular_guard', '=', True),
-            ('hour_from', '<', hour_to), ('hour_to', '>', hour_from)])
+            ('dayofweek', '=', str(day.weekday())), ('non_teaching.is_regular_guard', '=', True)])
         covers = self._get_day_covers(day)
         intervals = self._get_guard_duty_absence_intervals(
             day, guard_entries.employee_id | covers.stayed_employee_ids, unchecked=True)
         return self._guard_spans(guard_entries, intervals, covers, hour_from, hour_to)
 
-    @staticmethod
-    def _stayed_on_guard(covers, hour_from, hour_to):
-        """`{employee: (hour_from, hour_to)}`: the co-teachers on guard in the period because an
-        arrangement in effect moved their lesson without them (issue #678), and for which part of
-        it - the lesson's time."""
-        stayed = {}
-        for cover in covers.filtered(lambda cover: cover.stayed_employee_ids and cover.is_effective):
+    def _moved_guards(self, covers, regular_guards, hour_from, hour_to):
+        """`{employee: ((hour_from, hour_to), label)}`: who is on guard in the period because an
+        arrangement in effect moved a lesson, for which part of it (the lesson's usual time) and the
+        tag saying why: a co-teacher who could not follow it (issue #678, "lesson moved"), and a
+        teacher who took it to one of their own regular guards (`regular_guards`, the day's), which
+        goes to the lesson's hour instead (issue #709, "guard moved from ..."); at the guard's own
+        hour they are with the group, struck out (see _arrangement_busy). A meeting or any other
+        duty swapped that way is not a guard: it shows nowhere."""
+        moved = {}
+        for cover in covers.filtered(lambda cover: cover.cover_type == 'arrangement' and cover.vacated_hour_to
+                                     and cover.is_effective):
             start, stop = max(cover.vacated_hour_from, hour_from), min(cover.vacated_hour_to, hour_to)
-            if stop - start > HOUR_EPSILON:
-                for teacher in cover.stayed_employee_ids:
-                    stayed[teacher] = (start, stop)
-        return stayed
+            if stop - start <= HOUR_EPSILON:
+                continue
+            for teacher in cover.stayed_employee_ids:
+                moved[teacher] = ((start, stop), _("lesson moved"))
+            guard = regular_guards.filtered(
+                lambda attendance, cover=cover: attendance.employee_id == cover.guard_employee_id
+                and overlaps(attendance.hour_from, attendance.hour_to, cover.hour_from, cover.hour_to))[:1]
+            if guard:
+                moved[cover.guard_employee_id] = ((start, stop), _("guard moved from %s", self._format_report_time(guard.hour_from)))
+        return moved
 
     def _get_day_covers(self, day):
         return self.env['ems.absence_cover'].sudo().search([('date', '=', day), ('state', '=', 'assigned')])
@@ -1553,6 +1564,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         period_members = _merge_absorbed_periods(periods, fixed=framework_periods)
         break_periods = self._get_guard_duty_board_break_periods(level_ids, weekday, shift_start, shift_end)
         management = self._get_board_absence_management(day, groups, shift_start, shift_end)
+        regular_guards = entries.filtered(lambda attendance: attendance.non_teaching.is_regular_guard)
 
         dated_lines = []
         remaining_guards = guard_entries
@@ -1616,7 +1628,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                     lambda attendance, member_periods=member_periods:
                         (attendance.hour_from, attendance.hour_to) in member_periods)
             remaining_guards -= guards
-            stayed = self._stayed_on_guard(management['covers'], hour_from, hour_to) if management else {}
+            moved_guards = self._moved_guards(management['covers'], regular_guards, hour_from, hour_to) if management else {}
             if not guards and not any(cell['entries'] for cell in cells):
                 continue  # nothing scheduled anywhere in this period - no row worth showing
             # See this method's own docstring for why the "no cell has a real class" half of this
@@ -1638,9 +1650,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'hour_to': hour_to,
                 'cells': cells,
                 'guards': guards,
-                # Co-teachers on guard because a lesson moved without them (issue #678).
-                'stayed_guards': self.env['hr.employee'].union(*stayed),
-                'stayed_label': _("lesson moved") if stayed else False,
+                # On guard because an arrangement moved a lesson (issues #678, #709), with why.
+                'stayed_guards': self.env['hr.employee'].union(*moved_guards),
+                'stayed_labels': {teacher.id: label for teacher, (_piece, label) in moved_guards.items()},
                 'guard_absences': guard_absences,
                 # Guards with a group through an internal arrangement (issue #605): struck out of
                 # the guard column, nobody can ask them to cover anything else then.
@@ -1674,7 +1686,6 @@ class EmsCourseGuardDutyBoard(models.Model):
         # Who could be sent to each line's classes, and for which part (issue #637): every regular
         # guard of the shift, not only the line's own - one on a partly overlapping block covers
         # part of the class. Computed per line from data already loaded, no query.
-        regular_guards = entries.filtered(lambda attendance: attendance.non_teaching.is_regular_guard)
         for line in lines:
             line['guard_spans'] = self._guard_spans(
                 regular_guards, intervals, management['covers'], line['hour_from'], line['hour_to']) if management else {}
@@ -2103,7 +2114,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             stayed = self._guard_duty_teacher_data(
                 line.get('stayed_guards', line['guards'].employee_id) - line['guards'].employee_id, {})
             for guard in stayed:
-                guard['stayed'] = line['stayed_label']
+                guard['stayed'] = line['stayed_labels'][guard['id']]
             guards += stayed
             for guard in guards:
                 guard['color'] = line['guard_colors'].get(guard['id'], False)

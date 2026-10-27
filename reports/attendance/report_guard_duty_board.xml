@@ -337,11 +337,11 @@
                     <t t-if="guard.non_teaching.code == 'GWC'"> (WC)</t>
                 </span>
             </t>
-            <!-- A co-teacher on guard because their lesson moved without them (issue #678). -->
+            <!-- On guard because an arrangement moved a lesson (issues #678, #709). -->
             <t t-foreach="line.get('stayed_guards', [])" t-as="teacher">
                 <span t-if="teacher not in line['guards'].employee_id"
                       t-att-class="'gdb-guard-badge' + (' gdb-cover-%s' % line['guard_colors'][teacher.id] if teacher.id in line['guard_colors'] else '') + (' gdb-guard-busy' if teacher.id in line['guard_busy'] else '')">
-                    <t t-esc="teacher.name"/> (<t t-esc="line['stayed_label']"/>)
+                    <t t-esc="teacher.name"/> (<t t-esc="line['stayed_labels'][teacher.id]"/>)
                 </span>
             </t>
         </template>

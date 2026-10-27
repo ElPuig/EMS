@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from odoo import _, models
+from dateutil.relativedelta import relativedelta
+
+from odoo import _, fields, models
 
 
 class ems_contact_portal(models.Model):
@@ -287,6 +289,19 @@ class ems_contact_portal(models.Model):
             [('partner_id', '=', self.id)],
             limit=100,
         ).ids
+
+    def _ems_portal_birth_date(self, value):
+        """The birth date typed on the portal when confirming an enrollment (issue #640), or
+        False when it is missing or not a plausible one: a day in the past, and no more than
+        100 years ago (a typo in the year, not a real student)."""
+        try:
+            birth_date = fields.Date.to_date(value) if value else False
+        except ValueError:
+            return False
+        today = self.env['ems.datetime_utils'].get_local_today()
+        if not birth_date or not today - relativedelta(years=100) < birth_date < today:
+            return False
+        return birth_date
 
     def get_portal_enrollment(self, course):
         """Returns the active enrollment for this student in the portal context.

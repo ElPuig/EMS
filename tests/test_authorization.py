@@ -35,9 +35,9 @@ class TestAuthorizationTemplate(TransactionCase):
             'code': 'TATSUB', 'acronym': 'TAS', 'name': 'Test Auth Template Subject',
             'study_ids': [(6, 0, [cls.study.id])],
         })
-        cls.student1 = cls.env['res.partner'].create({'name': 'Auth Student 1', 'contact_type': 'student', 'student_id': next_student_id()})
-        cls.student2 = cls.env['res.partner'].create({'name': 'Auth Student 2', 'contact_type': 'student', 'student_id': next_student_id()})
-        cls.student3 = cls.env['res.partner'].create({'name': 'Auth Student 3', 'contact_type': 'student', 'student_id': next_student_id()})
+        cls.student1 = cls.env['res.partner'].create({'name': 'Auth Student 1', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01'})
+        cls.student2 = cls.env['res.partner'].create({'name': 'Auth Student 2', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01'})
+        cls.student3 = cls.env['res.partner'].create({'name': 'Auth Student 3', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01'})
 
     def _order(self, partner, study=None, state=None, with_line=False):
         order = self.env['sale.order'].create({
@@ -211,7 +211,7 @@ class TestAuthorization(TransactionCase):
         cls.level, cls.study = create_level_study(cls, 'TAU', level={'name': 'Test Auth Level'}, study={
             'code': 'TAU001', 'acronym': 'TAUS', 'name': 'Test Auth Study',
         })
-        cls.student = cls.env['res.partner'].create({'name': 'Auth Response Student', 'contact_type': 'student', 'student_id': next_student_id()})
+        cls.student = cls.env['res.partner'].create({'name': 'Auth Response Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01'})
         cls.order = cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_study_id': cls.study.id, 'ems_course_id': cls.course.id,
         })
@@ -321,11 +321,11 @@ class TestAuthorizationStandalone(TransactionCase):
         })
         cls.student = cls.env['res.partner'].create({
             'name': 'Standalone Student', 'contact_type': 'student',
-            'main_group_id': cls.group.id, 'student_id': next_student_id(),
+            'main_group_id': cls.group.id, 'student_id': next_student_id(), 'birth_date': '2015-01-01',
         })
         cls.other_student = cls.env['res.partner'].create({
             'name': 'Standalone Other Student', 'contact_type': 'student',
-            'student_id': next_student_id(),
+            'student_id': next_student_id(), 'birth_date': '2015-01-01',
         })
         cls.template = cls.env['ems.authorization.template'].create({
             'name': 'Mid-year Template', 'apply_on_enrollment': False, 'sendable_during_course': True,

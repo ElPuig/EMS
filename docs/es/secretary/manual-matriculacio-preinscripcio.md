@@ -153,6 +153,8 @@ Al pulsar **Enviar matrícula**, para cada matrícula seleccionada:
 
 > A partir de aquí, las familias reciben el correo y pueden **confirmar la matrícula** desde el portal siguiendo la guía [Guía para confirmar la propuesta de matrícula](../families/manual-confirmacio-matricula.md).
 
+> No se puede confirmar la matrícula de un alumno/a sin fecha de nacimiento. Cuando la familia la confirma desde el portal, se le pide; para confirmarla desde EMS, rellenadla antes en la ficha del alumno/a.
+
 ---
 
 ## Paso 7 — Cerrar las matrículas que nadie ha confirmado

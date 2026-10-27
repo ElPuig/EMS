@@ -16,6 +16,11 @@
                     <separator/>
                     <filter name="my_students" string="My students" domain="[('is_my_student', '=', True)]"/>
                     <separator/>
+                    <!-- Issue #640: students EMS takes for minors for lack of a birth date. Its own
+                         group too, so it narrows "My students" and the facets above. -->
+                    <filter name="without_birth_date" string="Without birth date"
+                            domain="[('contact_type', '=', 'student'), ('birth_date', '=', False)]"/>
+                    <separator/>
                     <filter name="alumni" string="Alumni" domain="[('contact_type', '=', 'alumni')]"/>
                     <filter name="withdrawals" string="Withdrawals" domain="[('contact_type', '=', 'withdrawal')]"/>
                     <filter name="expelled" string="Expelled" domain="[('contact_type', '=', 'expelled')]"/>

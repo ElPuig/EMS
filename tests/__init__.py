@@ -98,6 +98,8 @@ from . import test_personal_email_not_corporate
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment
+from . import test_student_birth_date
+from . import test_student_birth_date_tour
 from . import test_portal_payment_status
 from . import test_data_custom_import_prefix
 from . import test_data_main_cat_prefix

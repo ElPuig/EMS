@@ -160,6 +160,13 @@
                         <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.
                     </div>
+                    <!-- Issue #640: an existing student without a birth date, whom EMS takes for a minor. -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="contact_type != 'student' or birth_date or not id"
+                         groups="ems.group_secretary,ems.group_academic_admin">
+                        The birth date is missing: until it is filled in, EMS treats the student as a
+                        minor. Fill it in the Personal data section.
+                    </div>
                     <!-- Issue #534: same placement and pattern as pending_classroom_conflict_count on
                          the group and employee forms - always visible, not buried in a tab. -->
                     <field name="enrollment_slot_broken_count" invisible="1"/>
@@ -314,7 +321,11 @@
                             <field name="car_plate" invisible="read_only_user"/>
                         </group>
                         <group string="Personal data">
-                            <field name="birth_date" invisible="read_only_user"/>
+                            <!-- Issue #640: without it EMS takes the student for a minor. Required
+                                 on a new student only, like the IDALU above: on an existing one it
+                                 would block every button of the form until someone typed a date. -->
+                            <field name="birth_date" invisible="read_only_user"
+                                   required="not id and contact_type == 'student' and not read_only_user"/>
                             <!-- Same Yes/No badge as the authorizations below: easier to read at a glance. -->
                             <span class="o_form_label">Adult</span>
                             <div class="o_row">

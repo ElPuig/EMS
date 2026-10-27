@@ -153,6 +153,8 @@ En prémer **Enviar matrícula**, per a cada matrícula seleccionada:
 
 > A partir d'aquí, les famílies reben el correu i poden **confirmar la matrícula** des del portal seguint la guia [Guia per confirmar la proposta de matrícula](../families/manual-confirmacio-matricula.md).
 
+> No es pot confirmar la matrícula d'un alumne/a sense data de naixement. Quan la família la confirma des del portal, se li demana; per confirmar-la des d'EMS, ompliu-la abans a la fitxa de l'alumne/a.
+
 ---
 
 ## Pas 7 — Tancar les matrícules que ningú ha confirmat

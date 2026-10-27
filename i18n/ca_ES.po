@@ -22737,20 +22737,6 @@ msgstr "Tria el tipus de reorganització."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/absence_coverage.py:0
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "Swap: %(teacher)s teaches at %(time)s and %(absent)s at %(other_time)s."
-msgstr "Intercanvi: %(teacher)s fa classe a les %(time)s i %(absent)s a les %(other_time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "%(teacher)s moves their %(other_time)s lesson to %(time)s."
-msgstr "%(teacher)s passa la seva classe de les %(other_time)s a les %(time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
 msgid "%(teacher)s: %(note)s"
 msgstr "%(teacher)s: %(note)s"
 
@@ -24188,12 +24174,6 @@ msgstr "Propostes per a les absències"
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."
-msgstr "Per a cada grup, com organitzar-ne les absències, la millor primer: que els docents reorganitzin les seves classes perquè l'alumnat perdi el mínim de classes possible i no calgui cap guàrdia, o només avisar les famílies. Desmarca els passos que no vulguis: les classes que resolien es queden a la taula. Enviar un avís treu de la taula les seves classes; pots triar un canvi més curt i enviar una guàrdia a la resta. S'avisa els docents implicats."
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Only tell the families"
 msgstr "Només avisar les famílies"
 
@@ -24582,16 +24562,6 @@ msgstr ""
 "%(subject)s: de %(usual)s a %(new)s, juntament amb %(joined)s a %(room)s"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid ""
-"%(teacher)s teaches the group together with %(joined)s at %(time)s, instead "
-"of at %(other_time)s."
-msgstr ""
-"%(teacher)s fa classe al grup juntament amb %(joined)s a les %(time)s, en "
-"lloc de fer-ho a les %(other_time)s."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__joined_group_ids
 msgid "Joined with"
 msgstr "Unit amb"
@@ -24675,21 +24645,6 @@ msgstr ""
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid "Swap: %(teacher)s teach at %(time)s and %(absent)s at %(other_time)s."
-msgstr ""
-"Intercanvi: %(teacher)s fan classe a les %(time)s i %(absent)s a les "
-"%(other_time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid "%(teacher)s move their %(other_time)s lesson to %(time)s."
-msgstr ""
-"%(teacher)s passen la seva classe de les %(other_time)s a les %(time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
 msgid "On guard at %(other_time)s instead: %(teachers)s."
 msgstr "De guàrdia a les %(other_time)s: %(teachers)s."
 
@@ -24769,16 +24724,6 @@ msgstr "Avís a l'alumnat de %(groups)s: %(change)s."
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Only tell the students"
 msgstr "Només avisar l'alumnat"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid ""
-"%(teacher)s teach the group together with %(joined)s at %(time)s, instead of"
-" at %(other_time)s."
-msgstr ""
-"%(teacher)s fan classe al grup juntament amb %(joined)s a les %(time)s, en "
-"lloc de fer-ho a les %(other_time)s."
 
 #. module: ems
 #. odoo-python
@@ -26695,3 +26640,41 @@ msgstr "grups units amb %s"
 #, python-format
 msgid "%(teacher)s: %(how)s"
 msgstr "%(teacher)s: %(how)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#, python-format
+msgid "%(step)s, %(how)s."
+msgstr "%(step)s, %(how)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#, python-format
+msgid "%s."
+msgstr "%s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "For each group, the best ways to organise its absences, the best first. Check what you want and click Apply the checked steps:"
+msgstr "Per a cada grup, les millors maneres d'organitzar-ne les absències, de millor a pitjor. Tria el que vulguis i fes clic a Aplicar els passos marcats:"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "A teacher brings one of their lessons to the empty hour. Under it, in grey, how: a swap with their guard or another duty, a free hour, a shifted working day or two halves joined. In orange, whether they come in or leave at another time: you will be asked whether you have talked to them."
+msgstr "Un docent porta una de les seves classes a l'hora buida. A sota, en gris, com: intercanvi amb la seva guàrdia o una altra tasca, a una hora lliure, desplaçament de jornada o dues meitats unides. En taronja, si entra o surt a una altra hora: se't preguntarà si n'has parlat amb ell."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table. The last proposal only tells them; you can choose a shorter change there and send a guard to the rest."
+msgstr "Un avís a les famílies, quan el grup pot entrar més tard o sortir abans: les seves classes queden ratllades a la taula. L'última proposta només les avisa; allà pots triar un canvi més curt i enviar una guàrdia a la resta."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "A lesson no checked step solves stays on the table, for a guard. The teachers involved are notified."
+msgstr "Una classe que cap pas marcat no resol es queda a la taula, per a una guàrdia. S'avisa els docents implicats."

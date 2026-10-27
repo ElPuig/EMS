@@ -1355,7 +1355,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             guard_duty_weekday='0', guard_duty_date=str(self.day), guard_duty_view='table').\
             _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
         # Right after the arrangement's own tag, not only on the row of the lesson left free.
-        self.assertIn(b'Leaves at 11:00', html.split(b'lesson to 10:00.')[1][:300])
+        self.assertIn(b'Leaves at 11:00', html.split('lesson → 10:00'.encode())[1][:300])
 
     def test_a_swap_shows_no_timetable_change(self):
         self._morning()
@@ -1498,7 +1498,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(message.count(f"{self.subject.name}: from 11:00-12:00 to 10:00-11:00"), 1,
                          "the students are told about the lesson once, not once per teacher")
         self.assertEqual(covers[0]._arrangement_label(),
-                         f"{self.teacher_b.name} and {self.teacher_c.name} move their 11:00 lesson to 10:00.")
+                         f"{self.teacher_b.name} and {self.teacher_c.name}: 11:00 lesson → 10:00 ({self.group_a.name}), "
+                         "working day shifted.")
         self.assertEqual(self._cell(10, 11)['substitutes'], both)
         self.assertEqual(self._cell(11, 12)['moved'], both, "nobody stays behind at 11")
         self.assertFalse(self._teaching_line(self.day, 11, 12)['absences'], "the group has already left")
@@ -1683,7 +1684,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
 
         self.assertIn(b'gdb-absence-row gdb-absence-covered', html)
-        self.assertIn(b'Swap:', html)
+        self.assertIn(b'swap their', html)
 
     # Chains of moved lessons (issue #645), the case that started it: the absent teacher teaches
     # two groups together at the start and near the end of their day; the best plan has the
@@ -1796,7 +1797,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
                          (self.group_b, self.teacher_a, self.teacher_b, 9, 12))
         self.assertEqual((join.arrangement_type, join.joined_group_ids, join.space_id), ('move', self.group_a, self.space),
                          "a move into group_a's lesson, in group_a's room")
-        self.assertIn(f"together with {self.group_a.name} at 09:00, instead of at 12:00", join._arrangement_label())
+        self.assertIn(f": 12:00 lesson → 09:00 ({self.group_b.name}), groups joined with {self.group_a.name}.", join._arrangement_label())
         notices = self.Notice.search([('absence_group_id', 'in', (self.group_a | self.group_b).ids)])
         self.assertEqual({(notice.absence_group_id, tuple(notice._absence_change_tuples())) for notice in notices},
                          {(self.group_a, (('early_leave', 12.0),)), (self.group_b, (('early_leave', 12.0),))})
@@ -1813,7 +1814,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertFalse([row for row in self._teaching_line(self.day, 9, 10)['absences'] if not (row['arrangement'] or row['authorized'])],
                          "nobody needs a guard at 9")
         message = self._messages(self.teacher_b, 'Timetable arrangement')
-        self.assertIn(f"together with {self.group_a.name}", message.body)
+        self.assertIn(f"groups joined with {self.group_a.name}", message.body)
 
     def test_a_join_is_withdrawn_like_a_moved_lesson(self):
         covers, _notice_action = self._apply(self._join_plan())
@@ -1847,7 +1848,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         join = covers.filtered('joined_group_ids')
         self.assertEqual(join.guard_employee_id, both, "one cover per teacher who brings the lesson")
         self.assertFalse(join.stayed_employee_ids)
-        self.assertIn(f"teach the group together with {self.group_a.name} at 09:00, instead of at 12:00",
+        self.assertIn(f": 12:00 lesson → 09:00 ({self.group_b.name}), groups joined with {self.group_a.name}.",
                       join[0]._arrangement_label())
 
     def test_a_co_teacher_not_with_the_other_half_stays_on_guard_in_a_join(self):
@@ -1894,7 +1895,11 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         second = self.env['ems.course']._arrangement_plan_data(plans[1])['steps']
         self.assertEqual(second[2]['label'], f"{self.teacher_guard.name}: 13:00 lesson → 09:00 ({self.group_a.name} and {self.group_b.name})")
         self.assertEqual(second[2]['details'], [{'icon': 'fa-circle-o', 'text': 'to a free hour'}])
-        self._apply(plans[0], keep=[0, 1, 2])
+        covers, _notice_action = self._apply(plans[0], keep=[0, 1, 2])
+        moved = covers.filtered(lambda cover: cover.guard_employee_id == self.teacher_guard)[:1]
+        self.assertIn(": 13:00 lesson → 10:00 (", moved._arrangement_label())
+        self.assertTrue(moved._arrangement_label().endswith("), swap with their guard, which moves to 13:00."),
+                        "the arrangement keeps the proposal's wording once applied")
 
         data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))

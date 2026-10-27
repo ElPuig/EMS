@@ -564,11 +564,20 @@ export class GuardDutyBoard extends Component {
             removeArrangement: _t("Remove arrangement"),
             changeProposal: _t("Change proposal"),
             arrangementsTitle: _t("Proposals for the absences"),
-            arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
+            // What each kind of step means (issue #709): a short intro and one line per kind, with the
+            // icon the steps themselves carry.
+            arrangementsHelp: {
+                intro: _t("For each group, the best ways to organise its absences, the best first. Check what you want and click Apply the checked steps:"),
+                points: [
+                    { icon: "fa-arrows-v", text: _t("A teacher brings one of their lessons to the empty hour. Under it, in grey, how: a swap with their guard or another duty, a free hour, a shifted working day or two halves joined. In orange, whether they come in or leave at another time: you will be asked whether you have talked to them.") },
+                    { icon: "fa-envelope-o", text: _t("A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table. The last proposal only tells them; you can choose a shorter change there and send a guard to the rest.") },
+                    { icon: "fa-user-o", text: _t("A lesson no checked step solves stays on the table, for a guard. The teachers involved are notified.") },
+                ],
+            },
             noticeOnly: _t("Only tell the families"),
             noticeOnlyStudents: _t("Only tell the students"),
             correctionsTitle: _t("Corrections to absences already organised"),
-            correctionsHelp: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."),
+            correctionsHelp: { intro: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."), points: [] },
             applyPlan: _t("Apply the checked steps"),
         };
     }

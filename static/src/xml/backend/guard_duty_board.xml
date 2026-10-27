@@ -81,11 +81,16 @@
          lessons with it): first what is waiting (an arrangement waiting for its notice), then the
          arrangement plans, the best first, and last the timetable change alone, telling the
          families without rearranging anything. Expects 'boxSections', 'boxClass', 'boxTitle' and
-         'boxHelp'. -->
+         'boxHelp' ({intro, points: [{icon, text}]}). -->
     <t t-name="ems.GuardBoardProposalsBox">
         <div t-if="boxSections.length" class="o_guard_board_actions o_guard_board_arrangements" t-att-class="boxClass">
             <div class="o_guard_board_actions_title" t-esc="boxTitle"/>
-            <div class="o_guard_board_actions_help text-muted" t-esc="boxHelp"/>
+            <div class="o_guard_board_actions_help text-muted">
+                <t t-esc="boxHelp.intro"/>
+                <ul t-if="boxHelp.points.length" class="list-unstyled mb-0 mt-1">
+                    <li t-foreach="boxHelp.points" t-as="point" t-key="point_index"><i t-att-class="'fa fa-fw me-1 ' + point.icon"/><t t-esc="point.text"/></li>
+                </ul>
+            </div>
             <t t-foreach="boxSections" t-as="section" t-key="section.key">
                 <div class="o_guard_board_section">
                     <div class="o_guard_board_section_title" t-esc="section.title"/>

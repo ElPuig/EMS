@@ -779,6 +779,14 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         self.env['ems.absence_cover'].with_user(chief_user).board_apply_plan(str(day), steps)
         self._capture(url, '.o_guard_board_duty_table', 'guard-duty-13-guardia-moguda.png', login='doc_shot_chief',
                       wait_for='.o_guard_board_duty_table .o_guard_board_guard_wc_tag')
+        # ...and why the 10:00 class needs no guard, as a teacher sees it: the arrangement, worded as
+        # the proposal step was.
+        open_reason = """[...document.querySelectorAll('.o_guard_board_duty_table td.o_guard_board_absence_cell')]
+            .find((cell) => cell.querySelector('.o_guard_board_block_time').textContent.includes('10:00-11:00'))
+            .querySelector('.o_guard_board_absence_info').closest('[data-tooltip]').click();"""
+        self._capture(url, '.o_popover', 'guard-duty-14-reorganitzacio-aplicada.png', login='doc_shot_teacher',
+                      wait_for='.o_guard_board_duty_table .o_guard_board_guard_wc_tag',
+                      run=[open_reason], wait_after=['.o_guard_board_reason_popover'])
 
     def test_capture_guard_duty_change_proposal(self):
         """Issue #659, as the Department Chief: the families of a group were told it starts at

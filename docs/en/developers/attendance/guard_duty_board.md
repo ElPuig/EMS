@@ -1153,8 +1153,9 @@ Then:
   the step).
 - The covers of one step are **one decision** (`_same_decision()`: same lesson, same gap, and the
   same group or, for a shared lesson, the same teacher): `_with_siblings()` withdraws them together,
-  `_decision_pack()` names all its teachers in the label ("B and C move their 11:00 lesson to
-  10:00."), and `_check_one_guard_per_class` lets them share the class. Withdrawing it also releases
+  `_decision_pack()` names all its teachers in the label ("B and C: 11:00 lesson → 10:00 (1A),
+  working day shifted.": the proposal step's own wording, #709, its kind read by `_cover_step_how()`
+  from the teachers' timetable and that day's other moves), and `_check_one_guard_per_class` lets them share the class. Withdrawing it also releases
   any guard the co-teachers left on guard were sent to meanwhile: they are back at their lesson.
 - The **notice** and **correction** steps (#659, see above) become **one notice per group** (#652, `_create_absence_change_notice()`
   with every change the kept steps bring to that group: a later entry, an earlier leave, a longer

@@ -1447,6 +1447,27 @@ class EmsCourseGuardDutyBoard(models.Model):
                 how.append((teacher, 'shift' if changes == {'entry', 'exit'} else 'free', False))
         return how
 
+    def _cover_step_how(self, cover, kind, teachers):
+        """_arrangement_step_how() for an arrangement already applied (`cover`, a move, join or swap
+        whose lesson `teachers` take to its hour), for its label: read from those teachers'
+        timetable that weekday, their day's shift counting every lesson of theirs moved that day."""
+        attendances = self._get_guard_duty_board_attendance_ids([
+            ('dayofweek', '=', str(cover.date.weekday())), ('employee_id', 'in', teachers.ids)])
+        by_teacher = {teacher.id: attendances.filtered(lambda attendance, teacher=teacher: attendance.employee_id == teacher)
+                      for teacher in teachers}
+        moves = cover | cover.search([('date', '=', cover.date), ('state', '=', 'assigned'), ('cover_type', '=', 'arrangement'),
+                                      ('arrangement_type', '=', 'move'), ('guard_employee_id', 'in', teachers.ids)])
+        shifts = {}
+        for teacher in teachers:
+            own = moves.filtered(lambda move, teacher=teacher: move.guard_employee_id == teacher and move.vacated_hour_to)
+            periods = sorted({((move.vacated_hour_from, move.vacated_hour_to), (move.hour_from, move.hour_to)) for move in own})
+            shifts[teacher.id] = schedule_shift(
+                [(attendance.hour_from, attendance.hour_to) for attendance in by_teacher[teacher.id]],
+                [vacated for vacated, _target in periods], [target for _vacated, target in periods],
+                self._duty_periods(by_teacher[teacher.id]))
+        step = (kind, frozenset(teachers.ids), (cover.vacated_hour_from, cover.vacated_hour_to), (cover.hour_from, cover.hour_to))
+        return self._arrangement_step_how({'by_teacher': by_teacher}, step, shifts)
+
     def _arrangement_step_details(self, step, values):
         """The lines under a step saying what kind of move it is (issue #709, see
         _arrangement_step_how): one per kind, naming the teachers only when they differ."""

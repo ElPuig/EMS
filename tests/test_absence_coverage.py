@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import patch
 
+from odoo.addons.ems.models.attendance.arrangement_planner import schedule_shift
 from odoo.addons.ems.models.shared.datetime_utils import EmsDatetimeUtils
 from odoo.exceptions import AccessError, UserError, ValidationError
 
@@ -1700,6 +1701,20 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
                      'space_id': (self.space if self.group_a in groups else self.space_b).id}),
         } for hour_from, hour_to, groups in rows])
 
+    def test_a_lesson_taken_to_a_duty_swaps_with_it(self):
+        """Issue #709: a lesson moved to a guard or any other non-teaching hour of the teacher swaps
+        with it, so their entry and exit stay; only one moved to an hour off their timetable changes
+        them."""
+        periods = [(8, 9), (9, 10), (12, 13)]  # a lesson at 8, a guard at 9, a lesson at 12
+        self.assertEqual(schedule_shift(periods, [(8, 9)], [(9, 10)], duties=[(9, 10)]), [])
+        self.assertEqual(schedule_shift(periods, [(12, 13)], [(9, 10)], duties=[(9, 10)]), [])
+        self.assertEqual(schedule_shift(periods, [(8, 9)], [(10, 11)], duties=[(9, 10)]), [('entry', 8, 9)])
+        self.assertEqual(schedule_shift(periods, [(12, 13)], [(10, 11)], duties=[(9, 10)]), [('exit', 13, 11)])
+        # Taking the first lesson after the last one is the same day shifted, never a longer one.
+        self.assertEqual(schedule_shift(periods, [(8, 9)], [(13, 14)], duties=[(9, 10)]),
+                         [('entry', 8, 9), ('exit', 13, 14)])
+        self.assertIsNone(schedule_shift(periods, [(9, 10)], [(13, 14)]))
+
     def _two_groups_day(self):
         """group_a and group_b's Monday. teacher_a, away all day, teaches both together at 8 and 12;
         teacher_b (group_a) and teacher_c (group_b) are on guard at 8 and teach their group 9-11;
@@ -1857,8 +1872,10 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             ('notice', ('early_leave', 12), both),
         ], "two hours in a row of the same subject are kept together, and the groups leave at 12")
         self.assertEqual([step['depends'] for step in plans[0]['steps']], [[], [], [0, 1], [2]])
-        self.assertEqual(plans[0]['steps'][2]['shifts'], [(self.teacher_guard, 'exit', 14, 13)])
-        self.assertEqual(plans[0]['steps'][0]['shifts'], [(self.teacher_b, 'exit', 11, 10)])
+        # Each of them takes the lesson to one of their guards, which goes to the lesson's hour
+        # instead (issue #709): nobody comes in or leaves at another time.
+        self.assertEqual(plans[0]['steps'][2]['shifts'], [])
+        self.assertEqual(plans[0]['steps'][0]['shifts'], [])
         self.assertEqual(self._plans(self.group_b), plans, "one set of plans for both groups")
 
     def test_applying_the_whole_chain_needs_no_guard_and_one_notice_per_group(self):
@@ -1965,7 +1982,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         first = actions[0]['plan']
         self.assertEqual(first['steps'][3]['label'],
                          f"Notice to the families of {self.group_a.name} and {self.group_b.name}: Leaves at 12:00.")
-        self.assertEqual(first['steps'][2]['schedule_changes'], [f'{self.teacher_guard.name} leaves at 13:00 instead of 14:00.'])
+        # teacher_guard brings their 13:00 lesson to their 12:00 guard, which goes to 13:00 instead
+        # (issue #709): they still leave at 14:00.
+        self.assertEqual(first['steps'][2]['schedule_changes'], [])
         for line in data['lines']:
             for absence in line['absences']:
                 if absence['teacher_id'] == self.teacher_a.id:

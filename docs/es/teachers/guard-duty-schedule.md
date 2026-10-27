@@ -229,6 +229,10 @@ Las propuestas aparecen en este orden: primero las que hacen perder menos clases
 
 **La jornada de nadie se alarga.** Una propuesta solo incluye un paso si ningún docente implicado acaba con una jornada más larga (contada desde su primera franja hasta la última, tanto clases como guardias y cualquier otra tarea): quien tenga que entrar antes debe salir antes, y quien tenga que salir más tarde debe entrar más tarde. Cuando un paso cambia la hora de entrada o de salida de alguien, una línea naranja debajo dice exactamente de quién y cómo (*"… sale a las 20:20 en lugar de a las 21:20"*).
 
+Una clase que se lleva a una hora en la que el docente tiene una guardia, una coordinación o cualquier otra tarea no lectiva se intercambia con esa tarea: la tarea pasa a la hora que deja la clase, de modo que el docente entra y sale a la hora de siempre y no aparece ninguna línea naranja. Solo cambia la hora de entrada o de salida una clase que se lleva a una hora en la que el docente no está en el centro.
+
+**El horario de un docente no se puede cambiar sin él.** Cuando los pasos que aplicas cambian la hora de entrada o de salida de alguien, el horario te lo pregunta antes y te muestra los cambios: *"¿Has hablado con …?"*. Haz clic en **Sí, aplícalo** cuando haya estado de acuerdo. Con **Todavía no**, no se aplica nada y la propuesta queda como estaba.
+
 **Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados**, a su derecha, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
 
 ![Diálogo de una clase: las propuestas que la resuelven, la primera elegida con sus pasos marcados, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)

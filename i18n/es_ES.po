@@ -26658,3 +26658,27 @@ msgstr "No se ha podido leer el identificador del alumno/a del certificado y no 
 #, python-format
 msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
 msgstr "%(student)s no tiene IDALU para comprobar el del certificado (%(identifier)s): rellenadlo primero."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Working day changes"
+msgstr "Cambios de jornada"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "This arrangement changes when some teachers come in or leave:\n\n%(changes)s\n\nA teacher's timetable cannot be changed without their agreement. Have you talked to %(teachers)s?"
+msgstr "Esta reorganización cambia la hora de entrada o de salida de algunos docentes:\n\n%(changes)s\n\nEl horario de un docente no se puede cambiar sin su acuerdo. ¿Has hablado con %(teachers)s?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Yes, apply it"
+msgstr "Sí, aplícalo"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Not yet"
+msgstr "Todavía no"

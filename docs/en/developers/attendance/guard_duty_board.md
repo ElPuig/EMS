@@ -1034,6 +1034,10 @@ returns it with the groups' timetable-change states it was built from.
   others), when every group of that lesson has that gap;
   or a **swap** detected by `_get_arrangement_options()` (never a shared lesson). Nobody's working
   day may get longer (`schedule_shift()`, developer decision 2026-10-10), counting all their steps.
+  A lesson taken to one of the teacher's non-teaching hours (a regular guard, a coordination, any
+  timetable period with no subject and no group, `_duty_periods()`) swaps with it: the duty goes to
+  the hour the lesson leaves, so that hour stays in their day and their entry and exit do not change
+  (#709). Only a lesson taken to an hour off their timetable can change them.
 - **Evaluation** (`_evaluate()`): `_allowed_absence_changes()` on the simulated day gives, per
   side, the largest change still to come (`_change_start()` against `_board_day_hour()`); a side the
   families were already told about keeps its change and gets no new notice. The score, lower is
@@ -1060,7 +1064,11 @@ groups, ~0.3 s for both shifts of the whole board.
 `_arrangement_plan_records()` turns a plan into records, its steps ordered by time (never before a
 step they need), one notice step per change told to every group it applies to, and each teacher's
 entry/exit changes on their last step. `_arrangement_plan_data()` is its JSON: "Proposal N:", one
-sentence per step, `depends` (indexes) and the `payload` the server needs to apply it.
+sentence per step, `depends` (indexes) and the `payload` the server needs to apply it, plus
+`schedule_changes` (the entry/exit sentences) and `schedule_teachers` (whose). A teacher's timetable
+cannot be changed without them (#709): when the checked steps carry any entry/exit change, the
+board's `applyPlan()` asks first "Have you talked to …?" (Working day changes), and applies nothing
+if the planner answers "Not yet" (the dialog the plan came from stays open).
 
 #### Joining the two halves of a split group (#660)
 

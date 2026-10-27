@@ -1059,8 +1059,16 @@ class EmsCourseGuardDutyBoard(models.Model):
         """How `teacher`'s working day that day changes if they stop teaching the `removed` periods
         and teach the `added` ones instead; None when it would get longer (see
         arrangement_planner.schedule_shift)."""
-        return schedule_shift([(attendance.hour_from, attendance.hour_to)
-                               for attendance in context['by_teacher'].get(teacher.id, ())], removed, added)
+        attendances = context['by_teacher'].get(teacher.id, ())
+        return schedule_shift([(attendance.hour_from, attendance.hour_to) for attendance in attendances], removed, added,
+                              self._duty_periods(attendances))
+
+    @staticmethod
+    def _duty_periods(attendances):
+        """The periods of `attendances` (a teacher's day) with no class: guards, coordinations and
+        any other non-teaching hour, which a lesson taken there swaps with (see schedule_shift)."""
+        return [(attendance.hour_from, attendance.hour_to) for attendance in attendances
+                if not attendance.subject_id and not attendance.group_ids]
 
     def _arrangement_shifts(self, context, arrangement_type, absent, teacher, hour_from, hour_to, lesson):
         """`[(teacher, kind, old, new)]`: the entry and exit times an arrangement changes, for
@@ -1285,6 +1293,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                                 attendance.subject_id.id) for attendance in context['by_teacher'][teacher.id]
                                if attendance.group_ids & groups}),
             'periods': [(attendance.hour_from, attendance.hour_to) for attendance in context['by_teacher'][teacher.id]],
+            'duties': self._duty_periods(context['by_teacher'][teacher.id]),
             'vacated': [(cover.vacated_hour_from, cover.vacated_hour_to) for cover in vacated
                         if teacher in cover.guard_employee_id | cover.stayed_employee_ids],
         } for teacher in employees}
@@ -2212,6 +2221,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'label': label,
                 'depends': step['depends'],
                 'schedule_changes': self._schedule_shift_labels(step.get('shifts', [])),
+                # Whoever's entry or exit it changes, to ask before applying it (issue #709).
+                'schedule_teachers': sorted({teacher.name for teacher, *_change in step.get('shifts', [])}),
                 'warnings': [self._stay_warning(teacher, reason, step['lesson'][0])
                              for teacher, reason in step.get('stay_reasons', {}).items()],
                 'payload': payload,

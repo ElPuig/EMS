@@ -229,6 +229,10 @@ Proposals come in this order: first those where the students lose fewer lessons;
 
 **Nobody's working day gets longer.** A proposal only includes a step if no teacher involved ends up with a longer day (counted from their first period to their last, lessons, guard duties and any other duty alike): whoever would come in earlier must leave earlier, and whoever would leave later must come in later. When a step changes somebody's entry or exit time, an orange line under it says exactly whose and how (*"… leaves at 20:20 instead of 21:20"*).
 
+A lesson taken to an hour when the teacher has a guard, a coordination or any other non-teaching duty swaps with it: the duty goes to the hour the lesson leaves, so the teacher comes in and leaves at the usual time and no orange line appears. Only a lesson taken to an hour when the teacher is not in the centre changes their entry or exit time.
+
+**A teacher's timetable cannot be changed without them.** When the steps you apply change somebody's entry or exit time, the schedule asks first, listing the changes: *"Have you talked to …?"*. Click **Yes, apply it** once they have agreed; **Not yet** applies nothing and leaves the proposal as it was.
+
 **Applying a proposal.** Click **Apply the checked steps** on its right, or click the class and choose the proposal in the dialog, where the proposals that solve that class come first, above sending a guard. Every step starts checked: uncheck those you do not want. A step that needs another one is unchecked along with it (a move into the gap another one leaves, a notice that only makes sense because of a move), and checking a step checks what it needs.
 
 ![Dialog of a class: the proposals that solve it, the first one chosen with its steps checked, above sending a guard and the arrangement described by hand](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)

@@ -82,6 +82,21 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             run: "click",
         },
         {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')):contains('Tour Move Teacher comes in at 09:00 instead of 12:00.'):contains('Have you talked to Tour Swap Teacher and Tour Move Teacher?') .modal-footer .btn-secondary",
+            content: "Their entry and exit times change: the board asks whether they agreed (issue #709). Not yet",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
+            content: "Nothing was applied: the proposal is still there. Apply it again",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .alert-info:contains('Lessons moved by an arrangement'):contains('TABTG')",
             content: "The draft notice to the group's students opens: no families' notice is needed",
         },
@@ -194,6 +209,11 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_dialog", {
             run: "click",
         },
         {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .alert-info:contains('TABTG')",
             content: "The notice for the families opens: the move only counts once it is sent",
         },
@@ -284,6 +304,11 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_co_teaching", {
         {
             trigger: ".o_guard_cover_assign:enabled",
             content: "Apply the move",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
             run: "click",
         },
         {

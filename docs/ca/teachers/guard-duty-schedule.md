@@ -229,6 +229,10 @@ Les propostes surten en aquest ordre: primer les que fan perdre menys classes a 
 
 **La jornada de ningú no s'allarga.** Una proposta només inclou un pas si cap docent implicat acaba amb una jornada més llarga (comptada des de la seva primera franja fins a l'última, tant classes com guàrdies i qualsevol altra tasca): qui hagi d'entrar abans ha de sortir abans, i qui hagi de sortir més tard ha d'entrar més tard. Quan un pas canvia l'hora d'entrada o de sortida d'algú, una línia taronja a sota diu exactament de qui i com (*"… surt a les 20:20 en lloc de les 21:20"*).
 
+Una classe que es porta a una hora en què el docent té una guàrdia, una coordinació o qualsevol altra tasca no lectiva s'intercanvia amb aquesta tasca: la tasca passa a l'hora que deixa la classe, de manera que el docent entra i surt a l'hora de sempre i no apareix cap línia taronja. Només canvia l'hora d'entrada o de sortida una classe que es porta a una hora en què el docent no és al centre.
+
+**L'horari d'un docent no es pot canviar sense ell.** Quan els passos que apliques canvien l'hora d'entrada o de sortida d'algú, l'horari t'ho pregunta abans i et mostra els canvis: *"Has parlat amb …?"*. Fes clic a **Sí, aplica-ho** quan hi hagi estat d'acord. Amb **Encara no**, no s'aplica res i la proposta queda com estava.
+
 **Aplicar una proposta.** Fes clic a **Aplicar els passos marcats**, a la seva dreta, o fes clic a la classe i tria la proposta al diàleg, on les propostes que resolen aquella classe surten primer, per sobre d'enviar una guàrdia. Tots els passos surten marcats: desmarca els que no vulguis. Un pas que en necessita un altre es desmarca amb ell (una classe moguda al buit que en deixa una altra, un avís que només té sentit per una classe moguda), i marcar un pas marca el que necessita.
 
 ![Diàleg d'una classe: les propostes que la resolen, la primera triada amb els seus passos marcats, per sobre d'enviar una guàrdia i de la reorganització descrita a mà](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)

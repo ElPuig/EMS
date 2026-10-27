@@ -5,6 +5,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { useSetupAction } from "@web/search/action_hook";
 import { _t } from "@web/core/l10n/translation";
+import { formatList } from "@web/core/l10n/utils";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
@@ -791,8 +792,37 @@ export class GuardDutyBoard extends Component {
     // was the confirmation. One that could not be sent stays a draft and opens, with the reason,
     // for the planner to review and send: the moves it frees the group from only count once it is.
     // `reopen`: the side of a group's day whose notice the plan corrects (issue #659).
+    // A teacher's timetable can't be changed without them (issue #709): when the checked steps
+    // change somebody's entry or exit time, the planner confirms first that they agreed. False when
+    // the planner cancels, so the dialog it came from stays open.
     async applyPlan(plan, selection, reopen = false) {
+        const steps = plan.steps.filter((_step, index) => selection[index]);
+        if (!(await this.confirmScheduleChanges(steps))) {
+            return false;
+        }
         await this.applySteps(selectedPlanSteps(plan, selection), reopen);
+        return true;
+    }
+
+    confirmScheduleChanges(steps) {
+        const changes = steps.flatMap((step) => step.schedule_changes);
+        if (!changes.length) {
+            return Promise.resolve(true);
+        }
+        const teachers = [...new Set(steps.flatMap((step) => step.schedule_teachers))];
+        return new Promise((resolve) => {
+            this.addDialog(ConfirmationDialog, {
+                title: _t("Working day changes"),
+                body: _t("This arrangement changes when some teachers come in or leave:\n\n%(changes)s\n\nA teacher's timetable cannot be changed without their agreement. Have you talked to %(teachers)s?", {
+                    changes: changes.map((change) => `- ${change}`).join("\n"),
+                    teachers: formatList(teachers),
+                }),
+                confirmLabel: _t("Yes, apply it"),
+                cancelLabel: _t("Not yet"),
+                confirm: () => resolve(true),
+                cancel: () => resolve(false),
+            });
+        });
     }
 
     async applySteps(steps, reopen = false) {

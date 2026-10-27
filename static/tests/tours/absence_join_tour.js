@@ -49,6 +49,11 @@ registry.category("web_tour.tours").add("ems_join_split_groups", {
             run: "click",
         },
         {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
+            run: "click",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name=absence_group_id]",
             content: "The families' notice opens as a draft: the halves have no students to send it to",
         },

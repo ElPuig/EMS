@@ -63,7 +63,9 @@ export class GuardChangeProposalDialog extends Component {
         try {
             const [kind, index] = this.state.choice.split("-");
             if (kind === "plan") {
-                await this.props.onApplyPlan(this.state.data.plans[index], this.state.selections[index], this.state.data.reopen);
+                if (!(await this.props.onApplyPlan(this.state.data.plans[index], this.state.selections[index], this.state.data.reopen))) {
+                    return;  // cancelled: the planner may change the steps
+                }
             } else {
                 await this.props.onSend(this.state.data.options[index]);
             }

@@ -596,6 +596,15 @@ class TestAbsenceDetection(TransactionCase):
             'ems_submitted': True, 'ems_responsible_declaration': True})
         self.assertEqual(informed.state, 'linked')
 
+
+    def test_a_late_check_in_discards_a_prepared_absence_too(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        self._create_absence(absence, self.head_of_studies)
+        self._check_in(self.teacher, self.yesterday, 8.9)
+
+        self.assertEqual(absence.state, 'discarded')
+
     def test_existing_entries_join_the_review(self):
         """Migration 18.0.0.41.0: the ones already reminded go on as asked to justify them."""
         self.Pending._ems_detect_missing_check_ins(self.yesterday)

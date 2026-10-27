@@ -192,8 +192,10 @@ class EmsAbsencePending(models.Model):
         for absence in self.sudo():
             employee = absence.employee_id
             # A Head of Studies' own entry: never to themselves, to the administrators instead.
-            reviewers = (employee._find_attendance_approvers() - employee.user_id) or (
-                employee._find_attendance_approvers(skip_hierarchy=True) - employee.user_id)
+            approvers = employee._find_attendance_approvers()
+            if approvers == employee.user_id:
+                approvers = employee._find_attendance_approvers(skip_hierarchy=True)
+            reviewers = approvers - employee.user_id
             for user in reviewers:
                 absence.with_context(mail_activity_quick_update=True).activity_schedule(
                     activity_type_id=activity_type.id, user_id=user.id, date_deadline=today)
@@ -275,7 +277,8 @@ class EmsAbsencePending(models.Model):
         return self._ems_review(apply, lambda absence: absence.date_to > now and _("still going on"))
 
     def action_create_absence(self):
-        """Asks for the absence type, then files the absence for the teacher (see the wizard)."""
+        """Asks for the absence type, then prepares the request for the teacher to send (see the
+        wizard and _ems_prepare_absences)."""
         return {
             'type': 'ir.actions.act_window',
             'name': _("Create absence"),

@@ -1341,7 +1341,8 @@ class EmsCourseGuardDutyBoard(models.Model):
         a notice of the plan on that side becomes its correction - or is dropped, if it repeats what
         was told - and without one the correction puts that side back to the usual timetable.
         A co-teacher who cannot follow their lesson (issue #678) comes in 'stays', with why in
-        'stay_reasons' ('away', 'busy', 'apart' or 'day')."""
+        'stay_reasons' ('away', 'busy', 'apart' or 'day'), and what kind of move it is for each
+        teacher in 'how' (issue #709, see _arrangement_step_how)."""
         Employee, Group = self.env['hr.employee'], self.env['ems.group']
         items = []
         for index, step in enumerate(raw['steps']):
@@ -1351,6 +1352,7 @@ class EmsCourseGuardDutyBoard(models.Model):
                 'target': step[3], 'groups': Group.browse(sorted(step[4])), 'absent': Employee.browse(sorted(step[5])),
                 'joined': Group.browse(sorted(step[7])), 'stays': stays, 'stay_reasons': {
                     teacher: self._stay_reason(context, teacher, step, raw['steps'][:index]) for teacher in stays},
+                'how': self._arrangement_step_how(context, step, raw['shifts']),
                 'needs': set(raw['depends'][index]), 'time': step[3][0], 'source': index,
             })
         reopen = self._reopened_side()
@@ -1419,6 +1421,55 @@ class EmsCourseGuardDutyBoard(models.Model):
         if not self._is_free_for_arrangement(context, context['covers'], teacher, *target):
             return 'busy'
         return 'day'
+
+    def _arrangement_step_how(self, context, step, shifts):
+        """`[(teacher, kind, duty name)]`: what a moved lesson, join or swap (a planner step) is for
+        each teacher who takes their lesson to its gap (issue #709): 'join' (taught together with
+        the other half), 'guard' or 'duty' (it swaps with a regular guard or another non-teaching
+        hour of theirs, see schedule_shift), and in a move to an hour off their timetable 'shift'
+        (their whole day moves: `shifts`, the plan's, change both their entry and exit) or 'free'
+        (a free hour of theirs). Nothing for a swap's free hour: the swap says it all."""
+        kind, teacher_ids, _lesson, target = step[:4]
+        how = []
+        for teacher in self.env['hr.employee'].browse(sorted(teacher_ids)).sorted('name'):
+            if kind == 'join':
+                how.append((teacher, 'join', False))
+                continue
+            duty = next((attendance for attendance in context['by_teacher'].get(teacher.id, ())
+                         if not attendance.subject_id and not attendance.group_ids
+                         and overlaps(attendance.hour_from, attendance.hour_to, *target)), None)
+            if duty and duty.non_teaching.is_regular_guard:
+                how.append((teacher, 'guard', False))
+            elif duty:
+                how.append((teacher, 'duty', duty.non_teaching.name or duty.name))
+            elif kind == 'move':
+                changes = {change[0] for change in shifts.get(teacher.id) or ()}
+                how.append((teacher, 'shift' if changes == {'entry', 'exit'} else 'free', False))
+        return how
+
+    def _arrangement_step_details(self, step, values):
+        """The lines under a step saying what kind of move it is (issue #709, see
+        _arrangement_step_how): one per kind, naming the teachers only when they differ."""
+        texts = {
+            'guard': lambda _duty: _("swap with their guard, which moves to %s", values['lesson']),
+            'duty': lambda duty: _("swap with their non-teaching hour (%s)", duty),
+            'free': lambda _duty: _("to a free hour"),
+            'shift': lambda _duty: _("working day shifted"),
+            'join': lambda _duty: _("groups joined with %s", values['joined']),
+        }
+        icons = {'guard': 'fa-exchange', 'duty': 'fa-exchange', 'free': 'fa-circle-o', 'shift': 'fa-step-forward',
+                 'join': 'fa-compress'}
+        kinds = {}
+        for teacher, kind, duty in step.get('how', ()):
+            kinds.setdefault((kind, duty), self.env['hr.employee'])
+            kinds[(kind, duty)] |= teacher
+        details = []
+        for (kind, duty), teachers in kinds.items():
+            text = texts[kind](duty)
+            if len(kinds) > 1:
+                text = _("%(teacher)s: %(how)s", teacher=format_list(self.env, teachers.mapped('name')), how=text)
+            details.append({'icon': icons[kind], 'text': text})
+        return details
 
     @classmethod
     def _plan_resolves(cls, plan, group, hour_from, hour_to):
@@ -2217,19 +2268,24 @@ class EmsCourseGuardDutyBoard(models.Model):
                     label = (_("Notice to the families of %(groups)s: %(change)s.", **values) if step['kind'] == 'notice'
                              else _("Correction to the families of %(groups)s: %(change)s.", **values))
                 payload = {'kind': step['kind'], 'group_ids': step['groups'].ids, 'change': list(step['change'])}
+                details = []
             else:
                 values = {'teacher': format_list(self.env, step['teacher'].mapped('name')),
                           'absent': format_list(self.env, step['absent'].mapped('name')), 'groups': groups,
                           'lesson': self._format_report_time(step['lesson'][0]),
                           'target': self._format_report_time(step['target'][0])}
                 values['joined'] = format_list(self.env, step['joined'].mapped('name'))
-                label = self._arrangement_step_label(step['kind'], len(step['teacher']) > 1, values)
+                values['teachers'] = format_list(self.env, (step['teacher'] | step['absent']).mapped('name'))
+                label = self._arrangement_step_label(step['kind'], values)
+                details = self._arrangement_step_details(step, values)
                 payload = {'kind': step['kind'], 'teacher_ids': step['teacher'].ids, 'absent_ids': step['absent'].ids,
                            'stay_ids': step['stays'].ids, 'lesson': list(step['lesson']), 'target': list(step['target']),
                            'group_ids': step['groups'].ids, 'joined_group_ids': step['joined'].ids}
             steps.append({
                 'kind': step['kind'],
                 'label': label,
+                # What kind of move it is (issue #709), a line each under the step.
+                'details': details,
                 'depends': step['depends'],
                 'schedule_changes': self._schedule_shift_labels(step.get('shifts', [])),
                 # Whoever's entry or exit it changes, to ask before applying it (issue #709).
@@ -2245,24 +2301,16 @@ class EmsCourseGuardDutyBoard(models.Model):
             'steps': steps,
         }
 
-    def _arrangement_step_label(self, kind, plural, values):
-        """One moved lesson, join or swap in one sentence: `values` names the teachers who move it
-        ('teacher', several when co-teachers move together, issue #678), the 'absent' ones in a
-        swap, the 'groups', the other halves they are 'joined' with in a join (issue #660), and the
+    def _arrangement_step_label(self, kind, values):
+        """One moved lesson, join or swap in one short line (issue #709): who, which lesson goes
+        where, and for which groups; what kind of move it is goes under it (see
+        _arrangement_step_details). `values` names the teachers who move it ('teacher', several when
+        co-teachers move together, issue #678), the 'absent' ones in a swap, the 'groups' and the
         'lesson' and 'target' times."""
         if kind == 'swap':
-            if plural:
-                return _("Swap (%(groups)s): %(teacher)s teach at %(target)s and %(absent)s at %(lesson)s.", **values)
-            return _("Swap (%(groups)s): %(teacher)s teaches at %(target)s and %(absent)s at %(lesson)s.", **values)
-        if kind == 'join':
-            if plural:
-                return _("Joined groups: %(teacher)s teach %(groups)s together with %(joined)s at %(target)s, "
-                         "instead of at %(lesson)s.", **values)
-            return _("Joined groups: %(teacher)s teaches %(groups)s together with %(joined)s at %(target)s, "
-                     "instead of at %(lesson)s.", **values)
-        if plural:
-            return _("%(teacher)s move their %(lesson)s lesson to %(target)s (%(groups)s).", **values)
-        return _("%(teacher)s moves their %(lesson)s lesson to %(target)s (%(groups)s).", **values)
+            return _("%(teachers)s swap their %(target)s and %(lesson)s lessons (%(groups)s)",
+                     teachers=values['teachers'], target=values['target'], lesson=values['lesson'], groups=values['groups'])
+        return _("%(teacher)s: %(lesson)s lesson → %(target)s (%(groups)s)", **values)
 
     def _stay_warning(self, teacher, reason, hour):
         """The warning of a co-teacher who cannot follow their lesson (issue #678): why, and that

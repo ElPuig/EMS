@@ -1485,8 +1485,10 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(self._plan_summary(plan), [
             ('move', both, 11, 10, self.group_a), ('notice', ('early_leave', 11), self.group_a)])
         self.assertFalse(plan['steps'][0]['stays'])
-        label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['label']
-        self.assertEqual(label, f"{self.teacher_b.name} and {self.teacher_c.name} move their 11:00 lesson to 10:00 ({self.group_a.name}).")
+        step = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]
+        self.assertEqual(step['label'], f"{self.teacher_b.name} and {self.teacher_c.name}: 11:00 lesson → 10:00 ({self.group_a.name})")
+        # Their only lesson that day, an hour earlier: their whole day moves (issue #709).
+        self.assertEqual(step['details'], [{'icon': 'fa-step-forward', 'text': 'working day shifted'}])
 
         covers, notice_action = self._apply(plan)
         self.Notice.browse(notice_action['res_id']).state = 'scheduled'
@@ -1765,8 +1767,9 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(plan['steps'][0]['joined'], self.group_a)
         self.assertEqual(plan['steps'][0]['shifts'], [(self.teacher_b, 'exit', 13, 10)], "teacher_b leaves at 10")
         self.assertEqual(self._plans(self.group_a), self._plans(self.group_b), "one set of plans for both halves")
-        label = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['label']
-        self.assertIn(f"together with {self.group_a.name} at 09:00, instead of at 12:00", label)
+        step = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]
+        self.assertEqual(step['label'], f"{self.teacher_b.name}: 12:00 lesson → 09:00 ({self.group_b.name})")
+        self.assertEqual(step['details'], [{'icon': 'fa-compress', 'text': f'groups joined with {self.group_a.name}'}])
 
     def test_groups_sharing_a_lesson_are_not_joined_unless_set_as_halves(self):
         """Issue #676: DAM2A and DAM2B share lessons without being halves of a split group."""
@@ -1884,7 +1887,14 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         10): each is struck out at the guard's hour, with the group, and on guard at the lesson's
         hour instead, where they can be sent to cover a class."""
         self._two_groups_day()
-        self._apply(self._plans()[0], keep=[0, 1, 2])
+        plans = self._plans()
+        details = [step['details'] for step in self.env['ems.course']._arrangement_plan_data(plans[0])['steps']]
+        self.assertEqual(details[2], [{'icon': 'fa-exchange', 'text': 'swap with their guard, which moves to 13:00'}])
+        # Proposal 2: teacher_guard takes it to 9, a free hour of theirs, and leaves at 13.
+        second = self.env['ems.course']._arrangement_plan_data(plans[1])['steps']
+        self.assertEqual(second[2]['label'], f"{self.teacher_guard.name}: 13:00 lesson → 09:00 ({self.group_a.name} and {self.group_b.name})")
+        self.assertEqual(second[2]['details'], [{'icon': 'fa-circle-o', 'text': 'to a free hour'}])
+        self._apply(plans[0], keep=[0, 1, 2])
 
         data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))
@@ -1911,6 +1921,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         plan = self._plans()[0]
         step = next(step for step in plan['steps'] if step['kind'] == 'move' and step['teacher'] == self.teacher_guard)
         self.assertEqual(step['shifts'], [])
+        self.assertEqual(self.env['ems.course']._arrangement_step_details(step, {}), [{
+            'icon': 'fa-exchange', 'text': f"swap with their non-teaching hour ({self.env.ref('ems.non_teaching_cm').name})"}])
         self._apply(plan, keep=[index for index, step in enumerate(plan['steps']) if step['kind'] == 'move'])
 
         self.assertNotIn(self.teacher_guard, self._teaching_line(self.day, 13, 14)['stayed_guards'])

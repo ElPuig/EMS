@@ -40,20 +40,20 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             content: "The empty lesson says there are possible arrangements",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Swap Teacher teaches at 08:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Swap Teacher and Tour Absent Teacher swap their 08:00 and') input:checked",
             content: "Proposal 1 starts with the swap, checked",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Move Teacher moves their 12:00 lesson to 09:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Move Teacher: 12:00 lesson → 09:00') input:checked",
             content: "...then the move into the 9:00 lesson",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher moves their 09:00 lesson to 12:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher: 09:00 lesson → 12:00') input:checked",
             content: "...and the absent teacher's 9:00 lesson at 12:00: keep all but this one",
             run: "click",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher moves') input:not(:checked)",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher: ') input:not(:checked)",
             content: "It is unchecked",
         },
         {
@@ -196,7 +196,7 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_dialog", {
             run: "click",
         },
         {
-            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher moves their 12:00 lesson to 09:00') input:checked:enabled",
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher: 12:00 lesson → 09:00') input:checked:enabled",
             content: "The plan that solves it is chosen, every step checked",
         },
         {
@@ -289,7 +289,7 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_co_teaching", {
             run: "click",
         },
         {
-            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher moves their 12:00 lesson to 09:00'):contains('Tour Co-Teacher cannot follow the lesson (busy then): on guard at 12:00 instead.')",
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher: 12:00 lesson → 09:00'):contains('Tour Co-Teacher cannot follow the lesson (busy then): on guard at 12:00 instead.')",
             content: "The step warns that the co-teacher who cannot follow the lesson stays on guard",
         },
         {

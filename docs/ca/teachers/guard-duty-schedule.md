@@ -214,7 +214,7 @@ Un grup a les famílies del qual s'ha de rectificar alguna cosa no surt en aques
 
 ![Quadre de propostes per a les absències: la secció de dos grups, amb tres propostes numerades, cadascuna amb una llista de passos amb la seva casella i, en taronja, les hores d'entrada i sortida que canvien, i al final l'opció de només avisar les famílies](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
-Cada proposta és una llista de passos, un per línia, sempre entre docents d'aquells grups i dins el mateix dia:
+Cada proposta és una llista de passos, un per línia, sempre entre docents d'aquells grups i dins el mateix dia. Un pas es llegeix com una línia curta, per exemple *"Ferran: classe de les 13:00 → 10:00 (AIX1A i AIX1B)"*, i a sota, en gris, quin tipus de moviment és per al docent: *intercanvi amb la seva guàrdia, que passa a les 13:00*, *intercanvi amb la seva hora no lectiva (…)*, *a una hora lliure*, *desplaçament de jornada* (entra i surt més tard, o més d'hora) o *grups units amb AIX1B*. Els tipus de pas són:
 
 - **Classe moguda**: un docent que està lliure en aquella hora hi fa una classe seva amb el grup d'una altra hora. La classe que deixa es converteix en un buit, que un altre pas pot omplir alhora: un docent avança una classe, un altre omple el buit que deixa, i així successivament, fins que el que queda lliure és al principi o al final del dia (o al costat d'un pati).
 - **Intercanvi**: un altre docent del grup fa classe aleshores, i el docent absent, que és al centre en una altra hora, fa la classe d'aquest docent amb el grup.

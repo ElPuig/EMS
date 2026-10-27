@@ -214,7 +214,7 @@ Un grupo a cuyas familias hay que rectificar algo no aparece en este recuadro, s
 
 ![Recuadro de propuestas para las ausencias: la sección de dos grupos, con tres propuestas numeradas, cada una con una lista de pasos con su casilla y, en naranja, las horas de entrada y salida que cambian, y al final la opción de solo avisar a las familias](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
-Cada propuesta es una lista de pasos, uno por línea, siempre entre docentes de esos grupos y dentro del mismo día:
+Cada propuesta es una lista de pasos, uno por línea, siempre entre docentes de esos grupos y dentro del mismo día. Un paso se lee como una línea corta, por ejemplo *"Ferran: clase de las 13:00 → 10:00 (AIX1A y AIX1B)"*, y debajo, en gris, qué tipo de movimiento es para el docente: *intercambio con su guardia, que pasa a las 13:00*, *intercambio con su hora no lectiva (…)*, *a una hora libre*, *desplazamiento de jornada* (entra y sale más tarde, o más temprano) o *grupos unidos con AIX1B*. Los tipos de paso son:
 
 - **Clase movida**: un docente que está libre a esa hora da entonces una clase suya con el grupo de otra hora. La clase que deja se convierte en un hueco, que otro paso puede llenar a su vez: un docente adelanta una clase, otro llena el hueco que deja, y así sucesivamente, hasta que lo que queda libre está al principio o al final del día (o junto a un patio).
 - **Intercambio**: otro docente del grupo da clase entonces, y el docente ausente, que está en el centro a otra hora, da la clase de ese docente con el grupo.

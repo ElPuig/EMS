@@ -1070,7 +1070,13 @@ groups, ~0.3 s for both shifts of the whole board.
 step they need), one notice step per change told to every group it applies to, and each teacher's
 entry/exit changes on their last step. `_arrangement_plan_data()` is its JSON: "Proposal N:", one
 sentence per step, `depends` (indexes) and the `payload` the server needs to apply it, plus
-`schedule_changes` (the entry/exit sentences) and `schedule_teachers` (whose). A teacher's timetable
+`schedule_changes` (the entry/exit sentences) and `schedule_teachers` (whose). A move, join or swap
+reads as one short line, "Ferran: 13:00 lesson → 10:00 (AIX1A and AIX1B)" or "Sergi and Carla swap
+their 08:00 and 11:00 lessons (AIX1A)" (`_arrangement_step_label()`), with grey `details` lines under
+it saying what kind of move it is for each teacher (#709): `_arrangement_step_how()` sorts them into
+a swap with their regular guard or another non-teaching hour, a join, a shifted day (their entry and
+exit both change) or a free hour, and `_arrangement_step_details()` words them, naming the teachers
+only when a co-taught step mixes kinds. A teacher's timetable
 cannot be changed without them (#709): when the checked steps carry any entry/exit change, the
 board's `applyPlan()` asks first "Have you talked to …?" (Working day changes), and applies nothing
 if the planner answers "Not yet" (the dialog the plan came from stays open).
@@ -1106,7 +1112,7 @@ its own notice when its own day changes; the half that only receives the other o
   `joined_group_ids` set and `space_id` the room of the teacher's lesson with the other half. Every
   move behaviour applies unchanged: waiting for the notice that frees its lesson, siblings, withdrawal,
   #659's corrections, the teachers' notifications. Only the wording differs (`_arrangement_label()`,
-  the plan step "Joined groups: ...").
+  the plan step's "groups joined with ..." line).
 - **Students' notice** of the half that moves (`_arrangement_moved_lessons()`): the lesson carries the
   room and the other half's name (`(..., room id, other half)`), told as "... together with X in
   room Y".

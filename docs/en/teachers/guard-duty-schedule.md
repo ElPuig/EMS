@@ -214,7 +214,7 @@ A group whose families must be told a correction is not in this box but in a red
 
 ![Proposals for the absences box: the section of two groups, with three numbered proposals, each a list of steps with its checkbox and, in orange, the entry and exit times they change, and last the option of only telling the families](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
-Each proposal is a list of steps, one per line, always between teachers of those groups and within the same day:
+Each proposal is a list of steps, one per line, always between teachers of those groups and within the same day. A step reads as a short line, such as *"Ferran: 13:00 lesson → 10:00 (AIX1A and AIX1B)"*, and under it, in grey, what kind of move it is for the teacher: *swap with their guard, which moves to 13:00*, *swap with their non-teaching hour (…)*, *to a free hour*, *working day shifted* (they come in and leave later, or earlier) or *groups joined with AIX1B*. The kinds of step are:
 
 - **Moved lesson**: a teacher who is free at that time teaches then one of their lessons with the group from another time. The lesson they leave becomes a gap, which another step can fill in turn: one teacher brings a lesson forward, another fills the gap it leaves, and so on, until what is left free is at the start or the end of the day (or next to a break).
 - **Swap**: another teacher of the group teaches then, and the absent teacher, who is in at another time, teaches that teacher's lesson with the group.

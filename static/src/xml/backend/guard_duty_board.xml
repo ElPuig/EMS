@@ -451,6 +451,9 @@
                                 <i t-att-class="step.kind === 'notice' ? 'fa fa-envelope-o me-1' : step.kind === 'correction' ? 'fa fa-exclamation-triangle me-1' : step.kind === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
                                 <t t-esc="step.label"/>
                             </label>
+                            <t t-foreach="step.details or []" t-as="detail" t-key="detail_index">
+                                <div class="o_guard_board_plan_detail"><i t-att-class="'fa me-1 ' + detail.icon"/><t t-esc="detail.text"/></div>
+                            </t>
                             <t t-foreach="step.schedule_changes" t-as="change" t-key="change_index">
                                 <div class="o_guard_board_plan_shift"><i class="fa fa-clock-o me-1"/><t t-esc="change"/></div>
                             </t>

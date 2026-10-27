@@ -726,7 +726,8 @@ erDiagram
 | `note` | Optional, for the author's own reference. `groups="ems.group_department_chief,base.group_system"`: the teacher never reads it |
 | `state` | `pending` (*To review*), `justification_requested` (*Justification requested*), `absence_prepared` (*Absence prepared*), `corrected` (*Check-in corrected*), `linked` (*Requested*), `discarded` (*Discarded*). Stored, not computed from `leave_id`. `pending`, `justification_requested` and `absence_prepared` mean "not resolved yet" (`UNRESOLVED_STATES`: the board plans around them); the last two mean "the teacher has been asked to act" (`ASKED_STATES`: the reminders go on) |
 | `leave_type_id` | The absence type the reviewer chose with **Create absence**: the teacher's request opens with it |
-| `active` | Archived when a person discards the entry (it leaves the default list, still found with the *Archived* filter). A discard by the system (the check-in turned up) leaves it active; the chatter says which of the two it was |
+| `active` | Archived when a person discards the entry (it leaves the default list, still found with the *Archived* filter). A discard by the system (the check-in turned up) leaves it active; the chatter says which of the two it was. `readonly=True`, so Odoo offers no Archive/Unarchive of its own (it only does on an editable `active`): Discard is the only way |
+| `is_own` | Non-stored, `@api.depends_context('uid')`: the teacher reading their own entry. Swaps the status bar for one without the *To review* step, which they never see |
 | `leave_id` | The teacher's own request it was linked to, or the one the reviewer created. `ondelete='set null'` |
 | `justification_date` | *Teacher notified on*: the day the reviewer asked for a justification or prepared the absence. The reminder and report delays count from it |
 | `reminder_date`, `escalated` | The reminder markers, as on `hr.leave` (see *Reminders* above) |
@@ -893,7 +894,7 @@ an entry reviewed a week late does not reach its Head of Studies the same mornin
 cold: detecting one day takes 0.06 s (28 queries); the first reminder run of a day 0.4 s; every
 later run of the same day 0.07 s, since only what is still due is searched.
 
-**Access.** `ems.group_department_chief` has an ACL on the model (full CRUD): Department and
+**Access.** `ems.group_department_chief` has an ACL on the model (read, write, create; no delete, see below): Department and
 Seminar Chiefs hold it, and the Head of Studies, their Deputy and the Director imply it (issue
 #604; until then it was the Head of Studies' group). `rule_absence_pending_hierarchy` (`security/rules/attendance.xml`) narrows it
 to the teachers (`employee_type = 'teacher'`) the user reaches in any of four ways:
@@ -931,6 +932,8 @@ reaches; `rule_absence_pending_hierarchy` therefore also leaves out the user's o
 entries (a Department Chief or Head of Studies is in their own branch), and the teacher picker
 never offers the user themselves. The note stays out of their reach through the field's `groups`.
 
+**Deleting** is for the administrators only (issue #707): the Department Chief group's ACL has no unlink, so a chief or Head of Studies who entered one by mistake has it discarded instead, which leaves a trace.
+
 **Reviewing** is not a matter of ACL: a Department or Seminar Chief may read, enter and edit the
 entries of their branch, but only the teacher's attendance approvers and the administrators may
 run the four actions (see *Reviewing* above). The list's server actions and the wizard's act_window
@@ -942,6 +945,7 @@ those same three groups.
 |---|---|---|---|---|---|
 | Read the branch's entries | yes | yes | yes | yes | own, once not `pending` |
 | Enter / edit an entry | yes | yes | yes | yes | no |
+| Delete an entry | no | no | no | yes | no |
 | Request justification, Correct check-in, Create absence, Discard | no | yes | yes | yes | no |
 | Request the absence | no | no | no | no | own, once asked |
 

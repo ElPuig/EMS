@@ -79,7 +79,9 @@ class EmsAbsencePending(models.Model):
              "corrected: the teacher was at the centre. Requested: linked for good to an absence "
              "request, whatever becomes of it. Discarded: by the reviewer, or because the "
              "teacher's check-in of that day showed up after all.")
-    active = fields.Boolean(default=True, help="Archived when the reviewer discards it.")
+    # Readonly so that Odoo offers no Archive/Unarchive of its own: Discard is the only way, with
+    # its checks and its note (issue #707).
+    active = fields.Boolean(default=True, readonly=True, help="Archived when the reviewer discards it.")
     # Issue #707: "Create absence" prepares the request for the teacher, never files it: only the
     # teacher accepts the responsible declaration and sends it.
     leave_type_id = fields.Many2one(
@@ -99,6 +101,7 @@ class EmsAbsencePending(models.Model):
         string="Reported", readonly=True, copy=False,
         help="Already reported to the teacher's Head of Studies, who got an activity to follow it up.")
     can_request = fields.Boolean(compute="_compute_can_request")
+    is_own = fields.Boolean(string="Is own", compute="_compute_is_own")
     can_review = fields.Boolean(string="Can review", compute="_compute_can_review")
     can_correct_check_in = fields.Boolean(string="Can correct check-in", compute="_compute_can_review")
 
@@ -141,6 +144,14 @@ class EmsAbsencePending(models.Model):
         """Only the teacher themselves requests their absence, once asked to and while nobody has."""
         for absence in self:
             absence.can_request = absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
+
+    @api.depends('employee_id')
+    @api.depends_context('uid')
+    def _compute_is_own(self):
+        """The teacher reading their own entry: their status bar has no "To review" step, a stage
+        they never see (issue #707)."""
+        for absence in self:
+            absence.is_own = bool(absence.employee_id.user_id) and absence.employee_id.user_id == self.env.user
 
     @api.depends('state', 'employee_id', 'date_to')
     @api.depends_context('uid')

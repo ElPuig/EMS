@@ -43,7 +43,11 @@
                             <button name="action_request_absence" type="object" string="Request the absence"
                                     invisible="not can_request"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,justification_requested,linked"/>
+                        <field name="state" widget="statusbar" statusbar_visible="pending,justification_requested,linked"
+                               invisible="is_own"/>
+                        <!-- The teacher never sees an entry still to review: no such step for them. -->
+                        <field name="state" widget="statusbar" statusbar_visible="justification_requested,linked"
+                               invisible="not is_own"/>
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
@@ -58,6 +62,7 @@
                                 <field name="justification_date" invisible="not justification_date"/>
                                 <field name="can_request" invisible="1"/>
                                 <field name="can_review" invisible="1"/>
+                                <field name="is_own" invisible="1"/>
                                 <field name="can_correct_check_in" invisible="1"/>
                             </group>
                             <group>

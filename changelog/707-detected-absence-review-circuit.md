@@ -10,6 +10,8 @@
 - Discard: `discarded` + archived (new `active` field), with a note naming who; a discard by a later check-in keeps the system's note and stays active.
 - Who may review: `hr.employee._ems_is_attendance_approver()`, extracted from `ems.attendance_correction._check_is_approver` and shared by both (technical administrators now included too). Department and Seminar Chiefs keep reading and entering entries, but cannot review.
 - The guard duty board, the teacher's own absence linking and the later check-in review treat `pending`, `justification_requested` and `absence_prepared` alike (still unresolved).
+- Detected absences: no native Archive/Unarchive (`active` is readonly, Discard is the only way); deleting is for the administrators only (the Department Chief group's ACL loses unlink); the teacher's own entry shows a status bar without the "To review" step.
+- Absence requests: hr_holidays' "<person> on <type>" name has no Catalan translation, so EMS replaces the untranslated part ("<person>, <type>").
 - Academic administrators can now read and manage detected absences (ACL, rule, menu): they already received the "not requested" report activity, and now the review task, for teachers with no Head of Studies above them, on a record they could not open.
 - Migration 18.0.0.41.0 (post-migrate): entries already reminded or reported move to `justification_requested` (with `justification_date` = the absence's last day, so their reminders carry on as before); the rest stay "To review" and get their review task. No clean-install counterpart needed (no detected absences on a new database).
 - Docs: developer doc (state diagram, actions, access table); Head of Studies, teacher, admin and guard duty schedule manuals in ca/es/en; two screenshots refreshed.

@@ -161,7 +161,7 @@ The normal way is always that the teacher requests the absence themselves. Use t
 4. Optionally, add **Notes** for your own reference. The teacher can open the entry, but never sees the notes.
 5. Save.
 
-The absence then appears on the schedule as awaiting approval (lighter italic red), and you can organise it as described below. The teacher's Head of Studies then reviews it (see [Detected absences](../head_of_studies/absences.md#detected-absences)): the teacher is only asked to request it if the Head of Studies decides so. When the teacher requests the absence, the detected absence is linked to it automatically and whatever you organised stays as it is. If the teacher turns out not to be absent after all, delete the entry.
+The absence then appears on the schedule as awaiting approval (lighter italic red), and you can organise it as described below. The teacher's Head of Studies then reviews it (see [Detected absences](../head_of_studies/absences.md#detected-absences)): the teacher is only asked to request it if the Head of Studies decides so. When the teacher requests the absence, the detected absence is linked to it automatically and whatever you organised stays as it is. If the teacher turns out not to be absent after all, the Head of Studies discards it when reviewing it; only the administrators can delete it altogether.
 
 ---
 

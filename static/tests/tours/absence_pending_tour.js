@@ -75,6 +75,10 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='note']))",
             content: "Without the note of whoever entered it",
         },
+        {
+            trigger: ".o_form_statusbar .o_field_widget[name='state']:not(:has([data-value='pending']))",
+            content: "Without the 'To review' step, a stage the teacher never sees (issue #707)",
+        },
         ...clickAction("action_request_absence", "Request the absence"),
         {
             trigger: ".o_form_view .o_field_widget[name='request_date_from'] input",

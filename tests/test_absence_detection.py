@@ -506,6 +506,9 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(absence.state, 'linked')
         self.assertEqual(absence.leave_id, leave)
         self.assertEqual(leave.state, 'confirm', 'waits for its approver, as any request')
+        if self.env['res.lang']._lang_get('ca_ES'):
+            self.assertNotIn(' on ', leave.with_context(lang='ca_ES').display_name, 'translated (hr_holidays has no Catalan)')
+            self.assertIn('TAD Teacher, ', leave.with_context(lang='ca_ES').display_name)
 
     def test_an_administrator_reviews_too(self):
         """The administrator sits above the whole hierarchy, though outside it."""
@@ -526,6 +529,8 @@ class TestAbsenceDetection(TransactionCase):
         self.assertFalse(self._detected(), 'out of the default list')
         self.assertEqual(self.Pending.with_context(active_test=False).search([('id', '=', absence.id)]), absence)
         self.assertTrue(absence.message_ids.filtered(lambda message: 'Discarded by' in message.body))
+        self.assertTrue(self.Pending.fields_get(['active'])['active']['readonly'],
+                        'no Archive/Unarchive of its own: Discard is the way')
         self.assertFalse(self._teacher_messages(absence))
         self.assertFalse(self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)]))
         self.assertFalse(absence.leave_id)

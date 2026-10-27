@@ -26806,3 +26806,14 @@ msgstr "Elegido por el jefe de estudios: la solicitud del docente se abre con es
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "An absence request for %(when)s has been prepared for you, as %(type)s. Please open it from this page, check it, accept the responsible declaration and send it so it can be validated."
 msgstr "Se ha preparado para ti una solicitud de ausencia para el %(when)s, como %(type)s. Ábrela desde esta página, revísala, acepta la declaración responsable y envíala para que se pueda validar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "%(person)s on %(leave_type)s"
+msgstr "%(person)s en %(leave_type)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__is_own
+msgid "Is own"
+msgstr "Es suya"

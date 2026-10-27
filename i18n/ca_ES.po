@@ -26808,3 +26808,14 @@ msgstr "Triat pel cap d'estudis: la sol·licitud del docent s'obre amb aquest ti
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "An absence request for %(when)s has been prepared for you, as %(type)s. Please open it from this page, check it, accept the responsible declaration and send it so it can be validated."
 msgstr "S'ha preparat per a tu una sol·licitud d'absència per al %(when)s, com a %(type)s. Obre-la des d'aquesta pàgina, revisa-la, accepta la declaració responsable i envia-la perquè es pugui validar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence.py:0
+msgid "%(person)s on %(leave_type)s"
+msgstr "%(person)s, %(leave_type)s"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__is_own
+msgid "Is own"
+msgstr "És seva"

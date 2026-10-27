@@ -82,8 +82,9 @@ class TestAbsencePending(TransactionCase):
 
         self.assertEqual(self.Pending.with_user(self.head_of_studies).search([('id', '=', pending.id)]), pending)
         pending.with_user(self.head_of_studies).note = 'Known in advance'
-        pending.with_user(self.head_of_studies).unlink()
-        self.assertFalse(pending.exists())
+        with self.assertRaises(AccessError):
+            pending.with_user(self.head_of_studies).unlink()  # issue #707: administrators only
+        self.assertTrue(pending.exists())
 
     def test_head_of_studies_cannot_reach_another_branch(self):
         pending = self._pending()
@@ -127,8 +128,9 @@ class TestAbsencePending(TransactionCase):
 
         self.assertEqual(self.Pending.with_user(self.department_chief).search([('id', '=', pending.id)]), pending)
         pending.with_user(self.department_chief).note = 'Phoned in'
-        pending.with_user(self.department_chief).unlink()
-        self.assertFalse(pending.exists())
+        with self.assertRaises(AccessError):
+            pending.with_user(self.department_chief).unlink()  # issue #707: administrators only
+        self.assertTrue(pending.exists())
 
     def test_department_chief_cannot_reach_another_department(self):
         pending = self._pending()

@@ -146,13 +146,18 @@ class EmsStudentDocument(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         records = super().create(vals_list)
+        # Every family upload and every document EMS generates itself is created with sudo().
+        # Without it, the creator is the secretary's office or the academic administration (the
+        # only roles with create rights) registering a document the family sent another way, e.g.
+        # by email: they are the reviewers, so it is approved on the spot (issue #717).
+        staff_uploads = self.browse() if self.env.su else records.filtered(lambda r: r.status == 'pending')
         for document in records:
             # Only the student follows the document: they are the one who must hear
             # back about it by email. Reviewers get a task instead (see
             # _schedule_review_activities).
             document.message_subscribe(partner_ids=[document.partner_id.id])
 
-            if document.status == 'pending':
+            if document.status == 'pending' and document not in staff_uploads:
                 # Internal log note — does NOT email followers (the reviewer is
                 # notified via the review activity instead, avoiding a duplicate email)
                 document.message_post(
@@ -165,11 +170,18 @@ class EmsStudentDocument(models.Model):
                 )
 
         # Only schedule review activities for documents that actually need review
-        pending_records = records.filtered(lambda r: r.status == 'pending')
+        pending_records = records.filtered(lambda r: r.status == 'pending') - staff_uploads
         pending_records._schedule_review_activities()
+        # The family already knows: they sent the document themselves. A note, not an email.
+        staff_uploads._approve(notify=False)
         return records
 
     def action_approve(self):
+        self._approve()
+
+    def _approve(self, notify=True):
+        """Approve and apply the document. ``notify=False`` logs the approval as an internal note
+        instead of emailing the student (a document the secretary's office registered itself)."""
         for document in self:
             # Remove previously approved document of the same type for this student
             # For benefit documents, also match benefit_type to avoid removing other benefit types
@@ -201,7 +213,7 @@ class EmsStudentDocument(models.Model):
                     f"<br/>{_('Student:')} {escape(document.partner_id.name)}"
                 ),
                 message_type='comment',
-                subtype_xmlid='mail.mt_comment',
+                subtype_xmlid='mail.mt_comment' if notify else 'mail.mt_note',
             )
 
     def action_reject(self):

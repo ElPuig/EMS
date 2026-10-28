@@ -444,9 +444,12 @@
                                invisible="not can_see_documents">
                             <field name="can_see_documents" invisible="1"/>
                             <separator string="Documentation" colspan="2"/>
-                            <field name="document_ids" nolabel="1"
+                            <field name="can_add_documents" invisible="1"/>
+                            <!-- Adding a line is for the secretary's office and the academic administration
+                                 (documents a family sent by other means, issue #717). -->
+                            <field name="document_ids" nolabel="1" readonly="not can_add_documents"
                                    context="{'default_partner_id': id}">
-                                <list create="0" delete="0"
+                                <list delete="0"
                                       decoration-warning="status == 'pending'"
                                       decoration-success="status == 'approved'"
                                       decoration-danger="status == 'rejected'"

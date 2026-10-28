@@ -30,6 +30,19 @@ class TestStudentDocumentTour(HttpCase):
         self.start_tour("/odoo", "ems_student_document_review", login="admin", step_delay=300)
         self.start_tour("/odoo", "ems_student_document_embed_view", login="admin", step_delay=300)
 
+    def test_student_document_secretary_upload_tour(self):
+        # Issue #717: logged in as the secretary's office, the role the change is for.
+        secretary = create_role_user(self, 'secretary', 'test_secretary_document_upload_tour',
+                                     name='Secretary Document Upload Tour', email='secretary.tour@example.com')
+        student = self.env['res.partner'].create({
+            'name': '0000 Secretary Upload Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
+        })
+        self.start_tour(f"/odoo/res.partner/{student.id}", "ems_student_document_secretary_upload",
+                        login=secretary.login)
+        document = student.document_ids
+        self.assertEqual(document.status, 'approved')
+        self.assertTrue(student.bank_ids.allow_out_payment)
+
     def test_student_document_tutor_credentials_tour(self):
         # Issue #478: logged in as the student's tutor, the role the change is for.
         tutor_user = create_role_user(self, 'tutor', 'test_tutor_document_tour', name='Tutor Document Tour')

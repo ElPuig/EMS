@@ -257,6 +257,9 @@ class ResPartner(models.Model):
     # let read something of this student - admin/secretary (all), TAC (credentials), the student's
     # tutor scope (credentials) - so nobody else gets an empty list that looks as if there were none.
     can_see_documents = fields.Boolean(string='Can see documents', compute='_compute_can_see_documents')
+    # Adding a document there is for whoever may create one (secretary's office, academic
+    # administration; issue #717): Odoo doesn't drop an embedded list's "Add a line" by access rights.
+    can_add_documents = fields.Boolean(string='Can add documents', compute='_compute_can_see_documents')
     # Same for the Bonifications & Exemptions section: mirrors the ems.student.benefit record rules
     # (security/rules/contacts.xml) - admin, secretary, Head of Studies, guidance, coexistence, and
     # the student's tutor scope.
@@ -1772,8 +1775,10 @@ class ResPartner(models.Model):
         user = self.env.user
         sees_all = any(user.has_group(group) for group in (
             'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_tac'))
+        can_add = self.env['ems.student.document'].has_access('create')
         for partner in self:
             partner.can_see_documents = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+            partner.can_add_documents = can_add
 
     @api.depends('tutor_id')
     @api.depends_context('uid')

@@ -880,6 +880,7 @@ class ems_employee(models.AbstractModel):
         # between teachers would break the 1:1 assumption 'apply_schedule_changes' relies on.
         # See '_ems_create_personal_calendar' for why this is a shared method, not inline here.
         employees._ems_create_personal_calendar()
+        employees.filtered('user_id')._refresh_stale_avatar_placeholder()
         return employees
 
     def _ems_create_personal_calendar(self):
@@ -943,8 +944,9 @@ class ems_employee(models.AbstractModel):
         if 'name' in vals:
             for employee in self:
                 employee.resource_calendar_id._refresh_personal_name()
-            self._refresh_stale_avatar_placeholder()
             self._sync_user_name()
+        if 'name' in vals or vals.get('user_id'):
+            self._refresh_stale_avatar_placeholder()
 
         if photo is not _UNSET:
             for employee in self:
@@ -977,7 +979,13 @@ class ems_employee(models.AbstractModel):
     def _refresh_stale_avatar_placeholder(self):
         """Regenerate the initials placeholder for any employee in `self` whose
         `image_1920` already holds a self-generated SVG, so a rename doesn't leave it
-        showing the OLD initial.
+        showing the OLD initial, and after linking a user (issue #714).
+
+        Linking copies the user's placeholder onto an employee without a photo (native
+        `_sync_user()`), and creating the user had already baked it, both as whoever acts:
+        Odoo stores an SVG as text/plain for someone who can't write ir.ui.view (a Head of
+        Studies creating a teacher's account), which shows as "Binary file". Rewriting it
+        here as the superuser stores it as an image on both the employee and the user.
 
         Two, otherwise unrelated, code paths bake a real SVG into the normally-empty
         `image_1920` instead of leaving it to the live `avatar.mixin` compute the rest

@@ -26658,8 +26658,8 @@ msgstr "%s."
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "For each group, the best ways to organise its absences, the best first. Check what you want and click Apply the checked steps:"
-msgstr "Para cada grupo, las mejores maneras de organizar sus ausencias, de mejor a peor. Elige lo que quieras y haz clic en Aplicar los pasos marcados:"
+msgid "For each group, the best ways to organise its absences, the best first. Check what you want and click"
+msgstr "Para cada grupo, las mejores maneras de organizar sus ausencias, de mejor a peor. Elige lo que quieras y haz clic en"
 
 #. module: ems
 #. odoo-javascript

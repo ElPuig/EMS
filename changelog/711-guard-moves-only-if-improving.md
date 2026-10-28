@@ -11,3 +11,6 @@
   first or the last lesson into it (the group comes in later or leaves earlier) is offered, moving
   another middle lesson into it is not, however many plans are asked for.
 - Developer doc and teachers' manual (ca/es/en) say so.
+- Close audit, measured on this box with 5 simulated full-day absences on a Monday: before this
+  change the board offered 16 proposals in 9 sections, and none of them improved the day; now it
+  offers none, and the board loads in 0.30 s instead of 0.38 s (planner time unchanged, 13 ms).

@@ -996,7 +996,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             '.o_notebook', 'historial-01-academic.png',
             login='doc_shot_teacher', wait_for='.o_notebook',
             click=".o_notebook .nav-link[name='studies']",
-            wait_after=".o_field_widget[name='year_record_ids'] .o_data_row + .o_data_row",
+            wait_after=".o_field_widget[name='history_line_ids'] .o_data_row + .o_data_row",
         )
 
     def test_capture_student_list_my_groups(self):

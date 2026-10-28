@@ -2439,6 +2439,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_title_register_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2628,6 +2629,8 @@ msgstr "Cerrando encuestas"
 #: model:ir.model.fields,field_description:ems.field_ems_minute__code model:ir.model.fields,field_description:ems.field_ems_minute_section__code model:ir.model.fields,field_description:ems.field_ems_minute_type__code model:ir.model.fields,field_description:ems.field_ems_signed_record__code model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agreement_review__code
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__code
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__code
 msgid "Code"
 msgstr "Código"
 
@@ -2868,6 +2871,7 @@ msgstr "País"
 #: code:addons/ems/models/grades/title_import_wizard.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_minute__course_id
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__course_name
 msgid "Course"
 msgstr "Curso"
 
@@ -2986,6 +2990,10 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3049,6 +3057,10 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3115,11 +3127,15 @@ msgstr "Acceso actual"
 #: model_terms:ir.ui.view,arch_db:ems.view_meeting_presence_search
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__is_provisional
 msgid "Current course"
 msgstr "Curso actual"
 
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_community_config_curriculum
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__curriculum_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__curriculum_name
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_record_search
 msgid "Curriculum"
 msgstr "Plan de estudios"
 
@@ -3393,6 +3409,11 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4696,6 +4717,11 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__id
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__id
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__id
 msgid "ID"
 msgstr "ID"
 
@@ -5204,6 +5230,10 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5267,6 +5297,10 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type_section__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5749,6 +5783,8 @@ msgstr "NUSS"
 #: model:ir.model.fields,field_description:ems.field_ems_minute_section_value__name
 #: model:ir.model.fields,field_description:ems.field_ems_minute_type__name
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__name
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__name
 msgid "Name"
 msgstr "Nombre"
 
@@ -5932,6 +5968,10 @@ msgstr "Nota"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_justification_wizard__notes
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__notes
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__notes
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_record_form
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 msgid "Notes"
 msgstr "Notas"
 
@@ -7440,6 +7480,8 @@ msgstr "Enviado el"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_process__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_minute_agenda__sequence model:ir.model.fields,field_description:ems.field_ems_minute_member_line__sequence model:ir.model.fields,field_description:ems.field_ems_minute_objective_line__sequence model:ir.model.fields,field_description:ems.field_ems_minute_pending_topic__sequence model:ir.model.fields,field_description:ems.field_ems_minute_section_value__sequence model:ir.model.fields,field_description:ems.field_ems_minute_type__sequence model:ir.model.fields,field_description:ems.field_ems_minute_type_section__sequence
 #: model:ir.model.fields,field_description:ems.field_ems_minute_guest__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__sequence
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__sequence
 msgid "Sequence"
 msgstr "Secuencia"
 
@@ -7758,6 +7800,9 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_title_register_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__student_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -8682,6 +8727,8 @@ msgstr "Tutorías"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__type model_terms:ir.ui.view,arch_db:ems.view_quality_action_search
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_field__field_type model:ir.model.fields,field_description:ems.field_ems_notice_line__recipient_type model:ir.model.fields,field_description:ems.field_ems_space__space_type_id model:ir.model.fields,field_description:ems.field_ems_student_benefit__benefit_type model_terms:ir.ui.view,arch_db:ems.portal_documentation model_terms:ir.ui.view,arch_db:ems.view_space_search model_terms:ir.ui.view,arch_db:ems.view_student_document_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__type_id model_terms:ir.ui.view,arch_db:ems.view_minute_search
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__kind
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__kind
 msgid "Type"
 msgstr "Tipo"
 
@@ -9047,6 +9094,7 @@ msgstr "Indica si hay nota final (la nota calculada está disponible)."
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_title_import_wizard_line__wizard_id
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_close_wizard_line__wizard_id
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__wizard_id
 msgid "Wizard"
 msgstr "Asistente"
 
@@ -11973,11 +12021,13 @@ msgstr "Histórico académico"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__academic_result model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__academic_result
 msgid "Academic result"
 msgstr "Resultado académico"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__attendance_rate model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__attendance_rate
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__attendance_rate
 msgid "Attendance (%)"
 msgstr "Asistencia (%)"
 
@@ -12014,6 +12064,7 @@ msgstr "Finales pendientes de estancia"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__full model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__full
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_history_line__academic_result__full
 msgid "Fully passed"
 msgstr "Superado íntegramente"
 
@@ -12026,6 +12077,7 @@ msgstr "Nota de la última evaluación informada."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__group_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__group_name
 msgid "Group name"
 msgstr "Nombre del grupo"
 
@@ -12083,12 +12135,14 @@ msgstr "Resultados de aprendizaje"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__partial model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__partial
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_history_line__academic_result__partial
 msgid "Partially passed"
 msgstr "Superado parcialmente"
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record_subject__state__passed
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__preview_state__passed
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__is_passed
 msgid "Passed"
 msgstr "Superado"
 
@@ -12100,6 +12154,7 @@ msgstr "Asignatura superada cuya nota final sigue vacía, a la espera de la nota
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__repeating model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__repeating
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_history_line__academic_result__repeating
 msgid "Repeating"
 msgstr "Repite curso"
 
@@ -12156,6 +12211,7 @@ msgstr "Histórico académico: un resultado de aprendizaje (RA) de una asignatur
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__study_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__study_name
 msgid "Study name"
 msgstr "Nombre del estudio"
 
@@ -12166,16 +12222,22 @@ msgstr "Registro de asignatura"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__subject_count
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__subject_count
 msgid "Subjects taken"
 msgstr "Asignaturas cursadas"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__title_obtained model_terms:ir.ui.view,arch_db:ems.view_year_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__title_obtained
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__title_obtained
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_record_search
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__title_obtained
 msgid "Title obtained"
 msgstr "Título obtenido"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__tutor_name
 msgid "Tutor name"
 msgstr "Nombre del tutor/a"
 
@@ -12188,12 +12250,14 @@ msgstr "Ponderación (%)"
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_student_year_record__academic_result__withdrawn model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields.selection,name:ems.selection__ems_grade_review_wizard__proposed_result__withdrawn
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_history_line__academic_result__withdrawn
 msgid "Withdrawn"
 msgstr "Baja"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__record_id
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__record_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__year_record_id
 msgid "Year record"
 msgstr "Registro de curso"
 
@@ -12375,6 +12439,7 @@ msgstr "Nota de las prácticas de empresa"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_em_grading_wizard_form model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard_student__module_count
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__module_count
 msgid "Modules"
 msgstr "Módulos"
 
@@ -16520,6 +16585,8 @@ msgstr "EMS: Convalidación, documentación solicitada"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__score
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_grant_wizard__grade
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__grade
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__grade
 msgid "Grade"
 msgstr "Nota"
 
@@ -18746,6 +18813,8 @@ msgstr "Resolución del Ministerio.pdf"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__subject_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_external_record_wizard_line__kind__module
+#: model:ir.model.fields.selection,name:ems.selection__ems_previous_curriculum_wizard_line__kind__module
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_previous_curriculum_record_line__kind__module
 msgid "Module"
 msgstr "Módulo"
 
@@ -21085,6 +21154,7 @@ msgstr "Crear y añadir los módulos"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__origin_centre_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__origin_centre_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__centre_name
 msgid "Origin centre"
 msgstr "Centro de procedencia"
 
@@ -21121,6 +21191,7 @@ msgstr "%s resultados de aprendizaje de la programación no constan en el certif
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/external_record_wizard.py:0
+#: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
 msgid "Check the certificate's student"
 msgstr "Comprobad el alumno/a del certificado"
 
@@ -21164,6 +21235,7 @@ msgstr "Revisad las notas leídas del certificado antes de crear el expediente: 
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_external_record_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 msgid "Create record"
 msgstr "Crear el expediente"
 
@@ -21197,6 +21269,7 @@ msgstr "Número del resultado"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/external_record_wizard.py:0
+#: code:addons/ems/models/shared/base.py:0
 msgid "The certificate belongs to %(name)s (%(identifier)s), not to this student (%(own)s)."
 msgstr "El certificado es de %(name)s (%(identifier)s), no de este alumno (%(own)s)."
 
@@ -21244,6 +21317,8 @@ msgstr "Añade al histórico académico un curso que el alumno hizo antes de que
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__centre_code
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__centre_code
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__centre_code
 msgid "Centre code"
 msgstr "Código del centro"
 
@@ -21285,6 +21360,7 @@ msgstr "Expediente anterior del curso %(course)s (%(study)s) añadido por %(user
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__is_external
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record__is_external
 #: model_terms:ir.ui.view,arch_db:ems.view_year_record_form
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__is_external
 msgid "Previous record"
 msgstr "Expediente anterior"
 
@@ -21347,6 +21423,8 @@ msgstr "%s se reconoció a partir de las optativas de un expediente anterior y n
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard_line__hours
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__hours
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__hours
 msgid "Hours"
 msgstr "Horas"
 
@@ -25066,6 +25144,8 @@ msgstr "Arrastrado de"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/quality/minute.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__centre_name
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__centre_name
 msgid "Centre"
 msgstr "Centro"
 
@@ -26650,6 +26730,7 @@ msgstr "Revisar cambios de datos de contacto"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/external_record_wizard.py:0
+#: code:addons/ems/models/shared/base.py:0
 msgid "The student identifier could not be read from the certificate, so it cannot be checked against the student's IDALU."
 msgstr "No se ha podido leer el identificador del alumno/a del certificado y no se puede comprobar con su IDALU."
 
@@ -26657,6 +26738,7 @@ msgstr "No se ha podido leer el identificador del alumno/a del certificado y no 
 #. odoo-python
 #: code:addons/ems/models/grades/external_record_wizard.py:0
 #, python-format
+#: code:addons/ems/models/shared/base.py:0
 msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
 msgstr "%(student)s no tiene IDALU para comprobar el del certificado (%(identifier)s): rellenadlo primero."
 
@@ -26706,3 +26788,245 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_student_search
 msgid "Without birth date"
 msgstr "Sin fecha de nacimiento"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
+msgid "%(student)s already has a record of %(curriculum)s."
+msgstr "%(student)s ya tiene un expediente de %(curriculum)s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_file
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__certificate_file
+msgid "Academic history document"
+msgstr "Documento del historial académico"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
+msgid ""
+"Adds to the academic history a cycle the student studied under a\n"
+"                            previous curriculum (organised in units, UF), kept as printed on its\n"
+"                            document. Upload the academic history (Historial acadèmic, PDF)."
+msgstr ""
+"Añade al histórico académico un ciclo que el alumno/a cursó con un plan de "
+"estudios anterior (organizado en unidades formativas, UF), tal como figura "
+"en el documento. Subid el historial académico (Historial acadèmic, PDF)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__all_modules_passed
+msgid "All modules passed"
+msgstr "Todos los módulos superados"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
+msgid ""
+"Check what was read from the document before creating the record:\n"
+"                            correct any grade, and confirm whether the student obtained the title,\n"
+"                            which the document does not state. It is proposed when every module\n"
+"                            listed is passed."
+msgstr ""
+"Comprobad lo que se ha leído del documento antes de crear el expediente: "
+"corregid cualquier nota y confirmad si el alumno/a obtuvo el título, que el "
+"documento no indica. Se propone cuando todos los módulos de la lista están "
+"superados."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__study_id
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__study_id
+msgid "Current study"
+msgstr "Estudio actual"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__curriculum_code
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__curriculum_code
+msgid "Curriculum code"
+msgstr "Código del plan de estudios"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_filename
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__certificate_filename
+msgid "Document file name"
+msgstr "Nombre del archivo del documento"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_message
+msgid "Document reading"
+msgstr "Lectura del documento"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_student_name
+msgid "Document student"
+msgstr "Alumno del documento"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_student_identifier
+msgid "Document student ID"
+msgstr "Identificador del alumno del documento"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__start_year
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__start_year
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__start_year
+msgid "From year"
+msgstr "Desde el año"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_previous_curriculum_wizard
+#: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Add a previous curriculum record"
+msgstr "Añadir un expediente de un plan de estudios anterior"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__line_ids
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__line_ids
+msgid "Modules and units"
+msgstr "Módulos y unidades formativas"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__passed_module_count
+msgid "Modules passed"
+msgstr "Módulos superados"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
+msgid ""
+"Only the secretariat, the academic administration, the Head of Studies and "
+"the Director may add a previous curriculum record."
+msgstr ""
+"Solo secretaría, la administración académica, la jefatura de estudios y la "
+"dirección pueden añadir un expediente de un plan de estudios anterior."
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_previous_curriculum_record_list
+#: model:ir.model.fields,field_description:ems.field_res_partner__previous_curriculum_record_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__previous_curriculum_record_ids
+#: model:ir.ui.menu,name:ems.menu_previous_curriculum_record
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Previous curricula"
+msgstr "Planes de estudios anteriores"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
+msgid ""
+"Previous curriculum record of %(curriculum)s added by %(user)s: %(centre)s"
+msgstr ""
+"Expediente de plan de estudios anterior de %(curriculum)s añadido por "
+"%(user)s: %(centre)s"
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_previous_curriculum_record
+msgid ""
+"Previous curriculum record: academic history of a student under a previous "
+"curriculum."
+msgstr ""
+"Expediente de plan de estudios anterior: historial académico de un alumno/a "
+"con un plan de estudios anterior."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_previous_curriculum_record_line
+msgid "Previous curriculum record: one module or unit (UF) with its grade."
+msgstr ""
+"Expediente de plan de estudios anterior: un módulo o una unidad formativa "
+"(UF) con su nota."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_previous_curriculum_wizard
+msgid ""
+"Previous curriculum wizard: imports an academic history of a previous "
+"curriculum."
+msgstr ""
+"Asistente de plan de estudios anterior: importa un historial académico de un"
+" plan de estudios anterior."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_previous_curriculum_wizard_line
+msgid "Previous curriculum wizard: one module or unit (UF) of the document."
+msgstr ""
+"Asistente de plan de estudios anterior: un módulo o una unidad formativa "
+"(UF) del documento."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__record_id
+msgid "Record"
+msgstr "Expediente"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__sitting
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__sitting
+msgid "Sitting"
+msgstr "Convocatoria"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__source_application
+msgid "Source application"
+msgstr "Aplicación de origen"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
+msgid ""
+"The file is not the academic history (Historial acadèmic) of a previous "
+"curriculum."
+msgstr ""
+"El archivo no es el historial académico (Historial acadèmic) de un plan de "
+"estudios anterior."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_student_previous_curriculum_record_unique_student_curriculum
+msgid "The student already has a record of this curriculum!"
+msgstr "¡El alumno/a ya tiene un expediente de este plan de estudios!"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__title_date
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__title_date
+msgid "Title date"
+msgstr "Fecha del título"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__end_year
+#: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__end_year
+msgid "To year"
+msgstr "Hasta el año"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_previous_curriculum_wizard_line__kind__unit
+#: model:ir.model.fields.selection,name:ems.selection__ems_student_previous_curriculum_record_line__kind__unit
+msgid "Unit (UF)"
+msgstr "Unidad formativa (UF)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
+msgid "Upload the academic history document of the previous curriculum."
+msgstr ""
+"Subid el documento del historial académico del plan de estudios anterior."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_student_history_line
+msgid ""
+"Academic history line: a course of the history or a previous curriculum "
+"record."
+msgstr ""
+"Línea del histórico académico: un curso del histórico o un expediente de "
+"plan de estudios anterior."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__is_previous_curriculum
+msgid "Previous curriculum"
+msgstr "Plan de estudios anterior"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_student_history_line__previous_curriculum_record_id
+msgid "Previous curriculum record"
+msgstr "Expediente de plan de estudios anterior"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__student_history_line_ids
+#: model:ir.model.fields,field_description:ems.field_res_partner__history_line_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__history_line_ids
+msgid "Whole academic history"
+msgstr "Histórico académico completo"

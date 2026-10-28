@@ -59,6 +59,11 @@ class EmsConvalidation(models.Model):
     student_year_record_ids = fields.One2many(
         string="Academic history", related='student_id.year_record_ids',
         groups='ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin')
+    # What the tab shows: the history above together with the previous curriculum records (issue
+    # #672), often what the request is based on.
+    student_history_line_ids = fields.One2many(
+        string="Whole academic history", related='student_id.history_line_ids',
+        groups='ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin')
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', ondelete='set null',
                                    help="Portal user who submitted the request: the student or a family contact.")
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', required=True,
@@ -204,7 +209,11 @@ class EmsConvalidation(models.Model):
             # A previous record (issue #585) counts only when this centre granted the title.
             '|', ('is_external', '=', False),
             ('origin_centre_code', '=', self.env.company.center_code or False)])
-        with_title = set(records.mapped('student_id').ids)
+        # And a previous curriculum's title granted here (issue #672).
+        previous = self.env['ems.student.previous_curriculum_record'].sudo().search([
+            ('student_id', 'in', self.student_id.ids), ('title_obtained', '=', True),
+            ('centre_code', '=', self.env.company.center_code or False)])
+        with_title = set((records.student_id | previous.student_id).ids)
         for convalidation in self:
             convalidation.has_centre_title = convalidation.student_id.id in with_title
 

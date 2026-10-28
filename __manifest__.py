@@ -239,6 +239,7 @@
             'views/planning_grading/grading/year_record/form.xml',
             'views/planning_grading/grading/year_record/search.xml',
             'views/planning_grading/grading/year_record/menu.xml',
+            'views/planning_grading/grading/previous_curriculum_record/views.xml',
 
             'views/communications/menu.xml',
 

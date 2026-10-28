@@ -185,6 +185,13 @@ class ResPartner(models.Model):
     year_record_ids = fields.One2many(string="Academic history",
                                       comodel_name='ems.student.year_record',
                                       inverse_name='student_id')
+    # Academic history under a previous curriculum, imported from its document (issue #672).
+    previous_curriculum_record_ids = fields.One2many(
+        string="Previous curricula", comodel_name='ems.student.previous_curriculum_record',
+        inverse_name='student_id')
+    # Both of them in one list, the "Academic history" the student form shows (issue #672).
+    history_line_ids = fields.One2many(string="Whole academic history", comodel_name='ems.student.history_line',
+                                       inverse_name='student_id')
     # Derived transition state (not stored). Consumed by the "no destination" report.
     transition_status = fields.Selection([
         ('enrolled', 'Enrolled next course'),
@@ -685,6 +692,13 @@ class ResPartner(models.Model):
         """Add to the student's academic history a course taken at another centre (issue #585)."""
         self.ensure_one()
         action = self.env['ir.actions.act_window']._for_xml_id('ems.action_external_record_wizard')
+        action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
+        return action
+
+    def action_previous_curriculum_wizard(self):
+        """Import the student's academic history under a previous curriculum (issue #672)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_previous_curriculum_wizard')
         action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
         return action
 

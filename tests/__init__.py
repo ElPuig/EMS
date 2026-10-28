@@ -131,6 +131,8 @@ from . import test_task_assignment
 from . import test_year_record
 from . import test_grade_review
 from . import test_external_record
+from . import test_previous_curriculum_record
+from . import test_previous_curriculum_record_tour
 from . import test_non_teaching_type
 from . import test_teaching_reduction_type
 from . import test_group

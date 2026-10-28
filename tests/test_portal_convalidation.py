@@ -227,6 +227,16 @@ class TestPortalConvalidation(HttpCase):
         # Issue #719: no resolution will ever come, so no note announcing one.
         self.assertNotIn('o_ems_convalidation_pending_resolution', self.url_open('/my/convalidaciones').text)
 
+    def test_the_portal_shows_why_the_centre_cancelled_a_request(self):
+        """Issue #720: the reason the staff wrote is on the request's card."""
+        self._login(self.student_user)
+        self._submit(self.subject)
+        request = self._requests(self.student)
+        request.sudo()._ems_cancel("Test filed twice by mistake")
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('o_ems_convalidation_cancel_reason', page)
+        self.assertIn('Test filed twice by mistake', page)
+
     def test_nobody_cancels_someone_elses_request(self):
         request = self.env['ems.convalidation'].create({
             'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,

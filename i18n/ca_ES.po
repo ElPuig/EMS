@@ -2613,6 +2613,7 @@ msgstr "Aula de referència:"
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_document_link_import_form
 #: model_terms:ir.ui.view,arch_db:ems.view_title_import_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_cancel_wizard_form
 msgid "Close"
 msgstr "Tancar"
 
@@ -2999,6 +3000,7 @@ msgstr "Crea la teva primera plantilla d'autorització!"
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__create_uid
 msgid "Created by"
 msgstr "Creat per"
 
@@ -3066,6 +3068,7 @@ msgstr "Creat per"
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__create_date
 msgid "Created on"
 msgstr "Creat el"
 
@@ -3419,6 +3422,7 @@ msgstr "Desactivat"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_history_line__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__display_name
 msgid "Display Name"
 msgstr "Nom de visualització"
 
@@ -4723,6 +4727,7 @@ msgstr "Dades IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_history_line__id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -5235,6 +5240,7 @@ msgstr "Família nombrosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualització per"
 
@@ -5302,6 +5308,7 @@ msgstr "Última actualització per"
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualització el"
 
@@ -7803,6 +7810,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_history_line__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__student_id
 msgid "Student"
 msgstr "Estudiant"
 
@@ -9998,6 +10006,7 @@ msgstr "Sortida original"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__reason_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_reject_wizard__reason_id
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_detail_section
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__reason
 msgid "Reason"
 msgstr "Motiu"
 
@@ -15630,7 +15639,10 @@ msgid "CV"
 msgstr "CV"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_cancel_wizard_form
+#: code:addons/ems/models/grades/convalidation.py:0
 msgid "Cancel request"
 msgstr "Anul·la la sol·licitud"
 
@@ -15798,6 +15810,7 @@ msgstr "Observacions"
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_info_wizard__convalidation_id
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_line__request_id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_return_wizard__convalidation_id
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__convalidation_id
 msgid "Request"
 msgstr "Sol·licitud"
 
@@ -15877,11 +15890,6 @@ msgstr "Documentació justificativa"
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Supporting documents <span class=\"text-danger\">*</span>"
 msgstr "Documentació justificativa <span class=\"text-danger\">*</span>"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
-msgid "The request will be cancelled. Continue?"
-msgstr "S'anul·larà la sol·licitud. Voleu continuar?"
 
 #. module: ems
 #. odoo-python
@@ -27254,3 +27262,40 @@ msgid ""
 msgstr ""
 "<i class=\"fa fa-info-circle me-1\"/> Veureu aquí la resolució de cada mòdul "
 "quan la secretaria l'hagi registrada."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__cancel_reason
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Reason for cancelling"
+msgstr "Motiu de l'anul·lació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
+msgid "Reason for cancelling:"
+msgstr "Motiu de l'anul·lació:"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation__cancel_reason
+msgid "Why the centre cancelled the request, shown to the student too. Empty when the applicant cancelled it from the portal."
+msgstr "Per què el centre ha anul·lat la sol·licitud; també ho veu l'alumne. Buit quan l'ha anul·lada el sol·licitant des del portal."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_cancel_wizard__reason
+msgid "Why the request is cancelled. The student sees it on the portal and in their communications."
+msgstr "Per què s'anul·la la sol·licitud. L'alumne ho veu al portal i a les seves comunicacions."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_convalidation_cancel_wizard
+msgid "The staff cancel a convalidation request, saying why."
+msgstr "El personal anul·la una sol·licitud de convalidació indicant-ne el motiu."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_cancel_wizard_form
+msgid "Why the request is cancelled (the student will see it)..."
+msgstr "Per què s'anul·la la sol·licitud (l'alumne ho veurà)..."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation_cancel_wizard.py:0
+msgid "Write the reason for cancelling the request."
+msgstr "Escriu el motiu de l'anul·lació de la sol·licitud."

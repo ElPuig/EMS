@@ -77,8 +77,7 @@
                                     groups="ems.group_head_of_studies,ems.group_academic_admin"
                                     help="The documentation arrived some other way (on paper, by email): the request goes back under review."/>
                             <button name="action_cancel" type="object" string="Cancel request"
-                                    invisible="state != 'pending' and (state != 'documentation' or resolved_by_ministry)"
-                                    confirm="The request will be cancelled. Continue?"/>
+                                    invisible="state != 'pending' and (state != 'documentation' or resolved_by_ministry)"/>
                             <button name="action_reopen" type="object" string="Reopen"
                                     invisible="state != 'cancelled'"/>
                         </div>
@@ -89,6 +88,9 @@
                                 invisible="state != 'cancelled'"/>
                         <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger"
                                 invisible="state != 'rejected'"/>
+                        <div class="alert alert-secondary" role="alert" invisible="state != 'cancelled' or not cancel_reason">
+                            <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline"/>
+                        </div>
                         <div class="alert alert-warning" role="alert" invisible="state != 'pending' or not return_reason">
                             <strong>Returned by the Director:</strong> <field name="return_reason" class="d-inline"/>
                         </div>
@@ -316,6 +318,24 @@
                     <footer>
                         <button name="action_reject" type="object" string="Reject" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_convalidation_cancel_wizard_form" model="ir.ui.view">
+            <field name="name">ems.convalidation.cancel_wizard.form</field>
+            <field name="model">ems.convalidation.cancel_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cancel request">
+                    <field name="convalidation_id" invisible="1"/>
+                    <group>
+                        <field name="student_id" readonly="1"/>
+                    </group>
+                    <field name="reason" placeholder="Why the request is cancelled (the student will see it)..."/>
+                    <footer>
+                        <button name="action_cancel" type="object" string="Cancel request" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>
             </field>

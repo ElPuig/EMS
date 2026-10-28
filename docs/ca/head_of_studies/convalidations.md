@@ -28,7 +28,7 @@ En tots dos casos, secretaria registra després la resolució a l'Esfera i tanca
 | **Pendent de secretaria** | Ja està resolta; secretaria l'ha de registrar a l'Esfera. |
 | **Completada** | Registrada, amb algun mòdul convalidat. L'alumne ja veu la nota. |
 | **Rebutjada** | Registrada, sense cap mòdul convalidat. |
-| **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal. |
+| **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal, o el centre l'ha anul·lada indicant-ne el motiu. |
 
 L'estat només canvia amb les accions de cada pas, a dalt del formulari (al menú **Accions** quan n'hi ha més d'una).
 
@@ -192,8 +192,8 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ## Anul·lar i reobrir
 
-- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri.
-- **Reobrir** torna una sol·licitud anul·lada a **Pendent**.
+- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri. Un diàleg et demana el **Motiu**, que és obligatori: queda a la sol·licitud, i l'alumne o la família el veuen al portal i a les seves comunicacions.
+- **Reobrir** torna una sol·licitud anul·lada a **Pendent** i n'esborra el motiu.
 
 ---
 

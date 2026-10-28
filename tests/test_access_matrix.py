@@ -38,6 +38,8 @@ ACCESS_MATRIX = {
     'ems.level': {'teacher': 'r', 'secretary': 'r'},
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},
     'ems.outcome': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #720: whoever handles convalidation requests in the backend cancels them saying why.
+    'ems.convalidation.cancel_wizard': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.previous_curriculum_wizard': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.previous_curriculum_wizard.line': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.space': {'teacher': 'r', 'secretary': 'r'},

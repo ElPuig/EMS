@@ -412,12 +412,47 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(request._ems_resolution_representative(), family)
         self.assertFalse(self._request(self.other_subject)._ems_resolution_representative())
 
-    def test_cancel_and_reopen(self):
+    def _cancel(self, request, user, reason="Test the student has dropped out"):
+        """Cancel from the backend, as the staff do: the button opens the dialog asking why."""
+        action = request.with_user(user).action_cancel()
+        wizard = self.env[action['res_model']].with_user(user).with_context(action['context']).create(
+            {'reason': reason})
+        return wizard.action_cancel()
+
+    def test_cancelling_from_the_backend_asks_for_a_reason(self):
+        """Issue #720: the staff say why they cancel a request, and everybody sees it."""
         request = self._request()
-        request.with_user(self.secretary).action_cancel()
+        action = request.with_user(self.head_of_studies).action_cancel()
+        self.assertEqual(action['res_model'], 'ems.convalidation.cancel_wizard')
+        self.assertEqual(request.state, 'pending', 'the button alone cancels nothing')
+        self._cancel(request, self.head_of_studies, "Test filed twice by mistake")
         self.assertEqual(request.state, 'cancelled')
-        request.with_user(self.secretary).action_reopen()
+        self.assertEqual(request.cancel_reason, "Test filed twice by mistake")
+        # On the student's Communications page too.
+        comment = request.message_ids.filtered(
+            lambda message: message.subject == 'Convalidation request cancelled')
+        self.assertEqual(comment.subtype_id, self.env.ref('mail.mt_comment'))
+        self.assertIn("Test filed twice by mistake", comment.body)
+        # Reopening clears it: it no longer describes the request.
+        request.with_user(self.head_of_studies).action_reopen()
         self.assertEqual(request.state, 'pending')
+        self.assertFalse(request.cancel_reason)
+
+    def test_a_blank_cancel_reason_is_refused(self):
+        request = self._request()
+        with self.assertRaises(UserError):
+            self._cancel(request, self.secretary, "   ")
+        self.assertEqual(request.state, 'pending')
+
+    def test_the_cancel_dialog_checks_the_state_first(self):
+        request = self._proposed()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_cancel()
+        wizard = self.env['ems.convalidation.cancel_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': request.id, 'reason': "Test too late"})
+        with self.assertRaises(UserError):
+            wizard.action_cancel()
+        self.assertEqual(request.state, 'direction')
 
     def test_cannot_cancel_once_proposed(self):
         request = self._proposed()
@@ -726,7 +761,7 @@ class TestConvalidation(TransactionCase):
 
     def test_cancel_and_reopen_are_communicated(self):
         request = self._request()
-        request.with_user(self.secretary).action_cancel()
+        self._cancel(request, self.secretary)
         request.with_user(self.secretary).action_reopen()
         self.assertEqual(
             request.message_ids.filtered(lambda message: message.subtype_id == self.env.ref('mail.mt_comment'))
@@ -814,7 +849,7 @@ class TestConvalidation(TransactionCase):
     def test_the_applicant_can_cancel_while_waiting(self):
         request = self._request()
         self._ask_for_documentation(request, "Attach the certificate")
-        request.action_cancel()
+        request._ems_cancel()
         self.assertEqual(request.state, 'cancelled')
 
     def test_information_cannot_be_asked_for_once_completed(self):
@@ -860,7 +895,7 @@ class TestConvalidation(TransactionCase):
     def test_cancelling_closes_the_pending_task(self):
         hold_position(self.env, 'ems.role_dhos', self.head_of_studies)
         request = self._request()
-        request.action_cancel()
+        request._ems_cancel()
         self.assertFalse(request.activity_ids)
 
     def test_tasks_are_not_in_task_assignment(self):

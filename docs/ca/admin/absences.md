@@ -38,7 +38,7 @@ Un docent pertany a una àrea pel seu departament. Les absències detectades s'e
 | Sortir abans | Si les últimes classes del dia no tenen docent, avisar l'alumnat i les famílies que poden sortir abans |
 | Pati més llarg | Si les classes just abans o després d'un pati no tenen docent, allargar el pati. Només s'avisa l'alumnat, i els menors de 18 anys continuen sense poder sortir del centre, de manera que aquestes classes continuen necessitant un professor de guàrdia |
 
-Entrar més tard i sortir abans només s'ofereixen als grups dels estudis de la llista **Estudis que poden entrar més tard o sortir abans** (apareix quan algun dels dos està activat): els grups de qualsevol altre estudi tenen una guàrdia, per exemple uns estudis amb alumnat menor d'edat que no pot marxar a casa abans. **Si la llista és buida, no s'ofereix cap dels dos canvis a cap grup**, encara que estiguin activats, així que indica-hi tots els estudis que els poden tenir. El pati més llarg no depèn d'aquesta llista.
+Entrar més tard i sortir abans només s'ofereixen als grups dels nivells de la llista **Nivells que poden entrar més tard o sortir abans** (apareix quan algun dels dos està activat), per exemple CFGM i CFGS: els grups de qualsevol altre nivell, com l'educació obligatòria (ESO), tenen una guàrdia. **Si la llista és buida, no s'ofereix cap dels dos canvis a cap grup**, encara que estiguin activats, així que indica-hi tots els nivells que els poden tenir. El pati més llarg no depèn d'aquesta llista.
 
 Desactivar-ne un no desfà el que ja s'ha comunicat: si l'absència canvia després, el quadre continua oferint la correcció.
 

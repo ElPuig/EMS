@@ -294,12 +294,12 @@ def close_yearly_period(env, prefix):
 
 def allow_every_absence_change(env):
     """Switches on every timetable change the guard duty board may propose (issue #679), for
-    every study that exists by now (issue #718: coming in later and leaving earlier only apply to
-    the studies listed). Call it after creating the fixture's studies."""
+    every level that exists by now (issue #718: coming in later and leaving earlier only apply to
+    the levels listed). Call it after creating the fixture's levels."""
     env.company.write({
         'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
         'ems_absence_change_long_break': True,
-        'ems_absence_change_study_ids': [(6, 0, env['ems.study'].search([]).ids)],
+        'ems_absence_change_level_ids': [(6, 0, env['ems.level'].search([]).ids)],
     })
 
 

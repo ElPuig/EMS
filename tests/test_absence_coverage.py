@@ -1195,11 +1195,11 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
                      if action['type'] == 'proposal' and action['group'] == self.group_a]
         self.assertEqual([action['students_only'] for action in proposals], [True])
 
-    def test_only_the_allowed_studies_come_in_later_or_leave_earlier(self):
-        """Issue #718: a group of a study not listed in the setting gets guards instead of a later
+    def test_only_the_allowed_levels_come_in_later_or_leave_earlier(self):
+        """Issue #718: a group of a level not listed in the setting gets guards instead of a later
         entry or an earlier leave, from the board and from the arrangement plans alike; a longer
         break is still offered, the students staying in the centre."""
-        self.env.company.ems_absence_change_study_ids = self.study2
+        self.env.company.ems_absence_change_level_ids = self.level2
         self._morning_with_break()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
         self._absence(self.teacher_b, self.day, hour_from=11.5, hour_to=12.5)
@@ -1212,7 +1212,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertFalse([step for plan in self._plans() for step in plan['steps']
                           if step['kind'] == 'notice' and step['change'][0] in ('late_entry', 'early_leave')])
 
-        self.env.company.ems_absence_change_study_ids |= self.group_a.study_id
+        self.env.company.ems_absence_change_level_ids |= self.group_a.level_id
 
         states = self._states()
         self.assertEqual(states['entry']['options'], [('late_entry', 9.0)])

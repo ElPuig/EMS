@@ -129,7 +129,7 @@ Para cambiar de idea, haz clic en la línea y después en **Cambiar o quitar la 
 
 ### Entrada tarde, salida anticipada o sin clases
 
-El cuadro solo propone estos cambios, y el de alargar el patio que viene después, si el administrador los ha activado (cada uno por separado, consulta [Configurar las ausencias del personal](../admin/absences.md#cambios-de-horario-en-el-cuadro-de-guardias)). Si están desactivados, las clases sin docente se cubren con una guardia, como cualquier otra. Además, entrar más tarde y salir antes solo se proponen para los grupos de los estudios que el administrador ha indicado; los demás grupos siempre tienen una guardia.
+El cuadro solo propone estos cambios, y el de alargar el patio que viene después, si el administrador los ha activado (cada uno por separado, consulta [Configurar las ausencias del personal](../admin/absences.md#cambios-de-horario-en-el-cuadro-de-guardias)). Si están desactivados, las clases sin docente se cubren con una guardia, como cualquier otra. Además, entrar más tarde y salir antes solo se proponen para los grupos de los niveles que el administrador ha indicado (por ejemplo, nunca para la educación obligatoria); los demás grupos siempre tienen una guardia.
 
 Cuando las clases sin docente son las primeras del día del grupo (una, dos o más seguidas), el alumnado podría entrar más tarde; cuando son las últimas, podría salir antes; cuando todas las clases del día quedan sin docente, el grupo podría no tener clases. Una clase donde hay alguien con el alumnado (otro docente que no está ausente, la otra mitad de un grupo desdoblado, una optativa o un docente de guardia ya enviado) corta la secuencia.
 

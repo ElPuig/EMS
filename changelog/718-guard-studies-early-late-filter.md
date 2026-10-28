@@ -1,8 +1,8 @@
 # Breaking changes
 
-## Coming in later and leaving earlier now need the studies that may have them:
+## Coming in later and leaving earlier now need the levels that may have them:
 
-- The guard duty board only proposes coming in later (or no classes) and leaving earlier for the groups of the studies listed in the new setting **Settings > EMS > Guard Duty Board Settings > Studies that may come in later or leave earlier** (issue #718): some studies' students, minors for instance, can never go home early. It is an allowlist on purpose: while it is empty no group gets either proposal, even with the switches on, so after deploying it has to be filled in with every study that may have them. The longer break does not depend on it (the students stay in the centre).
+- The guard duty board only proposes coming in later (or no classes) and leaving earlier for the groups of the levels listed in the new setting **Settings > EMS > Guard Duty Board Settings > Levels that may come in later or leave earlier** (issue #718): the level tells compulsory education (ESO), whose students can never go home early, from the rest (e.g. CFGM, CFGS). It is an allowlist on purpose: while it is empty no group gets either proposal, even with the switches on, so after deploying it has to be filled in with every level that may have them. The longer break does not depend on it (the students stay in the centre).
 
 # Internal changes
 

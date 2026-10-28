@@ -716,11 +716,11 @@ Three company settings (Settings > EMS Management > Guard Duty Board Settings, `
 `ems_absence_change_late_entry`, `ems_absence_change_early_leave`, `ems_absence_change_long_break`,
 all `False` by default) decide which kinds of change the board and the arrangement planner propose;
 `no_classes` goes with the late entry, being the start of the day stretched over all of it.
-A fourth one, `ems_absence_change_study_ids` (issue #718, many2many to `ems.study`, shown only while
+A fourth one, `ems_absence_change_level_ids` (issue #718, many2many to `ems.level`, shown only while
 coming in later or leaving earlier is on), is an **allowlist**: `late_entry`, `no_classes` and
-`early_leave` (`SHORTER_DAY_CHANGES`) are only allowed for the groups of the studies listed, and an
-empty list allows them for no group (some studies' students, minors for instance, can never go home
-early, and a forgotten study must fail safe). `long_break` does not depend on it: the students stay
+`early_leave` (`SHORTER_DAY_CHANGES`) are only allowed for the groups whose `level_id` is listed, and
+an empty list allows them for no group. The level is what tells compulsory education (ESO) from the
+rest, whose students can never be sent home early, and a forgotten level must fail safe. `long_break` does not depend on it: the students stay
 in the centre. `_enabled_absence_changes(groups)` reads all four once per request into
 `{group id: set of change types}`, which `_allowed_absence_changes(blocks, breaks, enabled[group])`
 filters `_all_absence_changes()` (the rules below) with; `_arrangement_planner()` passes the

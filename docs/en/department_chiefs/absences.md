@@ -129,7 +129,7 @@ To change your mind, click the line and then **Change or remove the arrangement*
 
 ### Late entry, early leave or no classes
 
-The schedule only proposes these changes, and the longer break below, if the administrator has switched them on (each one separately, see [Configuring staff absences](../admin/absences.md#timetable-changes-on-the-guard-duty-schedule)). With them off, the lessons without a teacher are covered with a guard, as any other. Coming in later and leaving earlier are also only proposed for the groups of the studies the administrator has listed; the other groups always get a guard.
+The schedule only proposes these changes, and the longer break below, if the administrator has switched them on (each one separately, see [Configuring staff absences](../admin/absences.md#timetable-changes-on-the-guard-duty-schedule)). With them off, the lessons without a teacher are covered with a guard, as any other. Coming in later and leaving earlier are also only proposed for the groups of the levels the administrator has listed (for example, never for compulsory education); the other groups always get a guard.
 
 When the lessons without a teacher are the first ones of the group's day (one, two or more in a row), the students could come in later; when they are the last ones, they could leave earlier; when every lesson of the day is without a teacher, the group could have no classes. A lesson where somebody is with the students (a co-teacher who is not away, the other half of a split group, an optional subject or a guard already sent) breaks the run.
 

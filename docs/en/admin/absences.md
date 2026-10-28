@@ -38,7 +38,7 @@ A teacher belongs to an area through their department. The detected absences are
 | Leave earlier | If the last lessons of the day have no teacher, telling the students and families that they can leave earlier |
 | Longer break | If the lessons right before or after a break have no teacher, making the break longer. Only the students are told, and those under 18 still cannot leave the centre, so those lessons keep needing a guard teacher |
 
-Coming in later and leaving earlier are only offered to the groups of the studies listed in **Studies that may come in later or leave earlier** (shown once either of the two is on): the groups of any other study get a guard instead, for example a study whose students are minors and cannot go home earlier. **If the list is empty, no group is offered either change**, even with them switched on, so list every study that may have them. The longer break does not depend on this list.
+Coming in later and leaving earlier are only offered to the groups of the levels listed in **Levels that may come in later or leave earlier** (shown once either of the two is on), for example CFGM and CFGS: the groups of any other level, such as compulsory education (ESO), get a guard instead. **If the list is empty, no group is offered either change**, even with them switched on, so list every level that may have them. The longer break does not depend on this list.
 
 Switching one off does not undo what was already communicated: if the absence changes afterwards, the schedule still offers the correction.
 

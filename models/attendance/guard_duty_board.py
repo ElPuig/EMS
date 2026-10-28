@@ -38,7 +38,7 @@ ABSENCE_STATES = {
 # same way a partial one is - no special case anywhere downstream.
 WHOLE_DAY = (0.0, 24.0)
 # The changes that send the students home (or keep them there) for part of the day, which only
-# the studies the centre lists may have (issue #718).
+# the levels the centre lists may have (issue #718).
 SHORTER_DAY_CHANGES = frozenset({'late_entry', 'no_classes', 'early_leave'})
 
 # How many distinct colours the absences table pairs a guard with the classes they cover in
@@ -659,7 +659,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         """`{group.id: change types}`: the ones the centre lets the board propose for each group
         (issue #679, see the company's ems_absence_change_* settings). A day with no classes goes
         with coming in later, being the start of the day stretched over all of it; coming in later
-        and leaving earlier only for the groups of the studies the centre lists (issue #718)."""
+        and leaving earlier only for the groups of the levels the centre lists (issue #718)."""
         company = self.env.company
         enabled = frozenset(change_type for change_type, switched_on in (
             ('late_entry', company.ems_absence_change_late_entry),
@@ -668,8 +668,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             ('long_break', company.ems_absence_change_long_break),
         ) if switched_on)
         in_centre = enabled - SHORTER_DAY_CHANGES
-        study_ids = set(company.ems_absence_change_study_ids.ids)
-        return {group.id: enabled if group.study_id.id in study_ids else in_centre for group in groups}
+        level_ids = set(company.ems_absence_change_level_ids.ids)
+        return {group.id: enabled if group.level_id.id in level_ids else in_centre for group in groups}
 
     @classmethod
     def _allowed_absence_changes(cls, blocks, breaks, enabled):

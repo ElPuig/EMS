@@ -129,7 +129,7 @@ Per canviar d'idea, fes clic a la línia i després a **Canviar o treure la reor
 
 ### Entrada tard, sortida abans d'hora o sense classes
 
-El quadre només proposa aquests canvis, i el d'allargar el pati que ve després, si l'administrador els ha activat (cadascun per separat, consulta [Configurar les absències del personal](../admin/absences.md#canvis-dhorari-al-quadre-de-guàrdies)). Si estan desactivats, les classes sense docent es cobreixen amb una guàrdia, com qualsevol altra. A més, entrar més tard i sortir abans només es proposen per als grups dels estudis que l'administrador ha indicat; els altres grups sempre tenen una guàrdia.
+El quadre només proposa aquests canvis, i el d'allargar el pati que ve després, si l'administrador els ha activat (cadascun per separat, consulta [Configurar les absències del personal](../admin/absences.md#canvis-dhorari-al-quadre-de-guàrdies)). Si estan desactivats, les classes sense docent es cobreixen amb una guàrdia, com qualsevol altra. A més, entrar més tard i sortir abans només es proposen per als grups dels nivells que l'administrador ha indicat (per exemple, mai per a l'educació obligatòria); els altres grups sempre tenen una guàrdia.
 
 Quan les classes sense docent són les primeres del dia del grup (una, dues o més seguides), l'alumnat podria entrar més tard; quan són les últimes, podria sortir abans; quan totes les classes del dia queden sense docent, el grup podria no tenir classes. Una classe on hi ha algú amb l'alumnat (un altre docent que no és absent, l'altra meitat d'un grup desdoblat, una optativa o un docent de guàrdia ja enviat) talla la seqüència.
 

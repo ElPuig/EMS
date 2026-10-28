@@ -7802,6 +7802,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__student_id
 #: model:ir.model.fields,field_description:ems.field_ems_student_history_line__student_id
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Student"
 msgstr "Estudiant"
 
@@ -19736,6 +19737,7 @@ msgstr "No es pot posar un strike amb data futura."
 #: model_terms:ir.ui.view,arch_db:ems.view_minute_form
 #: model_terms:ir.ui.view,arch_db:ems.view_quality_action_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Actions"
 msgstr "Accions"
 
@@ -27209,3 +27211,14 @@ msgstr "Una classe que cap pas marcat no resol es queda a la taula, per a una gu
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Encara deixa %s sense docent: un cop aplicada, triareu el docent de guàrdia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_add_documents
+#: model:ir.model.fields,field_description:ems.field_res_users__can_add_documents
+msgid "Can add documents"
+msgstr "Pot afegir documents"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
+msgid "Cancel submission"
+msgstr "Cancel·lar enviament"

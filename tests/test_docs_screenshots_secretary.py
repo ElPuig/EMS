@@ -152,10 +152,25 @@ class TestDocsScreenshotsSecretary(DocsScreenshotMixin, HttpCase):
             '.o_list_table', 'documents-01-pendents.png', login='doc_shot_secretary',
             wait_for='.o_list_renderer .o_data_row + .o_data_row + .o_data_row',
         )
+        # The review buttons are entries of the form's Actions dropdown, an overlay outside the
+        # form, hence the body; beyond_viewport=False because the dropdown closes on a resize.
         self._capture(
             '/odoo/action-%d/%d' % (action.id, documents[0].id),
-            '.o_form_sheet_bg', 'documents-02-revisio.png', login='doc_shot_secretary',
-            wait_for="button[name='action_approve']",
+            'body', 'documents-02-revisio.png', login='doc_shot_secretary',
+            wait_for='.o_form_statusbar .o_ems_actions_toggle',
+            click='.o_form_statusbar .o_ems_actions_toggle',
+            wait_after=".o_ems_actions_menu button[name='action_approve']",
+            max_height=560, beyond_viewport=False,
+        )
+        # Issue #717: adding a document the family sent by email, from the student's own form.
+        self._capture(
+            '/odoo/res.partner/%d' % second.id,
+            '.modal-content', 'documents-03-afegir.png', login='doc_shot_secretary',
+            wait_for=".o_notebook .nav-link[name='secretary']",
+            click=[".o_notebook .nav-link[name='secretary']",
+                   ".o_field_widget[name='document_ids'] .o_field_x2many_list_row_add a"],
+            wait_after=[".o_field_widget[name='document_ids'] .o_field_x2many_list_row_add a",
+                        ".modal .o_field_widget[name='doc_type'] select"],
         )
 
     def test_capture_student_import_esfera(self):

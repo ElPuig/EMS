@@ -342,6 +342,61 @@ class TestStudentDocumentPortalAccess(TransactionCase):
             })
 
 
+class TestStudentDocumentSecretaryUpload(TransactionCase):
+    """Issue #717: the secretary's office registers a document the family sent by other means
+    (e.g. by email). It is approved on the spot: no review task, no email to the family."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # The approval note is posted as the secretary, who needs an email as its author.
+        cls.secretary = create_role_user(cls, 'secretary', 'test_secretary_document_upload',
+                                         email='secretary.upload@example.com')
+        cls.reviewer = create_role_user(cls, 'secretary', 'test_reviewer_document_upload')
+        cls.env.ref('ems.mail_activity_student_document_review').ems_assignee_ids = [(6, 0, cls.reviewer.ids)]
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Secretary Upload Student', 'contact_type': 'student', 'student_id': next_student_id(),
+        })
+
+    def _upload(self, **vals):
+        return self.env['ems.student.document'].with_user(self.secretary).create({
+            'partner_id': self.student.id, **vals,
+        })
+
+    def test_upload_is_approved_without_review_or_email(self):
+        document = self._upload(doc_type='dni', doc_file=base64.b64encode(b'dni'), doc_file_name='dni.pdf')
+        self.assertEqual(document.status, 'approved')
+        self.assertEqual(document.review_uid, self.secretary)
+        self.assertFalse(document.activity_ids)
+        self.assertFalse(document.message_ids.filtered(lambda m: 'submitted for review' in (m.body or '')))
+        approval = document.message_ids.filtered(lambda m: 'Document approved' in (m.body or ''))
+        self.assertEqual(approval.subtype_id, self.env.ref('mail.mt_note'))
+        self.assertFalse(approval.notification_ids)
+
+    def test_upload_replaces_previous_approved_of_same_type(self):
+        old = self._upload(doc_type='dni', doc_file=base64.b64encode(b'old'), doc_file_name='old.pdf')
+        self._upload(doc_type='dni', doc_file=base64.b64encode(b'new'), doc_file_name='new.pdf')
+        self.assertFalse(old.exists())
+
+    def test_upload_iban_trusts_bank_account(self):
+        self._upload(doc_type='iban', doc_value='ES9121000418450200051332', doc_value2='Family Holder')
+        bank = self.env['res.partner.bank'].search([('partner_id', '=', self.student.id)])
+        self.assertEqual(bank.acc_number.replace(' ', ''), 'ES9121000418450200051332')
+        self.assertTrue(bank.allow_out_payment)
+
+    def test_upload_benefit_creates_student_benefit(self):
+        self._upload(doc_type='benefit', benefit_type='disability',
+                     doc_file=base64.b64encode(b'proof'), doc_file_name='proof.pdf')
+        benefit = self.env['ems.student.benefit'].search([('student_id', '=', self.student.id)])
+        self.assertEqual(benefit.benefit_type, 'disability')
+        self.assertEqual(benefit.document_name, 'proof.pdf')
+
+    def test_documentation_section_offers_adding_only_to_who_can_create(self):
+        tutor = create_role_user(self, 'tutor', 'test_tutor_document_upload')
+        self.assertTrue(self.student.with_user(self.secretary).can_add_documents)
+        self.assertFalse(self.student.with_user(tutor).can_add_documents)
+
+
 def create_tutored_students_with_credentials(cls, prefix):
     """A tutor user with one tutored student and one student of another group, each with a
     Google credentials PDF, plus a DNI on the tutored one. Sets cls.tutor_user, cls.tutor, cls.student,

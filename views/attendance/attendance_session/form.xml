@@ -36,13 +36,15 @@
 
                         <notebook>
                             <page string="Statuses">
-                                <!-- Students removed from the roll-call are listed too, greyed out. -->
+                                <!-- Students removed from the roll-call are listed too, last, greyed out and struck
+                                     through, with "Not required to attend" instead of their status (issue #713). -->
                                 <field name="all_attendance_session_line_ids">
-                                    <list default_order="student_id asc" editable="bottom" create="0" delete="0" decoration-muted="not active">
+                                    <list default_order="active desc, student_id asc" editable="bottom" create="0" delete="0" decoration-muted="not active">
                                         <field name="active" column_invisible="True"/>
                                         <field name="image_1920" widget="image" readonly="True"/>
-                                        <field name="student_id" width="175px" class="align-middle" readonly="True"/>
-                                        <field name="status_id" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="True"/>
+                                        <field name="student_id" width="175px" class="align-middle" readonly="True" decoration-strikethrough="not active"/>
+                                        <field name="status_id" widget="radio" class="align-middle" options="{'horizontal': true}" readonly="True" invisible="not active"/>
+                                        <field name="roll_call_label" class="align-middle" nolabel="1"/>
                                         <field name="notes" width="350px" class="align-middle" readonly="True"/>
                                         <field name="attendance_justification_id" readonly="True"/>
                                         <field name="strike_count" class="align-middle text-center" readonly="True"/>

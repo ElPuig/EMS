@@ -176,7 +176,8 @@ alumno, cuántos strikes se pusieron durante esa sesión, con un botón para ver
 > en modo **Manual** y selecciona esa sesión desde el selector — la lista del Historial no permite
 > editar.
 
-Los alumnos que se han quitado de la lista de una sesión también aparecen en ella, en gris.
+Los alumnos que se han quitado de la lista de una sesión también aparecen en ella, al final, en gris y tachados,
+con **No tiene que asistir** en lugar de un estado: no cuentan ni como asistencia ni como falta.
 
 ---
 

@@ -577,10 +577,13 @@
                      one: the Head has two steps now, acknowledging a request and validating its
                      supporting document, and Odoo's own filters only know the first ('confirm').
 
+                     An Area Manager is the Head of their own absence (issue #693), so the
+                     officers' filter keeps it too.
+
                      Direction's own: every request the Head has validated and Direction has not
-                     yet, plus the Area Managers' own absences, which Direction handles as their
-                     Head. Odoo's officer filter, which Direction would otherwise get through Head
-                     of Studies, lists the Head's pending work instead. -->
+                     yet, plus any whose approver is the Director themselves. Odoo's officer
+                     filter, which Direction would otherwise get through Head of Studies, lists
+                     the Head's pending work instead. -->
                 <xpath expr="//filter[@name='waiting_for_me']" position="attributes">
                     <attribute name="domain">[('ems_status', 'in', ['pending', 'pending_validation']),
                                               '|', ('employee_id.user_id', '!=', uid),
@@ -590,7 +593,8 @@
                 <xpath expr="//filter[@name='waiting_for_me_manager']" position="attributes">
                     <attribute name="groups">hr_holidays.group_hr_holidays_user,!ems.group_director</attribute>
                     <attribute name="domain">[('ems_status', 'in', ['pending', 'pending_validation']),
-                                              ('employee_id.user_id', '!=', uid)]</attribute>
+                                              '|', ('employee_id.user_id', '!=', uid),
+                                                   ('employee_id.leave_manager_id', '=', uid)]</attribute>
                 </xpath>
                 <xpath expr="//filter[@name='waiting_for_me_manager']" position="after">
                     <filter name="ems_waiting_for_direction" string="Waiting For Me"

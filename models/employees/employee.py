@@ -834,8 +834,14 @@ class ems_employee(models.AbstractModel):
 
     @api.depends("leave_manager_id")
     def _compute_attendance_manager_id(self):
+        # An Area Manager is the approver of their own absence (issue #693), but not of their
+        # own attendance corrections: those stay the Director's.
         for employee in self:
-            employee.attendance_manager_id = employee.leave_manager_id
+            manager = employee.leave_manager_id
+            if manager and manager == employee.user_id:
+                director = employee.company_id.director_id
+                manager = director.user_id if director != employee else self.env['res.users']
+            employee.attendance_manager_id = manager
 
     def _inverse_work_contact_details(self):
         # hr's inverse writes work_email/mobile_phone to the linked user's partner, and

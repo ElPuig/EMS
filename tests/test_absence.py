@@ -115,16 +115,17 @@ class TestAbsence(TransactionCase):
         self.assertEqual(employee.leave_manager_id, manager.user_id)
         self.assertTrue(top.is_top_level)
 
-    def test_leave_manager_of_the_area_manager_is_themselves_excluded(self):
-        """The Area Manager cannot approve their own absence: their own leave_manager_id falls
-        back to the Director rather than pointing at themselves."""
+    def test_the_area_manager_is_the_head_of_their_own_absence(self):
+        """Issue #693: an Area Manager validates the Head's side of their own absence, and
+        Direction reviews it afterwards like any other. Their attendance corrections still go
+        to the Director: the issue is about absences only."""
         top, _child, manager = self._create_area('SelfApproval')
         director = self._create_employee('Test Director (SelfApproval)', with_user=True)
         self.env.company.director_id = director.id
         manager.department_id = top.id
 
-        self.assertNotEqual(manager.leave_manager_id, manager.user_id)
-        self.assertEqual(manager.leave_manager_id, director.user_id)
+        self.assertEqual(manager.leave_manager_id, manager.user_id)
+        self.assertEqual(manager.attendance_manager_id, director.user_id)
 
     def test_leave_manager_is_not_the_department_chief(self):
         """Native hr_holidays derives leave_manager_id from parent_id, which in EMS is the
@@ -1150,6 +1151,80 @@ class TestAbsenceRequest(TransactionCase):
         self.assertIn(pending, found)
         self.assertIn(submitted, found)
         self.assertNotIn(awaiting, found, "it is the employee's turn")
+
+    # --- An Area Manager's own absence (issue #693) ------------------------------------------
+
+    def _own_area_manager(self, role, login, **kwargs):
+        """self.employee as an Area Manager: their own approver, as _compute_leave_manager
+        makes them (see TestAbsence)."""
+        user = create_role_user(self, role, login, email=login.replace('@absence.test', '@example.com'),
+                                **kwargs)
+        self.employee.user_id = user.id
+        self.employee.leave_manager_id = user.id
+        return user
+
+    def test_an_area_manager_validates_their_own_absence_and_direction_reviews_it(self):
+        direction = self._direction()
+        head = self._own_area_manager('head_of_studies', 'absence_own_head@absence.test')
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True).with_user(head)
+
+        self.assertTrue(leave.can_approve)
+        self.assertTrue(leave.is_absence_head)
+        leave.invalidate_recordset(['can_approve', 'is_absence_head'])
+        self.assertFalse(leave.with_user(direction).can_approve, 'Direction only reviews it')
+        self.assertFalse(leave.with_user(direction).is_absence_head)
+
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_direction')
+        self.assertIn(direction.partner_id, leave.message_partner_ids)
+
+        leave.with_user(direction).action_ems_direction_done()
+        self.assertEqual(leave.ems_status, 'approved')
+
+    def test_an_area_manager_validates_the_document_of_their_own_absence(self):
+        self._direction()
+        head = self._own_area_manager('head_of_studies', 'absence_own_document@absence.test')
+        leave = self._create_leave(self.type_sick_leave, self._monday(), ems_full_day=True).with_user(head)
+
+        leave.action_approve()
+        self.assertEqual(leave.ems_status, 'pending_document')
+        self._attach(leave)
+        self.assertEqual(leave.ems_status, 'pending_validation')
+        leave.action_ems_document_validate()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
+    def test_the_secretary_validates_their_own_absence(self):
+        """The Secretary approves as their area's approver only, without the officer group."""
+        self._direction()
+        secretary = self._own_area_manager('secretary', 'absence_own_secretary@absence.test',
+                                           employee_type='asp')
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True).with_user(secretary)
+
+        leave.action_approve()
+
+        self.assertEqual(leave.ems_status, 'pending_direction')
+
+    def test_an_area_manager_still_cannot_edit_their_own_approved_absence(self):
+        """Approving it is theirs; changing it afterwards stays as closed as for anybody else."""
+        self._direction()
+        head = self._own_area_manager('head_of_studies', 'absence_own_edit@absence.test')
+        leave = self._create_leave(self.type_health, self._monday(), ems_full_day=True).with_user(head)
+        leave.action_approve()
+
+        with self.assertRaises(AccessError):
+            leave.write({'holiday_status_id': self.type_justified.id})
+
+    def test_an_area_managers_own_absence_waits_for_them(self):
+        head = self._own_area_manager('head_of_studies', 'absence_own_waiting@absence.test')
+        own = self._create_leave(self.type_health, self._monday(), ems_full_day=True)
+
+        search = etree.fromstring(self.env['hr.leave'].with_user(head).get_view(
+            self.env.ref('hr_holidays.hr_leave_view_search_manager').id, 'search')['arch'])
+        [waiting] = search.xpath("//filter[@name='waiting_for_me_manager']")
+        found = self.env['hr.leave'].search(safe_eval(waiting.get('domain'), {'uid': head.id}))
+
+        self.assertIn(own, found)
 
     # --- Reminders ----------------------------------------------------------------------------
 

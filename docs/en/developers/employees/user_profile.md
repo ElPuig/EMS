@@ -91,8 +91,15 @@ compute:
 @api.depends("leave_manager_id")
 def _compute_attendance_manager_id(self):
     for employee in self:
-        employee.attendance_manager_id = employee.leave_manager_id
+        manager = employee.leave_manager_id
+        if manager and manager == employee.user_id:
+            director = employee.company_id.director_id
+            manager = director.user_id if director != employee else self.env['res.users']
+        employee.attendance_manager_id = manager
 ```
+
+The one exception is an Area Manager: they approve their own absence (issue #693), but not their
+own attendance corrections, which go to the Director.
 
 `leave_manager_id` is EMS's own compute (`models/employees/absence.py`'s
 `_compute_leave_manager` — the Area Manager of the employee's top-level department; see
@@ -102,7 +109,7 @@ whole "Approvers" group is hidden on the teacher/employee form itself
 — confirmed empty (`NULL`) for every employee on this dev DB prior to this change. Since an
 absence and an attendance correction are meant to be approved by the same person in this
 centre, there is no reason for the two fields to diverge, so this makes `attendance_manager_id`
-track `leave_manager_id` unconditionally rather than leaving it as dead, always-empty native
+track `leave_manager_id` (with the exception above) rather than leaving it as dead, always-empty native
 behaviour.
 
 **No migration needed.** Converting an existing plain field into a newly-computed, stored

@@ -407,6 +407,13 @@
     font-size: 12px;
 }
 
+/* What kind of move a step is (issue #709): a swap with a duty, a free hour, a shifted day. */
+.o_guard_board_plan_detail {
+    margin-left: 1.25rem;
+    color: #6c757d;
+    font-size: 12px;
+}
+
 /* The button applying a plan's checked steps: on the right, in the same column as the buttons of
    the proposal rows (issue #647). */
 .o_guard_board_plan_actions {

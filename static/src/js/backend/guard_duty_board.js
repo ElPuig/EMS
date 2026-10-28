@@ -5,6 +5,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { useSetupAction } from "@web/search/action_hook";
 import { _t } from "@web/core/l10n/translation";
+import { formatList } from "@web/core/l10n/utils";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
@@ -563,11 +564,22 @@ export class GuardDutyBoard extends Component {
             removeArrangement: _t("Remove arrangement"),
             changeProposal: _t("Change proposal"),
             arrangementsTitle: _t("Proposals for the absences"),
-            arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
+            // What each kind of step means (issue #709): a short intro and one line per kind, with the
+            // icon the steps themselves carry.
+            arrangementsHelp: {
+                intro: _t("For each group, the best ways to organise its absences, the best first. Check what you want and click"),
+                // The button's own name, in its colour, so it is easy to find.
+                button: _t("Apply the checked steps"),
+                points: [
+                    { icon: "fa-arrows-v", text: _t("A teacher moves a lesson, or two teachers swap theirs. Under it, in grey, the details; in orange, whether somebody comes in or leaves at another time.") },
+                    { icon: "fa-envelope-o", text: _t("A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table.") },
+                    { icon: "fa-user-o", text: _t("A lesson no checked step solves stays on the table, for a guard. The teachers involved are notified.") },
+                ],
+            },
             noticeOnly: _t("Only tell the families"),
             noticeOnlyStudents: _t("Only tell the students"),
             correctionsTitle: _t("Corrections to absences already organised"),
-            correctionsHelp: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."),
+            correctionsHelp: { intro: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."), points: [] },
             applyPlan: _t("Apply the checked steps"),
         };
     }
@@ -791,8 +803,37 @@ export class GuardDutyBoard extends Component {
     // was the confirmation. One that could not be sent stays a draft and opens, with the reason,
     // for the planner to review and send: the moves it frees the group from only count once it is.
     // `reopen`: the side of a group's day whose notice the plan corrects (issue #659).
+    // A teacher's timetable can't be changed without them (issue #709): when the checked steps
+    // change somebody's entry or exit time, the planner confirms first that they agreed. False when
+    // the planner cancels, so the dialog it came from stays open.
     async applyPlan(plan, selection, reopen = false) {
+        const steps = plan.steps.filter((_step, index) => selection[index]);
+        if (!(await this.confirmScheduleChanges(steps))) {
+            return false;
+        }
         await this.applySteps(selectedPlanSteps(plan, selection), reopen);
+        return true;
+    }
+
+    confirmScheduleChanges(steps) {
+        const changes = steps.flatMap((step) => step.schedule_changes);
+        if (!changes.length) {
+            return Promise.resolve(true);
+        }
+        const teachers = [...new Set(steps.flatMap((step) => step.schedule_teachers))];
+        return new Promise((resolve) => {
+            this.addDialog(ConfirmationDialog, {
+                title: _t("Working day changes"),
+                body: _t("This arrangement changes when some teachers come in or leave:\n\n%(changes)s\n\nA teacher's timetable cannot be changed without their agreement. Have you talked to %(teachers)s?", {
+                    changes: changes.map((change) => `- ${change}`).join("\n"),
+                    teachers: formatList(teachers),
+                }),
+                confirmLabel: _t("Yes, apply it"),
+                cancelLabel: _t("Not yet"),
+                confirm: () => resolve(true),
+                cancel: () => resolve(false),
+            });
+        });
     }
 
     async applySteps(steps, reopen = false) {

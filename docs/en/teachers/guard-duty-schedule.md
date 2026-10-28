@@ -212,9 +212,9 @@ The box has one section per group, headed with its name. Groups that share a les
 
 A group whose families must be told a correction is not in this box but in a red one above it: **Corrections to absences already organised** (see **When the absence changes afterwards**).
 
-![Proposals for the absences box: the section of two groups, with three numbered proposals, each a list of steps with its checkbox and, in orange, the entry and exit times they change, and last the option of only telling the families](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+![Proposals for the absences box: the section of two groups, with three numbered proposals, each a list of steps with its checkbox and, under each step, in grey what kind of move it is and in orange the entry and exit times it changes, and last the option of only telling the families](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
-Each proposal is a list of steps, one per line, always between teachers of those groups and within the same day:
+Each proposal is a list of steps, one per line, always between teachers of those groups and within the same day. A step reads as a short line, such as *"Ferran: 13:00 lesson → 10:00 (AIX1A and AIX1B)"*, and under it, in grey, what kind of move it is for the teacher: *swap with their guard, which moves to 13:00*, *swap with their non-teaching hour (…)*, *to a free hour*, *working day shifted* (they come in and leave later, or earlier) or *groups joined with AIX1B*. The kinds of step are:
 
 - **Moved lesson**: a teacher who is free at that time teaches then one of their lessons with the group from another time. The lesson they leave becomes a gap, which another step can fill in turn: one teacher brings a lesson forward, another fills the gap it leaves, and so on, until what is left free is at the start or the end of the day (or next to a break).
 - **Swap**: another teacher of the group teaches then, and the absent teacher, who is in at another time, teaches that teacher's lesson with the group.
@@ -228,6 +228,16 @@ A lesson given by two teachers together (co-teaching) moves with both of them: t
 Proposals come in this order: first those where the students lose fewer lessons; among those, the ones where they spend fewer hours in the centre without class (with a guard or in a longer break); then those that need fewer notices and fewer teachers moving lessons, that keep two hours of the same subject together, and that change fewer entry or exit times. Up to three proposals per group are shown.
 
 **Nobody's working day gets longer.** A proposal only includes a step if no teacher involved ends up with a longer day (counted from their first period to their last, lessons, guard duties and any other duty alike): whoever would come in earlier must leave earlier, and whoever would leave later must come in later. When a step changes somebody's entry or exit time, an orange line under it says exactly whose and how (*"… leaves at 20:20 instead of 21:20"*).
+
+A lesson taken to an hour when the teacher has a guard, a coordination or any other non-teaching duty swaps with it: the duty goes to the hour the lesson leaves, so the teacher comes in and leaves at the usual time and no orange line appears. Only a lesson taken to an hour when the teacher is not in the centre changes their entry or exit time. If the duty is a regular guard, the schedule moves it as well: at the guard's hour the teacher is struck out of the **Guard duty** column (they are with the group), and at the lesson's hour they appear in it with the tag **(guard moved from 10:00)**, so you can send them to cover a class like any other guard teacher. A meeting, a coordination or any other duty shows nowhere.
+
+![Guard duty column after applying a proposal: two teachers struck out at the hour of their guard, where they are with the groups, and on guard at the hour of the lesson they moved, tagged guard moved from 08:00 and from 10:00](../../assets/teachers/guard-duty-13-guardia-moguda.png)
+
+![Why a class needs no guard: the arrangement, worded as its proposal step, a lesson moved to a teacher's guard, which moves to the lesson's hour](../../assets/teachers/guard-duty-14-reorganitzacio-aplicada.png)
+
+**A teacher's timetable cannot be changed without them.** When the steps you apply change somebody's entry or exit time, the schedule asks first, listing the changes: *"Have you talked to …?"*. Click **Yes, apply it** once they have agreed; **Not yet** applies nothing and leaves the proposal as it was.
+
+![Working day changes dialog: the entry and exit times the arrangement changes and the question whether you have talked to the teacher, with the buttons Yes, apply it and Not yet](../../assets/teachers/guard-duty-12-canvi-jornada.png)
 
 **Applying a proposal.** Click **Apply the checked steps** on its right, or click the class and choose the proposal in the dialog, where the proposals that solve that class come first, above sending a guard. Every step starts checked: uncheck those you do not want. A step that needs another one is unchecked along with it (a move into the gap another one leaves, a notice that only makes sense because of a move), and checking a step checks what it needs.
 

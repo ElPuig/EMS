@@ -1034,6 +1034,15 @@ returns it with the groups' timetable-change states it was built from.
   others), when every group of that lesson has that gap;
   or a **swap** detected by `_get_arrangement_options()` (never a shared lesson). Nobody's working
   day may get longer (`schedule_shift()`, developer decision 2026-10-10), counting all their steps.
+  A lesson taken to one of the teacher's non-teaching hours (a regular guard, a coordination, any
+  timetable period with no subject and no group, `_duty_periods()`) swaps with it: the duty goes to
+  the hour the lesson leaves, so that hour stays in their day and their entry and exit do not change
+  (#709). Only a lesson taken to an hour off their timetable can change them.
+  On the board, a swapped **regular guard** moves too (`_moved_guards()`, which also gives the
+  co-teachers left on guard, #678): once the arrangement is in effect the teacher is struck out at
+  the guard's hour (`_arrangement_busy()`, they are with the group) and on guard at the lesson's
+  usual hour, tagged "guard moved from HH:MM", in the guard column, the PDF and
+  `_get_guard_candidates()`. Any other swapped duty shows nowhere.
 - **Evaluation** (`_evaluate()`): `_allowed_absence_changes()` on the simulated day gives, per
   side, the largest change still to come (`_change_start()` against `_board_day_hour()`); a side the
   families were already told about keeps its change and gets no new notice. The score, lower is
@@ -1060,7 +1069,17 @@ groups, ~0.3 s for both shifts of the whole board.
 `_arrangement_plan_records()` turns a plan into records, its steps ordered by time (never before a
 step they need), one notice step per change told to every group it applies to, and each teacher's
 entry/exit changes on their last step. `_arrangement_plan_data()` is its JSON: "Proposal N:", one
-sentence per step, `depends` (indexes) and the `payload` the server needs to apply it.
+sentence per step, `depends` (indexes) and the `payload` the server needs to apply it, plus
+`schedule_changes` (the entry/exit sentences) and `schedule_teachers` (whose). A move, join or swap
+reads as one short line, "Ferran: 13:00 lesson → 10:00 (AIX1A and AIX1B)" or "Sergi and Carla swap
+their 08:00 and 11:00 lessons (AIX1A)" (`_arrangement_step_label()`), with grey `details` lines under
+it saying what kind of move it is for each teacher (#709): `_arrangement_step_how()` sorts them into
+a swap with their regular guard or another non-teaching hour, a join, a shifted day (their entry and
+exit both change) or a free hour, and `_arrangement_step_details()` words them, naming the teachers
+only when a co-taught step mixes kinds. A teacher's timetable
+cannot be changed without them (#709): when the checked steps carry any entry/exit change, the
+board's `applyPlan()` asks first "Have you talked to …?" (Working day changes), and applies nothing
+if the planner answers "Not yet" (the dialog the plan came from stays open).
 
 #### Joining the two halves of a split group (#660)
 
@@ -1093,7 +1112,7 @@ its own notice when its own day changes; the half that only receives the other o
   `joined_group_ids` set and `space_id` the room of the teacher's lesson with the other half. Every
   move behaviour applies unchanged: waiting for the notice that frees its lesson, siblings, withdrawal,
   #659's corrections, the teachers' notifications. Only the wording differs (`_arrangement_label()`,
-  the plan step "Joined groups: ...").
+  the plan step's "groups joined with ..." line).
 - **Students' notice** of the half that moves (`_arrangement_moved_lessons()`): the lesson carries the
   room and the other half's name (`(..., room id, other half)`), told as "... together with X in
   room Y".
@@ -1134,8 +1153,9 @@ Then:
   the step).
 - The covers of one step are **one decision** (`_same_decision()`: same lesson, same gap, and the
   same group or, for a shared lesson, the same teacher): `_with_siblings()` withdraws them together,
-  `_decision_pack()` names all its teachers in the label ("B and C move their 11:00 lesson to
-  10:00."), and `_check_one_guard_per_class` lets them share the class. Withdrawing it also releases
+  `_decision_pack()` names all its teachers in the label ("B and C: 11:00 lesson → 10:00 (1A),
+  working day shifted.": the proposal step's own wording, #709, its kind read by `_cover_step_how()`
+  from the teachers' timetable and that day's other moves), and `_check_one_guard_per_class` lets them share the class. Withdrawing it also releases
   any guard the co-teachers left on guard were sent to meanwhile: they are back at their lesson.
 - The **notice** and **correction** steps (#659, see above) become **one notice per group** (#652, `_create_absence_change_notice()`
   with every change the kept steps bring to that group: a later entry, an earlier leave, a longer

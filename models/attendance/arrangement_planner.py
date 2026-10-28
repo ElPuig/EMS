@@ -6,16 +6,21 @@ from ..shared.schedule_report_mixin import HOUR_EPSILON
 from .absence_coverage import overlaps
 
 
-def schedule_shift(periods, removed, added):
+def schedule_shift(periods, removed, added, duties=()):
     """How a teacher's working day - from their first period to their last, lessons, guards and any
     other duty alike (`periods`) - changes if they stop teaching the `removed` periods and teach the
-    `added` ones instead: `[(kind, old, new)]`, `kind` being 'entry' or 'exit', empty when neither
-    moves. None when the day would get longer: coming in earlier is only possible leaving earlier
-    too, and leaving later coming in later (developer decision, 2026-10-10)."""
+    `added` ones instead (`removed[i]` goes to `added[i]`): `[(kind, old, new)]`, `kind` being
+    'entry' or 'exit', empty when neither moves. None when the day would get longer: coming in
+    earlier is only possible leaving earlier too, and leaving later coming in later (developer
+    decision, 2026-10-10).
+    A lesson taken to one of their `duties` (a guard, a coordination, any non-teaching hour of their
+    timetable) swaps with it: the duty goes to the hour the lesson leaves, so they are in then as
+    always and their day does not change (issue #709)."""
     if not periods:
         return None
     before = (min(start for start, _stop in periods), max(stop for _start, stop in periods))
     kept = [period for period in periods if not any(overlaps(*period, *gone) for gone in removed)] + list(added)
+    kept += [gone for gone, new in zip(removed, added) if any(overlaps(*new, *duty) for duty in duties)]
     after = (min(start for start, _stop in kept), max(stop for _start, stop in kept))
     if after[1] - after[0] > before[1] - before[0] + HOUR_EPSILON:
         return None
@@ -41,8 +46,9 @@ class ArrangementPlanner:
     - `breaks`: `{group id: [(hour_from, hour_to)]}`, its level's breaks that day.
     - `communicated`: `{group id: {side: change}}`, what the families were already told per side.
     - `teachers`: `{teacher id: {'lessons': [((hour_from, hour_to), frozenset(group ids), subject id)],
-      'periods': [(hour_from, hour_to)], 'vacated': [(hour_from, hour_to)]}}`: their own lessons with
-      these groups, every period of their day, and their lessons another arrangement already moved.
+      'periods': [(hour_from, hour_to)], 'duties': [(hour_from, hour_to)], 'vacated': [(hour_from, hour_to)]}}`:
+      their own lessons with these groups, every period of their day, those of them with no class
+      (see schedule_shift), and their lessons another arrangement already moved.
     - `sessions`: `[(lesson, frozenset(group ids), frozenset(teacher ids), frozenset(away ids))]`,
       the lessons of these groups with the teachers who give them together, and which of them are
       away then (issue #678): co-teachers are a pack, the lesson moves with all of them (see
@@ -182,7 +188,8 @@ class ArrangementPlanner:
             for teacher_id in absents:
                 removed[teacher_id].append(target)
                 added[teacher_id].append(lesson)
-        return {teacher_id: schedule_shift(self.teachers[teacher_id]['periods'], removed[teacher_id], added[teacher_id])
+        return {teacher_id: schedule_shift(self.teachers[teacher_id]['periods'], removed[teacher_id], added[teacher_id],
+                                           self.teachers[teacher_id].get('duties', ()))
                 for teacher_id in removed}
 
     # The steps possible from a state.

@@ -21675,31 +21675,31 @@ msgstr "Este día ya ha pasado."
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could start at %s"
-msgstr "Puede entrar a las %s"
+msgstr "Pueden entrar a las %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could leave at %s"
-msgstr "Puede salir a las %s"
+msgstr "Pueden salir a las %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could have no classes"
-msgstr "Puede no tener clases"
+msgstr "Pueden no tener clases"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Starts at %s"
-msgstr "Entra a las %s"
+msgstr "Entran a las %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Leaves at %s"
-msgstr "Sale a las %s"
+msgstr "Salen a las %s"
 
 #. module: ems
 #. odoo-python
@@ -21913,7 +21913,7 @@ msgstr "Propuestas de entrada, salida y patio"
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could have a break from %(start)s to %(end)s"
-msgstr "Puede hacer patio de %(start)s a %(end)s"
+msgstr "Pueden hacer patio de %(start)s a %(end)s"
 
 #. module: ems
 #. odoo-python
@@ -22784,20 +22784,6 @@ msgstr "Elige el docente que estará con el grupo."
 #: code:addons/ems/models/attendance/absence_coverage.py:0
 msgid "Choose the kind of arrangement."
 msgstr "Elige el tipo de reorganización."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "Swap: %(teacher)s teaches at %(time)s and %(absent)s at %(other_time)s."
-msgstr "Intercambio: %(teacher)s da clase a las %(time)s y %(absent)s a las %(other_time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "%(teacher)s moves their %(other_time)s lesson to %(time)s."
-msgstr "%(teacher)s pasa su clase de las %(other_time)s a las %(time)s."
 
 #. module: ems
 #. odoo-python
@@ -24210,18 +24196,6 @@ msgstr "Aviso a las familias de %(groups)s: %(change)s."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "Swap (%(groups)s): %(teacher)s teaches at %(target)s and %(absent)s at %(lesson)s."
-msgstr "Intercambio (%(groups)s): %(teacher)s da clase a las %(target)s y %(absent)s a las %(lesson)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "%(teacher)s moves their %(lesson)s lesson to %(target)s (%(groups)s)."
-msgstr "%(teacher)s pasa su clase de las %(lesson)s a las %(target)s (%(groups)s)."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Lesson moved to %s"
 msgstr "Clase pasada a las %s"
 
@@ -24249,12 +24223,6 @@ msgstr "Aplicar los pasos marcados"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Proposals for the absences"
 msgstr "Propuestas para las ausencias"
-
-#. module: ems
-#. odoo-javascript
-#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."
-msgstr "Para cada grupo, cómo organizar sus ausencias, la mejor primero: que los docentes reorganicen sus clases para que el alumnado pierda las menos clases posibles y no haga falta ninguna guardia, o solo avisar a las familias. Desmarca los pasos que no quieras: las clases que resolvían se quedan en la tabla. Enviar un aviso quita de la tabla sus clases; puedes elegir un cambio más corto y enviar una guardia al resto. Se avisa a los docentes implicados."
 
 #. module: ems
 #. odoo-javascript
@@ -24645,26 +24613,6 @@ msgid ""
 msgstr "%(subject)s: de %(usual)s a %(new)s, junto con %(joined)s en %(room)s"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid ""
-"%(teacher)s teaches the group together with %(joined)s at %(time)s, instead "
-"of at %(other_time)s."
-msgstr ""
-"%(teacher)s da clase al grupo junto con %(joined)s a las %(time)s, en lugar "
-"de a las %(other_time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid ""
-"Joined groups: %(teacher)s teaches %(groups)s together with %(joined)s at "
-"%(target)s, instead of at %(lesson)s."
-msgstr ""
-"Grupos unidos: %(teacher)s da clase a %(groups)s junto con %(joined)s a las "
-"%(target)s, en lugar de a las %(lesson)s."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__joined_group_ids
 msgid "Joined with"
 msgstr "Unido con"
@@ -24720,23 +24668,6 @@ msgstr "clase movida"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid ""
-"Swap (%(groups)s): %(teacher)s teach at %(target)s and %(absent)s at "
-"%(lesson)s."
-msgstr ""
-"Intercambio (%(groups)s): %(teacher)s dan clase a las %(target)s y "
-"%(absent)s a las %(lesson)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid "%(teacher)s move their %(lesson)s lesson to %(target)s (%(groups)s)."
-msgstr ""
-"%(teacher)s pasan su clase de las %(lesson)s a las %(target)s (%(groups)s)."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "away then"
 msgstr "ausente a esa hora"
 
@@ -24761,20 +24692,6 @@ msgid ""
 msgstr ""
 "%(teacher)s no puede moverse con la clase (%(reason)s): se queda de guardia "
 "a las %(time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid "Swap: %(teacher)s teach at %(time)s and %(absent)s at %(other_time)s."
-msgstr ""
-"Intercambio: %(teacher)s dan clase a las %(time)s y %(absent)s a las "
-"%(other_time)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid "%(teacher)s move their %(other_time)s lesson to %(time)s."
-msgstr "%(teacher)s pasan su clase de las %(other_time)s a las %(time)s."
 
 #. module: ems
 #. odoo-python
@@ -24858,26 +24775,6 @@ msgstr "Aviso al alumnado de %(groups)s: %(change)s."
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Only tell the students"
 msgstr "Solo avisar al alumnado"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/guard_duty_board.py:0
-msgid ""
-"Joined groups: %(teacher)s teach %(groups)s together with %(joined)s at "
-"%(target)s, instead of at %(lesson)s."
-msgstr ""
-"Grupos unidos: %(teacher)s dan clase a %(groups)s junto con %(joined)s a las"
-" %(target)s, en lugar de a las %(lesson)s."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/absence_coverage.py:0
-msgid ""
-"%(teacher)s teach the group together with %(joined)s at %(time)s, instead of"
-" at %(other_time)s."
-msgstr ""
-"%(teacher)s dan clase al grupo junto con %(joined)s a las %(time)s, en lugar"
-" de a las %(other_time)s."
 
 #. module: ems
 #. odoo-python
@@ -27196,3 +27093,126 @@ msgstr "%(person)s en %(leave_type)s"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__is_own
 msgid "Is own"
 msgstr "Es suya"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Working day changes"
+msgstr "Cambios de jornada"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "This arrangement changes when some teachers come in or leave:\n\n%(changes)s\n\nA teacher's timetable cannot be changed without their agreement. Have you talked to %(teachers)s?"
+msgstr "Esta reorganización cambia la hora de entrada o de salida de algunos docentes:\n\n%(changes)s\n\nEl horario de un docente no se puede cambiar sin su acuerdo. ¿Has hablado con %(teachers)s?"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Yes, apply it"
+msgstr "Sí, aplícalo"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Not yet"
+msgstr "Todavía no"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "guard moved from %s"
+msgstr "guardia movida desde las %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "%(teachers)s swap their %(target)s and %(lesson)s lessons (%(groups)s)"
+msgstr "%(teachers)s intercambian las clases de las %(target)s y las %(lesson)s (%(groups)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "%(teacher)s: %(lesson)s lesson → %(target)s (%(groups)s)"
+msgstr "%(teacher)s: clase de las %(lesson)s → %(target)s (%(groups)s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "swap with their guard, which moves to %s"
+msgstr "intercambio con su guardia, que pasa a las %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "swap with their non-teaching hour (%s)"
+msgstr "intercambio con su hora no lectiva (%s)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "to a free hour"
+msgstr "a una hora libre"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "working day shifted"
+msgstr "desplazamiento de jornada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "groups joined with %s"
+msgstr "grupos unidos con %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+#, python-format
+msgid "%(teacher)s: %(how)s"
+msgstr "%(teacher)s: %(how)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#, python-format
+msgid "%(step)s, %(how)s."
+msgstr "%(step)s, %(how)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+#, python-format
+msgid "%s."
+msgstr "%s."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "For each group, the best ways to organise its absences, the best first. Check what you want and click"
+msgstr "Para cada grupo, las mejores maneras de organizar sus ausencias, de mejor a peor. Elige lo que quieras y haz clic en"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "A teacher moves a lesson, or two teachers swap theirs. Under it, in grey, the details; in orange, whether somebody comes in or leaves at another time."
+msgstr "Un docente mueve una clase, o dos docentes intercambian las suyas. Debajo, en gris, los detalles; en naranja, si alguien entra o sale a otra hora."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table."
+msgstr "Un aviso a las familias, cuando el grupo puede entrar más tarde o salir antes: sus clases quedan tachadas en la tabla."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "A lesson no checked step solves stays on the table, for a guard. The teachers involved are notified."
+msgstr "Una clase que ningún paso marcado resuelve se queda en la tabla, para una guardia. Se avisa a los docentes implicados."

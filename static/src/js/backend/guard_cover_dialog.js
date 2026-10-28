@@ -168,7 +168,9 @@ export class GuardCoverDialog extends Component {
             if (this.state.mode === "guard") {
                 await this.props.onAssign(this.state.guardId, this.state.message);
             } else if (planIndex !== null) {
-                await this.props.onApplyPlan(this.props.row.arrangement_plans[planIndex], this.state.selections[planIndex]);
+                if (!(await this.props.onApplyPlan(this.props.row.arrangement_plans[planIndex], this.state.selections[planIndex]))) {
+                    return;  // cancelled: the planner may change the steps
+                }
             } else {
                 await this.props.onArrange(this.state.teacherId, this.state.note);
             }

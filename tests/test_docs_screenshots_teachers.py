@@ -700,6 +700,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
+        # The timetable changes the proposals end with, whatever this database has switched on.
+        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
+                                'ems_absence_change_long_break': True})
         level, study, group_a = create_level_study_group(self, 'DOCCHAIN', level={'name': 'Formació professional'}, study={
             'code': 'DOCCHAIN01', 'acronym': 'AIX', 'name': 'Administració (exemple)',
         }, group={'acronym': 'A', 'course': 1})
@@ -762,6 +765,30 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         self._capture(url, '.modal-content', 'guard-duty-07-aplicar-reorganitzacio.png', login='doc_shot_chief',
                       wait_for='.o_guard_board_arrangements .o_guard_board_plan_apply',
                       run=[open_class], wait_after=['.o_guard_cover_option'])
+        # Issue #709: applying a proposal that changes somebody's entry or exit time asks first.
+        apply_shifting_plan = """[...document.querySelectorAll('.o_guard_board_arrangements .o_guard_board_plan')]
+            .find((plan) => plan.querySelector('.o_guard_board_plan_shift:not(.text-warning)'))
+            .querySelector('.o_guard_board_plan_apply').click();"""
+        self._capture(url, '.modal-content', 'guard-duty-12-canvi-jornada.png', login='doc_shot_chief',
+                      wait_for='.o_guard_board_arrangements .o_guard_board_plan_apply',
+                      run=[apply_shifting_plan], wait_after=['.modal .modal-footer .btn-primary'])
+        # Issue #709: the best proposal's moves applied. Ferran took his 13:00 lesson to his 10:00
+        # guard: struck out at 10:00, with the groups, and on guard at 13:00 instead.
+        chief_user = chief.user_id
+        plan = self.env['ems.course']._get_arrangement_plans(day, group_a)[0]
+        steps = [step['payload'] for step in self.env['ems.course'].with_user(chief_user)._arrangement_plan_data(plan)['steps']
+                 if step['kind'] == 'move']
+        self.env['ems.absence_cover'].with_user(chief_user).board_apply_plan(str(day), steps)
+        self._capture(url, '.o_guard_board_duty_table', 'guard-duty-13-guardia-moguda.png', login='doc_shot_chief',
+                      wait_for='.o_guard_board_duty_table .o_guard_board_guard_wc_tag')
+        # ...and why the 10:00 class needs no guard, as a teacher sees it: the arrangement, worded as
+        # the proposal step was.
+        open_reason = """[...document.querySelectorAll('.o_guard_board_duty_table td.o_guard_board_absence_cell')]
+            .find((cell) => cell.querySelector('.o_guard_board_block_time').textContent.includes('10:00-11:00'))
+            .querySelector('.o_guard_board_absence_info').closest('[data-tooltip]').click();"""
+        self._capture(url, '.o_popover', 'guard-duty-14-reorganitzacio-aplicada.png', login='doc_shot_teacher',
+                      wait_for='.o_guard_board_duty_table .o_guard_board_guard_wc_tag',
+                      run=[open_reason], wait_after=['.o_guard_board_reason_popover'])
 
     def test_capture_guard_duty_change_proposal(self):
         """Issue #659, as the Department Chief: the families of a group were told it starts at

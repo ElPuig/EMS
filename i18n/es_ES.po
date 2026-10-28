@@ -27212,3 +27212,14 @@ msgstr "Una clase que ningún paso marcado resuelve se queda en la tabla, para u
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Todavía deja %s sin docente: una vez aplicada, elegiréis al docente de guardia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__roll_call_label
+msgid "Roll-call"
+msgstr "Pase de lista"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "Not required to attend"
+msgstr "No tiene que asistir"

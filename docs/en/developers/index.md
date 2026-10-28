@@ -44,6 +44,7 @@ Technical reference for developers working on the EMS module.
 | [Group schedule (read-only aggregation)](contacts/group_schedule.md) | The group form's "Schedule" tab: aggregating teachers' `resource.calendar.attendance` rows by `group_ids`, deriving the break period from the level's schedule framework, the "Subject → Teacher(s)" co-teaching summary, and the PDF export |
 | [Student schedule (read-only aggregation)](contacts/student_schedule.md) | The student form's own "Schedule" tab: the same read-only mechanism as the group's, reused via the shared `readonly_schedule_grid` widget, but scoped per `(subject_id, group_id)` enrollment pair instead of a whole group — and the overlap-aware column-split layout that scoping makes necessary |
 | [ems.contact.data.request](contacts/contact_data_request.md) | Contact data update requests: sending them from the backend (individually or by group, study or level), the portal page students and families answer on, family-contact recognition and linking, and the review/approval flow that applies the staged changes |
+| [Students coming of age](contacts/coming_of_age.md) | The daily check for students turning 18 and the hook every feature plugs into that day (Google Workspace OU move), versus the live `is_adult` checks that need nothing |
 
 ---
 

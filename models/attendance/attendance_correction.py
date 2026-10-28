@@ -245,20 +245,11 @@ class ems_attendance_correction(models.Model):
         return self.employee_id._find_attendance_approvers()
 
     def _check_is_approver(self):
-        """Whether the current user may decide on this request (issue #543): a Head or Deputy
-        Head of Studies of the employee's own branch - above them in the chain of command
-        (the Director is above everybody), or the manager of their area's attendance -, never
-        every holder of the role centre-wide. A Head of Studies still decides on their own
-        request, as before: nobody below the Director is above them. The administrator always
-        can: they sit above the whole hierarchy although they appear nowhere in it."""
+        """Whether the current user may decide on this request: see
+        hr.employee._ems_is_attendance_approver. A Head of Studies still decides on their own
+        request, as before: nobody below the Director is above them."""
         self.ensure_one()
-        user = self.env.user
-        if user.has_group("ems.group_academic_admin") or user.has_group("ems.group_director"):
-            return True
-        employee = self.employee_id.sudo()
-        if not user.has_group("ems.group_head_of_studies"):
-            return False
-        return user in employee.tutor_scope_user_ids or employee.attendance_manager_id == user
+        return self.employee_id._ems_is_attendance_approver(self.env.user)
 
     def _check_approver(self):
         # NOTE: no longer restricted to state == 'pending' — the approver can revise their own

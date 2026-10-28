@@ -169,11 +169,13 @@ De vegades l'EMS sap d'una absència teva que encara no has sol·licitat. Passa 
 - **No vas fitxar.** En acabar el dia, si no vas fitxar, o vas fitxar quan ja havia acabat la teva primera classe, l'EMS registra una *absència detectada* de la teva primera classe a l'última (o fins a l'hora en què vas fitxar). Només passa a les àrees on el centre ho ha activat.
 - **Algú l'ha avisada.** Vas avisar el teu cap de departament o el cap d'estudis que faltaries, i la va introduir perquè es poguessin cobrir les teves classes.
 
-En tots dos casos, a l'inici de la teva jornada següent reps un missatge amb el dia i les hores, i un enllaç per obrir-la. Mentre no la resolguis, t'ho recorda cada dia (si el centre no ho ha canviat), i uns dies després també s'avisa el teu cap d'estudis. Aquests missatges no t'arriben mai fora del teu horari.
+En tots dos casos, primer la revisa el teu cap d'estudis, i només te n'assabentes si et demana que la justifiquis. Sovint no és res (eres en una reunió o en una formació i vas fitxar més tard): llavors et corregeix el fitxatge o la descarta, i no en reps cap avís. També et pot preparar la sol·licitud d'absència: llavors se t'avisa, i l'obres ja emplenada, la revises, acceptes la declaració responsable i l'envies com sempre. Mentre no l'enviïs, no hi ha res sol·licitat.
+
+Si et demana que la justifiquis, a l'inici de la teva jornada següent reps un missatge amb el dia i les hores, i un enllaç per obrir-la. Mentre no la resolguis, t'ho recorda cada dia (si el centre no ho ha canviat), i uns dies després també s'avisa el teu cap d'estudis. Aquests missatges no t'arriben mai fora del teu horari.
 
 Què has de fer:
 
-- **Si vas faltar**, obre l'enllaç i fes servir **Sol·licita l'absència** (a dalt del formulari). S'obre una sol·licitud d'absència nova amb el dia i les hores ja posats: tria el tipus, completa el que falti i envia-la com sempre (consulta [Enviar la sol·licitud](#enviar-la-sollicitud)). Un cop enviada, l'absència detectada queda vinculada a la teva sol·licitud i s'acaben els recordatoris.
+- **Si vas faltar**, obre l'enllaç i fes servir **Sol·licita l'absència** (a dalt del formulari). S'obre una sol·licitud d'absència nova amb el dia i les hores ja posats (i el tipus, si te l'ha preparat el teu cap d'estudis): tria el tipus, completa el que falti i envia-la com sempre (consulta [Enviar la sol·licitud](#enviar-la-sollicitud)). Un cop enviada, l'absència detectada queda vinculada a la teva sol·licitud i s'acaben els recordatoris.
 - **Si eres al centre i et vas oblidar de fitxar**, demana al teu cap d'estudis que registri el teu fitxatge d'aquell dia. Tan bon punt el registra, l'absència detectada es descarta sola i s'acaben els recordatoris.
 
 ![Una absència detectada tal com la veu el docent, amb el botó Sol·licita l'absència](../../assets/teachers/teachers-detected-absence.png)

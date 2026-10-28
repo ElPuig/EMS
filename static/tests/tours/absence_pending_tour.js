@@ -75,6 +75,10 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             trigger: ".o_form_view:not(:has(.o_field_widget[name='note']))",
             content: "Without the note of whoever entered it",
         },
+        {
+            trigger: ".o_form_statusbar .o_field_widget[name='state']:not(:has([data-value='pending']))",
+            content: "Without the 'To review' step, a stage the teacher never sees (issue #707)",
+        },
         ...clickAction("action_request_absence", "Request the absence"),
         {
             trigger: ".o_form_view .o_field_widget[name='request_date_from'] input",
@@ -88,6 +92,78 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
         {
             trigger: ".o_form_view .o_field_widget[name='origin']",
             content: "The detected absence is shown again",
+        },
+    ],
+});
+
+// Issue #707: the Head of Studies reviews detected absences. One from its form's Actions
+// dropdown (Request justification), two at once from the list's action menu (Discard), and one
+// through the Create absence wizard, also from the list, which prepares it for the teacher. Fixtures: test_absence_pending_tour.py.
+function selectRow(name) {
+    return {
+        trigger: `.o_list_view .o_data_row:contains('${name}') .o_list_record_selector input`,
+        content: `Select ${name}`,
+        run: "click",
+    };
+}
+
+function listAction(label) {
+    return [
+        { trigger: ".o_cp_action_menus button:has(.fa-cog)", content: "Open the list's action menu", run: "click" },
+        { trigger: `.o-dropdown--menu .dropdown-item:contains('${label}')`, content: label, run: "click" },
+    ];
+}
+
+registry.category("web_tour.tours").add("ems_absence_pending_review", {
+    test: true,
+    url: "/odoo/action-ems.action_absence_pending",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Review Teacher A') td[name='date_from']",
+            content: "The detected absences to review are listed: open one",
+            run: "click",
+        },
+        ...clickAction("action_request_justification", "Request justification"),
+        {
+            trigger: ".o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='justification_requested']",
+            content: "The teacher has been asked to justify it",
+        },
+        {
+            trigger: ".o_breadcrumb .o_back_button a, .o_breadcrumb .breadcrumb-item a",
+            content: "Back to the list",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:contains('Review Teacher A') td[name='state'] .badge",
+            content: "Still listed: it is not resolved yet",
+        },
+        selectRow("Review Teacher B"),
+        selectRow("Review Teacher C"),
+        ...listAction("Discard"),
+        {
+            trigger: ".o_list_view:not(:has(.o_data_row:contains('Review Teacher B'))):not(:has(.o_data_row:contains('Review Teacher C')))",
+            content: "Both discarded and out of the list",
+        },
+        selectRow("Review Teacher D"),
+        ...listAction("Create absence"),
+        {
+            trigger: ".modal .o_field_widget[name='holiday_status_id'] input",
+            content: "Pick the absence type",
+            run: "edit Justified",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item:contains('Justified')",
+            content: "Justified absence",
+            run: "click",
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Create the absence",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_list_view .o_data_row:contains('Review Teacher D') td[name='state']:contains('Absence prepared')",
+            content: "Prepared for the teacher to send: still listed, not resolved yet",
         },
     ],
 });

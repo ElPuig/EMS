@@ -202,3 +202,17 @@ class TestTaskDigest(TransactionCase):
         self._assign(self.teacher_user)
         self._run_cron(9.25)
         self.assertIn('tasques pendents (1)', self._digests(self.teacher_user).subject)
+
+    def test_lists_detected_absences_to_review(self):
+        """Issue #707: the Head of Studies' review task needs no report of its own."""
+        reviewer = create_role_user(self, 'head_of_studies', 'digest_hos', email='digest.hos@example.com')
+        self.teacher.parent_id = create_role_employee(self, reviewer)
+        absence = self.env['ems.absence_pending'].create({
+            'employee_id': self.teacher.id, 'date_from': self._utc(9.0), 'date_to': self._utc(11.0)})
+        self.assertEqual(absence.activity_ids.user_id, reviewer)
+        with patch.object(fields.Datetime, 'now', return_value=self._utc(12.0)):
+            reviewer.sudo()._ems_send_task_digest(DIGEST_DAY)
+
+        body = self._digests(reviewer).body_html
+        self.assertIn(self.env.ref('ems.mail_activity_absence_pending_review').name, body)
+        self.assertIn(f'model=ems.absence_pending&amp;res_id={absence.id}', body)

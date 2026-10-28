@@ -161,7 +161,7 @@ La vía normal siempre es que el docente solicite la ausencia él mismo. Usa est
 4. Si quieres, añade **Notas** para ti. El docente puede abrir la entrada, pero nunca ve las notas.
 5. Guarda.
 
-La ausencia sale entonces en el cuadro como pendiente de aprobar (rojo claro en cursiva), y puedes organizarla como se explica a continuación. Cuando el docente solicita la ausencia él mismo, la ausencia detectada se vincula sola y lo que hayas organizado se mantiene tal cual. Si al final el docente no falta, borra la entrada.
+La ausencia sale entonces en el cuadro como pendiente de aprobar (rojo claro en cursiva), y puedes organizarla como se explica a continuación. Después la revisa el jefe de estudios del docente (ver [Ausencias detectadas](../head_of_studies/absences.md#ausencias-detectadas)): solo se pide al docente que la solicite si el jefe de estudios lo decide. Cuando el docente solicita la ausencia, la ausencia detectada se vincula sola y lo que hayas organizado se mantiene tal cual. Si al final el docente no falta, el jefe de estudios la descarta al revisarla; solo los administradores pueden borrarla del todo.
 
 ---
 

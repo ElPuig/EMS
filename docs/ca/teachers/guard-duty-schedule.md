@@ -161,7 +161,7 @@ La via normal sempre és que el docent sol·liciti l'absència ell mateix. Fes s
 4. Si vols, afegeix-hi **Notes** per a tu. El docent pot obrir l'entrada, però no veu mai les notes.
 5. Desa.
 
-L'absència surt llavors al quadre com a pendent d'aprovar (vermell clar en cursiva), i la pots organitzar tal com s'explica a continuació. Quan el docent sol·licita l'absència ell mateix, l'absència detectada s'hi vincula sola i el que hagis organitzat es manté tal com estava. Si finalment el docent no falta, esborra l'entrada.
+L'absència surt llavors al quadre com a pendent d'aprovar (vermell clar en cursiva), i la pots organitzar tal com s'explica a continuació. Després la revisa el cap d'estudis del docent (vegeu [Absències detectades](../head_of_studies/absences.md#absències-detectades)): només es demana al docent que la sol·liciti si el cap d'estudis ho decideix. Quan el docent sol·licita l'absència, l'absència detectada s'hi vincula sola i el que hagis organitzat es manté tal com estava. Si finalment el docent no falta, el cap d'estudis la descarta en revisar-la; només els administradors la poden esborrar del tot.
 
 ---
 

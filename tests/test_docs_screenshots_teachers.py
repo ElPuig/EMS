@@ -65,7 +65,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_detected_absence(self):
         """The teacher's own detected absence, from a missing check-in, as the reminder's link
-        opens it: with Request the absence (issue #696)."""
+        opens it once a justification was requested: with Request the absence (issues #696, #707)."""
         mock_outgoing_email(self)
         Pending = self.env['ems.absence_pending']
         day = datetime(2027, 4, 12).date()
@@ -74,6 +74,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'employee_id': self.teacher_employee.id, 'origin': 'check_in',
             'date_from': Pending._utc_bounds(day, 0.0, 8.0)[1], 'date_to': Pending._utc_bounds(day, 0.0, 14.5)[1],
         })
+        # Issue #707: the teacher only sees it once their Head of Studies asked for a justification.
+        absence.write({'state': 'justification_requested', 'justification_date': day})
         absence._ems_notify(self.teacher_user.partner_id,
                             absence.with_context(lang=self.teacher_user.lang)._ems_reminder_message())
         self._capture(

@@ -435,31 +435,36 @@
          (ems.group.managing_department_ids: its study's or, for a reinforcement group, its main
          groups' studies'), since its chiefs organise that class's absences, or a teacher who names one
          of those departments as also managing them (hr.employee.managing_department_ids).
-         Mirrored by ems.absence_pending._domain_employee_id() for the teacher picker. -->
+         Mirrored by ems.absence_pending._domain_employee_id() for the teacher picker.
+         Issue #707: never the user's own entry still waiting for review, which the teacher must
+         not see until their Head of Studies asks them to justify it. -->
     <record id="rule_absence_pending_hierarchy" model="ir.rule">
         <field name="name">Detected absence: teachers in the user's own hierarchy</field>
         <field name="model_id" ref="ems.model_ems_absence_pending"/>
         <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
-        <field name="domain_force">['|', '|', '|', '|', ('employee_id.managing_department_ids', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.parent_group_ids.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.employee_type', '=', 'teacher')]</field>
+        <field name="domain_force">['|', '|', '|', '|', ('employee_id.managing_department_ids', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.parent_group_ids.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.employee_type', '=', 'teacher'), '|', ('employee_id.user_id', '!=', user.id), ('state', '!=', 'pending')]</field>
     </record>
 
-    <!-- A technical administrator (e.g. 'admin') usually has no place in the org chart, so the
+    <!-- A technical or academic administrator usually has no place in the org chart, so the
          hierarchy rule above would leave them no teacher at all. Rules of different groups are
-         OR-ed, so this widens it to every teacher for them only. -->
+         OR-ed, so this widens it to every teacher for them only. The academic administrators
+         since issue #707: they review the detected absences of a teacher with no Head of
+         Studies above them, and are always on top of the permission pyramid. -->
     <record id="rule_absence_pending_system" model="ir.rule">
-        <field name="name">Detected absence: every teacher, for technical administrators</field>
+        <field name="name">Detected absence: every teacher, for administrators</field>
         <field name="model_id" ref="ems.model_ems_absence_pending"/>
-        <field name="groups" eval="[(4, ref('base.group_system'))]"/>
+        <field name="groups" eval="[(4, ref('base.group_system')), (4, ref('ems.group_academic_admin'))]"/>
         <field name="domain_force">[('employee_id.employee_type', '=', 'teacher')]</field>
     </record>
 
     <!-- Issue #696: a teacher reads their own detected absences, so the reminder's link opens and
          they can request the absence from it. Read only (their ACL), and never the note left by
-         whoever entered it (the field's own groups). -->
+         whoever entered it (the field's own groups). Issue #707: not while it waits for review;
+         the teacher only learns of it when asked to justify it. -->
     <record id="rule_absence_pending_own" model="ir.rule">
         <field name="name">Detected absence: the teacher's own</field>
         <field name="model_id" ref="ems.model_ems_absence_pending"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
-        <field name="domain_force">[('employee_id.user_id', '=', user.id)]</field>
+        <field name="domain_force">[('employee_id.user_id', '=', user.id), ('state', '!=', 'pending')]</field>
     </record>
 </odoo>

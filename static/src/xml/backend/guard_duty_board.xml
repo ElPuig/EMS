@@ -145,14 +145,10 @@
                    t-att-checked="isNoticeChecked(section, action_index)"
                    t-on-change="(ev) => this.toggleNotice(section, action_index, ev.target.checked)"/>
             <i t-att-class="actionIcon(action)"/>
-            <span class="o_guard_board_action_label" t-esc="action.label"/>
-            <!-- A single option is already in the sentence: nothing to choose. -->
-            <select t-if="action.options.length > 1" class="form-select form-select-sm o_guard_board_action_option"
-                    t-on-change="(ev) => this.onActionOptionChange(action, ev)">
-                <t t-foreach="action.options" t-as="option" t-key="option_index">
-                    <option t-att-value="option_index" t-att-selected="option_index === action.default" t-esc="option.label"/>
-                </t>
-            </select>
+            <!-- How much of it to tell is chosen inside the sentence, where the hour (or the
+                 change) goes; a single option is already in the sentence: nothing to choose. -->
+            <span t-if="action.label_parts" class="o_guard_board_action_label"><t t-esc="action.label_parts[0]"/><select class="form-select form-select-sm o_guard_board_action_option" t-on-change="(ev) => this.onActionOptionChange(action, ev)"><t t-foreach="action.options" t-as="option" t-key="option_index"><option t-att-value="option_index" t-att-selected="option_index === action.default" t-esc="option.inline"/></t></select><t t-esc="action.label_parts[1]"/></span>
+            <span t-else="" class="o_guard_board_action_label" t-esc="action.label"/>
             <button t-if="action.draft_id" type="button" class="btn btn-sm btn-outline-primary o_guard_board_action_button o_guard_board_open_draft"
                     t-on-click="() => this.openNotice(action.draft_id)" t-esc="actionLabels.openDraft"/>
         </div>

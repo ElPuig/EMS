@@ -2972,3 +2972,27 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn(moves, [self._plan_summary(plan)[:1] for plan in self._plans()])
         plans = self.env['ems.course'].with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_a)
         self.assertFalse([plan for plan in plans if any(self.teacher_c in step.get('teacher', ()) for step in plan['steps'])])
+
+    def _entry_action_data(self, action_type):
+        action = next(action for action in self._actions() if action['type'] == action_type and action['group'] == self.group_a)
+        return self.env['ems.course']._board_action_data(action)
+
+    def test_how_much_of_a_change_to_tell_is_chosen_inside_its_sentence(self):
+        """The selector goes where the hour is when every option comes in later (or every one
+        leaves earlier), and where the whole change is when they differ in kind."""
+        self._morning()
+        leave = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10, approve=False)
+
+        data = self._entry_action_data('proposal')
+        self.assertEqual(data['label_parts'], [f"{self.group_a.name}: Could start at ", "."])
+        self.assertEqual([option['inline'] for option in data['options']], ['09:00', '10:00'])
+        self.assertEqual(data['label'], f"{self.group_a.name}: Could start at 10:00.")
+
+        self._communicate('late_entry', 10.0)
+        leave.action_refuse()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        data = self._entry_action_data('rectification')
+        self.assertTrue(data['label_parts'][0].endswith("(now: "))
+        self.assertEqual(data['label_parts'][1], ").")
+        self.assertEqual([option['inline'] for option in data['options']], ['Starts at 09:00', 'Usual timetable'])

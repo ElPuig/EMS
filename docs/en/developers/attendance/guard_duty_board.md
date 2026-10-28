@@ -1308,7 +1308,10 @@ teacher they are noise, and the struck-out rows already say what was decided):
   section: first what is waiting (`pending_arrangement`, an arrangement waiting for its notice),
   then the arrangement plans (`arrangement_plan`, "Proposal 1:", "Proposal 2:"...) and last,
   numbered after them, **Only tell the families**: the `proposal` of each group and side as a
-  checked step with a selector of its options (`ems.GuardBoardNoticeStep`), applied together with
+  checked step with a selector of its options inside its sentence (`ems.GuardBoardNoticeStep`:
+  `_board_action_data()` sends the sentence split around it, `label_parts`, and each option's
+  `inline` text - only the hour when every option is a late entry, or every one an early leave,
+  else the whole change), applied together with
   **Apply the checked steps** by `board_apply_plan()`, one notice per group (sending it strikes
   those lessons off, so no guard has to cover them; a shorter change leaves the rest to a guard).
 - **Corrections to absences already organised** (`o_guard_board_corrections`, red, above the

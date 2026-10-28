@@ -46,6 +46,10 @@ SHORTER_DAY_CHANGES = frozenset({'late_entry', 'no_classes', 'early_leave'})
 # static/src/css/backend/guard_duty_board.css and the gdb-cover-N ones in the PDF.
 COVER_COLOR_COUNT = 8
 
+# Where a timetable change's selector goes inside the sentence of a proposal or a correction (see
+# _board_action_data): a character no translation contains, to split the sentence there.
+INLINE_CHOICE = '\x00'
+
 
 def _period_contains(container, period):
     """True when 'period' (hour_from, hour_to) is fully covered by 'container' - same
@@ -2463,13 +2467,14 @@ class EmsCourseGuardDutyBoard(models.Model):
                 labels.append(_("%(teacher)s leaves at %(new)s instead of %(old)s.", **values))
         return labels
 
-    def _absence_change_label(self, change, proposed=False):
+    def _absence_change_label(self, change, proposed=False, hour=None):
         """Short wording of a timetable change, for a row tag or an action: what the families
-        were told, or (`proposed`) what the absences would allow them to be told."""
+        were told, or (`proposed`) what the absences would allow them to be told. `hour` replaces
+        its formatted hour (see _board_action_data's selector inside the sentence)."""
         if not change:
             return False
         change_type = change[0]
-        hour = self._format_report_time(change[1])
+        hour = self._format_report_time(change[1]) if hour is None else hour
         if change_type == 'long_break':
             span = {'start': hour, 'end': self._format_report_time(change[2])}
             return (_("Could have a break from %(start)s to %(end)s", **span) if proposed
@@ -2522,22 +2527,37 @@ class EmsCourseGuardDutyBoard(models.Model):
             return data
         # Only the students hear about a break (issue #679).
         students_only = BoardBreakSide.is_break(action['side'])
-        if action['type'] == 'proposal':
-            values['change'] = self._absence_change_label(action['expected'], proposed=True)
-            label = _("%(group)s: %(change)s.", **values)
-        else:
-            # Nothing allowed any more: the usual timetable, always the last option then.
-            values['change'] = self._absence_change_label(action['expected'] or action['options'][-1])
+        proposed = action['type'] == 'proposal'
+        if not proposed:
             values['told'] = self._absence_change_label(action['communicated'])
+
+        def sentence(change):
+            if proposed:
+                return _("%(group)s: %(change)s.", **values, change=change)
             if students_only:
-                label = _("%(group)s: the students were told \"%(told)s\", which no longer matches the absences "
-                          "(now: %(change)s).", **values)
-            else:
-                label = _("%(group)s: the families were told \"%(told)s\", which no longer matches the absences "
-                          "(now: %(change)s).", **values)
+                return _("%(group)s: the students were told \"%(told)s\", which no longer matches the absences "
+                         "(now: %(change)s).", **values, change=change)
+            return _("%(group)s: the families were told \"%(told)s\", which no longer matches the absences "
+                     "(now: %(change)s).", **values, change=change)
+
+        # Nothing allowed any more: the usual timetable, always the last option then.
+        label = sentence(self._absence_change_label(action['expected'] or action['options'][-1], proposed=proposed))
         # Every change that can be communicated, from the smallest to the largest: the planner may
-        # tell the families about part of the empty lessons and send a guard to the rest.
+        # tell the families about part of the empty lessons and send a guard to the rest. Chosen
+        # inside the sentence: only the hour when they all come in later (or all leave earlier),
+        # else the whole change.
         options = [self._change_option_data(change) for change in action['options']]
+        if len(options) > 1:
+            kinds = {change[0] for change in action['options']}
+            if len(kinds) == 1 and kinds <= {'late_entry', 'early_leave'}:
+                change = self._absence_change_label(action['options'][0], proposed=proposed, hour=INLINE_CHOICE)
+                for option, choice in zip(options, action['options']):
+                    option['inline'] = self._format_report_time(choice[1])
+            else:
+                change = INLINE_CHOICE
+                for option, choice in zip(options, action['options']):
+                    option['inline'] = self._absence_change_label(choice, proposed=proposed)
+            data['label_parts'] = sentence(change).split(INLINE_CHOICE, 1)
         draft = action['draft']
         data.update(label=label, options=options, default=action['options'].index(action['target']), students_only=students_only,
                     draft_id=draft.id or False, draft_label=self._absence_change_label(action['draft_change']))

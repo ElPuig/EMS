@@ -277,6 +277,21 @@ class TestEmployeePhotoVisibility(TransactionCase):
         for field in ('image_1920', 'image_128'):
             self.assertEqual(self._attachment_mimetype('hr.employee', field, employee.id), 'image/svg+xml')
 
+    def test_creating_employee_with_user_by_head_of_studies_keeps_placeholder_renderable(self):
+        # Issue #714, create() path: the user is linked in the same create, as the acting user.
+        head_of_studies = create_role_user(self, 'head_of_studies', 'test_714_hos_create')
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Created Linked (Photo Visibility)',
+            'login': 'test_photo_created_linked',
+        })
+        employee = self.env['hr.employee'].with_user(head_of_studies).sudo().create({
+            'name': 'Created Linked (Photo Visibility)',
+            'employee_type': 'teacher',
+            'user_id': user.id,
+        })
+        self.env.flush_all()
+        self.assertEqual(self._attachment_mimetype('hr.employee', 'image_1920', employee.id), 'image/svg+xml')
+
     def test_migration_repairs_text_plain_placeholders(self):
         # Issue #714's data fix: placeholders already stored as text/plain become images again.
         self.teacher_a_user.image_disabled = True

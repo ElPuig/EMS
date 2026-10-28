@@ -987,13 +987,14 @@ class ems_employee(models.AbstractModel):
         Studies creating a teacher's account), which shows as "Binary file". Rewriting it
         here as the superuser stores it as an image on both the employee and the user.
 
-        Two, otherwise unrelated, code paths bake a real SVG into the normally-empty
+        Three, otherwise unrelated, code paths bake a real SVG into the normally-empty
         `image_1920` instead of leaving it to the live `avatar.mixin` compute the rest
         of the app relies on: native Odoo's own `hr.employee.create()` (every new
         employee with no photo, teacher/ASP or not - includes every pending-
         identification teacher, always created with a placeholder name that is renamed
-        later during Google account creation) and this module's own "Disable profile
-        picture" (`res.users.image_disabled`, see `user.py`). Both always use
+        later during Google account creation), native `res.users.create()` (copied onto
+        the employee on linking, see above) and this module's own "Disable profile
+        picture" (`res.users.image_disabled`, see `user.py`). All of them use
         `_avatar_generate_svg()`, which always produces SVG - and `fields.Image`'s
         upload pipeline (PIL-based) cannot store a genuinely uploaded SVG photo, so
         sniffing the content this way never risks overwriting a real photo.

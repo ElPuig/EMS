@@ -127,3 +127,10 @@ class TestStudentCard(TransactionCase):
             'ems.report_student_card', self.own_a.ids)[0].decode()
         self.assertIn('lang="ca-ES"', html)
         self.assertIn('Aquest carnet és personal i intransferible', html)
+
+    def test_student_without_main_group(self):
+        # No level to show: the card still prints, with a grey band.
+        self.own_a.main_group_id = False
+        html = self._render(self.own_a)
+        self.assertIn('TSC Alpha Student', html)
+        self.assertIn('background: #546E7A', html)

@@ -8,3 +8,10 @@
 - A back side for double-sided printing (each sheet of fronts followed by its sheet of backs, mirrored so every back lands behind its front): the Departament d'Educació i Formació Professional's logo, the centre's details and a "personal and non-transferable" note.
 - The centre's stamp is uploaded once in Settings (EMS > Center Data > "Student card stamp") and printed on every card; without it the card leaves an empty box to stamp by hand.
 - Printing follows the student's other actions: Academic admin, Secretary and Head of Studies print any student's card, a tutor (and the chiefs above them) only their own students'.
+- User manuals in Catalan, Spanish and English: printing the cards (secretary, shared with tutors) and setting up the stamp and level colours (admin), with screenshots.
+
+# Internal changes
+
+## Student card screenshots and a simulated stamp:
+
+- New -standard screenshot test for the student card manuals, and a drawn "MOSTRA" rubber stamp (draw_invented_centre_stamp) in the shared test helpers, so tests, previews and manuals never use a real stamp.

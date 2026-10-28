@@ -125,10 +125,7 @@
                         </td>
                         <td>
                             <div class="o_ems_card_centre" t-out="company.name"/>
-                            <div class="o_ems_card_address">
-                                <t t-out="company.street"/><t t-if="company.street and company.city">, </t><t t-out="company.city"/>
-                                <t t-if="company.phone"> · <t t-out="company.phone"/></t>
-                            </div>
+                            <t t-call="ems.report_student_card_address"/>
                         </td>
                         <td class="o_ems_card_year">
                             <div class="o_ems_card_label">Academic year</div>
@@ -136,7 +133,7 @@
                         </td>
                     </tr>
                 </table>
-                <table class="o_ems_card_band o_ignore_layout_styling" t-attf-style="width: 100%; background: {{ card['level'].card_color or '#546E7A' }};">
+                <table class="o_ems_card_band o_ignore_layout_styling" t-attf-style="width: 100%; background: {{ card['color'] }};">
                     <tr>
                         <td class="o_ems_card_level" t-out="card['level'].acronym"/>
                         <td class="o_ems_card_study" t-out="card['study']"/>
@@ -156,7 +153,7 @@
                                 <div t-if="student.student_id"><span class="o_ems_card_label">IDALU:</span> <t t-out="student.student_id"/></div>
                             </div>
                             <div t-if="student.student_id" class="o_ems_card_barcode">
-                                <span t-out="student.student_id" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 600, 'height': 100, 'quiet': 0}"/>
+                                <span t-out="student.student_id" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 400, 'height': 80, 'quiet': 0}"/>
                             </div>
                         </td>
                         <td class="o_ems_card_stamp">
@@ -168,16 +165,21 @@
             </div>
         </template>
 
+        <!-- The centre's address and phone, on both sides of the card. -->
+        <template id="report_student_card_address">
+            <div class="o_ems_card_address">
+                <t t-out="company.street"/><t t-if="company.street and company.city">, </t><t t-out="company.city"/>
+                <t t-if="company.phone"> · <t t-out="company.phone"/></t>
+            </div>
+        </template>
+
         <!-- The back, alike on every card: the Departament's logo (as on the card Esfera printed),
              the centre and how to give a lost card back. -->
         <template id="report_student_card_back">
             <div class="o_ems_card o_ems_card_back">
                 <img class="o_ems_card_back_logo" src="/ems/static/src/img/departament_educacio.png" alt="Departament d'Educació i Formació Professional"/>
                 <div class="o_ems_card_centre" t-out="company.name"/>
-                <div class="o_ems_card_address">
-                    <t t-out="company.street"/><t t-if="company.street and company.city">, </t><t t-out="company.city"/>
-                    <t t-if="company.phone"> · <t t-out="company.phone"/></t>
-                </div>
+                <t t-call="ems.report_student_card_address"/>
                 <div class="o_ems_card_back_note">This card is personal and non-transferable. If you find it, please return it to the centre.</div>
             </div>
         </template>

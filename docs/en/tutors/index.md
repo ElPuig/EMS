@@ -24,6 +24,7 @@ This section contains the manuals for **group tutors**.
 | [Strikes: Consulting Your Group's Records](strike.md) | Consult the strikes issued to your tutees and the ones you issued yourself |
 | [Managing Your Students' Family Contacts](family-contacts.md) | Add and remove the family members (father, mother, legal guardian…) of the students you tutor |
 | [Your Students' Google Credentials](google-credentials.md) | Download the PDF with the Google account username and password of the students you tutor, one by one or for several students at once in a ZIP, create the account if they have none yet, and reset their password |
+| [Printing student cards](../secretary/student-card.md) | Print the cards of your group or of the students you tutor as a PDF, and how to print them double-sided (manual shared with the secretary) |
 | [Justifying Your Students' Absences](attendance-justifications.md) | Record a justification (for example, a medical certificate) so a tutee's absences become justified absences, and attach the document |
 | [Attendance Reports](attendance-reports.md) | Print the 3 PDF attendance reports (by group/student/subject) and explore attendance data yourself with the Attendance analysis pivot/graph screen |
 | [Your Students' Attendance Issues Report](attendance-issues-report.md) | The email with your students' absences and delays, and choosing when you receive it |

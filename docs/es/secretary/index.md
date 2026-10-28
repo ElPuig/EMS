@@ -18,6 +18,7 @@ Esta sección contiene los manuales para el **personal de secretaría**.
 - [El horario semanal de un alumno](../admin/student-schedule.md) — Consultar el horario propio de un alumno (asignaturas, docentes, aulas, patios), incluyendo clases solapadas, y exportarlo a PDF.
 - [Informes de asistencia](attendance-reports.md) — Imprimir los 3 informes PDF de asistencia (por grupo/alumno/asignatura) y explorar los datos con la pantalla de Análisis de asistencia.
 - [Gestión de contactos de alumnado y familia](student-contacts.md) — Tipos de contacto y cómo cambian, añadir un contacto familiar a un alumno, y registrar bonificaciones y exenciones.
+- [Imprimir los carnés de estudiante](student-card.md) — Imprimir en PDF los carnés de un grupo, de unos cuantos alumnos o de uno solo, qué sale en ellos y cómo imprimirlos a doble cara.
 - [Autorizaciones: crearlas, enviarlas y hacer el seguimiento](authorizations.md) — Crear formularios de autorización, enviarlos al alumnado durante el curso y hacer el seguimiento de las respuestas.
 - [Convalidaciones: registrar las resoluciones](convalidations.md) — Registrar en Esfera las convalidaciones ya resueltas y cerrarlas para que el alumno reciba la resolución y vea la nota.
 - [Solicitudes de datos de contacto: pedir a las familias que actualicen los datos](../tutors/contact-data-requests.md) — Pedir al alumnado y a las familias que revisen los datos de contacto desde el portal, hacer el seguimiento de las respuestas y aprobar los cambios (manual compartido con los tutores).

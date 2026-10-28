@@ -21,6 +21,7 @@ Esta sección contiene los manuales para **administradores**.
 - [Roles de profesorado y niveles de permisos](teacher-roles.md) — Cómo asignar roles (Tutor, Jefe de departamento, Jefe de estudios, Director...) para conceder niveles de permisos.
 - [Alta de un profesor y creación de la cuenta de correo corporativo (Google Workspace)](alta-professor-compte-google.md) — Cómo dar de alta a un profesor o miembro del PAS y cómo se genera su cuenta corporativa.
 - [Gestionar la cuenta de Google de un alumno](student-google-account.md) — Crear, suspender o restablecer la contraseña de la cuenta de Google de un alumno y descargar sus credenciales (administración y coordinación TAC).
+- [Configurar el carné de estudiante](student-card-settings.md) — Subir el sello del centro y cambiar el color de cada nivel en el carné.
 - [Strikes: gestionar motivos y umbral de escalado](strike.md) — Configurar la lista de motivos de strike y el umbral de escalado de convivencia.
 - [Estados de asistencia: gestionar las opciones del pasar lista](attendance-status.md) — Añadir, reordenar o retirar los estados que los profesores pueden elegir en la vista de pasar lista.
 - [Horarios de los docentes y marcos horarios](working-schedules.md) — Configurar las plantillas de horario, el marco predeterminado, y editar/importar el horario semanal de un docente.

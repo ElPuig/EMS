@@ -3,6 +3,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
+from ..curriculum.level import DEFAULT_CARD_COLOR
+
 
 class ResPartner(models.Model):
     """The student card PDF (issue #524). See docs/en/developers/contacts/student_card.md."""
@@ -40,6 +42,8 @@ class ResPartner(models.Model):
         return {
             'document': self.document_id or self.passport_id,
             'level': level,
+            # A student without a main group still gets a band, in the colour of a level without one.
+            'color': level.card_color or DEFAULT_CARD_COLOR,
             'study': ' '.join(filter(None, (group.study_id.name, str(group.course or '')))),
         }
 

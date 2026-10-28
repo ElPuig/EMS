@@ -71,4 +71,16 @@ group the user isn't the tutor of, never prints a card the user could not print 
   sits on the right, behind its front; left and right margins are equal so the columns line up.
   Cards are `box-sizing: border-box` so five 54 mm rows fit an A4 sheet.
 - The barcode uses Odoo's own `barcode` QWeb widget (an inline PNG), Code128, from the IDALU. No
-  barcode is printed for a student without IDALU.
+  barcode is printed for a student without IDALU. It is rastered at 400 x 80 px for a 36 x 8 mm print
+  (about 280 dpi): drawing it is most of the render time, and 600 x 100 cost a third more for nothing
+  a reader can tell apart.
+- The centre's address is one sub-template (`ems.report_student_card_address`), shared by both sides.
+- Measured on this box's largest group (34 students, cold): access check 0.08 s, action 0.04 s, HTML
+  1.0 s, PDF 3.0 s (146 KB), 90 queries for the whole render.
+
+## Manual screenshots
+
+`tests/test_docs_screenshots_student_card.py` (tagged `-standard`) captures the manuals' screens with
+invented students and the simulated stamp (`tests/common.py`'s `draw_invented_centre_stamp()`); the
+card example in `docs/assets/secretary/student-card-example.png` is cropped from a PDF rendered with
+the same kind of fixtures.

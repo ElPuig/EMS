@@ -27243,6 +27243,18 @@ msgid "Cancel submission"
 msgstr "Cancel·lar enviament"
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "organised by another area"
+msgstr "és d'una altra àrea"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%s belongs to another area: only whoever organises that area can change their timetable or ask them to cover a class."
+msgstr "%s és d'una altra àrea: només qui organitza aquella àrea li pot canviar l'horari o encarregar-li cobrir una classe."
+
+#. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_level_ids
 #: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_level_ids
 #: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form

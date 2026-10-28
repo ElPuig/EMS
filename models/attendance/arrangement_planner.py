@@ -242,7 +242,8 @@ class ArrangementPlanner:
         vacated = {(teacher_id, step[2]) for step in steps for teacher_id in step[1] | step[6]}
 
         def busy(teacher_id, period):
-            return teacher_id in self.fixed or any(other == teacher_id and overlaps(*other_period, *period) for other, other_period in taken)
+            return teacher_id in self.fixed or any(
+                other == teacher_id and overlaps(*other_period, *period) for other, other_period in taken)
 
         for step in self.swaps:
             _kind, teachers, lesson, target, group_ids, absents, stays, _joined = step

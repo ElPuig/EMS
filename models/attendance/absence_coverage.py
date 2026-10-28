@@ -348,8 +348,8 @@ class EmsAbsenceCover(models.Model):
         """What `guard` may be sent to: the block of `group`'s day, or the absent teacher's own
         guard duty `duty` - the day is not over, it still needs a guard, `guard` is on regular
         guard duty then and the user may send them (issue #721: another area may organise them, see
-        ems.course._can_move_teacher). Raises otherwise. Returns that block (or duty entry) and the part of the
-        period `guard` covers (issue #637: their guard duty may only overlap part of it)."""
+        ems.course._can_move_teacher). Raises otherwise. Returns that block (or duty entry) and the
+        part of the period `guard` covers (issue #637: their guard duty may only overlap part of it)."""
         course = self.env['ems.course']
         course._check_board_day_not_past(day)
         if duty:

@@ -5,7 +5,7 @@
 - Some teachers are shared between ESO/BTX and VET, and ESO/BTX organises its guards outside the board. On 2026-10-28 a VET department chief took an ESO/BTX teacher's VET lesson to the hour of their ESO guard (a regular guard counts as free since #709), and ESO lost that guard without knowing.
 - New rule, decided by who is deciding rather than by the group of the class, so it works both ways: only someone of the teacher's area (the area of their department, or of a department named in "Also managed by the departments") may change their timetable or send them to cover a class. Direction and the administrator always can; a teacher with no area is anybody's; a guard taking a class themselves is unaffected.
 - Applies to the detected swaps, moved lessons and joins (a co-teacher of another area stays on guard at the lesson, with the warning "organised by another area"), to the manual arrangement's teacher list and to the guard teachers offered to send. The server checks again when applying.
-- `ems.course._can_move_teacher()`, cached per board load (at most 15 ms of a 0.43 s board load on real data). Developer doc ("Teachers of another area") and the teachers' guard duty manual in ca/es/en updated; ca/es translations added.
+- `ems.course._can_move_teacher()`, cached per board load (at most 15 ms of a 0.43 s board load on real data). Developer doc ("Teachers of another area") and the department chiefs' absences manual in ca/es/en updated; ca/es translations added. Tests cover every path (swaps on both sides, moves, joins, co-teachers, manual arrangements, guards, both areas).
 
 ## Guard duty board: the hour of a timetable change is chosen inside its sentence:
 

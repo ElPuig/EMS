@@ -2996,3 +2996,24 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertTrue(data['label_parts'][0].endswith("(now: "))
         self.assertEqual(data['label_parts'][1], ").")
         self.assertEqual([option['inline'] for option in data['options']], ['Starts at 09:00', 'Usual timetable'])
+
+    def test_no_swap_moves_an_absent_teacher_of_another_area(self):
+        """In a swap the absent teacher teaches the other lesson: their day changes too."""
+        self._two_areas()
+        self._morning()
+        self.teacher_b.department_id = self.department
+        self.teacher_a.department_id = self.eso_department
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        self.assertEqual([self._plan_summary(plan) for plan in self._plans()], [[('swap', self.teacher_b, 11, 8, self.group_a)]])
+        plans = self.env['ems.course'].with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_a)
+        self.assertFalse([step for plan in plans for step in plan['steps'] if step['kind'] == 'swap'])
+
+    def test_no_join_moves_a_teacher_of_another_area(self):
+        """_split_groups_day's join takes teacher_b's 12:00 lesson with group_b to 9:00."""
+        self._two_areas()
+        self._join_plan()  # whoever may move teacher_b (an ESO teacher here) gets it
+
+        plans = self.env['ems.course'].with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_b)
+
+        self.assertFalse([step for plan in plans for step in plan['steps'] if step['kind'] == 'join'])

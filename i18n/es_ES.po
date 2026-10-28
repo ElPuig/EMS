@@ -26678,3 +26678,9 @@ msgstr "Un aviso a las familias, cuando el grupo puede entrar más tarde o salir
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "A lesson no checked step solves stays on the table, for a guard. The teachers involved are notified."
 msgstr "Una clase que ningún paso marcado resuelve se queda en la tabla, para una guardia. Se avisa a los docentes implicados."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
+msgstr "Todavía deja %s sin docente: una vez aplicada, elegiréis al docente de guardia."

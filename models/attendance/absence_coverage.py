@@ -609,8 +609,10 @@ class EmsAbsenceCover(models.Model):
           ems.course.get_change_proposal_options): it is planned as if nothing had been told.
         The teachers whose lessons move are told once, when their move is in effect. A notice that
         cannot be sent stays a draft, and the moves waiting for it with it, for the planner to
-        review and send from its form. Returns `{'cover_ids', 'notice_action', 'notice_error'}`:
-        the form of the first notice left in draft (to the families first), and why, or False."""
+        review and send from its form. Returns `{'cover_ids', 'notice_action', 'notice_error',
+        'gaps'}`: the form of the first notice left in draft (to the families first), and why, or
+        False; and the classes the applied steps still leave to a guard (issue #710, `{'group_id',
+        'hour_from', 'hour_to'}`), for the board to ask who goes."""
         if reopen:
             return self.with_context(ems_reopen_side=list(reopen)).board_apply_plan(day, steps)
         day = fields.Date.to_date(day)
@@ -646,6 +648,8 @@ class EmsAbsenceCover(models.Model):
                    for kind, teachers, lesson, target, groups, absents, stays, joined in moves]
         if planner.check(planned, [(group.id, change) for groups, change in notices for group in groups]):
             raise UserError(_("This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."))
+        gaps = course._plan_gaps(planner, planned, [(group.id, change) for groups, change in notices + corrections
+                                                    for group in groups])
 
         created = self.browse()
         applied = ()
@@ -703,7 +707,8 @@ class EmsAbsenceCover(models.Model):
         result = self._board_send_notices(students)
         if sent['notice_action']:
             result = sent
-        return {'cover_ids': created.ids, **result}
+        return {'cover_ids': created.ids, **result, 'gaps': [
+            {'group_id': group.id, 'hour_from': period[0], 'hour_to': period[1]} for group, period in gaps]}
 
     def _board_create_move(self, context, day_blocks, day, teachers, lesson, target, groups, stays, joined=None):
         """The covers of one moved lesson (issue #645): one per group, per teacher whose class in

@@ -1999,6 +1999,57 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIn((self.group_a, ('early_leave', 12)), proposals)
         self.assertIn((self.group_b, ('early_leave', 12)), proposals)
 
+    def _middle_gaps_day(self):
+        """group_a's Monday: teacher_c teaches it at 8 and is away afterwards; teacher_b at 9 and
+        teacher_a at 11, both away all day; teacher_guard at 10; teacher_guard_2 at 12, away until
+        11. Two gaps in the middle of the day, and only the 11:00 one can be filled (with the
+        12:00 lesson, the group leaving at 12)."""
+        self._calendar_rows(self.teacher_c, ((8, 9, self.group_a),))
+        self._calendar_rows(self.teacher_b, ((9, 10, self.group_a),))
+        self._calendar_rows(self.teacher_guard, ((10, 11, self.group_a),))
+        self._calendar_rows(self.teacher_a, ((11, 12, self.group_a),))
+        self._calendar_rows(self.teacher_guard_2, ((12, 13, self.group_a),))
+        self._absence(self.teacher_c, self.day, hour_from=9, hour_to=13)
+        self._absence(self.teacher_b, self.day)
+        self._absence(self.teacher_a, self.day)
+        self._absence(self.teacher_guard_2, self.day, hour_from=8, hour_to=11)
+
+    def _late_move(self):
+        """The best plan of _middle_gaps_day and its data."""
+        plan = self._plans()[0]
+        self.assertEqual(self._plan_summary(plan), [
+            ('move', self.teacher_guard_2, 12, 11, self.group_a), ('notice', ('early_leave', 12), self.group_a)])
+        return plan, self.env['ems.course']._arrangement_plan_data(plan)
+
+    def test_a_plan_says_which_classes_it_still_leaves_to_a_guard(self):
+        """Issue #710: the 9:00 class still needs a guard."""
+        self._middle_gaps_day()
+
+        plan, data = self._late_move()
+
+        self.assertEqual(plan['gaps'], [(self.group_a, (9, 10))])
+        self.assertEqual(data['gaps'], f"It still leaves {self.group_a.name} (09:00) without a teacher: once applied, "
+                                       "you will choose the guard teacher.")
+
+    def test_a_plan_solving_everything_says_nothing_about_guards(self):
+        self._two_groups_day()
+
+        plan = self._plans()[0]
+
+        self.assertEqual(plan['gaps'], [])
+        self.assertFalse(self.env['ems.course']._arrangement_plan_data(plan)['gaps'])
+
+    def test_applying_a_plan_returns_the_classes_left_to_a_guard(self):
+        """Issue #710: the board then opens their guard assignment. Applied without its notice, the
+        lesson the move leaves free needs a guard too."""
+        self._middle_gaps_day()
+        _plan, data = self._late_move()
+
+        result = self.Cover.with_user(self.department_chief).board_apply_plan(str(self.day), [data['steps'][0]['payload']])
+
+        self.assertEqual(result['gaps'], [{'group_id': self.group_a.id, 'hour_from': 9.0, 'hour_to': 10.0},
+                                          {'group_id': self.group_a.id, 'hour_from': 12.0, 'hour_to': 13.0}])
+
     def test_a_step_is_never_applied_without_those_it_needs(self):
         self._two_groups_day()
         plan = self._plans()[0]

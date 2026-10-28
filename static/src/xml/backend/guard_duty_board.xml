@@ -469,6 +469,10 @@
                     </li>
                 </t>
             </ul>
+            <!-- Issue #710: what the whole proposal still leaves to a guard. -->
+            <div t-if="props.plan.gaps" class="o_guard_board_plan_gaps text-warning">
+                <i class="fa fa-user-o me-1"/><t t-esc="props.plan.gaps"/>
+            </div>
             <t t-slot="default"/>
         </div>
     </t>

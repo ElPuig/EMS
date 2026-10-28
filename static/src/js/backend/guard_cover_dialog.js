@@ -25,6 +25,8 @@ export class GuardCoverDialog extends Component {
     static props = {
         row: Object,
         line: Object,
+        // Opened right after applying a plan that leaves this class to a guard (issue #710).
+        guardFirst: { type: Boolean, optional: true },
         onAssign: Function,
         onApplyPlan: Function,
         onArrange: Function,
@@ -60,7 +62,7 @@ export class GuardCoverDialog extends Component {
         if (arrangement) {
             return arrangement.type === "manual" ? "manual" : "current";
         }
-        if (covers.length || !plans.length) {
+        if (covers.length || !plans.length || this.props.guardFirst) {
             return "guard";
         }
         return "plan-0";

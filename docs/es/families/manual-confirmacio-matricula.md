@@ -100,6 +100,8 @@ Si queréis consultar o comentar alguno de los conceptos **antes de confirmar**,
 
 En la parte inferior de la sección de detalles debéis indicar cómo queréis pagar la matrícula.
 
+**Fecha de nacimiento del alumno/a.** Si el centro aún no la tiene, encima del plan de pago aparece el campo **Fecha de nacimiento del alumno/a**. Rellenadlo: sin esa fecha no se puede confirmar la matrícula.
+
 **Plan de pago.** Elegid una de las opciones disponibles:
 
 * **Pago único (julio).**
@@ -152,6 +154,7 @@ De vuelta en **Matrícula**, comprobad que todo esté correcto:
 El botón **Confirmar matrícula** **(3)** se mantiene desactivado (en color claro) hasta que se cumplen **todas** estas condiciones:
 
 * Todas las autorizaciones obligatorias están **aceptadas**.
+* Habéis introducido la **fecha de nacimiento del alumno/a**, si se os pedía.
 * Habéis seleccionado un **plan de pago**.
 * Tenéis una **cuenta bancaria (IBAN) válida** registrada.
 

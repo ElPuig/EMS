@@ -73,9 +73,9 @@ Obre la sol·licitud des de la llista. El formulari mostra:
 - El document d'identitat de l'alumne (**Document d'identitat (DNI/NIE)**), just sota l'IDALU i amb el mateix botó de copiar, per trobar l'alumne en altres aplicacions. També el pots cercar a *Alumne*.
 - **Estudi**, **Curs** i **Motiu**. Aquestes dades, l'alumne i les observacions del sol·licitant són les de la sol·licitud i no es poden modificar.
 - **Estudis superats** (només estudis previs): en aquest centre o en un altre centre o a la universitat. Una sol·licitud del portal per estudis superats en un altre lloc, o per qualsevol altre motiu, sempre arriba amb documentació justificativa; només els estudis superats aquí poden arribar sense.
-- Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic hi consta un títol obtingut aquí.
+- Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic, o en un expedient de currículum anterior, hi consta un títol obtingut aquí.
 - Pestanya **Assignatures**: una línia per cada mòdul sol·licitat.
-- Pestanya **Històric acadèmic** (cap d'estudis, cap d'estudis adjunt, direcció, secretaria i administrador): l'històric de l'alumne al centre, una línia per curs, el mateix que mostra la seva fitxa. Obre una línia per veure'n les assignatures i les notes.
+- Pestanya **Històric acadèmic** (cap d'estudis, cap d'estudis adjunt, direcció, secretaria i administrador): l'històric de l'alumne al centre, una línia per curs, el mateix que mostra la seva fitxa. Obre una línia per veure'n les assignatures i les notes. També hi surten els cicles cursats amb un currículum anterior (LOE per unitats formatives), amb **Currículum anterior** marcat: en obrir-ne un es veuen tots els mòduls i unitats tal com figuren al document.
 - Pestanya **Documentació justificativa**: els fitxers adjuntats.
 - Pestanya **Observacions del sol·licitant**: el que ha escrit l'alumne o la família.
 - Pestanya **Documentació sol·licitada**: l'última documentació que has demanat, si n'has demanat.

@@ -125,7 +125,7 @@ class TestCourseTransition(TransactionCase):
 
     def _student(self, name, group=None, **vals):
         return self.env['res.partner'].create(dict(
-            {'name': name, 'contact_type': 'student', 'student_id': next_student_id(),
+            {'name': name, 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01',
              'main_group_id': (group or self.group1).id}, **vals))
 
     def _order(self, partner, group=None, state=None, course=None):
@@ -201,7 +201,7 @@ class TestCourseTransition(TransactionCase):
         run, so a late confirmation must place the student on its own."""
         self.study.transition_state = 'transitioned'
         applicant = self.env['res.partner'].create({
-            'name': 'CTW Latecomer', 'contact_type': 'applicant', 'student_id': next_student_id(), 'study_id': self.study.id})
+            'name': 'CTW Latecomer', 'contact_type': 'applicant', 'student_id': next_student_id(), 'birth_date': '2015-01-01', 'study_id': self.study.id})
         self._order(applicant, self.group1)._ems_admit_student()
         self.assertEqual(applicant.contact_type, 'student')
         self.assertEqual(applicant.main_group_id, self.group1)
@@ -211,7 +211,7 @@ class TestCourseTransition(TransactionCase):
         """The mirror case: while the study is still active the transition wizard
         has not run yet, so placement is left to the bulk step."""
         applicant = self.env['res.partner'].create({
-            'name': 'CTW Early', 'contact_type': 'applicant', 'student_id': next_student_id(), 'study_id': self.study.id})
+            'name': 'CTW Early', 'contact_type': 'applicant', 'student_id': next_student_id(), 'birth_date': '2015-01-01', 'study_id': self.study.id})
         self._order(applicant, self.group1)._ems_admit_student()
         self.assertEqual(applicant.contact_type, 'student')
         self.assertFalse(applicant.main_group_id)
@@ -393,7 +393,7 @@ class TestCourseTransition(TransactionCase):
         baseline.action_preview()
         before = baseline.orphan_count
         orphan = self.env['res.partner'].create(
-            {'name': 'CTW No Group At All', 'contact_type': 'student', 'student_id': next_student_id()})
+            {'name': 'CTW No Group At All', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01'})
         wizard = self._wizard()
         wizard.action_preview()
         self.assertFalse(wizard.line_ids.filtered(lambda line: line.student_id == orphan))
@@ -927,7 +927,7 @@ class TestCourseTransition(TransactionCase):
 
     def test_apply_converts_an_applicant_before_placing_it(self):
         applicant = self.env['res.partner'].create({
-            'name': 'CTW Incoming', 'contact_type': 'applicant', 'student_id': next_student_id(), 'study_id': self.study.id})
+            'name': 'CTW Incoming', 'contact_type': 'applicant', 'student_id': next_student_id(), 'birth_date': '2015-01-01', 'study_id': self.study.id})
         self._order(applicant, self.group1, state='sale')
         self._applied()
         self.assertEqual(applicant.contact_type, 'student')
@@ -936,7 +936,7 @@ class TestCourseTransition(TransactionCase):
 
     def test_apply_takes_a_returning_ex_student_back(self):
         alumnus = self.env['res.partner'].create({
-            'name': 'CTW Returning', 'contact_type': 'alumni', 'student_id': next_student_id(), 'has_graduated': True})
+            'name': 'CTW Returning', 'contact_type': 'alumni', 'student_id': next_student_id(), 'birth_date': '2015-01-01', 'has_graduated': True})
         self._order(alumnus, self.group1, state='sale')
         self._applied()
         self.assertEqual(alumnus.contact_type, 'student')
@@ -1668,7 +1668,7 @@ class TestCourseTransition(TransactionCase):
         """They are placed by the same steps, so they belong in the preview even
         though the scope-by-group capture cannot see them."""
         applicant = self.env['res.partner'].create({
-            'name': 'CTW Preview Incoming', 'contact_type': 'applicant', 'student_id': next_student_id(), 'study_id': self.study.id})
+            'name': 'CTW Preview Incoming', 'contact_type': 'applicant', 'student_id': next_student_id(), 'birth_date': '2015-01-01', 'study_id': self.study.id})
         self._order(applicant, self.group1, state='sale')
         wizard = self._wizard()
         wizard.action_preview()

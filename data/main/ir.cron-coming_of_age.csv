@@ -1,0 +1,2 @@
+"id","name","model_id/id","user_id/id","state","code","interval_number","interval_type"
+"ems.ir_cron_students_coming_of_age","EMS: Students coming of age","base.model_res_partner","base.user_root","code","model._ems_cron_coming_of_age()","1","days"

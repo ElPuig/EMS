@@ -235,6 +235,56 @@ def _build_printed_academic_record_pdf(student_identifier, courses, student_name
     return _academic_record_lines_to_pdf(lines)
 
 
+def build_previous_curriculum_pdf(student_identifier, modules, student_name='Inventat, Alumne',
+                                  centre=('08000777', 'Institut Inventat'),
+                                  curriculum=('CFPS ICX0', 'CFPS Cicle Inventat (LOE)'),
+                                  years='De 2080 a 2082'):
+    """An invented academic history ("Historial acadèmic") of a previous curriculum, as SAGA laid it
+    out (issue #672): the module and its units side by side, names wrapped over several lines. Never
+    use a real one in a test: it carries a real student's name, document number and signatures.
+
+    modules: list of (code, name, hours, grade, sitting, units), each unit (code, name, hours,
+    grade, sitting). A '|' in a name wraps it onto the next line; hours 0 leaves the module's hours,
+    grade and sitting blank, as SAGA does until every unit is graded."""
+    lines = [
+        "Historial acadèmic de l'alumne                       Formació professional inicial",
+        "Dades del centre",
+        f"{'Codi':<20}{'Nom':<44}Municipi",
+        f"{centre[0]:<20}{centre[1]:<44}Santa Coloma de Gramenet",
+        "Dades de l'alumne",
+        f"{'Cognoms i nom':<64}Identificador de l'alumne/a",
+        f"{student_name:<64}{student_identifier}",
+        "Dades acadèmiques",
+        f"{'Codi':<20}{'Nom del cicle formatiu':<58}Grau",
+        f"{curriculum[0]:<20}{curriculum[1]:<58}Superior",
+        "Matriculacions en el cicle formatiu",
+        f"{'Codi del centre':<20}{'Nom del centre':<36}Anys acadèmics",
+        f"{centre[0]:<20}{centre[1]:<36}{years}",
+        "Historial acadèmic",
+        "Resultats de l'avaluació dels mòduls i unitats formatives",
+        "Qualificacions",
+        f"{'Mòdul':<34}Hores Qualif. Conv. Unitat Formativa{' ' * 16}Hores Qualif. Conv.",
+    ]
+
+    def cells(code, name, hours, grade, sitting, width):
+        parts = name.split('|')
+        first = f"{code} {parts[0]}"
+        values = f"{hours:>5}{grade:>7}{sitting:>6}" if hours else ''
+        return [f"{first:<{width}}{values}", *parts[1:]]
+
+    for code, name, hours, grade, sitting, units in modules:
+        left = cells(code, name, hours, grade, sitting, 34)
+        right = [line for unit in units for line in cells(*unit, width=40)]
+        for index in range(max(len(left), len(right))):
+            module_part = left[index] if index < len(left) else ''
+            unit_part = right[index] if index < len(right) else ''
+            # The unit code a few characters right of the "Unitat Formativa" title, as SAGA prints it.
+            lines.append(f"{module_part:<59}{unit_part}".rstrip())
+    lines += ["Observacions", "Diligència de validesa de l'historial acadèmic",
+              "Signatura del secretari del centre"]
+    return _academic_record_lines_to_pdf(lines)
+
+
 def _academic_record_lines_to_pdf(lines):
     from reportlab.pdfgen import canvas
 

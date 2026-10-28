@@ -5,6 +5,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize, format_date
 from odoo.osv import expression
 from ..shared import base
+from .coming_of_age import ADULT_AGE
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -185,6 +186,13 @@ class ResPartner(models.Model):
     year_record_ids = fields.One2many(string="Academic history",
                                       comodel_name='ems.student.year_record',
                                       inverse_name='student_id')
+    # Academic history under a previous curriculum, imported from its document (issue #672).
+    previous_curriculum_record_ids = fields.One2many(
+        string="Previous curricula", comodel_name='ems.student.previous_curriculum_record',
+        inverse_name='student_id')
+    # Both of them in one list, the "Academic history" the student form shows (issue #672).
+    history_line_ids = fields.One2many(string="Whole academic history", comodel_name='ems.student.history_line',
+                                       inverse_name='student_id')
     # Derived transition state (not stored). Consumed by the "no destination" report.
     transition_status = fields.Selection([
         ('enrolled', 'Enrolled next course'),
@@ -688,6 +696,13 @@ class ResPartner(models.Model):
         action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
         return action
 
+    def action_previous_curriculum_wizard(self):
+        """Import the student's academic history under a previous curriculum (issue #672)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_previous_curriculum_wizard')
+        action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
+        return action
+
     def action_title_register_wizard(self):
         """Register a title obtained by the student in its academic history (issue #635)."""
         self.ensure_one()
@@ -897,7 +912,7 @@ class ResPartner(models.Model):
     def _compute_is_adult(self):
         for partner in self:
             partner.is_adult = bool(partner.birth_date) and (
-                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= 18)
+                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= ADULT_AGE)
 
     @api.depends('main_group_id')
     def _compute_main_group_pending_change(self):

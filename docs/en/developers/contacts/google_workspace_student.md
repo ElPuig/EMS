@@ -108,6 +108,11 @@ out unchanged. Skips suspended accounts (they live in the suspended OU; reactiva
 re-derives the correct one instead). There is no manual button for this — it is
 queue-job-only, same as the staff doc notes for its own internal-only steps.
 
+The same relocation runs when a student **turns 18** (issue #690): `is_adult` changes with
+no write on the record, so this integration extends the coming-of-age hook
+(`_ems_on_coming_of_age`, see [Students coming of age](coming_of_age.md)) to enqueue it; the
+relocation's own guard skips students without an account or with a suspended one.
+
 **Bug found and fixed in this pass (2026-07-28):** `action_relocate_google_account` called
 `self._gw_get_service()` directly — a method that does not exist on this model (it lives
 on the `google.workspace.mixin`, reached everywhere else via `self._gw()._gw_get_service()`).
@@ -168,6 +173,7 @@ flowchart LR
 |---|---|
 | Admitted / data completed (ready) | created (queued), OU by current `is_adult` |
 | `birth_date` arrives/changes | relocated to the OU matching the new `is_adult` (queued) |
+| Turns 18 (coming-of-age cron) | relocated to the adults OU (queued) |
 | Archived / withdrawal / graduation conversion | **nothing yet**: `google_ws_deactivation_date` set to today + `GW_DEACTIVATION_DELAY_DAYS`, warning email sent, chatter note posted |
 | Deactivation date reached (daily cron) | suspended, moved to the suspended OU (queued); `google_ws_deletion_date` set to today + `GW_DELETION_DELAY_DAYS` |
 | Deletion date reached (daily cron) | **deleted** in Google (queued); `google_ws_deleted = True`, `student_email` kept for traceability |
@@ -442,8 +448,11 @@ that file's `test_gw_*`/`test_migration_backfills_suspended_for_alumni_and_withd
 the warning email, cancelling, the deletion schedule set by the suspension and cancelled
 by the reactivation, `action_delete_google_account` (dry-run, the real `users().delete()`
 call, idempotence, the not-suspended guard, the address staying reserved), recreation
-after deletion, and both cron stages - including the check that a student suspended
-before this feature existed, with no `google_ws_deletion_date`, is never deleted.
+after deletion, both cron stages - including the check that a student suspended before
+this feature existed, with no `google_ws_deletion_date`, is never deleted - and the
+coming-of-age hook enqueueing the relocation. The cron tests patch the enqueueing helpers,
+not the jobs, since the development data the test shards clone may have real students
+falling due that day.
 
 `tests/test_student_google_workspace_tour.py` (`TestStudentGoogleWorkspaceTour`) renders
 the two banners and their buttons in a real browser: they are driven by the date fields

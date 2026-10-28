@@ -6,16 +6,21 @@ from ..shared.schedule_report_mixin import HOUR_EPSILON
 from .absence_coverage import overlaps
 
 
-def schedule_shift(periods, removed, added):
+def schedule_shift(periods, removed, added, duties=()):
     """How a teacher's working day - from their first period to their last, lessons, guards and any
     other duty alike (`periods`) - changes if they stop teaching the `removed` periods and teach the
-    `added` ones instead: `[(kind, old, new)]`, `kind` being 'entry' or 'exit', empty when neither
-    moves. None when the day would get longer: coming in earlier is only possible leaving earlier
-    too, and leaving later coming in later (developer decision, 2026-10-10)."""
+    `added` ones instead (`removed[i]` goes to `added[i]`): `[(kind, old, new)]`, `kind` being
+    'entry' or 'exit', empty when neither moves. None when the day would get longer: coming in
+    earlier is only possible leaving earlier too, and leaving later coming in later (developer
+    decision, 2026-10-10).
+    A lesson taken to one of their `duties` (a guard, a coordination, any non-teaching hour of their
+    timetable) swaps with it: the duty goes to the hour the lesson leaves, so they are in then as
+    always and their day does not change (issue #709)."""
     if not periods:
         return None
     before = (min(start for start, _stop in periods), max(stop for _start, stop in periods))
     kept = [period for period in periods if not any(overlaps(*period, *gone) for gone in removed)] + list(added)
+    kept += [gone for gone, new in zip(removed, added) if any(overlaps(*new, *duty) for duty in duties)]
     after = (min(start for start, _stop in kept), max(stop for _start, stop in kept))
     if after[1] - after[0] > before[1] - before[0] + HOUR_EPSILON:
         return None
@@ -41,8 +46,9 @@ class ArrangementPlanner:
     - `breaks`: `{group id: [(hour_from, hour_to)]}`, its level's breaks that day.
     - `communicated`: `{group id: {side: change}}`, what the families were already told per side.
     - `teachers`: `{teacher id: {'lessons': [((hour_from, hour_to), frozenset(group ids), subject id)],
-      'periods': [(hour_from, hour_to)], 'vacated': [(hour_from, hour_to)]}}`: their own lessons with
-      these groups, every period of their day, and their lessons another arrangement already moved.
+      'periods': [(hour_from, hour_to)], 'duties': [(hour_from, hour_to)], 'vacated': [(hour_from, hour_to)]}}`:
+      their own lessons with these groups, every period of their day, those of them with no class
+      (see schedule_shift), and their lessons another arrangement already moved.
     - `sessions`: `[(lesson, frozenset(group ids), frozenset(teacher ids), frozenset(away ids))]`,
       the lessons of these groups with the teachers who give them together, and which of them are
       away then (issue #678): co-teachers are a pack, the lesson moves with all of them (see
@@ -133,24 +139,13 @@ class ArrangementPlanner:
         lost = idle = guards = 0
         notices = []
         for group_id, blocks in day.items():
-            windows = []
-            for side, (options, communicated) in self._side_options(group_id, blocks).items():
-                if communicated:
-                    # A change already told (and still valid, or past) frees its lessons; a stale
-                    # one is the correction box's business, not a plan's.
-                    if self._is_past(communicated, blocks) or any(
-                            self.course._same_change(communicated, option) for option in options):
-                        windows.append(communicated)
-                    continue
-                if options:
-                    notices.append((group_id, side, options[-1]))
-                    windows.append(options[-1])
+            told, untold = self._windows(group_id, blocks)
+            notices += [(group_id, side, change) for side, change in untold]
+            windows = told + [change for _side, change in untold]
             for block in blocks:
                 if block['empty']:
                     lost += 1
-                    freeing = [window for window in windows
-                               if self.course._change_window_contains(window, block['hour_from'], block['hour_to'])]
-                    if all(window[0] == 'long_break' for window in freeing):
+                    if self._needs_guard(block, windows):
                         idle += 1
                         guards += 1
         shifts = self._shifts(steps)
@@ -158,6 +153,41 @@ class ArrangementPlanner:
         moves = len(frozenset().union(*(step[1] for step in steps)))
         return (lost, idle, guards, len(notices), broken, moves, self._runs(day),
                 sum(len(changes) for changes in shifts.values())), notices
+
+    def _windows(self, group_id, blocks):
+        """`(told, untold)` for one group's simulated day: the changes its families were told that
+        still free its lessons (still valid, or past: a stale one is the correction box's business,
+        not a plan's), and `(side, change)`, the largest change each side nobody was told about
+        allows."""
+        told, untold = [], []
+        for side, (options, communicated) in self._side_options(group_id, blocks).items():
+            if communicated:
+                if self._is_past(communicated, blocks) or any(
+                        self.course._same_change(communicated, option) for option in options):
+                    told.append(communicated)
+            elif options:
+                untold.append((side, options[-1]))
+        return told, untold
+
+    def _needs_guard(self, block, windows):
+        """Whether an empty block needs a guard all the same: none of the changes `windows` frees
+        the group from it, or only a longer break (the students under 18 stay in, issue #679)."""
+        return all(window[0] == 'long_break' for window in windows
+                   if self.course._change_window_contains(window, block['hour_from'], block['hour_to']))
+
+    def gaps(self, steps, notices):
+        """The classes still to come that `steps` leave without anybody and that need a guard all
+        the same (issue #710): no change the families were told, nor one of `notices` (`(group id,
+        change)`, those applied with the steps), frees the group from them. `[(group id,
+        (hour_from, hour_to))]`, by time."""
+        gaps = []
+        for group_id, blocks in self.simulate(steps).items():
+            told, _untold = self._windows(group_id, blocks)
+            windows = told + [change for notice_group, change in notices if notice_group == group_id]
+            gaps += [(group_id, (block['hour_from'], block['hour_to'])) for block in blocks
+                     if block['empty'] and self._needs_guard(block, windows)
+                     and (self.now_hour is None or block['hour_to'] > self.now_hour + HOUR_EPSILON)]
+        return sorted(gaps, key=lambda gap: (gap[1], gap[0]))
 
     @staticmethod
     def _runs(day):
@@ -182,7 +212,8 @@ class ArrangementPlanner:
             for teacher_id in absents:
                 removed[teacher_id].append(target)
                 added[teacher_id].append(lesson)
-        return {teacher_id: schedule_shift(self.teachers[teacher_id]['periods'], removed[teacher_id], added[teacher_id])
+        return {teacher_id: schedule_shift(self.teachers[teacher_id]['periods'], removed[teacher_id], added[teacher_id],
+                                           self.teachers[teacher_id].get('duties', ()))
                 for teacher_id in removed}
 
     # The steps possible from a state.
@@ -275,9 +306,10 @@ class ArrangementPlanner:
 
     def plans(self, limit=3):
         """The best plans, `[{'steps', 'notices', 'score', 'depends', 'notice_depends', 'shifts'}]`:
-        a beam search over moves, joins and swaps (at most MAX_MOVES steps). Only those no
-        worse than leaving the day as it is in lessons lost, hours without class, guards and notices,
-        and none that merely adds steps to another one that does as well."""
+        a beam search over moves, joins and swaps (at most MAX_MOVES steps). Only those better
+        than leaving the day as it is in lessons lost, hours without class, guards or notices: one
+        that only moves the gap to another hour, still needing a guard, is no proposal (issue
+        #711). And none that merely adds steps to another one that does as well."""
         base, _notices = self._evaluate(())
         candidates = {}
         frontier, seen = [()], {frozenset()}
@@ -298,7 +330,7 @@ class ArrangementPlanner:
             frontier = [steps for _score, steps, _notices in expanded[:self.BEAM]]
             if not frontier:
                 break
-        kept = [(score, steps, notices) for score, steps, notices in candidates.values() if score[:4] <= base[:4]]
+        kept = [(score, steps, notices) for score, steps, notices in candidates.values() if score[:4] < base[:4]]
         kept = [(score, steps, notices) for score, steps, notices in kept if not any(
             frozenset(other) < frozenset(steps) and other_score[:4] <= score[:4]
             for other_score, other, _other_notices in kept)]

@@ -61,6 +61,22 @@ class EmsBase(models.AbstractModel):
         return self.get_user_is_secretary() or self.get_user_is_admin() \
             or self.get_user_is_head_of_studies()
 
+    # Why an academic certificate read from a PDF cannot be told to be `student`'s, if it cannot:
+    # its identifier (IDALU) was not read, the student has none to check it against, or they
+    # differ. Shared by every certificate reader (Esfera, issue #585; previous curricula, #672).
+    def get_certificate_student_problem(self, student, identifier, name):
+        own = student.student_id
+        if not identifier:
+            return _("The student identifier could not be read from the certificate, so it cannot "
+                     "be checked against the student's IDALU.")
+        if not own:
+            return _("%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) "
+                     "against: fill it in first.", student=student.display_name, identifier=identifier)
+        if identifier != own:
+            return _("The certificate belongs to %(name)s (%(identifier)s), not to this "
+                     "student (%(own)s).", name=name, identifier=identifier, own=own)
+        return False
+
     # The current user works with every student (secretary's office, academic administration,
     # Head of Studies/Deputy/Director); anyone else who reaches students - a tutor - only with the
     # ones of the groups they tutor. Called unbound (base.EmsBase.get_user_sees_every_student(self))

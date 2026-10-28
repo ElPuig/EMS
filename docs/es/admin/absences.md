@@ -16,9 +16,9 @@
 |---|---|---|
 | Ausencia de día entero | 7:30 | Horas que vale una ausencia de día entero. Siempre cuenta esas horas, tenga la persona las clases que tenga programadas ese día |
 | Crédito de horas por motivos de salud | 15:00 | Horas de ausencia por motivos de salud que puede usar cada persona por curso |
-| Recordatorio de ausencias | 1 día | Una vez pasada una ausencia que todavía espera a la persona (el justificante, o solicitar una ausencia detectada), se le recuerda cada este número de días |
-| Aviso de ausencias pendientes | 3 días | Pasados estos días desde la ausencia, lo que todavía falta también se comunica: un justificante, a quien aprueba la ausencia; una ausencia detectada aún no solicitada, al jefe de estudios del docente |
-| Ausencias detectadas | (vacío) | Las áreas cuyos docentes siguen el circuito de ausencias detectadas: un día que un docente no ha fichado (o ha fichado después de su primera clase) se convierte en una ausencia detectada, y cada ausencia detectada recuerda al docente que la solicite. Vacío, el circuito está desactivado. Para empezar, elige solo el área de FP |
+| Recordatorio de ausencias | 1 día | Una vez pasada una ausencia que todavía espera a la persona (el justificante, o solicitar una ausencia detectada que su jefe de estudios le ha pedido que justifique), se le recuerda cada este número de días |
+| Aviso de ausencias pendientes | 3 días | Lo que todavía falta también se comunica pasados estos días desde la ausencia (un justificante, a quien aprueba la ausencia) o desde que el jefe de estudios pidió la justificación (una ausencia detectada aún no solicitada, al jefe de estudios del docente) |
+| Ausencias detectadas | (vacío) | Las áreas cuyos docentes siguen el circuito de ausencias detectadas: un día que un docente no ha fichado (o ha fichado después de su primera clase) se convierte en una ausencia detectada, y el jefe de estudios del docente revisa cada ausencia detectada antes de que se le recuerde al docente. Vacío, el circuito está desactivado. Para empezar, elige solo el área de FP |
 
 El crédito **avisa, no bloquea**: quien lo supera recibe un aviso y la solicitud queda marcada para la jefatura de estudios, pero se tramita igual.
 

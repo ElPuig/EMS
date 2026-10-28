@@ -147,6 +147,11 @@
                                     string="Add a previous record"
                                     invisible="contact_type != 'student'"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
+                            <!-- Issue #672: same roles as the previous record above. -->
+                            <button name="action_previous_curriculum_wizard" type="object"
+                                    string="Add a previous curriculum record"
+                                    invisible="contact_type not in ('student', 'alumni', 'withdrawal')"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"/>
                             <!-- Issue #635: the roles that may edit the academic history. A
                                  withdrawal with a title becomes alumni. -->
                             <button name="action_title_register_wizard" type="object"
@@ -165,6 +170,13 @@
                         The Google account is scheduled to be deactivated on
                         <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.
+                    </div>
+                    <!-- Issue #640: an existing student without a birth date, whom EMS takes for a minor. -->
+                    <div class="alert alert-warning" role="alert"
+                         invisible="contact_type != 'student' or birth_date or not id"
+                         groups="ems.group_secretary,ems.group_academic_admin">
+                        The birth date is missing: until it is filled in, EMS treats the student as a
+                        minor. Fill it in the Personal data section.
                     </div>
                     <!-- Issue #534: same placement and pattern as pending_classroom_conflict_count on
                          the group and employee forms - always visible, not buried in a tab. -->
@@ -320,7 +332,11 @@
                             <field name="car_plate" invisible="read_only_user"/>
                         </group>
                         <group string="Personal data">
-                            <field name="birth_date" invisible="read_only_user"/>
+                            <!-- Issue #640: without it EMS takes the student for a minor. Required
+                                 on a new student only, like the IDALU above: on an existing one it
+                                 would block every button of the form until someone typed a date. -->
+                            <field name="birth_date" invisible="read_only_user"
+                                   required="not id and contact_type == 'student' and not read_only_user"/>
                             <!-- Same Yes/No badge as the authorizations below: easier to read at a glance. -->
                             <span class="o_form_label">Adult</span>
                             <div class="o_row">
@@ -610,8 +626,9 @@
                              the section above, it stays visible for alumni/withdrawals/expelled -
                              it is their permanent record. -->
                         <separator string="Academic history"/>
-                        <field name="year_record_ids" readonly="1"
-                               context="{'list_view_ref': 'ems.view_year_record_history_list'}"/>
+                        <!-- Issue #672: the courses and the previous curriculum records in one list. -->
+                        <field name="history_line_ids" readonly="1" widget="ems_history_lines"
+                               context="{'list_view_ref': 'ems.view_student_history_line_list'}"/>
                     </page>
                 </xpath>
 

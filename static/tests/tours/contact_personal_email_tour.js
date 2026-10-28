@@ -21,6 +21,10 @@ registry.category("web_tour.tours").add("ems_contact_personal_email_not_corporat
             run: "edit TOUR514001",
         },
         {
+            trigger: ".o_form_view .o_field_widget[name='birth_date'] input",
+            run: "edit 01/15/2010",
+        },
+        {
             trigger: ".o_form_view .o_field_widget[name='email'] input",
             run: "edit laia@school.example.com",
         },

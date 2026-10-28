@@ -50,9 +50,9 @@ class TestEnrollmentHeader(TransactionCase):
             'study_ids': [(6, 0, [cls.study.id])],
         })
         cls.student = cls.env['res.partner'].create({
-            'name': 'Header Test Student', 'contact_type': 'student', 'student_id': next_student_id()})
+            'name': 'Header Test Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01'})
         cls.other_student = cls.env['res.partner'].create({
-            'name': 'Other Header Test Student', 'contact_type': 'student', 'student_id': next_student_id()})
+            'name': 'Other Header Test Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01'})
 
         cls.tutor_user = cls.env['res.users'].create({
             'name': 'Header Tutor', 'login': 'header_tutor_teh',
@@ -315,7 +315,7 @@ class TestEnrollmentHeader(TransactionCase):
         # setup in setUpClass) — a plain ems.group_tutor membership is not
         # enough on its own.
         tutored_student = self.env['res.partner'].create({
-            'name': 'Tutored Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'name': 'Tutored Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01',
             'main_group_id': self.tutor_group.id,
         })
         order = self._order(partner=tutored_student)
@@ -324,7 +324,7 @@ class TestEnrollmentHeader(TransactionCase):
 
     def test_tutor_can_confirm_own_tutored_student(self):
         tutored_student = self.env['res.partner'].create({
-            'name': 'Tutored Confirm Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'name': 'Tutored Confirm Student', 'contact_type': 'student', 'student_id': next_student_id(), 'birth_date': '2015-01-01',
             'main_group_id': self.tutor_group.id,
         })
         order = self._order(partner=tutored_student)

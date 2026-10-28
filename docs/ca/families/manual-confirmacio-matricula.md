@@ -100,6 +100,8 @@ Si voleu consultar o comentar algun dels conceptes **abans de confirmar**, podeu
 
 A la part inferior de la secció de detalls heu d'indicar com voleu pagar la matrícula.
 
+**Data de naixement de l'alumne/a.** Si el centre encara no la té, a sobre del pla de pagament apareix el camp **Data de naixement de l'alumne/a**. Ompliu-lo: sense aquesta data no es pot confirmar la matrícula.
+
 **Pla de pagament.** Trieu una de les opcions disponibles:
 
 * **Pagament únic (juliol).**
@@ -152,6 +154,7 @@ De tornada a **Matrícula**, comproveu que tot estigui correcte:
 El botó **Confirmar matrícula** **(3)** es manté desactivat (en color clar) fins que es compleixen **totes** aquestes condicions:
 
 * Totes les autoritzacions obligatòries estan **acceptades**.
+* Heu introduït la **data de naixement de l'alumne/a**, si se us demanava.
 * Heu seleccionat un **pla de pagament**.
 * Teniu un **compte bancari (IBAN) vàlid** registrat.
 

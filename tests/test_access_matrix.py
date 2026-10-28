@@ -15,8 +15,14 @@ ACCESS_MATRIX = {
     # write with sudo() (see models/attendance/absence_coverage.py).
     'ems.absence_cover': {'teacher': 'r', 'department_chief': 'r', 'head_of_studies': 'r'},
     # Issue #696: a teacher reads their own detected absences (rule_absence_pending_own); the
-    # chiefs above them manage them (rule_absence_pending_hierarchy).
-    'ems.absence_pending': {'teacher': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
+    # chiefs above them manage them (rule_absence_pending_hierarchy). Issue #707: only the
+    # administrators delete one; everybody else discards it (Discard, for its reviewers).
+    'ems.absence_pending': {
+        'teacher': 'r', 'department_chief': 'rwc', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
+    # Issue #707: "Create absence", for whoever reviews detected absences; who may review each
+    # entry is checked when it runs (ems.absence_pending._ems_review).
+    'ems.absence_pending.leave_wizard': {
+        'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwc'},
     # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
     # Issue #656: tutors justify absences from it; the secretariat only reads justifications.
@@ -32,8 +38,16 @@ ACCESS_MATRIX = {
     'ems.level': {'teacher': 'r', 'secretary': 'r'},
     'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},
     'ems.outcome': {'teacher': 'r', 'secretary': 'r'},
+    'ems.previous_curriculum_wizard': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
+    'ems.previous_curriculum_wizard.line': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.space': {'teacher': 'r', 'secretary': 'r'},
     'ems.space_type': {'teacher': 'r', 'secretary': 'r'},
+    # Issue #672: read-only SQL view joining both histories in one list.
+    'ems.student.history_line': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'r', 'academic_admin': 'r'},
+    # Issue #672: read by the whole teaching staff, like the academic history; written only
+    # through the import wizard (sudo) or corrected by the secretariat and the administration.
+    'ems.student.previous_curriculum_record': {'teacher': 'r', 'secretary': 'rwc', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
+    'ems.student.previous_curriculum_record.line': {'teacher': 'r', 'secretary': 'rwc', 'head_of_studies': 'r', 'academic_admin': 'rwcu'},
     'ems.study': {'teacher': 'r', 'secretary': 'r'},
     'ems.subject': {'teacher': 'r', 'secretary': 'r'},
     'ems.teaching': {'teacher': 'r', 'secretary': 'r', 'head_of_studies': 'rwc'},

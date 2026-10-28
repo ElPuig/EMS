@@ -81,11 +81,16 @@
          lessons with it): first what is waiting (an arrangement waiting for its notice), then the
          arrangement plans, the best first, and last the timetable change alone, telling the
          families without rearranging anything. Expects 'boxSections', 'boxClass', 'boxTitle' and
-         'boxHelp'. -->
+         'boxHelp' ({intro, button, points: [{icon, text}]}: 'button' names the apply button, in its colour). -->
     <t t-name="ems.GuardBoardProposalsBox">
         <div t-if="boxSections.length" class="o_guard_board_actions o_guard_board_arrangements" t-att-class="boxClass">
             <div class="o_guard_board_actions_title" t-esc="boxTitle"/>
-            <div class="o_guard_board_actions_help text-muted" t-esc="boxHelp"/>
+            <div class="o_guard_board_actions_help text-muted">
+                <t t-esc="boxHelp.intro"/><t t-if="boxHelp.button"> <span class="text-primary" t-esc="boxHelp.button"/>:</t>
+                <ul t-if="boxHelp.points.length" class="list-unstyled mb-0 mt-1">
+                    <li t-foreach="boxHelp.points" t-as="point" t-key="point_index"><i t-att-class="'fa fa-fw me-1 ' + point.icon"/><t t-esc="point.text"/></li>
+                </ul>
+            </div>
             <t t-foreach="boxSections" t-as="section" t-key="section.key">
                 <div class="o_guard_board_section">
                     <div class="o_guard_board_section_title" t-esc="section.title"/>
@@ -451,6 +456,9 @@
                                 <i t-att-class="step.kind === 'notice' ? 'fa fa-envelope-o me-1' : step.kind === 'correction' ? 'fa fa-exclamation-triangle me-1' : step.kind === 'swap' ? 'fa fa-exchange me-1' : 'fa fa-arrows-v me-1'"/>
                                 <t t-esc="step.label"/>
                             </label>
+                            <t t-foreach="step.details or []" t-as="detail" t-key="detail_index">
+                                <div class="o_guard_board_plan_detail"><i t-att-class="'fa me-1 ' + detail.icon"/><t t-esc="detail.text"/></div>
+                            </t>
                             <t t-foreach="step.schedule_changes" t-as="change" t-key="change_index">
                                 <div class="o_guard_board_plan_shift"><i class="fa fa-clock-o me-1"/><t t-esc="change"/></div>
                             </t>
@@ -461,6 +469,10 @@
                     </li>
                 </t>
             </ul>
+            <!-- Issue #710: what the whole proposal still leaves to a guard. -->
+            <div t-if="props.plan.gaps" class="o_guard_board_plan_gaps text-warning">
+                <i class="fa fa-user-o me-1"/><t t-esc="props.plan.gaps"/>
+            </div>
             <t t-slot="default"/>
         </div>
     </t>
@@ -539,8 +551,9 @@
                     <span class="text-muted"> - <t t-esc="props.row.group"/><t t-if="props.row.subject"> · <t t-esc="props.row.subject"/></t><t t-if="props.row.room"> · <t t-esc="props.row.room"/></t></span>
                 </p>
                 <!-- A guard duty left without its teacher (issue #606) is only ever covered by a guard:
-                     arrangements are about a group's lessons. -->
-                <div t-if="!props.row.duty_id" class="mb-3 o_guard_cover_mode">
+                     arrangements are about a group's lessons. So is a class a proposal just applied
+                     left empty (issue #710): the planner already chose how to organise the day. -->
+                <div t-if="!props.row.duty_id and !props.guardOnly" class="mb-3 o_guard_cover_mode">
                     <t t-if="props.row.arrangement and props.row.arrangement.type !== 'manual'">
                         <div class="form-check">
                             <input class="form-check-input o_guard_cover_mode_current" type="radio" name="o_guard_cover_mode" id="o_guard_cover_mode_current"

@@ -32,7 +32,9 @@ En el móvil, deslizad la cuadrícula hacia los lados para ver todos los días.
 
 ## Descargar el horario en PDF
 
-Haced clic en **Descargar PDF** para guardar una copia imprimible del mismo horario.
+Haced clic en **Descargar PDF** para guardar una copia imprimible del mismo horario. El PDF
+también muestra el grupo y el tutor del alumno, con la dirección de correo del tutor para que
+podáis poneros en contacto con él.
 
 ---
 

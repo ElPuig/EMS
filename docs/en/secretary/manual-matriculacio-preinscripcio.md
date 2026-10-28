@@ -153,6 +153,8 @@ Pressing **Send enrollment** does the following for each selected enrollment:
 
 > From here on, the families receive the email and can **confirm the enrollment** from the portal by following the [Guide to confirm the enrollment proposal](../families/manual-confirmacio-matricula.md).
 
+> An enrollment cannot be confirmed if the student has no birth date. When the family confirms it from the portal, they are asked for it; to confirm it from EMS, fill it in on the student's form first.
+
 ---
 
 ## Step 7 — Close the enrollments nobody confirmed

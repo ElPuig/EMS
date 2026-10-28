@@ -6,6 +6,7 @@ EMS does not define its own "contact" model: every student, family member, appli
 
 **Module files:**
 - `models/contacts/contact.py` — `ResPartner` (`_inherit = 'res.partner'`), `EmsStudentBenefit`
+- `models/contacts/coming_of_age.py` — `ResPartnerComingOfAge`, the daily check and hook for students turning 18 (`ADULT_AGE`, shared with `is_adult`; see [Students coming of age](coming_of_age.md))
 - `models/contacts/contact_relation.py` — `EmsContactRelationWizard`, `ResPartnerRelationAll` (`_inherit = 'res.partner.relation.all'`, from the `partner_multi_relation` OCA module)
 - `models/contacts/google_workspace_integration.py` — `ResPartnerGoogleWorkspace`, the corporate-account side of the lifecycle (not covered here — see [Google Workspace student integration](google_workspace_student.md))
 
@@ -87,11 +88,20 @@ Tests: `tests/test_student_private_note.py` (access matrix, create/write, direct
 
 ---
 
+## Birth date of a student (issue #640)
+
+Without a `birth_date` EMS takes a student for a minor (`is_adult` is `False`): the family keeps managing the portal, receives the notices meant for a minor, and the Google account stays in the minors' OU. So:
+
+- **Enrollment confirmation** (`sale.order.action_confirm()`): an enrollment (`ems_study_id` set) whose `partner_id` has no `birth_date` is refused with a `ValidationError` naming the students. It is the step that turns an applicant (or a returning ex-student) into a student, and it covers the backend and the portal alike. The GEDAC import cannot provide the date: its export has no birth date column.
+- **Portal** (`controllers/portal_enrollment.py`, `portal_enrollment_confirm`): when the student has no birth date, the confirmation form shows a required date input (`views/portal/portal_enrollment_draft.xml`, `.o_ems_portal_birth_date`; required only for the confirm button, not for sending comments). The value is checked by `res.partner._ems_portal_birth_date()` (a past day, at most 100 years ago) and written before `action_confirm()`; a missing or implausible one redirects with `?error=missing_birth_date`, which the page shows.
+- **Student form**: `birth_date` is required on a **new** student only (`not id`, like the IDALU). On an existing one it would block every header button, since the web client validates required fields before running any button, even with no change. An existing student without it shows a warning at the top of the form instead (secretariat and administration), and the **Without birth date** search filter lists them.
+- Other paths that write `contact_type = 'student'` (course transition, undoing a withdrawal, the Esfera import) are not blocked: a single student without a date must not stop a bulk process.
+
 ## Key computed/derived fields on `res.partner`
 
 | Field | Depends on | Notes |
 |-------|-----------|-------|
-| `is_adult` | `birth_date` | `>= 18` years via `relativedelta`; `False` if no birth date |
+| `is_adult` | `birth_date` | `>= 18` years via `relativedelta`; `False` if no birth date. That is why nobody becomes a student without one (issue #640, see below) |
 | `strike_count` | `strike_ids` | `len()` of `ems.strike` records |
 | `transition_status` | `contact_type`, `exit_type`, next-course `sale_order_ids` | `enrolled` / `unplaced` / `graduated` / `former` / `missing`; computed in batch (one read of the next-course enrollments for all the rows); searchable via `_search_transition_status`, which returns the same rules as a domain (`_ems_transition_status_domain()`: `any`/`not any` on the live next-course `sale_order_ids`), so the database resolves it in one query. The "next course" is the enrollment-default one (`_ems_transition_course()`). Only students and ex-students are found by status. `tests/test_exit_management.py` checks that search and compute agree on every status and operator, with and without a next course. |
 | `is_my_student` | (not stored) | `True` when the student belongs to one of the current user's own groups. Searchable via `_search_is_my_student`; backs the "My students" search filter that the Students action applies by default. See below. |

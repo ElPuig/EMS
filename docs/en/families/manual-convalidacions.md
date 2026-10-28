@@ -80,7 +80,7 @@ Each request appears below the form, with its registration number (e.g. CONV-202
 | **Pending the secretariat** | Resolved; the secretariat is registering it in the student's record. |
 | **Completed** | Registered, with at least one module convalidated. You can see each convalidated module's grade, and no longer attend those modules. |
 | **Rejected** | Registered, with no module convalidated. |
-| **Cancelled** | The request was cancelled. |
+| **Cancelled** | The request was cancelled. If the centre cancelled it, its box shows why. |
 
 The table shows each module's resolution (**Pending**, **Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones. Once the request is **Completed**, the **Grade** column appears too: a module convalidated without a grade shows **Convalidated** there.
 

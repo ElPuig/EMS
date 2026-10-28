@@ -28,7 +28,7 @@ En ambos casos, secretaría registra después la resolución en Esfera y cierra 
 | **Pendiente de secretaría** | Ya está resuelta; secretaría tiene que registrarla en Esfera. |
 | **Completada** | Registrada, con algún módulo convalidado. El alumno ya ve la nota. |
 | **Rechazada** | Registrada, sin ningún módulo convalidado. |
-| **Anulada** | El alumno o la familia la ha anulado desde el portal. |
+| **Anulada** | El alumno o la familia la ha anulado desde el portal, o el centro la ha anulado indicando el motivo. |
 
 El estado solo cambia con las acciones de cada paso, arriba del formulario (en el menú **Acciones** cuando hay más de una).
 
@@ -191,8 +191,8 @@ Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el 
 
 ## Anular y reabrir
 
-- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio.
-- **Reabrir** devuelve una solicitud anulada a **Pendiente**.
+- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio. Un diálogo te pide el **Motivo**, que es obligatorio: queda en la solicitud, y el alumno o la familia lo ven en el portal y en sus comunicaciones.
+- **Reabrir** devuelve una solicitud anulada a **Pendiente** y borra el motivo.
 
 ---
 

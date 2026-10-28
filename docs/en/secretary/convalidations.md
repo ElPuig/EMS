@@ -66,4 +66,10 @@ You can register a request, and process any request, at any time: the portal's r
 
 ---
 
+## Cancelling a request
+
+While a request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry, you can cancel it from **Actions > Cancel request**. A dialog asks for the **Reason**, which is required: the student or the family see it on the portal and in their communications.
+
+---
+
 [← Back to the Secretariat index](index.md)

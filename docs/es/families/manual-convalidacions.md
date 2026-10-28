@@ -80,7 +80,7 @@ Cada solicitud aparece bajo el formulario, con su número de registro (por ejemp
 | **Pendiente de secretaría** | Ya está resuelta; secretaría la está registrando en el expediente. |
 | **Completada** | Registrada, con algún módulo convalidado. Ves la nota de cada módulo convalidado, y ya no tienes que asistir a esos módulos. |
 | **Rechazada** | Registrada, sin ningún módulo convalidado. |
-| **Anulada** | La solicitud se ha anulado. |
+| **Anulada** | La solicitud se ha anulado. Si la ha anulado el centro, su recuadro indica el motivo. |
 
 La tabla muestra la resolución de cada módulo (**Pendiente**, **Convalidado** o **Rechazado**) y, en **Observaciones**, el motivo de los módulos rechazados. Cuando la solicitud está **Completada**, aparece también la columna **Nota**: un módulo convalidado sin nota muestra ahí **Convalidado**.
 

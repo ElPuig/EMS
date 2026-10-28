@@ -98,6 +98,12 @@ class TestConvalidationTour(HttpCase):
         self.assertEqual(self.request.state, 'pending')
         self.assertEqual(self.request.return_reason, 'Check the hours')
 
+    def test_secretary_cancels_with_a_reason(self):
+        self.start_tour(f"/odoo/action-ems.action_convalidation/{self.request.id}", "ems_convalidation_cancel",
+                        login=self.secretary.login)
+        self.assertEqual(self.request.state, 'cancelled')
+        self.assertEqual(self.request.cancel_reason, 'Filed twice by mistake')
+
     def test_secretary_completes(self):
         self._resolve()
         self.start_tour("/odoo", "ems_convalidation_complete", login=self.secretary.login)
@@ -149,7 +155,7 @@ class TestConvalidationTour(HttpCase):
         self.start_tour("/odoo", "ems_convalidation_grade_tutor_matrix_without_grade", login=self.teacher.login)
 
     def test_portal_student_submits(self):
-        self.request.action_cancel()
+        self.request._ems_cancel()
         self.start_tour("/my/convalidaciones", "ems_portal_convalidation_submit", login=self.student_user.login)
         submitted = self.env['ems.convalidation'].search([
             ('student_id', '=', self.student.id), ('state', '=', 'pending')])

@@ -66,4 +66,10 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ---
 
+## Anul·lar una sol·licitud
+
+Mentre una sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri, la pots anul·lar des d'**Accions > Anul·la la sol·licitud**. Un diàleg et demana el **Motiu**, que és obligatori: l'alumne o la família el veuen al portal i a les seves comunicacions.
+
+---
+
 [← Tornar a l'índex de Secretaria](index.md)

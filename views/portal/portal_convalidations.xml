@@ -172,6 +172,11 @@
                                     }" t-esc="state_labels.get(convalidation.state)"/>
                                 </div>
                                 <div class="card-body p-0">
+                                    <div t-if="convalidation.state == 'cancelled' and convalidation.cancel_reason"
+                                         class="alert alert-secondary mb-0 rounded-0 small o_ems_convalidation_cancel_reason">
+                                        <p class="fw-bold mb-1"><i class="fa fa-times-circle me-1"/>Reason for cancelling</p>
+                                        <div style="white-space: pre-line;" t-esc="convalidation.cancel_reason"/>
+                                    </div>
                                     <div t-if="convalidation.state == 'ministry'" class="alert alert-info mb-0 rounded-0 small o_ems_convalidation_ministry">
                                         <i class="fa fa-clock-o me-1"/> The request has been filed with the Ministry, which resolves it. It can no longer be cancelled; you will be notified once the resolution arrives.
                                     </div>

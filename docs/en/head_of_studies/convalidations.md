@@ -28,7 +28,7 @@ Either way, the secretariat then registers the resolution in Esfera and closes t
 | **Pending the secretariat** | It is resolved; the secretariat has to register it in Esfera. |
 | **Completed** | Registered, with at least one module convalidated. The student can see the grade. |
 | **Rejected** | Registered, with no module convalidated. |
-| **Cancelled** | The student or the family cancelled it from the portal. |
+| **Cancelled** | The student or the family cancelled it from the portal, or the centre cancelled it saying why. |
 
 The state only changes through the actions of each step, at the top of the form (in its **Actions** menu when more than one applies).
 
@@ -191,8 +191,8 @@ You can register a request, and process any request, at any time: the portal's r
 
 ## Cancelling and reopening
 
-- **Cancel request** is available while the request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry.
-- **Reopen** takes a cancelled request back to **Pending**.
+- **Cancel request** is available while the request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry. A dialog asks for the **Reason**, which is required: it stays on the request, and the student or the family see it on the portal and in their communications.
+- **Reopen** takes a cancelled request back to **Pending** and clears the reason.
 
 ---
 

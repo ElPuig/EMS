@@ -27314,3 +27314,8 @@ msgstr "Por qué se anula la solicitud (el alumno lo verá)..."
 #: code:addons/ems/models/grades/convalidation_cancel_wizard.py:0
 msgid "Write the reason for cancelling the request."
 msgstr "Escribe el motivo de la anulación de la solicitud."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__archived_with_calendar
+msgid "Archived with its calendar"
+msgstr "Archivada con su calendario"

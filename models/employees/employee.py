@@ -1068,20 +1068,16 @@ class ems_employee(models.AbstractModel):
         return result
 
     def action_unarchive(self):
-        """Symmetric with action_archive() above - a teacher rehired/returning before a course
-        transition ever rolled their calendar over should find it active again rather than having
-        to recreate it by hand. Deliberately calendar-level only: this never reactivates any of
-        the calendar's own 'attendance_ids' rows (already cascaded to inactive by
-        'ems_working_schedule.action_archive()' when the calendar itself was archived above) -
-        some of those rows could equally have gone inactive earlier for an unrelated reason (e.g.
-        superseded by a later room change via '_write_or_new_version()'), so blindly reviving
-        every one of them here would resurrect stale, superseded schedule versions alongside the
-        genuine ones. A returning teacher gets a fresh schedule import/assignment regardless."""
+        """Symmetric with action_archive() above: reactivates this teacher's own personal calendar
+        and the blocks archived together with it (issue #722), so a returning teacher gets their
+        schedule and roll-calls back. Blocks archived earlier for another reason stay archived (see
+        'resource.calendar._restore_blocks_archived_with_calendar()')."""
         result = super().action_unarchive()
         for employee in self:
             calendar = employee.resource_calendar_id
             if calendar.employee_id == employee and not calendar.active:
                 calendar.action_unarchive()
+                calendar._restore_blocks_archived_with_calendar()
         return result
 
     @api.model

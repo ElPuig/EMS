@@ -1,5 +1,7 @@
 from odoo.tests.common import TransactionCase
 
+from .common import create_level_study_group
+
 
 class TestEmployeeScheduleLifecycle(TransactionCase):
 
@@ -211,6 +213,62 @@ class TestEmployeeScheduleLifecycle(TransactionCase):
         employee.action_unarchive()
 
         self.assertTrue(calendar.active)
+
+    def _teacher_with_blocks(self, name):
+        """A teacher with a teaching block (it backs a roll-call) and a guard duty row."""
+        space = self.env['ems.space'].create({
+            'code': 'TESL-A', 'name': 'Test Space (Employee Schedule Lifecycle)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        level, study, group = create_level_study_group(self, 'TESL', group={'space_id': space.id})
+        subject = self.env['ems.subject'].create({
+            'code': 'TESL001', 'acronym': 'TESL', 'name': 'Test Subject (Employee Schedule Lifecycle)',
+            'study_ids': [(6, 0, [study.id])],
+        })
+        employee = self.env['hr.employee'].create({'name': name, 'employee_type': 'teacher'})
+        calendar = employee.resource_calendar_id
+        lesson, guard = self.env['resource.calendar.attendance'].create([{
+            'calendar_id': calendar.id, 'name': 'Test Lesson (Employee Schedule Lifecycle)',
+            'dayofweek': '0', 'hour_from': 15, 'hour_to': 16,
+            'subject_id': subject.id, 'group_ids': [(6, 0, group.ids)],
+        }, {
+            'calendar_id': calendar.id, 'name': 'Test Guard (Employee Schedule Lifecycle)',
+            'dayofweek': '1', 'hour_from': 15, 'hour_to': 16,
+            'non_teaching': self.env.ref('ems.non_teaching_g').id,
+        }])
+        return employee, lesson, guard
+
+    def test_unarchive_teacher_restores_the_schedule_archived_with_them(self):
+        # Issue #722: the blocks archived together with the teacher come back, and with them the
+        # roll-call they back.
+        employee, lesson, guard = self._teacher_with_blocks('Test Unarchive Restores (Employee Schedule Lifecycle)')
+        self.assertTrue(lesson.attendance_schedule_id.active)
+        employee.action_archive()
+        self.assertFalse(lesson.active or guard.active)
+
+        employee.action_unarchive()
+
+        self.env.invalidate_all()
+        self.assertTrue(lesson.active and guard.active)
+        self.assertTrue(lesson.attendance_schedule_id.active)
+
+    def test_unarchive_teacher_keeps_blocks_archived_before(self):
+        # A block archived for another reason before the teacher was archived (a superseded
+        # version, a lost room conflict) must stay archived; so must one archived after an
+        # earlier archive/unarchive cycle had restored it.
+        employee, lesson, guard = self._teacher_with_blocks('Test Unarchive Keeps (Employee Schedule Lifecycle)')
+        guard.action_archive()
+        employee.action_archive()
+        employee.action_unarchive()
+        self.assertTrue(lesson.active)
+        self.assertFalse(guard.active)
+
+        lesson.action_archive()
+        employee.action_archive()
+        employee.action_unarchive()
+
+        self.assertFalse(lesson.active or guard.active)
 
     def test_unarchive_teacher_does_not_touch_framework_calendar(self):
         employee = self.env['hr.employee'].create({

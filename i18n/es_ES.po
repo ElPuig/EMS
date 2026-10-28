@@ -26664,8 +26664,8 @@ msgstr "Para cada grupo, las mejores maneras de organizar sus ausencias, de mejo
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "A teacher moves a lesson, or two teachers swap theirs. Under it, in grey, how; in orange, whether somebody comes in or leaves at another time: you will be asked whether you have talked to them."
-msgstr "Un docente mueve una clase, o dos docentes intercambian las suyas. Debajo, en gris, cómo; en naranja, si alguien entra o sale a otra hora: se te preguntará si lo has hablado con él."
+msgid "A teacher moves a lesson, or two teachers swap theirs. Under it, in grey, the details; in orange, whether somebody comes in or leaves at another time."
+msgstr "Un docente mueve una clase, o dos docentes intercambian las suyas. Debajo, en gris, los detalles; en naranja, si alguien entra o sale a otra hora."
 
 #. module: ems
 #. odoo-javascript

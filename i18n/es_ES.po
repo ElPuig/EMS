@@ -8652,9 +8652,10 @@ msgid "Tutor's attendance report default send time"
 msgstr "Hora de envío predeterminada del informe de asistencia del tutorHora de envío por defecto del informe de asistencia del tutorHora de envío predeterminada para el reporte de asistencia del tutor/a"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
+#: model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_kanban
 msgid "Tutor:"
-msgstr "Tutor/a"
+msgstr "Tutor/a:"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__special_tutorship model:ir.model.fields,field_description:ems.field_ems_subject__is_tutorship model_terms:ir.ui.view,arch_db:ems.view_limesurvey_block_form

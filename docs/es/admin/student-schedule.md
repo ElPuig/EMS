@@ -56,7 +56,8 @@ pestaña Horario del profesor correspondiente, o desde las matrículas del propi
 
 Haz clic en **PDF** en la barra de herramientas de la pestaña Horario para descargar una
 versión imprimible del horario semanal del alumno, incluyendo la tabla Asignatura →
-Docente(s).
+Docente(s). La cabecera muestra el grupo del alumno y su tutor, con la dirección de correo del
+tutor.
 
 ---
 

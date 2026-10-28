@@ -52,7 +52,8 @@ tab, or the student's own enrollments, instead.
 ## Exporting the Schedule to PDF
 
 Click **PDF** in the Schedule tab's toolbar to download a printable version of the student's
-weekly timetable, including the Subject → Teacher(s) table.
+weekly timetable, including the Subject → Teacher(s) table. The header shows the student's
+group and their tutor, with the tutor's email address.
 
 ---
 

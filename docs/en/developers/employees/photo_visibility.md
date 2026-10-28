@@ -127,7 +127,7 @@ with a later name change, on either of the two paths that produce one:
 Both paths always call `_avatar_generate_svg()`, which always produces `image/svg+xml` —
 and `fields.Image`'s PIL-based upload pipeline cannot store a genuinely uploaded SVG photo.
 `hr.employee._refresh_stale_avatar_placeholder()` (`employee.py`, called from `write()`
-whenever `name` is in `vals`) uses exactly that to tell a placeholder apart from a real
+whenever `name` or `user_id` is in `vals`, see below) uses exactly that to tell a placeholder apart from a real
 photo without needing a dedicated marker field: `base64.b64decode(image_1920).lstrip()
 .startswith(b'<?xml')`. For every employee in `self` that matches, it regenerates from
 that **employee's own**, just-changed name (`with_user(SUPERUSER_ID)`, same mimetype-check
@@ -139,6 +139,24 @@ used by the disabling flow): that method sources the SVG from `partner_id`'s *ow
 name, correct for its use case (nothing about the partner changed) but wrong here — an
 employee rename does not itself change `res.partner.name`, so delegating to it would keep
 regenerating the OLD name's initial forever. The two helpers stay separate on purpose.
+
+## Placeholder stored as text/plain when a teacher's account is created (issue #714)
+
+Native `res.users.create()` bakes a third placeholder: every new internal user without a
+photo gets `_avatar_generate_svg()` in its partner's `image_1920`, written as whoever creates
+it. Linking that user to an employee without a photo (native `hr.employee._sync_user()`, in
+`create()` and `write()`) copies it onto the employee, again as whoever acts. When a Head of
+Studies creates a teacher's EMS account (`_ems_create_user()`, Google Workspace integration),
+neither write can pass `ir_attachment._check_contents`' `ir.ui.view` check, so both photos
+end up `text/plain` and show as "Binary file" (`sudo()` doesn't help, see above).
+
+`hr.employee.create()` (when `user_id` is set) and `write()` (when `user_id` changes) therefore
+also call `_refresh_stale_avatar_placeholder()`, which rewrites the placeholder as the
+superuser on the employee and on the linked user's partner. It always generates the SVG
+again rather than elevating the stored bytes, so no SVG that wasn't Odoo's own is ever served
+as an image. `migrations/18.0.0.41.1/post-migrate.py` repairs the photos already broken: every
+`hr.employee`/`res.partner` whose `image_1920` attachment is a `text/plain` SVG (or has lost
+its file) gets a freshly generated placeholder.
 
 ## Access control
 

@@ -5,6 +5,8 @@ import os
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
+from .common import create_role_user
+
 
 class TestEmployeePhotoVisibility(TransactionCase):
 
@@ -254,6 +256,66 @@ class TestEmployeePhotoVisibility(TransactionCase):
         migration = self._load_post_migrate_module()
         # Must not raise for employees with no user_id.
         migration._sync_employee_photo_to_user(self.env.cr)
+
+    def test_linking_user_by_head_of_studies_keeps_placeholder_renderable(self):
+        # Issue #714: linking a user copies its initials placeholder onto the employee; done
+        # by someone who can't write ir.ui.view, Odoo stored it as text/plain ("Binary file").
+        head_of_studies = create_role_user(self, 'head_of_studies', 'test_714_hos_link')
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Linked Later (Photo Visibility)',
+            'login': 'test_photo_linked_later',
+        })
+        # Created by the Head of Studies too, as in real life: Odoo only bakes a placeholder
+        # into a new employee for someone who can write ir.ui.view, so this one has none and
+        # takes the user's on linking.
+        employee = self.env['hr.employee'].with_user(head_of_studies).sudo().create({
+            'name': 'Linked Later (Photo Visibility)',
+            'employee_type': 'teacher',
+        })
+        employee.write({'user_id': user.id})
+        self.env.flush_all()
+        for field in ('image_1920', 'image_128'):
+            self.assertEqual(self._attachment_mimetype('hr.employee', field, employee.id), 'image/svg+xml')
+
+    def test_creating_employee_with_user_by_head_of_studies_keeps_placeholder_renderable(self):
+        # Issue #714, create() path: the user is linked in the same create, as the acting user.
+        head_of_studies = create_role_user(self, 'head_of_studies', 'test_714_hos_create')
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Created Linked (Photo Visibility)',
+            'login': 'test_photo_created_linked',
+        })
+        employee = self.env['hr.employee'].with_user(head_of_studies).sudo().create({
+            'name': 'Created Linked (Photo Visibility)',
+            'employee_type': 'teacher',
+            'user_id': user.id,
+        })
+        self.env.flush_all()
+        self.assertEqual(self._attachment_mimetype('hr.employee', 'image_1920', employee.id), 'image/svg+xml')
+
+    def test_migration_repairs_text_plain_placeholders(self):
+        # Issue #714's data fix: placeholders already stored as text/plain become images again.
+        self.teacher_a_user.image_disabled = True
+        partner = self.teacher_a_user.partner_id
+        self.env.flush_all()
+        self.env.cr.execute(
+            "UPDATE ir_attachment SET mimetype = 'text/plain' "
+            "WHERE res_field LIKE 'image_%%' AND ((res_model = 'hr.employee' AND res_id = %s) "
+            "OR (res_model = 'res.partner' AND res_id = %s))",
+            (self.teacher_a.id, partner.id))
+        self.env.invalidate_all()
+
+        path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            'migrations', '18.0.0.41.1', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_41_1', path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+        migration._repair_text_plain_placeholders(self.env.cr)
+
+        self.env.flush_all()
+        for model, res_id in (('hr.employee', self.teacher_a.id), ('res.partner', partner.id)):
+            for field in ('image_1920', 'image_128'):
+                self.assertEqual(self._attachment_mimetype(model, field, res_id), 'image/svg+xml')
 
     # --- stale avatar placeholder on rename ------------------------------
     def _svg_initial(self, image_1920):

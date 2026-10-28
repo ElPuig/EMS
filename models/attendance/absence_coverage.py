@@ -184,43 +184,35 @@ class EmsAbsenceCover(models.Model):
                 raise ValidationError(_("The lesson left free cannot be the one being covered."))
 
     def _arrangement_label(self):
-        """What the arrangement is, in one sentence, for the board and the PDF."""
+        """What the arrangement is, in one sentence, for the board, the PDF and the teachers'
+        messages: worded as the board's proposal step was (issue #709, see
+        ems.course._arrangement_step_label), with what kind of move it is for each teacher."""
         self.ensure_one()
+        if self.arrangement_type not in ('swap', 'move'):
+            if self.guard_employee_id:
+                return _("%(teacher)s: %(note)s", teacher=self.guard_employee_id.name, note=self.message)
+            return self.message
         course = self.env['ems.course']
         pack = self._decision_pack()
         teachers, absents = pack.guard_employee_id.sorted('name'), pack.absent_employee_id.sorted('name')
         values = {
-            'teacher': format_list(self.env, teachers.mapped('name')), 'absent': format_list(self.env, absents.mapped('name')),
-            'time': course._format_report_time(self.hour_from),
-            'other_time': course._format_report_time(self.vacated_hour_from),
+            'teacher': format_list(self.env, teachers.mapped('name')),
+            'teachers': format_list(self.env, (teachers | absents).mapped('name')),
+            'groups': format_list(self.env, self._with_siblings().group_id.sorted('name').mapped('name')),
+            'joined': format_list(self.env, self.joined_group_ids.mapped('name')),
+            'lesson': course._format_report_time(self.vacated_hour_from),
+            'target': course._format_report_time(self.hour_from),
         }
-        if self.arrangement_type == 'swap':
-            if len(teachers) > 1:
-                label = _("Swap: %(teacher)s teach at %(time)s and %(absent)s at %(other_time)s.", **values)
-            else:
-                label = _("Swap: %(teacher)s teaches at %(time)s and %(absent)s at %(other_time)s.", **values)
-        elif self.arrangement_type == 'move' and self.joined_group_ids:
-            values['joined'] = format_list(self.env, self.joined_group_ids.mapped('name'))
-            if len(teachers) > 1:
-                label = _("%(teacher)s teach the group together with %(joined)s at %(time)s, instead of at %(other_time)s.",
-                          **values)
-            else:
-                label = _("%(teacher)s teaches the group together with %(joined)s at %(time)s, instead of at %(other_time)s.",
-                          **values)
-        elif self.arrangement_type == 'move':
-            if len(teachers) > 1:
-                label = _("%(teacher)s move their %(other_time)s lesson to %(time)s.", **values)
-            else:
-                label = _("%(teacher)s moves their %(other_time)s lesson to %(time)s.", **values)
-        if self.arrangement_type in ('swap', 'move'):
-            if self.stayed_employee_ids:
-                label = " ".join([label, _(
-                    "On guard at %(other_time)s instead: %(teachers)s.", other_time=values['other_time'],
-                    teachers=format_list(self.env, self.stayed_employee_ids.sorted('name').mapped('name')))])
-            return label
-        if self.guard_employee_id:
-            return _("%(teacher)s: %(note)s", teacher=self.guard_employee_id.name, note=self.message)
-        return self.message
+        kind = 'swap' if self.arrangement_type == 'swap' else 'join' if self.joined_group_ids else 'move'
+        label = course._arrangement_step_label(kind, values)
+        details = course._arrangement_step_details({'how': course._cover_step_how(self, kind, teachers)}, values)
+        label = (_("%(step)s, %(how)s.", step=label, how="; ".join(detail['text'] for detail in details)) if details
+                 else _("%s.", label))
+        if self.stayed_employee_ids:
+            label = " ".join([label, _(
+                "On guard at %(other_time)s instead: %(teachers)s.", other_time=values['lesson'],
+                teachers=format_list(self.env, self.stayed_employee_ids.sorted('name').mapped('name')))])
+        return label
 
     @api.constrains('date', 'hour_from', 'hour_to', 'absent_employee_id', 'group_id', 'duty_id', 'state')
     def _check_one_guard_per_class(self):
@@ -617,8 +609,10 @@ class EmsAbsenceCover(models.Model):
           ems.course.get_change_proposal_options): it is planned as if nothing had been told.
         The teachers whose lessons move are told once, when their move is in effect. A notice that
         cannot be sent stays a draft, and the moves waiting for it with it, for the planner to
-        review and send from its form. Returns `{'cover_ids', 'notice_action', 'notice_error'}`:
-        the form of the first notice left in draft (to the families first), and why, or False."""
+        review and send from its form. Returns `{'cover_ids', 'notice_action', 'notice_error',
+        'gaps'}`: the form of the first notice left in draft (to the families first), and why, or
+        False; and the classes the applied steps still leave to a guard (issue #710, `{'group_id',
+        'hour_from', 'hour_to'}`), for the board to ask who goes."""
         if reopen:
             return self.with_context(ems_reopen_side=list(reopen)).board_apply_plan(day, steps)
         day = fields.Date.to_date(day)
@@ -654,6 +648,7 @@ class EmsAbsenceCover(models.Model):
                    for kind, teachers, lesson, target, groups, absents, stays, joined in moves]
         if planner.check(planned, [(group.id, change) for groups, change in notices for group in groups]):
             raise UserError(_("This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."))
+        gaps = planner.gaps(planned, [(group.id, change) for groups, change in notices + corrections for group in groups])
 
         created = self.browse()
         applied = ()
@@ -711,7 +706,8 @@ class EmsAbsenceCover(models.Model):
         result = self._board_send_notices(students)
         if sent['notice_action']:
             result = sent
-        return {'cover_ids': created.ids, **result}
+        return {'cover_ids': created.ids, **result, 'gaps': [
+            {'group_id': group_id, 'hour_from': period[0], 'hour_to': period[1]} for group_id, period in gaps]}
 
     def _board_create_move(self, context, day_blocks, day, teachers, lesson, target, groups, stays, joined=None):
         """The covers of one moved lesson (issue #645): one per group, per teacher whose class in

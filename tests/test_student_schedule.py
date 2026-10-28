@@ -272,3 +272,15 @@ class TestStudentSchedule(TransactionCase):
         self.assertIn(content_type, ('pdf', 'html'))
         self.assertIn(self.teacher_a.name.encode(), content)
         self.assertIn(self.teacher_b.name.encode(), content)
+
+    def test_report_student_schedule_shows_tutor_with_email(self):
+        tutor = self.env['hr.employee'].create({
+            'name': 'Test Tutor (Student Schedule)', 'employee_type': 'teacher',
+            'work_email': 'tutor.student.schedule@example.com',
+        })
+        self.main_group.tutor_id = tutor
+
+        content, _content_type = self.env['ir.actions.report']._render_qweb_html('ems.report_student_schedule', [self.student.id])
+
+        self.assertIn(tutor.name.encode(), content)
+        self.assertIn(b'mailto:tutor.student.schedule@example.com', content)

@@ -36,16 +36,21 @@ registry.category("web_tour.tours").add("ems_join_split_groups", {
             run: "click",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan_step:contains('Joined groups: Tour Join Teacher teaches TABT1TABTH together with TABT1TABTG at 09:00, instead of at 12:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan_step:contains('Tour Join Teacher: 12:00 lesson → 09:00 (TABT1TABTH)'):has(.o_guard_board_plan_detail:contains('groups joined with TABT1TABTG')) input:checked",
             content: "The proposal joins the two halves at 9:00, checked",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_step:contains('Tour Join Teacher teaches TABT1TABTH together with TABT1TABTG at 09:00')):not(:has(.o_guard_board_plan_step:contains('moves their'))) .o_guard_board_plan_step:contains('TABTG'):contains('TABTH'):contains('12:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_detail:contains('groups joined with TABT1TABTG')):not(:has(.o_guard_board_plan_step:contains('lesson →'):not(:has(.o_guard_board_plan_detail:contains('groups joined'))))) .o_guard_board_plan_step:contains('TABTG'):contains('TABTH'):contains('12:00') input:checked",
             content: "...and tells the families of both halves they leave at 12:00",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_step:contains('Tour Join Teacher teaches TABT1TABTH together with TABT1TABTG at 09:00')):not(:has(.o_guard_board_plan_step:contains('moves their'))) .o_guard_board_plan_apply",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_detail:contains('groups joined with TABT1TABTG')):not(:has(.o_guard_board_plan_step:contains('lesson →'):not(:has(.o_guard_board_plan_detail:contains('groups joined'))))) .o_guard_board_plan_apply",
             content: "Apply the checked steps",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
             run: "click",
         },
         {

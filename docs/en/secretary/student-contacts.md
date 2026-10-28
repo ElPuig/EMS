@@ -43,6 +43,8 @@ The top of the form gathers the student's data without switching tabs:
 
 ![Top of a student's form: names, emails, the Contact, Identification and Personal data columns, and the authorizations summary](../../assets/secretary/fitxa-alumne-01-capcalera.png)
 
+The **birth date** is required when registering a new student: without it EMS treats the student as a minor. A student who does not have it shows a warning at the top of the form until it is filled in, and the **Without birth date** filter of the student list shows all of them.
+
 The tabs are below: **Schedule** (the one that opens by default), **Studies** (group, subject enrollments and academic history), **Contacts & Addresses** (family members), **Secretary** (authorizations list, bonifications and exemptions, documentation and bank accounts) and the notes: see [A Student's Public and Private Notes](../teachers/student-notes.md).
 
 ## Adding a family contact to a student

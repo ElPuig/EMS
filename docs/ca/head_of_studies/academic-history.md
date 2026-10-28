@@ -18,6 +18,8 @@ Com a cap d'estudis o director/a teniu **accés a tot l'històric**: consultes a
 
 A més, a la fitxa de qualsevol alumne/a, la secció **Històric acadèmic**, al final de la pestanya **Estudis**, mostra els seus registres — també per a l'**antic alumnat** (graduats/des i baixes), per als quals la pestanya Estudis només mostra aquesta secció, com a registre permanent.
 
+Els cicles que un alumne/a va cursar amb un **currículum anterior** (els cicles LOE per unitats formatives, UF, que gestionava SAGA) es guarden tal com figuren al document de l'historial acadèmic. Surten com una línia més de l'**Històric acadèmic** de l'alumne/a, amb **Currículum anterior** marcat, i **Planificació i avaluació → Notes → Currículums anteriors** per a tots. Els afegeix secretaria (vegeu el manual de l'històric acadèmic de secretaria).
+
 ## Consultes útils
 
 - **Agrupar per curs + estudi:** resultats de cada cohort, any a any.

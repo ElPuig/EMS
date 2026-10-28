@@ -263,6 +263,12 @@ class ResPartnerGoogleWorkspace(models.Model):
                 description="Relocate Google Workspace account: %s" % partner.name,
             ).action_relocate_google_account()
 
+    def _ems_on_coming_of_age(self):
+        """A student who turns 18 moves to the adults OU (issue #690): is_adult changes with
+        no write on the record, so nothing else would trigger the relocation."""
+        super()._ems_on_coming_of_age()
+        self._gw_enqueue_relocate()
+
     def _gw_enqueue_rename(self):
         """Enqueue the Google account name sync for students that already have an
         account (deduplicated), so fixing a name in EMS also fixes it in Google (#542)."""

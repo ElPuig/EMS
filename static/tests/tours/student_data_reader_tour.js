@@ -68,7 +68,7 @@ registry.category("web_tour.tours").add("ems_guidance_student_file", {
             run: "click",
         },
         {
-            trigger: ".o_notebook .tab-pane.active .o_field_widget[name='year_record_ids'] .o_data_row",
+            trigger: ".o_notebook .tab-pane.active .o_field_widget[name='history_line_ids'] .o_data_row",
             content: "The frozen per-course academic history is readable",
         },
     ],
@@ -119,8 +119,14 @@ registry.category("web_tour.tours").add("ems_teacher_academic_history", {
             run: "press Enter",
         },
         {
-            // The list is grouped by course by default, so the matching row starts collapsed.
-            trigger: ".o_group_header",
+            // The list is grouped by course by default, so the matching row starts collapsed. Wait
+            // for the search to have reloaded it (only the student's own course left): a click on
+            // the list from before the search is lost when the new one renders.
+            trigger: ".o_searchview_facet:contains('Test TOUR Student')",
+            content: "The student filter is applied",
+        },
+        {
+            trigger: ".o_list_view .o_list_table:has(.o_group_header):not(:has(.o_group_header ~ .o_group_header)) .o_group_header",
             content: "Expand the course group",
             run: "click",
         },

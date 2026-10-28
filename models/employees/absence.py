@@ -464,10 +464,21 @@ class EmsAbsenceLeave(models.Model):
         """
         super()._compute_display_name()
         for leave in self:
+            leave._ems_translate_person_on_type()
             long_name = leave.holiday_status_id.name
             short_name = leave.holiday_status_id.ems_short_name
             if long_name and short_name and short_name != long_name and leave.display_name:
                 leave.display_name = leave.display_name.replace(long_name, short_name)
+
+    def _ems_translate_person_on_type(self):
+        """hr_holidays' "<person> on <type>: <duration> (<date>)" has no Catalan translation, so
+        a Catalan reader got the English "on" in the middle of the name (issue #707). EMS cannot
+        translate another module's code string, so the untranslated part is replaced here, only
+        when it came out untranslated."""
+        prefix = f"{self.employee_id.name} on {self.holiday_status_id.name}: "
+        if self.employee_id and self.holiday_status_id and (self.display_name or '').startswith(prefix):
+            self.display_name = _("%(person)s on %(leave_type)s", person=self.employee_id.name,
+                                  leave_type=self.holiday_status_id.name) + self.display_name[len(prefix) - 2:]
 
     is_absence_direction = fields.Boolean(
         string="Current user is Direction", compute="_compute_is_absence_manager",

@@ -205,15 +205,28 @@ This list holds the teachers' absences that nobody has requested yet. They come 
 
 From that moment the teacher appears on the guard duty schedule as absent with a request still awaiting approval (lighter italic red), for the hours you entered.
 
+### Reviewing a detected absence
+
+Every detected absence, whatever its origin, starts out **To review**: the teacher is not told anything and does not see it yet. Instead, the teacher's Head of Studies or Deputy (the person who corrects their check-ins) gets a **Review detected absence** task, which also appears in the daily summary of pending tasks. If the teacher has no Head of Studies above them, the task goes to the administrators. This keeps false alarms away from staff: for instance, a teacher who was not convened to the Wednesday meeting slot and checks in at 16:00.
+
+The list opens with the absences in **To review** and **Justification requested**, which are not resolved yet. Open one and choose what to do from its **Actions** menu:
+
+- **Request justification**: the teacher is asked to explain it. From now on they are reminded at the start of their working day to request the absence (or, if they were at the centre, to ask you to record their check-in), every day unless the centre has set otherwise. If they still have not requested it a few days after you asked (three, unless the centre has set otherwise), you receive a message and an activity to follow it up.
+- **Correct check-in**: the teacher was at the centre. EMS records their attendance for the hours detected, with your name as whoever registered it, and nobody is told. If they arrived late, the check-in they did make is kept and the missing part before it is added. Only offered once the absence is over.
+- **Create absence**: you prepare the absence request for the teacher, for the day and hours detected, with the absence type you choose in the dialog. It is not sent: the teacher is told, opens it already filled in, checks it, accepts the responsible declaration and sends it, and from then on it follows the usual steps (approval, supporting document, ATRI, Direction). Until they send it they are reminded, and you are told after a few days, as with **Request justification**.
+- **Discard**: it was nothing. The detected absence is closed and archived, and nobody is told. You can still find it with the **Archived** filter. Only the administrators can delete a detected absence altogether.
+
+To deal with several at once, select them in the list and choose the action from the **Actions** menu (the gear) at the top. Each action is only applied to the absences still waiting for review that you may review; EMS tells you how many it skipped and why.
+
+Only the teacher's own Head of Studies or Deputy, Direction and the administrators can take these actions. Department and Seminar Chiefs can enter and see detected absences of their department, but not review them.
+
+![Detected absences list, one per stage: one to review, one whose justification was requested, one whose check-in was corrected and one already requested](../../assets/head_of_studies/hos-detected-absences-list.png)
+
 ### What happens next
 
-When the teacher requests the absence themselves, the entry is linked to it automatically and its status changes from **Detected** to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
+When the teacher requests the absence themselves, at any moment, the detected absence is linked to it automatically and its status changes to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
 
-Until then, once the absence is over, EMS reminds the teacher to request it at the start of their working day, every day unless the centre has set otherwise. The message is not the same for both origins: for a missing check-in it also tells them that, if they were at the centre and forgot to check in, they should ask you to record their check-in. If it is still not requested a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up. These reminders reach the teachers of the areas the administrator has chosen.
-
-**If the teacher was at the centre after all**, record their check-in for that day (**Employee Attendances → Attendance → Overview**, **New**; see also [Attendance corrections](attendance-corrections.md)): a detected absence from a missing check-in is then **Discarded** on its own, or shortened if they arrived earlier than it said. An informed one you entered by mistake is deleted by hand.
-
-![Detected absences list, with their origin: one informed, one from a missing check-in and one already requested by the teacher](../../assets/head_of_studies/hos-detected-absences-list.png)
+**If the teacher's check-in turns up later** (registered from the guard duty schedule, or an accepted correction request), a detected absence from a missing check-in is **Discarded** on its own, or shortened if they arrived earlier than it said. The chatter says it was discarded because the check-in was recorded, so you can tell it apart from one discarded by hand.
 
 ### Organising the cover
 

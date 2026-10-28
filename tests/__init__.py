@@ -34,6 +34,7 @@ from . import test_convalidation_tour
 from . import test_tutor_scope
 from . import test_student_document_tour
 from . import test_student_google_workspace
+from . import test_coming_of_age
 from . import test_student_schedule
 from . import test_student_schedule_tour
 from . import test_study
@@ -98,6 +99,8 @@ from . import test_personal_email_not_corporate
 from . import test_portal_access_wizard
 from . import test_portal_access_wizard_tour
 from . import test_portal_enrollment
+from . import test_student_birth_date
+from . import test_student_birth_date_tour
 from . import test_portal_payment_status
 from . import test_data_custom_import_prefix
 from . import test_data_main_cat_prefix
@@ -129,6 +132,8 @@ from . import test_task_assignment
 from . import test_year_record
 from . import test_grade_review
 from . import test_external_record
+from . import test_previous_curriculum_record
+from . import test_previous_curriculum_record_tour
 from . import test_non_teaching_type
 from . import test_teaching_reduction_type
 from . import test_group

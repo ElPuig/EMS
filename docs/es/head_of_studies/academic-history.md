@@ -18,6 +18,8 @@ Como jefe/a de estudios o director/a tiene **acceso a todo el histórico**: cons
 
 Además, en la ficha de cualquier alumno/a, la sección **Histórico académico**, al final de la pestaña **Estudios**, muestra sus registros — también para el **antiguo alumnado** (graduados/as y bajas), para quienes la pestaña Estudios solo muestra esta sección, como registro permanente.
 
+Los ciclos que un alumno/a cursó con un **plan de estudios anterior** (los ciclos LOE por unidades formativas, UF, que gestionaba SAGA) se guardan tal como figuran en el documento del historial académico. Aparecen como una línea más del **Histórico académico** del alumno/a, con **Plan de estudios anterior** marcado, y **Planificación y evaluación → Notas → Planes de estudios anteriores** para todos. Los añade secretaría (ver el manual del histórico académico de secretaría).
+
 ## Consultas útiles
 
 - **Agrupar por curso + estudio:** resultados de cada cohorte, año a año.

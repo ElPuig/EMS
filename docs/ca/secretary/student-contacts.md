@@ -43,6 +43,8 @@ La part superior de la fitxa recull les dades de l'alumne sense haver de canviar
 
 ![Part superior de la fitxa d'un alumne: noms, correus, les columnes Contacte, Identificació i Dades personals, i el resum d'autoritzacions](../../assets/secretary/fitxa-alumne-01-capcalera.png)
 
+La **data de naixement** és obligatòria per donar d'alta un alumne/a nou: sense aquesta data, EMS el tracta com a menor d'edat. Un alumne/a que no la té mostra un avís a la part superior de la fitxa fins que s'omple, i el filtre **Sense data de naixement** de la llista d'alumnes els mostra tots.
+
 A sota hi ha les pestanyes: **Horari** (la que s'obre per defecte), **Estudis** (grup, matrícula per assignatures i històric acadèmic), **Contactes i adreces** (familiars), **Secretaria** (llista d'autoritzacions, bonificacions i exempcions, documentació i comptes bancaris) i les notes: vegeu [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md).
 
 ## Afegir un contacte familiar a un alumne

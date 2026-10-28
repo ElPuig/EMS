@@ -53,7 +53,7 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='student_year_record_ids'] .o_data_row td[name='study_name']:contains('Previous Study (Convalidation)')",
+            trigger: ".o_form_view .o_field_widget[name='student_history_line_ids'] .o_data_row td[name='study_name']:contains('Previous Study (Convalidation)')",
             content: "What the student studied before is listed",
         },
         {
@@ -338,7 +338,7 @@ registry.category("web_tour.tours").add("ems_convalidation_complete", {
             run: "click",
         },
         {
-            trigger: ".o_form_view .o_field_widget[name='student_year_record_ids'] .o_data_row td[name='study_name']:contains('Previous Study (Convalidation)')",
+            trigger: ".o_form_view .o_field_widget[name='student_history_line_ids'] .o_data_row td[name='study_name']:contains('Previous Study (Convalidation)')",
             content: "What the student studied before is listed",
         },
         ...clickAction("action_complete", "Complete it"),

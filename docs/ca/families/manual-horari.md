@@ -32,7 +32,9 @@ Al mòbil, llisqueu la graella cap als costats per veure tots els dies.
 
 ## Descarregar l'horari en PDF
 
-Feu clic a **Descarregar PDF** per desar una còpia imprimible del mateix horari.
+Feu clic a **Descarregar PDF** per desar una còpia imprimible del mateix horari. El PDF també
+mostra el grup i el tutor de l'alumne, amb l'adreça de correu del tutor perquè us hi pugueu
+posar en contacte.
 
 ---
 

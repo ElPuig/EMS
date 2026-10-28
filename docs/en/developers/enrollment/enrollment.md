@@ -254,7 +254,7 @@ a returning ex-student can never get in:
 flowchart LR
     P["portal access"] --> S["contact_type<br/>student / applicant"]
     S --> C["confirmed enrollment<br/>_ems_admit_student()"]
-    C --> A["required authorizations<br/>answered (action_confirm)"]
+    C --> A["required authorizations answered<br/>and a birth date (action_confirm)"]
     A --> P
 ```
 

@@ -1151,19 +1151,37 @@ class ems_employee(models.AbstractModel):
             employee = employee.parent_id
         return self.env["hr.employee"]
 
-    def _find_attendance_approvers(self):
+    def _find_attendance_approvers(self, skip_hierarchy=False):
         """Who corrects this employee's attendance (res.users): the nearest Head or Deputy Head
         of Studies above them in the chain of command; failing that, whoever manages their area's
         attendance (attendance_manager_id); failing that, the administrators. Shared by the
         routing of an attendance correction request (ems.attendance_correction._find_approver)
         and by the auto-checkout notice asking for a check-out to be corrected (issue #648), so
         both reach the same person. Never the Department or Seminar Chief ('parent_id'): they
-        can only read their branch's attendance, not correct it."""
+        can only read their branch's attendance, not correct it. `skip_hierarchy`: the
+        administrators alone."""
         self.ensure_one()
         employee = self.sudo()
-        head_of_studies = employee.find_head_of_studies()
-        if head_of_studies:
-            return head_of_studies.user_id
-        if employee.attendance_manager_id:
-            return employee.attendance_manager_id
+        if not skip_hierarchy:
+            head_of_studies = employee.find_head_of_studies()
+            if head_of_studies:
+                return head_of_studies.user_id
+            if employee.attendance_manager_id:
+                return employee.attendance_manager_id
         return self.env["res.users"].sudo().search([("groups_id", "=", self.env.ref("ems.group_academic_admin").id)])
+
+    def _ems_is_attendance_approver(self, user):
+        """Whether `user` may decide on this employee's attendance (issue #543): a Head or Deputy
+        Head of Studies of the employee's own branch - above them in the chain of command (the
+        Director is above everybody), or the manager of their area's attendance -, never every
+        holder of the role centre-wide. The administrator always can: they sit above the whole
+        hierarchy although they appear nowhere in it. Shared by the attendance correction requests
+        and the review of detected absences (issue #707)."""
+        self.ensure_one()
+        if any(user.has_group(xmlid) for xmlid in (
+                "base.group_system", "ems.group_academic_admin", "ems.group_director")):
+            return True
+        if not user.has_group("ems.group_head_of_studies"):
+            return False
+        employee = self.sudo()
+        return user in employee.tutor_scope_user_ids or employee.attendance_manager_id == user

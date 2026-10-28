@@ -96,6 +96,7 @@ class EMSPortalController(CustomerPortal):
             'iban_doc': iban_doc,
             'iban_valid': iban_valid,
             'iban_expired': iban_expired,
+            'error': kw.get('error'),
         })
         
         # 4. Renderizamos la plantilla en funcion del estado de la matricula
@@ -260,6 +261,15 @@ class EMSPortalController(CustomerPortal):
                         payment_term_id, request.env.user.id
                     )
                     return request.redirect(redirect_base + '?error=invalid_payment_term')
+
+            # Issue #640: the family gives the student's birth date when EMS has none, and
+            # there is no enrollment without it (action_confirm refuses it too).
+            if not student.birth_date:
+                birth_date = student._ems_portal_birth_date(post.get('birth_date'))
+                if not birth_date:
+                    _logger.warning("Enrollment confirm: user %s gave no valid birth date", request.env.user.id)
+                    return request.redirect(redirect_base + '?error=missing_birth_date')
+                student.sudo().write({'birth_date': birth_date})
 
             # Validar método de pago
             payment_method = post.get('payment_method', '').strip()

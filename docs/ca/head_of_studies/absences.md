@@ -203,15 +203,28 @@ Aquesta llista recull les absències dels docents que encara no ha sol·licitat 
 
 A partir d'aquest moment, el docent surt a l'horari de guàrdies com a absent amb una sol·licitud pendent d'aprovar (vermell més clar i en cursiva), durant les hores que has indicat.
 
+### Revisar una absència detectada
+
+Tota absència detectada, sigui quin sigui el seu origen, comença **Per revisar**: el docent no en sap res i encara no la veu. En canvi, el cap d'estudis o el cap d'estudis adjunt del docent (qui li corregeix els fitxatges) rep una tasca **Revisar absència detectada**, que també surt al resum diari de tasques pendents. Si el docent no té cap d'estudis per sobre, la tasca va als administradors. Així les falses alarmes no arriben al personal: per exemple, un docent que no estava convocat a la franja de reunions dels dimecres i fitxa a les 16:00.
+
+La llista s'obre amb les absències en estat **Per revisar** i **Justificació sol·licitada**, que encara no estan resoltes. Obre'n una i tria què fer des del menú **Accions**:
+
+- **Demana justificació**: es demana al docent que l'expliqui. A partir d'ara, a l'inici de la seva jornada se li recorda que sol·liciti l'absència (o, si era al centre, que et demani que registris el seu fitxatge), cada dia si el centre no ho ha canviat. Si uns dies després que la demanessis (tres, si el centre no ho ha canviat) encara no l'ha sol·licitada, reps un missatge i una activitat per fer-ne el seguiment.
+- **Corregeix el fitxatge**: el docent era al centre. L'EMS registra la seva assistència durant les hores detectades, amb el teu nom com a qui l'ha registrada, i no s'avisa ningú. Si va arribar tard, es manté el fitxatge que va fer i s'afegeix la part que faltava abans. Només s'ofereix un cop acabada l'absència.
+- **Crea l'absència**: prepares la sol·licitud d'absència per al docent, per al dia i les hores detectats, amb el tipus d'absència que tries al diàleg. No s'envia: s'avisa el docent, que l'obre ja emplenada, la revisa, accepta la declaració responsable i l'envia, i a partir d'aquí segueix els passos habituals (aprovació, justificant, ATRI, Direcció). Mentre no l'enviï se li recorda, i al cap d'uns dies se t'avisa, igual que amb **Demana justificació**.
+- **Descarta**: no era res. L'absència detectada es tanca i s'arxiva, i no s'avisa ningú. La pots trobar igualment amb el filtre **Arxivat**. Només els administradors poden esborrar del tot una absència detectada.
+
+Per resoldre'n diverses alhora, selecciona-les a la llista i tria l'acció al menú **Accions** (l'engranatge) de dalt. Cada acció només s'aplica a les absències que encara esperen revisió i que pots revisar; l'EMS t'indica quantes n'ha deixat i per què.
+
+Només el cap d'estudis o el cap d'estudis adjunt del docent, la Direcció i els administradors poden fer aquestes accions. Els caps de departament i de seminari poden introduir i veure les absències detectades del seu departament, però no revisar-les.
+
+![Llista d'absències detectades, una per etapa: una per revisar, una amb la justificació sol·licitada, una amb el fitxatge corregit i una ja sol·licitada](../../assets/head_of_studies/hos-detected-absences-list.png)
+
 ### Què passa després
 
-Quan el docent sol·licita l'absència, l'entrada s'hi vincula automàticament i el seu estat passa de **Detectada** a **Sol·licitada**. Des d'aleshores només compta la sol·licitud del docent, amb les seves dates i hores: si després es rebutja o es cancel·la, l'entrada no torna a l'horari de guàrdies. Una entrada sol·licitada ja no es pot modificar; queda a la llista, amb el filtre **Sol·licitada**, com a registre.
+Quan el docent sol·licita l'absència pel seu compte, en qualsevol moment, l'absència detectada s'hi vincula automàticament i el seu estat passa a **Sol·licitada**. Des d'aleshores només compta la sol·licitud del docent, amb les seves dates i hores: si després es rebutja o es cancel·la, l'entrada no torna a l'horari de guàrdies. Una entrada sol·licitada ja no es pot modificar; queda a la llista, amb el filtre **Sol·licitada**, com a registre.
 
-Mentrestant, un cop acabada l'absència, EMS recorda al docent que la sol·liciti a l'inici de la seva jornada, cada dia si el centre no ho ha canviat. El missatge no és el mateix per als dos orígens: per a un fitxatge que falta també li diu que, si era al centre i es va oblidar de fitxar, et demani que registris el seu fitxatge. Si uns dies després de l'absència (tres, si el centre no ho ha canviat) encara no l'ha sol·licitada, reps un missatge i una activitat per fer-ne el seguiment. Aquests recordatoris arriben als docents de les àrees que ha triat l'administrador.
-
-**Si al final el docent sí que era al centre**, registra el seu fitxatge d'aquell dia (**Assistència del personal → Assistència → Vista general**, **Nou**; vegeu també [Correccions de fitxatges](attendance-corrections.md)): una absència detectada per un fitxatge que faltava passa sola a **Descartada**, o s'escurça si va arribar abans del que deia. Una informada que vas introduir per error s'esborra a mà.
-
-![Llista d'absències detectades amb el seu origen: una informada, una per un fitxatge que falta i una ja sol·licitada pel docent](../../assets/head_of_studies/hos-detected-absences-list.png)
+**Si el fitxatge del docent apareix després** (registrat des de l'horari de guàrdies, o una sol·licitud de correcció acceptada), una absència detectada per un fitxatge que faltava passa sola a **Descartada**, o s'escurça si va arribar abans del que deia. El xat indica que s'ha descartat perquè s'ha registrat el fitxatge, perquè la puguis distingir d'una descartada a mà.
 
 ### Organitzar la cobertura
 

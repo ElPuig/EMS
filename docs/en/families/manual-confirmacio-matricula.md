@@ -100,6 +100,8 @@ If you want to ask about or comment on any of the items **before confirming**, y
 
 At the bottom of the details section you must indicate how you want to pay the enrollment.
 
+**Student's birth date.** If the school does not have it yet, a **Student's birth date** field appears above the payment plan. Fill it in: without it the enrollment cannot be confirmed.
+
 **Payment plan.** Choose one of the available options:
 
 * **Single payment (July).**
@@ -152,6 +154,7 @@ Back in **Enrollment**, check that everything is correct:
 The **Confirm Enrollment** button **(3)** stays disabled (light colour) until **all** of these conditions are met:
 
 * All mandatory authorizations are **accepted**.
+* You have entered the **student's birth date**, if it was requested.
 * You have selected a **payment plan**.
 * You have a **valid bank account (IBAN)** registered.
 

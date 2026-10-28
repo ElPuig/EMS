@@ -5,6 +5,7 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 import { useSetupAction } from "@web/search/action_hook";
 import { _t } from "@web/core/l10n/translation";
+import { formatList } from "@web/core/l10n/utils";
 import { dayLabels } from "./schedule_grid_geometry";
 import { serverNow, syncServerClock } from "./server_clock";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
@@ -525,8 +526,11 @@ export class GuardDutyBoard extends Component {
     }
 
     // Dialogs and popovers opened from the board flush a reload that waited for them on close.
-    addDialog(component, props) {
-        return this.dialog.add(component, props, { onClose: () => setTimeout(() => this.flushRefresh()) });
+    addDialog(component, props, onClose = () => {}) {
+        return this.dialog.add(component, props, { onClose: () => {
+            onClose();
+            setTimeout(() => this.flushRefresh());
+        } });
     }
 
     addPopover(target, component, props) {
@@ -563,11 +567,22 @@ export class GuardDutyBoard extends Component {
             removeArrangement: _t("Remove arrangement"),
             changeProposal: _t("Change proposal"),
             arrangementsTitle: _t("Proposals for the absences"),
-            arrangementsHelp: _t("For each group, how to organise its absences, the best first: the teachers rearranging their lessons so that the students lose as few lessons as possible and no guard is needed, or only telling the families. Uncheck the steps you do not want: the lessons they would have solved stay on the table. Sending a notice strikes its lessons off the table; you can choose a shorter change and send a guard to the rest. The teachers involved are notified."),
+            // What each kind of step means (issue #709): a short intro and one line per kind, with the
+            // icon the steps themselves carry.
+            arrangementsHelp: {
+                intro: _t("For each group, the best ways to organise its absences, the best first. Check what you want and click"),
+                // The button's own name, in its colour, so it is easy to find.
+                button: _t("Apply the checked steps"),
+                points: [
+                    { icon: "fa-arrows-v", text: _t("A teacher moves a lesson, or two teachers swap theirs. Under it, in grey, the details; in orange, whether somebody comes in or leaves at another time.") },
+                    { icon: "fa-envelope-o", text: _t("A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table.") },
+                    { icon: "fa-user-o", text: _t("A lesson no checked step solves stays on the table, for a guard. The teachers involved are notified.") },
+                ],
+            },
             noticeOnly: _t("Only tell the families"),
             noticeOnlyStudents: _t("Only tell the students"),
             correctionsTitle: _t("Corrections to absences already organised"),
-            correctionsHelp: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."),
+            correctionsHelp: { intro: _t("The families of these groups were told something that no longer matches the absences: send them a correction as soon as possible. Every proposal already includes it, in one email per group; to send only the correction, uncheck the other steps."), points: [] },
             applyPlan: _t("Apply the checked steps"),
         };
     }
@@ -791,15 +806,68 @@ export class GuardDutyBoard extends Component {
     // was the confirmation. One that could not be sent stays a draft and opens, with the reason,
     // for the planner to review and send: the moves it frees the group from only count once it is.
     // `reopen`: the side of a group's day whose notice the plan corrects (issue #659).
+    // A teacher's timetable can't be changed without them (issue #709): when the checked steps
+    // change somebody's entry or exit time, the planner confirms first that they agreed. False when
+    // the planner cancels, so the dialog it came from stays open.
     async applyPlan(plan, selection, reopen = false) {
+        const steps = plan.steps.filter((_step, index) => selection[index]);
+        if (!(await this.confirmScheduleChanges(steps))) {
+            return false;
+        }
         await this.applySteps(selectedPlanSteps(plan, selection), reopen);
+        return true;
+    }
+
+    confirmScheduleChanges(steps) {
+        const changes = steps.flatMap((step) => step.schedule_changes);
+        if (!changes.length) {
+            return Promise.resolve(true);
+        }
+        const teachers = [...new Set(steps.flatMap((step) => step.schedule_teachers))];
+        return new Promise((resolve) => {
+            this.addDialog(ConfirmationDialog, {
+                title: _t("Working day changes"),
+                body: _t("This arrangement changes when some teachers come in or leave:\n\n%(changes)s\n\nA teacher's timetable cannot be changed without their agreement. Have you talked to %(teachers)s?", {
+                    changes: changes.map((change) => `- ${change}`).join("\n"),
+                    teachers: formatList(teachers),
+                }),
+                confirmLabel: _t("Yes, apply it"),
+                cancelLabel: _t("Not yet"),
+                confirm: () => resolve(true),
+                cancel: () => resolve(false),
+            });
+        });
     }
 
     async applySteps(steps, reopen = false) {
         const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [this.activeDate, steps], { reopen });
         if (!(await this.openUnsentNotice(result))) {
             await this.loadBoard();
+            this.openGapCovers(result.gaps);
         }
+    }
+
+    // Issue #710: the classes the applied steps still leave without anybody need a guard, so the
+    // guard assignment of each opens, one after the other, offering only that: the planner already
+    // chose how to organise the day. A class not on the board's shift, or already covered, is
+    // skipped.
+    openGapCovers(gaps) {
+        const [gap, ...rest] = gaps || [];
+        if (!gap) {
+            return;
+        }
+        for (const line of this.state.board.lines) {
+            if (line.hour_from >= gap.hour_to || gap.hour_from >= line.hour_to) {
+                continue;
+            }
+            const absence = line.absences.find((row) => row.group_id === gap.group_id && this.isAssignable(row)
+                && !row.covers.length && !row.arrangement);
+            if (absence) {
+                this.openCoverDialog(line, absence, { guardOnly: true, onClose: () => this.openGapCovers(rest) });
+                return;
+            }
+        }
+        this.openGapCovers(rest);
     }
 
     // "Only tell the families", its rows as steps (issue #659; all checked until the planner
@@ -869,7 +937,8 @@ export class GuardDutyBoard extends Component {
         return this.actionLabels.openDraft;
     }
 
-    openCoverDialog(line, absence) {
+    // `guardOnly`: only "Send a guard teacher" (issue #710); `onClose`: once it closes.
+    openCoverDialog(line, absence, { guardOnly = false, onClose } = {}) {
         if (!this.isAssignable(absence)) {
             return;
         }
@@ -877,6 +946,7 @@ export class GuardDutyBoard extends Component {
         this.addDialog(GuardCoverDialog, {
             row: absence,
             line,
+            guardOnly,
             onAssign: async (guardId, message) => {
                 await this.orm.call("ems.absence_cover", "board_assign", [...classArgs, guardId, message],
                     { duty_id: absence.duty_id });
@@ -892,7 +962,7 @@ export class GuardDutyBoard extends Component {
                 await this.orm.call("ems.absence_cover", "board_release", [coverId || absence.arrangement.id]);
                 await this.loadBoard();
             },
-        });
+        }, onClose);
     }
 
     // Issue #692: the teacher of a class in progress has not checked in. The dialog offers to say

@@ -25,21 +25,22 @@
             </field>
         </record>
 
-        <!-- One student's history, without the student column: the student form and the
-             convalidation request (issue #657) show it. Above the default priority so it never
-             replaces the list above. -->
-        <record model="ir.ui.view" id="view_year_record_history_list">
-            <field name="name">ems.student.year_record.history.list</field>
-            <field name="model">ems.student.year_record</field>
-            <field name="priority">20</field>
+        <!-- One student's whole history, without the student column (issue #672): the courses of the
+             history and the previous curriculum records in one list (ems.student.history_line), as the
+             student form and the convalidation request (issue #657) show it. Opened through the
+             ems_history_lines widget, which opens the record behind the line. -->
+        <record model="ir.ui.view" id="view_student_history_line_list">
+            <field name="name">ems.student.history_line.list</field>
+            <field name="model">ems.student.history_line</field>
             <field name="arch" type="xml">
-                <list default_order="study_name asc, course_id asc" decoration-info="is_provisional">
-                    <field name="course_id"/>
+                <list decoration-info="is_provisional" decoration-muted="is_previous_curriculum">
+                    <field name="course_name"/>
                     <field name="is_provisional"/>
                     <field name="is_external" optional="show"/>
+                    <field name="is_previous_curriculum" optional="show"/>
                     <field name="study_name"/>
                     <field name="group_name"/>
-                    <field name="origin_centre_name" optional="hide"/>
+                    <field name="centre_name" optional="hide"/>
                     <field name="tutor_name" optional="hide"/>
                     <field name="academic_result" widget="badge"
                            decoration-success="academic_result == 'full'"
@@ -47,7 +48,7 @@
                            decoration-danger="academic_result == 'withdrawn'"/>
                     <field name="title_obtained"/>
                     <field name="subject_count"/>
-                    <field name="attendance_rate" optional="show"/>
+                    <field name="attendance_rate" optional="show" invisible="is_previous_curriculum"/>
                 </list>
             </field>
         </record>

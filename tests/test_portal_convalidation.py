@@ -221,8 +221,11 @@ class TestPortalConvalidation(HttpCase):
         self._login(self.student_user)
         self._submit(self.subject)
         request = self._requests(self.student)
+        self.assertIn('o_ems_convalidation_pending_resolution', self.url_open('/my/convalidaciones').text)
         self.url_open(f'/my/convalidaciones/cancel/{request.id}', data={'csrf_token': Request.csrf_token(self)})
         self.assertEqual(request.state, 'cancelled')
+        # Issue #719: no resolution will ever come, so no note announcing one.
+        self.assertNotIn('o_ems_convalidation_pending_resolution', self.url_open('/my/convalidaciones').text)
 
     def test_nobody_cancels_someone_elses_request(self):
         request = self.env['ems.convalidation'].create({

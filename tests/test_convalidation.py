@@ -419,13 +419,6 @@ class TestConvalidation(TransactionCase):
             {'reason': reason})
         return wizard.action_cancel()
 
-    def test_cancel_and_reopen(self):
-        request = self._request()
-        self._cancel(request, self.secretary)
-        self.assertEqual(request.state, 'cancelled')
-        request.with_user(self.secretary).action_reopen()
-        self.assertEqual(request.state, 'pending')
-
     def test_cancelling_from_the_backend_asks_for_a_reason(self):
         """Issue #720: the staff say why they cancel a request, and everybody sees it."""
         request = self._request()
@@ -442,6 +435,7 @@ class TestConvalidation(TransactionCase):
         self.assertIn("Test filed twice by mistake", comment.body)
         # Reopening clears it: it no longer describes the request.
         request.with_user(self.head_of_studies).action_reopen()
+        self.assertEqual(request.state, 'pending')
         self.assertFalse(request.cancel_reason)
 
     def test_a_blank_cancel_reason_is_refused(self):

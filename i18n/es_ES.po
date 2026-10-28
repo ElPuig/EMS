@@ -15892,11 +15892,6 @@ msgid "Supporting documents <span class=\"text-danger\">*</span>"
 msgstr "Documentación justificativa <span class=\"text-danger\">*</span>"
 
 #. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_form
-msgid "The request will be cancelled. Continue?"
-msgstr "Se anulará la solicitud. ¿Queréis continuar?"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "The resolution could not be emailed: nobody to notify has an email address."

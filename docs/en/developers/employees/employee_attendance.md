@@ -38,7 +38,8 @@ escalation" in `CLAUDE.md`), through the two ways somebody is a Head of Studies'
   ([role hierarchy](role_hierarchy.md)); a Department Chief matches it for their department, a
   Head of Studies for every department below them;
 - **the area they manage**: `hr.employee.attendance_manager_id` (kept equal to
-  `leave_manager_id`, the manager of the employee's top-level department), which is what
+  `leave_manager_id`, the manager of the employee's top-level department; the Director for an
+  Area Manager themselves), which is what
   hr_attendance's own *Officer* rule already matches.
 
 **Why the Head of Studies' group stopped implying hr_attendance's Administrator group.** That

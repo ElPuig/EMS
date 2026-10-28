@@ -21626,31 +21626,31 @@ msgstr "Este día ya ha pasado."
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could start at %s"
-msgstr "Puede entrar a las %s"
+msgstr "Pueden entrar a las %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could leave at %s"
-msgstr "Puede salir a las %s"
+msgstr "Pueden salir a las %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could have no classes"
-msgstr "Puede no tener clases"
+msgstr "Pueden no tener clases"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Starts at %s"
-msgstr "Entra a las %s"
+msgstr "Entran a las %s"
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Leaves at %s"
-msgstr "Sale a las %s"
+msgstr "Salen a las %s"
 
 #. module: ems
 #. odoo-python
@@ -21864,7 +21864,7 @@ msgstr "Propuestas de entrada, salida y patio"
 #. odoo-python
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "Could have a break from %(start)s to %(end)s"
-msgstr "Puede hacer patio de %(start)s a %(end)s"
+msgstr "Pueden hacer patio de %(start)s a %(end)s"
 
 #. module: ems
 #. odoo-python

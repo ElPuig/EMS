@@ -19,7 +19,6 @@ Esta sección contiene los manuales para los **profesores**.
 | [Strikes: notificar una incidencia disciplinaria](strike.md) | Poner un strike desde la vista de pasar lista cuando hay que dejar constancia del comportamiento de un alumno |
 | [Tu horario semanal](working-schedules.md) | Consultar tus asignaturas, grupos, aulas, patios y reuniones en tu horario semanal |
 | [Horario de guardias](guard-duty-schedule.md) | Consultar dónde está cada docente, y quién está de guardia, en cada franja horaria de la semana |
-| [Comunicados: escribir a los grupos de tu departamento](notice.md) | Enviar comunicados al alumnado y las familias de los grupos donde da clase tu departamento (Jefes de departamento y de seminario) |
 | [Alumnado: tus grupos](student-list-my-groups.md) | Abrir la lista de alumnado ya filtrada a los grupos donde das clase o eres tutor, y ampliarla cuando la necesites entera |
 | [Desactivar tu foto de perfil](photo-visibility.md) | Activar o desactivar tu foto de perfil |
 | [Resumen diario de tareas pendientes](task-digest.md) | El correo de cada mañana con todo lo que tienes pendiente en la bandeja de EMS, y cómo desactivarlo |
@@ -32,6 +31,8 @@ Esta sección contiene los manuales para los **profesores**.
 | [Notas públicas y notas privadas del alumno](student-notes.md) | Dónde todo el profesorado lee las notas públicas de un alumno, y quién puede leer y escribir las privadas de tutoría |
 | [El punto de presencia en la pantalla de Profesores](staff-presence.md) | Qué significa el punto verde, amarillo o gris junto al nombre de cada compañero, y en qué se basa |
 | [Actas de reunión](minutes.md) | Redactar actas de departamento, claustro, equipo docente o equipo de mejora, con los asistentes y los acuerdos arrastrados automáticamente |
+
+> ¿Eres jefe de departamento o de seminario? Tus manuales (organizar las ausencias, comunicados a los grupos de tu departamento) están en [Jefes de departamento y de seminario](../department_chiefs/index.md).
 
 ---
 

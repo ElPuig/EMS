@@ -38,6 +38,8 @@ Un docente pertenece a un área por su departamento. Las ausencias detectadas se
 | Salir antes | Si las últimas clases del día no tienen docente, avisar al alumnado y a las familias de que pueden salir antes |
 | Patio más largo | Si las clases justo antes o después de un patio no tienen docente, alargar el patio. Solo se avisa al alumnado, y los menores de 18 años siguen sin poder salir del centro, así que esas clases siguen necesitando un profesor de guardia |
 
+Entrar más tarde y salir antes solo se ofrecen a los grupos de los niveles de la lista **Niveles que pueden entrar más tarde o salir antes** (aparece cuando alguno de los dos está activado), por ejemplo CFGM y CFGS: los grupos de cualquier otro nivel, como la educación obligatoria (ESO), tienen una guardia. **Si la lista está vacía, no se ofrece ninguno de los dos cambios a ningún grupo**, aunque estén activados, así que indica en ella todos los niveles que los pueden tener. El patio más largo no depende de esta lista.
+
 Desactivar uno no deshace lo que ya se ha comunicado: si la ausencia cambia después, el cuadro sigue ofreciendo la corrección.
 
 ---

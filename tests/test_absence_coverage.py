@@ -6,7 +6,7 @@ from odoo.addons.ems.models.shared.datetime_utils import EmsDatetimeUtils
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 from .common import (
-    create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, next_student_id)
+    allow_every_absence_change, create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, next_student_id)
 from .test_guard_duty_board import GuardDutyBoardCase
 
 
@@ -46,8 +46,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         for employee in cls.teacher_a | cls.teacher_b | cls.teacher_c:
             (employee.user_id.partner_id or employee.work_contact_id).lang = 'en_US'
         # Every timetable change is off by default (issue #679): these tests are about them.
-        cls.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                               'ems_absence_change_long_break': True})
+        allow_every_absence_change(cls.env)
 
     def setUp(self):
         super().setUp()
@@ -1195,6 +1194,29 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         proposals = [self.env['ems.course']._board_action_data(action) for action in self._actions()
                      if action['type'] == 'proposal' and action['group'] == self.group_a]
         self.assertEqual([action['students_only'] for action in proposals], [True])
+
+    def test_only_the_allowed_levels_come_in_later_or_leave_earlier(self):
+        """Issue #718: a group of a level not listed in the setting gets guards instead of a later
+        entry, no classes or an earlier leave, from the board and from the arrangement plans alike;
+        a longer break is still offered, the students staying in the centre."""
+        self.env.company.ems_absence_change_level_ids = self.level2
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._absence(self.teacher_b, self.day, hour_from=10.5, hour_to=11.5)
+
+        states = self._states()
+
+        self.assertEqual(states['entry']['options'], [])
+        self.assertEqual(self._break_state()['options'], [('long_break', 10, 11.5)])
+        self.assertFalse([step for plan in self._plans() for step in plan['steps']
+                          if step['kind'] == 'notice' and step['change'][0] in ('late_entry', 'early_leave')])
+        enabled = self.env['ems.course']._enabled_absence_changes(self.group_a | self.group_c)
+        self.assertEqual(enabled[self.group_a.id], {'long_break'})
+        self.assertEqual(enabled[self.group_c.id], {'late_entry', 'no_classes', 'early_leave', 'long_break'})
+
+        self.env.company.ems_absence_change_level_ids |= self.group_a.level_id
+
+        self.assertEqual(self._states()['entry']['options'], [('late_entry', 9.0)])
 
     def test_a_correction_is_still_offered_once_its_change_is_switched_off(self):
         """What was told before the switch went off still has to be put right."""

@@ -19,7 +19,6 @@ Aquesta secció conté els manuals per als **professors**.
 | [Strikes: notificar una incidència disciplinària](strike.md) | Posar un strike des de la vista de passar llista quan cal deixar constància del comportament d'un alumne |
 | [El teu horari setmanal](working-schedules.md) | Consultar les teves assignatures, grups, aules, patis i reunions al teu horari setmanal |
 | [Horari de guàrdies](guard-duty-schedule.md) | Consultar on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana |
-| [Comunicats: escriure als grups del teu departament](notice.md) | Enviar comunicats a l'alumnat i les famílies dels grups on fa classe el teu departament (Caps de departament i de seminari) |
 | [Alumnat: els teus grups](student-list-my-groups.md) | Obrir la llista d'alumnat ja filtrada als grups on fas classe o ets tutor, i ampliar-la quan la necessitis sencera |
 | [Desactivar la teva foto de perfil](photo-visibility.md) | Activar o desactivar la teva foto de perfil |
 | [Resum diari de tasques pendents](task-digest.md) | El correu de cada matí amb tot el que tens pendent a la safata de l'EMS, i com desactivar-lo |
@@ -32,6 +31,8 @@ Aquesta secció conté els manuals per als **professors**.
 | [Notes públiques i notes privades de l'alumne](student-notes.md) | On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria |
 | [El punt de presència a la pantalla de Professors](staff-presence.md) | Què vol dir el punt verd, groc o gris al costat del nom de cada company, i en què es basa |
 | [Actes de reunió](minutes.md) | Redactar actes de departament, claustre, equip docent o equip de millora, amb els assistents i els acords arrossegats automàticament |
+
+> Ets cap de departament o de seminari? Els teus manuals (organitzar les absències, comunicats als grups del teu departament) són a [Caps de departament i de seminari](../department_chiefs/index.md).
 
 ---
 

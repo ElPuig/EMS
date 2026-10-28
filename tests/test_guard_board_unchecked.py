@@ -7,7 +7,7 @@ from odoo.exceptions import AccessError, UserError
 
 from odoo.addons.ems.models.shared.guard_board_notifier import GUARD_BOARD_CHANGED, GUARD_BOARD_CHANNEL
 
-from .common import create_head_of_studies_branch, create_role_employee, create_role_user, make_working_day, shift_ems_clock
+from .common import allow_every_absence_change, create_head_of_studies_branch, create_role_employee, create_role_user, make_working_day, shift_ems_clock
 from .test_guard_duty_board import GuardDutyBoardCase
 
 
@@ -37,8 +37,7 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
         cls.Attendance = cls.env['hr.attendance']
         # Every timetable change on: a teacher who only has not checked in must still never
         # propose one.
-        cls.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                               'ems_absence_change_long_break': True})
+        allow_every_absence_change(cls.env)
 
     def setUp(self):
         super().setUp()

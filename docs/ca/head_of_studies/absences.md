@@ -228,6 +228,6 @@ Quan el docent sol·licita l'absència pel seu compte, en qualsevol moment, l'ab
 
 ### Organitzar la cobertura
 
-Un cop una absència surt a l'horari de guàrdies, detectada o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans (si l'administrador ha activat aquests canvis), i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència detectada es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../teachers/guard-duty-schedule.md#organitzar-una-absencia).
+Un cop una absència surt a l'horari de guàrdies, detectada o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans (si l'administrador ha activat aquests canvis), i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència detectada es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../department_chiefs/absences.md#organitzar-una-absencia).
 
 Una classe el docent de la qual no ha fitxat quan comença també surt a la Taula d'absències, per cobrir-la amb una guàrdia. Si resulta que el docent és a l'aula, en pots registrar l'entrada des de la taula: consulta [Docents que no han fitxat](../teachers/guard-duty-schedule.md#docents-que-no-han-fitxat).

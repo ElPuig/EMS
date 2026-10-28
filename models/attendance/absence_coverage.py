@@ -346,8 +346,9 @@ class EmsAbsenceCover(models.Model):
 
     def _check_board_assignable(self, day, hour_from, hour_to, absent, group, duty, guard):
         """What `guard` may be sent to: the block of `group`'s day, or the absent teacher's own
-        guard duty `duty` - the day is not over, it still needs a guard and `guard` is on regular
-        guard duty then. Raises otherwise. Returns that block (or duty entry) and the part of the
+        guard duty `duty` - the day is not over, it still needs a guard, `guard` is on regular
+        guard duty then and the user may send them (issue #721: another area may organise them, see
+        ems.course._can_move_teacher). Raises otherwise. Returns that block (or duty entry) and the part of the
         period `guard` covers (issue #637: their guard duty may only overlap part of it)."""
         course = self.env['ems.course']
         course._check_board_day_not_past(day)
@@ -362,6 +363,7 @@ class EmsAbsenceCover(models.Model):
         span = course._get_guard_candidates(day, hour_from, hour_to).get(guard)
         if not span:
             raise UserError(_("%s is not on guard duty in this period.", guard.name))
+        course._check_can_move_teacher(guard)
         return needed, span
 
     def _board_current_covers(self, day, hour_from, hour_to, absent, group, duty):
@@ -552,6 +554,8 @@ class EmsAbsenceCover(models.Model):
             if teacher and course._guard_duty_absence_state(
                     course._get_guard_duty_absence_intervals(day, teacher), teacher, hour_from, hour_to):
                 raise UserError(_("%s is away in this period.", teacher.name))
+            if teacher:
+                course._check_can_move_teacher(teacher)
         else:
             option = next((option for option in course._get_arrangement_options(
                 day, group, absents, hour_from, hour_to, exclude=current)

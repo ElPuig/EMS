@@ -525,6 +525,54 @@ class EmsCourseGuardDutyBoard(models.Model):
         raise AccessError(_(
             "Only the department chief of %s, or someone above them, can manage their absences.", employee.name))
 
+    # Teachers shared between areas (issue #721). See "Teachers of another area" in
+    # docs/en/developers/attendance/guard_duty_board.md.
+
+    def _organiser_areas(self):
+        """The areas (top-level departments) whose teachers the current user may move or send from
+        the board: those of the departments they chief and of their own (a Deputy Head of Studies
+        may chief none). None for Direction and the administrator, who may move anybody."""
+        user = self.env.user
+        if self.env.su or any(user.has_group(xmlid) for xmlid in (
+                'base.group_system', 'ems.group_academic_admin', 'ems.group_director')):
+            return None
+        employees = user.sudo().employee_ids
+        return self._department_areas(
+            employees.department_id | employees.headed_department_ids | employees.seminar_department_ids)
+
+    @staticmethod
+    def _department_areas(departments):
+        return frozenset(department._top_level_department().id for department in departments) - {False}
+
+    def _can_move_teacher(self, teacher, context=None):
+        """Whether the current user may change `teacher`'s day from the board: move, swap or join a
+        lesson of theirs, name them in a manual arrangement or send them to cover a class. Only
+        someone of the teacher's area - that of their department, or of one named on them as also
+        managing them (hr.employee.managing_department_ids) - may: ESO/BTX and the vocational
+        families share some teachers, and each area organises its own; an area that does not use
+        the board would otherwise lose them without knowing. Both ways: the area deciding is the
+        user's, whatever group the class is of. A teacher with no area is anybody's. `context`, a
+        dict (the arrangement context, see _arrangement_context), caches the answers of one load."""
+        cache = context if context is not None else {}
+        if 'organiser_areas' not in cache:
+            cache['organiser_areas'] = self._organiser_areas()
+            cache['teacher_areas'] = {}
+        areas = cache['organiser_areas']
+        if areas is None:
+            return True
+        if teacher.id not in cache['teacher_areas']:
+            employee = teacher.sudo()
+            cache['teacher_areas'][teacher.id] = self._department_areas(
+                employee.department_id | employee.managing_department_ids)
+        own = cache['teacher_areas'][teacher.id]
+        return not own or bool(own & areas)
+
+    def _check_can_move_teacher(self, teacher):
+        if not self._can_move_teacher(teacher):
+            raise UserError(_(
+                "%s belongs to another area: only whoever organises that area can change their timetable or ask them "
+                "to cover a class.", teacher.name))
+
     @staticmethod
     def _freeing_move(covers, teacher, group, hour_from, hour_to):
         """The move made without telling the families (issue #645) that left `teacher`'s lesson of
@@ -1172,14 +1220,16 @@ class EmsCourseGuardDutyBoard(models.Model):
             shifts = []
             for teacher in absent:
                 shift = self._schedule_shift(context, teacher, [(hour_from, hour_to)], [lesson])
-                if shift is None or not self._is_free_for_arrangement(context, covers, teacher, *lesson):
+                if shift is None or not self._can_move_teacher(teacher, context) \
+                        or not self._is_free_for_arrangement(context, covers, teacher, *lesson):
                     break
                 shifts += [(teacher, *change) for change in shift]
             else:
                 teachers = stays = Employee
                 for teacher in Employee.browse(sorted(pack)).sorted('name'):
                     shift = self._schedule_shift(context, teacher, [lesson], [(hour_from, hour_to)])
-                    if shift is None or not self._is_free_for_arrangement(context, covers, teacher, hour_from, hour_to):
+                    if shift is None or not self._can_move_teacher(teacher, context) \
+                            or not self._is_free_for_arrangement(context, covers, teacher, hour_from, hour_to):
                         if teacher.id not in away:
                             stays |= teacher  # in at their lesson: on guard while it is gone
                         continue
@@ -1329,8 +1379,10 @@ class EmsCourseGuardDutyBoard(models.Model):
 
         partners = {group_id: ids & frozenset(groups.ids) for group_id, ids in self._split_partners(context).items()
                     if group_id in groups.ids}
+        fixed = frozenset(teacher_id for teacher_id, teacher in employees.items()
+                          if not self._can_move_teacher(teacher, context))
         return ArrangementPlanner(self, blocks, breaks, communicated, self._board_day_hour(day), teachers, sessions, free,
-                                  swaps, partners=partners), states
+                                  swaps, partners=partners, fixed=fixed), states
 
     @staticmethod
     def _block_absents(block):
@@ -1351,7 +1403,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         a notice of the plan on that side becomes its correction - or is dropped, if it repeats what
         was told - and without one the correction puts that side back to the usual timetable.
         A co-teacher who cannot follow their lesson (issue #678) comes in 'stays', with why in
-        'stay_reasons' ('away', 'busy', 'apart' or 'day'), and what kind of move it is for each
+        'stay_reasons' ('away', 'busy', 'apart', 'area' or 'day'), and what kind of move it is for each
         teacher in 'how' (issue #709, see _arrangement_step_how)."""
         Employee, Group = self.env['hr.employee'], self.env['ems.group']
         items = []
@@ -1416,11 +1468,13 @@ class EmsCourseGuardDutyBoard(models.Model):
     def _stay_reason(self, context, teacher, step, earlier_steps):
         """Why `teacher` cannot follow their lesson into the gap of `step`: 'away' then, 'busy'
         (a class or a duty of theirs, or an earlier step of the plan takes them there), 'apart'
-        (in a join, issue #660: they are not teaching the other half then) or 'day' (their working
-        day would get longer)."""
+        (in a join, issue #660: they are not teaching the other half then), 'area' (another area
+        organises them, issue #721) or 'day' (their working day would get longer)."""
         target = step[3]
         if self._guard_duty_absence_state(context['intervals'], teacher, *target):
             return 'away'
+        if not self._can_move_teacher(teacher, context):
+            return 'area'
         if any(teacher.id in other[1] and overlaps(*other[3], *target) for other in earlier_steps):
             return 'busy'
         if step[0] == 'join':
@@ -1518,7 +1572,8 @@ class EmsCourseGuardDutyBoard(models.Model):
     @api.model
     def get_arrangement_candidates(self, day, hour_from, hour_to, absent_employee_id, group_id):
         """The teachers who can be named in a manual arrangement (issue #605) for the board's
-        dialog: anybody with a timetable that day who is not away in the period. Unlike the
+        dialog: anybody with a timetable that day who is not away in the period and whom the user
+        may move (issue #721, see _can_move_teacher). Unlike the
         detected arrangements, a class of their own does not rule them out: joining two groups for
         the same subject is precisely one of the things recorded by hand."""
         day = fields.Date.to_date(day)
@@ -1529,8 +1584,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         teachers = self._get_guard_duty_board_attendance_ids([('dayofweek', '=', str(day.weekday()))]).employee_id - absent
         away = self._guard_duty_absence_state(
             self._get_guard_duty_absence_intervals(day, teachers), teachers, hour_from, hour_to)
+        movable = {}
         return [{'id': teacher.id, 'name': teacher.display_name}
-                for teacher in teachers.sorted('name') if teacher.id not in away]
+                for teacher in teachers.sorted('name') if teacher.id not in away and self._can_move_teacher(teacher, movable)]
 
     @api.model
     def get_change_proposal_options(self, day, group_id, side):
@@ -2168,6 +2224,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         # like every other board action (see _check_board_day_not_past).
         editable = bool(day) and fields.Date.to_date(day) >= self.env['ems.datetime_utils'].get_local_today()
         me = self.env.user.employee_id
+        movable = {}  # _can_move_teacher's answers for this load
         # "The teacher is in the classroom" (issue #692): only on today's classes in progress.
         today = bool(day) and fields.Date.to_date(day) == self.env['ems.datetime_utils'].get_local_today()
         now = course._board_day_hour(fields.Date.to_date(day)) if today else None
@@ -2210,7 +2267,9 @@ class EmsCourseGuardDutyBoard(models.Model):
                                   arrangement=busy._arrangement_label()) if busy else False
             # Who can be sent to one of this line's classes, and for which part of it (issue #637):
             # those covering all of it first, then the partial ones by time - see _guard_spans().
-            spans = sorted(line['guard_spans'].items(), key=lambda item: (
+            # Only those the user may send (issue #721, see _can_move_teacher).
+            spans = sorted(((guard, span) for guard, span in line['guard_spans'].items()
+                            if course._can_move_teacher(guard, movable)), key=lambda item: (
                 item[1] != (line['hour_from'], line['hour_to']), item[1], item[0].name))
             my_span = line['guard_spans'].get(me) if editable else None
             in_progress = course._in_progress(now, line['hour_from'], line['hour_to'])
@@ -2358,6 +2417,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             'away': _("away then"),
             'busy': _("busy then"),
             'apart': _("not with the other half then"),
+            'area': _("organised by another area"),
             'day': _("their working day would get longer"),
         }
         return _("%(teacher)s cannot follow the lesson (%(reason)s): on guard at %(time)s instead.",

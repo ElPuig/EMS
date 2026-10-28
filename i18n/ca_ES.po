@@ -27209,3 +27209,15 @@ msgstr "Una classe que cap pas marcat no resol es queda a la taula, per a una gu
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Encara deixa %s sense docent: un cop aplicada, triareu el docent de guàrdia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "organised by another area"
+msgstr "és d'una altra àrea"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%s belongs to another area: only whoever organises that area can change their timetable or ask them to cover a class."
+msgstr "%s és d'una altra àrea: només qui organitza aquella àrea li pot canviar l'horari o encarregar-li cobrir una classe."

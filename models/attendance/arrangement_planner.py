@@ -58,6 +58,9 @@ class ArrangementPlanner:
       as steps: they combine with moves like any other step.
     - `partners`: `{group id: frozenset(group ids)}`, the other halves of a split group (issue
       #660): groups sharing some lesson in the weekly timetable.
+    - `fixed`: the teachers whose day must not change (issue #721: another area organises them,
+      see ems.course._can_move_teacher). No step moves, joins or swaps a lesson of theirs; a
+      co-teacher among them stays on guard at the lesson, like one who is busy.
 
     A step is a hashable tuple `(kind, teachers, lesson, target, group ids, absents, stays, joined)`:
     'move', 'swap' or 'join'; the pack that teaches its `lesson` in the gap (`target`) for those
@@ -74,7 +77,8 @@ class ArrangementPlanner:
     MAX_MOVES = 4
     BEAM = 30
 
-    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, sessions, free, swaps=(), partners=None):
+    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, sessions, free, swaps=(), partners=None,
+                 fixed=frozenset()):
         self.course = course
         self.blocks = blocks
         self.breaks = breaks
@@ -85,6 +89,7 @@ class ArrangementPlanner:
         self.free = free
         self.swaps = list(swaps)
         self.partners = partners or {}
+        self.fixed = fixed
         self.enabled = course._enabled_absence_changes()
 
     # The state a sequence of steps leaves the groups' day in.
@@ -235,7 +240,7 @@ class ArrangementPlanner:
         vacated = {(teacher_id, step[2]) for step in steps for teacher_id in step[1] | step[6]}
 
         def busy(teacher_id, period):
-            return any(other == teacher_id and overlaps(*other_period, *period) for other, other_period in taken)
+            return teacher_id in self.fixed or any(other == teacher_id and overlaps(*other_period, *period) for other, other_period in taken)
 
         for step in self.swaps:
             _kind, teachers, lesson, target, group_ids, absents, stays, _joined = step

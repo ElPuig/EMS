@@ -27212,3 +27212,15 @@ msgstr "Una clase que ningún paso marcado resuelve se queda en la tabla, para u
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Todavía deja %s sin docente: una vez aplicada, elegiréis al docente de guardia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "organised by another area"
+msgstr "es de otra área"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "%s belongs to another area: only whoever organises that area can change their timetable or ask them to cover a class."
+msgstr "%s es de otra área: solo quien organiza esa área puede cambiarle el horario o encargarle cubrir una clase."

@@ -27209,3 +27209,8 @@ msgstr "Una classe que cap pas marcat no resol es queda a la taula, per a una gu
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Encara deixa %s sense docent: un cop aplicada, triareu el docent de guàrdia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__archived_with_calendar
+msgid "Archived with its calendar"
+msgstr "Arxivada amb el seu calendari"

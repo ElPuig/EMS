@@ -94,7 +94,16 @@ class ems_working_schedule(models.Model):
 		'resource.calendar.attendance' directly without also checking 'calendar_id.active' (found
 		2026-09-01 via the Guard Duty Board showing departed/reassigned teachers)."""
 		super().action_archive()
-		self.attendance_ids.filtered('active').action_archive()
+		# Marked, so that unarchiving the teacher brings back exactly these blocks (issue #722).
+		self.attendance_ids.filtered('active').write({'active': False, 'archived_with_calendar': True})
+
+	def _restore_blocks_archived_with_calendar(self):
+		"""Reactivates the blocks this calendar's own action_archive() archived, and only those
+		(issue #722): a block archived earlier for another reason (a superseded version, a lost room
+		conflict) stays archived. Goes through the ORM, so the roll-calls, the groups' reference
+		classroom and the public schedule PDF follow."""
+		self.with_context(active_test=False).attendance_ids.filtered(
+			lambda block: not block.active and block.archived_with_calendar).action_unarchive()
 
 	def _refresh_personal_name(self):
 		"""Rebuilds 'name' from this calendar's own 'employee_id'/'course_id' - called after either
@@ -324,6 +333,9 @@ class ems_working_schedule_assignation(models.Model):
 	# action_unarchive() (models.py) already work for any model with this field - no override needed
 	# here yet; nothing writes 'active=False' on this model until a later phase of that same plan.
 	active = fields.Boolean(default=True)
+	# Issue #722: set only when the block was archived together with its calendar (see
+	# 'resource.calendar.action_archive()'); any other change of 'active' clears it (write() below).
+	archived_with_calendar = fields.Boolean(string="Archived with its calendar", copy=False)
 	non_teaching = fields.Many2one(string="Non-teaching", comodel_name="ems.non_teaching_type")
 	subject_id = fields.Many2one(string="Subject", comodel_name="ems.subject")
 	group_ids = fields.Many2many(string="Groups", comodel_name="ems.group")
@@ -439,6 +451,8 @@ class ems_working_schedule_assignation(models.Model):
 		return records
 
 	def write(self, vals):
+		if 'active' in vals and 'archived_with_calendar' not in vals:
+			vals = {**vals, 'archived_with_calendar': False}
 		trigger = bool(vals.keys() & self._SYNC_TRIGGER_FIELDS)
 		public_trigger = bool(vals.keys() & self._PUBLIC_SCHEDULE_TRIGGER_FIELDS)
 		# 'calendar_id' should never actually change here (see the field set's own note above), but

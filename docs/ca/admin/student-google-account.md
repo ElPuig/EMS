@@ -25,6 +25,8 @@ Si un alumne encara no té compte:
 
 El compte es crea a la unitat organitzativa de menors o de majors d'edat, segons l'edat de l'alumne, amb l'IDALU de l'alumne com a **ID d'empleat** (Employee ID) a Google (si després es corregeix l'IDALU a EMS, també s'actualitza a Google). A la secció **Documentació** de la pestanya **Secretaria** apareix el PDF de **Credencials de Google Workspace**, i si l'alumne té correu personal, també les rep per correu.
 
+Quan l'alumne fa 18 anys, EMS mou el compte a la unitat organitzativa de majors d'edat automàticament aquell mateix dia. També el mou quan es corregeix la data de naixement.
+
 Poden crear comptes administració, coordinació TAC, secretaria i el tutor o tutora de l'alumne (i els caps per sobre d'aquest tutor: cap de seminari, cap de departament, cap d'estudis i direcció).
 
 ### Comptes creats fora d'EMS

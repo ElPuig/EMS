@@ -27030,3 +27030,8 @@ msgstr "Expediente de plan de estudios anterior"
 #: model:ir.model.fields,field_description:ems.field_res_users__history_line_ids
 msgid "Whole academic history"
 msgstr "Histórico académico completo"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.ir_cron_students_coming_of_age_ir_actions_server
+msgid "EMS: Students coming of age"
+msgstr "EMS: alumnado que cumple 18 años"

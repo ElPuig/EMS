@@ -437,6 +437,7 @@
         'data/main/mail.template-google_welcome.csv',
         'data/main/mail.template-google_lifecycle.csv',
         'data/main/ir.cron-google_workspace.csv',
+        'data/main/ir.cron-coming_of_age.csv',
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
         'data/main/ir.cron-task_digest.csv',

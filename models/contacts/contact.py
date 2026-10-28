@@ -5,6 +5,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize, format_date
 from odoo.osv import expression
 from ..shared import base
+from .coming_of_age import ADULT_AGE
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -911,7 +912,7 @@ class ResPartner(models.Model):
     def _compute_is_adult(self):
         for partner in self:
             partner.is_adult = bool(partner.birth_date) and (
-                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= 18)
+                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= ADULT_AGE)
 
     @api.depends('main_group_id')
     def _compute_main_group_pending_change(self):

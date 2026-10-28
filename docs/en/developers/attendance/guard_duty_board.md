@@ -1152,8 +1152,9 @@ possible with the earlier ones applied, each notice one of the changes the resul
 a side nobody was told about. So a stale screen, or a step kept without one it needs, is refused.
 It also works out what the checked steps still leave to a guard (`_plan_gaps()`, #710) and returns
 it as `gaps` (`{'group_id', 'hour_from', 'hour_to'}`): once the board reloads, it opens the guard
-dialog of each of those classes in turn, on "Send a guard teacher" (`openGapCovers()`,
-`GuardCoverDialog`'s `guardFirst`), skipping one not on the shift shown or already covered. Not when
+dialog of each of those classes in turn, offering only "Send a guard teacher" (`openGapCovers()`,
+`GuardCoverDialog`'s `guardOnly`: no other proposal, which could also open its own gaps' dialogs on
+top of the queue), skipping one not on the shift shown or already covered. Not when
 a notice could not be sent: its draft opens instead.
 Then:
 

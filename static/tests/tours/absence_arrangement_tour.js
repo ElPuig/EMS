@@ -370,8 +370,8 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_gaps", {
             run: "click",
         },
         {
-            trigger: ".modal:has(.modal-title:contains('09:00')) .o_guard_cover_guard_select",
-            content: "The 9:00 class's guard assignment opens",
+            trigger: ".modal:has(.modal-title:contains('09:00')):not(:has(.o_guard_cover_mode)) .o_guard_cover_guard_select",
+            content: "The 9:00 class's guard assignment opens, offering nothing but a guard",
             run: "selectByLabel Tour Cover Guard",
         },
         {

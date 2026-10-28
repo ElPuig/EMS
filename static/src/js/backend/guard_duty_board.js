@@ -848,7 +848,8 @@ export class GuardDutyBoard extends Component {
     }
 
     // Issue #710: the classes the applied steps still leave without anybody need a guard, so the
-    // guard assignment of each opens, one after the other. A class that is not on the board's
+    // guard assignment of each opens, one after the other, offering only that: the planner already
+    // chose how to organise the day. A class that is not on the board's
     // shift, or already covered, is skipped.
     openGapCovers(gaps) {
         const [gap, ...rest] = gaps || [];
@@ -862,7 +863,7 @@ export class GuardDutyBoard extends Component {
             const absence = line.absences.find((row) => row.group_id === gap.group_id && this.isAssignable(row)
                 && !row.covers.length && !row.arrangement);
             if (absence) {
-                this.openCoverDialog(line, absence, { guardFirst: true, onClose: () => this.openGapCovers(rest) });
+                this.openCoverDialog(line, absence, { guardOnly: true, onClose: () => this.openGapCovers(rest) });
                 return;
             }
         }
@@ -936,8 +937,8 @@ export class GuardDutyBoard extends Component {
         return this.actionLabels.openDraft;
     }
 
-    // `guardFirst`: open on "Send a guard teacher" (issue #710); `onClose`: once it closes.
-    openCoverDialog(line, absence, { guardFirst = false, onClose } = {}) {
+    // `guardOnly`: only "Send a guard teacher" (issue #710); `onClose`: once it closes.
+    openCoverDialog(line, absence, { guardOnly = false, onClose } = {}) {
         if (!this.isAssignable(absence)) {
             return;
         }
@@ -945,7 +946,7 @@ export class GuardDutyBoard extends Component {
         this.addDialog(GuardCoverDialog, {
             row: absence,
             line,
-            guardFirst,
+            guardOnly,
             onAssign: async (guardId, message) => {
                 await this.orm.call("ems.absence_cover", "board_assign", [...classArgs, guardId, message],
                     { duty_id: absence.duty_id });

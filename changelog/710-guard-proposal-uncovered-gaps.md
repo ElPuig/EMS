@@ -8,8 +8,10 @@
   without anybody and that no change told to the families frees the group from (a longer break
   still needs a guard, as in the ranking).
 - Applying a proposal (all of it or only some steps) returns the classes the applied steps still
-  leave to a guard, and the board opens the guard assignment of each one in turn, already on "Send
-  a guard teacher". Closing one moves on to the next; a class on another shift or already covered
+  leave to a guard, and the board opens the guard assignment of each one in turn, offering only
+  "Send a guard teacher": the proposal already decided how to organise the day, and another one
+  from there would branch off into its own gaps (developer's decision). Closing one moves on to the
+  next; a class on another shift or already covered
   is skipped, and nothing opens when a notice could not be sent (its draft opens instead).
 - Planner evaluation refactored so the ranking and the new gaps share the same rules
   (`_windows()`, `_needs_guard()`); tour helpers for hourly absences and a student with a family

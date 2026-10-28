@@ -212,7 +212,7 @@ El quadre té una secció per grup, encapçalada pel seu nom. Els grups que comp
 
 Un grup a les famílies del qual s'ha de rectificar alguna cosa no surt en aquest quadre sinó en un de vermell, a sobre: **Correcció d'absències prèviament assignades** (vegeu **Quan l'absència canvia després**).
 
-![Quadre de propostes per a les absències: la secció de dos grups, amb tres propostes numerades, cadascuna amb una llista de passos amb la seva casella i, en taronja, les hores d'entrada i sortida que canvien, i al final l'opció de només avisar les famílies](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+![Quadre de propostes per a les absències: la secció de dos grups, amb tres propostes numerades, cadascuna amb una llista de passos amb la seva casella i, sota cada pas, en gris quin tipus de moviment és i en taronja les hores d'entrada i sortida que canvia, i al final l'opció de només avisar les famílies](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
 Cada proposta és una llista de passos, un per línia, sempre entre docents d'aquells grups i dins el mateix dia. Un pas es llegeix com una línia curta, per exemple *"Ferran: classe de les 13:00 → 10:00 (AIX1A i AIX1B)"*, i a sota, en gris, quin tipus de moviment és per al docent: *intercanvi amb la seva guàrdia, que passa a les 13:00*, *intercanvi amb la seva hora no lectiva (…)*, *a una hora lliure*, *desplaçament de jornada* (entra i surt més tard, o més d'hora) o *grups units amb AIX1B*. Els tipus de pas són:
 
@@ -231,7 +231,13 @@ Les propostes surten en aquest ordre: primer les que fan perdre menys classes a 
 
 Una classe que es porta a una hora en què el docent té una guàrdia, una coordinació o qualsevol altra tasca no lectiva s'intercanvia amb aquesta tasca: la tasca passa a l'hora que deixa la classe, de manera que el docent entra i surt a l'hora de sempre i no apareix cap línia taronja. Només canvia l'hora d'entrada o de sortida una classe que es porta a una hora en què el docent no és al centre. Si la tasca és una guàrdia normal, l'horari també la mou: a l'hora de la guàrdia el docent surt ratllat a la columna **Guàrdia** (és amb el grup), i a l'hora de la classe hi apareix amb l'etiqueta **(guàrdia moguda des de les 10:00)**, de manera que el pots enviar a cobrir una classe com qualsevol altre docent de guàrdia. Una reunió, una coordinació o qualsevol altra tasca no surt enlloc.
 
+![Columna Guàrdia després d'aplicar una proposta: dos docents ratllats a l'hora de la seva guàrdia, en què són amb els grups, i de guàrdia a l'hora de la classe que han mogut, amb l'etiqueta guàrdia moguda des de les 08:00 i des de les 10:00](../../assets/teachers/guard-duty-13-guardia-moguda.png)
+
+![Per què una classe no necessita guàrdia: la reorganització, amb el mateix text que el pas de la proposta, una classe portada a la guàrdia d'un docent, que passa a l'hora de la classe](../../assets/teachers/guard-duty-14-reorganitzacio-aplicada.png)
+
 **L'horari d'un docent no es pot canviar sense ell.** Quan els passos que apliques canvien l'hora d'entrada o de sortida d'algú, l'horari t'ho pregunta abans i et mostra els canvis: *"Has parlat amb …?"*. Fes clic a **Sí, aplica-ho** quan hi hagi estat d'acord. Amb **Encara no**, no s'aplica res i la proposta queda com estava.
+
+![Diàleg Canvis de jornada: les hores d'entrada i sortida que canvia la reorganització i la pregunta de si n'has parlat amb el docent, amb els botons Sí, aplica-ho i Encara no](../../assets/teachers/guard-duty-12-canvi-jornada.png)
 
 **Aplicar una proposta.** Fes clic a **Aplicar els passos marcats**, a la seva dreta, o fes clic a la classe i tria la proposta al diàleg, on les propostes que resolen aquella classe surten primer, per sobre d'enviar una guàrdia. Tots els passos surten marcats: desmarca els que no vulguis. Un pas que en necessita un altre es desmarca amb ell (una classe moguda al buit que en deixa una altra, un avís que només té sentit per una classe moguda), i marcar un pas marca el que necessita.
 

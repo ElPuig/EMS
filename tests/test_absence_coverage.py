@@ -1667,6 +1667,8 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         plans = self._board_row(self.department_chief)['arrangement_plans']
         self.assertEqual(len(plans), 2, [[step['label'] for step in plan['steps']] for plan in plans])
         self.assertEqual(plans[0]['title'], 'Proposal 1:')
+        self.assertEqual(plans[0]['steps'][0]['label'], f"{self.teacher_b.name} and {self.teacher_a.name} swap their "
+                                                        f"08:00 and 11:00 lessons ({self.group_a.name})")
         self.assertIn(f'{self.teacher_b.name} comes in at 08:00 instead of 11:00.', plans[0]['steps'][0]['schedule_changes'])
         data = self.env.company.current_course_id.with_user(self.department_chief).get_guard_duty_board_data(
             '0', 'morning', day=str(self.day))
@@ -1919,6 +1921,21 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             _render_qweb_html('ems.report_guard_duty_board', [self.env.company.current_course_id.id])
         self.assertIn(b'(guard moved from 10:00)', html)
 
+    def test_a_co_taught_step_names_each_teacher_when_their_kinds_differ(self):
+        """Issue #709: under a step, one line per kind of move; the teachers are named only when
+        the pack's teachers differ (one swaps with a guard, the other goes to a free hour)."""
+        course = self.env['ems.course']
+        values = {'lesson': '13:00', 'joined': ''}
+        same = course._arrangement_step_details(
+            {'how': [(self.teacher_b, 'guard', False), (self.teacher_c, 'guard', False)]}, values)
+        self.assertEqual(same, [{'icon': 'fa-exchange', 'text': 'swap with their guard, which moves to 13:00'}])
+        mixed = course._arrangement_step_details(
+            {'how': [(self.teacher_b, 'guard', False), (self.teacher_c, 'free', False)]}, values)
+        self.assertEqual(mixed, [
+            {'icon': 'fa-exchange', 'text': f'{self.teacher_b.name}: swap with their guard, which moves to 13:00'},
+            {'icon': 'fa-circle-o', 'text': f'{self.teacher_c.name}: to a free hour'},
+        ])
+
     def test_a_meeting_swapped_with_a_lesson_is_no_guard(self):
         """Issue #709: a lesson taken to a meeting swaps with it too (the teacher's day does not
         change), but a meeting is no guard: nobody is put on guard at the lesson's hour."""
@@ -2037,9 +2054,6 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         first = actions[0]['plan']
         self.assertEqual(first['steps'][3]['label'],
                          f"Notice to the families of {self.group_a.name} and {self.group_b.name}: Leaves at 12:00.")
-        # teacher_guard brings their 13:00 lesson to their 12:00 guard, which goes to 13:00 instead
-        # (issue #709): they still leave at 14:00.
-        self.assertEqual(first['steps'][2]['schedule_changes'], [])
         for line in data['lines']:
             for absence in line['absences']:
                 if absence['teacher_id'] == self.teacher_a.id:

@@ -1453,20 +1453,23 @@ class EmsCourseGuardDutyBoard(models.Model):
         timetable that weekday, their day's shift counting every lesson of theirs moved that day."""
         attendances = self._get_guard_duty_board_attendance_ids([
             ('dayofweek', '=', str(cover.date.weekday())), ('employee_id', 'in', teachers.ids)])
-        by_teacher = {teacher.id: attendances.filtered(lambda attendance, teacher=teacher: attendance.employee_id == teacher)
-                      for teacher in teachers}
+        context = {'by_teacher': {
+            teacher.id: attendances.filtered(lambda attendance, teacher=teacher: attendance.employee_id == teacher)
+            for teacher in teachers}}
         moves = cover | cover.search([('date', '=', cover.date), ('state', '=', 'assigned'), ('cover_type', '=', 'arrangement'),
                                       ('arrangement_type', '=', 'move'), ('guard_employee_id', 'in', teachers.ids)])
-        shifts = {}
-        for teacher in teachers:
-            own = moves.filtered(lambda move, teacher=teacher: move.guard_employee_id == teacher and move.vacated_hour_to)
-            periods = sorted({((move.vacated_hour_from, move.vacated_hour_to), (move.hour_from, move.hour_to)) for move in own})
-            shifts[teacher.id] = schedule_shift(
-                [(attendance.hour_from, attendance.hour_to) for attendance in by_teacher[teacher.id]],
-                [vacated for vacated, _target in periods], [target for _vacated, target in periods],
-                self._duty_periods(by_teacher[teacher.id]))
+        shifts = {teacher.id: self._moved_lessons_shift(context, teacher, moves) for teacher in teachers}
         step = (kind, frozenset(teachers.ids), (cover.vacated_hour_from, cover.vacated_hour_to), (cover.hour_from, cover.hour_to))
-        return self._arrangement_step_how({'by_teacher': by_teacher}, step, shifts)
+        return self._arrangement_step_how(context, step, shifts)
+
+    def _moved_lessons_shift(self, context, teacher, moves):
+        """How `teacher`'s working day changes with every lesson of theirs that `moves` (applied
+        moved lessons, any teacher's) takes elsewhere that day (issue #645: a plan can move several),
+        see _schedule_shift."""
+        periods = sorted({((move.vacated_hour_from, move.vacated_hour_to), (move.hour_from, move.hour_to)) for move in moves
+                          if move.guard_employee_id == teacher and move.vacated_hour_to})
+        return self._schedule_shift(context, teacher, [vacated for vacated, _target in periods],
+                                    [target for _vacated, target in periods])
 
     def _arrangement_step_details(self, step, values):
         """The lines under a step saying what kind of move it is (issue #709, see
@@ -2362,11 +2365,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                 context, 'swap', cover.absent_employee_id, cover.guard_employee_id, cover.hour_from, cover.hour_to,
                 (cover.vacated_hour_from, cover.vacated_hour_to))
         else:
-            moves = context['covers'].filtered(
-                lambda other: other.arrangement_type == 'move' and other.guard_employee_id == cover.guard_employee_id)
-            periods = {((other.vacated_hour_from, other.vacated_hour_to), (other.hour_from, other.hour_to)) for other in moves | cover}
-            shift = self._schedule_shift(context, cover.guard_employee_id, [vacated for vacated, _target in periods],
-                                         [target for _vacated, target in periods])
+            moves = context['covers'].filtered(lambda other: other.arrangement_type == 'move') | cover
+            shift = self._moved_lessons_shift(context, cover.guard_employee_id, moves)
             shifts = [(cover.guard_employee_id, *change) for change in shift or ()]
         return self._schedule_shift_labels(shifts or [])
 

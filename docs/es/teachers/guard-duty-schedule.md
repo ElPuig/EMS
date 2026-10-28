@@ -212,7 +212,7 @@ El recuadro tiene una sección por grupo, encabezada con su nombre. Los grupos q
 
 Un grupo a cuyas familias hay que rectificar algo no aparece en este recuadro, sino en uno rojo, encima: **Corrección de ausencias previamente asignadas** (ver **Cuando la ausencia cambia después**).
 
-![Recuadro de propuestas para las ausencias: la sección de dos grupos, con tres propuestas numeradas, cada una con una lista de pasos con su casilla y, en naranja, las horas de entrada y salida que cambian, y al final la opción de solo avisar a las familias](../../assets/teachers/guard-duty-06-reorganitzacions.png)
+![Recuadro de propuestas para las ausencias: la sección de dos grupos, con tres propuestas numeradas, cada una con una lista de pasos con su casilla y, debajo de cada paso, en gris qué tipo de movimiento es y en naranja las horas de entrada y salida que cambia, y al final la opción de solo avisar a las familias](../../assets/teachers/guard-duty-06-reorganitzacions.png)
 
 Cada propuesta es una lista de pasos, uno por línea, siempre entre docentes de esos grupos y dentro del mismo día. Un paso se lee como una línea corta, por ejemplo *"Ferran: clase de las 13:00 → 10:00 (AIX1A y AIX1B)"*, y debajo, en gris, qué tipo de movimiento es para el docente: *intercambio con su guardia, que pasa a las 13:00*, *intercambio con su hora no lectiva (…)*, *a una hora libre*, *desplazamiento de jornada* (entra y sale más tarde, o más temprano) o *grupos unidos con AIX1B*. Los tipos de paso son:
 
@@ -231,7 +231,13 @@ Las propuestas aparecen en este orden: primero las que hacen perder menos clases
 
 Una clase que se lleva a una hora en la que el docente tiene una guardia, una coordinación o cualquier otra tarea no lectiva se intercambia con esa tarea: la tarea pasa a la hora que deja la clase, de modo que el docente entra y sale a la hora de siempre y no aparece ninguna línea naranja. Solo cambia la hora de entrada o de salida una clase que se lleva a una hora en la que el docente no está en el centro. Si la tarea es una guardia normal, el horario también la mueve: a la hora de la guardia el docente aparece tachado en la columna **Guardia** (está con el grupo), y a la hora de la clase aparece en ella con la etiqueta **(guardia movida desde las 10:00)**, de modo que puedes enviarlo a cubrir una clase como a cualquier otro docente de guardia. Una reunión, una coordinación o cualquier otra tarea no aparece en ningún sitio.
 
+![Columna Guardia después de aplicar una propuesta: dos docentes tachados a la hora de su guardia, en la que están con los grupos, y de guardia a la hora de la clase que han movido, con la etiqueta guardia movida desde las 08:00 y desde las 10:00](../../assets/teachers/guard-duty-13-guardia-moguda.png)
+
+![Por qué una clase no necesita guardia: la reorganización, con el mismo texto que el paso de la propuesta, una clase llevada a la guardia de un docente, que pasa a la hora de la clase](../../assets/teachers/guard-duty-14-reorganitzacio-aplicada.png)
+
 **El horario de un docente no se puede cambiar sin él.** Cuando los pasos que aplicas cambian la hora de entrada o de salida de alguien, el horario te lo pregunta antes y te muestra los cambios: *"¿Has hablado con …?"*. Haz clic en **Sí, aplícalo** cuando haya estado de acuerdo. Con **Todavía no**, no se aplica nada y la propuesta queda como estaba.
+
+![Diálogo Cambios de jornada: las horas de entrada y salida que cambia la reorganización y la pregunta de si lo has hablado con el docente, con los botones Sí, aplícalo y Todavía no](../../assets/teachers/guard-duty-12-canvi-jornada.png)
 
 **Aplicar una propuesta.** Haz clic en **Aplicar los pasos marcados**, a su derecha, o haz clic en la clase y elige la propuesta en el diálogo, donde las propuestas que resuelven esa clase aparecen primero, por encima de enviar una guardia. Todos los pasos aparecen marcados: desmarca los que no quieras. Un paso que necesita otro se desmarca con él (una clase movida al hueco que deja otra, un aviso que solo tiene sentido por una clase movida), y marcar un paso marca lo que necesita.
 

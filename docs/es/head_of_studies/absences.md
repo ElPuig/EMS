@@ -228,6 +228,6 @@ Cuando el docente solicita la ausencia por su cuenta, en cualquier momento, la a
 
 ### Organizar la cobertura
 
-Una vez una ausencia aparece en el horario de guardias, detectada o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes (si el administrador ha activado estos cambios), y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia detectada se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../teachers/guard-duty-schedule.md#organizar-una-ausencia).
+Una vez una ausencia aparece en el horario de guardias, detectada o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes (si el administrador ha activado estos cambios), y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia detectada se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../department_chiefs/absences.md#organizar-una-ausencia).
 
 Una clase cuyo docente no ha fichado cuando empieza también aparece en la Tabla de ausencias, para cubrirla con una guardia. Si resulta que el docente está en el aula, puedes registrar su entrada desde la tabla: ver [Docentes que no han fichado](../teachers/guard-duty-schedule.md#docentes-que-no-han-fichado).

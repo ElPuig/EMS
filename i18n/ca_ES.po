@@ -27233,3 +27233,15 @@ msgstr "Pot afegir documents"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 msgid "Cancel submission"
 msgstr "Cancel·lar enviament"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_level_ids
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_level_ids
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Levels that may come in later or leave earlier"
+msgstr "Nivells que poden entrar més tard o sortir abans"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Only the groups of these levels are offered coming in later or leaving earlier; the groups of any other level (compulsory education, for instance) get a guard teacher instead. Leave it empty and no group is offered either change."
+msgstr "Només als grups d'aquests nivells se'ls ofereix entrar més tard o sortir abans; els grups de qualsevol altre nivell (l'educació obligatòria, per exemple) tenen un docent de guàrdia. Si la deixes buida, no s'ofereix cap dels dos canvis a cap grup."

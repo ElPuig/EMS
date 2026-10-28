@@ -306,9 +306,10 @@ class ArrangementPlanner:
 
     def plans(self, limit=3):
         """The best plans, `[{'steps', 'notices', 'score', 'depends', 'notice_depends', 'shifts'}]`:
-        a beam search over moves, joins and swaps (at most MAX_MOVES steps). Only those no
-        worse than leaving the day as it is in lessons lost, hours without class, guards and notices,
-        and none that merely adds steps to another one that does as well."""
+        a beam search over moves, joins and swaps (at most MAX_MOVES steps). Only those better
+        than leaving the day as it is in lessons lost, hours without class, guards or notices: one
+        that only moves the gap to another hour, still needing a guard, is no proposal (issue
+        #711). And none that merely adds steps to another one that does as well."""
         base, _notices = self._evaluate(())
         candidates = {}
         frontier, seen = [()], {frozenset()}
@@ -329,7 +330,7 @@ class ArrangementPlanner:
             frontier = [steps for _score, steps, _notices in expanded[:self.BEAM]]
             if not frontier:
                 break
-        kept = [(score, steps, notices) for score, steps, notices in candidates.values() if score[:4] <= base[:4]]
+        kept = [(score, steps, notices) for score, steps, notices in candidates.values() if score[:4] < base[:4]]
         kept = [(score, steps, notices) for score, steps, notices in kept if not any(
             frozenset(other) < frozenset(steps) and other_score[:4] <= score[:4]
             for other_score, other, _other_notices in kept)]

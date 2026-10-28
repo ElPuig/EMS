@@ -1264,14 +1264,15 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         result = self.Cover.with_user(user or self.department_chief).board_apply_plan(str(self.day), steps)
         return self.Cover.browse(result['cover_ids']), result['notice_action']
 
-    def test_a_swap_and_a_moved_lesson_are_detected_swap_first(self):
+    def test_a_swap_is_offered_and_moving_the_gap_to_the_other_edge_is_not(self):
+        """Issue #711: taking teacher_b's 11:00 lesson to 8:00 only turns coming in later into
+        leaving earlier - the same lesson lost, the same notice - so it is no proposal."""
         self._morning()
         self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
 
         plans = [self._plan_summary(plan) for plan in self._plans()]
 
-        self.assertEqual(plans[0], [('swap', self.teacher_b, 11, 8, self.group_a)], "the students lose no lesson")
-        self.assertIn([('move', self.teacher_b, 11, 8, self.group_a), ('notice', ('early_leave', 11), self.group_a)], plans)
+        self.assertEqual(plans, [[('swap', self.teacher_b, 11, 8, self.group_a)]], "the students lose no lesson")
 
     def test_a_swap_needs_no_guard_and_shows_in_the_timetable(self):
         self._morning()
@@ -1433,13 +1434,25 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertEqual(len([plan for plan in plans if [step['kind'] for step in plan['steps']] == ['swap']]), 1)
 
     def test_only_lessons_at_the_edges_of_the_day_are_moved(self):
-        self._morning()
-        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
+        """teacher_a teaches group_a at 8 and 10, teacher_b at 9 (away all day: no swap) and
+        teacher_c at 11."""
+        self._calendar_rows(self.teacher_a, ((8, 9, self.group_a), (10, 11, self.group_a)))
+        self._calendar_rows(self.teacher_b, ((9, 10, self.group_a),))
+        self._calendar_rows(self.teacher_c, ((11, 12, self.group_a),))
+        self._absence(self.teacher_b, self.day)
 
-        moves = [step[:4] for plan in self._plans() for step in self._plan_summary(plan) if step[0] == 'move']
+        plans = [self._plan_summary(plan) for plan in self._plans()]
 
-        self.assertIn(('move', self.teacher_a, 8, 11), moves, "the first lesson: the group comes in later")
-        self.assertNotIn(('move', self.teacher_a, 9, 11), moves, "the middle of the day is covered with a guard")
+        self.assertIn([('move', self.teacher_a, 8, 9, self.group_a), ('notice', ('late_entry', 9), self.group_a)], plans,
+                      "the first lesson: the group comes in later")
+        self.assertIn([('move', self.teacher_c, 11, 9, self.group_a), ('notice', ('early_leave', 11), self.group_a)], plans,
+                      "the last lesson: the group leaves earlier")
+        # Issue #711: the 10:00 lesson only moves the gap to 10:00, still in the middle of the day
+        # and still needing a guard: no proposal, however many are asked for.
+        course = self.env['ems.course']
+        planner, _states = course._arrangement_planner(course._arrangement_context(self.day), self.group_a)
+        every = [[(step[0], step[2][0], step[3][0]) for step in plan['steps']] for plan in planner.plans(limit=None)]
+        self.assertNotIn([('move', 10, 9)], every)
 
     def test_an_arrangement_never_lengthens_a_working_day(self):
         self._morning()
@@ -1678,7 +1691,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
 
         self.assertFalse(self._board_row(self.guard_user)['arrangement_plans'])
         plans = self._board_row(self.department_chief)['arrangement_plans']
-        self.assertEqual(len(plans), 2, [[step['label'] for step in plan['steps']] for plan in plans])
+        self.assertEqual(len(plans), 1, [[step['label'] for step in plan['steps']] for plan in plans])
         self.assertEqual(plans[0]['title'], 'Proposal 1:')
         self.assertEqual(plans[0]['steps'][0]['label'], f"{self.teacher_b.name} and {self.teacher_a.name} swap their "
                                                         f"08:00 and 11:00 lessons ({self.group_a.name})")
@@ -1687,7 +1700,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
             '0', 'morning', day=str(self.day))
         actions = [action for action in data['actions'] if action['type'] == 'arrangement_plan']
         self.assertEqual([[step['kind'] for step in action['plan']['steps']] for action in actions],
-                         [['swap'], ['move', 'notice']])
+                         [['swap']])
 
     def test_the_pdf_prints_the_arrangement_and_the_busy_teacher(self):
         self._morning()
@@ -2734,9 +2747,10 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         self.assertIsNone(self._states()['entry']['status'])
 
     def test_a_change_proposal_arrangement_with_its_own_notice_sends_one_correction(self):
-        """teacher_b moves their 11:00 lesson to 8:00: the group starts at the usual time and
-        leaves at 11:00, both in the same correction."""
+        """teacher_b, away at 11:00 too, moves their 11:00 lesson to 8:00: the group starts at the
+        usual time and leaves at 11:00, both in the same correction."""
         self._told_late_entry()
+        self._absence(self.teacher_b, self.day, hour_from=11, hour_to=12)
 
         data = self._change_options('entry')
         plan = next(plan for plan in data['plans'] if [step['kind'] for step in plan['steps']] == ['move', 'notice', 'correction'])

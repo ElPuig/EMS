@@ -37,6 +37,9 @@ ABSENCE_STATES = {
 # A whole-day absence, as an hour interval, so it can be compared against a schedule period the
 # same way a partial one is - no special case anywhere downstream.
 WHOLE_DAY = (0.0, 24.0)
+# The changes that send the students home (or keep them there) for part of the day, which only
+# the studies the centre lists may have (issue #718).
+SHORTER_DAY_CHANGES = frozenset({'late_entry', 'no_classes', 'early_leave'})
 
 # How many distinct colours the absences table pairs a guard with the classes they cover in
 # (issue #571). Kept in step by hand with the o_guard_board_cover_N classes in
@@ -652,17 +655,21 @@ class EmsCourseGuardDutyBoard(models.Model):
             blocks_by_group[group.id] = blocks
         return blocks_by_group
 
-    def _enabled_absence_changes(self):
-        """The change types the centre lets the board propose (issue #679, see the company's
-        ems_absence_change_* settings): a day with no classes goes with coming in later, being
-        the start of the day stretched over all of it."""
+    def _enabled_absence_changes(self, groups):
+        """`{group.id: change types}`: the ones the centre lets the board propose for each group
+        (issue #679, see the company's ems_absence_change_* settings). A day with no classes goes
+        with coming in later, being the start of the day stretched over all of it; coming in later
+        and leaving earlier only for the groups of the studies the centre lists (issue #718)."""
         company = self.env.company
-        return frozenset(change_type for change_type, enabled in (
+        enabled = frozenset(change_type for change_type, switched_on in (
             ('late_entry', company.ems_absence_change_late_entry),
             ('no_classes', company.ems_absence_change_late_entry),
             ('early_leave', company.ems_absence_change_early_leave),
             ('long_break', company.ems_absence_change_long_break),
-        ) if enabled)
+        ) if switched_on)
+        in_centre = enabled - SHORTER_DAY_CHANGES
+        study_ids = set(company.ems_absence_change_study_ids.ids)
+        return {group.id: enabled if group.study_id.id in study_ids else in_centre for group in groups}
 
     @classmethod
     def _allowed_absence_changes(cls, blocks, breaks, enabled):
@@ -834,7 +841,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         now_hour = self._board_day_hour(day)
         breaks_by_level = {}
         states = {}
-        enabled = self._enabled_absence_changes()
+        enabled = self._enabled_absence_changes(groups)
         for group in groups:
             blocks = blocks_by_group[group.id]
 
@@ -845,7 +852,7 @@ class EmsCourseGuardDutyBoard(models.Model):
             if level not in breaks_by_level:
                 breaks_by_level[level] = sorted(self._get_guard_duty_board_break_periods(
                     [level], weekday, 0, 24)) if level else []
-            allowed = self._allowed_absence_changes(blocks, breaks_by_level[level], enabled)
+            allowed = self._allowed_absence_changes(blocks, breaks_by_level[level], enabled[group.id])
             states[group.id] = {}
             for side in allowed:
                 side_told = [(notice, change) for notice, change in told[group.id] if self._change_side(change, side)]
@@ -1330,7 +1337,7 @@ class EmsCourseGuardDutyBoard(models.Model):
         partners = {group_id: ids & frozenset(groups.ids) for group_id, ids in self._split_partners(context).items()
                     if group_id in groups.ids}
         return ArrangementPlanner(self, blocks, breaks, communicated, self._board_day_hour(day), teachers, sessions, free,
-                                  swaps, partners=partners), states
+                                  self._enabled_absence_changes(groups), swaps, partners=partners), states
 
     @staticmethod
     def _block_absents(block):

@@ -42,6 +42,7 @@ class ems_settings(models.TransientModel):
    ems_absence_change_late_entry = fields.Boolean(related="company_id.ems_absence_change_late_entry", readonly=False)
    ems_absence_change_early_leave = fields.Boolean(related="company_id.ems_absence_change_early_leave", readonly=False)
    ems_absence_change_long_break = fields.Boolean(related="company_id.ems_absence_change_long_break", readonly=False)
+   ems_absence_change_study_ids = fields.Many2many(related="company_id.ems_absence_change_study_ids", readonly=False)
    schedule_import_first_entry_time = fields.Float(related="company_id.schedule_import_first_entry_time", readonly=False)
    schedule_import_last_entry_time  = fields.Float(related="company_id.schedule_import_last_entry_time",  readonly=False)
 

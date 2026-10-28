@@ -27209,3 +27209,15 @@ msgstr "Una classe que cap pas marcat no resol es queda a la taula, per a una gu
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Encara deixa %s sense docent: un cop aplicada, triareu el docent de guàrdia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_study_ids
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_study_ids
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Studies that may come in later or leave earlier"
+msgstr "Estudis que poden entrar més tard o sortir abans"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Only the groups of these studies are offered coming in later or leaving earlier; the groups of any other study get a guard teacher instead. Leave it empty and no group is offered either change."
+msgstr "Només als grups d'aquests estudis se'ls ofereix entrar més tard o sortir abans; els grups de qualsevol altre estudi tenen un docent de guàrdia. Si la deixes buida, no s'ofereix cap dels dos canvis a cap grup."

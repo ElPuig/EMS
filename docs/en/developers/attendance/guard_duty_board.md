@@ -683,7 +683,7 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 flowchart TD
     ABS["hr.leave / ems.absence_pending<br/>(same intervals as the board)"] --> BLK["ems.course._get_group_day_blocks(day, groups)<br/>each group's whole day, block by block:<br/>teachers, who is away, covers, empty?"]
     COV["ems.absence_cover (state assigned)"] --> BLK
-    CFG["res.company ems_absence_change_*<br/>(_enabled_absence_changes)"] --> EXP
+    CFG["res.company ems_absence_change_*<br/>(_enabled_absence_changes, per group)"] --> EXP
     BLK --> EXP["_allowed_absence_changes(blocks, breaks, enabled)<br/>every enabled late_entry / early_leave / no_classes / long_break option"]
     NOT["ems.notice with absence_changes<br/>(scheduled / sent / failed = communicated)"] --> ST
     EXP --> ST["_get_absence_change_states(day, groups)<br/>per side (entry/leave): expected vs communicated<br/>status: proposal / communicated / rectification"]
@@ -716,10 +716,16 @@ Three company settings (Settings > EMS Management > Guard Duty Board Settings, `
 `ems_absence_change_late_entry`, `ems_absence_change_early_leave`, `ems_absence_change_long_break`,
 all `False` by default) decide which kinds of change the board and the arrangement planner propose;
 `no_classes` goes with the late entry, being the start of the day stretched over all of it.
-`_enabled_absence_changes()` reads them once per request into a set of change types, which
-`_allowed_absence_changes(blocks, breaks, enabled)` filters `_all_absence_changes()` (the rules
-below) with; `ArrangementPlanner` reads it once when built. A disabled kind is simply never
-offered, so its empty lessons only get guards. What was already communicated keeps counting, and
+A fourth one, `ems_absence_change_study_ids` (issue #718, many2many to `ems.study`, shown only while
+coming in later or leaving earlier is on), is an **allowlist**: `late_entry`, `no_classes` and
+`early_leave` (`SHORTER_DAY_CHANGES`) are only allowed for the groups of the studies listed, and an
+empty list allows them for no group (some studies' students, minors for instance, can never go home
+early, and a forgotten study must fail safe). `long_break` does not depend on it: the students stay
+in the centre. `_enabled_absence_changes(groups)` reads all four once per request into
+`{group id: set of change types}`, which `_allowed_absence_changes(blocks, breaks, enabled[group])`
+filters `_all_absence_changes()` (the rules below) with; `_arrangement_planner()` passes the
+same dict to `ArrangementPlanner`. A disabled kind is simply never offered, so its empty lessons
+only get guards. What was already communicated keeps counting, and
 its correction (`normal_*`) is still offered if the absences change, whatever the setting is now:
 a notice already sent has to be put right.
 

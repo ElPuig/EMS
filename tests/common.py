@@ -292,6 +292,17 @@ def close_yearly_period(env, prefix):
     set_yearly_period(env, prefix, (1, month, 0.0), (2, month, 0.0))
 
 
+def allow_every_absence_change(env):
+    """Switches on every timetable change the guard duty board may propose (issue #679), for
+    every study that exists by now (issue #718: coming in later and leaving earlier only apply to
+    the studies listed). Call it after creating the fixture's studies."""
+    env.company.write({
+        'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
+        'ems_absence_change_long_break': True,
+        'ems_absence_change_study_ids': [(6, 0, env['ems.study'].search([]).ids)],
+    })
+
+
 def mock_outgoing_email(cls):
     """Neutralizes real SMTP delivery for the duration of the test class - see CLAUDE.md's
     'Email safety in tests'. Call once from setUpClass. Returns the mock (e.g. to later assert

@@ -27212,3 +27212,15 @@ msgstr "Una clase que ningún paso marcado resuelve se queda en la tabla, para u
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Todavía deja %s sin docente: una vez aplicada, elegiréis al docente de guardia."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_absence_change_study_ids
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_absence_change_study_ids
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Studies that may come in later or leave earlier"
+msgstr "Estudios que pueden entrar más tarde o salir antes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Only the groups of these studies are offered coming in later or leaving earlier; the groups of any other study get a guard teacher instead. Leave it empty and no group is offered either change."
+msgstr "Solo a los grupos de estos estudios se les ofrece entrar más tarde o salir antes; los grupos de cualquier otro estudio tienen un docente de guardia. Si la dejas vacía, no se ofrece ninguno de los dos cambios a ningún grupo."

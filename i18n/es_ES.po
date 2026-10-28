@@ -2443,8 +2443,6 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_enrollment_close_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
-
-#. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
@@ -4460,11 +4458,7 @@ msgstr "Otorgar acceso"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_authorization__group_id model:ir.model.fields,field_description:ems.field_ems_em_grading_wizard__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_enrollment_view__group_id model:ir.model.fields,field_description:ems.field_ems_grade_session__group_id model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__group_id model:ir.model.fields,field_description:ems.field_ems_student_year_record__group_id model:ir.model.fields,field_description:ems.field_ems_teaching__group_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_group_line__group_id model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_space_line__group_id model_terms:ir.ui.view,arch_db:ems.view_attendance_report_analysis_search model_terms:ir.ui.view,arch_db:ems.view_ems_authorization_search model_terms:ir.ui.view,arch_db:ems.view_grade_session_search model_terms:ir.ui.view,arch_db:ems.view_group_form model_terms:ir.ui.view,arch_db:ems.view_group_list model_terms:ir.ui.view,arch_db:ems.view_student_search_no_destination model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model_terms:ir.ui.view,arch_db:ems.view_year_record_search
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__group_id model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__group_id
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__student_group_id
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_group_classroom_change_wizard__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_strike__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__group_id
@@ -7740,8 +7734,6 @@ msgstr "Estado / Provincia"
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__state model_terms:ir.ui.view,arch_db:ems.view_ems_contact_data_request_search
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__state
 #: model:ir.model.fields,field_description:ems.field_ems_enrollment_slot__state
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__state
 #: model_terms:ir.ui.view,arch_db:ems.attendance_template_details_table
 msgid "Status"
@@ -20144,8 +20136,6 @@ msgstr "Ventana de duplicados de strikes"
 #, python-format
 msgid "%(teacher)s already issued a strike to %(student)s at %(time)s (%(reason)s). Make sure this one is not a duplicate."
 msgstr "%(teacher)s ya ha puesto un strike a %(student)s a las %(time)s (%(reason)s). Aseguraos de que este no es un duplicado."
-
-#. module: ems
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_applicant_import_wizard__students_file_name

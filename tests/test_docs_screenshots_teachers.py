@@ -594,6 +594,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
+        # The board only proposes timetable changes the centre allows (issue #679): this one does.
+        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
+                                'ems_absence_change_long_break': True})
         level, study, group_a = create_level_study_group(self, 'DOCMGMT', level={
             'name': 'Formació professional',
         }, study={
@@ -872,6 +875,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
+        # The board only proposes timetable changes the centre allows (issue #679): this one does.
+        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
+                                'ems_absence_change_long_break': True})
         _level, study, group = create_level_study_group(self, 'DOC659', level={'name': 'Formació professional'}, study={
             'code': 'DOC659ST', 'acronym': 'AIX', 'name': 'Administració (exemple)',
         }, group={'acronym': 'A', 'course': 1})
@@ -921,8 +927,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
         leave = absence(8, 10)
         chief_user = chief.user_id
-        self.env['ems.notice'].with_user(chief_user).board_send_absence_change(str(day), group.id, 'late_entry', 10.0)
-        # Only this fixture's rows, never the dev DB's real timetable (see test_capture_guard_duty_schedule).
+        # Only this fixture's rows, never the dev DB's real timetable (see test_capture_guard_duty_schedule),
+        # already for the notice below: it checks the absence against the board's own timetable.
         fixture_ids = department.member_ids.ids
         course_model = type(self.env['ems.course'])
         original = course_model._get_guard_duty_board_attendance_ids
@@ -930,6 +936,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
         patcher.start()
         self.addCleanup(patcher.stop)
+        self.env['ems.notice'].with_user(chief_user).board_send_absence_change(str(day), group.id, 'late_entry', 10.0)
         url = f'/odoo/action-ems.action_guard_duty_board?date={day}&shift=morning&view=table'
         self._capture(url, '.modal-content', 'guard-duty-09-canviar-proposta.png', login='doc_shot_chief659',
                       wait_for='.o_guard_board_change_proposal',

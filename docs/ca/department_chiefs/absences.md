@@ -14,7 +14,7 @@ Quan falta un docent del teu departament, decideixes des de l'horari de guàrdie
 
 ## Introduir una absència detectada
 
-Qui ho pot fer: els **Caps de seminari** i els **Caps de departament**, per als docents del seu propi departament, a més del Cap d'estudis o Cap d'estudis adjunt, Direcció i l'administrador. També ho poden fer per a un docent d'un altre departament que fa classe a un grup que gestiona el seu departament, o que té el seu departament al camp **També gestionat pels departaments** (consulta [Organitzar una absència](#organitzar-una-absencia)).
+Qui ho pot fer: els **caps de seminari** i els **caps de departament**, per als docents del seu propi departament, a més del cap d'estudis o cap d'estudis adjunt, Direcció i l'administrador. També ho poden fer per a un docent d'un altre departament que fa classe a un grup que gestiona el seu departament, o que té el seu departament al camp **També gestionat pels departaments** (consulta [Organitzar una absència](#organitzar-una-absencia)).
 
 La via normal sempre és que el docent sol·liciti l'absència ell mateix. Fes servir això només en el cas excepcional d'un docent que truca o escriu per avisar que faltarà i no pot entrar a l'EMS: en introduir-la, les seves classes surten al quadre de seguida i en pots organitzar la cobertura.
 

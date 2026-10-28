@@ -22,7 +22,7 @@ Aquesta guia explica com revisar els documents que envien alumnes i famílies �
 
 ## On es revisen els documents
 
-Vés a **Gestió acadèmica > Documents d'alumnes**. La llista s'obre mostrant només les tramitacions **Pendents** per defecte (treu el filtre per veure-les totes). Aquesta és l'única pantalla on es revisen els documents. La llista de la fitxa de l'alumne (secció **Documentació** de la pestanya **Secretaria**) mostra els seus documents i serveix per afegir-ne de nous (vegeu la secció següent).
+Ves a **Gestió acadèmica > Documents d'alumnes**. La llista s'obre mostrant només les tramitacions **Pendents** per defecte (treu el filtre per veure-les totes). Aquesta és l'única pantalla on es revisen els documents. La llista de la fitxa de l'alumne (secció **Documentació** de la pestanya **Secretaria**) mostra els seus documents i serveix per afegir-ne de nous (vegeu la secció següent).
 
 ![Llista de documents de l'alumnat filtrada per Pendent, amb les icones d'aprovar (✓) i rebutjar (✗) a cada fila](../../assets/secretary/documents-01-pendents.png)
 
@@ -30,7 +30,7 @@ Vés a **Gestió acadèmica > Documents d'alumnes**. La llista s'obre mostrant n
 
 Quan una família no aconsegueix pujar un document des del portal i us l'envia per correu (DNI, targeta sanitària, IBAN, justificant d'una bonificació...), el podeu registrar vosaltres a la fitxa de l'alumne:
 
-1. Obre la fitxa de l'alumne i vés a la pestanya **Secretaria**.
+1. Obre la fitxa de l'alumne i ves a la pestanya **Secretaria**.
 2. A la secció **Documentació**, clica **Afegir una línia**.
 3. Tria el **Tipus de document** i omple'l:
    - **Compte bancari (IBAN):** l'IBAN, el titular del compte i, si escau, la data de caducitat.

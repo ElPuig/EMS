@@ -509,8 +509,12 @@ class TestAbsenceDetection(TransactionCase):
         # Only where EMS's Catalan is loaded: CI's clean database can have the language active
         # (another test switches it on) without the module's translations.
         if self.env(context={'lang': 'ca_ES'})._("%(person)s on %(leave_type)s") != "%(person)s on %(leave_type)s":
-            self.assertNotIn(' on ', leave.with_context(lang='ca_ES').display_name, 'translated (hr_holidays has no Catalan)')
-            self.assertIn('TAD Teacher, ', leave.with_context(lang='ca_ES').display_name)
+            # hr_holidays' display_name does not depend on the language in the cache: drop the
+            # one already computed in English (a request reads it in a single language).
+            leave.invalidate_recordset(['display_name'])
+            catalan_name = leave.with_context(lang='ca_ES').display_name
+            self.assertNotIn(' on ', catalan_name, 'translated (hr_holidays has no Catalan)')
+            self.assertIn('TAD Teacher, ', catalan_name)
 
     def test_an_administrator_reviews_too(self):
         """The administrator sits above the whole hierarchy, though outside it."""

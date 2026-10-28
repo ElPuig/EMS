@@ -85,6 +85,9 @@
                             <setting string="Secretariat" help="Email address of the center's secretariat, for messages addressed to it. No feature uses it yet." id="secretariat_email">
                                 <field name="secretariat_email" widget="email" placeholder="secretaria@example.com"/>
                             </setting>
+                            <setting string="Student card stamp" help="The centre's stamp, printed on every student card. Without one, the card leaves an empty box to stamp by hand." id="ems_card_stamp">
+                                <field name="ems_card_stamp" widget="image" options="{'size': [0, 90]}"/>
+                            </setting>
                             <setting string="Notice email signature" help="Default sign-off appended to every Notice email. Copied onto each new notice as its own editable signature - editing it here only affects notices created afterward." id="notice_email_signature">
                                 <field name="notice_email_signature" widget="html"/>
                             </setting>

@@ -1,0 +1,74 @@
+# Technical Reference: Student Card (PDF)
+
+## Overview
+
+The student card (issue #524) is a QWeb PDF on `res.partner` that replaces the card Esfera
+generates: an A4 sheet with the cards of the selected students, two columns, cut by hand. Every
+card shows:
+
+- The centre: its logo, name, phone and address (`res.company` / its partner).
+- The student: photo (`image_1920`, a silhouette when missing), "Last names, First name",
+  identity document (`document_id`, or `passport_id` when there is none), birth date and IDALU
+  (`student_id`).
+- The **level band**: the main group's level acronym (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big
+  letters on that level's own colour, plus the study and the course year ("Gestió Administrativa ·
+  1r"). This is what the teacher at the door reads to decide whether the student may go out at
+  break time: the rule depends only on the level, so EMS stores no per-student exit permission.
+- The academic year in force (`res.company.current_course_id`).
+- The centre's stamp (`res.company.ems_card_stamp`), or an empty "Segell del centre" box to stamp
+  by hand when none was uploaded.
+- A Code128 barcode of the IDALU, for a future check-in at the entrance.
+
+The back, alike on every card, carries the Departament d'Educació i Formació Professional's logo
+(`static/src/img/departament_educacio.png`, the same logo the Esfera card printed), the centre's
+name, address and phone, and a "personal and non-transferable" note.
+
+```mermaid
+flowchart LR
+    LIST["Students list (selection)"] -->|"ir.actions.server, list binding"| ACT["res.partner.action_print_student_card()"]
+    FORM["Student form: Actions dropdown"] --> ACT
+    GROUP["Group form: Actions dropdown"] -->|"ems.group.action_print_student_cards()"| ACT
+    ACT -->|"students the user acts on, sorted by name"| REP["ir.actions.report ems.report_student_card"]
+    LEVEL["ems.level.card_color"] --> REP
+    COMPANY["res.company: logo, address, ems_card_stamp, current_course_id"] --> REP
+```
+
+## Model changes
+
+| Model | Field / method | Notes |
+|---|---|---|
+| `ems.level` | `card_color` (Char, stored compute, `readonly=False`) | The level band's colour (hex). Computed from the acronym when the level is created (a fixed palette for the official levels, grey for any other) and editable afterwards in the level form (`widget="color"`). Not in `data/cat/ems.level.csv`, so an upgrade never reverts a colour the centre changed. |
+| `res.company` | `ems_card_stamp` (Image) | The centre's stamp, uploaded in Settings > EMS > Center Data. |
+| `res.config.settings` | `ems_card_stamp` (related) | |
+| `res.partner` | `can_print_student_card` (Boolean, non-stored, `depends_context('uid')`) | Reads the Actions dropdown entry's `invisible=`. |
+| `res.partner` | `action_print_student_card()` | Keeps the students (`contact_type == 'student'`) the user acts on, sorted by name, and returns the report action. Raises a `UserError` when none is left. |
+| `res.partner` | `_get_student_card_values()` | Per-student values for the template (document, level, study label). |
+| `ems.group` | `can_print_student_cards`, `action_print_student_cards()` | Same, for every student whose main group is this one. |
+
+## Access control
+
+Who may print a card is who may act on the student, the same rule as the student's other actions
+(`ems.student.scope.mixin._scope_acts_on_student`, issue #483):
+
+| Role | Students |
+|---|---|
+| Academic admin, Secretary, Head of Studies | Every student |
+| Tutor, and the Department/Seminar Chief, Head of Studies and Director above them (`tutor_scope_user_ids`) | That tutor's students |
+| Any other teacher | None (the entry is hidden; the server action refuses) |
+
+The check is made again on the server in `action_print_student_card()`: a list selection, or a
+group the user isn't the tutor of, never prints a card the user could not print from the form.
+
+## Layout notes
+
+- Paper format `ems.paperformat_student_card`: A4 portrait, small margins, no header/footer
+  (`web.basic_layout`, not `external_layout`).
+- Cards are laid out with a table (two cells per row), not flexbox or grid: wkhtmltopdf's WebKit
+  lays neither out. Each row has `page-break-inside: avoid`, so a card is never split across two
+  sheets.
+- Double-sided printing: each sheet of fronts (up to ten cards) is followed by its sheet of backs,
+  flipped on the long edge. A back row lists its cards right to left, so an odd last card's back
+  sits on the right, behind its front; left and right margins are equal so the columns line up.
+  Cards are `box-sizing: border-box` so five 54 mm rows fit an A4 sheet.
+- The barcode uses Odoo's own `barcode` QWeb widget (an inline PNG), Code128, from the IDALU. No
+  barcode is printed for a student without IDALU.

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #524: "Print student card" on the students list. The student form offers it from
+             its Actions dropdown instead (views/community/contact/form.xml), so it is list-only here.
+             action_print_student_card() keeps only the students the user may print a card for. -->
+        <record id="action_print_student_card_bulk" model="ir.actions.server">
+            <field name="name">Print student card</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="binding_model_id" ref="base.model_res_partner"/>
+            <field name="binding_view_types">list</field>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies')), (4, ref('ems.group_tutor'))]"/>
+            <field name="state">code</field>
+            <field name="code">
+action = env['res.partner'].browse(env.context.get('active_ids', [])).action_print_student_card()
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -11,6 +11,7 @@
                             <group>
                                 <field name="acronym"/>
                                 <field name="allows_convalidation"/>
+                                <field name="card_color" widget="color"/>
                             </group>
                             <group colspan="3">
                                 <field name="name"/>    

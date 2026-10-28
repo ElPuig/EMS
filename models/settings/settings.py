@@ -73,6 +73,7 @@ class ems_settings(models.TransientModel):
 
    secretariat_email = fields.Char(related="company_id.secretariat_email", readonly=False)
    center_code = fields.Char(related="company_id.center_code", readonly=False)
+   ems_card_stamp = fields.Image(related="company_id.ems_card_stamp", readonly=False)
    notice_email_signature = fields.Html(related="company_id.notice_email_signature", readonly=False)
 
    limesurvey_api = fields.Char(related="company_id.limesurvey_api", readonly=False)

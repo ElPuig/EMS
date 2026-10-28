@@ -1309,6 +1309,7 @@ msgstr "Gestión académica"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.report_authorization_certificate
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
 msgid "Academic year"
 msgstr "Año académico"
 
@@ -6447,6 +6448,7 @@ msgstr "Teléfono"
 #: code:addons/ems/models/contacts/contact_data_request.py:0
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 #: model_terms:ir.ui.view,arch_db:ems.view_users_form_simple_modif_photo_visibility
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
 msgid "Photo"
 msgstr "Foto"
 
@@ -26658,3 +26660,115 @@ msgstr "No se ha podido leer el identificador del alumno/a del certificado y no 
 #, python-format
 msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
 msgstr "%(student)s no tiene IDALU para comprobar el del certificado (%(identifier)s): rellenadlo primero."
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_student_card
+msgid "Student card"
+msgstr "Carné de estudiante"
+
+#. module: ems
+#: model:ir.actions.server,name:ems.action_print_student_card_bulk
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Print student card"
+msgstr "Imprimir carné de estudiante"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_group_form
+msgid "Print student cards"
+msgstr "Imprimir carnés de estudiante"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_print_student_card
+#: model:ir.model.fields,field_description:ems.field_res_users__can_print_student_card
+msgid "Can print student card"
+msgstr "Puede imprimir el carné de estudiante"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_group__can_print_student_cards
+msgid "Can print student cards"
+msgstr "Puede imprimir los carnés de estudiante"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_level__card_color
+msgid "Student card colour"
+msgstr "Color en el carné de estudiante"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_level__card_color
+msgid "Colour of this level's band on the student card."
+msgstr "Color de la franja de este nivel en el carné de estudiante."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__ems_card_stamp
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__ems_card_stamp
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Student card stamp"
+msgstr "Sello del carné de estudiante"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"The centre's stamp, printed on every student card. Without one, the card "
+"leaves an empty box to stamp by hand."
+msgstr ""
+"El sello del centro, que se imprime en todos los carnés de estudiante. Si no"
+" hay ninguno, el carné deja un recuadro en blanco para sellarlo a mano."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_card.py:0
+msgid "None of the selected contacts is a student you can print a card for."
+msgstr ""
+"Ninguno de los contactos seleccionados es un estudiante del que puedas "
+"imprimir el carné."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "<span class=\"o_ems_card_label\">ID document:</span>"
+msgstr "<span class=\"o_ems_card_label\">Doc. de identidad:</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "<span class=\"o_ems_card_label\">Birth date:</span>"
+msgstr "<span class=\"o_ems_card_label\">Fecha de nacimiento:</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "<span class=\"o_ems_card_label\">IDALU:</span>"
+msgstr "<span class=\"o_ems_card_label\">IDALU:</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "Centre stamp"
+msgstr "Sello del centro"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_back
+msgid ""
+"This card is personal and non-transferable. If you find it, please return it"
+" to the centre."
+msgstr ""
+"Este carné es personal e intransferible. Si lo encuentras, devuélvelo al "
+"centro."
+
+#. module: ems
+#: model:ir.actions.report,print_report_name:ems.action_report_student_card
+msgid "'Student cards - %s' % object.env.company.current_course_id.name"
+msgstr ""
+"'Carnés de estudiante - %s' % object.env.company.current_course_id.name"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "Logo"
+msgstr "Logotipo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "Stamp"
+msgstr "Sello"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_back
+msgid "Departament d'Educació i Formació Professional"
+msgstr "Departament d'Educació i Formació Professional"
+

@@ -147,6 +147,10 @@ class ems_company(models.Model):
     # applicant import to keep only the rows assigned to this center.
     center_code = fields.Char(string="Center code")
 
+    # The centre's stamp, printed on every student card (issue #524). Without one the card leaves
+    # an empty box to stamp by hand.
+    ems_card_stamp = fields.Image(string="Student card stamp", max_width=512, max_height=512)
+
     # --- Google Workspace (creación automática de cuentas de alumno) ---
     # Enfoque: rol de administrador personalizado asignado a la cuenta de servicio,
     # restringido a la OU /alumnos (NO domain-wide delegation, sin suplantación).

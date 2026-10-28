@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- A4 with just enough margin for ten CR80 cards (85.6 x 54 mm, the size of a credit card,
+             so a card fits the usual holders) in two columns. dpi 96 (wkhtmltopdf's zoom is then 1)
+             and no smart shrinking: the template's mm units come out at their real size. -->
+        <record id="paperformat_student_card" model="report.paperformat">
+            <field name="name">A4 (student cards)</field>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">8</field>
+            <field name="margin_bottom">5</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">96</field>
+            <field name="disable_shrinking" eval="True"/>
+        </record>
+
+        <!-- No binding: printing goes through res.partner.action_print_student_card(), which keeps
+             only the students the user may print a card for (action_print_student_card_bulk). -->
+        <record id="action_report_student_card" model="ir.actions.report">
+            <field name="name">Student card</field>
+            <field name="model">res.partner</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_student_card</field>
+            <field name="report_file">ems.report_student_card</field>
+            <field name="print_report_name">'Student cards - %s' % object.env.company.current_course_id.name</field>
+            <field name="paperformat_id" ref="paperformat_student_card"/>
+        </record>
+
+        <!-- Tables, not flexbox or grid: wkhtmltopdf's WebKit lays neither out. -->
+        <template id="report_student_card">
+            <t t-call="web.basic_layout">
+                <t t-set="company" t-value="docs.env.company"/>
+                <div class="page o_ems_cards">
+                    <style>
+                        .o_ems_cards { font-family: Arial, sans-serif; color: #222; }
+                        .o_ems_cards table { border-collapse: collapse; }
+                        /* The report layout borders every cell (and frames every table, opted out of with
+                           o_ignore_layout_styling, as in ems.report_validation_stamp). */
+                        .o_ems_cards td { padding: 0; vertical-align: top; border: none !important; }
+                        table.o_ems_card_row { page-break-inside: avoid; margin-bottom: 2.5mm; }
+                        td.o_ems_card_gap { width: 4mm; }
+                        /* border-box: five rows of 54 mm cards fill the sheet to the millimetre. */
+                        .o_ems_card { width: 85.6mm; height: 54mm; box-sizing: border-box; overflow: hidden; border: 0.3mm dashed #999; border-radius: 3mm; }
+                        .o_ems_card_new_page { page-break-before: always; }
+                        td.o_ems_card_blank { width: 85.6mm; }
+                        .o_ems_card_back { text-align: center; padding: 5mm 4mm 0 4mm; }
+                        .o_ems_card_back_logo { width: 62mm; }
+                        .o_ems_card_back .o_ems_card_centre { font-size: 9pt; margin-top: 4mm; }
+                        .o_ems_card_back .o_ems_card_address { font-size: 7pt; margin-top: 0.8mm; }
+                        .o_ems_card_back_note { font-size: 6.5pt; color: #555; margin-top: 4mm; line-height: 1.3; }
+                        .o_ems_card_header td { padding: 1.5mm 2mm 1mm 2mm; vertical-align: middle; }
+                        .o_ems_card_logo { max-height: 8mm; max-width: 14mm; }
+                        .o_ems_card_centre { font-size: 7.5pt; font-weight: bold; line-height: 1.2; }
+                        .o_ems_card_address { font-size: 5.5pt; color: #555; line-height: 1.2; }
+                        .o_ems_card_year { font-size: 6.5pt; text-align: right; white-space: nowrap; }
+                        .o_ems_card_band td { color: #fff; padding: 0.8mm 2mm; vertical-align: middle; }
+                        .o_ems_card_level { font-size: 17pt; font-weight: bold; letter-spacing: 0.5mm; white-space: nowrap; }
+                        .o_ems_card_study { font-size: 7pt; font-weight: bold; text-align: right; line-height: 1.15; }
+                        .o_ems_card_body td { padding: 1.5mm 0 0 2mm; }
+                        .o_ems_card_photo, .o_ems_card_no_photo { width: 22mm; height: 29mm; }
+                        .o_ems_card_photo { object-fit: cover; border: 0.2mm solid #ccc; }
+                        .o_ems_card_no_photo { background: #eceff1; color: #b0bec5; font-size: 40pt; text-align: center; line-height: 29mm; }
+                        .o_ems_card_name { font-size: 9pt; font-weight: bold; line-height: 1.15; margin-bottom: 0.8mm; }
+                        .o_ems_card_data { font-size: 7pt; line-height: 1.4; }
+                        .o_ems_card_label { color: #666; }
+                        .o_ems_card_barcode img { height: 8mm; width: 36mm; margin-top: 1.2mm; }
+                        .o_ems_card_stamp_image { max-width: 17mm; max-height: 17mm; }
+                        .o_ems_card_stamp_empty { width: 17mm; height: 17mm; border: 0.2mm dashed #aaa; color: #999; font-size: 5pt; text-align: center; line-height: 17mm; }
+                        td.o_ems_card_stamp { width: 19mm; padding-right: 2mm; text-align: center; vertical-align: bottom; padding-bottom: 1.5mm; }
+                    </style>
+                    <!-- Each sheet of fronts (ten cards) is followed by its sheet of backs, for
+                         double-sided printing flipped on the long edge: a back row lists its cards
+                         right to left, so every back lands behind its own front (it only shows on
+                         an odd last row, the backs being all alike). -->
+                    <t t-foreach="range(0, len(docs), 10)" t-as="sheet_start">
+                        <t t-set="sheet" t-value="docs[sheet_start:sheet_start + 10]"/>
+                        <div t-attf-class="o_ems_card_sheet #{'' if sheet_start_first else 'o_ems_card_new_page'}">
+                            <t t-foreach="range(0, len(sheet), 2)" t-as="row_start">
+                                <table class="o_ems_card_row o_ignore_layout_styling">
+                                    <tr>
+                                        <t t-foreach="sheet[row_start:row_start + 2]" t-as="student">
+                                            <td t-if="not student_first" class="o_ems_card_gap"/>
+                                            <td>
+                                                <t t-call="ems.report_student_card_single"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </table>
+                            </t>
+                        </div>
+                        <div class="o_ems_card_sheet o_ems_card_new_page">
+                            <t t-foreach="range(0, len(sheet), 2)" t-as="row_start">
+                                <table class="o_ems_card_row o_ignore_layout_styling">
+                                    <tr>
+                                        <t t-if="row_start + 1 == len(sheet)">
+                                            <td class="o_ems_card_blank"/>
+                                            <td class="o_ems_card_gap"/>
+                                        </t>
+                                        <t t-foreach="sheet[row_start:row_start + 2]" t-as="student">
+                                            <td t-if="not student_first" class="o_ems_card_gap"/>
+                                            <td>
+                                                <t t-call="ems.report_student_card_back"/>
+                                            </td>
+                                        </t>
+                                    </tr>
+                                </table>
+                            </t>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_student_card_single">
+            <t t-set="card" t-value="student._get_student_card_values()"/>
+            <div class="o_ems_card">
+                <table class="o_ems_card_header o_ignore_layout_styling" style="width: 100%;">
+                    <tr>
+                        <td t-if="company.logo" style="width: 15mm;">
+                            <img class="o_ems_card_logo" t-att-src="image_data_uri(company.logo)" alt="Logo"/>
+                        </td>
+                        <td>
+                            <div class="o_ems_card_centre" t-out="company.name"/>
+                            <div class="o_ems_card_address">
+                                <t t-out="company.street"/><t t-if="company.street and company.city">, </t><t t-out="company.city"/>
+                                <t t-if="company.phone"> · <t t-out="company.phone"/></t>
+                            </div>
+                        </td>
+                        <td class="o_ems_card_year">
+                            <div class="o_ems_card_label">Academic year</div>
+                            <strong t-out="company.current_course_id.name"/>
+                        </td>
+                    </tr>
+                </table>
+                <table class="o_ems_card_band o_ignore_layout_styling" t-attf-style="width: 100%; background: {{ card['level'].card_color or '#546E7A' }};">
+                    <tr>
+                        <td class="o_ems_card_level" t-out="card['level'].acronym"/>
+                        <td class="o_ems_card_study" t-out="card['study']"/>
+                    </tr>
+                </table>
+                <table class="o_ems_card_body o_ignore_layout_styling" style="width: 100%;">
+                    <tr>
+                        <td style="width: 24mm;">
+                            <img t-if="student.image_1920" class="o_ems_card_photo" t-att-src="image_data_uri(student.image_512)" alt="Photo"/>
+                            <div t-else="" class="o_ems_card_no_photo"><i class="fa fa-user"/></div>
+                        </td>
+                        <td>
+                            <div class="o_ems_card_name" t-out="student.name"/>
+                            <div class="o_ems_card_data">
+                                <div t-if="card['document']"><span class="o_ems_card_label">ID document:</span> <t t-out="card['document']"/></div>
+                                <div t-if="student.birth_date"><span class="o_ems_card_label">Birth date:</span> <t t-out="student.birth_date" t-options="{'widget': 'date', 'format': 'dd/MM/yyyy'}"/></div>
+                                <div t-if="student.student_id"><span class="o_ems_card_label">IDALU:</span> <t t-out="student.student_id"/></div>
+                            </div>
+                            <div t-if="student.student_id" class="o_ems_card_barcode">
+                                <span t-out="student.student_id" t-options="{'widget': 'barcode', 'symbology': 'Code128', 'width': 600, 'height': 100, 'quiet': 0}"/>
+                            </div>
+                        </td>
+                        <td class="o_ems_card_stamp">
+                            <img t-if="company.ems_card_stamp" class="o_ems_card_stamp_image" t-att-src="image_data_uri(company.ems_card_stamp)" alt="Stamp"/>
+                            <div t-else="" class="o_ems_card_stamp_empty">Centre stamp</div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </template>
+
+        <!-- The back, alike on every card: the Departament's logo (as on the card Esfera printed),
+             the centre and how to give a lost card back. -->
+        <template id="report_student_card_back">
+            <div class="o_ems_card o_ems_card_back">
+                <img class="o_ems_card_back_logo" src="/ems/static/src/img/departament_educacio.png" alt="Departament d'Educació i Formació Professional"/>
+                <div class="o_ems_card_centre" t-out="company.name"/>
+                <div class="o_ems_card_address">
+                    <t t-out="company.street"/><t t-if="company.street and company.city">, </t><t t-out="company.city"/>
+                    <t t-if="company.phone"> · <t t-out="company.phone"/></t>
+                </div>
+                <div class="o_ems_card_back_note">This card is personal and non-transferable. If you find it, please return it to the centre.</div>
+            </div>
+        </template>
+    </data>
+</odoo>

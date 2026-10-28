@@ -59,6 +59,7 @@
                         <field name="can_create_google_account" invisible="1"/>
                         <field name="google_ws_creation_pending" invisible="1"/>
                         <field name="can_download_google_credentials" invisible="1"/>
+                        <field name="can_print_student_card" invisible="1"/>
                         <field name="can_manage_portal_access" invisible="1"/>
                         <field name="can_send_student_requests" invisible="1"/>
                         <field name="can_undo_withdrawal" invisible="1"/>
@@ -135,6 +136,11 @@
                                     string="Download Google credentials"
                                     invisible="not can_download_google_credentials"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_tutor,ems.group_tac"/>
+                            <!-- Issue #524: same people as the other per-student actions above. -->
+                            <button name="action_print_student_card" type="object"
+                                    string="Print student card"
+                                    invisible="not can_print_student_card"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
                             <!-- Issue #585: the roles that sign grade reviews, the only other
                                  write path into the academic history. -->
                             <button name="action_external_record_wizard" type="object"

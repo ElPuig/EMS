@@ -112,6 +112,8 @@ from . import test_student_google_workspace_tour
 from . import test_actions_dropdown_tour
 from . import test_archive_entry
 from . import test_student_action_rights
+from . import test_student_card
+from . import test_student_card_tour
 from . import test_employee_ems_user
 from . import test_strike
 from . import test_strike_tour

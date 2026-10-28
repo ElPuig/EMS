@@ -1062,6 +1062,13 @@ returns it with the groups' timetable-change states it was built from.
   each of its two absences is one plan). The best 3 are shown.
 - **Dependencies** (`_plan()`): a move into a gap another step left needs that step; a notice needs
   the moves whose lessons it frees the group from.
+- **What it leaves to a guard** (#710, `gaps(steps, notices)`): the classes still to come that the
+  steps leave without anybody and that no change told to the families (already, or by `notices`)
+  frees the group from, or only a longer break does (`_needs_guard()`, the same test as criteria
+  2-3). `ems.course._get_arrangement_plans()` stores them in each plan's `gaps` (with the plan's notices
+  and corrections), and `_arrangement_plan_data()` turns
+  them into one line under the steps ("It still leaves 1A (09:00) without a teacher: once applied,
+  you will choose the guard teacher."), for the whole plan.
 
 Measured on a real centre's timetable (`odoo shell`, cold): ~55 ms for the plans of two linked
 groups, ~0.3 s for both shifts of the whole board.
@@ -1143,6 +1150,12 @@ action button of the boxes above the table shares one width (`.o_guard_board_act
 for the day as it is now and checks the subset (`ArrangementPlanner.check()`): each step still
 possible with the earlier ones applied, each notice one of the changes the resulting day allows on
 a side nobody was told about. So a stale screen, or a step kept without one it needs, is refused.
+It also works out what the checked steps still leave to a guard (`ArrangementPlanner.gaps()`, #710) and returns
+it as `gaps` (`{'group_id', 'hour_from', 'hour_to'}`): once the board reloads, it opens the guard
+dialog of each of those classes in turn, offering only "Send a guard teacher" (`openGapCovers()`,
+`GuardCoverDialog`'s `guardOnly`: no other proposal, which could also open its own gaps' dialogs on
+top of the queue), skipping one not on the shift shown or already covered. Not when
+a notice could not be sent: its draft opens instead.
 Then:
 
 - A **move** creates, per group of the lesson, one `ems.absence_cover` (`cover_type =

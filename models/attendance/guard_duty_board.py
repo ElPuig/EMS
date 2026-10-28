@@ -1244,14 +1244,22 @@ class EmsCourseGuardDutyBoard(models.Model):
         in a swap the `absent` teachers teaching that lesson, in a join the other halves it is
         taught together with (see ArrangementPlanner for the step kinds) - or `{'kind': 'notice' |
         'correction', 'groups', 'change', 'depends'}`, the same timetable change told to the
-        families of every one of `groups`."""
+        families of every one of `groups`. 'gaps', `[(group, (hour_from, hour_to))]`, are the classes
+        the whole plan, notices and corrections included, still leaves to a guard (issue #710, see
+        ArrangementPlanner.gaps)."""
         context = context or self._arrangement_context(day)
         groups = self._linked_groups(context, group).sorted('name')
         key = tuple(sorted(groups.ids))
         if key not in context['plans']:
             planner, states = self._arrangement_planner(context, groups)
-            context['plans'][key] = [self._arrangement_plan_records(context, raw, groups, number, states) for number, raw
-                                     in enumerate(planner.plans(), start=1)]
+            context['plans'][key] = []
+            for number, raw in enumerate(planner.plans(), start=1):
+                plan = self._arrangement_plan_records(context, raw, groups, number, states)
+                notices = [(group_id, step['change']) for step in plan['steps'] if step['kind'] in ('notice', 'correction')
+                           for group_id in step['groups'].ids]
+                plan['gaps'] = [(self.env['ems.group'].browse(group_id), period)
+                                for group_id, period in planner.gaps(raw['steps'], notices)]
+                context['plans'][key].append(plan)
         return context['plans'][key]
 
     def _reopened_side(self):
@@ -2320,11 +2328,16 @@ class EmsCourseGuardDutyBoard(models.Model):
                              for teacher, reason in step.get('stay_reasons', {}).items()],
                 'payload': payload,
             })
+        gaps = plan['gaps']
         return {
             'key': plan['key'],
             'title': _("Proposal %s:", plan['number']),
             'groups': format_list(self.env, plan['groups'].mapped('name')),
             'steps': steps,
+            # What it leaves to a guard (issue #710): applying it asks who goes.
+            'gaps': _("It still leaves %s without a teacher: once applied, you will choose the guard teacher.",
+                      format_list(self.env, [f"{group.name} ({self._format_report_time(period[0])})" for group, period in gaps]))
+            if gaps else False,
         }
 
     def _arrangement_step_label(self, kind, values):

@@ -326,3 +326,62 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_co_teaching", {
         },
     ],
 });
+
+// Issue #710, as the absent teacher's Department Chief: the best proposal moves the group's 12:00
+// lesson to 11:00 and tells the families the group leaves at 12:00, but nothing fills the 9:00
+// class. The proposal says so, and applying it opens that class's guard assignment, where the
+// guard on duty is sent. Seed data comes from TestAbsenceCoverageTour.test_absence_arrangement_gaps_tour.
+registry.category("web_tour.tours").add("ems_absence_arrangement_gaps", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_gaps:contains('TABTG (09:00) without a teacher')",
+            content: "Proposal 1 says the 9:00 class still needs a guard",
+        },
+        {
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
+            content: "Apply it",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Tour Move Teacher comes in and leaves an hour earlier: they agreed (issue #709)",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('09:00')):not(:has(.o_guard_cover_mode)) .o_guard_cover_guard_select",
+            content: "The 9:00 class's guard assignment opens, offering nothing but a guard",
+            run: "selectByLabel Tour Cover Guard",
+        },
+        {
+            trigger: ".modal .o_guard_cover_assign:enabled",
+            content: "Assign and notify",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck:contains('Tour Cover Guard')",
+            content: "The 9:00 class is covered by the guard",
+        },
+    ],
+});

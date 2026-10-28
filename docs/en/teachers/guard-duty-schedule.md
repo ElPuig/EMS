@@ -241,6 +241,12 @@ A lesson taken to an hour when the teacher has a guard, a coordination or any ot
 
 **Applying a proposal.** Click **Apply the checked steps** on its right, or click the class and choose the proposal in the dialog, where the proposals that solve that class come first, above sending a guard. Every step starts checked: uncheck those you do not want. A step that needs another one is unchecked along with it (a move into the gap another one leaves, a notice that only makes sense because of a move), and checking a step checks what it needs.
 
+If a proposal does not solve every class, it says so under its steps, in orange ("It still leaves 1A (09:00) without a teacher..."). Once you apply it, the guard assignment of each of those classes opens, one after the other, to choose who goes (it only offers sending a guard: the proposal already decided how to organise the day); you can also close it and do it later from the table. The same happens with the classes left without anybody because you unchecked a step.
+
+![A proposal that leaves the 9:00 class without a teacher, saying so under its steps](../../assets/teachers/guard-duty-15-classe-per-cobrir.png)
+
+![After applying it, the guard assignment of that class: only a guard can be sent](../../assets/teachers/guard-duty-16-guardia-despres-d-aplicar.png)
+
 ![Dialog of a class: the proposals that solve it, the first one chosen with its steps checked, above sending a guard and the arrangement described by hand](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 
 - A **swap**, and a **moved lesson** that does not depend on a notice, take effect at once: the class is struck out with the teacher who is with the group, and the teachers involved receive an Odoo message with the change (and their new entry or exit time, if it changes).

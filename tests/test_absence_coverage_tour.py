@@ -72,14 +72,27 @@ class TestAbsenceCoverageTour(HttpCase):
         day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
         while day.weekday() != 0:
             day += timedelta(days=1)
-        self.env['hr.leave'].create({
-            'employee_id': teacher.id,
-            'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
-            'request_date_from': day, 'request_date_to': day,
-            'ems_full_day': False, 'request_hour_from': away[0], 'request_hour_to': away[1],
-            'ems_submitted': True, 'ems_responsible_declaration': True,
-        }).action_approve()
+        self._leave(teacher, day, *away)
         return teacher, guard, group
+
+    def _leave(self, employee, day, hour_from, hour_to):
+        """An approved absence of `employee` on `day`, from `hour_from` to `hour_to`."""
+        self.env['hr.leave'].create({
+            'employee_id': employee.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'request_date_from': day, 'request_date_to': day, 'ems_full_day': False,
+            'request_hour_from': hour_from, 'request_hour_to': hour_to, 'ems_submitted': True, 'ems_responsible_declaration': True,
+        }).action_approve()
+
+    def _student_with_family(self, group):
+        """A student of `group` with a family, so that the notices to both can be sent (issue #652)."""
+        student = self.env['res.partner'].create({
+            'name': 'Tour 659 Student', 'contact_type': 'student', 'student_id': next_student_id(),
+            'main_group_id': group.id, 'email': 'tour659.student@example.com'})
+        family = self.env['res.partner'].create({
+            'name': 'Tour 659 Family', 'contact_type': 'family', 'email': 'tour659.family@example.com'})
+        self.env['res.partner.relation'].create({
+            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
+            'right_partner_id': student.id})
 
     def test_absence_coverage_tour(self):
         teacher, guard, group = self._board_fixture()
@@ -230,6 +243,31 @@ class TestAbsenceCoverageTour(HttpCase):
 
         self.start_tour("/odoo", "ems_join_split_groups_result", login=self.department_chief.login)
 
+    def test_absence_arrangement_gaps_tour(self):
+        """Issue #710, as the Department Chief: the absent teacher teaches the group at 9 and 11 and
+        is away 9-13; 'Tour Edge Teacher' teaches it at 8 and is away afterwards, 'Tour Middle
+        Teacher' at 10. 'Tour Move Teacher', away until 11, can take the group's 12:00 lesson to 11
+        (the group leaving at 12), but nobody can fill the 9:00 class. The proposal says so, and
+        applying it opens the guard assignment of that class, where the chief sends the guard on duty."""
+        teacher, guard, group = self._board_fixture(away=(9, 13), periods=((9, 10), (11, 12)))
+        day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
+        self._leave(self._arrangement_teacher('Tour Edge Teacher', (8, 9), group), day, 9, 13)
+        self._arrangement_teacher('Tour Middle Teacher', (10, 11), group)
+        mover = self._arrangement_teacher('Tour Move Teacher', (12, 13), group)
+        self._leave(mover, day, 8, 11)
+        self._student_with_family(group)
+        self.department_chief.email = 'tour710.chief@example.com'
+        plan = self.env['ems.course']._get_arrangement_plans(day, group)[0]
+        self.assertEqual([(step['kind'], step.get('change') or step['teacher']) for step in plan['steps']],
+                         [('move', mover), ('notice', ('early_leave', 12))])
+        self.assertEqual(plan['gaps'], [(group, (9, 10))])
+
+        self.start_tour("/odoo", "ems_absence_arrangement_gaps", login=self.department_chief.login)
+
+        covers = self.env['ems.absence_cover'].search([('group_id', '=', group.id)], order='hour_from')
+        self.assertEqual([(cover.hour_from, cover.cover_type, cover.guard_employee_id) for cover in covers],
+                         [(9, 'guard', guard), (11, 'arrangement', mover)])
+
     def _move_fixture(self):
         """The absent teacher is only away 9-10, in the middle of the group's day; the group's
         last lesson, at 12, can be moved into it, the group leaving at 11: the one plan."""
@@ -273,14 +311,7 @@ class TestAbsenceCoverageTour(HttpCase):
         teacher, _guard, group = self._board_fixture()
         if swapper:
             self._arrangement_teacher('Tour Swap Teacher', (11, 12), group)
-        student = self.env['res.partner'].create({
-            'name': 'Tour 659 Student', 'contact_type': 'student', 'student_id': next_student_id(),
-            'main_group_id': group.id, 'email': 'tour659.student@example.com'})
-        family = self.env['res.partner'].create({
-            'name': 'Tour 659 Family', 'contact_type': 'family', 'email': 'tour659.family@example.com'})
-        self.env['res.partner.relation'].create({
-            'left_partner_id': family.id, 'type_id': self.env.ref('ems.relation_type_father').id,
-            'right_partner_id': student.id})
+        self._student_with_family(group)
         self.department_chief.email = 'tour659.chief@example.com'
         day = self.env['hr.leave'].search([('employee_id', '=', teacher.id)]).request_date_from
         self.env['ems.notice'].with_user(self.department_chief).board_send_absence_change(str(day), group.id, 'late_entry', 10.0)
@@ -307,11 +338,7 @@ class TestAbsenceCoverageTour(HttpCase):
         leave = self.env['hr.leave'].search([('employee_id.name', '=', 'Tour Absent Teacher')])
         day = leave.request_date_from
         leave.action_refuse()
-        self.env['hr.leave'].create({
-            'employee_id': leave.employee_id.id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
-            'request_date_from': day, 'request_date_to': day, 'ems_full_day': False,
-            'request_hour_from': 10, 'request_hour_to': 11, 'ems_submitted': True, 'ems_responsible_declaration': True,
-        }).action_approve()
+        self._leave(leave.employee_id, day, 10, 11)
 
         self.start_tour("/odoo", "ems_corrections_box", login=self.department_chief.login)
 

@@ -469,6 +469,10 @@
                     </li>
                 </t>
             </ul>
+            <!-- Issue #710: what the whole proposal still leaves to a guard. -->
+            <div t-if="props.plan.gaps" class="o_guard_board_plan_gaps text-warning">
+                <i class="fa fa-user-o me-1"/><t t-esc="props.plan.gaps"/>
+            </div>
             <t t-slot="default"/>
         </div>
     </t>
@@ -547,8 +551,9 @@
                     <span class="text-muted"> - <t t-esc="props.row.group"/><t t-if="props.row.subject"> · <t t-esc="props.row.subject"/></t><t t-if="props.row.room"> · <t t-esc="props.row.room"/></t></span>
                 </p>
                 <!-- A guard duty left without its teacher (issue #606) is only ever covered by a guard:
-                     arrangements are about a group's lessons. -->
-                <div t-if="!props.row.duty_id" class="mb-3 o_guard_cover_mode">
+                     arrangements are about a group's lessons. So is a class a proposal just applied
+                     left empty (issue #710): the planner already chose how to organise the day. -->
+                <div t-if="!props.row.duty_id and !props.guardOnly" class="mb-3 o_guard_cover_mode">
                     <t t-if="props.row.arrangement and props.row.arrangement.type !== 'manual'">
                         <div class="form-check">
                             <input class="form-check-input o_guard_cover_mode_current" type="radio" name="o_guard_cover_mode" id="o_guard_cover_mode_current"

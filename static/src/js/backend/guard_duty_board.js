@@ -526,8 +526,11 @@ export class GuardDutyBoard extends Component {
     }
 
     // Dialogs and popovers opened from the board flush a reload that waited for them on close.
-    addDialog(component, props) {
-        return this.dialog.add(component, props, { onClose: () => setTimeout(() => this.flushRefresh()) });
+    addDialog(component, props, onClose = () => {}) {
+        return this.dialog.add(component, props, { onClose: () => {
+            onClose();
+            setTimeout(() => this.flushRefresh());
+        } });
     }
 
     addPopover(target, component, props) {
@@ -840,7 +843,31 @@ export class GuardDutyBoard extends Component {
         const result = await this.orm.call("ems.absence_cover", "board_apply_plan", [this.activeDate, steps], { reopen });
         if (!(await this.openUnsentNotice(result))) {
             await this.loadBoard();
+            this.openGapCovers(result.gaps);
         }
+    }
+
+    // Issue #710: the classes the applied steps still leave without anybody need a guard, so the
+    // guard assignment of each opens, one after the other, offering only that: the planner already
+    // chose how to organise the day. A class not on the board's shift, or already covered, is
+    // skipped.
+    openGapCovers(gaps) {
+        const [gap, ...rest] = gaps || [];
+        if (!gap) {
+            return;
+        }
+        for (const line of this.state.board.lines) {
+            if (line.hour_from >= gap.hour_to || gap.hour_from >= line.hour_to) {
+                continue;
+            }
+            const absence = line.absences.find((row) => row.group_id === gap.group_id && this.isAssignable(row)
+                && !row.covers.length && !row.arrangement);
+            if (absence) {
+                this.openCoverDialog(line, absence, { guardOnly: true, onClose: () => this.openGapCovers(rest) });
+                return;
+            }
+        }
+        this.openGapCovers(rest);
     }
 
     // "Only tell the families", its rows as steps (issue #659; all checked until the planner
@@ -910,7 +937,8 @@ export class GuardDutyBoard extends Component {
         return this.actionLabels.openDraft;
     }
 
-    openCoverDialog(line, absence) {
+    // `guardOnly`: only "Send a guard teacher" (issue #710); `onClose`: once it closes.
+    openCoverDialog(line, absence, { guardOnly = false, onClose } = {}) {
         if (!this.isAssignable(absence)) {
             return;
         }
@@ -918,6 +946,7 @@ export class GuardDutyBoard extends Component {
         this.addDialog(GuardCoverDialog, {
             row: absence,
             line,
+            guardOnly,
             onAssign: async (guardId, message) => {
                 await this.orm.call("ems.absence_cover", "board_assign", [...classArgs, guardId, message],
                     { duty_id: absence.duty_id });
@@ -933,7 +962,7 @@ export class GuardDutyBoard extends Component {
                 await this.orm.call("ems.absence_cover", "board_release", [coverId || absence.arrangement.id]);
                 await this.loadBoard();
             },
-        });
+        }, onClose);
     }
 
     // Issue #692: the teacher of a class in progress has not checked in. The dialog offers to say

@@ -139,24 +139,13 @@ class ArrangementPlanner:
         lost = idle = guards = 0
         notices = []
         for group_id, blocks in day.items():
-            windows = []
-            for side, (options, communicated) in self._side_options(group_id, blocks).items():
-                if communicated:
-                    # A change already told (and still valid, or past) frees its lessons; a stale
-                    # one is the correction box's business, not a plan's.
-                    if self._is_past(communicated, blocks) or any(
-                            self.course._same_change(communicated, option) for option in options):
-                        windows.append(communicated)
-                    continue
-                if options:
-                    notices.append((group_id, side, options[-1]))
-                    windows.append(options[-1])
+            told, untold = self._windows(group_id, blocks)
+            notices += [(group_id, side, change) for side, change in untold]
+            windows = told + [change for _side, change in untold]
             for block in blocks:
                 if block['empty']:
                     lost += 1
-                    freeing = [window for window in windows
-                               if self.course._change_window_contains(window, block['hour_from'], block['hour_to'])]
-                    if all(window[0] == 'long_break' for window in freeing):
+                    if self._needs_guard(block, windows):
                         idle += 1
                         guards += 1
         shifts = self._shifts(steps)
@@ -164,6 +153,41 @@ class ArrangementPlanner:
         moves = len(frozenset().union(*(step[1] for step in steps)))
         return (lost, idle, guards, len(notices), broken, moves, self._runs(day),
                 sum(len(changes) for changes in shifts.values())), notices
+
+    def _windows(self, group_id, blocks):
+        """`(told, untold)` for one group's simulated day: the changes its families were told that
+        still free its lessons (still valid, or past: a stale one is the correction box's business,
+        not a plan's), and `(side, change)`, the largest change each side nobody was told about
+        allows."""
+        told, untold = [], []
+        for side, (options, communicated) in self._side_options(group_id, blocks).items():
+            if communicated:
+                if self._is_past(communicated, blocks) or any(
+                        self.course._same_change(communicated, option) for option in options):
+                    told.append(communicated)
+            elif options:
+                untold.append((side, options[-1]))
+        return told, untold
+
+    def _needs_guard(self, block, windows):
+        """Whether an empty block needs a guard all the same: none of the changes `windows` frees
+        the group from it, or only a longer break (the students under 18 stay in, issue #679)."""
+        return all(window[0] == 'long_break' for window in windows
+                   if self.course._change_window_contains(window, block['hour_from'], block['hour_to']))
+
+    def gaps(self, steps, notices):
+        """The classes still to come that `steps` leave without anybody and that need a guard all
+        the same (issue #710): no change the families were told, nor one of `notices` (`(group id,
+        change)`, those applied with the steps), frees the group from them. `[(group id,
+        (hour_from, hour_to))]`, by time."""
+        gaps = []
+        for group_id, blocks in self.simulate(steps).items():
+            told, _untold = self._windows(group_id, blocks)
+            windows = told + [change for notice_group, change in notices if notice_group == group_id]
+            gaps += [(group_id, (block['hour_from'], block['hour_to'])) for block in blocks
+                     if block['empty'] and self._needs_guard(block, windows)
+                     and (self.now_hour is None or block['hour_to'] > self.now_hour + HOUR_EPSILON)]
+        return sorted(gaps, key=lambda gap: (gap[1], gap[0]))
 
     @staticmethod
     def _runs(day):

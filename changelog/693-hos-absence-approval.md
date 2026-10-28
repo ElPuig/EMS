@@ -6,7 +6,7 @@
 - The "approved requests are closed to their own employee" guard lets through only what the Head's own steps write (state, approvers, calendar meeting, document state), so an Area Manager still cannot edit their own approved absence, and still cannot undo a decision on it (Direction can).
 - The officers' "Waiting For Me" filter now also lists the reader's own pending requests when they are their own approver.
 - An Area Manager's attendance corrections still go to the Director (`attendance_manager_id` no longer mirrors `leave_manager_id` in that one case).
-- Migration (`18.0.0.41.1` post-migrate): recomputes the approver of every Area Manager and hands their open requests (Pending, Pending validation) over to them, with their activity and followers, without emailing anybody.
+- Migration (`18.0.0.41.1` post-migrate, manifest bumped to 18.0.0.41.1): recomputes the approver of every Area Manager and hands their open requests (Pending, Pending validation) over to them, with their activity and followers, without emailing anybody.
 - Head of Studies and Secretary manuals (ca/es/en) and developer docs updated.
 
 # Related with

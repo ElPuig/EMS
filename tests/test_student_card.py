@@ -110,7 +110,10 @@ class TestStudentCard(TransactionCase):
     def test_photo_or_silhouette(self):
         self.assertIn('class="o_ems_card_no_photo"', self._render(self.own_a))
         self.own_a.image_1920 = base64.b64encode(draw_invented_student_photo())
-        self.assertNotIn('class="o_ems_card_no_photo"', self._render(self.own_a))
+        html = self._render(self.own_a)
+        self.assertNotIn('class="o_ems_card_no_photo"', html)
+        # Inside a fixed frame, scaled to fit it: wkhtmltopdf ignores object-fit and would stretch it.
+        self.assertIn('<div class="o_ems_card_photo_frame">', html)
 
     def test_every_card_has_its_back(self):
         # Fronts and backs alternate sheet by sheet; an odd last row puts its back on the right.

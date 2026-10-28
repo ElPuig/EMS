@@ -61,8 +61,11 @@
                         .o_ems_card_level { font-size: 17pt; font-weight: bold; letter-spacing: 0.5mm; white-space: nowrap; }
                         .o_ems_card_study { font-size: 7pt; font-weight: bold; text-align: right; line-height: 1.15; }
                         .o_ems_card_body td { padding: 1.5mm 0 0 2mm; }
-                        .o_ems_card_photo, .o_ems_card_no_photo { width: 22mm; height: 29mm; }
-                        .o_ems_card_photo { object-fit: cover; border: 0.2mm solid #ccc; }
+                        .o_ems_card_photo_frame, .o_ems_card_no_photo { width: 22mm; height: 29mm; }
+                        /* wkhtmltopdf's WebKit ignores object-fit, so a fixed width and height would
+                           stretch the photo: it is scaled down to fit the frame, keeping its proportions. */
+                        .o_ems_card_photo_frame { display: table-cell; vertical-align: middle; text-align: center; }
+                        .o_ems_card_photo { max-width: 22mm; max-height: 29mm; border: 0.2mm solid #ccc; }
                         .o_ems_card_no_photo { background: #eceff1; color: #b0bec5; font-size: 40pt; text-align: center; line-height: 29mm; }
                         .o_ems_card_name { font-size: 9pt; font-weight: bold; line-height: 1.15; margin-bottom: 0.8mm; }
                         .o_ems_card_data { font-size: 7pt; line-height: 1.4; }
@@ -142,7 +145,9 @@
                 <table class="o_ems_card_body o_ignore_layout_styling" style="width: 100%;">
                     <tr>
                         <td style="width: 24mm;">
-                            <img t-if="student.image_1920" class="o_ems_card_photo" t-att-src="image_data_uri(student.image_512)" alt="Photo"/>
+                            <div t-if="student.image_1920" class="o_ems_card_photo_frame">
+                                <img class="o_ems_card_photo" t-att-src="image_data_uri(student.image_512)" alt="Photo"/>
+                            </div>
                             <div t-else="" class="o_ems_card_no_photo"><i class="fa fa-user"/></div>
                         </td>
                         <td>

@@ -7,7 +7,8 @@ generates: an A4 sheet with the cards of the selected students, two columns, cut
 card shows:
 
 - The centre: its logo, name, phone and address (`res.company` / its partner).
-- The student: photo (`image_1920`, a silhouette when missing), "Last names, First name",
+- The student: photo (`image_1920`, a silhouette when missing; scaled down to fit its 22 x 29 mm
+  frame with its proportions kept, since wkhtmltopdf ignores `object-fit`), "Last names, First name",
   identity document (`document_id`, or `passport_id` when there is none), birth date and IDALU
   (`student_id`).
 - The **level band**: the main group's level acronym (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big

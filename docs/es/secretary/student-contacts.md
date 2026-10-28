@@ -43,6 +43,8 @@ La parte superior de la ficha reúne los datos del alumno sin tener que cambiar 
 
 ![Parte superior de la ficha de un alumno: nombres, correos, las columnas Contacto, Identificación y Datos personales, y el resumen de autorizaciones](../../assets/secretary/fitxa-alumne-01-capcalera.png)
 
+La **fecha de nacimiento** es obligatoria para dar de alta un alumno/a nuevo: sin ella, EMS lo trata como menor de edad. Un alumno/a que no la tiene muestra un aviso en la parte superior de la ficha hasta que se rellena, y el filtro **Sin fecha de nacimiento** de la lista de alumnos los muestra todos.
+
 Debajo están las pestañas: **Horario** (la que se abre por defecto), **Estudios** (grupo, matrícula por asignaturas e histórico académico), **Contactos y direcciones** (familiares), **Secretaría** (lista de autorizaciones, bonificaciones y exenciones, documentación y cuentas bancarias) y las notas: consulta [Notas públicas y notas privadas del alumno](../teachers/student-notes.md).
 
 ## Añadir un contacto familiar a un alumno

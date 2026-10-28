@@ -26661,3 +26661,50 @@ msgstr "No s'ha pogut llegir l'identificador de l'alumne/a del certificat i no e
 #, python-format
 msgid "%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) against: fill it in first."
 msgstr "%(student)s no té IDALU per comprovar el del certificat (%(identifier)s): empleneu-lo primer."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid ""
+"<i class=\"fa fa-birthday-cake me-2 text-ems-primary\"/>\n"
+"                                                Student's birth date"
+msgstr ""
+"<i class=\"fa fa-birthday-cake me-2 text-ems-primary\"/>\n"
+"                                                Data de naixement de l'alumne/a"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"                                                Enter a valid birth date to confirm the enrollment."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>\n"
+"                                                Introduïu una data de naixement vàlida per confirmar la matrícula."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_enrollment_process
+msgid "Required to confirm the enrollment."
+msgstr "Obligatòria per confirmar la matrícula."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/enrollment/enrollment.py:0
+msgid ""
+"Cannot confirm the enrollment of a student without a birth date. Fill it in on the student's form first:\n"
+"%s"
+msgstr ""
+"No es pot confirmar la matrícula d'un alumne/a sense data de naixement. Ompliu-la primer a la fitxa de l'alumne/a:\n"
+"%s"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The birth date is missing: until it is filled in, EMS treats the student as a\n"
+"                        minor. Fill it in the Personal data section."
+msgstr ""
+"Falta la data de naixement: fins que no s'ompli, EMS tracta l'alumne/a com a"
+" menor d'edat. Ompliu-la a la secció Dades personals."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_student_search
+msgid "Without birth date"
+msgstr "Sense data de naixement"

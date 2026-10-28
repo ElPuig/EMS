@@ -649,6 +649,14 @@ class SaleOrder(models.Model):
                     "The following required authorizations are still pending:\n%(names)s",
                     name=order.name, names=names,
                 ))
+        # Issue #640: without a birth date EMS takes the student for a minor (is_adult), so
+        # nobody becomes, or stays, a student without one. The portal asks for it first.
+        undated = self.filtered(lambda order: order.ems_study_id and not order.partner_id.birth_date)
+        if undated:
+            raise ValidationError(_(
+                "Cannot confirm the enrollment of a student without a birth date. Fill it in on "
+                "the student's form first:\n%s",
+                '\n'.join(f"- {order.partner_id.display_name} ({order.name})" for order in undated)))
         res = super().action_confirm()
         comment_type = self.env.ref('ems.mail_activity_enrollment_comment', raise_if_not_found=False)
         for order in self:

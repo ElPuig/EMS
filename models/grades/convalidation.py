@@ -17,6 +17,11 @@ CONVALIDATED_GRADE = 5
 # States a request can no longer move on from.
 CLOSED_STATES = ('completed', 'rejected', 'cancelled')
 
+# States in which the resolution is official, registered by the secretariat (issue #719): only
+# then does the applicant see what was decided for each subject. Until then any decision can
+# still change, so the portal only shows how far the request has got.
+OFFICIAL_STATES = ('completed', 'rejected')
+
 # What the applicant filed, fixed once the request exists.
 FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'prior_studies_origin', 'student_notes'}
 
@@ -599,6 +604,12 @@ class EmsConvalidation(models.Model):
         self.ensure_one()
         return self.state == 'pending' or (self.state == 'documentation' and not self.resolved_by_ministry)
 
+    def _ems_resolution_is_official(self):
+        """Whether the applicant may see the resolution: what was decided for each subject, the
+        comments and the official document (see OFFICIAL_STATES)."""
+        self.ensure_one()
+        return self.state in OFFICIAL_STATES
+
     def action_cancel(self):
         for convalidation in self:
             if not convalidation._ems_is_cancellable():
@@ -840,12 +851,14 @@ class EmsConvalidation(models.Model):
     @api.model
     def _ems_portal_requestable_subjects(self, student, study):
         """Subjects the student can still ask for: the study's, minus those already requested
-        and not rejected (a rejected subject can be asked for again with new documents)."""
+        and not officially rejected (a rejected subject can be asked for again with new
+        documents, once the refusal is official: before that, freeing it would give a decision
+        that can still change away, issue #719)."""
         taken = self.env['ems.convalidation.line'].sudo().search([
             ('student_id', '=', student.id),
             ('subject_id', 'in', study._ems_convalidable_subjects().ids),
             ('convalidation_id.state', '!=', 'cancelled'),
-            ('state', '!=', 'rejected'),
+            '|', ('state', '!=', 'rejected'), ('convalidation_id.state', 'not in', OFFICIAL_STATES),
         ]).mapped('subject_id')
         return study._ems_convalidable_subjects() - taken
 

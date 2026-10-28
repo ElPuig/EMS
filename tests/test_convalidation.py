@@ -1218,8 +1218,13 @@ class TestConvalidation(TransactionCase):
         request = self._request()
         self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
                          self.other_subject)
-        # A rejected subject can be asked for again, with new documents.
+        # A refusal still under way is not official (issue #719): the subject stays taken, or the
+        # form would give the decision away. Once registered, it can be asked for again.
         self._refuse(request.line_ids)
+        self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
+                         self.other_subject)
+        self._close(request)
+        self.assertEqual(request.state, 'rejected')
         self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
                          self.subject | self.other_subject)
 

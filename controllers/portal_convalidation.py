@@ -168,7 +168,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if not (partner._ems_convalidation_portal_visible() and convalidation.exists()
                 and convalidation.student_id == partner.get_portal_student()
-                and convalidation.state in ('completed', 'rejected')):
+                and convalidation._ems_resolution_is_official()):
             return request.redirect(self._redirect)
         document = convalidation.resolution_pdf_id
         if not document:

@@ -511,6 +511,17 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
             content: "The new request is listed and can still be cancelled",
         },
         {
+            // Issue #719: no resolution column until the secretariat registers it.
+            trigger: ".o_ems_convalidation_request .o_ems_convalidation_pending_resolution",
+            content: "Only the subjects are listed, with a note on when the resolution shows up",
+            run() {
+                const headers = this.anchor.closest(".o_ems_convalidation_request").querySelectorAll("thead th");
+                if (headers.length !== 1) {
+                    throw new Error(`Only the subject column expected before the resolution, got ${headers.length}`);
+                }
+            },
+        },
+        {
             trigger: ".o_ems_convalidation_reply textarea[name='message']",
             content: "Answer the request with more documentation",
             run: "edit Here is the certificate",

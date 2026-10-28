@@ -648,8 +648,7 @@ class EmsAbsenceCover(models.Model):
                    for kind, teachers, lesson, target, groups, absents, stays, joined in moves]
         if planner.check(planned, [(group.id, change) for groups, change in notices for group in groups]):
             raise UserError(_("This arrangement is no longer possible: the absences or the timetable have changed. Reload the board."))
-        gaps = course._plan_gaps(planner, planned, [(group.id, change) for groups, change in notices + corrections
-                                                    for group in groups])
+        gaps = planner.gaps(planned, [(group.id, change) for groups, change in notices + corrections for group in groups])
 
         created = self.browse()
         applied = ()
@@ -708,7 +707,7 @@ class EmsAbsenceCover(models.Model):
         if sent['notice_action']:
             result = sent
         return {'cover_ids': created.ids, **result, 'gaps': [
-            {'group_id': group.id, 'hour_from': period[0], 'hour_to': period[1]} for group, period in gaps]}
+            {'group_id': group_id, 'hour_from': period[0], 'hour_to': period[1]} for group_id, period in gaps]}
 
     def _board_create_move(self, context, day_blocks, day, teachers, lesson, target, groups, stays, joined=None):
         """The covers of one moved lesson (issue #645): one per group, per teacher whose class in

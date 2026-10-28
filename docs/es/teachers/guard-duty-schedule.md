@@ -243,6 +243,10 @@ Una clase que se lleva a una hora en la que el docente tiene una guardia, una co
 
 Si una propuesta no resuelve todas las clases, lo dice bajo sus pasos, en naranja ("Todavía deja 1A (09:00) sin docente..."). Cuando la apliques, se abre la asignación de guardia de cada una de esas clases, una detrás de otra, para elegir quién va (solo permite enviar una guardia: la propuesta ya ha decidido cómo se organiza el día); también puedes cerrarla y hacerlo más tarde desde la tabla. Pasa lo mismo con las clases que quedan sin nadie porque has desmarcado un paso.
 
+![Una propuesta que deja la clase de las 9:00 sin docente y lo dice bajo sus pasos](../../assets/teachers/guard-duty-15-classe-per-cobrir.png)
+
+![Después de aplicarla, la asignación de guardia de esa clase: solo se puede enviar una guardia](../../assets/teachers/guard-duty-16-guardia-despres-d-aplicar.png)
+
 ![Diálogo de una clase: las propuestas que la resuelven, la primera elegida con sus pasos marcados, por encima de enviar una guardia y de la reorganización descrita a mano](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 
 - Un **intercambio**, y una **clase movida** que no depende de ningún aviso, tienen efecto de inmediato: la clase queda tachada con el docente que está con el grupo, y los docentes implicados reciben un mensaje de Odoo con el cambio (y su nueva hora de entrada o de salida, si cambia).

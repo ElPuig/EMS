@@ -1065,8 +1065,8 @@ returns it with the groups' timetable-change states it was built from.
 - **What it leaves to a guard** (#710, `gaps(steps, notices)`): the classes still to come that the
   steps leave without anybody and that no change told to the families (already, or by `notices`)
   frees the group from, or only a longer break does (`_needs_guard()`, the same test as criteria
-  2-3). `ems.course._get_arrangement_plans()` stores them in each plan's `gaps` (through
-  `_plan_gaps()`, with the plan's notices and corrections), and `_arrangement_plan_data()` turns
+  2-3). `ems.course._get_arrangement_plans()` stores them in each plan's `gaps` (with the plan's notices
+  and corrections), and `_arrangement_plan_data()` turns
   them into one line under the steps ("It still leaves 1A (09:00) without a teacher: once applied,
   you will choose the guard teacher."), for the whole plan.
 
@@ -1150,7 +1150,7 @@ action button of the boxes above the table shares one width (`.o_guard_board_act
 for the day as it is now and checks the subset (`ArrangementPlanner.check()`): each step still
 possible with the earlier ones applied, each notice one of the changes the resulting day allows on
 a side nobody was told about. So a stale screen, or a step kept without one it needs, is refused.
-It also works out what the checked steps still leave to a guard (`_plan_gaps()`, #710) and returns
+It also works out what the checked steps still leave to a guard (`ArrangementPlanner.gaps()`, #710) and returns
 it as `gaps` (`{'group_id', 'hour_from', 'hour_to'}`): once the board reloads, it opens the guard
 dialog of each of those classes in turn, offering only "Send a guard teacher" (`openGapCovers()`,
 `GuardCoverDialog`'s `guardOnly`: no other proposal, which could also open its own gaps' dialogs on

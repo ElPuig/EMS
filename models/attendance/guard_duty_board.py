@@ -1242,8 +1242,9 @@ class EmsCourseGuardDutyBoard(models.Model):
         in a swap the `absent` teachers teaching that lesson, in a join the other halves it is
         taught together with (see ArrangementPlanner for the step kinds) - or `{'kind': 'notice' |
         'correction', 'groups', 'change', 'depends'}`, the same timetable change told to the
-        families of every one of `groups`. 'gaps' are the classes the whole plan still leaves to a
-        guard (issue #710, see _plan_gaps)."""
+        families of every one of `groups`. 'gaps', `[(group, (hour_from, hour_to))]`, are the classes
+        the whole plan, notices and corrections included, still leaves to a guard (issue #710, see
+        ArrangementPlanner.gaps)."""
         context = context or self._arrangement_context(day)
         groups = self._linked_groups(context, group).sorted('name')
         key = tuple(sorted(groups.ids))
@@ -1252,17 +1253,12 @@ class EmsCourseGuardDutyBoard(models.Model):
             context['plans'][key] = []
             for number, raw in enumerate(planner.plans(), start=1):
                 plan = self._arrangement_plan_records(context, raw, groups, number, states)
-                plan['gaps'] = self._plan_gaps(planner, raw['steps'], [
-                    (group_id, step['change']) for step in plan['steps'] if step['kind'] in ('notice', 'correction')
-                    for group_id in step['groups'].ids])
+                notices = [(group_id, step['change']) for step in plan['steps'] if step['kind'] in ('notice', 'correction')
+                           for group_id in step['groups'].ids]
+                plan['gaps'] = [(self.env['ems.group'].browse(group_id), period)
+                                for group_id, period in planner.gaps(raw['steps'], notices)]
                 context['plans'][key].append(plan)
         return context['plans'][key]
-
-    def _plan_gaps(self, planner, steps, notices):
-        """`[(group, (hour_from, hour_to))]`: the classes still to come that `steps` (planner steps)
-        and `notices` (`(group id, change)`, corrections included) leave without anybody and that
-        need a guard all the same (issue #710, see ArrangementPlanner.gaps)."""
-        return [(self.env['ems.group'].browse(group_id), period) for group_id, period in planner.gaps(steps, notices)]
 
     def _reopened_side(self):
         """`(group id, side)` whose communicated change is being changed (issue #659, the

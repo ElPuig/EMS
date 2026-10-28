@@ -243,6 +243,10 @@ Una classe que es porta a una hora en què el docent té una guàrdia, una coord
 
 Si una proposta no resol totes les classes, ho diu sota els seus passos, en taronja ("Encara deixa 1A (09:00) sense docent..."). Quan l'apliquis, s'obre l'assignació de guàrdia de cadascuna d'aquestes classes, una darrere l'altra, per triar qui hi va (només s'hi pot enviar una guàrdia: la proposta ja ha decidit com s'organitza el dia); també la pots tancar i fer-ho més tard des de la taula. Passa el mateix amb les classes que queden sense ningú perquè has desmarcat un pas.
 
+![Una proposta que deixa la classe de les 9:00 sense docent i ho diu sota els seus passos](../../assets/teachers/guard-duty-15-classe-per-cobrir.png)
+
+![Després d'aplicar-la, l'assignació de guàrdia d'aquella classe: només s'hi pot enviar una guàrdia](../../assets/teachers/guard-duty-16-guardia-despres-d-aplicar.png)
+
 ![Diàleg d'una classe: les propostes que la resolen, la primera triada amb els seus passos marcats, per sobre d'enviar una guàrdia i de la reorganització descrita a mà](../../assets/teachers/guard-duty-07-aplicar-reorganitzacio.png)
 
 - Un **intercanvi**, i una **classe moguda** que no depèn de cap avís, tenen efecte immediatament: la classe queda ratllada amb el docent que és amb el grup, i els docents implicats reben un missatge d'Odoo amb el canvi (i la seva nova hora d'entrada o de sortida, si canvia).

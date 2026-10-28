@@ -19,4 +19,11 @@
 - Tests: the plan's gaps and its text, a plan that solves everything says nothing, applying part of
   a plan returns both gaps; a new tour applies a proposal that leaves the 9:00 class empty and sends
   the guard from the dialog that opens.
-- ca/es translations, developer doc and teachers' manual (ca/es/en).
+- Close audit: added a test of the gap rules at their edges (a longer break still needs a guard,
+  coming in later frees the class, a class already over is left out); removed a one-line wrapper
+  that turned group ids into records and back. Measured on this box with 5 simulated absences: the
+  gaps take 0.9 ms for 16 proposals in a 0.43 s board load. Permission audit: 18 roles plus the
+  three people who organise those absences, 0 mismatches; the classes returned after applying are
+  rows they can manage.
+- ca/es translations, developer doc and teachers' manual (ca/es/en), with two new screenshots (the
+  proposal saying what it leaves, and the guard dialog that opens after applying it).

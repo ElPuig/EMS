@@ -1142,6 +1142,19 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         notice_plan['steps'][0]['change'] = ('late_entry', 10)
         self.assertTrue(course._plan_resolves(notice_plan, self.group_a, 9, 10))
 
+    def test_a_class_a_longer_break_takes_in_is_still_left_to_a_guard(self):
+        """Issue #710: telling a longer break does not free the lesson it takes in from a guard,
+        coming in later does; and a class already over is nobody's business any more."""
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        course = self.env['ems.course']
+        planner, _states = course._arrangement_planner(course._arrangement_context(self.day), self.group_a)
+
+        self.assertEqual(planner.gaps((), [(self.group_a.id, ('long_break', 9, 10.5))]), [(self.group_a.id, (9, 10))])
+        self.assertEqual(planner.gaps((), [(self.group_a.id, ('late_entry', 10))]), [])
+        planner.now_hour = 10
+        self.assertEqual(planner.gaps((), []), [])
+
     def test_a_longer_break_told_with_an_early_leave_also_reaches_the_families(self):
         """One notice per group and day (issue #652): when it also changes when they leave, the
         families are told everything, the break included."""

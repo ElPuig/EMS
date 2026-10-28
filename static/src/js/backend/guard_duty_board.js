@@ -849,8 +849,8 @@ export class GuardDutyBoard extends Component {
 
     // Issue #710: the classes the applied steps still leave without anybody need a guard, so the
     // guard assignment of each opens, one after the other, offering only that: the planner already
-    // chose how to organise the day. A class that is not on the board's
-    // shift, or already covered, is skipped.
+    // chose how to organise the day. A class not on the board's shift, or already covered, is
+    // skipped.
     openGapCovers(gaps) {
         const [gap, ...rest] = gaps || [];
         if (!gap) {

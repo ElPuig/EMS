@@ -27212,3 +27212,12 @@ msgstr "Una clase que ningún paso marcado resuelve se queda en la tabla, para u
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Todavía deja %s sin docente: una vez aplicada, elegiréis al docente de guardia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/> You will see the resolution of each "
+"subject here once the secretariat has registered it."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/> Veréis aquí la resolución de cada módulo "
+"cuando la secretaría la haya registrado."

@@ -63,7 +63,7 @@ Les sol·licituds ja presentades no es veuen afectades: les pots continuar consu
 
 Si cal alguna cosa més, el centre t'ho demanarà i ho podràs adjuntar des d'aquesta mateixa pàgina.
 
-Un missatge confirma que la sol·licitud s'ha enviat. Els mòduls ja sol·licitats deixen d'aparèixer al formulari, llevat que s'hagin rebutjat.
+Un missatge confirma que la sol·licitud s'ha enviat. Els mòduls ja sol·licitats deixen d'aparèixer al formulari, llevat que el seu rebuig ja s'hagi registrat.
 
 ---
 
@@ -82,7 +82,7 @@ Cada sol·licitud apareix sota el formulari, amb el seu número de registre (per
 | **Rebutjada** | Registrada, sense cap mòdul convalidat. |
 | **Anul·lada** | La sol·licitud s'ha anul·lat. |
 
-La taula mostra la resolució de cada mòdul (**Pendent**, **Convalidat** o **Rebutjat**) i, a **Observacions**, el motiu dels mòduls rebutjats. Quan la sol·licitud està **Completada**, hi apareix també la columna **Nota**: un mòdul convalidat sense nota hi mostra **Convalidat**.
+Mentre la sol·licitud es tramita, la taula només llista els mòduls sol·licitats: l'estat t'indica en quin punt es troba. La decisió sobre cada mòdul encara pot canviar fins que secretaria la registra, i per això no es mostra abans. Quan la sol·licitud queda **Completada** o **Rebutjada**, la taula mostra la resolució de cada mòdul (**Convalidat** o **Rebutjat**) i, a **Observacions**, el motiu dels mòduls rebutjats; en una sol·licitud **Completada** hi apareix també la columna **Nota**: un mòdul convalidat sense nota hi mostra **Convalidat**.
 
 Quan la sol·licitud queda **Completada** o **Rebutjada**, rebràs un correu amb la resolució oficial en PDF. També la pots descarregar des del portal amb el botó **Resolució oficial**.
 

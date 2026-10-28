@@ -95,6 +95,7 @@ A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta
 
 - **Nota:** cada mòdul es revisa i es qualifica d'un en un. En clicar ✔, un diàleg la demana: amb el **Mode** a **Amb nota** (per defecte), escriu la nota, 5 per defecte o la que tenen els estudis previs (de 5 a 10). Tria **Sense nota** quan el mòdul es convalida sense nota: la resolució el mostra com a **Convalidat**, les notes com a **CV**, i no compta per a la mitjana. Fins que no enviïs la proposta, encara pots canviar les columnes **Nota** i **Sense nota** de la línia.
 - **Motiu de la denegació:** en clicar ✖, un diàleg demana el **Motiu**, amb el més habitual ja seleccionat, i uns **Detalls** opcionals. Tots dos surten a la resolució. Fins que no enviïs la proposta, encara els pots canviar a la línia. La llista de motius la mantens tu mateix, juntament amb l'administrador de l'EMS, des de **Gestió acadèmica > Configuració > Convalidacions** (vegeu [Configuració de les convalidacions](../admin/convalidation-settings.md)).
+- **Què veu l'alumne:** res del que decideixis sobre cada mòdul, ni les observacions per a l'alumne, fins que secretaria registra la resolució. Fins aleshores, el portal només mostra els mòduls sol·licitats i l'estat de la sol·licitud.
 
 ![Convalidar un mòdul: la nota](../../assets/head_of_studies/convalidations-grant.png)
 

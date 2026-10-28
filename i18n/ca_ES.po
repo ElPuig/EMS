@@ -27209,3 +27209,12 @@ msgstr "Una classe que cap pas marcat no resol es queda a la taula, per a una gu
 #: code:addons/ems/models/attendance/guard_duty_board.py:0
 msgid "It still leaves %s without a teacher: once applied, you will choose the guard teacher."
 msgstr "Encara deixa %s sense docent: un cop aplicada, triareu el docent de guàrdia."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/> You will see the resolution of each "
+"subject here once the secretariat has registered it."
+msgstr ""
+"<i class=\"fa fa-info-circle me-1\"/> Veureu aquí la resolució de cada mòdul "
+"quan la secretaria l'hagi registrada."

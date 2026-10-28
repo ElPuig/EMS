@@ -506,7 +506,9 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(absence.state, 'linked')
         self.assertEqual(absence.leave_id, leave)
         self.assertEqual(leave.state, 'confirm', 'waits for its approver, as any request')
-        if self.env['res.lang']._lang_get('ca_ES'):
+        # Only where EMS's Catalan is loaded: CI's clean database can have the language active
+        # (another test switches it on) without the module's translations.
+        if self.env(context={'lang': 'ca_ES'})._("%(person)s on %(leave_type)s") != "%(person)s on %(leave_type)s":
             self.assertNotIn(' on ', leave.with_context(lang='ca_ES').display_name, 'translated (hr_holidays has no Catalan)')
             self.assertIn('TAD Teacher, ', leave.with_context(lang='ca_ES').display_name)
 

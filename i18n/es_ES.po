@@ -26664,14 +26664,14 @@ msgstr "Para cada grupo, las mejores maneras de organizar sus ausencias, de mejo
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "A teacher brings one of their lessons to the empty hour. Under it, in grey, how: a swap with their guard or another duty, a free hour, a shifted working day or two halves joined. In orange, whether they come in or leave at another time: you will be asked whether you have talked to them."
-msgstr "Un docente lleva una de sus clases a la hora vacía. Debajo, en gris, cómo: intercambio con su guardia u otra tarea, a una hora libre, desplazamiento de jornada o dos mitades unidas. En naranja, si entra o sale a otra hora: se te preguntará si lo has hablado con él."
+msgid "A teacher moves a lesson, or two teachers swap theirs. Under it, in grey, how; in orange, whether somebody comes in or leaves at another time: you will be asked whether you have talked to them."
+msgstr "Un docente mueve una clase, o dos docentes intercambian las suyas. Debajo, en gris, cómo; en naranja, si alguien entra o sale a otra hora: se te preguntará si lo has hablado con él."
 
 #. module: ems
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
-msgid "A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table. The last proposal only tells them; you can choose a shorter change there and send a guard to the rest."
-msgstr "Un aviso a las familias, cuando el grupo puede entrar más tarde o salir antes: sus clases quedan tachadas en la tabla. La última propuesta solo las avisa; ahí puedes elegir un cambio más corto y enviar una guardia al resto."
+msgid "A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table."
+msgstr "Un aviso a las familias, cuando el grupo puede entrar más tarde o salir antes: sus clases quedan tachadas en la tabla."
 
 #. module: ems
 #. odoo-javascript

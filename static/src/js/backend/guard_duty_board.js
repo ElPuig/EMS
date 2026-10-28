@@ -571,8 +571,8 @@ export class GuardDutyBoard extends Component {
                 // The button's own name, in its colour, so it is easy to find.
                 button: _t("Apply the checked steps"),
                 points: [
-                    { icon: "fa-arrows-v", text: _t("A teacher brings one of their lessons to the empty hour. Under it, in grey, how: a swap with their guard or another duty, a free hour, a shifted working day or two halves joined. In orange, whether they come in or leave at another time: you will be asked whether you have talked to them.") },
-                    { icon: "fa-envelope-o", text: _t("A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table. The last proposal only tells them; you can choose a shorter change there and send a guard to the rest.") },
+                    { icon: "fa-arrows-v", text: _t("A teacher moves a lesson, or two teachers swap theirs. Under it, in grey, how; in orange, whether somebody comes in or leaves at another time: you will be asked whether you have talked to them.") },
+                    { icon: "fa-envelope-o", text: _t("A notice to the families, when the group can come in later or leave earlier: its lessons are struck off the table.") },
                     { icon: "fa-user-o", text: _t("A lesson no checked step solves stays on the table, for a guard. The teachers involved are notified.") },
                 ],
             },

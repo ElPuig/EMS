@@ -127,6 +127,11 @@ class TestAbsence(TransactionCase):
         self.assertEqual(manager.leave_manager_id, manager.user_id)
         self.assertEqual(manager.attendance_manager_id, director.user_id)
 
+        # A Director managing an area has nobody above them to send their corrections to.
+        self.env.company.director_id = manager.id
+        manager._compute_leave_manager()
+        self.assertFalse(manager.attendance_manager_id)
+
     def test_leave_manager_is_not_the_department_chief(self):
         """Native hr_holidays derives leave_manager_id from parent_id, which in EMS is the
         Seminar Chief / Department Chief - the wrong person for an absence request."""

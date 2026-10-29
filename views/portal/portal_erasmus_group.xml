@@ -93,6 +93,27 @@
                     <span t-if="not group_mobility.is_enrolling" class="d-block small text-muted">The selection is in progress: you will receive your result by email.</span>
                 </div>
 
+                <!-- The published lists (only four digits of each identity document), and this
+                     student's provisional result while the claims are open. -->
+                <t t-set="lists" t-value="registration and group_mobility.resolution_ids.filtered(lambda resolution: resolution.state == 'published')"/>
+                <div t-if="lists" class="small mb-2 o_ems_erasmus_group_lists">
+                    <t t-set="provisional_line" t-value="lists.line_ids.filtered(lambda line: line.kind == 'provisional' and line.group_registration_id == registration)"/>
+                    <div t-if="provisional_line and not published and registration.state == 'enrolled'" class="mb-1 o_ems_erasmus_group_provisional">
+                        Provisional result:
+                        <span class="badge text-bg-secondary" t-esc="dict(provisional_line._fields['result']._description_selection(request.env)).get(provisional_line.result)"/>
+                        <t t-if="provisional_line.result == 'excluded' and provisional_line.exclusion_reason"> - <t t-esc="provisional_line.exclusion_reason"/></t>
+                        <span t-if="group_mobility.claims_deadline" class="d-block text-muted">
+                            If you disagree, you can claim by replying to the result email until
+                            <t t-out="group_mobility.claims_deadline" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/>.
+                        </span>
+                    </div>
+                    <div t-foreach="lists" t-as="resolution">
+                        <a t-attf-href="/my/erasmus/group/#{group_mobility.id}/resolution/#{resolution.id}" class="o_ems_erasmus_group_list_link">
+                            <i class="fa fa-list me-1"/><t t-esc="resolution.name"/>
+                        </a>
+                    </div>
+                </div>
+
                 <p t-if="blocked" class="alert alert-warning small mb-2 o_ems_erasmus_group_blocked">
                     <i class="fa fa-ban me-1"/>You cannot enrol: you have too many conduct warnings this course. If you think this is a mistake, talk to the Erasmus team.
                 </p>

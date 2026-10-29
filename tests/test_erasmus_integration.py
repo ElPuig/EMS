@@ -60,7 +60,8 @@ class TestErasmusGroupRecords(ErasmusGroupRecordsCase):
         self.assertEqual(categories['Insurance policy'][0], '02_Abans_de_la_mobilitat')
         self.assertEqual(categories['Europass mobility document'][0], '04_Despres_de_la_mobilitat')
         shared = {line.name: (line.file_category, line.confidential) for line in self.mobility.document_ids}
-        self.assertEqual(shared['Group learning agreement'][0], '02_Abans_de_la_mobilitat')
+        self.assertEqual(shared['Group learning agreement (planned)'][0], '02_Abans_de_la_mobilitat')
+        self.assertEqual(shared['Group learning agreement (executed)'][0], '04_Despres_de_la_mobilitat')
         self.assertEqual(shared['Group travel documents'][0], '03_Durant_la_mobilitat')
         self.assertEqual(shared['Group inclusion documentation'], ('01_Dades_i_autoritzacions', True))
         teacher = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'leader')
@@ -69,10 +70,9 @@ class TestErasmusGroupRecords(ErasmusGroupRecordsCase):
 
     def test_a_document_to_sign_is_never_complete_only_because_it_is_uploaded(self):
         self._approved()
-        final_list = self._upload(self._line(self.mobility.document_ids,
-                                             'Final list of participants and accompanying teachers'))
-        self.assertEqual(final_list.file_state, 'complete', "Provided by the team, nobody signs it: once uploaded.")
-        agreement = self._upload(self._line(self.mobility.document_ids, 'Group learning agreement'))
+        travel = self._upload(self._line(self.mobility.document_ids, 'Group travel documents'))
+        self.assertEqual(travel.file_state, 'complete', "Provided by the team, nobody signs it: once uploaded.")
+        agreement = self._upload(self._line(self.mobility.document_ids, 'Group learning agreement (planned)'))
         self.assertEqual(agreement.file_state, 'to_review',
                          "Signed by the coordinator and the host: the team checks the signatures first.")
         self.assertEqual(self.mobility.documents_to_review, 1)
@@ -204,7 +204,7 @@ class TestErasmusGroupExport(ErasmusGroupRecordsCase):
     def _filled(self):
         self._approved()
         self._confirm_destination()
-        self._upload(self._line(self.mobility.document_ids, 'Group learning agreement'), 'agreement.pdf')
+        self._upload(self._line(self.mobility.document_ids, 'Group learning agreement (planned)'), 'agreement.pdf')
         self._upload(self._line(self.mobility.document_ids, 'Group inclusion documentation'), 'inclusion.pdf')
         student = self._student()
         self._upload(self._line(student.document_ids, 'European Health Insurance Card'), 'health.pdf')
@@ -223,7 +223,7 @@ class TestErasmusGroupExport(ErasmusGroupRecordsCase):
         root = names[0].split('/')[0]
         group = f"{root}/02_Mobilitats/GRUP{self.mobility.id:05d}_{self.mobility.name}"
         common = f"{group}/00_Documentacio_comuna"
-        self.assertIn(f"{common}/02_Abans_de_la_mobilitat/Group learning agreement/v1_agreement.pdf", names)
+        self.assertIn(f"{common}/02_Abans_de_la_mobilitat/Group learning agreement (planned)/v1_agreement.pdf", names)
         self.assertEqual(sum(name.endswith('agreement.pdf') for name in names), 1, "A shared document, once.")
         self.assertIn(f"{common}/03_Durant_la_mobilitat/Follow-up/{self.mobility.log_ids.date}_Visit to the company/"
                       "photo.jpg", names)
@@ -240,7 +240,7 @@ class TestErasmusGroupExport(ErasmusGroupRecordsCase):
         self.assertEqual(len(participants - {self.mobility.name}), 10,
                          "Eight students and two teachers, each with their own record in the index.")
         shared = [row for row in index if row['Participant'] == student.partner_id.name
-                  and row['Document'] == 'Group learning agreement']
+                  and row['Document'] == 'Group learning agreement (planned)']
         self.assertIn('Shared document', shared[0]['Notes'], "Each record references the shared document.")
         selection = self._csv(contents, f"{common}/01_Dades_i_autoritzacions/Selection.csv")
         self.assertEqual(len(selection), 10)

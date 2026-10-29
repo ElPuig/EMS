@@ -122,8 +122,24 @@ registry.category("web_tour.tours").add("ems_erasmus_group_coordinator", {
             content: "Open the mobility from the list",
             run: "click",
         },
-        ...checkActions({ offered: ["action_approve_selection", "action_return_proposal"] },
-            "The coordinator approves or sends the proposal back"),
+        ...checkActions({ offered: ["action_publish_provisional", "action_return_proposal"],
+            notOffered: ["action_approve_selection"] },
+            "The coordinator publishes the provisional list first, or sends the proposal back"),
+        ...clickAction("action_publish_provisional", "Publish the provisional list"),
+        {
+            trigger: ".modal-footer .btn-primary",
+            content: "Confirm",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_notebook a.nav-link[name='selection']",
+            content: "Open the Selection tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='resolution_ids'] .o_data_row",
+            content: "The provisional list is published",
+        },
         ...clickAction("action_approve_selection", "Approve and publish the selection"),
         {
             trigger: ".modal-footer .btn-primary",

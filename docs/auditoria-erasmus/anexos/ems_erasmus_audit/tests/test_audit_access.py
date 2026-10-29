@@ -310,7 +310,7 @@ class TestAuditAccessGroup(AuditMatrixMixin, HttpCase, ErasmusGroupRecordsCase):
                              GROUP_GRANT)
         inclusion = self._upload(self._line(self.mobility.document_ids, 'Group inclusion documentation'),
                                  'audit_group_inclusion.pdf', GROUP_INCLUSION)
-        learning = self._line(self.mobility.document_ids, 'Group learning agreement')
+        learning = self._line(self.mobility.document_ids, 'Group learning agreement (planned)')
         registration = participant.registration_ids
         users = {
             'coordinator': self.coordinator_user, 'technician': self.technician_user, 'academic_admin': self.admin_user,

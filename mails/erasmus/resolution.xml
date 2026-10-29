@@ -17,6 +17,7 @@
                 <![CDATA[
                     <div style="font-family: Arial, sans-serif; font-size: 14px;">
                         <t t-set="call" t-value="object.resolution_id.call_id"/>
+                        <t t-set="claims_deadline" t-value="call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline"/>
                         <p>Hello <t t-out="object.partner_id.name"/>,</p>
                         <p>
                             A new list has been published: <strong t-out="object.resolution_id.name"/>.
@@ -36,6 +37,9 @@
                             <p t-if="object.audience == 'staff'">
                                 Position <strong t-out="object.rank"/>, <strong t-out="object._ems_format_score()"/> points.
                             </p>
+                            <p t-elif="object.group_registration_id">
+                                Position <strong t-out="object.rank"/>, record average <strong t-out="object._ems_format_score()"/>.
+                            </p>
                             <p t-else="">
                                 Modality <strong t-out="object.modality_id.name"/>: position <strong t-out="object.rank"/>,
                                 <strong t-out="object._ems_format_score()"/> points.
@@ -46,7 +50,7 @@
                                 <p t-else="">With this provisional result you do not reach the minimum score.</p>
                                 <p>
                                     If you disagree, you can claim by replying to this email
-                                    <t t-if="call.claims_deadline">until <strong t-out="call._ems_local_format(call.claims_deadline)"/></t>.
+                                    <t t-if="claims_deadline">until <strong t-out="call._ems_local_format(claims_deadline)"/></t>.
                                 </p>
                             </t>
                             <t t-else="">

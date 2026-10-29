@@ -31,6 +31,9 @@ erDiagram
     ems_erasmus_group_draw ||--o{ ems_erasmus_group_draw_line : "line_ids (position)"
     ems_erasmus_group_draw_line }o--|| ems_erasmus_group_registration : "registration_id"
     ems_erasmus_group_mobility ||--o{ ems_erasmus_invoice : "invoice_ids (collective expenses)"
+    ems_erasmus_group_mobility ||--o{ ems_erasmus_resolution : "resolution_ids (provisional, definitive)"
+    ems_erasmus_resolution ||--o{ ems_erasmus_resolution_line : "line_ids"
+    ems_erasmus_resolution_line }o--|| ems_erasmus_group_registration : "group_registration_id"
     ems_erasmus_group_registration }o--|| res_partner : "partner_id (student)"
     ems_erasmus_group_registration |o--o| ems_erasmus_group_participant : "participant_id"
     ems_erasmus_group_participant ||--o{ ems_erasmus_application_document : "document_ids (own)"
@@ -44,6 +47,7 @@ erDiagram
 | `ems.erasmus.group.participant` | A participant's file: each selected student, the leader and the accompanying teachers (`role`). Teachers join without any staff call. A student's commitment letter (below) lives here. |
 | `ems.erasmus.group.draw` / `.draw.line` | One record per tie the coordinator drew: who (`user_id`), when (`date`), what the students were tied on (`grade_average`, `fewer_opportunities`), the exact set tied and the order drawn (`line_ids`: enrolment, student, position). Created by EMS only; `write` and `unlink` refuse (except on module uninstall). Since audit D-13 an individual call's draws are kept in the same model (`call_id`, `score_total`, lines with `application_id`; `_ems_run()` runs both). |
 | `ems.erasmus.commitment` (abstract) | The commitment letter mechanism shared with the internship mobilities (`ems.erasmus.mobility`): signature fields of the student and of the family, `action_sign_commitment`, `_ems_remind_guardians`. |
+| `ems.erasmus.resolution` / `.line` | The calls' resolutions, reused for the group's provisional and definitive lists: a resolution has a call **or** a group mobility (SQL `CHECK`), a line an application **or** a group enrolment (`group_registration_id`). Extended with `_inherit` in `group_mobility.py`. |
 | `ems.erasmus.group.log` | The follow-up written by the group's teachers: attendance (who was absent), incidents (apart from the academic conduct warnings, `ems.strike`), changes, evidence, communications, with files. |
 
 States of the mobility: `draft` → `enrolment` → `selection` → `validation` → `preparation` →
@@ -104,10 +108,26 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   have `groups=` Erasmus team/admin) and sends the proposal (`action_submit_proposal`). The
   leader cannot change grades, ranks or results; they can write an exception request with its
   reason, which becomes a task for the coordinator.
-- Only the Erasmus coordinator (`ems.group_erasmus_coordinator`) or the administrator approves
-  (`action_approve_selection`), sends the proposal back with a reason, or sets an exception
-  (`result_override`, a reason required, tracked). Approving freezes `result`, opens the files,
-  and emails each student **their own** result (`email_template_erasmus_group_result`).
+- Only the Erasmus coordinator (`ems.group_erasmus_coordinator`) or the administrator publishes the
+  lists, approves, sends the proposal back with a reason, or sets an exception (`result_override`, a
+  reason required, tracked).
+- **Provisional and definitive lists (SEPIE: lists of admitted, excluded and waiting list).** The
+  calls' resolutions (`ems.erasmus.resolution`) as they are: frozen lines, only the masked identity
+  document published (`mask_document_id`), rank, record average and result, the exclusion reason
+  only for the student, a PDF kept for the dossier. `action_publish_provisional` (state
+  `validation`, a future `claims_deadline` required) creates, prepares and publishes the
+  provisional list from the proposal with its exceptions (`_ems_list_result`); each student gets
+  `email_template_erasmus_resolution_published` (the calls' template, with a group branch) and
+  claims by replying. `action_approve_selection` refuses until the provisional list is published;
+  it freezes `result`, publishes the definitive list, opens the files and emails each student
+  **their own** result (`email_template_erasmus_group_result`, so the definitive list sends no
+  second email). The resolution's call-specific parts are hooks the group overrides
+  (`_ems_check_can_prepare`, `_ems_check_can_publish`, `_ems_after_publish`, `_ems_line_values`,
+  `_ems_list_groups`). Publishing needs every enrolled student's identity document (DNI/NIE, else
+  passport), as in the calls. Claims arrive by email and are answered with exceptions; the
+  `ems.erasmus.claim` model stays for the calls. On the portal, the group card links each published
+  list (`/my/erasmus/group/<id>/resolution/<id>[/pdf]`, only for students who enrolled) and shows
+  the student's provisional result while the claims are open.
 - Withdrawal and substitution: a selected student renounces (portal, or the leader or the team on
   their behalf, with the reason); their file is withdrawn but every document is kept. With a
   place free, `next_reserve` shows the first reserve; the leader proposes them
@@ -134,14 +154,32 @@ reorganises the documents free of conflicts):
 
 Constraints: a line has an application **or** a group mobility (SQL `CHECK`), and a participant's
 line belongs to the participant's own mobility; a call document has a call **or** a group
-mobility (SQL `CHECK`). The default documents of a new group mobility
-(`_ems_default_requirements`, editable on each mobility) follow KA121-VET group mobilities: the
-**group learning agreement once** for the whole group (no individual learning agreement), the final
-list of participants and teachers, agreements with the host, group travel documents, the
-confidential group inclusion documentation and common evidence; each student's grant agreement,
-health card, the official authorisation for minors to travel abroad (minors only, processed with
-the Mossos d'Esquadra and handed in as its own document), insurance and Europass mobility document; each
-teacher's grant agreement and certificate of stay (no learning agreement nor Europass). Lines are
+mobility (SQL `CHECK`). Every Erasmus+ document is prepared outside EMS: EMS
+has no generators or templates, only the upload, the signatures, the review, the states and the
+record. The default documents of a new group mobility (`_ems_default_requirements`, editable on each
+mobility) follow SEPIE's list for KA121-VET group mobilities (Guide 2025 pp. 94-97, Annex 2 pp. 2-3,
+checked with adriamt 2026-10-29):
+
+- **Group learning agreement, planned and executed:** two collective documents signed by both
+  centres (`sign_coordinator`, `sign_host`). The planned one before leaving; the executed one on
+  return (`stage` `return`, required): real dates, activities, methodologies and the final list of
+  participants of every centre, which is why there is no separate list of participants and no
+  individual learning agreement. If nothing changed it ratifies the planned one.
+- **Insurance:** requirement `insurance` (added to `ems.erasmus.call.document.requirement`): each
+  participant's own policy (students and teachers, `group_audience` `participant`) is required
+  unless `ems.erasmus.group.participant.insurance_collective` is ticked; the collective
+  *Collective insurance policy* becomes required once any active participant is covered
+  (`_compute_is_required`). Otherwise it is `not_applicable`.
+- **Optional:** agreements with the host, group travel documents, Green Travel (sworn statement
+  signed by the director, and the evidence, only when declared), the confidential inclusion
+  documentation (fewer opportunities and, with real inclusion costs, why the support was needed;
+  the invoices go in the collective expenses), common evidence, the students' Europass mobility
+  document (recommended, never blocks the closure) and the teachers' certificate of stay.
+- Each participant's grant agreement (prepared outside EMS, with the services the centre pays if
+  any), each student's health card (confidential) and the official authorisation for minors to
+  travel abroad (minors only, processed with the Mossos d'Esquadra).
+- **Image rights** are not a document: `ems.erasmus.group.participant.auth_image` is the student's
+  authorisation of the course (`res.partner.auth_image`), shown in the participants' list. Lines are
 created when the selection is approved (`_ems_sync_documents`, `_ems_sync_collective_documents`)
 and never duplicated or removed by updating them.
 
@@ -215,6 +253,10 @@ Group mobilities are part of the Erasmus+ document records ([records.md](records
 - During the stay the leader and the accompanying teachers write the follow-up
   (`ems.erasmus.group.log`). Tasks and reminders are Odoo activities on the mobility, which reach
   the daily task digest.
+- **Programme carried out as planned?** On return EMS schedules a task for the leader, who answers
+  `programme_execution` (`as_planned` / `changed`, with `programme_changes` required when changed,
+  both tracked). `action_propose_closure` and `action_close` refuse without it
+  (`_ems_check_programme_answered`). The executed group learning agreement records the result.
 - The leader proposes the closure; the team closes it once every required document is valid and
   the EU Survey validated.
 - Collective expenses are ordinary `ems.erasmus.invoice` records linked to the group mobility
@@ -239,6 +281,8 @@ what each role may change is checked again in the models (`EmsErasmusGroupMobili
 | Group mobilities | all, create and change | all, create and change | own: read; programme, notes, shared documents, follow-up, EU Survey evidence | own: read; follow-up | all, read | the ones they can enrol in or take part in |
 | Enrolments and ranking | all | all | own mobility: rank, average, eligible (no conduct data) | no | all, read (no conduct data) | own enrolment and result |
 | Open / close enrolment | yes | yes | no | no | no | - |
+| Publish the provisional list | yes | no | no | no | no | - |
+| Published lists | all | all | no | no | all, read | lists of the mobilities they enrolled in, own result |
 | Send the proposal | yes | yes | yes | no | no | - |
 | Approve, send back, exceptions, substitutions | yes | no | request only | no | no | - |
 | Participants' files | all | all | own mobility, not confidential | own mobility (read), own documents | all, not confidential | own file |

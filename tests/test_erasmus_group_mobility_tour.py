@@ -1,3 +1,6 @@
+from datetime import timedelta
+
+from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
 from .test_erasmus_group_mobility import ErasmusGroupMobilityCase
@@ -24,6 +27,8 @@ class TestErasmusGroupMobilityTour(HttpCase, ErasmusGroupMobilityCase):
     def test_coordinator_tour(self):
         self._ranked()
         self.mobility.action_submit_proposal()
+        self.mobility.claims_deadline = fields.Datetime.now() + timedelta(days=7)
         self.start_tour('/odoo/action-ems.action_erasmus_group_mobility', 'ems_erasmus_group_coordinator',
                         login=self.coordinator_user.login)
         self.assertEqual(self.mobility.state, 'preparation')
+        self.assertEqual(set(self.mobility.resolution_ids.mapped('kind')), {'provisional', 'definitive'})

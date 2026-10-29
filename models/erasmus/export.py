@@ -373,6 +373,11 @@ class EmsErasmusExport(models.Model):
         entries = self._ems_line_entries(group.document_ids, common)
         shared = [entry for entry in entries if entry.get('path')]
         entries += self._ems_group_selection_entries(group, common)
+        for resolution in group.resolution_ids.filtered(lambda resolution: resolution.state == 'published'):
+            entries += [{**entry, 'category': '01_Dades_i_autoritzacions', 'document': resolution.name,
+                         'status': _("Complete")}
+                        for entry in self._ems_files(f"{common}01_Dades_i_autoritzacions",
+                                                     resolution._ems_stored_pdf(), versions=False)]
         for log in group.log_ids.sorted(lambda log: (log.date, log.id)):
             folder = f"{common}03_Durant_la_mobilitat/{safe_name(_('Follow-up'))}/{log.date}_{safe_name(log.name)}"
             for entry in self._ems_files(folder, log.attachment_ids, versions=False):

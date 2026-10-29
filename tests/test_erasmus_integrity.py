@@ -87,7 +87,7 @@ class TestErasmusGroupWorkflowWrites(ErasmusGroupRecordsCase):
             registrations[-1].with_user(self.leader_user).with_context(**FORGED_CONTEXT).write(
                 {'result_override': 'selected', 'override_reason': 'Forged'})
         self.mobility.with_user(self.leader_user).action_submit_proposal()
-        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        self._approve()
         with self.assertRaises(AccessError):
             self._student().with_user(self.technician_user).write({'commitment_signed_date': '2026-01-01 10:00:00'})
 

@@ -752,9 +752,9 @@
     <template id="portal_erasmus_resolution" name="Erasmus+ resolution">
         <t t-call="portal.portal_layout">
             <div id="erasmus_resolution_content" class="container mt-4 o_ems_portal_erasmus">
-                <p class="mb-2"><a t-attf-href="/my/erasmus/call/#{resolution.call_id.id}"><i class="fa fa-arrow-left me-1"/>My application</a></p>
+                <p class="mb-2"><a t-att-href="back_url"><i class="fa fa-arrow-left me-1"/>Back</a></p>
                 <p>
-                    <a t-attf-href="/my/erasmus/call/#{resolution.call_id.id}/resolution/#{resolution.id}/pdf" class="btn btn-secondary btn-sm">
+                    <a t-attf-href="#{list_url}/pdf" class="btn btn-secondary btn-sm">
                         <i class="fa fa-file-pdf-o me-1"/>Download PDF
                     </a>
                 </p>

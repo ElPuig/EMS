@@ -30,11 +30,11 @@ def create_group_mobility_fixtures(cls):
     cls.students = cls.env['res.partner'].create([{
         'name': f'Group Test Student {index:02d}', 'contact_type': 'student', 'student_id': next_student_id(),
         'main_group_id': (cls.group_a if index % 2 else cls.group_b).id, 'birth_date': '2005-01-01',
-        'email': f'group.student{index}@example.com'} for index in range(10)])
+        'email': f'group.student{index}@example.com', 'document_id': f'9100000{index}T'} for index in range(10)])
     cls.minor, cls.afternoon_student = cls.env['res.partner'].create([
         {'name': 'Group Test Minor', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group_a.id, 'birth_date': fields.Date.today() - timedelta(days=16 * 365),
-         'email': 'group.minor@example.com'},
+         'email': 'group.minor@example.com', 'document_id': '91000099T'},
         {'name': 'Group Test Afternoon', 'contact_type': 'student', 'student_id': next_student_id(),
          'main_group_id': cls.group_c.id, 'birth_date': '2005-01-01'},
     ])
@@ -90,10 +90,19 @@ class ErasmusGroupMobilityCase(TransactionCase):
         self._close({student: 9.0 - index * 0.5 for index, student in enumerate(self.students)})
         return registrations
 
+    def _publish_provisional(self):
+        """The coordinator publishes the provisional list, with the claims open for a week."""
+        self.mobility.claims_deadline = fields.Datetime.now() + timedelta(days=7)
+        self.mobility.with_user(self.coordinator_user).action_publish_provisional()
+
+    def _approve(self):
+        self._publish_provisional()
+        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+
     def _approved(self):
         registrations = self._ranked()
         self.mobility.with_user(self.leader_user).action_submit_proposal()
-        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        self._approve()
         return registrations
 
     def _family(self):
@@ -111,7 +120,7 @@ class ErasmusGroupMobilityCase(TransactionCase):
         self._close({**{student: 8.0 - index * 0.1 for index, student in enumerate(self.students[:7])},
                      self.minor: 5.0})
         self.mobility.with_user(self.leader_user).action_submit_proposal()
-        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        self._approve()
         return self.mobility.participant_ids.filtered(lambda participant: participant.partner_id == self.minor)
 
 
@@ -436,7 +445,7 @@ class TestErasmusGroupSelection(ErasmusGroupMobilityCase):
             self.mobility.with_user(self.leader_user).action_approve_selection()
         with self.assertRaises(AccessError):
             self.mobility.with_user(self.technician_user).action_approve_selection()
-        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        self._approve()
         self.assertEqual(self.mobility.state, 'preparation')
         self.assertEqual(registrations[:8].mapped('result'), ['selected'] * 8)
         self.assertEqual(registrations[8:].mapped('result'), ['reserve'] * 2)
@@ -475,7 +484,7 @@ class TestErasmusGroupSelection(ErasmusGroupMobilityCase):
         registrations[9].with_user(self.coordinator_user).write(
             {'result_override': 'selected', 'override_reason': 'Justified and authorised'})
         self.mobility.with_user(self.leader_user).action_submit_proposal()
-        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        self._approve()
         self.assertEqual(registrations[9].result, 'selected')
         self.assertEqual(registrations[7].result, 'reserve')
         self.assertEqual(registrations[7].proposed_result, 'selected')
@@ -539,7 +548,8 @@ class TestErasmusGroupFiles(ErasmusGroupMobilityCase):
 
     def test_group_learning_agreement_once_and_no_individual_one(self):
         self._approved()
-        agreement = self.mobility.requirement_ids.filtered(lambda document: document.name == 'Group learning agreement')
+        agreement = self.mobility.requirement_ids.filtered(
+            lambda document: document.name == 'Group learning agreement (planned)')
         self.assertEqual(agreement.group_audience, 'collective')
         self.assertEqual(len(self.mobility.document_ids.filtered(lambda line: line.call_document_id == agreement)), 1)
         self.assertFalse(self.mobility.participant_ids.document_ids.filtered(
@@ -566,7 +576,7 @@ class TestErasmusGroupFiles(ErasmusGroupMobilityCase):
 
     def test_deadline_counts_from_the_group_dates(self):
         self._approved()
-        line = self.mobility.document_ids.filtered(lambda line: line.name == 'Group learning agreement')
+        line = self.mobility.document_ids.filtered(lambda line: line.name == 'Group learning agreement (planned)')
         self.assertEqual(line.deadline, self.mobility.date_start - timedelta(days=30))
 
     def test_a_line_has_one_owner(self):
@@ -609,10 +619,126 @@ class TestErasmusGroupFiles(ErasmusGroupMobilityCase):
         with self.assertRaises(UserError):
             self.mobility.with_user(self.coordinator_user).action_close()
         self.mobility.with_user(self.coordinator_user).action_eu_survey_validate()
+        self.mobility.with_user(self.leader_user).programme_execution = 'as_planned'
         self.mobility.with_user(self.leader_user).action_propose_closure()
         self.assertTrue(self.mobility.closure_proposed_date)
         with self.assertRaises(UserError):
             self.mobility.with_user(self.coordinator_user).action_close()
+
+
+@tagged('post_install', '-at_install')
+class TestErasmusGroupSepieDocuments(ErasmusGroupMobilityCase):
+    """What SEPIE asks of a KA121-VET group mobility (2026-10-29): provisional and definitive lists,
+    the group learning agreement planned and executed, insurance for every participant (own or
+    collective), Green Travel and inclusion only when they apply, Europass and the teachers'
+    certificate of stay optional, the image rights the student already authorised."""
+
+    def _lines(self, participant=None):
+        return (participant or self.mobility).document_ids
+
+    def test_provisional_list_before_the_definitive_one(self):
+        registrations = self._ranked()
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.coordinator_user).action_publish_provisional()
+        self.mobility.claims_deadline = fields.Datetime.now() + timedelta(days=7)
+        with self.assertRaises(AccessError):
+            self.mobility.with_user(self.technician_user).action_publish_provisional()
+        self.mobility.with_user(self.coordinator_user).action_publish_provisional()
+        provisional = self.mobility.resolution_ids
+        self.assertEqual((provisional.kind, provisional.state), ('provisional', 'published'))
+        self.assertEqual(self.mobility.state, 'validation')
+        self.assertEqual(provisional.line_ids.mapped('result'), ['selected'] * 8 + ['reserve'] * 2)
+        self.assertEqual(provisional.line_ids[0].public_id, '***0000**')
+        self.assertEqual(provisional.line_ids[0].score_total, 9.0)
+        self.assertEqual(self.env['mail.mail'].search_count([
+            ('model', '=', 'ems.erasmus.resolution.line'), ('res_id', 'in', provisional.line_ids.ids)]), 10)
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.coordinator_user).action_publish_provisional()
+        registrations[9].with_user(self.coordinator_user).write(
+            {'result_override': 'excluded', 'override_reason': 'Claim accepted: not enrolled in the cycle'})
+        self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        definitive = self.mobility.resolution_ids - provisional
+        self.assertEqual((definitive.kind, definitive.state), ('definitive', 'published'))
+        self.assertEqual(definitive.line_ids.filtered(lambda line: line.group_registration_id == registrations[9])
+                         .exclusion_reason, 'Claim accepted: not enrolled in the cycle')
+        self.assertEqual(self.env['mail.mail'].search_count([
+            ('model', '=', 'ems.erasmus.resolution.line'), ('res_id', 'in', definitive.line_ids.ids)]), 0,
+            "The definitive result goes in the group's own result email, never twice.")
+
+    def test_a_list_needs_every_identity_document(self):
+        self._ranked()
+        self.students[3].document_id = False
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        self.mobility.claims_deadline = fields.Datetime.now() + timedelta(days=7)
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.coordinator_user).action_publish_provisional()
+
+    def test_learning_agreement_planned_and_executed_no_separate_list(self):
+        self._approved()
+        names = self.mobility.document_ids.mapped('name')
+        self.assertIn('Group learning agreement (planned)', names)
+        self.assertIn('Group learning agreement (executed)', names)
+        self.assertNotIn('Final list of participants and accompanying teachers', names)
+        executed = self.mobility.document_ids.filtered(lambda line: line.name == 'Group learning agreement (executed)')
+        self.assertEqual(executed.stage, 'return')
+        self.assertTrue(executed.is_required)
+        self.assertTrue(executed.call_document_id.sign_coordinator and executed.call_document_id.sign_host)
+
+    def test_the_leader_says_whether_the_programme_went_as_planned(self):
+        self._approved()
+        self.mobility.with_user(self.leader_user).action_start_stay()
+        self.mobility.with_user(self.leader_user).action_end_stay()
+        self.assertTrue(self.mobility.activity_ids.filtered(
+            lambda activity: activity.user_id == self.leader_user and 'programme' in activity.summary))
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.leader_user).action_propose_closure()
+        with self.assertRaises(AccessError):
+            self.mobility.with_user(self.companion_user).write({'programme_execution': 'as_planned'})
+        self.mobility.with_user(self.leader_user).write({'programme_execution': 'changed'})
+        with self.assertRaises(UserError):
+            self.mobility.with_user(self.leader_user).action_propose_closure()
+        self.mobility.with_user(self.leader_user).write({'programme_changes': 'One company visit moved to day 3.'})
+        self.mobility.with_user(self.leader_user).action_propose_closure()
+        self.assertTrue(self.mobility.closure_proposed_date)
+
+    def test_insurance_for_every_participant_or_the_collective_policy(self):
+        self._approved()
+        participants = self.mobility.participant_ids
+        policies = participants.document_ids.filtered(lambda line: line.name == 'Insurance policy')
+        self.assertEqual(policies.group_participant_id, participants, "Students and accompanying teachers.")
+        self.assertTrue(all(policies.mapped('is_required')))
+        collective = self.mobility.document_ids.filtered(lambda line: line.name == 'Collective insurance policy')
+        self.assertFalse(collective.is_required)
+        self.assertEqual(collective.file_state, 'not_applicable')
+        covered = participants[:3]
+        covered.with_user(self.technician_user).write({'insurance_collective': True})
+        self.assertTrue(collective.is_required)
+        self.assertFalse(any(policies.filtered(lambda line: line.group_participant_id in covered).mapped('is_required')))
+        self.assertTrue(all(policies.filtered(lambda line: line.group_participant_id not in covered)
+                            .mapped('is_required')))
+        with self.assertRaises(AccessError):
+            covered[:1].with_user(self.leader_user).write({'insurance_collective': False})
+
+    def test_optional_documents_never_block(self):
+        self._approved()
+        student = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'student')[:1]
+        teacher = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'leader')
+        optional = (student.document_ids.filtered(lambda line: line.name == 'Europass mobility document')
+                    | teacher.document_ids.filtered(lambda line: line.name == 'Certificate of stay')
+                    | self.mobility.document_ids.filtered(
+                        lambda line: line.name == 'Green Travel: sworn statement and evidence'))
+        self.assertEqual(len(optional), 3)
+        self.assertFalse(any(optional.mapped('is_required')))
+        self.assertEqual(set(optional.mapped('file_state')), {'optional'})
+
+    def test_image_rights_are_the_students_own_authorisation(self):
+        self._approved()
+        self.assertFalse(self.mobility.participant_ids.document_ids.filtered(lambda line: 'image' in line.name.lower()))
+        student = self.mobility.participant_ids.filtered(lambda participant: participant.role == 'student')[:1]
+        self.assertEqual(student.auth_image, student.partner_id.auth_image)
 
 
 @tagged('post_install', '-at_install')
@@ -757,6 +883,22 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         self._post(f'/my/erasmus/group/{self.mobility.id}/renounce', reason='Cannot travel')
         self.assertEqual(participant.registration_ids.result, 'renounced')
         self.assertEqual(participant.registration_ids.renounce_reason, 'Cannot travel')
+
+    def test_published_lists_on_the_portal(self):
+        self._ranked()
+        self.mobility.with_user(self.leader_user).action_submit_proposal()
+        self._publish_provisional()
+        provisional = self.mobility.resolution_ids
+        self.authenticate(self.student_user.login, self.student_user.login)
+        card = self.url_open('/my/erasmus').text
+        self.assertIn('o_ems_erasmus_group_provisional', card)
+        self.assertIn(f'/my/erasmus/group/{self.mobility.id}/resolution/{provisional.id}', card)
+        page = self.url_open(f'/my/erasmus/group/{self.mobility.id}/resolution/{provisional.id}').text
+        self.assertIn('***0000**', page)
+        self.assertNotIn(self.students[1].name, page, "Never a classmate's name.")
+        self.authenticate(self.afternoon_user.login, self.afternoon_user.login)
+        response = self.url_open(f'/my/erasmus/group/{self.mobility.id}/resolution/{provisional.id}')
+        self.assertNotIn('***0000**', response.text)
 
     def test_not_selected_student_has_no_file(self):
         self._approved()

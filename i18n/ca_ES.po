@@ -26433,6 +26433,7 @@ msgstr ""
 msgid ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
+"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
 "                        <p>Hello <t t-out=\"object.partner_id.name\"/>,</p>\n"
 "                        <p>\n"
 "                            A new list has been published: <strong t-out=\"object.resolution_id.name\"/>.\n"
@@ -26452,6 +26453,9 @@ msgid ""
 "                            <p t-if=\"object.audience == 'staff'\">\n"
 "                                Position <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> points.\n"
 "                            </p>\n"
+"                            <p t-elif=\"object.group_registration_id\">\n"
+"                                Position <strong t-out=\"object.rank\"/>, record average <strong t-out=\"object._ems_format_score()\"/>.\n"
+"                            </p>\n"
 "                            <p t-else=\"\">\n"
 "                                Modality <strong t-out=\"object.modality_id.name\"/>: position <strong t-out=\"object.rank\"/>,\n"
 "                                <strong t-out=\"object._ems_format_score()\"/> points.\n"
@@ -26462,7 +26466,7 @@ msgid ""
 "                                <p t-else=\"\">With this provisional result you do not reach the minimum score.</p>\n"
 "                                <p>\n"
 "                                    If you disagree, you can claim by replying to this email\n"
-"                                    <t t-if=\"call.claims_deadline\">until <strong t-out=\"call._ems_local_format(call.claims_deadline)\"/></t>.\n"
+"                                    <t t-if=\"claims_deadline\">until <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
 "                                </p>\n"
 "                            </t>\n"
 "                            <t t-else=\"\">\n"
@@ -26491,6 +26495,7 @@ msgid ""
 msgstr ""
 "<div style=\"font-family: Arial, sans-serif; font-size: 14px;\">\n"
 "                        <t t-set=\"call\" t-value=\"object.resolution_id.call_id\"/>\n"
+"                        <t t-set=\"claims_deadline\" t-value=\"call.claims_deadline or object.resolution_id.group_mobility_id.claims_deadline\"/>\n"
 "                        <p>Hola, <t t-out=\"object.partner_id.name\"/>:</p>\n"
 "                        <p>\n"
 "                            S'ha publicat una nova llista: <strong t-out=\"object.resolution_id.name\"/>.\n"
@@ -26510,6 +26515,9 @@ msgstr ""
 "                            <p t-if=\"object.audience == 'staff'\">\n"
 "                                Posició <strong t-out=\"object.rank\"/>, <strong t-out=\"object._ems_format_score()\"/> punts.\n"
 "                            </p>\n"
+"                            <p t-elif=\"object.group_registration_id\">\n"
+"                                Posició <strong t-out=\"object.rank\"/>, mitjana de l'expedient <strong t-out=\"object._ems_format_score()\"/>.\n"
+"                            </p>\n"
 "                            <p t-else=\"\">\n"
 "                                Modalitat <strong t-out=\"object.modality_id.name\"/>: posició <strong t-out=\"object.rank\"/>,\n"
 "                                <strong t-out=\"object._ems_format_score()\"/> punts.\n"
@@ -26520,7 +26528,7 @@ msgstr ""
 "                                <p t-else=\"\">Amb aquest resultat provisional no arribes a la puntuació mínima.</p>\n"
 "                                <p>\n"
 "                                    Si no hi estàs d'acord, pots reclamar responent aquest correu\n"
-"                                    <t t-if=\"call.claims_deadline\">fins al <strong t-out=\"call._ems_local_format(call.claims_deadline)\"/></t>.\n"
+"                                    <t t-if=\"claims_deadline\">fins al <strong t-out=\"call._ems_local_format(claims_deadline)\"/></t>.\n"
 "                                </p>\n"
 "                            </t>\n"
 "                            <t t-else=\"\">\n"
@@ -26661,6 +26669,7 @@ msgstr "Reclamacions"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_call__claims_deadline
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__claims_deadline
 msgid "Claims deadline"
 msgstr "Termini de reclamacions"
 
@@ -27024,6 +27033,7 @@ msgstr "Rebuda el"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/resolution.py:0
+#: code:addons/ems/models/erasmus/group_mobility.py
 msgid "Record the identity document of: %s"
 msgstr "Registra el document d'identitat de: %s"
 
@@ -32715,6 +32725,7 @@ msgstr "Inscrit el"
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__registration_id
 #: code:addons/ems/models/erasmus/export.py:0
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__group_registration_id
 msgid "Enrolment"
 msgstr "Inscripció"
 
@@ -32928,6 +32939,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw__group_mobility_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_export__group_mobility_id
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_export__scope__group
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__group_mobility_id
 msgid "Group mobility"
 msgstr "Mobilitat de grup"
 
@@ -33149,6 +33161,7 @@ msgstr "Prepara la selecció, fa el seguiment del grup i respon l'EU Survey."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
 msgid "Programme"
 msgstr "Programa"
 
@@ -35012,3 +35025,337 @@ msgstr "%(document)s: signatura de %(signer)s marcada."
 #: code:addons/ems/models/erasmus/document_review.py:0
 msgid "%(document)s: signature of %(signer)s unticked."
 msgstr "%(document)s: signatura de %(signer)s desmarcada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "A group mobility publishes a provisional and a definitive list only."
+msgstr ""
+"Una mobilitat de grup només publica una llista provisional i una de "
+"definitiva."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_resolution_one_owner
+msgid "A resolution belongs to a call or to a group mobility."
+msgstr "Una resolució pertany a una convocatòria o a una mobilitat de grup."
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_ems_erasmus_resolution_line_one_owner
+msgid "A result belongs to an application or to a group mobility enrolment."
+msgstr ""
+"Un resultat pertany a una sol·licitud o a una inscripció a una mobilitat de "
+"grup."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Collective insurance policy"
+msgstr "Pòlissa d'assegurança col·lectiva"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__insurance_collective
+msgid "Covered by the collective policy"
+msgstr "Cobert per la pòlissa col·lectiva"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Erasmus+: say whether the programme of %s was carried out as planned"
+msgstr "Erasmus+: digues si el programa de %s s'ha fet tal com estava previst"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Green Travel: sworn statement and evidence"
+msgstr "Green Travel: declaració jurada i evidències"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Group learning agreement (executed)"
+msgstr "Acord d'aprenentatge del grup (executat)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Group learning agreement (planned)"
+msgstr "Acord d'aprenentatge del grup (previst)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "If you disagree, you can claim by replying to the result email until"
+msgstr ""
+"Si no hi estàs d'acord, pots reclamar responent el correu del resultat fins "
+"al"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__auth_image
+msgid "Image rights"
+msgstr "Drets d'imatge"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_call_document__requirement__insurance
+msgid "Insurance: own policy or the collective one"
+msgstr "Assegurança: pòlissa pròpia o la col·lectiva"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__programme_execution__changed
+msgid "No, with changes"
+msgstr "No, amb canvis"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Only if Green Travel is declared: the sworn statement signed by the centre "
+"and the evidence of the journey."
+msgstr ""
+"Només si es declara Green Travel: la declaració jurada signada pel centre i "
+"les evidències del desplaçament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Optional: the accompanying teachers are in the executed group learning "
+"agreement."
+msgstr ""
+"Opcional: els docents acompanyants consten a l'acord d'aprenentatge del grup"
+" executat."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__programme_execution
+msgid "Programme carried out as planned?"
+msgstr "S'ha fet el programa tal com estava previst?"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__provisional_published
+msgid "Provisional list published"
+msgstr "Llista provisional publicada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Provisional list published."
+msgstr "Llista provisional publicada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "Provisional result:"
+msgstr "Resultat provisional:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Publish the provisional list"
+msgstr "Publica la llista provisional"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Publish the provisional list of %s first."
+msgstr "Primer publica la llista provisional de %s."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__resolution_ids
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Published lists"
+msgstr "Llistes publicades"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Recommended, not required: it certifies what you learned during the stay. "
+"The Erasmus team uploads it for you to download."
+msgstr ""
+"Recomanat, no obligatori: certifica el que has après durant l'estada. "
+"L'equip Erasmus el puja perquè el descarreguis."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Say first whether the programme of %s was carried out as planned."
+msgstr "Primer digues si el programa de %s s'ha fet tal com estava previst."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Set a future claims deadline before publishing the provisional list."
+msgstr ""
+"Posa un termini de reclamacions futur abans de publicar la llista "
+"provisional."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Set the claims deadline in the Selection tab first."
+msgstr "Primer posa el termini de reclamacions a la pestanya Selecció."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"The Erasmus team uploads it for you to keep. Not asked for when the group's "
+"collective policy covers you."
+msgstr ""
+"L'equip Erasmus la puja perquè la guardis. No se't demana si et cobreix la "
+"pòlissa col·lectiva del grup."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"The definitive list is published when the coordinator approves the "
+"selection."
+msgstr ""
+"La llista definitiva es publica quan la coordinació aprova la selecció."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"The definitive list is published, each student receives their own result and"
+" the participants' files open. Continue?"
+msgstr ""
+"Es publica la llista definitiva, cada alumne rep el seu resultat i s'obren "
+"els expedients dels participants. Vols continuar?"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__insurance_collective
+msgid ""
+"The group's collective insurance policy covers this participant: their own "
+"policy is not asked for."
+msgstr ""
+"La pòlissa d'assegurança col·lectiva del grup cobreix aquest participant: no"
+" se li demana la seva."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__programme_execution
+msgid ""
+"The leader answers it on return. The executed group learning agreement, "
+"signed by both centres, states the real dates, activities and participants."
+msgstr ""
+"La respon el docent responsable en tornar. L'acord d'aprenentatge del grup "
+"executat, signat pels dos centres, recull les dates, les activitats i els "
+"participants reals."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"The learning programme of the whole group agreed with the host entity before"
+" leaving: objectives, learning outcomes, calendar, activities and the "
+"participants. One document shared by every student."
+msgstr ""
+"El programa d'aprenentatge de tot el grup acordat amb l'entitat d'acollida "
+"abans de marxar: objectius, resultats d'aprenentatge, calendari, activitats "
+"i participants. Un sol document compartit per tot l'alumnat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid ""
+"The provisional list is published on the portal and each student receives "
+"their provisional result by email, to claim until the claims deadline. "
+"Continue?"
+msgstr ""
+"La llista provisional es publica al portal i cada alumne rep el seu resultat"
+" provisional per correu, per reclamar fins al termini de reclamacions. Vols "
+"continuar?"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"The provisional list is published while the coordinator validates the "
+"selection."
+msgstr ""
+"La llista provisional es publica mentre la coordinació valida la selecció."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"The same programme, signed by both centres after the stay: the real start "
+"and end dates, the activities carried out, the methodologies and the final "
+"list of participants (students and accompanying teachers of every centre). "
+"If nothing changed, it ratifies the planned one with the real dates and "
+"participants."
+msgstr ""
+"El mateix programa, signat pels dos centres després de l'estada: les dates "
+"reals d'inici i de final, les activitats fetes, les metodologies i la llista"
+" definitiva de participants (alumnes i docents acompanyants de tots els "
+"centres). Si no ha canviat res, ratifica el previst amb les dates i els "
+"participants reals."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_participant__auth_image
+msgid ""
+"The student's image rights authorisation of the course, the same EMS uses "
+"for everything else: no other one is asked for the mobility."
+msgstr ""
+"L'autorització de drets d'imatge del curs de l'alumne, la mateixa que l'EMS "
+"fa servir per a tota la resta: no se'n demana cap altra per a la mobilitat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "This group mobility already has a published %s."
+msgstr "Aquesta mobilitat de grup ja té una %s publicada."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_group_mobility__claims_deadline
+msgid ""
+"Until when the students can claim against the provisional list, by replying "
+"to its email."
+msgstr ""
+"Fins quan l'alumnat pot reclamar contra la llista provisional, responent-ne "
+"el correu."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__programme_changes
+msgid "What changed in the programme"
+msgstr "Què ha canviat del programa"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "What changed: dates, activities, participants..."
+msgstr "Què ha canviat: dates, activitats, participants..."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Write what changed in the programme of %s."
+msgstr "Escriu què ha canviat del programa de %s."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__programme_execution__as_planned
+msgid "Yes, as planned"
+msgstr "Sí, tal com estava previst"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Evidence that participants belong to a category of fewer opportunities "
+"recognised by SEPIE and, when there are real inclusion costs, why the "
+"support was needed. The invoices and payment proofs go in the collective "
+"expenses. Only the Erasmus team sees it."
+msgstr ""
+"Evidències que els participants pertanyen a una categoria de menys "
+"oportunitats reconeguda pel SEPIE i, quan hi ha costos reals d'inclusió, per"
+" què calia l'ajuda. Les factures i els justificants de pagament van a les "
+"despeses col·lectives. Només la veu l'equip Erasmus."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid ""
+"Only when one policy covers all or part of the participants: mark them as "
+"covered by the collective policy, and their own policy is no longer asked "
+"for."
+msgstr ""
+"Només quan una pòlissa cobreix tots els participants o una part: marca'ls "
+"com a coberts per la pòlissa col·lectiva i ja no se'ls demana la seva."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_resolution
+msgid "<i class=\"fa fa-arrow-left me-1\"/>Back"
+msgstr "<i class=\"fa fa-arrow-left me-1\"/>Tornar"

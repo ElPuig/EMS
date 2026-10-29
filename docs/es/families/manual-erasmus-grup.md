@@ -19,7 +19,9 @@ No hace falta ningún currículum, carta ni entrevista. Si tienes tantas amonest
 
 ## El resultado
 
-Cuando la coordinación Erasmus aprueba la selección, recibirás un correo con tu resultado (seleccionado, en lista de reserva con tu número, o sin los requisitos). También lo verás en la tarjeta del portal. Solo ves tu resultado.
+Primero la coordinación Erasmus publica una **lista provisional**: recibirás un correo con tu resultado provisional y, en la tarjeta del portal, lo verás con el enlace a la lista. La lista solo muestra cuatro cifras del documento de identidad de cada alumno. Si no estás de acuerdo, responde el correo antes del plazo de reclamaciones que se indica.
+
+Después la coordinación publica la **lista definitiva** y recibirás un correo con tu resultado (seleccionado, en lista de reserva con tu número, o sin los requisitos). También lo verás en la tarjeta del portal, con el enlace a las dos listas. Solo ves tu resultado.
 
 ## Si te seleccionan
 

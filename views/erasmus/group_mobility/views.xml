@@ -97,6 +97,7 @@
                     <header>
                         <field name="user_role" invisible="1"/>
                         <field name="needs_draw" invisible="1"/>
+                        <field name="provisional_published" invisible="1"/>
                         <div name="ems_actions" string="Actions">
                             <button name="action_open_enrolment" type="object" string="Open the enrolment" class="btn-primary"
                                     invisible="state != 'draft' or user_role != 'team'"
@@ -109,10 +110,15 @@
                                     help="EMS closes it by itself when the enrolment period ends."/>
                             <button name="action_submit_proposal" type="object" string="Send the proposal to the coordinator"
                                     class="btn-primary" invisible="state != 'selection' or user_role not in ('team', 'leader')"/>
-                            <button name="action_approve_selection" type="object" string="Approve and publish the selection"
-                                    class="btn-primary" invisible="state != 'validation'"
+                            <button name="action_publish_provisional" type="object" string="Publish the provisional list"
+                                    class="btn-primary" invisible="state != 'validation' or provisional_published"
                                     groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
-                                    confirm="Each student receives their own result and the participants' files open. Continue?"/>
+                                    confirm="The provisional list is published on the portal and each student receives their provisional result by email, to claim until the claims deadline. Continue?"
+                                    help="Set the claims deadline in the Selection tab first."/>
+                            <button name="action_approve_selection" type="object" string="Approve and publish the selection"
+                                    class="btn-primary" invisible="state != 'validation' or not provisional_published"
+                                    groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                    confirm="The definitive list is published, each student receives their own result and the participants' files open. Continue?"/>
                             <button name="action_draw_ties" type="object" string="Draw the ties"
                                     invisible="not needs_draw or state not in ('selection', 'validation')"
                                     groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
@@ -244,7 +250,19 @@
                                         <field name="proposal_note" readonly="state != 'selection'"/>
                                         <field name="return_note" readonly="state != 'validation' or user_role != 'team'"
                                                invisible="state not in ('selection', 'validation') or (not return_note and state == 'selection')"/>
+                                        <field name="claims_deadline" readonly="state != 'validation' or provisional_published or user_role != 'team'"
+                                               invisible="state in ('draft', 'enrolment', 'selection') and not claims_deadline"/>
                                     </group>
+                                </group>
+                                <group string="Published lists" invisible="not resolution_ids"
+                                       groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin">
+                                    <field name="resolution_ids" nolabel="1" colspan="2">
+                                        <list>
+                                            <field name="name"/>
+                                            <field name="publish_date"/>
+                                            <field name="published_by_id"/>
+                                        </list>
+                                    </field>
                                 </group>
                                 <field name="registration_ids">
                                     <list create="false" delete="false" editable="bottom"
@@ -319,6 +337,8 @@
                                         <field name="email" widget="email" optional="show"/>
                                         <field name="phone" widget="phone" optional="show"/>
                                         <field name="is_minor" optional="show"/>
+                                        <field name="auth_image" optional="show"/>
+                                        <field name="insurance_collective" optional="show"/>
                                         <field name="documents_missing" decoration-danger="documents_missing > 0"/>
                                         <field name="documents_valid"/>
                                         <field name="commitment_pending" optional="show"/>
@@ -433,6 +453,12 @@
                                         <field name="eu_survey_attachment_ids" widget="many2many_binary"
                                                readonly="user_role not in ('team', 'leader')"/>
                                     </group>
+                                    <group string="Programme">
+                                        <field name="programme_execution" readonly="state != 'return' or user_role not in ('team', 'leader')"/>
+                                        <field name="programme_changes" invisible="programme_execution != 'changed'"
+                                               readonly="state != 'return' or user_role not in ('team', 'leader')"
+                                               placeholder="What changed: dates, activities, participants..."/>
+                                    </group>
                                     <group string="Closure">
                                         <field name="closure_proposed_date"/>
                                         <field name="closure_note" readonly="user_role not in ('team', 'leader')"/>
@@ -519,6 +545,8 @@
                                 <field name="role"/>
                                 <field name="group_id" invisible="role != 'student'"/>
                                 <field name="is_minor" invisible="role != 'student'"/>
+                                <field name="auth_image" invisible="role != 'student'"/>
+                                <field name="insurance_collective"/>
                             </group>
                             <group>
                                 <field name="email" widget="email"/>

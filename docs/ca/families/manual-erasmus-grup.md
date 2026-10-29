@@ -19,7 +19,9 @@ No cal cap currículum, carta ni entrevista. Si tens tantes amonestacions aquest
 
 ## El resultat
 
-Quan la coordinació Erasmus aprova la selecció, rebràs un correu amb el teu resultat (seleccionat, en llista de reserva amb el teu número, o sense els requisits). També el veuràs a la targeta del portal. Només veus el teu resultat.
+Primer la coordinació Erasmus publica una **llista provisional**: rebràs un correu amb el teu resultat provisional i, a la targeta del portal, el veuràs amb l'enllaç a la llista. La llista només mostra quatre xifres del document d'identitat de cada alumne. Si no hi estàs d'acord, respon el correu abans del termini de reclamacions que s'hi indica.
+
+Després la coordinació publica la **llista definitiva** i rebràs un correu amb el teu resultat (seleccionat, en llista de reserva amb el teu número, o sense els requisits). També el veuràs a la targeta del portal, amb l'enllaç a totes dues llistes. Només veus el teu resultat.
 
 ## Si et seleccionen
 

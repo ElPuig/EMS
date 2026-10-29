@@ -112,17 +112,27 @@ class EmsErasmusResolution(models.Model):
             if resolution.kind == 'rectification' and not (resolution.notes or '').strip():
                 raise UserError(_("Explain in the notes what the rectification corrects."))
             resolution._ems_check_can_prepare()
-            call = resolution.call_id
-            if resolution.kind in FINAL_KINDS and not (
-                    call.acceptance_deadline and call.acceptance_deadline > call._ems_now()):
-                raise UserError(_("Set a future acceptance deadline on the call before publishing who goes."))
+            resolution._ems_check_can_publish()
         self.sudo().write({
             'state': 'published', 'publish_date': fields.Datetime.now(), 'published_by_id': self.env.uid})
         for resolution in self:
-            if resolution.kind in FINAL_KINDS:
-                resolution._ems_apply_results()
-            self.env['ems.erasmus.application']._ems_mail(
-                resolution.line_ids, 'ems.email_template_erasmus_resolution_published')
+            resolution._ems_after_publish()
+
+    def _ems_check_can_publish(self):
+        """What publishing needs besides the lines: a call's list of who goes needs the deadline
+        to accept the place."""
+        self.ensure_one()
+        call = self.call_id
+        if self.kind in FINAL_KINDS and not (call.acceptance_deadline and call.acceptance_deadline > call._ems_now()):
+            raise UserError(_("Set a future acceptance deadline on the call before publishing who goes."))
+
+    def _ems_after_publish(self):
+        """A list of who goes sets the results and offers the places; every applicant gets their own
+        result by email."""
+        self.ensure_one()
+        if self.kind in FINAL_KINDS:
+            self._ems_apply_results()
+        self.env['ems.erasmus.application']._ems_mail(self.line_ids, 'ems.email_template_erasmus_resolution_published')
 
     def _ems_stored_pdf(self):
         """Issue #697: the published list as a PDF, for the project's dossier. The report keeps a
@@ -238,7 +248,8 @@ class EmsErasmusResolutionLine(models.Model):
     audience = fields.Selection(string="Applicants", related='resolution_id.call_id.audience')
     application_id = fields.Many2one(string="Application", comodel_name='ems.erasmus.application', required=True,
                                      ondelete='restrict', index=True)
-    partner_id = fields.Many2one(string="Applicant", related='application_id.partner_id', store=True)
+    partner_id = fields.Many2one(string="Applicant", comodel_name='res.partner', compute='_compute_partner_id',
+                                 store=True)
     modality_id = fields.Many2one(string="Modality", comodel_name='ems.erasmus.call.modality', ondelete='restrict')
     sequence = fields.Integer(string="Sequence")
     public_id = fields.Char(string="Identity document (published)")
@@ -262,6 +273,11 @@ class EmsErasmusResolutionLine(models.Model):
     score_internationalisation = fields.Float(string="6. Internationalisation", digits=(4, 2))
     exclusion_reason = fields.Text(string="Exclusion reason",
                                    help="Only for the applicant (email and portal), never in the published list.")
+
+    @api.depends('application_id.partner_id')
+    def _compute_partner_id(self):
+        for line in self:
+            line.partner_id = line.application_id.partner_id
 
     def _compute_display_name(self):
         for line in self:

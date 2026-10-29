@@ -3,10 +3,11 @@
 from odoo import http
 from odoo.exceptions import UserError
 from odoo.http import request
-from odoo.addons.portal.controllers.portal import CustomerPortal
+
+from .portal_erasmus import EmsPortalErasmusController
 
 
-class EmsPortalErasmusGroupController(CustomerPortal):
+class EmsPortalErasmusGroupController(EmsPortalErasmusController):
     """Issue #701 - group mobilities on the portal: a student enrols with one click and withdraws
     while the enrolment is open; once selected, they hand in their documents (issue #703). The
     student is always the logged-in user's own partner: no partner or enrolment id travels in a
@@ -24,6 +25,32 @@ class EmsPortalErasmusGroupController(CustomerPortal):
         """The logged-in student's own file in `mobility`, once selected."""
         return mobility.participant_ids.filtered(
             lambda participant: participant.partner_id == request.env.user.partner_id and participant.role == 'student')
+
+    def _ems_group_resolution(self, mobility_id, resolution_id):
+        """A published list of a group mobility the logged-in student enrolled in."""
+        mobility = self._ems_group_mobility(mobility_id)
+        if not mobility.registration_ids.filtered(lambda registration: registration.partner_id ==
+                                                  request.env.user.partner_id):
+            return None
+        return mobility.resolution_ids.filtered(lambda resolution: resolution.id == resolution_id
+                                                and resolution.state == 'published')
+
+    @http.route('/my/erasmus/group/<int:mobility_id>/resolution/<int:resolution_id>', type='http', auth='user',
+                website=True)
+    def portal_erasmus_group_resolution(self, mobility_id, resolution_id, **kwargs):
+        resolution = self._ems_group_resolution(mobility_id, resolution_id)
+        if not resolution:
+            return request.redirect(self._redirect)
+        return self._ems_render_resolution(resolution, self._redirect,
+                                           f'{self._redirect}/group/{mobility_id}/resolution/{resolution.id}')
+
+    @http.route('/my/erasmus/group/<int:mobility_id>/resolution/<int:resolution_id>/pdf', type='http', auth='user',
+                website=True)
+    def portal_erasmus_group_resolution_pdf(self, mobility_id, resolution_id, **kwargs):
+        resolution = self._ems_group_resolution(mobility_id, resolution_id)
+        if not resolution:
+            return request.redirect(self._redirect)
+        return self._ems_resolution_pdf(resolution)
 
     @http.route('/my/erasmus/group/<int:mobility_id>/enrol', type='http', auth='user', methods=['POST'], website=True)
     def portal_erasmus_group_enrol(self, mobility_id, **post):

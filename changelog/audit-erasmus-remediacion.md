@@ -18,6 +18,9 @@
 ## Erasmus+ projects tell the coordination when the keeping period is over (audit D-12):
 - A daily job gives the Erasmus coordinators a task, once per project, when its documents are past their keeping date and not on hold for an audit. Nothing is deleted automatically.
 
+## Erasmus+ group mobilities: provisional and definitive lists (SEPIE KA121-VET):
+- The coordinator publishes a provisional list (with a claims deadline; each student gets their provisional result by email and claims by replying) and then, on approving the selection, the definitive list: the calls' resolutions reused, students identified by four digits of their identity document, rank, record average and result, kept as PDFs in the selection tab, on the students' portal and in the documents export. Approving refuses until the provisional list is published.
+
 # Changes
 
 ## Closing an individual Erasmus+ mobility needs the whole record (audit D-5):
@@ -41,6 +44,10 @@
 
 ## Community > Groups menu hidden from the Erasmus technician (audit D-6):
 - Only the roles that work with the groups see it; the technician read it only to pick a group mobility's groups, and its form failed for them.
+
+## Erasmus+ group mobility documents follow SEPIE's KA121-VET list:
+- The group learning agreement has a planned version (before leaving) and an executed one (after the stay, real dates, activities, methodologies and the final list of participants of every centre), both signed by the two centres; the separate final list of participants is gone. On return the leader teacher says whether the programme went as planned (and what changed); the closure needs that answer.
+- Insurance for every student and accompanying teacher, or a collective policy covering all or part of them (ticked per participant). Green Travel (sworn statement and evidence) and the inclusion documentation (including the need for real inclusion costs) are optional documents. The Europass mobility document and the teachers' certificate of stay are optional and never block the closure. Image rights reuse the student's authorisation of the course. Every document is still prepared outside EMS: EMS only stores, checks and archives it.
 
 # Fixes
 
@@ -67,6 +74,9 @@
 - `tests/test_erasmus_integrity.py`: 21 tests, including a real JSON-RPC call with a forged context and the combined-roles cases. Of the first 20, 18 failed on the audited code; the 2 about roles taken away (a reassigned evaluator, a replaced leader) already passed and stay as guards. The upload check of proposals was added afterwards.
 - `TestGuardDutyBoard.test_report_guard_duty_board_marks_a_wc_guard` now checks the "(WC)" marker inside each teacher's own badge: its fixed 200-byte window reached the next badge, another teacher's WC guard, on databases with real schedules for the same period.
 - Audit annexes: hypotheses probe (`test_audit_hypotheses.py`), two-transaction concurrency probe and a guard duty board ordering probe, all under `docs/auditoria-erasmus/anexos/`.
+
+## Tests for the Erasmus+ group mobilities aligned with SEPIE:
+- New TestErasmusGroupSepieDocuments class and a portal test for the published lists; the group tests, integration tests and the coordinator tour now publish the provisional list before approving.
 
 ## Tests for the Erasmus+ audit decisions of 2026-10-29:
 - `tests/test_erasmus_decisions.py`: one test per decision (access, records, group and draw cases); the audit addon's H-2 hypothesis now records the refusal. Existing tests tick the signatures before validating and undo transfers through the wizard.

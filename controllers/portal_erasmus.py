@@ -179,8 +179,13 @@ class EmsPortalErasmusController(CustomerPortal):
         resolution = self._ems_erasmus_resolution(call_id, resolution_id)
         if not resolution:
             return request.redirect(self._redirect)
+        return self._ems_render_resolution(resolution, f'{self._redirect}/call/{call_id}',
+                                           f'{self._redirect}/call/{call_id}/resolution/{resolution.id}')
+
+    def _ems_render_resolution(self, resolution, back_url, list_url):
+        """A published list's page (a call's or a group mobility's)."""
         values = self._prepare_portal_layout_values()
-        values.update({'page_name': 'erasmus', 'resolution': resolution})
+        values.update({'page_name': 'erasmus', 'resolution': resolution, 'back_url': back_url, 'list_url': list_url})
         return request.render('ems.portal_erasmus_resolution', values)
 
     @http.route('/my/erasmus/call/<int:call_id>/resolution/<int:resolution_id>/pdf', type='http', auth='user',
@@ -189,6 +194,9 @@ class EmsPortalErasmusController(CustomerPortal):
         resolution = self._ems_erasmus_resolution(call_id, resolution_id)
         if not resolution:
             return request.redirect(self._redirect)
+        return self._ems_resolution_pdf(resolution)
+
+    def _ems_resolution_pdf(self, resolution):
         pdf, _type = request.env['ir.actions.report'].sudo()._render_qweb_pdf(
             'ems.action_report_erasmus_resolution', resolution.ids)
         return request.make_response(pdf, headers=[

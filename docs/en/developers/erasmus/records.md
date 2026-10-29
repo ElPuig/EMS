@@ -78,6 +78,15 @@ incident) enters a record. `confidential` marks health, inclusion or bank data.
 - A file can never be removed from a valid line, nor from any line of a closed or cancelled mobility
   or group mobility (`write()` guard, also for the superuser; `_ems_record_closed()`): a new version
   is uploaded instead.
+- From a line not valid yet, a file uploaded by mistake is only removed through **Remove a file**
+  (`action_remove_file`, the wizard `ems.erasmus.file.removal.wizard`, whoever reviews the line:
+  `_ems_check_reviewer()`), with a required reason (audit D-2). The file is not deleted: it is
+  unlinked from the line and attached to a message in the chatter of the line's record
+  (`_ems_record_owner()`, or the application) with the reason, who removed it and when. Any other
+  removal by a user (the file widget, an RPC `write`) raises; the wizard writes as superuser after
+  its checks.
+- A project document (`ems.erasmus.project.document`) with files is never deleted (`check_kept`,
+  audit D-2); one without files can be.
 - Every change of `review_state` is posted in the chatter of the line's mobility or group mobility
   (`_ems_record_owner()`), with its author and, for a group, the participant. The attachment keeps who uploaded it and when (`create_uid`, `create_date`).
 - Closing the mobility (`state = done`) closes the record: no more portal uploads, files kept.
@@ -94,6 +103,14 @@ incident) enters a record. `confidential` marks health, inclusion or bank data.
 `ems.erasmus.project.keep_until` = `final_payment_date` (when SEPIE paid the balance) + 3 years, or 5
 when `budget` > 60,000 €; empty until both are known. `retention_hold` + `retention_note` mark an
 audit or request still open. Nothing is ever deleted automatically.
+
+`keep_until` is stored, so the daily cron `ems.ir_cron_erasmus_retention_notice`
+(`_cron_retention_notice`, audit D-12) filters in its domain: every project past its date, without
+`retention_hold` and not told yet gets a to-do for the Erasmus coordinators
+(`_ems_coordinators()`; the project inherits `ems.base` for its chatter and activities) and its
+`retention_notice_date`. Once per project: changing `final_payment_date` or `budget` clears the date,
+so a new keeping date is told again when it comes. The coordination decides what to keep or delete;
+there is no automatic archive to Drive.
 
 ## Export
 
@@ -129,10 +146,20 @@ sequenceDiagram
   files' hashes in `sha256sum -c` format, to verify the copy archived in Drive. Only folders with
   files appear.
 - Archived records (mobilities, group mobilities, participants) are exported and counted like the
-  others, each of their index rows noted "Archived". What is left out on purpose (a cancelled
-  mobility, a group mobility in draft or cancelled, a withdrawn participant) gets one index row
-  ("Not exported: <state>") and an entry in the manifest's `excluded` list: nothing is left out
-  silently. Its documents stay in EMS and in its own record's export.
+  others, each of their index rows noted "Archived".
+- **Cancelled and withdrawn records with evidence** (audit D-17) go in complete, apart, under
+  `02_Mobilitats/99_Cancellades_i_retirades/` (a cancelled mobility or group mobility) or
+  `GRUP<id>_<name>/99_Cancellades_i_retirades/` (a withdrawn group participant), each index row
+  noted with its state and never counted as missing. Evidence here means a **payment made**
+  (`state = paid`) or something **signed or validated** on the record's own documents: a line
+  `valid`, a signature ticked (`ems.erasmus.document.signature`) or the commitment letter accepted in
+  EMS (`_ems_signed_domain()`; the application's documents do not count, every admitted application
+  has them valid). They are found with one search per project, filtered in the domain
+  (`_ems_project_cancelled`, `_ems_project_cancelled_groups`).
+- The rest of what is left out on purpose (a cancelled mobility or a withdrawn participant without
+  evidence, a group mobility in draft) gets one index row ("Not exported: <state>") and an entry in
+  the manifest's `excluded` list: nothing is left out silently. Its documents stay in EMS and in its
+  own record's export.
 - Files are copied from the file store in 1 MB chunks into a temporary, uncompressed ZIP (PDFs,
   photos and videos hardly shrink) and streamed: a large project never sits in memory.
 - Names go through `safe_name()`: no separators, control or reserved characters, no `..`, so no path
@@ -169,8 +196,8 @@ GRUP<id>_<name>/
 └── PROF<participant id>_<name>/       the leader and the accompanying teachers: their own lines
 ```
 
-- Only active participants (a student who renounced keeps every document in EMS, but is not
-  exported, like a cancelled individual mobility).
+- Active participants, and withdrawn ones with evidence in `99_Cancellades_i_retirades/` (see
+  above); the others are only listed.
 - A shared document is never copied into the records: each participant's index rows point to its
   path ("Shared document: ...").
 - `Selection.csv`: the frozen ranking (rank, group at closing, average and whether it was entered by
@@ -217,22 +244,29 @@ What EMS has today (no electronic signature system):
 - The signers of each document are configured per call document (`sign_participant`, `sign_guardian`
   (minors only), `sign_director`, `sign_coordinator`, `sign_tutor`, `sign_host`) and shown on every
   line, the portal and the index.
+- **One signature per signer** (audit D-1, `models/erasmus/document_review.py`): every line of a
+  document someone signs has an `ems.erasmus.document.signature` per signer the call document asks
+  for (created with the line, and kept in step when the call document's signers change; a database
+  whose lines predate them gets them in `init()`). Whoever reviews the line (the team; for a group
+  mobility, also its leader) ticks each one from **Signatures** when it is on the uploaded copy: EMS
+  keeps who ticked it and when, and writes it in the record's chatter. It is not an electronic
+  signature, it is the team's check of the scan. `is_required`: the legal guardian's only for a
+  minor; a signer no longer asked for is kept if ticked, not required. A ticked signature is
+  unticked only while the line is not valid, nothing changes in a closed record, and a ticked one is
+  never deleted. The portal shows each signer's state, read only.
 - The states of a signed document are the review: uploaded → `to_review` → `complete` (the team
   checked the signatures and marked it valid) or `needs_change` (with a comment for the participant).
-  Nothing to sign is ever complete on upload, and a mobility cannot be closed, nor a participant be
-  ready to leave, with a required document not complete.
-- Not there yet, and not decided (functional decisions for the Erasmus coordination, not code):
-  which signature has legal value for each document (click acceptance as for the letter, a scanned
-  handwritten signature, or a verifiable electronic signature such as the Catalan idCAT/VALid or an
-  external provider like DocuSeal or OpenSign); one state per signer (today one review for the whole
-  document: EMS does not know which of several signers already signed); how the host entity signs
-  (it has no EMS account); whether the Director and the coordinator sign inside EMS. Automating it
-  needs: a signature request per line and signer (`ems.erasmus.signature`: line, signer role,
-  partner, state, date, evidence), a provider interface (send, webhook, signed PDF stored as a new
-  version), and `file_state` complete only when every required signer signed.
+  **Valid needs every required signature ticked** (`signatures_missing` empty; `write()` refuses
+  otherwise, decided by the coordination 2026-10-29). Nothing to sign is ever complete on upload, and
+  a mobility cannot be closed, nor a participant be ready to leave, with a required document not
+  complete.
+- Not there: a verifiable electronic signature (the Catalan idCAT/VALid or an external provider such
+  as DocuSeal or OpenSign) and how the host entity would sign (it has no EMS account). The
+  commitment letter keeps its click acceptance. A provider would fill the same signature lines
+  (send, webhook, signed PDF stored as a new version) instead of the team's tick.
 
 ### Prepared for later
 
-- **Automated archive to a shared Drive**: `_ems_zip()` returns a file object and its log line holds
-  the ZIP's hash, so a job could upload it to the institutional shared drive without changing the
-  builder.
+- **Automated archive to a shared Drive** (not wanted for now, audit D-12): `_ems_zip()` returns a
+  file object and its log line holds the ZIP's hash, so a job could upload it to the institutional
+  shared drive without changing the builder.

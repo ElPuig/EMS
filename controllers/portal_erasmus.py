@@ -223,8 +223,8 @@ class EmsPortalErasmusController(CustomerPortal):
                 website=True)
     def portal_erasmus_mobility(self, call_id, step, **post):
         """The participant's own mobility of this call: choose a destination in their turn, send a
-        proposal, upload documents, sign the commitment letter, answer a week's self-assessment or
-        renounce the place."""
+        proposal, upload documents, sign the commitment letter, answer a week's self-assessment, say
+        the EU Survey is answered or renounce the place."""
         call = self._ems_erasmus_call(call_id)
         if not call:
             return request.redirect('/my/home')
@@ -265,6 +265,8 @@ class EmsPortalErasmusController(CustomerPortal):
                            if re.fullmatch(r'question_\d+', name)}
                 week = post.get('week') or ''
                 mobility._ems_portal_self_assessment(int(week) if week.isdigit() else 0, answers)
+            elif step == 'eu_survey':
+                mobility._ems_portal_eu_survey()
             elif step == 'renounce':
                 mobility.action_renounce((post.get('reason') or '').strip()[:2000] or False)
             else:

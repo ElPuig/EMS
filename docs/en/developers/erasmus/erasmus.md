@@ -184,6 +184,15 @@ Menu *Erasmus+*: *Applications* (team, Head of Studies, Director) and *Calls* (t
 - **The file itself is kept too** (`models/erasmus/attachment.py`): an `ir.attachment` of a valid
   line, of a closed record or a paid transfer's receipt cannot be deleted, nor its content, type or
   owner (`res_model`/`res_id`/`res_field`) changed. Its name and description can.
+- **The Head of Studies sees the total, not the criteria** (audit D-14, D-4): on the student
+  application and on the resolution lines, criteria A, B, C, E and F are `groups=` the Erasmus team
+  and the administrator, as D (fewer opportunities) already was, so D cannot be worked out from the
+  total; the total, the rank and the published lists are unchanged. What the applicant declares
+  about fewer opportunities (`fewer_opportunities`) is the team's too; the conduct warnings and the
+  exclusion reason stay visible. Accepted as it is (decided 2026-10-29): the inputs of the criteria
+  shown in the Scoring tab (record average, interview marks, language level checked, first
+  mobility, conduct warnings) are still visible, so D could still be worked out by hand from them.
+  The Director inherits the Head of Studies' rights and sees the same.
 - **The Head of Studies only reads.** Their record rules are read only (`perm_write`, `perm_create`,
   `perm_unlink` False): rules add up across a user's groups, so a write-all rule plus the group
   teacher's write access let a Head of Studies who teaches in a group mobility change any
@@ -244,9 +253,19 @@ Per modality, among *admitted* applications (`rank`, stored, recomputed when any
 the call changes). The ranking of a modality is only computed when **every** admitted
 application in it has a complete score; until then every rank in it is 0. Order: total, then the
 tie-breaks of art. 12 - fewer opportunities, first mobility, English part of the interview,
-record average - and finally the recorded draw (`draw_order`, lower first). Applications still
-tied after all of it share the rank and get `needs_draw`. `is_eligible`: complete and total at
-least `min_score`.
+record average - and finally the draw (`draw_order`, lower first). Applications still
+tied after all of it share the rank and get `needs_draw` (the call's `needs_draw` says some has it).
+`is_eligible`: complete and total at least `min_score`.
+
+**Draw** (audit D-13): `draw_order` is read only; the Erasmus coordinator (or the administrator)
+runs *Actions > Draw the ties* on the call (`action_draw_ties`) before the definitive resolution.
+EMS orders each tied set (per modality; a staff call's, of the whole list) at random with
+`secrets.SystemRandom`, writes `draw_order` and keeps the draw as an immutable
+`ems.erasmus.group.draw` (the same model as the group mobilities', with `call_id` instead of
+`group_mobility_id` and `score_total` as what they were tied on; its lines point at the
+`application_id`), listed in the call's Resolutions tab and summed up in its chatter
+(`EmsErasmusGroupDraw._ems_run`, shared with the group mobilities). The teachers of a group
+mobility only read the group draws (`rule_erasmus_draw_group_teacher`).
 
 ## Interviews (phase 2, #684)
 
@@ -435,7 +454,10 @@ translated (`PARTICIPANT_HEADERS`):
 
 It carries personal and bank data: the file is built on the fly by `/ems/erasmus/participants`
 (`controllers/erasmus_export.py`) and never stored, and only `ems.group_erasmus` can get it
-(`_ems_participants()` refuses anyone else; the server action has that group only).
+(`_ems_participants()` refuses anyone else; the server action has that group only). Each download
+is logged (audit D-10, `ems.erasmus.export._ems_log_spreadsheet`): an export line with
+`scope = participants`, the call (or group mobility), who, when and how many people, and a message
+in the call's (or group mobility's) chatter. Who can download it does not change.
 
 ### Portal (phase 3)
 
@@ -794,7 +816,19 @@ keeps the validated activity and the email says so.
   end date has passed; one filled in by the team only once it is uploaded to sign). The weekly cron `ems.ir_cron_erasmus_remind_documents`
   (`_cron_remind_documents`) sends the same email to every mobility in preparation with any.
 - `preparation_complete` / `return_complete`: every required line of the stage valid and every
-  step done. **Close** needs `return_complete`.
+  step done. **Close** (`action_close`, audit D-5) needs both, the mobility assigned to a project,
+  the EU Survey validated and nothing left to pay (`_ems_left_to_pay()`: no payment nor invoice of
+  the mobility `to_pay`, and no part of `grant_net` not requested yet, the final payment included).
+  Closing frees a graduate's portal, so it waits for the last payment. A group mobility's closing is
+  unchanged.
+- **EU Survey** (audit D-8, mixin `ems.erasmus.eu.survey`, shared with the group mobilities):
+  `eu_survey_state` pending → answered (`done`) → validated, read only (workflow field), and
+  `eu_survey_deadline`, by default 30 days after `date_end` (`EU_SURVEY_DAYS`, editable). Once the
+  stay is over (`_ems_eu_survey_open()`), the portal asks the participant to answer it and they say
+  so (step `eu_survey`, `_ems_portal_eu_survey`); the team can also record it (*EU Survey
+  answered*). Answering posts in the chatter and gives the Erasmus team a to-do to validate it
+  (*Validate the EU Survey*). It replaced the checklist step "Final report (EU Survey)", no longer in
+  a new call's default steps; a call that already has the step keeps it until the team removes it.
 - **Cancel** (team) needs `cancel_reason`; the participant can renounce from the portal.
 - **Staff absence for training** (`_ems_sync_training_leave`, run when the dates or the state
   change): once the Direction has validated the proposal, dates included, EMS files an `hr.leave` of
@@ -866,7 +900,8 @@ and requested again.
 
 **Paying:** only the Secretary (or the administrator) registers a transfer
 (`action_register_transfer` on payments and invoices opens the wizard) or undoes one
-(`action_mark_unpaid`); both write with sudo after checking the group (`_check_payer`). A direct
+(`action_mark_unpaid` opens `ems.erasmus.undo.transfer.wizard`, with a required reason, audit
+D-18); both write with sudo after checking the group (`_check_payer`). A direct
 write of `state`/`paid_date`/`paid_by_id`/`receipt_ids` raises, a paid payment cannot be changed or
 deleted and a paid invoice cannot be deleted. Invoices have the same `state`, `paid_date`,
 `paid_by_id` and `receipt_ids` as payments.
@@ -908,11 +943,11 @@ logged) are described in [records.md](records.md). The host entity also has its 
 |---|---|---|---|
 | `ems.erasmus.provision`, `.invoice` | rwcu | r (+ register the invoice's transfer) | - |
 | `ems.erasmus.project.document` | rwcu | rwc | r |
-| `ems.erasmus.transfer.wizard` | - | rwcu | - |
+| `ems.erasmus.transfer.wizard`, `.undo.transfer.wizard` | - | rwcu | - |
 | `ems.erasmus.payment` | rwcu (unpaid only; `write()` guard) | r + register the transfer (wizard) | - |
 
-Undoing a transfer (`action_mark_unpaid`, Secretary) posts in the payment's or invoice's chatter who
-undid it, when it had been paid and by whom, with its receipts attached; its state is tracked. A paid
+Undoing a transfer (`action_mark_unpaid`, Secretary, through its wizard) posts in the payment's or
+invoice's chatter who undid it and why, when it had been paid and by whom, with its receipts attached; its state is tracked. A paid
 invoice cannot change, as a paid payment cannot. The first payment (prefinancing or single) and the
 final one exist once per mobility: a unique index (`ems_erasmus_payment_once_per_mobility`, created in
 `init()`, so on install and on upgrade) refuses a second one requested at the same moment, which the

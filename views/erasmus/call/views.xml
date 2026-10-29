@@ -37,6 +37,12 @@
                             <button name="action_send_to_panel" type="object" string="Send plans to the panel"
                                     invisible="audience != 'staff' or state != 'closed'"
                                     help="Asks every panel member to rate the mobility plan of every admitted application."/>
+                            <!-- Audit D-13: the ties left after every tie-break, drawn by EMS and kept. -->
+                            <button name="action_draw_ties" type="object" string="Draw the ties"
+                                    invisible="not needs_draw or has_final_resolution"
+                                    groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
+                                    confirm="EMS orders each tied set at random and keeps the draw: it cannot be undone. Continue?"
+                                    help="Resolves the ties left in the ranking after every tie-break, as the call says."/>
                             <button name="action_offer_place" type="object" string="Offer a free place"
                                     invisible="not has_final_resolution"
                                     help="Offers a place left free by a renunciation to the next reserve of the modality."/>
@@ -203,6 +209,10 @@
                             </page>
                             <page string="Resolutions" name="resolutions" invisible="state != 'closed'">
                                 <field name="has_final_resolution" invisible="1"/>
+                                <field name="needs_draw" invisible="1"/>
+                                <div class="alert alert-warning" role="alert" invisible="not needs_draw">
+                                    There is a tie in the ranking: the Erasmus coordinator resolves it with a draw (Actions, Draw the ties).
+                                </div>
                                 <field name="resolution_ids" context="{'default_call_id': id}">
                                     <list>
                                         <field name="kind"/>
@@ -211,6 +221,17 @@
                                                decoration-success="state == 'published'"/>
                                     </list>
                                 </field>
+                                <group string="Draws" invisible="not draw_ids">
+                                    <field name="draw_ids" nolabel="1" colspan="2">
+                                        <list>
+                                            <field name="date"/>
+                                            <field name="user_id"/>
+                                            <field name="score_total"/>
+                                            <field name="tied_count"/>
+                                            <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
+                                        </list>
+                                    </field>
+                                </group>
                                 <group string="Places" invisible="not has_final_resolution or audience != 'staff'">
                                     <field name="free_places"/>
                                     <field name="next_reserve_id"/>

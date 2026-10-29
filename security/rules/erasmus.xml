@@ -260,5 +260,61 @@
             <field name="perm_create" eval="False"/>
             <field name="perm_unlink" eval="False"/>
         </record>
+
+        <!-- Audit D-13: a draw is a group mobility's or a call's; the teachers of a group mobility only
+             read the group ones (an individual call's draw names its applicants). -->
+        <record id="rule_erasmus_draw_all" model="ir.rule">
+            <field name="name">Erasmus draw: all (team, admin, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_draw"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_draw_line_all" model="ir.rule">
+            <field name="name">Erasmus draw position: all (team, admin, Head of Studies)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_draw_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin')), (4, ref('ems.group_head_of_studies'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_draw_group_teacher" model="ir.rule">
+            <field name="name">Erasmus draw: group mobilities only (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_draw"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('group_mobility_id', '!=', False)]</field>
+        </record>
+        <record id="rule_erasmus_draw_line_group_teacher" model="ir.rule">
+            <field name="name">Erasmus draw position: group mobilities only (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_group_draw_line"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('draw_id.group_mobility_id', '!=', False)]</field>
+        </record>
+
+        <!-- Audit D-1: the signatures of a document, as its document (the team, admin: every one; a group
+             mobility's teachers: those of their own mobility, not confidential; only the leader ticks them). -->
+        <record id="rule_erasmus_document_signature_all" model="ir.rule">
+            <field name="name">Erasmus document signature: all (team, admin)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_document_signature"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus')), (4, ref('ems.group_academic_admin'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+        <record id="rule_erasmus_document_signature_group_teacher" model="ir.rule">
+            <field name="name">Erasmus document signature: own group mobilities, not confidential (leader, accompanying teacher)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_document_signature"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('line_id.group_mobility_id', '!=', False), ('line_id.confidential', '=', False), '|', ('line_id.group_mobility_id.leader_id.user_id', '=', user.id), ('line_id.group_mobility_id.companion_ids.user_id', '=', user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        <record id="rule_erasmus_document_signature_group_leader_write" model="ir.rule">
+            <field name="name">Erasmus document signature: tick, own group mobilities (leader)</field>
+            <field name="model_id" ref="ems.model_ems_erasmus_document_signature"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
+            <field name="domain_force">[('line_id.group_mobility_id.leader_id.user_id', '=', user.id), ('line_id.confidential', '=', False)]</field>
+            <field name="perm_read" eval="False"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
     </data>
 </odoo>

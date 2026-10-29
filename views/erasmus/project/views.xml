@@ -66,6 +66,7 @@
                                 <field name="keep_until"/>
                                 <field name="retention_hold"/>
                                 <field name="retention_note" invisible="not retention_hold" required="retention_hold"/>
+                                <field name="retention_notice_date" invisible="not retention_notice_date"/>
                             </group>
                         </group>
                         <notebook>
@@ -168,6 +169,7 @@
                             </page>
                         </notebook>
                     </sheet>
+                    <chatter/>
                 </form>
             </field>
         </record>

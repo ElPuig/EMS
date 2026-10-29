@@ -114,6 +114,10 @@ class EmsErasmusCall(models.Model):
     next_reserve_id = fields.Many2one(string="Next reserve", comodel_name='ems.erasmus.application',
                                       compute='_compute_offers',
                                       help="Staff call: the best-ranked reserve without an offer waiting or accepted.")
+    # Audit D-13: the ties left in the ranking after every tie-break, drawn by EMS (as a group mobility's).
+    needs_draw = fields.Boolean(string="Tie to resolve", compute='_compute_needs_draw')
+    draw_ids = fields.One2many(string="Draws", comodel_name='ems.erasmus.group.draw', inverse_name='call_id',
+                               readonly=True)
     has_final_resolution = fields.Boolean(string="Definitive resolution published",
                                           compute='_compute_has_final_resolution')
     application_count = fields.Integer(string="Number of applications", compute='_compute_application_count')
@@ -126,6 +130,13 @@ class EmsErasmusCall(models.Model):
             [('call_id', 'in', self.ids)], ['call_id'], ['__count']))
         for call in self:
             call.application_count = counts.get(call, 0)
+
+    @api.depends('application_ids.needs_draw')
+    def _compute_needs_draw(self):
+        tied = {call for call, in self.env['ems.erasmus.application'].sudo()._read_group(
+            [('call_id', 'in', self.ids), ('needs_draw', '=', True)], ['call_id'])}
+        for call in self:
+            call.needs_draw = call in tied
 
     @api.depends('resolution_ids.state', 'resolution_ids.kind')
     def _compute_has_final_resolution(self):
@@ -392,12 +403,11 @@ class EmsErasmusCall(models.Model):
         if audience == 'staff':
             names = [('preparation', _("Preparation meetings")),
                      ('preparation', _("Activities left for your groups")),
-                     ('return', _("Final report (EU Survey)")),
                      ('return', _("News item on the centre's website, following the Erasmus+ visual identity")),
                      ('return', _("Share it at a department or cycles meeting, if it is considered necessary"))]
         else:
             names = [('preparation', _("Preparation sessions")),
-                     ('return', _("Final report (EU Survey)")), ('return', _("Dissemination activities"))]
+                     ('return', _("Dissemination activities"))]
         return [(0, 0, {'sequence': index, 'stage': step[0], 'name': step[1], **(step[2] if len(step) > 2 else {})})
                 for index, step in enumerate(names, 1)]
 
@@ -596,6 +606,26 @@ class EmsErasmusCall(models.Model):
             if call.state != from_state:
                 raise UserError(_("The call %s is not in the right state for this action.", call.name))
         self.sudo().write({'state': to_state})
+
+    def action_draw_ties(self):
+        """Audit D-13: the Erasmus coordinator resolves the ties left in the ranking after every
+        tie-break by a draw EMS runs and keeps (ems.erasmus.group.draw), as in a group mobility: each
+        tied set of a modality (a staff call's, of the whole list) in a random order nobody chooses.
+        Only before the definitive resolution, which publishes the order."""
+        self.env['ems.erasmus.group.mobility']._ems_check_coordinator()
+        Draw = self.env['ems.erasmus.group.draw']
+        for call in self.sudo():
+            if call.has_final_resolution:
+                raise UserError(_("The definitive resolution of %s is published: the ranking cannot change.",
+                                  call.name))
+            tied = call.application_ids.filtered('needs_draw')
+            if not tied:
+                raise UserError(_("There is no tie to draw in %s.", call.name))
+            Draw._ems_run(call, [
+                (applications, {'score_total': applications[0].score_total})
+                for applications in tied.grouped(lambda application: (
+                    application.audience == 'student' and application.modality_id,
+                    application._ems_rank_key())).values()])
 
     def _ems_check_manager(self):
         """The actions write the call's workflow fields as superuser: only once this is checked."""

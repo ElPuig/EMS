@@ -67,7 +67,7 @@ Una rectificació no desfà mai una oferta ja acceptada o renunciada.
 
 ## 6. Exportar els participants
 
-Quan ja s'han acceptat places, fes clic a **Accions > Exporta a full de càlcul** a la convocatòria (o selecciona sol·licituds a la llista). Obtens un fitxer Excel amb una fila per cada estudiant que ha acceptat la plaça: dades personals, cicle i curs, compte bancari i, per als menors d'edat, els tutors legals. Només el pot descarregar l'equip Erasmus.
+Quan ja s'han acceptat places, fes clic a **Accions > Exporta a full de càlcul** a la convocatòria (o selecciona sol·licituds a la llista). Obtens un fitxer Excel amb una fila per cada estudiant que ha acceptat la plaça: dades personals, cicle i curs, compte bancari i, per als menors d'edat, els tutors legals. Només el pot descarregar l'equip Erasmus, i cada descàrrega queda registrada (qui, quan i quantes persones) a l'historial de la convocatòria.
 
 > **Compte:** el fitxer conté dades personals i bancàries. Guarda'l només on sigui necessari.
 

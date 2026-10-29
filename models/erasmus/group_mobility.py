@@ -27,7 +27,6 @@ GROUP_AUDIENCES = [('collective', "The group (shared)"), ('student', "Each stude
                    ('teacher', "Each accompanying teacher"), ('participant', "Every participant")]
 # A required document still to hand in (or to correct): it counts as missing on the overviews.
 MISSING_STATES = ('missing', 'needs_change')
-EU_SURVEY_STATES = [('pending', "Pending"), ('done', "Answered"), ('validated', "Validated")]
 LOG_KINDS = [('attendance', "Attendance"), ('incident', "Incident"), ('change', "Change"),
              ('evidence', "Evidence"), ('communication', "Communication")]
 # What the leader teacher may change on their mobility, and the accompanying teacher; the rest is
@@ -50,7 +49,7 @@ class EmsErasmusGroupMobility(models.Model):
     docs/en/developers/erasmus/group_mobility.md."""
     _name = 'ems.erasmus.group.mobility'
     _description = 'Erasmus+ group mobility'
-    _inherit = ['ems.base']
+    _inherit = ['ems.base', 'ems.erasmus.eu.survey']
     _order = 'date_start_planned desc, id desc'
 
     name = fields.Char(string="Name", required=True, tracking=True)
@@ -136,9 +135,6 @@ class EmsErasmusGroupMobility(models.Model):
     eu_survey_user_id = fields.Many2one(string="Answers the EU Survey", comodel_name='res.users', tracking=True,
                                         domain=[('share', '=', False)],
                                         help="Empty: the leader teacher.")
-    eu_survey_deadline = fields.Date(string="EU Survey deadline", tracking=True)
-    eu_survey_state = fields.Selection(string="EU Survey", selection=EU_SURVEY_STATES, default='pending',
-                                       tracking=True, readonly=True, copy=False)
     eu_survey_attachment_ids = fields.Many2many(string="EU Survey evidence", comodel_name='ir.attachment',
                                                 relation='ems_erasmus_group_mobility_survey_attachment_rel')
     closure_proposed_date = fields.Datetime(string="Closure proposed on", readonly=True, copy=False)
@@ -374,13 +370,6 @@ class EmsErasmusGroupMobility(models.Model):
         users = self.env.ref('ems.group_erasmus_coordinator').sudo().users.filtered(lambda user: not user.share)
         return users - self.env.ref('base.user_root') or self._ems_team_users()
 
-    def _ems_schedule(self, users, summary, deadline=None):
-        activity_type = self.env.ref('mail.mail_activity_data_todo')
-        for mobility in self.sudo():
-            for user in users:
-                mobility.activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary,
-                                           **(deadline and {'date_deadline': deadline} or {}))
-
     def _ems_activities_done(self):
         self.sudo().activity_ids.action_feedback()
 
@@ -507,33 +496,16 @@ class EmsErasmusGroupMobility(models.Model):
         drawn; also summed up in the chatter. Ties only: it never moves anyone else."""
         self._ems_check_coordinator()
         self._ems_check_state('selection', 'validation')
-        randomizer = secrets.SystemRandom()
-        Draw = self.env['ems.erasmus.group.draw'].sudo()
         for mobility in self.sudo():
             tied = mobility.registration_ids.filtered(lambda registration: registration.state == 'enrolled'
                                                       and registration.needs_draw)
             if not tied:
                 raise UserError(_("There is no tie to draw in %s.", mobility.name))
-            lines = []
-            now = fields.Datetime.now()
-            for registrations in tied.grouped(lambda registration: registration._ems_tie_key()).values():
-                drawn = list(registrations.sorted(lambda registration: registration.partner_id.name))
-                randomizer.shuffle(drawn)
-                for order, registration in enumerate(drawn, 1):
-                    registration._ems_write({'draw_order': order})
-                Draw.create({
-                    'group_mobility_id': mobility.id, 'user_id': self.env.uid, 'date': now,
-                    'grade_average': drawn[0]._ems_average(),
-                    'fewer_opportunities': drawn[0].fewer_opportunities_check == 'yes',
-                    'line_ids': [(0, 0, {'registration_id': registration.id, 'partner_id': registration.partner_id.id,
-                                         'position': order}) for order, registration in enumerate(drawn, 1)],
-                })
-                lines.append(", ".join(f"{order}. {registration.partner_id.name}"
-                                       for order, registration in enumerate(drawn, 1)))
+            mobility.env['ems.erasmus.group.draw']._ems_run(mobility, [
+                (registrations, {'grade_average': registrations[0]._ems_average(),
+                                 'fewer_opportunities': registrations[0].fewer_opportunities_check == 'yes'})
+                for registrations in tied.grouped(lambda registration: registration._ems_tie_key()).values()])
             mobility._ems_rank()
-            mobility.chatter(Markup("{}{}").format(
-                _("Draw of the ties, run by %s:", self.env.user.name),
-                mobility.env['ems.base'].build_html_list(lines)))
 
     def action_return_proposal(self):
         """The coordinator sends the proposal back to the leader, saying why."""
@@ -704,19 +676,12 @@ class EmsErasmusGroupMobility(models.Model):
                 raise AccessError(_("Only who answers the EU Survey says it is done."))
         self._ems_check_state('return')
         self._ems_activities_done()
-        self._ems_set_state('return', eu_survey_state='done')
-        for mobility in self:
-            mobility.sudo().chatter(_("EU Survey answered."))
-            mobility._ems_schedule(mobility._ems_team_users(), _("Erasmus+: validate the EU Survey of %s",
-                                                                 mobility.name))
+        self._ems_eu_survey_answered()
 
     def action_eu_survey_validate(self):
         self._ems_check_role('team')
-        for mobility in self:
-            if mobility.eu_survey_state != 'done':
-                raise UserError(_("The EU Survey of %s is not answered yet.", mobility.name))
+        self._ems_eu_survey_validate()
         self._ems_activities_done()
-        self.sudo().write({'eu_survey_state': 'validated'})
 
     def action_propose_closure(self):
         """The leader says the group's part is over; the team closes the file."""
@@ -1298,8 +1263,10 @@ class EmsErasmusGroupParticipant(models.Model):
         self.group_mobility_id._ems_check_role('team')
         participants = self.sudo().filtered(lambda participant: participant.state == 'active').sorted(
             lambda participant: (participant.role != 'student', participant.partner_id.name or ''))
-        return self.env['ems.erasmus.application']._ems_participants_workbook(
+        content = self.env['ems.erasmus.application']._ems_participants_workbook(
             [participant._ems_participant_row() for participant in participants])
+        self.env['ems.erasmus.export']._ems_log_spreadsheet(self.group_mobility_id, len(participants))
+        return content
 
     def _ems_portal_upload(self, uploads):
         """Files a student uploads from the portal: {call document id: [(name, bytes)]}, while the
@@ -1317,13 +1284,21 @@ class EmsErasmusGroupParticipant(models.Model):
 class EmsErasmusGroupDraw(models.Model):
     """Issue #702 - a draw the Erasmus coordinator ran to resolve one tie: who, when, what the
     students were tied on, the exact set tied and the order drawn. Created by EMS only, never
-    changed nor deleted: the evidence of the selection."""
+    changed nor deleted: the evidence of the selection. A group mobility's (issue #702) or, since
+    audit D-13, a call's: the ties left in its ranking after every tie-break."""
     _name = 'ems.erasmus.group.draw'
-    _description = 'Erasmus+ group mobility draw'
+    _description = 'Erasmus+ draw'
     _order = 'date desc, id desc'
+    _sql_constraints = [
+        ('one_owner', 'CHECK((call_id IS NULL) != (group_mobility_id IS NULL))',
+         "A draw belongs to a call or to a group mobility."),
+    ]
 
     group_mobility_id = fields.Many2one(string="Group mobility", comodel_name='ems.erasmus.group.mobility',
-                                        required=True, ondelete='cascade', index=True, readonly=True)
+                                        ondelete='cascade', index=True, readonly=True)
+    call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', ondelete='cascade', index=True,
+                              readonly=True)
+    score_total = fields.Float(string="Tied on the total", digits=(5, 2), readonly=True)
     user_id = fields.Many2one(string="Run by", comodel_name='res.users', required=True, readonly=True,
                               ondelete='restrict')
     date = fields.Datetime(string="Run on", required=True, readonly=True)
@@ -1346,6 +1321,31 @@ class EmsErasmusGroupDraw(models.Model):
             raise UserError(_("A draw is the evidence of the selection: it cannot be deleted."))
         return super().unlink()
 
+    @api.model
+    def _ems_run(self, owner, ties):
+        """Order each tied set at random (a cryptographically secure generator), write the order drawn
+        on its records (`draw_order`, 1 goes first) and keep one draw per set; summed up in `owner`'s
+        chatter. `owner`: the group mobility or the call; `ties`: [(records tied, the draw's values, i.e.
+        what they were tied on)], registrations or applications. Ties only: it never moves anyone else."""
+        randomizer = secrets.SystemRandom()
+        now = fields.Datetime.now()
+        owner_field = 'call_id' if owner._name == 'ems.erasmus.call' else 'group_mobility_id'
+        lines = []
+        for records, vals in ties:
+            record_field = 'application_id' if records._name == 'ems.erasmus.application' else 'registration_id'
+            drawn = list(records.sorted(lambda record: record.partner_id.name))
+            randomizer.shuffle(drawn)
+            for order, record in enumerate(drawn, 1):
+                record.sudo().write({'draw_order': order})
+            self.sudo().create({
+                owner_field: owner.id, 'user_id': self.env.uid, 'date': now, **vals,
+                'line_ids': [(0, 0, {record_field: record.id, 'partner_id': record.partner_id.id, 'position': order})
+                             for order, record in enumerate(drawn, 1)],
+            })
+            lines.append(", ".join(f"{order}. {record.partner_id.name}" for order, record in enumerate(drawn, 1)))
+        owner.sudo().chatter(Markup("{}{}").format(_("Draw of the ties, run by %s:", self.env.user.name),
+                                                   self.env['ems.base'].build_html_list(lines)))
+
 
 class EmsErasmusGroupDrawLine(models.Model):
     """A student of a draw and the position drawn (1 goes first)."""
@@ -1357,7 +1357,9 @@ class EmsErasmusGroupDrawLine(models.Model):
                               ondelete='cascade', index=True, readonly=True)
     position = fields.Integer(string="Position", required=True, readonly=True)
     registration_id = fields.Many2one(string="Enrolment", comodel_name='ems.erasmus.group.registration',
-                                      required=True, ondelete='cascade', readonly=True)
+                                      ondelete='cascade', readonly=True)
+    application_id = fields.Many2one(string="Application", comodel_name='ems.erasmus.application',
+                                     ondelete='cascade', readonly=True)
     partner_id = fields.Many2one(string="Student", comodel_name='res.partner', required=True, readonly=True,
                                  ondelete='restrict')
 
@@ -1475,6 +1477,18 @@ class EmsErasmusApplicationDocument(models.Model):
 
     def _ems_record_closed(self):
         return super()._ems_record_closed() or self.group_mobility_id.state in ('done', 'cancelled')
+
+    def _ems_check_reviewer(self):
+        """A group mobility's documents: the Erasmus team and the leader teacher."""
+        if self.env.su:
+            return
+        for mobility in self.group_mobility_id:
+            mobility._ems_check_role('team', 'leader')
+        if self - self.filtered('group_mobility_id'):
+            super(EmsErasmusApplicationDocument, self - self.filtered('group_mobility_id'))._ems_check_reviewer()
+
+    def _ems_is_minor(self):
+        return self.group_participant_id.is_minor if self.group_mobility_id else super()._ems_is_minor()
 
     def _ems_record_owner(self):
         """A group line's review is written in its group mobility's chatter (the participant's name

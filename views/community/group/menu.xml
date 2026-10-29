@@ -30,6 +30,9 @@
             <field name="code">action = records.action_confirm_archive()</field>
         </record>
 
-        <menuitem name="Groups"   sequence="2" id="menu_groups" parent="menu_community" action="action_group_tree"/>
+        <!-- Audit D-6: the roles that work with the groups (whoever reads ems.group except the Erasmus team,
+             which only reads them to pick a group mobility's eligible groups). -->
+        <menuitem name="Groups"   sequence="2" id="menu_groups" parent="menu_community" action="action_group_tree"
+                  groups="ems.group_teacher,ems.group_department_chief,ems.group_secretary,ems.group_academic_admin"/>
     </data>
 </odoo>

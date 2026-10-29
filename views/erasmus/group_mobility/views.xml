@@ -359,6 +359,11 @@
                                                 invisible="file_state != 'to_review' or parent.user_role not in ('team', 'leader')"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes" icon="fa-pencil"
                                                 invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers) or parent.user_role not in ('team', 'leader')"/>
+                                        <field name="signatures_missing" optional="show"/>
+                                        <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
+                                                invisible="not signers or parent.user_role not in ('team', 'leader')"/>
+                                        <button name="action_remove_file" type="object" string="Remove a file" icon="fa-trash"
+                                                invisible="review_state == 'valid' or not attachment_ids or parent.user_role not in ('team', 'leader')"/>
                                     </list>
                                 </field>
                                 <separator string="Documents asked for" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -548,6 +553,11 @@
                                         invisible="file_state != 'to_review'"/>
                                 <button name="action_mark_needs_change" type="object" string="Needs changes"
                                         icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                                <field name="signatures_missing" optional="show"/>
+                                <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
+                                        invisible="not signers"/>
+                                <button name="action_remove_file" type="object" string="Remove a file" icon="fa-trash"
+                                        invisible="review_state == 'valid' or not (attachment_ids or prepared_attachment_ids)"/>
                             </list>
                         </field>
                         </page>

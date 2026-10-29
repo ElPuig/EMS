@@ -22,6 +22,9 @@ EXPORTERS = ('ems.group_erasmus', 'ems.group_secretary', 'ems.group_academic_adm
 AUDITORS = ('ems.group_erasmus_coordinator', 'ems.group_academic_admin')
 # The folder of the documents common to several mobilities, inside 02_Mobilitats.
 COMMON_FOLDER = '00_Documentacio_comuna'
+# Audit D-17: the records of cancelled mobilities and withdrawn participants that hold evidence (a payment made,
+# or a document validated or signed), apart from the live ones: inside 02_Mobilitats, and inside a group's folder.
+CANCELLED_FOLDER = '99_Cancellades_i_retirades'
 CHUNK = 1024 * 1024
 
 
@@ -39,13 +42,18 @@ class EmsErasmusExport(models.Model):
     _order = 'date desc, id desc'
 
     scope = fields.Selection(string="What", required=True, readonly=True, selection=[
-        ('project', "Whole project"), ('record', "Participant's record"), ('group', "Group mobility")])
+        ('project', "Whole project"), ('record', "Participant's record"), ('group', "Group mobility"),
+        ('participants', "Participants' spreadsheet")])
     project_id = fields.Many2one(string="Project", comodel_name='ems.erasmus.project', readonly=True,
                                  ondelete='restrict', index=True)
     mobility_id = fields.Many2one(string="Mobility", comodel_name='ems.erasmus.mobility', readonly=True,
                                   ondelete='restrict', index=True)
     group_mobility_id = fields.Many2one(string="Group mobility", comodel_name='ems.erasmus.group.mobility',
                                         readonly=True, ondelete='restrict', index=True)
+    call_id = fields.Many2one(string="Call", comodel_name='ems.erasmus.call', readonly=True, ondelete='restrict',
+                              index=True)
+    participant_count = fields.Integer(string="Participants", readonly=True,
+                                       help="Participants' spreadsheet: how many people it listed.")
     include_confidential = fields.Boolean(
         string="Audit export (with confidential documents)",
         help="Includes the health, inclusion and bank documents. Only the Erasmus coordinator or the "
@@ -69,8 +77,9 @@ class EmsErasmusExport(models.Model):
 
     def _compute_display_name(self):
         for export in self:
-            target = {'record': export.mobility_id.display_name,
-                      'group': export.group_mobility_id.display_name}.get(export.scope) or export.project_id.name
+            target = {'record': export.mobility_id.display_name, 'group': export.group_mobility_id.display_name,
+                      'participants': (export.call_id or export.group_mobility_id).display_name,
+                      }.get(export.scope) or export.project_id.name
             export.display_name = f"{target} - {export.date and export._ems_local(export.date)}"
 
     @api.model_create_multi
@@ -97,6 +106,20 @@ class EmsErasmusExport(models.Model):
             'context': {'default_scope': scope, 'default_project_id': project_id, 'default_mobility_id': mobility_id,
                         'default_group_mobility_id': group_mobility_id},
         }
+
+    @api.model
+    def _ems_log_spreadsheet(self, target, count):
+        """Audit D-10: the participants' spreadsheet of a call or a group mobility (`target`) is built on
+        the fly and never stored, but each download is logged as an export (who, when, how many people)
+        and in the target's chatter, as a ZIP is."""
+        group = target._name == 'ems.erasmus.group.mobility'
+        export = self.sudo().create({
+            'scope': 'participants', 'call_id': not group and target.id, 'group_mobility_id': group and target.id,
+            'project_id': group and target.project_id.id})
+        export.sudo().write({'state': 'done', 'participant_count': count})
+        target.sudo().chatter(escape(_("Participants' spreadsheet downloaded (%(count)s people) by %(user)s.",
+                                       count=count, user=self.env.user.name)))
+        return export
 
     def action_generate(self):
         """Check the request and download the ZIP (the controller builds it, once)."""
@@ -171,11 +194,21 @@ class EmsErasmusExport(models.Model):
                                                 shared_paths)
         for group in self._ems_project_group_mobilities(project):
             entries += self._ems_group_entries(group, f"02_Mobilitats/{self._ems_group_folder(group)}/")
-        excluded = project.with_context(active_test=False).mobility_ids - self._ems_project_mobilities(project)
+        cancelled = self._ems_project_cancelled(project)
+        for mobility in cancelled:
+            entries += self._ems_cancelled(mobility, self._ems_record_entries(
+                mobility, f"02_Mobilitats/{CANCELLED_FOLDER}/{self._ems_record_folder(mobility)}/", shared_paths))
+        cancelled_groups = self._ems_project_cancelled_groups(project)
+        for group in cancelled_groups:
+            entries += self._ems_cancelled(group, self._ems_group_entries(
+                group, f"02_Mobilitats/{CANCELLED_FOLDER}/{self._ems_group_folder(group)}/"))
+        excluded = project.with_context(active_test=False).mobility_ids - self._ems_project_mobilities(project) \
+            - cancelled
         entries += [self._ems_excluded(mobility, mobility.partner_id.name, mobility.id) for mobility in excluded]
         entries += [self._ems_excluded(group, group.name, f"GRUP{group.id:05d}") for group in
                     self.env['ems.erasmus.group.mobility'].sudo().with_context(active_test=False).search([
-                        ('project_id', '=', project.id)]) - self._ems_project_group_mobilities(project)]
+                        ('project_id', '=', project.id)]) - self._ems_project_group_mobilities(project)
+                    - cancelled_groups]
         invoice_files = self._ems_field_attachments(project.invoice_ids, 'document')
         for invoice in project.invoice_ids:
             document = invoice_files.get(invoice.id) or self.env['ir.attachment']
@@ -196,6 +229,42 @@ class EmsErasmusExport(models.Model):
     def _ems_project_group_mobilities(self, project):
         return self.env['ems.erasmus.group.mobility'].sudo().with_context(active_test=False).search([
             ('project_id', '=', project.id), ('state', 'not in', ('draft', 'cancelled'))])
+
+    @api.model
+    def _ems_signed_domain(self, prefix=''):
+        """Audit D-17: what makes a cancelled or withdrawn record worth keeping in the project's ZIP,
+        besides a payment made: one of its own documents valid or with a signature ticked, or its
+        commitment letter accepted in EMS (the application's documents do not count: every admitted
+        application has them valid)."""
+        return ['|', '|', '|', (f'{prefix}document_ids.review_state', '=', 'valid'),
+                (f'{prefix}document_ids.signature_ids.signed', '=', True),
+                (f'{prefix}commitment_signed_date', '!=', False),
+                (f'{prefix}commitment_guardian_signed_date', '!=', False)]
+
+    @api.model
+    def _ems_project_cancelled(self, project):
+        """The cancelled mobilities of the project with evidence: exported apart (audit D-17)."""
+        return self.env['ems.erasmus.mobility'].sudo().with_context(active_test=False).search([
+            ('project_id', '=', project.id), ('state', '=', 'cancelled'),
+            '|', ('payment_ids.state', '=', 'paid')] + self._ems_signed_domain())
+
+    @api.model
+    def _ems_project_cancelled_groups(self, project):
+        """The cancelled group mobilities of the project with evidence (common or a participant's)."""
+        return self.env['ems.erasmus.group.mobility'].sudo().with_context(active_test=False).search([
+            ('project_id', '=', project.id), ('state', '=', 'cancelled'),
+            '|', '|', ('document_ids.review_state', '=', 'valid'), ('document_ids.signature_ids.signed', '=', True),
+            ('participant_ids', 'any', self._ems_signed_domain())])
+
+    @api.model
+    def _ems_cancelled(self, record, entries):
+        """A cancelled or withdrawn record kept for its evidence: every line says so, and what it misses
+        is not counted as missing."""
+        state = dict(record._fields['state']._description_selection(self.env)).get(record.state, record.state)
+        for entry in entries:
+            entry['notes'] = ". ".join(filter(None, [state, entry.get('notes')]))
+            entry['required'] = False
+        return entries
 
     @api.model
     def _ems_excluded(self, record, participant, mobility):
@@ -328,20 +397,29 @@ class EmsErasmusExport(models.Model):
         participants = everyone.filtered(lambda participant: participant.state == 'active').sorted(
             lambda participant: (participant.role != 'student', participant.partner_id.name or ''))
         for participant in participants:
-            kind = 'ALU' if participant.role == 'student' else 'PROF'
-            folder = f"{prefix}{safe_name(f'{kind}{participant.id:05d}_{participant.partner_id.name}')}/"
-            records = self._ems_line_entries(participant.document_ids, folder)
-            records += self._ems_commitment_entries(participant, folder)
-            records += [{'path': '', 'category': entry['category'], 'document': entry['document'],
-                         'status': entry['status'], 'notes': _("Shared document: %s", entry['path'])}
-                        for entry in shared]
-            for entry in records:
-                entry.setdefault('participant', participant.partner_id.name)
-                entry.setdefault('mobility', label)
-            entries += self._ems_archived(participant, records)
+            entries += self._ems_group_participant_entries(participant, prefix, shared, label)
+        withdrawn = everyone - participants
+        kept = withdrawn and withdrawn.search([('id', 'in', withdrawn.ids)] + self._ems_signed_domain())
+        for participant in kept:
+            entries += self._ems_cancelled(participant, self._ems_group_participant_entries(
+                participant, f"{prefix}{CANCELLED_FOLDER}/", shared, label))
         entries += [self._ems_excluded(participant, participant.partner_id.name, label)
-                    for participant in everyone - participants]
+                    for participant in withdrawn - kept]
         return self._ems_archived(group, entries)
+
+    def _ems_group_participant_entries(self, participant, prefix, shared, label):
+        """One participant's record in a group mobility, referencing the group's shared documents."""
+        kind = 'ALU' if participant.role == 'student' else 'PROF'
+        folder = f"{prefix}{safe_name(f'{kind}{participant.id:05d}_{participant.partner_id.name}')}/"
+        records = self._ems_line_entries(participant.document_ids, folder)
+        records += self._ems_commitment_entries(participant, folder)
+        records += [{'path': '', 'category': entry['category'], 'document': entry['document'],
+                     'status': entry['status'], 'notes': _("Shared document: %s", entry['path'])}
+                    for entry in shared]
+        for entry in records:
+            entry.setdefault('participant', participant.partner_id.name)
+            entry.setdefault('mobility', label)
+        return self._ems_archived(participant, records)
 
     def _ems_group_selection_entries(self, group, common):
         """The selection's evidence (the frozen ranking, the results, renouncements and substitutions,

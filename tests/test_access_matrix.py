@@ -57,6 +57,10 @@ ACCESS_MATRIX = {
     'ems.erasmus.provision': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.invoice': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
     'ems.erasmus.payment': {'teacher': '', 'secretary': 'r', 'head_of_studies': '', 'erasmus': 'rwcu'},
+    # Audit D-1: signatures are created by EMS and only ticked (write() guard, test_erasmus_decisions.py).
+    'ems.erasmus.document.signature': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rw'},
+    'ems.erasmus.undo.transfer.wizard': {'teacher': '', 'erasmus': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
+    'ems.erasmus.file.removal.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu'},
     'ems.erasmus.project.document': {'teacher': '', 'secretary': 'rwc', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Exports are a log: created (as oneself) and read, never changed nor deleted (test_erasmus_records.py).
     # Earlier commitment letters: created by EMS only, never changed (test_erasmus_integration.py).

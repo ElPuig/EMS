@@ -16,6 +16,8 @@ from .plan_rating import PROJECT_MERITS
 from .records import PARTICIPANT_CATEGORIES, STAGE_CATEGORIES, check_upload
 from .workflow import check_kept, check_workflow_create, check_workflow_write
 
+# Who reads what only the Erasmus team handles (confidential evidence, the criteria of the score).
+TEAM = 'ems.group_erasmus,ems.group_academic_admin'
 CHECK_STATES = [('pending', "Pending"), ('met', "Met"), ('not_met', "Not met")]
 YES_NO = [('yes', "Yes"), ('no', "No")]
 # Criterion C (art. 12): the highest language certificate.
@@ -102,7 +104,10 @@ class EmsErasmusApplication(models.Model):
     previous_mobility = fields.Boolean(string="Previous Erasmus+ mobility")
     previous_mobility_details = fields.Text(string="Previous mobility details")
     availability = fields.Text(string="Availability")
-    fewer_opportunities = fields.Boolean(string="Declares fewer opportunities")
+    # Audit D-4: what the applicant declares is the team's, as the accredited check (the Head of Studies reads
+    # the conduct warnings and the exclusion reason, not this).
+    fewer_opportunities = fields.Boolean(string="Declares fewer opportunities",
+                                         groups=TEAM)
     image_consent = fields.Boolean(string="Image consent")
     applicant_notes = fields.Text(string="Applicant's notes")
     # Issue #686: the staff application form (art. 8 and annex 1 of the staff call).
@@ -120,7 +125,7 @@ class EmsErasmusApplication(models.Model):
     plan_application = fields.Text(string="Application to the job",
                                    help="Annex 1, section 5: how it will be used in the classes, the department or "
                                         "the centre's management, and which students will benefit.")
-    support_needs = fields.Text(string="Support needs", groups='ems.group_erasmus,ems.group_academic_admin')
+    support_needs = fields.Text(string="Support needs", groups=TEAM)
     declared_never_staff_mobility = fields.Boolean(
         string="Never had a staff mobility",
         help="The applicant has never done an Erasmus+ staff mobility from this centre.")
@@ -180,13 +185,13 @@ class EmsErasmusApplication(models.Model):
     language_level_date = fields.Datetime(string="Language checked on", readonly=True, copy=False)
     fewer_opportunities_check = fields.Selection(
         string="Fewer opportunities accredited", selection=YES_NO, tracking=True, copy=False,
-        groups='ems.group_erasmus,ems.group_academic_admin')
+        groups=TEAM)
     fewer_opportunities_check_user_id = fields.Many2one(
         string="Fewer opportunities checked by", comodel_name='res.users', readonly=True, copy=False,
-        groups='ems.group_erasmus,ems.group_academic_admin')
+        groups=TEAM)
     fewer_opportunities_check_date = fields.Datetime(
         string="Fewer opportunities checked on", readonly=True, copy=False,
-        groups='ems.group_erasmus,ems.group_academic_admin')
+        groups=TEAM)
     first_mobility = fields.Selection(string="First mobility", selection=YES_NO, tracking=True, copy=False,
                                       help="GM: no previous Erasmus+ mobility. GS: no previous higher-education one.")
     first_mobility_user_id = fields.Many2one(string="First mobility checked by", comodel_name='res.users',
@@ -197,7 +202,7 @@ class EmsErasmusApplication(models.Model):
     strike_count = fields.Integer(string="Number of conduct warnings", readonly=True, copy=False)
 
     interview_ids = fields.One2many(string="Interviews", comodel_name='ems.erasmus.interview',
-                                    inverse_name='application_id', groups='ems.group_erasmus,ems.group_academic_admin')
+                                    inverse_name='application_id', groups=TEAM)
     interview_date = fields.Datetime(string="Interview date", tracking=True, copy=False)
     interview_place = fields.Char(string="Interview place", tracking=True, copy=False)
     interview_call_date = fields.Datetime(string="Interview call sent on", readonly=True, copy=False)
@@ -209,22 +214,29 @@ class EmsErasmusApplication(models.Model):
                                      compute='_compute_interview', store=True)
     interview_complete = fields.Boolean(string="Interview scored", compute='_compute_interview', store=True)
 
-    score_a = fields.Float(string="A. Record", digits=(5, 2), compute='_compute_scores', store=True)
+    # Audit D-14: the Head of Studies sees the total and the rank only, so criterion D (fewer opportunities)
+    # cannot be worked out from the others.
+    score_a = fields.Float(string="A. Record", digits=(5, 2), compute='_compute_scores', store=True,
+                           groups=TEAM)
     score_a_pending = fields.Boolean(string="Record average pending", compute='_compute_scores', store=True)
-    score_b = fields.Float(string="B. Interview", digits=(5, 2), compute='_compute_scores', store=True)
-    score_c = fields.Float(string="C. Languages", digits=(5, 2), compute='_compute_scores', store=True)
+    score_b = fields.Float(string="B. Interview", digits=(5, 2), compute='_compute_scores', store=True,
+                           groups=TEAM)
+    score_c = fields.Float(string="C. Languages", digits=(5, 2), compute='_compute_scores', store=True,
+                           groups=TEAM)
     score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2), compute='_compute_scores', store=True,
-                           groups='ems.group_erasmus,ems.group_academic_admin')
-    score_e = fields.Float(string="E. First mobility", digits=(5, 2), compute='_compute_scores', store=True)
-    score_f = fields.Float(string="F. Conduct", digits=(5, 2), compute='_compute_scores', store=True)
+                           groups=TEAM)
+    score_e = fields.Float(string="E. First mobility", digits=(5, 2), compute='_compute_scores', store=True,
+                           groups=TEAM)
+    score_f = fields.Float(string="F. Conduct", digits=(5, 2), compute='_compute_scores', store=True,
+                           groups=TEAM)
     score_total = fields.Float(string="Total score", digits=(5, 2), compute='_compute_scores', store=True)
     score_complete = fields.Boolean(string="Score complete", compute='_compute_scores', store=True,
                                     help="Every criterion is in: a pending one never counts as zero.")
     is_eligible = fields.Boolean(string="Eligible", compute='_compute_scores', store=True,
                                  help="Complete score, at least the call's minimum.")
-    draw_order = fields.Integer(string="Draw", tracking=True, copy=False,
+    draw_order = fields.Integer(string="Draw", tracking=True, copy=False, readonly=True,
                                 help="Result of the draw between applications tied after every tie-break "
-                                     "(lower goes first).")
+                                     "(lower goes first), run by the Erasmus coordinator from the call (audit D-13).")
     rank = fields.Integer(string="Rank", compute='_compute_rank', store=True,
                           help="Position in the modality among the admitted applications. 0 until every one "
                                "of them has a complete score.")
@@ -240,7 +252,7 @@ class EmsErasmusApplication(models.Model):
     # --- staff scoring (issue #686, art. 11 of the staff call) ---
     plan_rating_ids = fields.One2many(string="Mobility plan ratings", comodel_name='ems.erasmus.plan_rating',
                                       inverse_name='application_id',
-                                      groups='ems.group_erasmus,ems.group_academic_admin')
+                                      groups=TEAM)
     plan_score = fields.Float(string="Mobility plan score", digits=(4, 2), compute='_compute_plan', store=True,
                               help="Mean of the panel's ratings.")
     plan_complete = fields.Boolean(string="Mobility plan rated", compute='_compute_plan', store=True,
@@ -560,10 +572,15 @@ class EmsErasmusApplication(models.Model):
         return accepted
 
     def _ems_participants_xlsx(self):
-        """The participants as an .xlsx: one row per application, PARTICIPANT_HEADERS' columns."""
-        return self._ems_participants_workbook([application._ems_participant_row() for application in
-                                                self._ems_participants().sudo().sorted(
-                                                    lambda application: application.partner_id.name)])
+        """The participants as an .xlsx: one row per application, PARTICIPANT_HEADERS' columns. Each
+        download is logged (audit D-10)."""
+        applications = self._ems_participants().sudo().sorted(lambda application: application.partner_id.name)
+        content = self._ems_participants_workbook([application._ems_participant_row()
+                                                   for application in applications])
+        for call in applications.call_id:
+            self.env['ems.erasmus.export']._ems_log_spreadsheet(
+                call, len(applications.filtered(lambda application: application.call_id == call)))
+        return content
 
     @api.model
     def _ems_participants_workbook(self, rows):
@@ -1032,6 +1049,16 @@ class EmsErasmusApplicationDocument(models.Model):
 
     def _ems_record_label(self):
         return self.name
+
+    def _ems_check_reviewer(self):
+        """Who reviews these documents (marks them valid, ticks their signatures, removes a file): the
+        Erasmus team."""
+        if not self.env['ems.erasmus.application']._ems_can_manage():
+            raise AccessError(_("Only the Erasmus team reviews these documents."))
+
+    def _ems_is_minor(self):
+        self.ensure_one()
+        return self.application_id.is_minor
 
     def action_mark_valid(self):
         self.write({'review_state': 'valid'})

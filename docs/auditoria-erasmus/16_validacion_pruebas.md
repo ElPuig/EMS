@@ -122,6 +122,12 @@ odoo shell -d <copia desechable *concurrencia*> < docs/auditoria-erasmus/anexos/
 | 24 | `TestGuardDutyBoard` con la prueba corregida, en la copia donde fallaba | Corregido | Control | **47/47** | `10_guardia_prueba_corregida.log` |
 | 25 | **Ejecución final sobre el commit `e73bd746`**: suite Erasmus+, regresión, matriz de permisos, `TestGuardDutyBoard`, addon de auditoría completo y crawlers | Corregido | Control y observado | **388 pruebas, 1 fallo**: el crawler del técnico, por la pantalla *Grupos* (R-07, el mismo que con el código auditado). Matriz de acceso: 0 diferencias. Observaciones idénticas a la ejecución 19 salvo R-11, que ahora se rechaza (su arreglo es posterior a la 19). `TestGuardDutyBoard` y `TestI18nCoverage` pasan | `12_final_e73bd746.log` |
 
+| 26 | Decisiones del 29-10-2026, primera ejecución de las pruebas nuevas (`tests/test_erasmus_decisions.py`) y las más afectadas | Decisiones | Control | 80 pruebas, 1 fallo y 1 error de la propia prueba (firma del tutor legal creada pero no exigida a un adulto; escritura del registro del Excel sin `sudo`): corregidos | `decisiones_2026-10-29/01_primera.log` |
+| 27 | Batería Erasmus+ completa + addon de auditoría + crawlers, con las decisiones | Decisiones | Control y observado | 402 pruebas, 8 fallos: 3 pruebas de grupo validaban documentos firmados sin marcar las firmas (efecto esperado de D-1), traducciones aún no añadidas, y una carrera del tour de pagos (clicaba la lista de la factura antes de cargar la de movilidades): corregidos | `decisiones_2026-10-29/03_bateria.log` |
+| 28 | **Ejecución final con las decisiones**: la misma batería | Decisiones | Control y observado | **402 pruebas, 0 fallos**, el crawler del técnico incluido (R-07 corregido). Hipótesis H-2: ahora rechazada | `decisiones_2026-10-29/06_bateria_final.log` |
+
+Las decisiones no se han probado en una instalación limpia ni con la suite completa de EMS (la pasa la CI). Los logs de 26 a 28 están en `/root/worktrees/test_results/decisiones_2026-10-29/`.
+
 La ruta de **actualización** se ha ejercitado en cada ejecución sobre `ems_remediacion` (`-u ems` desde la integrada): reglas de la jefatura separadas y de solo lectura, el equipo y el administrador sin la jefatura en sus reglas, e índice único creado (comprobado en la base).
 
 ## 16.8 Paquete reproducible de la corrección

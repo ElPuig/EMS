@@ -71,12 +71,17 @@ class TestAuditHypothesesIndividual(HttpCase, ErasmusRecordsCase):
         application = first.application_id
         application.sudo().write({'fewer_opportunities_check': 'yes'})  # D = 10, so the deduction is not trivial
         self.env.invalidate_all()
-        visible = application.with_user(self.hos_user).read(
-            ['score_total', 'score_a', 'score_b', 'score_c', 'score_e', 'score_f'])[0]
-        deduced = round(visible['score_total'] - sum(visible[f'score_{letter}'] for letter in 'abcef'), 2)
-        results['Head of Studies deduces score_d = total - (A+B+C+E+F)'] = (
-            f"deduced {deduced}, actual {application.sudo().score_d}: "
-            + ('equal (deducible)' if deduced == application.sudo().score_d else 'different'))
+        try:
+            visible = application.with_user(self.hos_user).read(
+                ['score_total', 'score_a', 'score_b', 'score_c', 'score_e', 'score_f'])[0]
+        except AccessError:
+            # Decision D-14: the Head of Studies reads the total only.
+            results['Head of Studies deduces score_d = total - (A+B+C+E+F)'] = 'refused: criteria not readable'
+        else:
+            deduced = round(visible['score_total'] - sum(visible[f'score_{letter}'] for letter in 'abcef'), 2)
+            results['Head of Studies deduces score_d = total - (A+B+C+E+F)'] = (
+                f"deduced {deduced}, actual {application.sudo().score_d}: "
+                + ('equal (deducible)' if deduced == application.sudo().score_d else 'different'))
 
         # 3. A file of a valid document: its content replaced, or moved to another record.
         health = self._line(first, 'European Health Insurance Card')

@@ -9,6 +9,7 @@ from odoo.tests.common import HttpCase, tagged
 from .common import create_role_user
 from .test_erasmus import PDF
 from .test_erasmus_group_mobility import ErasmusGroupMobilityCase
+from .test_erasmus_mobility import tick_signatures
 
 
 class ErasmusGroupRecordsCase(ErasmusGroupMobilityCase):
@@ -75,6 +76,7 @@ class TestErasmusGroupRecords(ErasmusGroupRecordsCase):
         self.assertEqual(agreement.file_state, 'to_review',
                          "Signed by the coordinator and the host: the team checks the signatures first.")
         self.assertEqual(self.mobility.documents_to_review, 1)
+        tick_signatures(agreement)
         agreement.with_user(self.leader_user).action_mark_valid()
         self.assertEqual(agreement.file_state, 'complete')
         grant = self._upload(self._line(self._student().document_ids, 'Grant agreement'))
@@ -91,6 +93,7 @@ class TestErasmusGroupRecords(ErasmusGroupRecordsCase):
         for line in student.document_ids.filtered(lambda line: line.stage == 'preparation' and line.is_required):
             self._upload(line)
             if line.file_state == 'to_review':
+                tick_signatures(line)
                 line.with_user(self.technician_user).action_mark_valid()
         self.assertTrue(student.preparation_complete)
         self.assertEqual(student.record_missing, len(student.document_ids.filtered(
@@ -99,6 +102,7 @@ class TestErasmusGroupRecords(ErasmusGroupRecordsCase):
     def test_files_kept_and_every_review_in_the_group_chatter(self):
         self._approved()
         grant = self._upload(self._line(self._student().document_ids, 'Grant agreement'))
+        tick_signatures(grant)
         grant.with_user(self.technician_user).action_mark_valid()
         self.assertTrue(self.mobility.message_ids.filtered(
             lambda message: 'Grant agreement' in (message.body or '') and self._student().partner_id.name in

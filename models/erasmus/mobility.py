@@ -19,6 +19,8 @@ PROPOSAL_FIELDS = ('proposal_activity', 'proposal_host', 'proposal_contact', 'pr
 DECISION_FIELDS = {'decision_note'}
 # A KA131-HED stay of this many days or fewer is a short blended mobility: it has a virtual component.
 SHORT_BLENDED_MAX_DAYS = 30
+# Audit D-8: days after the end of the stay to answer the EU Survey, unless the team sets another deadline.
+EU_SURVEY_DAYS = 30
 # A student's stay: curricular work placement (sBID, with academic recognition), or not.
 PLACEMENT_TYPES = [('curricular', "Curricular work placement (sBID)"), ('extracurricular', "Extracurricular"),
                    ('graduate', "Recent graduate")]
@@ -101,7 +103,7 @@ class EmsErasmusMobility(models.Model):
     return. See docs/en/developers/erasmus/erasmus.md."""
     _name = 'ems.erasmus.mobility'
     _description = 'Erasmus+ mobility'
-    _inherit = ['ems.base', 'ems.erasmus.commitment']
+    _inherit = ['ems.base', 'ems.erasmus.commitment', 'ems.erasmus.eu.survey']
     _ems_commitment_guardian_template = 'ems.email_template_erasmus_commitment_guardian'
     _order = 'call_id desc, modality_id, rank, id'
     _sql_constraints = [
@@ -197,6 +199,9 @@ class EmsErasmusMobility(models.Model):
         string="Responsible declaration", readonly=True,
         help="Staff: given when sending the proposal; it is the staff member's declaration on the absence for "
              "training EMS requests once the Direction validates the dates.")
+    # Audit D-8: once the stay is over the participant answers the EU Survey (by default within 30 days)
+    # and says so on the portal; the team validates it before closing the mobility.
+    eu_survey_deadline = fields.Date(compute='_compute_eu_survey_deadline', store=True, readonly=False)
     preparation_complete = fields.Boolean(string="Ready to leave", compute='_compute_complete')
     return_complete = fields.Boolean(string="Return complete", compute='_compute_complete')
     # The participant's record: every document of the call that applies, by category, and the
@@ -270,6 +275,11 @@ class EmsErasmusMobility(models.Model):
             mobility.is_short_blended = bool(
                 mobility.project_kind == 'ka131_hed' and mobility.date_start and mobility.date_end
                 and (mobility.date_end - mobility.date_start).days + 1 <= SHORT_BLENDED_MAX_DAYS)
+
+    @api.depends('date_end')
+    def _compute_eu_survey_deadline(self):
+        for mobility in self:
+            mobility.eu_survey_deadline = mobility.date_end and mobility.date_end + timedelta(days=EU_SURVEY_DAYS)
 
     @api.depends('document_ids.file_state', 'task_ids.done', 'task_ids.is_required', 'commitment_pending',
                  'commitment_guardian_pending')
@@ -671,6 +681,35 @@ class EmsErasmusMobility(models.Model):
         answered = set(self.self_assessment_ids.mapped('week'))
         return [week for week in self._ems_self_assessment_weeks() if week[1] <= today and week[0] not in answered]
 
+    def _ems_eu_survey_open(self):
+        """The participant answers the EU Survey once the stay is over, while the mobility is open."""
+        self.ensure_one()
+        return self.state == 'preparing' and bool(
+            self.date_end and self.date_end < self.env['ems.datetime_utils'].get_local_today())
+
+    def _ems_eu_survey_name(self):
+        return self.partner_id.name
+
+    def _ems_portal_eu_survey(self):
+        """The participant says on the portal they answered the EU Survey."""
+        self.ensure_one()
+        if not self._ems_eu_survey_open():
+            raise UserError(_("The EU Survey is answered once the stay is over."))
+        self._ems_eu_survey_answered()
+
+    def action_eu_survey_done(self):
+        """The team records that the participant answered it (e.g. told by email)."""
+        self._ems_check_manager()
+        for mobility in self:
+            if not mobility._ems_eu_survey_open():
+                raise UserError(_("The EU Survey of %s is answered once the stay is over.", mobility.partner_id.name))
+        self._ems_eu_survey_answered()
+
+    def action_eu_survey_validate(self):
+        self._ems_check_manager()
+        self._ems_eu_survey_validate()
+        self._ems_activities_done()
+
     def _ems_self_assessments_missing(self):
         """The open weeks already over, for the weekly reminder."""
         today = self.env['ems.datetime_utils'].get_local_today()
@@ -791,17 +830,40 @@ class EmsErasmusMobility(models.Model):
         return self.env['ems.erasmus.export']._ems_open_wizard(mobility_id=self.id, project_id=self.project_id.id)
 
     def action_close(self):
-        """The participant is back and every return document and step is done."""
+        """The participant is back and the record is complete (audit D-5): before leaving and on return,
+        on a project, the EU Survey validated and nothing left to pay to them or for them, the final
+        payment included. Closing frees a graduate's portal, so it waits for the last payment."""
         self._ems_check_manager()
         for mobility in self:
             if mobility.state != 'preparing':
                 raise UserError(_("Only a mobility in preparation can be closed."))
+            name = mobility.partner_id.name
+            if not mobility.preparation_complete:
+                raise UserError(_("Every required document and step before leaving of %s must be complete first.",
+                                  name))
             if not mobility.return_complete:
                 raise UserError(_("Every required return document of %s must be valid and every return step done.",
-                                  mobility.partner_id.name))
+                                  name))
+            if not mobility.project_id:
+                raise UserError(_("Assign the mobility of %s to its Erasmus+ project first.", name))
+            if mobility.eu_survey_state != 'validated':
+                raise UserError(_("Validate the EU Survey of %s first.", name))
+            if mobility._ems_left_to_pay():
+                raise UserError(_("There is still something to pay for the mobility of %s: request and register "
+                                  "every payment, the final one included, and every invoice first.", name))
         for mobility in self:
             mobility._ems_set_state('done')
         self.partner_id._ems_erasmus_release_graduate()
+
+    def _ems_left_to_pay(self):
+        """A payment or an invoice of this mobility still to pay, or part of the grant not requested yet."""
+        self.ensure_one()
+        to_pay = self.env['ems.erasmus.payment'].sudo().search_count(
+            [('mobility_id', '=', self.id), ('state', '=', 'to_pay')], limit=1) or \
+            self.env['ems.erasmus.invoice'].sudo().search_count(
+                [('mobility_ids', 'in', self.ids), ('state', '=', 'to_pay')], limit=1)
+        requested = sum(self.sudo().payment_ids.mapped('amount'))
+        return bool(to_pay) or self.currency_id.compare_amounts(self.grant_net - requested, 0) > 0
 
     def action_cancel(self):
         """The team cancels the mobility (e.g. travel documents not handed in on time, art. 17)."""

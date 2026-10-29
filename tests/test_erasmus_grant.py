@@ -25,6 +25,13 @@ class ErasmusGrantCase(ErasmusMobilityCase):
         self.assertEqual(wizard[field], records)
         wizard.action_confirm()
 
+    def _undo(self, records, user=None, reason='Registered by mistake'):
+        """Undo a transfer through its wizard, with a reason (audit D-18)."""
+        records = records.with_user(user) if user else records
+        action = records.action_mark_unpaid()
+        self.env[action['res_model']].with_user(user or self.env.user).with_context(action['context']).create(
+            {'reason': reason}).action_confirm()
+
     def _invoice(self, mobilities, amount, **vals):
         return self.env['ems.erasmus.invoice'].create({
             'name': 'F-TEST-1', 'amount': amount, 'concept': 'travel', 'mobility_ids': [(6, 0, mobilities.ids)], **vals})
@@ -122,7 +129,7 @@ class TestErasmusGrant(ErasmusGrantCase):
             team_payment.amount = 1
         with self.assertRaises(UserError):
             team_payment.unlink()
-        payment.action_mark_unpaid()
+        self._undo(payment)
         self.assertEqual(first.payment_ids.state, 'to_pay')
         team_payment.unlink()
         self.assertFalse(first.payment_ids)
@@ -152,7 +159,7 @@ class TestErasmusGrant(ErasmusGrantCase):
         self._transfer(payment, self.secretary_user)
         self._transfer(invoice, self.secretary_user)
         self.assertFalse(payment.activity_ids | invoice.activity_ids)
-        payment.with_user(self.secretary_user).action_mark_unpaid()
+        self._undo(payment, self.secretary_user)
         self.assertEqual(payment.activity_ids.user_id, self.secretary_user)
 
     def test_one_transfer_pays_several_payments_with_one_receipt(self):

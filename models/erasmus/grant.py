@@ -20,13 +20,20 @@ def _check_transfer_fields(records, vals):
         raise AccessError(_("A payment is marked as paid by registering its transfer."))
 
 
-def _transfer_wizard_action(records):
+def _wizard_action(records, model, name):
     _check_payer(records.env)
     return {
-        'type': 'ir.actions.act_window', 'name': _("Register transfer"), 'res_model': 'ems.erasmus.transfer.wizard',
-        'view_mode': 'form', 'target': 'new',
+        'type': 'ir.actions.act_window', 'name': name, 'res_model': model, 'view_mode': 'form', 'target': 'new',
         'context': {f'default_{"payment" if records._name == "ems.erasmus.payment" else "invoice"}_ids': records.ids},
     }
+
+
+def _transfer_wizard_action(records):
+    return _wizard_action(records, 'ems.erasmus.transfer.wizard', _("Register transfer"))
+
+
+def _undo_wizard_action(records):
+    return _wizard_action(records, 'ems.erasmus.undo.transfer.wizard', _("Undo the transfer"))
 
 
 def _secretary_users(env):
@@ -140,9 +147,8 @@ class EmsErasmusInvoice(models.Model):
         return _transfer_wizard_action(self)
 
     def action_mark_unpaid(self):
-        """Undo a transfer registered by mistake."""
-        _check_payer(self.env)
-        _mark_paid(self.filtered(lambda invoice: invoice.state == 'paid'), False)
+        """Undo a transfer registered by mistake, saying why."""
+        return _undo_wizard_action(self)
 
     def _ems_split(self):
         """One equal share per participant, the cents left over on the first one: a change of
@@ -247,15 +253,14 @@ class EmsErasmusPayment(models.Model):
         return _transfer_wizard_action(self)
 
     def action_mark_unpaid(self):
-        """Undo a transfer registered by mistake: back to pay, its receipts kept apart from it."""
-        _check_payer(self.env)
-        _mark_paid(self.filtered(lambda record: record.state == 'paid'), False)
+        """Undo a transfer registered by mistake, saying why: back to pay, its receipts kept apart from it."""
+        return _undo_wizard_action(self)
 
 
-def _mark_paid(records, paid_date, receipts=None):
+def _mark_paid(records, paid_date, receipts=None, reason=''):
     """Paid on `paid_date` with `receipts` added, or (paid_date False) back to pay without them: who
-    undid it, when it had been paid and by whom, and its receipts stay in each one's history (audit
-    R-24)."""
+    undid it and why, when it had been paid and by whom, and its receipts stay in each one's history
+    (audit R-24, D-18)."""
     vals = {'state': 'paid', 'paid_by_id': records.env.uid, 'paid_date': paid_date} if paid_date else \
         {'state': 'to_pay', 'paid_by_id': False, 'paid_date': False, 'receipt_ids': [(5, 0, 0)]}
     if paid_date and receipts:
@@ -265,9 +270,10 @@ def _mark_paid(records, paid_date, receipts=None):
     records.sudo().write(vals)
     for record, (was_paid_on, was_paid_by, was_receipts) in undone.items():
         record.message_post(
-            body=_("Transfer undone by %(user)s. It had been marked paid on %(date)s by %(payer)s; its receipts "
-                   "are attached here.", user=records.env.user.name, date=format_date(records.env, was_paid_on),
-                   payer=was_paid_by.name), attachment_ids=was_receipts.ids,
+            body=_("Transfer undone by %(user)s: %(reason)s. It had been marked paid on %(date)s by %(payer)s; its "
+                   "receipts are attached here.", user=records.env.user.name, reason=reason,
+                   date=format_date(records.env, was_paid_on), payer=was_paid_by.name),
+            attachment_ids=was_receipts.ids,
             message_type='notification', subtype_xmlid='mail.mt_note')
     if paid_date:
         records.sudo().activity_ids.action_feedback()
@@ -311,4 +317,26 @@ class EmsErasmusTransferWizard(models.TransientModel):
             'res_model': (records[0] or records[1])._name, 'res_id': (records[0] or records[1])[:1].id})
         for paid in records:
             _mark_paid(paid, self.date, receipt)
+        return {'type': 'ir.actions.act_window_close'}
+
+
+class EmsErasmusUndoTransferWizard(models.TransientModel):
+    """Audit D-18 - the Secretary undoes a transfer registered by mistake and says why; the reason
+    stays in the history of each payment or invoice, with who undid it and its receipts."""
+    _name = 'ems.erasmus.undo.transfer.wizard'
+    _description = 'Erasmus+ undo a transfer'
+
+    payment_ids = fields.Many2many(string="Grant payments", comodel_name='ems.erasmus.payment',
+                                   relation='ems_erasmus_undo_transfer_wizard_payment_rel')
+    invoice_ids = fields.Many2many(string="Invoices", comodel_name='ems.erasmus.invoice',
+                                   relation='ems_erasmus_undo_transfer_wizard_invoice_rel')
+    reason = fields.Text(string="Reason", required=True, help="Why the transfer is undone: it stays in the history.")
+
+    def action_confirm(self):
+        self.ensure_one()
+        _check_payer(self.env)
+        if not (self.reason or '').strip():
+            raise UserError(_("Write the reason for undoing the transfer first."))
+        for records in (self.payment_ids, self.invoice_ids):
+            _mark_paid(records.filtered(lambda record: record.state == 'paid'), False, reason=self.reason.strip())
         return {'type': 'ir.actions.act_window_close'}

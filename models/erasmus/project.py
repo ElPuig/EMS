@@ -4,9 +4,11 @@ from dateutil.relativedelta import relativedelta
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.tools import format_date
 
 from .call import PROJECTS
 from .records import PARTICIPANT_CATEGORIES, PROJECT_CATEGORIES
+from .workflow import check_kept
 
 # SEPIE: keep the documents 3 years after the final payment of the grant, 5 when it is above 60,000 € (issue #697).
 LARGE_PROJECT = 60000
@@ -20,6 +22,7 @@ class EmsErasmusProject(models.Model):
     docs/en/developers/erasmus/records.md."""
     _name = 'ems.erasmus.project'
     _description = 'Erasmus+ project'
+    _inherit = ['ems.base']
     _order = 'active desc, kind, name desc'
 
     name = fields.Char(string="Agreement number", required=True, help="e.g. 2026-1-ES01-KA121-VET-000123456")
@@ -34,7 +37,7 @@ class EmsErasmusProject(models.Model):
                                                           "5 years after its final payment, otherwise 3.")
     final_payment_date = fields.Date(string="Final payment received on",
                                      help="When SEPIE paid the balance of the grant: the keeping period counts from it.")
-    keep_until = fields.Date(string="Keep the documents until", compute='_compute_keep_until',
+    keep_until = fields.Date(string="Keep the documents until", compute='_compute_keep_until', store=True,
                              help="SEPIE: 3 years after the final payment of the grant, 5 when the grant is above "
                                   "60,000 €. Empty until the final payment and the grant are known. Nothing is ever "
                                   "deleted automatically.")
@@ -42,6 +45,10 @@ class EmsErasmusProject(models.Model):
                                     help="An audit, a check or a SEPIE request is still open: keep every document "
                                          "even after the date above.")
     retention_note = fields.Char(string="Pending audit or request")
+    retention_notice_date = fields.Date(
+        string="Coordination told on", readonly=True, copy=False,
+        help="When EMS told the Erasmus coordination that the keeping period was over (once per project, unless "
+             "the date changes). Nothing is deleted: the coordination decides what to do.")
     document_ids = fields.One2many(string="Documents", comodel_name='ems.erasmus.project.document',
                                    inverse_name='project_id')
     invoice_ids = fields.One2many(string="Invoices", comodel_name='ems.erasmus.invoice', inverse_name='project_id')
@@ -74,9 +81,34 @@ class EmsErasmusProject(models.Model):
         for project in self:
             project.display_name = f"{project.name} ({kinds.get(project.kind, '')})" if project.kind else project.name
 
+    def write(self, vals):
+        """A new keeping date (the final payment or the grant corrected) is told again when it comes."""
+        if {'final_payment_date', 'budget'} & set(vals):
+            vals = {**vals, 'retention_notice_date': False}
+        return super().write(vals)
+
     def action_export(self):
         self.ensure_one()
         return self.env['ems.erasmus.export']._ems_open_wizard(project_id=self.id)
+
+    @api.model
+    def _cron_retention_notice(self):
+        """Audit D-12, daily: a task for the Erasmus coordination on each project whose documents are
+        past their keeping date and not held for an audit, once. Nothing is ever deleted automatically."""
+        today = self.env['ems.datetime_utils'].get_local_today()
+        projects = self.sudo().with_context(active_test=False).search([
+            ('keep_until', '<', today), ('retention_hold', '=', False), ('retention_notice_date', '=', False)])
+        if not projects:
+            return
+        activity_type = self.env.ref('mail.mail_activity_data_todo')
+        coordinators = self.env['ems.erasmus.group.mobility']._ems_coordinators()
+        for project in projects:
+            summary = _("Erasmus+: the documents of %(project)s were to be kept until %(date)s. Decide what to keep "
+                        "and what to delete (EMS deletes nothing)", project=project.name,
+                        date=format_date(self.env, project.keep_until))
+            for user in coordinators:
+                project.activity_schedule(activity_type_id=activity_type.id, user_id=user.id, summary=summary)
+        projects.write({'retention_notice_date': today})
 
 
 class EmsErasmusProjectDocument(models.Model):
@@ -114,3 +146,8 @@ class EmsErasmusProjectDocument(models.Model):
         for document in self:
             if document.mobility_ids.project_id - document.project_id:
                 raise ValidationError(_("A project's document is only about participants of that project."))
+
+    def unlink(self):
+        """Audit D-2: a document with files is evidence of the project, as a participant's document is."""
+        check_kept(self, self.filtered('attachment_ids'))
+        return super().unlink()

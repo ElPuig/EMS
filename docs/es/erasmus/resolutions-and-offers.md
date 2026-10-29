@@ -67,7 +67,7 @@ Una rectificación nunca deshace una oferta ya aceptada o renunciada.
 
 ## 6. Exportar los participantes
 
-Cuando ya se han aceptado plazas, haz clic en **Acciones > Exportar a hoja de cálculo** en la convocatoria (o selecciona solicitudes en la lista). Obtienes un archivo Excel con una fila por cada estudiante que ha aceptado su plaza: datos personales, ciclo y curso, cuenta bancaria y, para los menores de edad, sus tutores legales. Solo puede descargarlo el equipo Erasmus.
+Cuando ya se han aceptado plazas, haz clic en **Acciones > Exportar a hoja de cálculo** en la convocatoria (o selecciona solicitudes en la lista). Obtienes un archivo Excel con una fila por cada estudiante que ha aceptado su plaza: datos personales, ciclo y curso, cuenta bancaria y, para los menores de edad, sus tutores legales. Solo puede descargarlo el equipo Erasmus, y cada descarga queda registrada (quién, cuándo y cuántas personas) en el historial de la convocatoria.
 
 > **Cuidado:** el archivo contiene datos personales y bancarios. Guárdalo solo donde sea necesario.
 

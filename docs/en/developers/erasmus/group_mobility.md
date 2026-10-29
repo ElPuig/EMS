@@ -42,7 +42,7 @@ erDiagram
 | `ems.erasmus.group.mobility` | The group mobility: project, eligible groups (`group_ids`, real `ems.group` records; `shift` only filters the choice), places for students and teachers, leader and other accompanying teachers, enrolment period and published selection criteria (`tie_break`), destination and host entity, planned and final dates, travel dates, programme, state, the selection's evidence (ranking, proposal and approval dates and users), EU Survey and closure. |
 | `ems.erasmus.group.registration` | A student's enrolment (unique per mobility and student, kept when withdrawn), the data frozen when the enrolment closes, the ranking, the result and the substitutions. **Selection evidence, not the travel file.** |
 | `ems.erasmus.group.participant` | A participant's file: each selected student, the leader and the accompanying teachers (`role`). Teachers join without any staff call. A student's commitment letter (below) lives here. |
-| `ems.erasmus.group.draw` / `.draw.line` | One record per tie the coordinator drew: who (`user_id`), when (`date`), what the students were tied on (`grade_average`, `fewer_opportunities`), the exact set tied and the order drawn (`line_ids`: enrolment, student, position). Created by EMS only; `write` and `unlink` refuse (except on module uninstall). |
+| `ems.erasmus.group.draw` / `.draw.line` | One record per tie the coordinator drew: who (`user_id`), when (`date`), what the students were tied on (`grade_average`, `fewer_opportunities`), the exact set tied and the order drawn (`line_ids`: enrolment, student, position). Created by EMS only; `write` and `unlink` refuse (except on module uninstall). Since audit D-13 an individual call's draws are kept in the same model (`call_id`, `score_total`, lines with `application_id`; `_ems_run()` runs both). |
 | `ems.erasmus.commitment` (abstract) | The commitment letter mechanism shared with the internship mobilities (`ems.erasmus.mobility`): signature fields of the student and of the family, `action_sign_commitment`, `_ems_remind_guardians`. |
 | `ems.erasmus.group.log` | The follow-up written by the group's teachers: attendance (who was absent), incidents (apart from the academic conduct warnings, `ems.strike`), changes, evidence, communications, with files. |
 
@@ -210,6 +210,8 @@ Group mobilities are part of the Erasmus+ document records ([records.md](records
   the leader says it is answered, with evidence if any; the team validates it. EMS does not
   connect to the EU Survey platform. In group mobilities only the leader answers the EU Survey
   (decided by the coordinator, 2026-10-24): students and the other teacher have no survey task.
+  The state and deadline come from the mixin `ems.erasmus.eu.survey`, shared with the individual
+  mobilities (audit D-8, see [erasmus.md](erasmus.md)), which also provides `_ems_schedule()`.
 - During the stay the leader and the accompanying teachers write the follow-up
   (`ems.erasmus.group.log`). Tasks and reminders are Odoo activities on the mobility, which reach
   the daily task digest.

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Audit D-1: who signed a document, ticked by the Erasmus team on the uploaded copy. Opened from
+             the Signatures button of each document someone signs. -->
+        <record id="view_erasmus_document_signatures_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.application.document.signatures.form</field>
+            <field name="model">ems.erasmus.application.document</field>
+            <field name="priority">40</field>
+            <field name="arch" type="xml">
+                <form string="Signatures">
+                    <sheet>
+                        <p class="text-muted">
+                            Tick each signature you see on the uploaded copy: EMS keeps who ticked it and when. The document can be marked valid once every signature is ticked.
+                        </p>
+                        <group>
+                            <field name="name" readonly="1"/>
+                            <field name="signers" readonly="1"/>
+                            <field name="signatures_missing" readonly="1" invisible="not signatures_missing"/>
+                            <field name="review_state" readonly="1"/>
+                        </group>
+                        <field name="signature_ids">
+                            <list editable="bottom" create="false" delete="false" decoration-muted="not is_required">
+                                <field name="signer"/>
+                                <field name="is_required" column_invisible="1"/>
+                                <field name="signed" widget="boolean_toggle"/>
+                                <field name="signed_user_id"/>
+                                <field name="signed_date"/>
+                            </list>
+                        </field>
+                    </sheet>
+                    <footer>
+                        <button string="Save" special="save" class="btn-primary"/>
+                        <button string="Close" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <!-- Audit D-2: a file uploaded by mistake to a document not valid yet is removed saying why; it stays
+             in the record's history. -->
+        <record id="view_erasmus_file_removal_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.file.removal.wizard.form</field>
+            <field name="model">ems.erasmus.file.removal.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Remove a file">
+                    <p class="text-muted">The file is not deleted: it stays attached to the record's history with the reason, your name and the date.</p>
+                    <group>
+                        <field name="line_id" readonly="1"/>
+                        <field name="file_ids" invisible="1"/>
+                        <field name="attachment_id" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="reason" placeholder="e.g. Uploaded to the wrong document"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Remove the file" class="btn-primary"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -214,7 +214,7 @@ class TestErasmusPaymentTrace(ErasmusRecordsCase):
         payment = first.payment_ids
         self._transfer(payment, self.secretary_user)
         receipt, paid_date = payment.receipt_ids, payment.paid_date
-        payment.with_user(self.secretary_user).action_mark_unpaid()
+        self._undo(payment, self.secretary_user)
         self.assertEqual(payment.state, 'to_pay')
         message = payment.message_ids.filtered(lambda message: receipt in message.attachment_ids)[:1]
         self.assertTrue(message, "The receipts stay attached to the payment's history.")

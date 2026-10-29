@@ -3,3 +3,4 @@
 "ems.ir_cron_erasmus_expire_turns","EMS: Erasmus+, destination choice turns with no answer","ems.model_ems_erasmus_mobility","base.user_root","code","model._cron_expire_turns()","1","hours"
 "ems.ir_cron_erasmus_remind_documents","EMS: Erasmus+, weekly reminder of the mobility documents","ems.model_ems_erasmus_mobility","base.user_root","code","model._cron_remind_documents()","1","weeks"
 "ems.ir_cron_erasmus_group_close_enrolments","EMS: Erasmus+, close the enrolment of group mobilities","ems.model_ems_erasmus_group_mobility","base.user_root","code","model._cron_close_enrolments()","1","hours"
+"ems.ir_cron_erasmus_retention_notice","EMS: Erasmus+, documents past their keeping date","ems.model_ems_erasmus_project","base.user_root","code","model._cron_retention_notice()","1","days"

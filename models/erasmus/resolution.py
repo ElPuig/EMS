@@ -6,7 +6,7 @@ from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError
 from odoo.tools.misc import formatLang
 
-from .application import RANKED_STATES, SCORE_FIELDS, STAFF_SCORE_FIELDS
+from .application import RANKED_STATES, SCORE_FIELDS, STAFF_SCORE_FIELDS, TEAM
 from .workflow import check_workflow_create, check_workflow_write
 
 KINDS = [('admission', "Admission list"), ('provisional', "Provisional resolution"),
@@ -244,13 +244,14 @@ class EmsErasmusResolutionLine(models.Model):
     public_id = fields.Char(string="Identity document (published)")
     result = fields.Selection(string="Result", selection=RESULTS, required=True)
     rank = fields.Integer(string="Rank")
-    score_a = fields.Float(string="A. Record", digits=(5, 2))
-    score_b = fields.Float(string="B. Interview", digits=(5, 2))
-    score_c = fields.Float(string="C. Languages", digits=(5, 2))
+    # Audit D-14: as on the application, the Head of Studies sees the total only.
+    score_a = fields.Float(string="A. Record", digits=(5, 2), groups=TEAM)
+    score_b = fields.Float(string="B. Interview", digits=(5, 2), groups=TEAM)
+    score_c = fields.Float(string="C. Languages", digits=(5, 2), groups=TEAM)
     score_d = fields.Float(string="D. Fewer opportunities", digits=(5, 2),
-                           groups='ems.group_erasmus,ems.group_academic_admin')
-    score_e = fields.Float(string="E. First mobility", digits=(5, 2))
-    score_f = fields.Float(string="F. Conduct", digits=(5, 2))
+                           groups=TEAM)
+    score_e = fields.Float(string="E. First mobility", digits=(5, 2), groups=TEAM)
+    score_f = fields.Float(string="F. Conduct", digits=(5, 2), groups=TEAM)
     score_total = fields.Float(string="Total score", digits=(5, 2))
     # Issue #686: the staff call's criteria.
     score_plan = fields.Float(string="1. Mobility plan", digits=(4, 2))

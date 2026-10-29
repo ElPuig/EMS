@@ -67,7 +67,7 @@ A rectification never undoes an offer already accepted or renounced.
 
 ## 6. Export the participants
 
-Once places have been accepted, click **Actions > Export to spreadsheet** on the call (or select applications in the list). You get an Excel file with one row per student who accepted a place: personal data, cycle and year, bank account and, for minors, their legal guardians. Only the Erasmus team can download it.
+Once places have been accepted, click **Actions > Export to spreadsheet** on the call (or select applications in the list). You get an Excel file with one row per student who accepted a place: personal data, cycle and year, bank account and, for minors, their legal guardians. Only the Erasmus team can download it, and every download is recorded (who, when and how many people) in the call's history.
 
 > **Careful:** the file contains personal and bank data. Keep it only where it is needed.
 

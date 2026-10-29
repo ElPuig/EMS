@@ -572,7 +572,13 @@
                                     <t t-else="">Available <t t-esc="line.call_document_id.open_days"/> days before leaving, once the dates of the stay are known.</t>
                                 </p>
                                 <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
-                                <p t-if="line.signers" class="small mb-1">Signed by: <t t-esc="line.signers"/></p>
+                                <p t-if="line.signers" class="small mb-1 o_ems_erasmus_signers">Signed by:
+                                    <t t-foreach="line.sudo().signature_ids.filtered('is_required')" t-as="signature">
+                                        <span t-attf-class="badge #{'text-bg-success' if signature.signed else 'text-bg-light'} o_ems_erasmus_signature">
+                                            <i t-attf-class="fa #{'fa-check' if signature.signed else 'fa-clock-o'} me-1"/><t t-esc="signature._ems_label()"/>
+                                        </span>
+                                    </t>
+                                </p>
                                 <p t-if="line.prepared_attachment_ids" class="small mb-1"><t t-if="line.handled_by == 'team'">To download:</t><t t-else="">To download and sign:</t>
                                     <t t-foreach="line.prepared_attachment_ids" t-as="prepared">
                                         <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{prepared.id}" class="o_ems_erasmus_prepared_file" t-esc="prepared.name"/><t t-if="not prepared_last">, </t>
@@ -610,6 +616,23 @@
                             <span t-if="task.description" class="d-block text-muted ms-3" t-esc="task.description"/>
                         </li>
                     </ul>
+                </t>
+
+                <!-- Audit D-8: once the stay is over, the EU Survey; the participant says when it is answered. -->
+                <t t-if="mobility._ems_eu_survey_open() or mobility.eu_survey_state != 'pending'">
+                    <h6 class="mt-3">On return: EU Survey</h6>
+                    <div t-if="mobility.eu_survey_state == 'validated'" class="alert alert-success py-2 small o_ems_erasmus_eu_survey_validated">
+                        <i class="fa fa-check me-1"/>EU Survey answered and checked by the Erasmus team.
+                    </div>
+                    <div t-elif="mobility.eu_survey_state == 'done'" class="alert alert-info py-2 small o_ems_erasmus_eu_survey_done">
+                        <i class="fa fa-clock-o me-1"/>EU Survey answered: the Erasmus team will check it.
+                    </div>
+                    <form t-else="" t-att-action="action + 'eu_survey'" method="post" class="alert alert-warning py-2 small o_ems_erasmus_eu_survey">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <p class="mb-2"><i class="fa fa-exclamation-triangle me-1"/>Answer the EU Survey, the final report of the European Commission: you receive the link by email from the European Commission.
+                            <t t-if="mobility.eu_survey_deadline">Deadline: <t t-out="mobility.eu_survey_deadline" t-options="{'widget': 'date'}"/>.</t></p>
+                        <button type="submit" class="btn btn-primary btn-sm o_ems_erasmus_eu_survey_answered">I have answered it</button>
+                    </form>
                 </t>
 
                 <!-- Issue #697: during the stay, the weekly self-assessment of the weeks already begun. -->

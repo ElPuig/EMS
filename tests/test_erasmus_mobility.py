@@ -11,6 +11,11 @@ from .test_erasmus_resolution import ErasmusResolutionCase
 from .test_erasmus_staff import ErasmusStaffCase
 
 
+def tick_signatures(lines):
+    """What the team does on a signed copy before marking it valid (audit D-1)."""
+    lines.sudo().signature_ids.write({'signed': True})
+
+
 class ErasmusMobilityCase(ErasmusResolutionCase):
     """Two places in the modality: both students are selected and accept them."""
 
@@ -39,6 +44,7 @@ class ErasmusMobilityCase(ErasmusResolutionCase):
         provided.prepared_attachment_ids = self.env['ir.attachment'].create({'name': 'policy.pdf', 'raw': PDF})
         mobility._ems_portal_upload({line.call_document_id.id: [('signed.pdf', PDF)] for line in lines - provided})
         # What someone signs is complete once the team checks it, its own documents (sBID) included.
+        tick_signatures(lines)
         (lines - provided | provided.filtered('signers')).action_mark_valid()
         mobility.task_ids.filtered(lambda task: task.stage == stage).write({'done': True})
         if stage == 'preparation' and mobility.commitment_pending:
@@ -338,6 +344,13 @@ class TestErasmusMobility(ErasmusMobilityCase):
         with self.assertRaises(UserError):
             first.with_user(self.erasmus_user).action_close()
         self._complete_stage(first, 'return')
+        # Audit D-5 and D-8 (test_erasmus_decisions.py): on a project, the EU Survey validated.
+        today = self.env['ems.datetime_utils'].get_local_today()
+        first.sudo().write({'date_start': today - timedelta(days=30), 'date_end': today - timedelta(days=1),
+                            'project_id': self.env['ems.erasmus.project'].create(
+                                {'name': 'TEST-CLOSE', 'kind': 'ka121_vet'}).id})
+        first._ems_portal_eu_survey()
+        first.with_user(self.erasmus_user).action_eu_survey_validate()
         first.with_user(self.erasmus_user).action_close()
         self.assertEqual(first.state, 'done')
 

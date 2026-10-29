@@ -210,7 +210,13 @@
                                           t-esc="file_state_labels.get(line.file_state)"/>
                                 </div>
                                 <p t-if="line.description" class="small text-muted mb-1" t-esc="line.description"/>
-                                <p t-if="line.signers" class="small mb-1">Signed by: <t t-esc="line.signers"/></p>
+                                <p t-if="line.signers" class="small mb-1 o_ems_erasmus_signers">Signed by:
+                                    <t t-foreach="line.sudo().signature_ids.filtered('is_required')" t-as="signature">
+                                        <span t-attf-class="badge #{'text-bg-success' if signature.signed else 'text-bg-light'} o_ems_erasmus_signature">
+                                            <i t-attf-class="fa #{'fa-check' if signature.signed else 'fa-clock-o'} me-1"/><t t-esc="signature._ems_label()"/>
+                                        </span>
+                                    </t>
+                                </p>
                                 <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
                                 <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
                                 <div t-if="line.prepared_attachment_ids" class="small mb-1">

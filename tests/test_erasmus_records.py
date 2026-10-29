@@ -11,6 +11,7 @@ from odoo.tests.common import HttpCase, tagged
 from .common import create_role_user
 from .test_erasmus import PDF
 from .test_erasmus_grant import ErasmusGrantCase
+from .test_erasmus_mobility import tick_signatures
 
 
 class ErasmusRecordsCase(ErasmusGrantCase):
@@ -66,6 +67,7 @@ class TestErasmusRecords(ErasmusRecordsCase):
         self.assertEqual(agreement.file_state, 'to_review', "Uploaded is not complete: the signatures are checked.")
         agreement.action_mark_needs_change()
         self.assertEqual(agreement.file_state, 'needs_change')
+        tick_signatures(agreement)
         agreement.action_mark_valid()
         self.assertEqual(agreement.file_state, 'complete')
         policy = self._line(first, 'Insurance policy')

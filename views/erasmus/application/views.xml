@@ -109,6 +109,12 @@
                                                 invisible="review_state == 'valid'" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <button name="action_mark_needs_change" type="object" icon="fa-times" title="Needs changes"
                                                 invisible="review_state == 'needs_change'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="signers" column_invisible="1"/>
+                                        <field name="signatures_missing" optional="show"/>
+                                        <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
+                                                invisible="not signers" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_remove_file" type="object" string="Remove a file" icon="fa-trash"
+                                                invisible="review_state == 'valid' or not attachment_ids" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                     </list>
                                 </field>
                             </page>
@@ -163,7 +169,7 @@
                                         <field name="score_complete"/>
                                         <field name="rank"/>
                                         <field name="needs_draw" invisible="not needs_draw"/>
-                                        <field name="draw_order" readonly="not can_manage" invisible="not needs_draw and not draw_order"/>
+                                        <field name="draw_order" invisible="not needs_draw and not draw_order"/>
                                     </group>
                                     <group string="Criteria">
                                         <field name="score_plan"/>
@@ -215,14 +221,15 @@
                                         <field name="is_eligible"/>
                                         <field name="rank"/>
                                         <field name="needs_draw" invisible="not needs_draw"/>
-                                        <field name="draw_order" readonly="not can_manage" invisible="not needs_draw and not draw_order"/>
+                                        <field name="draw_order" invisible="not needs_draw and not draw_order"/>
                                         <field name="scoring_frozen_date"/>
                                     </group>
-                                    <group string="Criteria">
+                                    <!-- Audit D-14: the criteria are the Erasmus team's; the Head of Studies sees the total. -->
+                                    <group string="Criteria" groups="ems.group_erasmus,ems.group_academic_admin">
                                         <field name="score_a"/>
                                         <field name="score_b"/>
                                         <field name="score_c"/>
-                                        <field name="score_d" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <field name="score_d"/>
                                         <field name="score_e"/>
                                         <field name="score_f"/>
                                     </group>

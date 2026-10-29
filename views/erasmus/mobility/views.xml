@@ -20,6 +20,7 @@
                            decoration-success="proposal_state == 'validated'" decoration-danger="proposal_state == 'rejected'"/>
                     <field name="preparation_complete" optional="show"/>
                     <field name="return_complete" optional="show"/>
+                    <field name="eu_survey_state" optional="hide"/>
                     <field name="record_progress" optional="hide"/>
                     <field name="project_id" optional="show"/>
                     <field name="currency_id" column_invisible="1" groups="ems.group_erasmus,ems.group_academic_admin"/>
@@ -97,8 +98,17 @@
                             <button name="action_export_record" type="object" string="Export the record"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
                                     help="The participant's documents of this mobility as a ZIP, in the four categories, with an index of what is missing and the files' hashes."/>
+                            <!-- Audit D-8: the EU Survey, answered from the portal, validated by the team. -->
+                            <button name="action_eu_survey_done" type="object" string="EU Survey answered"
+                                    invisible="state != 'preparing' or eu_survey_state != 'pending'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="The participant usually says so from the portal once the stay is over."/>
+                            <button name="action_eu_survey_validate" type="object" string="Validate the EU Survey"
+                                    invisible="state != 'preparing' or eu_survey_state != 'done'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
                             <button name="action_close" type="object" string="Close the mobility"
-                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                    invisible="state != 'preparing'" groups="ems.group_erasmus,ems.group_academic_admin"
+                                    help="Needs the record complete, the project, the EU Survey validated and nothing left to pay."/>
                             <button name="action_cancel" type="object" string="Cancel the mobility"
                                     invisible="state not in ('choosing', 'preparing')"
                                     groups="ems.group_erasmus,ems.group_academic_admin"
@@ -179,6 +189,9 @@
                                     <group>
                                         <field name="preparation_complete"/>
                                         <field name="return_complete"/>
+                                        <field name="eu_survey_state" widget="badge" decoration-success="eu_survey_state == 'validated'"
+                                               decoration-info="eu_survey_state == 'done'"/>
+                                        <field name="eu_survey_deadline"/>
                                     </group>
                                 </group>
                                 <field name="document_ids">
@@ -188,6 +201,7 @@
                                         <field name="name"/>
                                         <field name="stage" optional="hide"/>
                                         <field name="signers" optional="show"/>
+                                        <field name="signatures_missing" optional="show"/>
                                         <field name="open_date" optional="hide"/>
                                         <field name="deadline"/>
                                         <field name="is_required" optional="hide"/>
@@ -205,6 +219,10 @@
                                                 invisible="file_state != 'to_review'"/>
                                         <button name="action_mark_needs_change" type="object" string="Needs changes"
                                                 icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
+                                        <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
+                                                invisible="not signers"/>
+                                        <button name="action_remove_file" type="object" string="Remove a file" icon="fa-trash"
+                                                invisible="review_state == 'valid' or not (attachment_ids or prepared_attachment_ids)"/>
                                     </list>
                                 </field>
                                 <separator string="From the application" invisible="not application_document_ids"/>

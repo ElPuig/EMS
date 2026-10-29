@@ -805,6 +805,20 @@ review / still going on). Nothing eligible raises a `UserError` with the same re
    treat any request not refused or cancelled as a real absence.
 4. **Discard** (`action_discard`): `discarded` and archived, with a note saying who. Nothing else.
 
+**Talking with the teacher (issue #698).** The entry's followers are whoever entered it (the
+creator) and the reviewers (an activity subscribes its assignee). The teacher joins them when they
+are asked to act, never before: **Request justification** and **Create absence** both go through
+`_ems_ask_teacher()`, which calls `_ems_follow_teacher()` (the teacher's user partner, else their
+work contact; one `message_subscribe` per teacher). So a message the reviewer writes on the entry
+reaches the teacher, and a teacher's answer reaches the other followers. **Correct check-in** and
+**Discard** leave the teacher out, as they are never told. Once following, the teacher stays (also
+after the entry is linked). Their ACL is read only, so `_mail_post_access = 'read'` lets them post
+on the entries they can read (`rule_absence_pending_own`: their own, never one still `pending`);
+they still cannot edit anything. Reminders and the review notes are unaffected: they are notes
+(`mail.mt_note`), addressed with `_ems_notify` or to nobody, and followers only get comments. The
+upgrade to the version of #698 subscribes the teacher of every entry already in `ASKED_STATES`
+(`_ems_follow_asked_teachers()`); a clean install has no entries to fix.
+
 **Existing automatic transitions** keep working at any stage before the entry is resolved: the
 teacher filing an overlapping absence links every unresolved entry (`_link_to_leaves`), and a
 check-in recorded afterwards reviews unresolved `check_in` entries

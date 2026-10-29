@@ -93,6 +93,26 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             trigger: ".o_form_view .o_field_widget[name='origin']",
             content: "The detected absence is shown again",
         },
+        // Issue #698: the teacher answers on it, with read access only.
+        {
+            trigger: ".o-mail-Chatter-topbar button.o-mail-Chatter-sendMessage",
+            content: "Send a message to whoever follows it",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Composer-input",
+            content: "Write the answer",
+            run: "edit Tour answer of the teacher",
+        },
+        {
+            trigger: ".o-mail-Composer-send:enabled",
+            content: "Send it",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message-body:contains('Tour answer of the teacher')",
+            content: "The answer is posted on the detected absence",
+        },
     ],
 });
 

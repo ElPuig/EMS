@@ -647,3 +647,77 @@ class TestAbsenceDetection(TransactionCase):
             absence.with_context(active_test=False).with_user(self.head_of_studies).with_context(
                 lang='ca_ES').action_request_justification()
 
+
+    # --- Conversation with the teacher (issue #698) ---------------------------------------------
+
+    def _followers(self, absence):
+        return absence.message_partner_ids
+
+    def _notified(self, message):
+        return message.notification_ids.res_partner_id
+
+    def test_the_teacher_follows_it_once_asked(self):
+        """Never while it waits for review (issue #707), from the moment they are asked on."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        asked = self._detected()
+        informed = self.Pending.create({
+            'employee_id': self.teacher.id, 'date_from': self._utc(self.today, 12.0),
+            'date_to': self._utc(self.today, 13.0)})
+        self.assertNotIn(self.teacher_user.partner_id, self._followers(asked) | self._followers(informed))
+
+        self._asked(asked)
+        self._create_absence(informed, self.head_of_studies)
+
+        self.assertIn(self.teacher_user.partner_id, self._followers(asked))
+        self.assertIn(self.teacher_user.partner_id, self._followers(informed))
+
+    def test_the_teacher_does_not_follow_what_they_are_never_told(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        corrected = self._detected()
+        discarded = self.Pending.create({
+            'employee_id': self.teacher.id, 'date_from': self._utc(self.today, 12.0),
+            'date_to': self._utc(self.today, 13.0)})
+        corrected.with_user(self.head_of_studies).action_correct_check_in()
+        discarded.with_user(self.head_of_studies).action_discard()
+
+        self.assertNotIn(self.teacher_user.partner_id, self._followers(corrected))
+        self.assertNotIn(self.teacher_user.partner_id,
+                         self._followers(discarded.with_context(active_test=False)))
+
+    def test_the_reviewer_and_the_teacher_talk_on_it(self):
+        """A message of the reviewer reaches the teacher, who answers on it with read access only."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        self.teacher_user.email = 'tad.teacher@example.com'
+
+        question = absence.with_user(self.head_of_studies).message_post(
+            body="Were you ill?", message_type='comment', subtype_xmlid='mail.mt_comment')
+        self.assertIn(self.teacher_user.partner_id, self._notified(question))
+
+        answer = absence.with_user(self.teacher_user).message_post(
+            body="Yes, I will send the certificate.", message_type='comment', subtype_xmlid='mail.mt_comment')
+        self.assertIn(self.head_of_studies.partner_id, self._notified(answer))
+        with self.assertRaises(AccessError):
+            absence.with_user(self.teacher_user).write({'date_to': self._utc(self.yesterday, 12.0)})
+
+    def test_the_teacher_cannot_write_on_one_still_to_review(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        self.teacher_user.email = 'tad.teacher@example.com'
+
+        with self.assertRaises(AccessError):
+            absence.with_user(self.teacher_user).message_post(
+                body="Hello", message_type='comment', subtype_xmlid='mail.mt_comment')
+
+    def test_teachers_already_asked_follow_their_entries(self):
+        """Migration of issue #698: the entries asked before it get their teacher as follower."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        asked, waiting = self._detected(), self.Pending.create({
+            'employee_id': self.teacher.id, 'date_from': self._utc(self.today, 12.0),
+            'date_to': self._utc(self.today, 13.0)})
+        asked.write({'state': 'justification_requested', 'justification_date': self.today})
+
+        self.Pending._ems_follow_asked_teachers()
+
+        self.assertIn(self.teacher_user.partner_id, self._followers(asked))
+        self.assertNotIn(self.teacher_user.partner_id, self._followers(waiting))

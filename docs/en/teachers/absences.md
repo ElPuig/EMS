@@ -177,6 +177,8 @@ What to do:
 - **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in (and the type, if your Head of Studies prepared it): choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop.
 - **If you were at the centre and forgot to check in**, ask your Head of Studies to record your check-in for that day. As soon as it is recorded, the detected absence is discarded on its own and the reminders stop.
 
+To explain something or ask a question, write in the message history at the bottom of the detected absence (**Send message**): your Head of Studies receives it, and their messages reach you there and by email.
+
 ![A detected absence as the teacher sees it, with the Request the absence button](../../assets/teachers/teachers-detected-absence.png)
 
 ---

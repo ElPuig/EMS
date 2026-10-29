@@ -131,11 +131,11 @@ stateDiagram-v2
 | Cada subida es un adjunto nuevo; las versiones anteriores no se sustituyen | IMPLEMENTADO | `_ems_add_files` |
 | No se puede quitar un archivo de una línea **válida** ni de una movilidad (individual o de grupo) cerrada o cancelada, tampoco como superusuario | IMPLEMENTADO (verificado) | `write()` (`application.py:982`), `_ems_record_closed` |
 | Se **puede** quitar un archivo de una línea *pendiente* o *con cambios* de una movilidad abierta (el widget del formulario lo permite al equipo) | **PARCIAL (R-03)** | La guarda solo cubre líneas válidas o cerradas |
-| Se puede borrar el `ir.attachment` de una línea válida directamente, o la línea entera | **PARCIAL (R-01, verificado)** | Sin guarda de `unlink` |
+| Se puede borrar el `ir.attachment` de una línea válida directamente, o la línea entera | **PARCIAL (R-01, verificado)** | Sin guarda de `unlink` **[Desde `e73bd746`: no se puede (R-01)]** |
 | Cada cambio de revisión queda en el chatter de la movilidad o movilidad de grupo, con autor | IMPLEMENTADO para líneas de movilidad y de grupo | `write()` + `_ems_record_owner` |
 | Cambios de revisión de líneas de **la solicitud** (etapa de solicitud) | **No se registran** en ningún chatter (`_ems_record_owner` devuelve la movilidad, vacía en esa etapa) (R-09) | `application.py:1007` |
 | El adjunto guarda quién y cuándo lo subió (`create_uid`, `create_date`) | IMPLEMENTADO | Odoo |
-| Nombres de archivo: solo el nombre, sin rutas; se rechazan programas, scripts, HTML y SVG | IMPLEMENTADO en solicitudes, movilidades y grupos; **no** en los archivos de propuesta de destino/actividad (R-11) | `check_upload` (`records.py`); `_ems_portal_propose` (`mobility.py:502`) no lo usa |
+| Nombres de archivo: solo el nombre, sin rutas; se rechazan programas, scripts, HTML y SVG | IMPLEMENTADO en solicitudes, movilidades y grupos; **no** en los archivos de propuesta de destino/actividad (R-11) | `check_upload` (`records.py`); `_ems_portal_propose` (`mobility.py:502`) no lo usa **[Desde `e73bd746`: también en propuestas (R-11)]** |
 | Cierre de la movilidad = cierre del expediente: sin subidas en el portal, archivos conservados | IMPLEMENTADO | |
 
 ## 8.8 Plazo de conservación — IMPLEMENTADO (informativo)

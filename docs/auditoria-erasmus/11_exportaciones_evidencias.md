@@ -49,6 +49,12 @@ sequenceDiagram
 | `group` | Una movilidad de grupo: documentación común una vez, evidencia de selección, seguimiento, EU Survey y el expediente de cada participante **activo** |
 | `project` | Las cinco categorías del proyecto; las convocatorias de las movilidades del proyecto (PDF de la convocatoria y de las resoluciones publicadas en `01_Projecte/Calls/`); el expediente de cada movilidad **no cancelada** (`02_Mobilitats/ALU|PROF<id>_<nombre>/`); cada movilidad de grupo que no esté en borrador ni cancelada (`GRUP<id>_<nombre>/`); facturas con su archivo y justificantes (`03_Economia/Invoices/`); justificantes de pagos (`03_Economia/Transfers/`) |
 
+**Archivados y excluidos (desde `e73bd746`, riesgo R-02).** En el código auditado, archivar una movilidad, una movilidad de grupo o un participante lo sacaba del ZIP y de los contadores del proyecto sin dejar rastro, y lo cancelado, lo que estaba en borrador y los participantes retirados se omitían también sin indicarlo. Ahora:
+
+- Lo **archivado** se exporta y se cuenta como cualquier otro registro; cada una de sus filas del índice lleva la nota *Archivado*.
+- Lo que el ZIP deja fuera **a propósito** (movilidad cancelada, movilidad de grupo en borrador o cancelada, participante retirado) tiene una fila en el índice («No se exporta: <estado>») y una entrada en la lista `excluded` de `manifest.json`. Sus documentos siguen en EMS y en la exportación de su propio expediente. Si el ZIP de proyecto debe incluir también su contenido (por ejemplo, los pagos y justificantes de una movilidad cancelada) es la decisión D-17.
+- Los hashes (`SHA256SUMS`, `zip_sha256`) prueban que la copia archivada es la descargada; **no prueban que el ZIP contenga todo el expediente**. Lo que contiene y lo que deja fuera lo dicen el índice y el manifiesto.
+
 ### Estructura de una movilidad de grupo en el ZIP
 
 ```
@@ -97,7 +103,7 @@ El registro es de solo creación y lectura (sin escritura ni borrado para nadie;
 **Observaciones:**
 
 - El registro pasa a *descargado* en cuanto el ZIP se construye, antes de enviarlo; si la descarga se interrumpe hay que pedir otra exportación (queda registrada aparte).
-- El ZIP de proyecto **no incluye**: movilidades archivadas o canceladas, movilidades de grupo archivadas, en borrador o canceladas, expedientes de participantes de grupo retirados, facturas sin proyecto asignado, ni convocatorias que no tengan ninguna movilidad en ese proyecto (sus resoluciones solo entran a través de las movilidades). Ver R-02 y R-18.
+- El ZIP de proyecto **no incluye**: movilidades archivadas o canceladas, movilidades de grupo archivadas, en borrador o canceladas, expedientes de participantes de grupo retirados, facturas sin proyecto asignado, ni convocatorias que no tengan ninguna movilidad en ese proyecto (sus resoluciones solo entran a través de las movilidades). Ver R-02 y R-18. **[Desde `e73bd746`: los archivados sí se incluyen, y lo excluido queda listado en el índice y el manifiesto; ver arriba]**
 
 ## 11.3 Evidencias de auditoría disponibles
 
@@ -105,11 +111,11 @@ El registro es de solo creación y lectura (sin escritura ni borrado para nadie;
 |---|---|---|
 | Resoluciones publicadas y sus líneas congeladas | `ems.erasmus.resolution(.line)` + PDF guardado | Sí (verificado) |
 | Media, módulos y amonestaciones usados en la selección individual | `grade_line_ids`, `grade_average_ems`, `strike_ids`, `scoring_frozen_date` | Las líneas de módulos sí (el equipo solo tiene lectura). La media y las amonestaciones congeladas son de solo lectura en la vista, pero el equipo podría escribirlas por RPC (NO VERIFICADO con prueba) |
-| Entrevistas y valoraciones de plan | `ems.erasmus.interview`, `ems.erasmus.plan_rating` con seguimiento | **No**: el equipo puede borrarlas (R-10) |
+| Entrevistas y valoraciones de plan | `ems.erasmus.interview`, `ems.erasmus.plan_rating` con seguimiento | **No**: el equipo puede borrarlas (R-10) **[Desde `e73bd746`: una evaluación enviada no se borra (R-10)]** |
 | Ranking congelado de grupo, propuesta, aprobación, sustituciones | `ems.erasmus.group.registration`, campos de la movilidad, chatter | Solo cambian por las acciones |
-| Sorteos de grupo | `ems.erasmus.group.draw` | Sí (verificado), salvo borrado en cascada de la movilidad (R-01) |
+| Sorteos de grupo | `ems.erasmus.group.draw` | Sí (verificado), salvo borrado en cascada de la movilidad (R-01) **[Desde `e73bd746`: la movilidad de grupo con sorteos no se borra (R-01)]** |
 | Cartas aceptadas y versiones | campos `commitment_*`, `ems.erasmus.commitment.version` | Versiones sí (verificado) |
 | Revisión de documentos | chatter de la movilidad / movilidad de grupo | Chatter (no editable por usuarios normales) |
-| Pagos pagados y justificantes | `ems.erasmus.payment`, `receipt_ids` | No se pueden cambiar ni borrar, pero Secretaría puede «deshacer» el pago: se borran fecha, autor y vínculo con el justificante, sin registro en el chatter (el campo de estado no tiene seguimiento) (R-24) |
+| Pagos pagados y justificantes | `ems.erasmus.payment`, `receipt_ids` | No se pueden cambiar ni borrar, pero Secretaría puede «deshacer» el pago: se borran fecha, autor y vínculo con el justificante, sin registro en el chatter (el campo de estado no tiene seguimiento) (R-24) **[Desde `e73bd746`: deshacer deja en el historial quién, cuándo, por quién y los justificantes (R-24)]** |
 | Exportaciones | `ems.erasmus.export` con SHA-256 | Sí (verificado) |
 | Cambios de campos con seguimiento | chatter (`tracking=True`) | Chatter |

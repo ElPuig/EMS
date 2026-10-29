@@ -7,11 +7,14 @@ Documentación para un auditor externo que no conoce EMS. Describe **lo que est�
 | Sistema | EMS (*Educational Management System*), módulo de Odoo 18 del Institut Puig Castellar |
 | Alcance | Módulo Erasmus+: proyectos KA121-VET y KA131-HED, convocatorias de alumnos y de personal, selección, movilidades individuales y de grupo, expedientes, firmas, exportaciones |
 | Código auditado | Rama `integration/erasmus-completo`, commit `7b99cfaf` (24-10-2026), versión de manifiesto `18.0.0.38.1` |
-| Estado de publicación | **No publicado**: el código Erasmus+ no está en `main` ni en ninguna versión (última: `v18.0.0.39.1`) |
+| Estado de publicación | **No publicado**: el código Erasmus+ no está en `main` ni en ninguna versión (última: `v18.0.0.39.1`). Eso no demuestra que ninguna instalación lo ejecute: no se ha comprobado qué código tiene instalado cada base real (D-9) |
 | Fecha de la auditoría | 25-10-2026 |
+| Revisión independiente y corrección | 25-10-2026, rama `audit/erasmus-remediacion`, commit `e73bd746` (sin publicar): [anexo F](anexos/F_revision_independiente.md) |
 | Datos | Ningún dato personal real: las pruebas usan datos ficticios dentro de transacciones que se deshacen |
 
 ## Cómo leer esta documentación
+
+**Versión del código que se describe.** Los capítulos 1 a 14 describen el código auditado (`7b99cfaf`). Donde la corrección de la rama `audit/erasmus-remediacion` (`e73bd746`) lo cambia, la afirmación lleva una nota **[Desde `e73bd746`: …]**; el estado de cada riesgo está en [15_riesgos_decisiones.md](15_riesgos_decisiones.md) y el detalle de la corrección en el [anexo F](anexos/F_revision_independiente.md).
 
 **Estados** que acompañan a cada funcionalidad:
 
@@ -52,10 +55,13 @@ Las referencias `archivo.py:línea` son relativas a la raíz del repositorio (lo
 | Anexo | Contenido |
 |---|---|
 | [A_matriz_documental.md](anexos/A_matriz_documental.md) | Documentos por defecto de cada tipo de convocatoria y de la movilidad de grupo, generados ejecutando el código |
-| [B_matriz_acceso_observada.md](anexos/B_matriz_acceso_observada.md) | Matriz de acceso observada en las pruebas (63 operaciones × 12 perfiles) |
+| [B_matriz_acceso_observada.md](anexos/B_matriz_acceso_observada.md) | Matriz de acceso observada en las pruebas (63 operaciones; 548 comprobaciones de 756 combinaciones operación × perfil) |
 | [C_integridad_evidencias.md](anexos/C_integridad_evidencias.md) | Qué se puede borrar o archivar y qué está protegido |
 | [D_escritura_directa_estados.md](anexos/D_escritura_directa_estados.md) | Qué estados y valores congelados se pueden escribir directamente por RPC |
 | [E_observaciones_complementarias.md](anexos/E_observaciones_complementarias.md) | Comprobaciones ejecutadas de hallazgos leídos en el código (R-03, R-05, R-10, R-11, R-13) |
+| [F_revision_independiente.md](anexos/F_revision_independiente.md) | Contraste de la revisión independiente, hipótesis (contexto RPC, deducción de datos, adjuntos, concurrencia, roles) clasificadas con evidencia, `TestGuardDutyBoard` |
+| [ems_guard_probe/](anexos/ems_guard_probe/) | Sonda del orden de las guardias en el informe del tablero (addon local de pruebas) |
+| `audit_concurrency_probe.py` | Sonda de concurrencia con dos transacciones reales (solo en copias desechables `*concurrencia*`) |
 | [procedimiento_confidencialidad/](anexos/procedimiento_confidencialidad/) | Detección y corrección de la incidencia histórica de confidencialidad, con las salidas de la prueba en una copia |
 | [ems_erasmus_audit/](anexos/ems_erasmus_audit/) | Código fuente de las pruebas de auditoría (addon local, nunca desplegado) |
 | `audit_document_matrix.py`, `audit_state_probe.py` | Scripts de solo lectura (deshacen todo) usados para generar los anexos A y D |

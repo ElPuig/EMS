@@ -30,7 +30,7 @@
 | Renuncia en grupo | Expediente retirado con documentos conservados; sustitución propuesta y aprobada | 7.4 |
 | Alumno que se incorpora a un empate ya sorteado | Se reabre el empate y se registra un nuevo sorteo | `_ems_rank` |
 | Pago tras cambiar la beca o los servicios | El pago final absorbe la diferencia | `action_request_final_payment` |
-| Transferencia registrada por error | Secretaría la deshace | `action_mark_unpaid` |
+| Transferencia registrada por error | Secretaría la deshace | `action_mark_unpaid` **[Desde `e73bd746`: queda la traza en el historial (R-24)]** |
 | Solicitante sin correo | Nota en el chatter | `_ems_mail` |
 | Exportación de un registro que solo tiene versiones anteriores de la carta | El índice lo indica | `_ems_commitment_entries` |
 
@@ -49,7 +49,7 @@
 | Regreso anticipado, interrupción, fuerza mayor | Sin flujo: cancelación o cambio manual de fechas | PENDIENTE |
 | Descarga del ZIP interrumpida | La exportación queda *descargada*; hay que pedir otra | Bajo |
 | Documento vencido | El plazo es informativo; no se avisa ni se bloquea al vencer | Bajo |
-| Pago pedido en una movilidad cancelada (por RPC) | Lo acepta | R-13 |
+| Pago pedido en una movilidad cancelada (por RPC) | Lo acepta | R-13 **[Desde `e73bd746`: lo rechaza (R-13)]** |
 | Seguimiento de grupo editado por otro docente | Lo acepta, sin historial | R-19 |
 
 ## 14.3 Funcionalidades pendientes o parciales
@@ -68,7 +68,7 @@
 | Recordatorio semanal a participantes y familias de movilidades de grupo | No | 12.1 |
 | Cierre automático de convocatorias individuales | No | 12.1 |
 | Supresión o anonimización al vencer el plazo de conservación | No | 13.5 |
-| Protección contra borrado de evidencias | No (R-01) | Esta auditoría |
+| Protección contra borrado de evidencias | No (R-01) | Esta auditoría **[Desde `e73bd746`: sí, salvo documentos de proyecto y registros sin evidencias (D-2)]** |
 | Corrección de la incidencia histórica como migración | No (procedimiento manual probado) | 13.2 |
 | Género en el Excel de participantes | Siempre vacío: EMS no guarda el género del alumnado (decisión del 22-10-2026) | `erasmus.md` |
 | Manuales de usuario por rol | Existen en `docs/{en,ca,es}/erasmus/` y otros roles | **NO VERIFICADO** en esta auditoría (fuera del alcance: no se ha contrastado su contenido con el código) |

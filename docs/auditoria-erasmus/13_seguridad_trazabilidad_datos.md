@@ -59,7 +59,7 @@
 | Cartas aceptadas | Usuario, fecha, IP, texto, versiones inmutables | IMPLEMENTADO (IP NO VERIFICADO tras proxy, R-14) |
 | Exportaciones | Registro inmutable con SHA-256; mensaje en el chatter | IMPLEMENTADO |
 | Descarga del Excel de participantes (datos bancarios) | — | **No registrada** (R-23) |
-| Borrado de registros | — | **Sin registro ni protección** para líneas, adjuntos, movilidades, expedientes y movilidades de grupo (R-01) |
+| Borrado de registros | — | **Sin registro ni protección** para líneas, adjuntos, movilidades, expedientes y movilidades de grupo (R-01) **[Desde `e73bd746`: no se borra nada que tenga evidencias, tampoco en cascada ni el archivo directamente (R-01)]** |
 | Lecturas de documentos confidenciales | — | **No se registran** (Odoo no registra lecturas) |
 
 ## 13.4 Medidas técnicas
@@ -68,7 +68,7 @@
 |---|---|---|
 | Portal sin permisos de modelo; `sudo` con comprobaciones propias; nunca un id de persona o solicitud desde el formulario | Controladores | IMPLEMENTADO y verificado (otro alumno no ve ni acepta lo ajeno) |
 | CSRF en los POST del portal | Odoo (`type='http'`, POST) | IMPLEMENTADO (Odoo por defecto) |
-| Archivos subidos: solo el nombre, sin rutas; lista negra de extensiones ejecutables y HTML/SVG | `check_upload` (`records.py`) | IMPLEMENTADO salvo propuestas (R-11). Es una **lista negra por extensión**, sin comprobación del contenido ni antivirus |
+| Archivos subidos: solo el nombre, sin rutas; lista negra de extensiones ejecutables y HTML/SVG | `check_upload` (`records.py`) | IMPLEMENTADO salvo propuestas (R-11). Es una **lista negra por extensión**, sin comprobación del contenido ni antivirus **[Desde `e73bd746`: también en propuestas (R-11)]** |
 | Tamaño de archivos | — | Límite general de Odoo/proxy; sin límite propio |
 | Nombres en el ZIP sin escapes de ruta | `safe_name()` | IMPLEMENTADO |
 | Excel y ZIP no se guardan en el servidor | Controladores | IMPLEMENTADO |
@@ -76,7 +76,7 @@
 | Reloj del centro para todos los plazos | `ems.datetime_utils` | IMPLEMENTADO |
 | Correos solo a la dirección propia del destinatario | `_ems_mail` | IMPLEMENTADO |
 | Guarda de correo en máquinas de desarrollo | `dev_mail_guard` | IMPLEMENTADO (fuera de Erasmus) |
-| Escritura directa de estados por el equipo vía RPC | — | **No protegida** en varios modelos (R-25, anexo D) |
+| Escritura directa de estados por el equipo vía RPC | — | **No protegida** en varios modelos (R-25, anexo D) **[Desde `e73bd746`: protegida en todos los modelos Erasmus+, con cualquier contexto (R-25, R-27)]** |
 
 ## 13.5 Conservación y supresión
 

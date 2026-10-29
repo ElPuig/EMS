@@ -127,7 +127,7 @@ erDiagram
 
 ## 1.5 Comportamiento ante borrado (`ondelete`)
 
-Relevante para la integridad de las evidencias (ver riesgo R-01 en [15_riesgos_decisiones.md](15_riesgos_decisiones.md)):
+Relevante para la integridad de las evidencias (ver riesgo R-01 en [15_riesgos_decisiones.md](15_riesgos_decisiones.md)): **[Desde `e73bd746`: `unlink()` de solicitud, movilidad, participante y movilidad de grupo comprueba antes las evidencias de sus hijos, así que la cascada ya no las borra]**
 
 | Relación | `ondelete` | Efecto |
 |---|---|---|

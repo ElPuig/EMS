@@ -2,6 +2,8 @@
 
 > Resultado de `TestAuditAccessIndividual` y `TestAuditAccessGroup` (addon local de auditoría `ems_erasmus_audit`, copia en [anexos/ems_erasmus_audit/](ems_erasmus_audit/)), ejecutadas el 2026-10-25 sobre la base aislada `ems_auditoria` con el código del commit `7b99cfaf`: **0 fallos, 0 errores en 4 pruebas** (log `run4_access_integrity.log`). Cada celda es lo que **ocurrió** al intentar la operación como ese usuario (ORM: `read()` / `check_access('write')`; HTTP: las rutas reales). Los usuarios y archivos son ficticios, creados con los fixtures de las pruebas de EMS y deshechos al terminar.
 
+**Cobertura real (recuento del 25-10-2026, anexo F):** 63 operaciones, pero no todas con los 12 perfiles: **548 celdas con resultado y 208 vacías** de 756. Por tipo: **364 lecturas ORM** (`read()`), **80 comprobaciones del permiso de escritura** (`check_access('write')`, filas «(write)»: dicen si Odoo permitiría escribir, **no escriben ni ejecutan ninguna guarda de `write()`**), **25 acciones ejecutadas** (pedir una exportación, aceptar una carta, ver el portal de la familia) y **79 comprobaciones por HTTP o del contenido del ZIP**. Repetida con el código corregido (`e73bd746`): **0 diferencias** (`06_addon_auditoria_corregido.log`, `12_final_e73bd746.log`). Lo que esta matriz no cubre (escritura directa de estados, contexto forjado, roles combinados, concurrencia) se prueba en los anexos D y F.
+
 Leyenda: ✅ permitido · ❌ denegado · vacío: no se probó con ese rol. La prueba compara cada celda con lo esperado y falla si alguna difiere; no hubo ninguna diferencia.
 
 ## B.1 Movilidades individuales de alumnos (prácticas)

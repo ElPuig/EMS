@@ -86,12 +86,12 @@ flowchart LR
 | Beca | `grant_amount`, `prefinancing_percent` (80 % por defecto, >0 y ≤100) | Solo el equipo; pestaña oculta a JE/Director (`groups=`) |
 | Provisión de servicios | `ems.erasmus.provision` | A mano o creada por una factura |
 | Factura | `ems.erasmus.invoice` (`grant.py:73`) | Al crearla o cambiar importe/participantes se reparte de nuevo a partes iguales (céntimos sobrantes en la primera parte); una factura pagada no se puede borrar |
-| Pago | `ems.erasmus.payment` (`grant.py:168`) | Primer pago una vez, pago final una vez, nunca por cero o menos; uno sin pagar se puede borrar y volver a pedir |
+| Pago | `ems.erasmus.payment` (`grant.py:168`) | Primer pago una vez, pago final una vez, nunca por cero o menos; uno sin pagar se puede borrar y volver a pedir **[Desde `e73bd746`: un índice único lo garantiza también ante dos peticiones simultáneas (R-29); deshacer un pago deja traza (R-24)]** |
 | Pagar | `EmsErasmusTransferWizard.action_confirm` (`grant.py:281`) | Solo Secretaría o administrador; un justificante enlazado a todos los pagos y facturas de esa transferencia |
 | Deshacer | `action_mark_unpaid` | Solo Secretaría o administrador; quita los justificantes del pago y crea otra vez la tarea |
 | Portal | `_ems_portal_grant` (`mobility.py:807`) | El participante ve beca, servicios, importe que recibe y cada pago con su estado |
 
-**Observación (R-13):** el botón de pedir pagos solo aparece en preparación o cerrada, pero el método `action_request_prefinancing` (`mobility.py:728`) no comprueba el estado en el servidor: por RPC se podría pedir un pago de una movilidad cancelada.
+**Observación (R-13):** el botón de pedir pagos solo aparece en preparación o cerrada, pero el método `action_request_prefinancing` (`mobility.py:728`) no comprueba el estado en el servidor: por RPC se podría pedir un pago de una movilidad cancelada. **[Desde `e73bd746`: corregido: el servidor también exige preparación o cerrada]**
 
 ## 6.7 Antiguos alumnos graduados — IMPLEMENTADO
 

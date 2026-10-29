@@ -74,7 +74,7 @@ Generada a partir del CSV del commit auditado. `r` leer · `w` escribir · `c` c
 Observaciones:
 
 - JE/Director tiene `w` en `ems_erasmus_mobility` solo para escribir la nota de decisión y validar propuestas de personal: `EmsErasmusMobility.write()` (`mobility.py:351`) rechaza cualquier otro campo.
-- El equipo Erasmus tiene `u` (borrar) en casi todos sus modelos. Las únicas protecciones contra el borrado están en código: resoluciones publicadas, pagos pagados, facturas pagadas, versiones de carta, sorteos (ver riesgo R-01).
+- El equipo Erasmus tiene `u` (borrar) en casi todos sus modelos. Las únicas protecciones contra el borrado están en código: resoluciones publicadas, pagos pagados, facturas pagadas, versiones de carta, sorteos (ver riesgo R-01). **[Desde `e73bd746`: además no se borra ningún registro con evidencias ni el archivo de una línea válida (R-01, §2.5)]**
 - `ems_group` (grupos de alumnos) es legible por el equipo Erasmus desde la rama `ems-movgrupo` (commit `1e4d7dc8`). Eso hace visible al técnico el menú *Comunidad educativa › Grupos*, cuyo formulario falla (ver 2.7 y riesgo R-07).
 
 ## 2.3 Reglas de registro (`security/rules/erasmus.xml`)
@@ -95,6 +95,8 @@ Observaciones:
 | Inscripción de grupo (con ranking) | Equipo, admin, JE | Todas · Docente de grupo: **solo el líder** de esa movilidad |
 | Contacto (`res.partner`) | Equipo | Lectura de todos; crear y escribir solo entidades de acogida y sus contactos |
 
+**Las reglas se suman entre los grupos de un usuario.** En el código auditado, las reglas de la jefatura (líneas no confidenciales, movilidades de grupo, participantes, seguimiento, inscripciones, documentos de convocatoria) no limitaban la escritura: sola, la jefatura no escribía porque su permiso de modelo es de lectura, pero con el grupo de docente de movilidad de grupo (que da escritura) podía validar documentos de **expedientes individuales** y editar el **seguimiento de otras movilidades de grupo** (riesgo R-28, anexo F). Desde `e73bd746` todas las reglas de la jefatura son **solo de lectura** y el equipo y el administrador tienen las suyas aparte.
+
 El acceso a los **archivos** (`ir.attachment`) de una línea lo resuelve Odoo comprobando el acceso a la línea (`res_model`, `res_id`). Las pruebas lo verifican también por HTTP (`/web/content/<id>`): ver [anexos/B_matriz_acceso_observada.md](anexos/B_matriz_acceso_observada.md).
 
 ## 2.4 Campos restringidos (`groups=`)
@@ -114,20 +116,21 @@ Solo existen para `ems.group_erasmus` y `ems.group_academic_admin`; JE, Director
 | Regla | Dónde | Efecto |
 |---|---|---|
 | Solo el equipo cambia una solicitud | `EmsErasmusApplication.write()` (`application.py:453`) | `AccessError` para cualquier otro usuario no superusuario |
-| El estado solo cambia con las acciones | `write()` de solicitud, convocatoria (vía `_ems_set_state`), movilidad, movilidad de grupo | `UserError` si se escribe `state` directamente |
+| El estado solo cambia con las acciones | **Código auditado:** solo la solicitud lo rechazaba (`UserError`), y solo sin la clave de contexto `ems_erasmus_state`, que el cliente puede enviar. Convocatoria, movilidad y movilidad de grupo **lo permitían** (anexo D). **Desde `e73bd746`:** `check_workflow_write()`/`check_workflow_create()` (`models/erasmus/workflow.py`) en convocatoria, solicitud, resolución, reclamación, evaluaciones, movilidad, movilidad de grupo y participante | **Corregido:** `AccessError` si un usuario escribe `state` o cualquier campo `readonly` almacenado (fechas de congelación, decisiones, firmas de la carta…), con cualquier contexto; solo las acciones, como superusuario, los escriben |
 | Quién valida una propuesta | `EmsErasmusMobility._ems_can_validate()` (`mobility.py:557`) | Personal: los `validator_ids` de la convocatoria (Dirección), nunca el propio solicitante; alumno: el equipo; el administrador siempre |
-| Solo el coordinador publica resoluciones | `EmsErasmusResolution.action_publish()` (`resolution.py:92`) | `AccessError` para el técnico |
-| Rol en una movilidad de grupo | `EmsErasmusGroupMobility._ems_role()` (`group_mobility.py:292`), `write()` (`:263`) | Líder: solo `programme`, `leader_notes`, `eu_survey_attachment_ids`, `closure_note`, `proposal_note`, `document_ids`, `log_ids`; acompañante: solo `log_ids` |
+| Solo el coordinador publica resoluciones | `EmsErasmusResolution.action_publish()` (`resolution.py:92`) | `AccessError` para el técnico **en la acción**. En el código auditado el técnico podía publicar escribiendo `state` (R-25) y el coordinador modificar una resolución publicada con la clave `ems_erasmus_publish` (R-27); ambos corregidos |
+| Rol en una movilidad de grupo | `EmsErasmusGroupMobility._ems_role()` (`group_mobility.py:292`), `write()` (`:263`). En el código auditado se eludía con la clave `ems_erasmus_state` (R-27, corregido) | Líder: solo `programme`, `leader_notes`, `eu_survey_attachment_ids`, `closure_note`, `proposal_note`, `document_ids`, `log_ids`; acompañante: solo `log_ids` |
 | Aprobaciones de grupo reservadas al coordinador | `_ems_check_coordinator()` (`group_mobility.py:311`) | Aprobar o devolver la selección, sortear, excepciones, sustituciones |
 | Revisión de documentos de grupo | `EmsErasmusApplicationDocument.write()` (`group_mobility.py:1428`) | Solo equipo o líder cambian `review_state` |
 | Evaluador solo puntúa su rúbrica | `EmsErasmusEvaluation.write()` (`evaluation.py:60`) | Y solo antes del plazo de corrección o de la resolución provisional |
-| Pago marcado como pagado solo por Secretaría | `_check_transfer_fields`, `_check_payer` (`grant.py:14`, `:49`) | Secretaría o administrador, con el asistente de transferencia |
+| Pago marcado como pagado solo por Secretaría | `_check_transfer_fields`, `_check_payer` (`grant.py:14`, `:49`) | Secretaría o administrador, con el asistente de transferencia. En el código auditado se eludía con la clave de contexto `ems_erasmus_payment_state` (R-27, corregido) |
 | Exportación | `EmsErasmusExport._ems_check_request()` (`export.py:116`) | Solo quien la pidió, una vez; auditoría solo coordinador o admin, con motivo |
+| Evidencias que no se borran (desde `e73bd746`) | `check_kept()` (`workflow.py`) en `unlink()` de línea, solicitud, movilidad, participante, movilidad de grupo y evaluación; `ir.attachment` (`models/erasmus/attachment.py`) | `UserError` al borrar un registro con evidencias o al borrar, reescribir o mover el archivo de una línea válida, de un expediente cerrado o un justificante de pago hecho |
 | Excel de participantes | `_ems_participants()` (`application.py:545`), `_ems_check_role('team')` en grupo | Solo equipo Erasmus |
 
 ## 2.6 Matriz de acceso observada
 
-Las pruebas de auditoría (`ems_erasmus_audit`, ver [16_validacion_pruebas.md](16_validacion_pruebas.md)) comprueban, con usuarios y archivos ficticios, **39 operaciones en movilidades individuales con 12 perfiles** y **24 operaciones en movilidades de grupo con 12 perfiles**, por ORM y por HTTP. Resultado: **0 diferencias** con lo esperado. La matriz completa está en [anexos/B_matriz_acceso_observada.md](anexos/B_matriz_acceso_observada.md). Resumen de lo esencial:
+Las pruebas de auditoría (`ems_erasmus_audit`, ver [16_validacion_pruebas.md](16_validacion_pruebas.md)) comprueban, con usuarios y archivos ficticios, 63 operaciones (39 de movilidades individuales y 24 de grupo) con los perfiles que aplican a cada una: **548 comprobaciones** de las 756 combinaciones posibles (208 no aplican o no se probaron). Por tipo: **364 lecturas ORM**, **80 comprobaciones del permiso de escritura** (`check_access('write')`: dicen si la escritura estaría permitida, **no escriben**), **25 acciones ejecutadas** y **79 comprobaciones por HTTP o del contenido del ZIP**. Resultado: **0 diferencias** con lo esperado, con el código auditado y con el corregido. Que no haya diferencias significa que el acceso es el diseñado **para esas operaciones**; no cubre la escritura directa de estados, el contexto forjado ni los roles combinados, que se prueban aparte (anexos D y F). La matriz completa está en [anexos/B_matriz_acceso_observada.md](anexos/B_matriz_acceso_observada.md). Resumen de lo esencial:
 
 | Dato | Equipo / Admin | JE / Director | Secretaría | Docente | Evaluador | Líder grupo | Acompañante | Alumno titular | Otro alumno | Familia |
 |---|---|---|---|---|---|---|---|---|---|---|

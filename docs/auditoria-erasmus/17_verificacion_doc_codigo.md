@@ -15,11 +15,11 @@
 | Afirmación (documento) | Código | Resultado |
 |---|---|---|
 | «The state only changes through these actions (`write()` refuses a direct change)» — solicitud (`erasmus.md`) | `application.py:454` | ✅ Coincide (verificado, anexo D) |
-| «The state changes only through the actions» — movilidad (`erasmus.md`, fase 5) | `mobility.py:351` solo limita a no-equipo | ❌ **Discrepancia**: el equipo puede escribir el estado por RPC (anexo D, R-25) |
-| «Publishing is the coordinator's approval … checked in `action_publish()`» (`erasmus.md`) | `resolution.py:96` | ⚠️ Cierto para el botón, pero el estado se puede escribir directamente (R-25) |
+| «The state changes only through the actions» — movilidad (`erasmus.md`, fase 5) | `mobility.py:351` solo limita a no-equipo | ❌ **Discrepancia**: el equipo puede escribir el estado por RPC (anexo D, R-25) **[Desde `e73bd746`: ya coincide (R-25)]** |
+| «Publishing is the coordinator's approval … checked in `action_publish()`» (`erasmus.md`) | `resolution.py:96` | ⚠️ Cierto para el botón, pero el estado se puede escribir directamente (R-25) **[Desde `e73bd746`: ya coincide (R-25, R-27)]** |
 | «Every upload adds an attachment …; earlier files are never removed, so every version stays» (`erasmus.md`) | `application.py:982` | ⚠️ **Parcial**: solo se impide quitar archivos de líneas válidas o cerradas (R-03); la línea entera se puede borrar (R-01) |
 | «A file can never be removed from a valid line, nor from any line of a closed or cancelled mobility» (`records.md`) | `application.py:982-994` | ✅ Coincide para `write()`; ❌ no menciona que el adjunto o la línea se pueden borrar (R-01) |
-| «Each can be requested once …, from the *preparing* state» — pagos (`erasmus.md`, fase 6) | Vista: `state in ('preparing', 'done')`; servidor: sin comprobación | ❌ **Discrepancia** (R-13) |
+| «Each can be requested once …, from the *preparing* state» — pagos (`erasmus.md`, fase 6) | Vista: `state in ('preparing', 'done')`; servidor: sin comprobación | ❌ **Discrepancia** (R-13) **[Desde `e73bd746`: ya coincide, también ante peticiones simultáneas (R-13, R-29)]** |
 | Tabla «Access (phase 6)»: Secretaría `r` en provisiones y facturas, `rwc` en documentos de proyecto, `r` + registrar en pagos | CSV | ✅ Coincide |
 | «Head of Studies / Director: r, not confidential ones (`ir.rule`)» — líneas documentales | `rule_erasmus_application_document_not_confidential` | ✅ Coincide (verificado) |
 | «Evaluators see only their own interviews» | Regla `rule_erasmus_interview_evaluator` | ✅ Coincide (verificado) |
@@ -29,7 +29,7 @@
 | «Without an audit export, confidential documents … never leave EMS» | `_ems_line_entries` | ✅ Coincide (verificado) |
 | Tabla de roles de grupo (`group_mobility.md`): técnico no aprueba; líder pide excepción; acompañante solo seguimiento | `_ems_role`, `_ems_check_coordinator` | ✅ Coincide |
 | «what each role may change is checked again in the models …, never only by hiding buttons» (`group_mobility.md`) | `write()` de movilidad de grupo | ✅ Para líder y acompañante; ⚠️ el equipo puede escribir `state` (R-25) |
-| «Draws … `write` and `unlink` refuse» (`group_mobility.md`) | `group_mobility.py:1300-1333` | ✅ Coincide; ⚠️ un borrado en cascada de la movilidad de grupo los elimina (R-01) |
+| «Draws … `write` and `unlink` refuse» (`group_mobility.md`) | `group_mobility.py:1300-1333` | ✅ Coincide; ⚠️ un borrado en cascada de la movilidad de grupo los elimina (R-01) **[Desde `e73bd746`: la movilidad de grupo con sorteos ya no se borra (R-01)]** |
 | «The record average is the internship call's» | `_ems_freeze` llama a `_ems_partner_grade_values` | ✅ Coincide |
 | «A student with no evaluated module has no average, never a 0» | `grade_found`, `grade_incident` | ✅ Coincide |
 | «In group mobilities only the leader answers the EU Survey» | `_ems_eu_survey_user` | ✅ Coincide |

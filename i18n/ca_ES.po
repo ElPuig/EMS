@@ -4215,6 +4215,7 @@ msgstr "Comentari per l'alumne de l'assignatura"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__4 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__4 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__4
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule_grid
 msgid "Friday"
 msgstr "Divendres"
 
@@ -5734,6 +5735,7 @@ msgstr "Mode"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__0 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__0
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule_grid
 msgid "Monday"
 msgstr "Dilluns"
 
@@ -8598,6 +8600,7 @@ msgstr "Aquesta plantilla ja ha estat utilitzada per registrar les assistències
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__3 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__3 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__3
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule_grid
 msgid "Thursday"
 msgstr "Dijous"
 
@@ -8670,6 +8673,7 @@ msgstr "Cert quan el compte de Google Workspace de l'alumne està suspès (exalu
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__1 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__1 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__1
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule_grid
 msgid "Tuesday"
 msgstr "Dimarts"
 
@@ -9047,6 +9051,7 @@ msgstr "Històric de comunicacions del lloc web"
 #. odoo-javascript
 #: code:addons/ems/static/src/js/backend/schedule_grid_geometry.js:0 model:ir.model.fields.selection,name:ems.selection__ems_attendance_schedule__weekday__2 model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_header__weekday__2 model_terms:ir.ui.view,arch_db:ems.report_group_schedule model_terms:ir.ui.view,arch_db:ems.report_student_schedule model_terms:ir.ui.view,arch_db:ems.report_working_schedule model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board model_terms:ir.ui.view,arch_db:ems.schedule_report_grid
 #: model:ir.model.fields.selection,name:ems.selection__ems_enrollment_slot__weekday__2
+#: model_terms:ir.ui.view,arch_db:ems.report_working_schedule_grid
 msgid "Wednesday"
 msgstr "Dimecres"
 
@@ -27316,3 +27321,39 @@ msgstr "Escriu el motiu de l'anul·lació de la sol·licitud."
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__archived_with_calendar
 msgid "Archived with its calendar"
 msgstr "Arxivada amb el seu calendari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_level__declaration_code
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__declaration_code
+msgid "Schedule declaration code"
+msgstr "Codi a la declaració horària"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_level__declaration_code
+msgid "Row of the summary table of the official schedule declaration this level's teaching hours are added to. Empty: they go to 'Altres'."
+msgstr "Fila del quadre resum de la declaració horària oficial on se sumen les hores lectives d'aquest nivell. Buit: van a «Altres»."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_non_teaching_type__declaration_code
+msgid "Row of the summary table of the official schedule declaration these hours are added to. Tutoring goes to the row of the tutored group's level. Empty: not declared (e.g. the break)."
+msgstr "Fila del quadre resum de la declaració horària oficial on se sumen aquestes hores. La tutoria va a la fila del nivell del grup tutorat. Buit: no es declara (p. ex. el pati)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__other
+msgid "Others"
+msgstr "Altres"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_non_teaching_type__declaration_code__tutoring
+msgid "Tutoring (T-ESO, T-BAT, T-FP or PFI)"
+msgstr "Tutoria (T-ESO, T-BAT, T-FP o PFI)"
+
+#. module: ems
+#: model:ir.actions.report,name:ems.action_report_schedule_declaration
+msgid "Schedule declaration"
+msgstr "Declaració horària"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_employee_form
+msgid "Print schedule declaration"
+msgstr "Imprimeix la declaració horària"

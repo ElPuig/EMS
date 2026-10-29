@@ -1,0 +1,143 @@
+from odoo.tests.common import TransactionCase
+
+from .common import create_level_study_group, create_role_employee, create_role_user
+
+
+class TestScheduleDeclaration(TransactionCase):
+    """Issue #723: the Departament's official schedule declaration ("Annexos Dades anuals")."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.level, _study, cls.group = create_level_study_group(cls, 'TSDE', level={'declaration_code': 'eso'})
+        cls.subject = cls.env['ems.subject'].create({
+            'code': 'TSDE001', 'acronym': 'TSDE', 'name': 'Test Subject (Schedule Declaration)',
+            'study_ids': [(6, 0, _study.ids)],
+        })
+        cls.teacher = cls.env['hr.employee'].create({
+            'name': 'Test Teacher (Schedule Declaration)', 'employee_type': 'teacher',
+            'identification_id': 'TSDE-NIF-1',
+        })
+        cls.calendar = cls.env['resource.calendar'].create({
+            'name': 'Test Calendar (Schedule Declaration)', 'employee_id': cls.teacher.id, 'attendance_ids': [(5, 0, 0)],
+        })
+        cls.teacher.resource_calendar_id = cls.calendar
+
+    def _apply(self, *blocks):
+        """Saves 'blocks' as the teacher's whole schedule (apply_schedule_changes replaces it), one
+        after the other from 8:00. A block: a group (a class) or a non-teaching type's xmlid, or a
+        (block, dayofweek) pair, or a (block, dayofweek, hours) triple."""
+        entries, hour_from = [], 8
+        for block in blocks:
+            block = block if isinstance(block, tuple) else (block,)
+            block, dayofweek, hours = block + ('0', 1)[len(block) - 1:]
+            vals = ({'non_teaching': self.env.ref(block).id} if isinstance(block, str)
+                    else {'subject_id': self.subject.id, 'group_ids': [block.id]})
+            entries.append({'dayofweek': dayofweek, 'hour_from': hour_from, 'hour_to': hour_from + hours,
+                            'day_period': 'morning', 'name': 'TSDE', **vals})
+            hour_from += hours
+        self.calendar.apply_schedule_changes(entries)
+
+    def test_class_goes_to_its_level_code(self):
+        self._apply((self.group, '0', 2))
+
+        summary = self.calendar.get_schedule_declaration_summary()
+
+        self.assertEqual(summary['lective'], {'eso': 2})
+        self.assertEqual(summary['lective_total'], 2)
+
+    def test_group_without_level_takes_its_main_groups_level(self):
+        optative = self.env['ems.group'].create({
+            'group_type': 'reinforcement', 'name': 'TSDE optative', 'parent_group_ids': [(6, 0, self.group.ids)],
+        })
+        self._apply(optative)
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 1})
+
+    def test_level_without_code_goes_to_other(self):
+        self.level.declaration_code = False
+        self._apply(self.group)
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'other': 1})
+
+    def test_non_teaching_rows_and_columns(self):
+        # Guard: fixed. Coordination meeting: fixed on Wednesday only. Management time: lective CD.
+        # Break and reduction of working hours: not declared.
+        self.env['ems.non_teaching_type']._ems_seed_declaration_codes()
+        self._apply('ems.non_teaching_g', ('ems.non_teaching_cm', '2'), ('ems.non_teaching_cm', '1'),
+                    'ems.non_teaching_mt', 'ems.non_teaching_br', 'ems.non_teaching_r')
+
+        summary = self.calendar.get_schedule_declaration_summary()
+
+        self.assertEqual(summary['fixed'], {'g': 1, 'rd_rc': 1})
+        self.assertEqual(summary['lective'], {'rd_rc': 1, 'cd': 1})
+        self.assertEqual((summary['lective_total'], summary['fixed_total']), (2, 2))
+
+    def test_tutoring_goes_to_the_tutored_groups_level(self):
+        self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
+        self._apply('ems.non_teaching_tt')
+        cases = [('eso', 't_eso'), ('bat', 't_bat'), ('pfi', 'pfi'), ('cfgm', 't_fp')]
+        for level_code, row in cases:
+            with self.subTest(level_code=level_code):
+                self.level.declaration_code = level_code
+                self.group.tutor_id = self.teacher
+
+                self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {row: 1})
+
+    def test_tutorship_subject_goes_to_its_groups_tutoring_row(self):
+        self.subject.is_tutorship = True
+        self._apply(self.group)
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_eso': 1})
+
+    def test_reductions_are_only_their_hours_and_count_in_the_total(self):
+        reductions = self.env['ems.teaching_reduction_type'].create([
+            {'code': 'TSDE-R1', 'name': 'Test reduction 1', 'reduction_hours': 2},
+            {'code': 'TSDE-R2', 'name': 'Test reduction 2', 'reduction_hours': 1},
+        ])
+        self.teacher.teaching_reduction_ids = reductions
+        self._apply(self.group)
+
+        summary = self.calendar.get_schedule_declaration_summary()
+
+        self.assertEqual(summary['reduction'], 3)
+        self.assertEqual(summary['lective'], {'eso': 1})
+        self.assertEqual(summary['lective_total'], 4)
+
+    def test_seed_sets_the_official_codes(self):
+        self.env['ems.level']._ems_seed_declaration_codes()
+        self.env['ems.non_teaching_type']._ems_seed_declaration_codes()
+
+        self.assertEqual(self.env.ref('ems.level_btx').declaration_code, 'bat')
+        self.assertEqual(self.env.ref('ems.level_efps').declaration_code, 'cefp')
+        self.assertEqual(self.env.ref('ems.non_teaching_wic').declaration_code, 'cc')
+        self.assertEqual(self.env.ref('ems.non_teaching_tt').declaration_code, 'tutoring')
+        self.assertFalse(self.env.ref('ems.non_teaching_br').declaration_code)
+        self.assertFalse(self.env.ref('ems.non_teaching_r').declaration_code)
+
+    def test_print_from_the_form_prints_only_this_teacher(self):
+        action = self.teacher.action_print_schedule_declaration()
+
+        self.assertEqual(action['report_name'], 'ems.report_schedule_declaration')
+        self.assertEqual(action['context']['active_ids'], self.teacher.ids)
+
+    def test_report_is_in_catalan_with_the_summary(self):
+        self._apply((self.group, '0', 2))
+
+        content, _content_type = self.env['ir.actions.report'].with_context(lang='en_US')._render_qweb_pdf(
+            'ems.report_schedule_declaration', self.teacher.ids)
+
+        self.assertIn('QUADRE RESUM D’HORES'.encode(), content)
+        self.assertIn(b'Dilluns', content)
+        self.assertIn(b'TSDE-NIF-1', content)
+
+    def test_teacher_prints_another_teachers_declaration_without_their_nif(self):
+        user = create_role_user(self, 'teacher', 'tsde_teacher')
+        create_role_employee(self, user)
+        self._apply(self.group)
+
+        content, _content_type = self.env['ir.actions.report'].with_user(user)._render_qweb_pdf(
+            'ems.report_schedule_declaration', self.teacher.ids)
+
+        self.assertIn(self.teacher.name.encode(), content)
+        self.assertNotIn(b'TSDE-NIF-1', content)

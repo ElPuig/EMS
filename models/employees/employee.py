@@ -815,6 +815,11 @@ class ems_employee(models.AbstractModel):
                 ('space_pending_group_sync', '=', True),
             ])
 
+    def action_print_schedule_declaration(self):
+        """Issue #723: from the form's Actions dropdown, for this teacher only (a type="action"
+        button would print every record of the form's pager)."""
+        return self.env.ref('ems.action_report_schedule_declaration').report_action(self)
+
     def action_open_classroom_change_wizard(self):
         """Opens 'ems.group_classroom_change_wizard' for this teacher's own pending classroom
         conflicts (see 'pending_classroom_conflict_count' and the banner button on the "Schedule"

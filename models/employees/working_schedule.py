@@ -11,6 +11,7 @@ import json
 import math
 import re
 
+from .non_teaching_type import TUTORING_CODE_BY_LEVEL_CODE, TUTORING_DEFAULT_CODE
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC, EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
 
@@ -260,6 +261,23 @@ class ems_working_schedule(models.Model):
 				kept |= max(cluster, key=lambda a: a.hour_to - a.hour_from)
 		return kept
 
+	def _iter_summary_entries(self):
+		"""The weekly blocks counted in the hours summaries, as (block, hours, is_fixed): Monday to
+		Friday, a date-split slot only once (_dedupe_date_split_blocks), each block rounded UP to
+		whole hours, breaks and unassigned blocks left out. 'is_fixed' is the "other fixed-schedule
+		hours" column: guard duties (is_fixed) and the coordination meeting on Wednesday. Shared by
+		get_schedule_hours_summary() and get_schedule_declaration_summary() (issue #723)."""
+		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+		for attendance in self._dedupe_date_split_blocks(weekday_entries):
+			if attendance.subject_id:
+				is_fixed = False
+			elif attendance.non_teaching and not attendance.non_teaching.is_break:
+				non_teaching = attendance.non_teaching
+				is_fixed = non_teaching.is_fixed or (non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
+			else:
+				continue
+			yield attendance, math.ceil(attendance.hour_to - attendance.hour_from), is_fixed
+
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly
 		like the real external schedules this data is modelled on:
@@ -278,32 +296,21 @@ class ems_working_schedule(models.Model):
 		later. For a full-time teacher with no reduction, 'total' should equal 24 (full_time_required_
 		hours)."""
 		self.ensure_one()
-		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
-		weekday_entries = self._dedupe_date_split_blocks(weekday_entries)
-
 		teaching_rows = {}
 		fixed_rows = {}
-		for attendance in weekday_entries:
-			duration = math.ceil(attendance.hour_to - attendance.hour_from)
+		for attendance, duration, is_fixed in self._iter_summary_entries():
 			if attendance.subject_id:
 				group = attendance.group_ids[:1]
-				bucket = teaching_rows
 				if group.group_type == 'reinforcement':
 					key = ('reinforcement', group.id)
 					label = group.display_name
 				else:
 					key = ('level', group.level_id.id)
 					label = group.level_id.display_name
-			elif attendance.non_teaching.is_break:
-				continue
-			elif attendance.non_teaching:
-				is_fixed = attendance.non_teaching.is_fixed or (attendance.non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
-				bucket = fixed_rows if is_fixed else teaching_rows
+			else:
 				key = ('activity', attendance.non_teaching.id)
 				label = attendance.get_report_label()
-			else:
-				continue
-
+			bucket = fixed_rows if is_fixed else teaching_rows
 			if key not in bucket:
 				bucket[key] = {'label': label, 'hours': 0}
 			bucket[key]['hours'] += duration
@@ -320,6 +327,52 @@ class ems_working_schedule(models.Model):
 			'teaching': {'rows': teaching, 'total': teaching_total},
 			'fixed': {'rows': fixed, 'total': fixed_total},
 			'total': teaching_total + fixed_total,
+		}
+
+	@staticmethod
+	def _declaration_tutoring_code(level_code):
+		return TUTORING_CODE_BY_LEVEL_CODE.get(level_code, TUTORING_DEFAULT_CODE)
+
+	def get_schedule_declaration_summary(self):
+		"""Issue #723: the "Quadre resum d'hores" of the Departament's official schedule declaration,
+		{'lective': {code: hours}, 'fixed': {code: hours}, 'reduction': hours, 'lective_total',
+		'fixed_total'}, codes from DECLARATION_CODES. Same blocks and columns as
+		get_schedule_hours_summary(); only the rows differ:
+		- a class goes to its group's level's declaration_code (a group without a level, e.g. a
+		  split or optative, takes its main groups' level); no code: 'other' (Altres);
+		- tutoring goes to the row of the tutored level (T-ESO, T-BAT, PFI, else T-FP): a tutorship
+		  subject (is_tutorship), by its group's level; a non-teaching type coded 'tutoring', by the
+		  level of the teacher's tutorship;
+		- any other non-teaching block goes to its type's declaration_code; no code: left out;
+		- the teaching-hour reductions are only given as their total hours ('reduction'), and are
+		  counted in the lective total, as on the Schedule tab (developer, 2026-10-29)."""
+		self.ensure_one()
+		employee = self.get_employee()
+		tutored_level_code = employee.tutorship_ids.sorted('id')[:1].level_id.declaration_code
+		columns = {'lective': {}, 'fixed': {}}
+		for attendance, duration, is_fixed in self._iter_summary_entries():
+			if attendance.subject_id:
+				group = attendance.group_ids[:1]
+				level_code = (group.level_id or group.parent_group_ids.sorted('id')[:1].level_id).declaration_code
+				if attendance.subject_id.is_tutorship:
+					code = self._declaration_tutoring_code(level_code)
+				else:
+					code = level_code or 'other'
+			else:
+				code = attendance.non_teaching.declaration_code
+				if code == 'tutoring':
+					code = self._declaration_tutoring_code(tutored_level_code)
+				elif not code:
+					continue
+			column = columns['fixed' if is_fixed else 'lective']
+			column[code] = column.get(code, 0) + duration
+		reduction = sum(employee.teaching_reduction_ids.mapped('reduction_hours'))
+		return {
+			'lective': columns['lective'],
+			'fixed': columns['fixed'],
+			'reduction': reduction,
+			'lective_total': sum(columns['lective'].values()) + reduction,
+			'fixed_total': sum(columns['fixed'].values()),
 		}
 
 class ems_working_schedule_assignation(models.Model):

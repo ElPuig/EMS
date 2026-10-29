@@ -57,7 +57,8 @@ registry.category("web_tour.tours").add("ems_actions_dropdown_foreign_student", 
     ],
 });
 
-// The same tutor on a teacher's form: read-only access to employees, so no Archive either.
+// The same tutor on a teacher's form: read-only access to employees, so no Archive either, but
+// the schedule declaration to print.
 registry.category("web_tour.tours").add("ems_actions_dropdown_employee_no_archive", {
     test: true,
     steps: () => [
@@ -66,6 +67,9 @@ registry.category("web_tour.tours").add("ems_actions_dropdown_employee_no_archiv
             content: "The teacher's form is loaded",
         },
         ...noArchiveInCog("The tutor can't archive a colleague: no Archive in the cog menu"),
+        // Issue #723: any teacher prints a teacher's official schedule declaration.
+        ...checkActions({ offered: ["action_print_schedule_declaration"] },
+            "The tutor can print the colleague's schedule declaration"),
     ],
 });
 

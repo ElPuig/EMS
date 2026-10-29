@@ -1008,16 +1008,20 @@ flowchart LR
   line (`guard_spans`), may be sent by the user (`_can_move_teacher`, issue #721) and some class of
   the line has its teacher in and is managed by the user; or when the badge is a support already
   given (`support_cover_id`), to show it and remove it.
-- **Which badges look usable.** Every badge of the absences table's guard column that the user can
-  do nothing with looks disabled (`o_guard_board_guard_disabled`: pale text, and a grey dashed box
-  unless it carries a cover colour, which keeps pairing it with its class): only those with
-  `can_support`, and the user's own badge while they are free on guard then (`is_me_free`, on an
-  editable day: they may take a class themselves, #601), keep the usual look. So a plain teacher
-  sees the whole column greyed out except themselves when on guard. A guard who has not checked
-  in yet today (#692, so unavailable) carries the same clock icon as a "Not checked in" row, on both
-  views, so a disabled badge is not mistaken for a permission problem. While their guard is going
-  on, whoever is on guard then or manages them clicks that badge to say they are in the centre
-  (`can_mark_present`, see "Teachers who have not checked in").
+- **Which badges look usable.** A badge of the absences table's guard column looks disabled
+  (`o_guard_board_guard_disabled`: pale text, and a grey dashed box unless it carries a cover colour,
+  which keeps pairing it with its class) only when the guard cannot cover anything then and the
+  user cannot act on it either: a guard who is free in that line (`available`, i.e. in
+  `guard_spans` on an editable day) keeps the usual look for everybody, with a tooltip saying they
+  are assigned from an absence's row, even when their own line has nothing to support (a break
+  block); so do badges with `can_support`, and with `can_mark_present`. A guard away, busy with a
+  group or not checked in yet is disabled to whoever cannot check them in. `is_me_free` (the user's
+  own available badge, #601) is `available` restricted to the user. A guard who has not checked in
+  yet today (#692) carries the same clock icon as a "Not checked in" row, on both views, so a
+  disabled badge is not mistaken for a permission problem. While their guard is going on, whoever
+  is on guard then or manages them clicks that badge to say they are in the centre
+  (`can_mark_present`, see "Teachers who have not checked in"); once checked in, the badge is
+  available.
 - **Which classes.** `ems.course._get_support_options(day, hour_from, hour_to, guard)`: the guard's
   part of the period (`_get_guard_candidates()`, so an absent, busy or non-regular guard gets none),
   every lesson overlapping it whose teacher is in (absences and, today, not checked in count as

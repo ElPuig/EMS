@@ -52,6 +52,7 @@ class TestGuardSupport(AbsenceCoverageCase):
         self.assertIn(self.teacher_a.name, badge['busy'])
         self.assertTrue(badge['support_cover_id'])
         self.assertEqual(badge['cover_count'], 1)
+        self.assertFalse(badge['available'])
         # Busy: nobody can send them to cover an absence then, and they cannot take one themselves.
         self.assertNotIn(self.teacher_guard.id, [candidate['id'] for candidate in line['guard_candidates']])
         cell = next(cell for cell in line['cells'] if cell['group_id'] == self.group_a.id)
@@ -96,19 +97,21 @@ class TestGuardSupport(AbsenceCoverageCase):
         with self.assertRaises(UserError):
             self._support(user=self.eso_chief, hour_from=9, hour_to=10)
 
-    def test_a_guard_on_duty_sees_only_themselves_enabled(self):
-        """The badges the user can do nothing with look disabled: a plain teacher on guard sees
-        only their own (they may take a class themselves), never a colleague's."""
+    def test_only_a_guard_who_cannot_cover_looks_disabled(self):
+        """A badge looks disabled only when the guard cannot cover anything then (away, not checked
+        in, busy): a free guard is available to everybody, though only whoever manages a class may
+        send them as support, and only the user themselves takes a class from their own badge."""
         self._morning()
 
         line = self._board_line(user=self.guard_user)
         guards = self.teacher_guard | self.teacher_guard_2
-        self.assertEqual({badge['id']: badge['can_support'] or badge['is_me_free'] for badge in line['guards']
-                          if badge['id'] in guards.ids},
-                         {self.teacher_guard.id: True, self.teacher_guard_2.id: False})
+        self.assertEqual({badge['id']: (badge['available'], badge['can_support'], badge['is_me_free'])
+                          for badge in line['guards'] if badge['id'] in guards.ids},
+                         {self.teacher_guard.id: (True, False, True), self.teacher_guard_2.id: (True, False, False)})
         self._absence(self.teacher_guard, self.day)
-        self.assertFalse(self._guard(self._board_line(user=self.guard_user), self.teacher_guard)['is_me_free'])
-        # Whoever manages the classes sees both enabled, though neither is them.
+        badge = self._guard(self._board_line(user=self.guard_user), self.teacher_guard)
+        self.assertEqual((badge['available'], badge['is_me_free']), (False, False))
+        # Whoever manages the classes may send the free one as support.
         line = self._board_line()
         self.assertTrue(self._guard(line, self.teacher_guard_2)['can_support'])
         self.assertFalse(self._guard(line, self.teacher_guard_2)['is_me_free'])

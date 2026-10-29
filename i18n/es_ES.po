@@ -27461,3 +27461,9 @@ msgstr "Está en el centro"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Not checked in: say they are in the centre"
 msgstr "Sin fichar: indica que está en el centro"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Available: assign them from the row of an absence"
+msgstr "Disponible: se asigna desde la fila de una ausencia"

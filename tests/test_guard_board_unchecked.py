@@ -226,6 +226,7 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
             return next(guard for guard in line['guards'] if guard['id'] == late.id)
 
         self.assertEqual(badge(self.guard_user)['absence'], 'unchecked')
+        self.assertFalse(badge(self.other_teacher)['available'])
         for user, expected in ((self.guard_user, True), (self.department_chief, True), (self.other_teacher, False)):
             with self.subTest(user=user.login):
                 self.assertEqual(badge(user)['can_mark_present'], expected)
@@ -236,6 +237,8 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
 
         self.assertEqual(self.Attendance.search([('employee_id', '=', late.id)]).ems_checked_in_by_id, self.guard_user)
         self.assertFalse(badge(self.guard_user)['absence'])
+        # Checked in, they can cover now: their badge no longer looks disabled, to anybody.
+        self.assertTrue(badge(self.other_teacher)['available'])
 
     def test_only_a_class_in_progress_on_a_teacher_still_not_checked_in(self):
         # Already over: checking them in now would not take it off the table.

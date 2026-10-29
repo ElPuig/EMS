@@ -376,6 +376,10 @@ export class GuardDutyBoard extends Component {
         return _t("Send as support to a teacher in class");
     }
 
+    get availableTooltip() {
+        return _t("Available: assign them from the row of an absence");
+    }
+
     get coverCountTitle() {
         return _t("Classes covered this course");
     }

@@ -412,8 +412,8 @@
                                                 <t t-foreach="state.board.lines[slot.line].guards" t-as="guard" t-key="guard.name">
                                                 <!-- Issue #725: whoever manages a class here may send the guard to support its teacher. -->
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="guardBadgeClass(guard) + (guard.can_support or guard.can_mark_present ? ' o_guard_board_guard_supportable' : '') + (guard.can_support or guard.is_me_free or guard.can_mark_present ? '' : ' o_guard_board_guard_disabled')"
-                                                      t-att-data-tooltip="guard.busy or (guard.can_mark_present ? markPresentTooltip : guard.can_support ? supportTooltip : false)"
+                                                      t-att-class="guardBadgeClass(guard) + (guard.can_support or guard.can_mark_present ? ' o_guard_board_guard_supportable' : '') + (guard.can_support or guard.available or guard.can_mark_present ? '' : ' o_guard_board_guard_disabled')"
+                                                      t-att-data-tooltip="guard.busy or (guard.can_mark_present ? markPresentTooltip : guard.can_support ? supportTooltip : guard.available ? availableTooltip : false)"
                                                       t-on-click="() => this.onGuardClick(state.board.lines[slot.line], guard)">
                                                     <!-- Issue #692: not checked in yet, so not available (issue #725). -->
                                                     <i t-if="guard.absence === 'unchecked'" class="fa fa-clock-o me-1" title="Not checked in"/>

@@ -17,7 +17,7 @@ EMS genera el carné de estudiante en un PDF listo para imprimir y recortar.
 **Anverso:**
 
 - El logotipo, el nombre, la dirección y el teléfono del centro, y el curso académico actual.
-- Una franja partida en dos. A la izquierda, el nivel del alumno en grande (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS), el estudio y el curso, en el color del nivel.
+- Una franja partida en dos. A la izquierda, el nivel del alumno en grande (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS), las siglas del estudio (SMX, DAW...; no en la ESO ni en el BTX, donde repetirían el nivel) y, dentro de un recuadro, el curso (1, 2, 3, 4), en el color del nivel.
 - A la derecha, si el alumno puede salir del centro, para el profesorado de la puerta: **Pot sortir del centre** (en verde) cuando el alumno es mayor de edad o la familia ha aceptado la autorización *Salir del centro* de este curso, y **No pot sortir del centre** (en rojo) en caso contrario. Se decide en el momento de imprimir el carné: si el alumno cumple 18 años o la familia acepta la autorización más tarde, vuelve a imprimirlo.
 - La foto, los apellidos y el nombre, el documento de identidad (DNI o NIE, o el pasaporte si no tiene), la fecha de nacimiento y el IDALU, con su código de barras.
 - El sello del centro. Si la administración aún no lo ha subido, sale un recuadro en blanco para sellarlo a mano.

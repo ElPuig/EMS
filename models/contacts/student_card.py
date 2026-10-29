@@ -54,7 +54,10 @@ class ResPartner(models.Model):
             'level': level,
             # A student without a main group still gets a band, in the colour of a level without one.
             'color': CARD_PALETTE[level.card_color or DEFAULT_CARD_COLOR],
-            'study': ' '.join(filter(None, (group.study_id.name, str(group.course or '')))),
+            # The study's acronym (SMX, not its full name), so the block never takes two lines; left out
+            # when it only repeats the level's (ESO, BTX).
+            'study': group.study_id.acronym if group.study_id.acronym != level.acronym else '',
+            'course': group.course,
         }
 
 

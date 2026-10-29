@@ -25,7 +25,8 @@ class TestStudentCard(TransactionCase):
         other_tutor = create_role_employee(cls, create_role_user(
             cls, 'tutor', 'test_card_other_tutor', name='TSC Other Tutor'))
         create_head_of_studies_branch(cls, 'TSC', tutor)
-        cls.level, cls.study, cls.group = create_level_study_group(cls, 'TSC', group={'tutor_id': tutor.id})
+        cls.level, cls.study, cls.group = create_level_study_group(
+            cls, 'TSC', study={'acronym': 'TSCX'}, group={'tutor_id': tutor.id, 'course': 3})
         __, __, cls.other_group = create_level_study_group(cls, 'TSCO', group={'tutor_id': other_tutor.id})
         cls.own_b, cls.own_a, cls.foreign = cls.env['res.partner'].create([{
             'name': name, 'contact_type': 'student', 'student_id': next_student_id(), 'main_group_id': grp.id,
@@ -98,9 +99,17 @@ class TestStudentCard(TransactionCase):
         self.foreign.write({'passport_id': 'XY1234567'})
         html = self._render(self.own_a | self.foreign)
         for expected in ('TSC Alpha Student', '12345678Z', 'XY1234567', self.own_a.student_id,
-                         'TSC', 'TSCO', 'Test TSC Study 1', CARD_PALETTE[self.level.card_color],
+                         'TSC', 'TSCO', CARD_PALETTE[self.level.card_color],
                          self.env.company.current_course_id.name or '', 'class="o_ems_card_barcode"'):
             self.assertIn(expected, html)
+
+    def test_study_acronym_and_framed_course(self):
+        # The study's acronym, never its full name, and only when it adds something to the level's.
+        html = self._render(self.own_a)
+        self.assertIn('<div class="o_ems_card_study">TSCX</div>', html)
+        self.assertNotIn('Test TSC Study', html)
+        self.assertIn('<div class="o_ems_card_course_number">3</div>', html)
+        self.assertNotIn('class="o_ems_card_study"', self._render(self.foreign))
 
     def test_stamp_box_or_uploaded_stamp(self):
         self.env.company.ems_card_stamp = False

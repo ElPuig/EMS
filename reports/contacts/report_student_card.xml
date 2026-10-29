@@ -63,7 +63,12 @@
                         table.o_ems_card_band { border-collapse: separate; border-spacing: 2mm 0; margin: 0.6mm 0 0 0; }
                         td.o_ems_card_chip { width: 50%; height: 10.5mm; border-radius: 2mm; padding: 0 2.2mm; vertical-align: middle; }
                         .o_ems_card_level { font-size: 14pt; font-weight: bold; letter-spacing: 0.4mm; line-height: 1; color: #263238; }
-                        .o_ems_card_study { font-size: 5.5pt; line-height: 1.15; margin-top: 0.6mm; color: #455A64; }
+                        .o_ems_card_study { font-size: 7.5pt; font-weight: bold; letter-spacing: 0.2mm; line-height: 1; margin-top: 0.8mm; color: #455A64; }
+                        /* The course year, framed: in ESO a 1st-year and a 4th-year student are not the same. */
+                        td.o_ems_card_course_cell { width: 9.5mm; vertical-align: middle; }
+                        .o_ems_card_course { width: 9mm; height: 9.5mm; box-sizing: border-box; border: 0.35mm solid #263238; border-radius: 1.8mm; background: #FFFFFF; text-align: center; color: #263238; }
+                        .o_ems_card_course_label { font-size: 4pt; letter-spacing: 0.2mm; text-transform: uppercase; line-height: 1; padding-top: 0.9mm; margin-bottom: 0.3mm; }
+                        .o_ems_card_course_number { font-size: 13pt; font-weight: bold; line-height: 1; }
                         .o_ems_card_exit i { font-size: 13pt; margin-right: 1.5mm; }
                         .o_ems_card_exit_label { font-size: 7.5pt; font-weight: bold; line-height: 1.15; text-transform: uppercase; letter-spacing: 0.1mm; }
                         .o_ems_card_exit_yes { background: #C8E6C9; color: #1B5E20; }
@@ -147,8 +152,18 @@
                 <table class="o_ems_card_band o_ignore_layout_styling" style="width: 100%;">
                     <tr>
                         <td class="o_ems_card_chip" t-attf-style="background: {{ card['color'] }};">
-                            <div class="o_ems_card_level" t-out="card['level'].acronym"/>
-                            <div class="o_ems_card_study" t-out="card['study']"/>
+                            <table class="o_ignore_layout_styling" style="width: 100%;"><tr>
+                                <td style="vertical-align: middle;">
+                                    <div class="o_ems_card_level" t-out="card['level'].acronym"/>
+                                    <div t-if="card['study']" class="o_ems_card_study" t-out="card['study']"/>
+                                </td>
+                                <td t-if="card['course']" class="o_ems_card_course_cell">
+                                    <div class="o_ems_card_course">
+                                        <div class="o_ems_card_course_label">Year</div>
+                                        <div class="o_ems_card_course_number" t-out="card['course']"/>
+                                    </div>
+                                </td>
+                            </tr></table>
                         </td>
                         <td t-if="student.can_leave_centre" class="o_ems_card_chip o_ems_card_exit o_ems_card_exit_yes">
                             <table class="o_ignore_layout_styling"><tr>

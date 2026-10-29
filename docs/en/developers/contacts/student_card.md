@@ -12,8 +12,10 @@ card shows:
   identity document (`document_id`, or `passport_id` when there is none), birth date and IDALU
   (`student_id`).
 - The **band**, two rounded blocks side by side. On the left, the main group's level acronym (ESO,
-  BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big letters on that level's own colour, plus the study and the
-  course year. On the right, whether the student **may leave the centre** (`can_leave_centre`), for
+  BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big letters on that level's own colour, the study's acronym
+  (never its full name, so the block keeps one line; left out when it equals the level's, as in ESO
+  and BTX) and the group's course year, big and framed (in ESO a 1st and a 4th year are told apart
+  at a glance). On the right, whether the student **may leave the centre** (`can_leave_centre`), for
   the teacher at the door: "Pot sortir del centre" on green or "No pot sortir del centre" on red. The student may
   leave when they are of age (`is_adult`) **or** the family accepted an authorization whose template
   is of type *Leave the Centre* (`auth_leave`) for the academic year in force. Computed when the
@@ -50,7 +52,7 @@ flowchart LR
 | `res.partner` | `auth_leave` (Boolean, stored compute, `contact.py`) | Accepted *Leave the Centre* authorization in the year in force; the same compute as the other `auth_*` flags (see [Authorizations](../enrollment/authorization.md)). |
 | `ems.authorization.template` | `auth_type` value `leave` | *Leave the Centre*. The centre creates the template itself (its legal text) from Academic management. |
 | `res.partner` | `action_print_student_card()` | Keeps the students (`contact_type == 'student'`) the user acts on, sorted by name, and returns the report action. Raises a `UserError` when none is left. |
-| `res.partner` | `_get_student_card_values()` | Per-student values for the template (document, level, study label). |
+| `res.partner` | `_get_student_card_values()` | Per-student values for the template (document, level, colour, study acronym, course year). |
 | `ems.group` | `can_print_student_cards`, `action_print_student_cards()` | Same, for every student whose main group is this one. |
 
 ## Access control

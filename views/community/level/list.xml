@@ -9,7 +9,7 @@
                     <field name="acronym" class="w-25"/>
                     <field name="name"/>
                     <field name="allows_convalidation" optional="hide"/>
-                    <field name="card_color" widget="color" optional="hide"/>
+                    <field name="card_color" optional="hide"/>
                 </list>
             </field>
         </record>   

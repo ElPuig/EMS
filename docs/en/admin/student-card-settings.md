@@ -24,15 +24,15 @@ Use a PNG image with a transparent background, so the stamp doesn't cover the re
 
 ## Changing a level's colour
 
-Each level is shown on the card in a band of its own colour. The official levels already have one: ESO blue, BTX purple, CFGB orange, CFGM green, CFGS red, EFPS teal and PFI brown. A new level is grey until you pick one.
+Each level is shown on the card in a block of its own soft colour. The official levels already have one: ESO blue, BTX lavender, CFGB peach, CFGM yellow, CFGS cyan, EFPS sand and PFI orchid. A new level is grey until you pick one.
 
 1. Go to **Educational Community → Configuration → Curriculum → Levels** and open the level.
-2. Click **Student card colour** and pick the colour.
+2. In **Student card colour**, pick one of the colours on the list.
 3. Save.
 
 ![Student card colour on the level's form](../../assets/admin/student-card-level-colour.png)
 
-Pick a dark colour, so the band's white letters are easy to read, and one clearly different from the other levels'.
+Pick one clearly different from the other levels'. Red and green are not on the list: the card uses them to show whether the student may leave the centre.
 
 ---
 

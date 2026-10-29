@@ -11,11 +11,10 @@ card shows:
   frame with its proportions kept, since wkhtmltopdf ignores `object-fit`), "Last names, First name",
   identity document (`document_id`, or `passport_id` when there is none), birth date and IDALU
   (`student_id`).
-- The **level band**: the main group's level acronym (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big
-  letters on that level's own colour, plus the study and the course year ("Gestió Administrativa ·
-  1r").
-- Whether the student **may leave the centre** (`can_leave_centre`): a green "Pot sortir del centre"
-  or a red "No pot sortir del centre" above the stamp, for the teacher at the door. The student may
+- The **band**, two rounded blocks side by side. On the left, the main group's level acronym (ESO,
+  BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big letters on that level's own colour, plus the study and the
+  course year. On the right, whether the student **may leave the centre** (`can_leave_centre`), for
+  the teacher at the door: "Pot sortir del centre" on green or "No pot sortir del centre" on red. The student may
   leave when they are of age (`is_adult`) **or** the family accepted an authorization whose template
   is of type *Leave the Centre* (`auth_leave`) for the academic year in force. Computed when the
   card is printed: a card printed before the student turns 18, or before the family accepts, keeps
@@ -43,7 +42,7 @@ flowchart LR
 
 | Model | Field / method | Notes |
 |---|---|---|
-| `ems.level` | `card_color` (Char, stored compute, `readonly=False`) | The level band's colour (hex). Computed from the acronym when the level is created (a fixed palette for the official levels, grey for any other) and editable afterwards in the level form (`widget="color"`). Not in `data/cat/ems.level.csv`, so an upgrade never reverts a colour the centre changed. |
+| `ems.level` | `card_color` (Selection, stored compute, `readonly=False`) | The level's colour on the card, one of a closed pastel palette (`CARD_PALETTE` in `models/curriculum/level.py`, key → hex). The palette has no red or green, which the card keeps for the exit block, so no level can be confused with it. Computed from the acronym when the level is created (`CARD_COLORS` for the official levels, grey for any other) and editable afterwards in the level form. Not in `data/cat/ems.level.csv`, so an upgrade never reverts a colour the centre changed. |
 | `res.company` | `ems_card_stamp` (Image) | The centre's stamp, uploaded in Settings > EMS > Center Data. |
 | `res.config.settings` | `ems_card_stamp` (related) | |
 | `res.partner` | `can_print_student_card` (Boolean, non-stored, `depends_context('uid')`) | Reads the Actions dropdown entry's `invisible=`. |
@@ -73,7 +72,10 @@ group the user isn't the tutor of, never prints a card the user could not print 
 - Paper format `ems.paperformat_student_card`: A4 portrait, small margins, no header/footer
   (`web.basic_layout`, not `external_layout`).
 - Cards are laid out with a table (two cells per row), not flexbox or grid: wkhtmltopdf's WebKit
-  lays neither out. Each row has `page-break-inside: avoid`, so a card is never split across two
+  lays neither out. The band's two blocks are one table with `border-collapse: separate` and a
+  horizontal `border-spacing`, each cell with its own `border-radius`.
+- Soft colours throughout: pastel backgrounds with dark text (the level and exit blocks), grey labels.
+  The report layout borders tables, rows and cells; the card's stylesheet resets all of them. Each row has `page-break-inside: avoid`, so a card is never split across two
   sheets.
 - Double-sided printing: each sheet of fronts (up to ten cards) is followed by its sheet of backs,
   flipped on the long edge. A back row lists its cards right to left, so an odd last card's back

@@ -24,15 +24,15 @@ Fes servir una imatge PNG amb el fons transparent, perquè el segell no tapi la 
 
 ## Canviar el color d'un nivell
 
-Cada nivell surt al carnet en una franja del seu color. Els nivells oficials ja en tenen un d'assignat: ESO blau, BTX lila, CFGB taronja, CFGM verd, CFGS vermell, EFPS turquesa i PFI marró. Un nivell nou surt en gris fins que no li'n triïs un.
+Cada nivell surt al carnet en un requadre d'un color suau propi. Els nivells oficials ja en tenen un d'assignat: ESO blau, BTX lavanda, CFGB préssec, CFGM groc, CFGS cian, EFPS sorra i PFI orquídia. Un nivell nou surt en gris fins que no li'n triïs un.
 
 1. Ves a **Comunitat Educativa → Configuració → Currículum → Nivells** i obre el nivell.
-2. Clica **Color al carnet d'estudiant** i tria el color.
+2. A **Color al carnet d'estudiant**, tria un dels colors de la llista.
 3. Desa.
 
 ![Color al carnet d'estudiant a la fitxa del nivell](../../assets/admin/student-card-level-colour.png)
 
-Tria un color fosc, perquè les lletres blanques de la franja es llegeixin bé, i prou diferent dels altres nivells.
+Tria'n un de prou diferent dels altres nivells. El vermell i el verd no hi són: el carnet els fa servir per indicar si l'alumne pot sortir del centre.
 
 ---
 

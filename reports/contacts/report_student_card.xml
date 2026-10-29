@@ -36,47 +36,52 @@
                 <t t-set="company" t-value="docs.env.company"/>
                 <div class="page o_ems_cards">
                     <style>
-                        .o_ems_cards { font-family: Arial, sans-serif; color: #222; }
+                        .o_ems_cards { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #37474F; }
                         .o_ems_cards table { border-collapse: collapse; }
+                        .o_ems_cards table, .o_ems_cards tbody, .o_ems_cards thead, .o_ems_cards tr { border: 0 none !important; box-shadow: none !important; }
                         /* The report layout borders every cell (and frames every table, opted out of with
                            o_ignore_layout_styling, as in ems.report_validation_stamp). */
                         .o_ems_cards td { padding: 0; vertical-align: top; border: none !important; }
                         table.o_ems_card_row { page-break-inside: avoid; margin-bottom: 2.5mm; }
                         td.o_ems_card_gap { width: 4mm; }
-                        /* border-box: five rows of 54 mm cards fill the sheet to the millimetre. */
-                        .o_ems_card { width: 85.6mm; height: 54mm; box-sizing: border-box; overflow: hidden; border: 0.3mm dashed #999; border-radius: 3mm; }
+                        /* border-box: five rows of 54 mm cards fill the sheet to the millimetre. The dashed
+                           border is the cutting guide. */
+                        .o_ems_card { width: 85.6mm; height: 54mm; box-sizing: border-box; overflow: hidden; border: 0.3mm dashed #CFD8DC; border-radius: 3mm; background: #FFFFFF; }
                         .o_ems_card_new_page { page-break-before: always; }
                         td.o_ems_card_blank { width: 85.6mm; }
                         .o_ems_card_back { text-align: center; padding: 5mm 4mm 0 4mm; }
                         .o_ems_card_back_logo { width: 62mm; }
                         .o_ems_card_back .o_ems_card_centre { font-size: 9pt; margin-top: 4mm; }
                         .o_ems_card_back .o_ems_card_address { font-size: 7pt; margin-top: 0.8mm; }
-                        .o_ems_card_back_note { font-size: 6.5pt; color: #555; margin-top: 4mm; line-height: 1.3; }
-                        .o_ems_card_header td { padding: 1.5mm 2mm 1mm 2mm; vertical-align: middle; }
-                        .o_ems_card_logo { max-height: 8mm; max-width: 14mm; }
-                        .o_ems_card_centre { font-size: 7.5pt; font-weight: bold; line-height: 1.2; }
-                        .o_ems_card_address { font-size: 5.5pt; color: #555; line-height: 1.2; }
-                        .o_ems_card_year { font-size: 6.5pt; text-align: right; white-space: nowrap; }
-                        .o_ems_card_band td { color: #fff; padding: 0.8mm 2mm; vertical-align: middle; }
-                        .o_ems_card_level { font-size: 17pt; font-weight: bold; letter-spacing: 0.5mm; white-space: nowrap; }
-                        .o_ems_card_study { font-size: 7pt; font-weight: bold; text-align: right; line-height: 1.15; }
-                        .o_ems_card_body td { padding: 1.5mm 0 0 2mm; }
+                        .o_ems_card_back_note { font-size: 6.5pt; color: #78909C; margin-top: 4mm; line-height: 1.3; }
+                        .o_ems_card_header td { padding: 1.8mm 2.5mm 1mm 2.5mm; vertical-align: middle; }
+                        .o_ems_card_logo { max-height: 7.5mm; max-width: 14mm; }
+                        .o_ems_card_centre { font-size: 7.5pt; font-weight: bold; line-height: 1.2; color: #263238; }
+                        .o_ems_card_address { font-size: 5.5pt; color: #78909C; line-height: 1.2; }
+                        .o_ems_card_year { font-size: 6.5pt; text-align: right; white-space: nowrap; color: #263238; }
+                        /* Two rounded blocks side by side: the level on the left, leaving the centre on the right. */
+                        table.o_ems_card_band { border-collapse: separate; border-spacing: 2mm 0; margin: 0.6mm 0 0 0; }
+                        td.o_ems_card_chip { width: 50%; height: 10.5mm; border-radius: 2mm; padding: 0 2.2mm; vertical-align: middle; }
+                        .o_ems_card_level { font-size: 14pt; font-weight: bold; letter-spacing: 0.4mm; line-height: 1; color: #263238; }
+                        .o_ems_card_study { font-size: 5.5pt; line-height: 1.15; margin-top: 0.6mm; color: #455A64; }
+                        .o_ems_card_exit i { font-size: 13pt; margin-right: 1.5mm; }
+                        .o_ems_card_exit_label { font-size: 7.5pt; font-weight: bold; line-height: 1.15; text-transform: uppercase; letter-spacing: 0.1mm; }
+                        .o_ems_card_exit_yes { background: #C8E6C9; color: #1B5E20; }
+                        .o_ems_card_exit_no { background: #FFCDD2; color: #B71C1C; }
+                        .o_ems_card_body td { padding: 1.8mm 0 0 2.5mm; }
                         .o_ems_card_photo_frame, .o_ems_card_no_photo { width: 22mm; height: 29mm; }
                         /* wkhtmltopdf's WebKit ignores object-fit, so a fixed width and height would
                            stretch the photo: it is scaled down to fit the frame, keeping its proportions. */
                         .o_ems_card_photo_frame { display: table-cell; vertical-align: middle; text-align: center; }
-                        .o_ems_card_photo { max-width: 22mm; max-height: 29mm; border: 0.2mm solid #ccc; }
-                        .o_ems_card_no_photo { background: #eceff1; color: #b0bec5; font-size: 40pt; text-align: center; line-height: 29mm; }
-                        .o_ems_card_name { font-size: 9pt; font-weight: bold; line-height: 1.15; margin-bottom: 0.8mm; }
-                        .o_ems_card_data { font-size: 7pt; line-height: 1.4; }
-                        .o_ems_card_label { color: #666; }
-                        .o_ems_card_barcode img { height: 8mm; width: 36mm; margin-top: 1.2mm; }
+                        .o_ems_card_photo { max-width: 22mm; max-height: 29mm; border-radius: 1.5mm; }
+                        .o_ems_card_no_photo { background: #ECEFF1; color: #B0BEC5; font-size: 40pt; text-align: center; line-height: 29mm; border-radius: 1.5mm; }
+                        .o_ems_card_name { font-size: 9pt; font-weight: bold; line-height: 1.15; margin-bottom: 0.8mm; color: #263238; }
+                        .o_ems_card_data { font-size: 6.5pt; line-height: 1.45; }
+                        .o_ems_card_label { color: #90A4AE; }
+                        .o_ems_card_barcode img { height: 7mm; width: 34mm; margin-top: 1mm; }
                         .o_ems_card_stamp_image { max-width: 17mm; max-height: 17mm; }
-                        .o_ems_card_stamp_empty { width: 17mm; height: 17mm; border: 0.2mm dashed #aaa; color: #999; font-size: 5pt; text-align: center; line-height: 17mm; }
-                        .o_ems_card_exit { color: #fff; font-size: 5.5pt; font-weight: bold; line-height: 1.2; border-radius: 1mm; padding: 0.6mm 0.5mm; margin-bottom: 1.5mm; }
-                        .o_ems_card_exit_yes { background: #2E7D32; }
-                        .o_ems_card_exit_no { background: #C62828; }
-                        td.o_ems_card_stamp { width: 19mm; padding-right: 2mm; text-align: center; vertical-align: bottom; padding-bottom: 1.5mm; }
+                        .o_ems_card_stamp_empty { width: 17mm; height: 17mm; border: 0.2mm dashed #B0BEC5; border-radius: 50%; color: #90A4AE; font-size: 5pt; text-align: center; line-height: 17mm; }
+                        td.o_ems_card_stamp { width: 19mm; padding-right: 2.5mm; text-align: center; vertical-align: bottom; padding-bottom: 1.5mm; }
                     </style>
                     <!-- Each sheet of fronts (ten cards) is followed by its sheet of backs, for
                          double-sided printing flipped on the long edge: a back row lists its cards
@@ -139,15 +144,29 @@
                         </td>
                     </tr>
                 </table>
-                <table class="o_ems_card_band o_ignore_layout_styling" t-attf-style="width: 100%; background: {{ card['color'] }};">
+                <table class="o_ems_card_band o_ignore_layout_styling" style="width: 100%;">
                     <tr>
-                        <td class="o_ems_card_level" t-out="card['level'].acronym"/>
-                        <td class="o_ems_card_study" t-out="card['study']"/>
+                        <td class="o_ems_card_chip" t-attf-style="background: {{ card['color'] }};">
+                            <div class="o_ems_card_level" t-out="card['level'].acronym"/>
+                            <div class="o_ems_card_study" t-out="card['study']"/>
+                        </td>
+                        <td t-if="student.can_leave_centre" class="o_ems_card_chip o_ems_card_exit o_ems_card_exit_yes">
+                            <table class="o_ignore_layout_styling"><tr>
+                                <td style="vertical-align: middle;"><i class="fa fa-check-circle"/></td>
+                                <td class="o_ems_card_exit_label" style="vertical-align: middle;">May leave the centre</td>
+                            </tr></table>
+                        </td>
+                        <td t-else="" class="o_ems_card_chip o_ems_card_exit o_ems_card_exit_no">
+                            <table class="o_ignore_layout_styling"><tr>
+                                <td style="vertical-align: middle;"><i class="fa fa-times-circle"/></td>
+                                <td class="o_ems_card_exit_label" style="vertical-align: middle;">May not leave the centre</td>
+                            </tr></table>
+                        </td>
                     </tr>
                 </table>
                 <table class="o_ems_card_body o_ignore_layout_styling" style="width: 100%;">
                     <tr>
-                        <td style="width: 24mm;">
+                        <td style="width: 24.5mm;">
                             <div t-if="student.image_1920" class="o_ems_card_photo_frame">
                                 <img class="o_ems_card_photo" t-att-src="image_data_uri(student.image_512)" alt="Photo"/>
                             </div>
@@ -165,8 +184,6 @@
                             </div>
                         </td>
                         <td class="o_ems_card_stamp">
-                            <div t-if="student.can_leave_centre" class="o_ems_card_exit o_ems_card_exit_yes">May leave the centre</div>
-                            <div t-else="" class="o_ems_card_exit o_ems_card_exit_no">May not leave the centre</div>
                             <img t-if="company.ems_card_stamp" class="o_ems_card_stamp_image" t-att-src="image_data_uri(company.ems_card_stamp)" alt="Stamp"/>
                             <div t-else="" class="o_ems_card_stamp_empty">Centre stamp</div>
                         </td>

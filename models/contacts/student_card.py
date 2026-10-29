@@ -3,7 +3,7 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 
-from ..curriculum.level import DEFAULT_CARD_COLOR
+from ..curriculum.level import CARD_PALETTE, DEFAULT_CARD_COLOR
 
 
 class ResPartner(models.Model):
@@ -53,7 +53,7 @@ class ResPartner(models.Model):
             'document': self.document_id or self.passport_id,
             'level': level,
             # A student without a main group still gets a band, in the colour of a level without one.
-            'color': level.card_color or DEFAULT_CARD_COLOR,
+            'color': CARD_PALETTE[level.card_color or DEFAULT_CARD_COLOR],
             'study': ' '.join(filter(None, (group.study_id.name, str(group.course or '')))),
         }
 

@@ -26636,10 +26636,6 @@ msgstr "Pot imprimir els carnets d'estudiant"
 msgid "Student card colour"
 msgstr "Color al carnet d'estudiant"
 
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_level__card_color
-msgid "Colour of this level's band on the student card."
-msgstr "Color de la franja d'aquest nivell al carnet d'estudiant."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_company__ems_card_stamp
@@ -27472,3 +27468,53 @@ msgid ""
 msgstr ""
 "L'alumne és major d'edat, o la família ha acceptat l'autorització «Sortir "
 "del centre» del curs vigent."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__blue
+msgid "Blue"
+msgstr "Blau"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_level__card_color
+msgid ""
+"Colour of this level on the student card. Red and green are not offered: the"
+" card uses them to say whether the student may leave the centre."
+msgstr ""
+"Color d'aquest nivell al carnet de l'alumne. No s'ofereixen el vermell ni el"
+" verd: el carnet els fa servir per indicar si l'alumne pot sortir del "
+"centre."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__cyan
+msgid "Cyan"
+msgstr "Cian"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__grey
+msgid "Grey"
+msgstr "Gris"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__lavender
+msgid "Lavender"
+msgstr "Lavanda"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__orchid
+msgid "Orchid"
+msgstr "Orquídia"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__peach
+msgid "Peach"
+msgstr "Préssec"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__sand
+msgid "Sand"
+msgstr "Sorra"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__yellow
+msgid "Yellow"
+msgstr "Groc"

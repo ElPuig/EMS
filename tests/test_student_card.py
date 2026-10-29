@@ -2,6 +2,7 @@ import base64
 
 from dateutil.relativedelta import relativedelta
 
+from odoo.addons.ems.models.curriculum.level import CARD_PALETTE
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
@@ -44,13 +45,13 @@ class TestStudentCard(TransactionCase):
     # --- Level colour ---------------------------------------------------------------------------
 
     def test_official_level_gets_its_palette_colour(self):
-        self.assertEqual(self.env.ref('ems.level_eso').card_color, '#1565C0')
+        self.assertEqual(self.env.ref('ems.level_eso').card_color, 'blue')
 
     def test_other_level_gets_grey_and_keeps_an_edited_colour(self):
-        self.assertEqual(self.level.card_color, '#546E7A')
-        self.level.card_color = '#123456'
+        self.assertEqual(self.level.card_color, 'grey')
+        self.level.card_color = 'cyan'
         self.level.name = 'TSC Renamed Level'
-        self.assertEqual(self.level.card_color, '#123456')
+        self.assertEqual(self.level.card_color, 'cyan')
 
     # --- Who may print --------------------------------------------------------------------------
 
@@ -97,7 +98,7 @@ class TestStudentCard(TransactionCase):
         self.foreign.write({'passport_id': 'XY1234567'})
         html = self._render(self.own_a | self.foreign)
         for expected in ('TSC Alpha Student', '12345678Z', 'XY1234567', self.own_a.student_id,
-                         'TSC', 'TSCO', 'Test TSC Study 1', self.level.card_color,
+                         'TSC', 'TSCO', 'Test TSC Study 1', CARD_PALETTE[self.level.card_color],
                          self.env.company.current_course_id.name or '', 'class="o_ems_card_barcode"'):
             self.assertIn(expected, html)
 
@@ -138,7 +139,7 @@ class TestStudentCard(TransactionCase):
         self.own_a.main_group_id = False
         html = self._render(self.own_a)
         self.assertIn('TSC Alpha Student', html)
-        self.assertIn('background: #546E7A', html)
+        self.assertIn(f"background: {CARD_PALETTE['grey']}", html)
 
     # --- May the student leave the centre -------------------------------------------------------
 
@@ -159,12 +160,12 @@ class TestStudentCard(TransactionCase):
     def test_minor_without_authorization_may_not_leave(self):
         self.own_a.birth_date = self._birth_date(15)
         self.assertFalse(self.own_a.can_leave_centre)
-        self.assertIn('class="o_ems_card_exit o_ems_card_exit_no"', self._render(self.own_a))
+        self.assertIn('o_ems_card_exit o_ems_card_exit_no"', self._render(self.own_a))
 
     def test_adult_may_leave_without_authorization(self):
         self.own_a.birth_date = self._birth_date(18)
         self.assertTrue(self.own_a.can_leave_centre)
-        self.assertIn('class="o_ems_card_exit o_ems_card_exit_yes"', self._render(self.own_a))
+        self.assertIn('o_ems_card_exit o_ems_card_exit_yes"', self._render(self.own_a))
 
     def test_minor_may_leave_only_with_the_authorization_accepted(self):
         self.own_a.birth_date = self._birth_date(15)

@@ -24,15 +24,15 @@ Usa una imagen PNG con el fondo transparente, para que el sello no tape el resto
 
 ## Cambiar el color de un nivel
 
-Cada nivel sale en el carné en una franja de su color. Los niveles oficiales ya tienen uno asignado: ESO azul, BTX lila, CFGB naranja, CFGM verde, CFGS rojo, EFPS turquesa y PFI marrón. Un nivel nuevo sale en gris hasta que le elijas uno.
+Cada nivel sale en el carné en un recuadro de un color suave propio. Los niveles oficiales ya tienen uno asignado: ESO azul, BTX lavanda, CFGB melocotón, CFGM amarillo, CFGS cian, EFPS arena y PFI orquídea. Un nivel nuevo sale en gris hasta que le elijas uno.
 
 1. Ve a **Comunidad educativa → Configuración → Currículum → Niveles** y abre el nivel.
-2. Pulsa **Color en el carné de estudiante** y elige el color.
+2. En **Color en el carné de estudiante**, elige uno de los colores de la lista.
 3. Guarda.
 
 ![Color en el carné de estudiante en la ficha del nivel](../../assets/admin/student-card-level-colour.png)
 
-Elige un color oscuro, para que las letras blancas de la franja se lean bien, y bastante distinto del de los demás niveles.
+Elige uno bastante distinto del de los demás niveles. El rojo y el verde no están: el carné los usa para indicar si el alumno puede salir del centro.
 
 ---
 

@@ -2,17 +2,28 @@
 
 from odoo import api, fields, models
 
-# Dark enough for white text, and far apart from each other so two levels are never mixed up.
-CARD_COLORS = {
-	'ESO': '#1565C0',
-	'BTX': '#6A1B9A',
-	'CFGB': '#EF6C00',
-	'CFGM': '#2E7D32',
-	'CFGS': '#C62828',
-	'EFPS': '#00838F',
-	'PFI': '#795548',
+# The student card's level colours: pastel, so the card is not garish, and never red or green, which
+# the card keeps for "may / may not leave the centre". A closed palette, so no level can pick them.
+CARD_PALETTE = {
+	'blue': '#BBDEFB',
+	'lavender': '#D1C4E9',
+	'peach': '#FFE0B2',
+	'yellow': '#FFF3B0',
+	'cyan': '#B2EBF2',
+	'sand': '#E6D5C3',
+	'orchid': '#E1BEE7',
+	'grey': '#CFD8DC',
 }
-DEFAULT_CARD_COLOR = '#546E7A'
+CARD_COLORS = {
+	'ESO': 'blue',
+	'BTX': 'lavender',
+	'CFGB': 'peach',
+	'CFGM': 'yellow',
+	'CFGS': 'cyan',
+	'EFPS': 'sand',
+	'PFI': 'orchid',
+}
+DEFAULT_CARD_COLOR = 'grey'
 
 
 class EmsLevel(models.Model):
@@ -32,11 +43,21 @@ class EmsLevel(models.Model):
 	allows_convalidation = fields.Boolean(string="Allows convalidations", default=False,
 		help="Students of this level's studies can request subject convalidations.")
 
-	# The level band's colour on the student card (issue #524), which the teacher at the door reads
-	# to let a student out at break time. Computed from the acronym only when the level is created,
-	# then the centre's to change: not in data/cat/ems.level.csv, so an upgrade never reverts it.
-	card_color = fields.Char(string="Student card colour", compute="_compute_card_color", store=True,
-		readonly=False, help="Colour of this level's band on the student card.")
+	# The level's colour on the student card (issue #524). Computed from the acronym only when the
+	# level is created, then the centre's to change: not in data/cat/ems.level.csv, so an upgrade
+	# never reverts it.
+	card_color = fields.Selection([
+		('blue', "Blue"),
+		('lavender', "Lavender"),
+		('peach', "Peach"),
+		('yellow', "Yellow"),
+		('cyan', "Cyan"),
+		('sand', "Sand"),
+		('orchid', "Orchid"),
+		('grey', "Grey"),
+	], string="Student card colour", compute="_compute_card_color", store=True, readonly=False,
+		help="Colour of this level on the student card. Red and green are not offered: the card "
+		     "uses them to say whether the student may leave the centre.")
 
 	notes = fields.Text(string="Notes")
 

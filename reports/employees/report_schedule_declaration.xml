@@ -84,9 +84,10 @@
                         .sd-summary th { background: #dedede; font-weight: normal; text-align: center; }
                         .sd-summary td.sd-code, .sd-summary td.sd-hours { text-align: center; }
                         .sd-summary td.sd-na { background: #c4c4c4; }
-                        .sd-signatures { width: 100%; margin-top: 10px; }
-                        .sd-signatures td { width: 50%; vertical-align: top; padding-right: 20px; height: 95px; }
-                        
+                        .sd-signatures { width: 100%; margin-top: 4px; }
+                        .sd-signatures td { width: 50%; vertical-align: top; padding: 0 20px 0 0; }
+                        .sd-signatures td.sd-place { padding-bottom: 8px; }
+                        .sd-blank { display: inline-block; border-bottom: 1px solid #000 !important; vertical-align: bottom; height: 12px; }
                     </style>
 
                     <table class="sd-header">
@@ -189,8 +190,7 @@
 
                     <table class="sd-signatures">
                         <tr>
-                            <td>Lloc*: ______________________ Data*: ______________<br/>(*en cas de signatura manual)</td>
-                            <td/>
+                            <td class="sd-place" colspan="2">Lloc*: <span class="sd-blank" style="width: 75mm;"/> Data*: <span class="sd-blank" style="width: 35mm;"/><br/>(*en cas de signatura manual)</td>
                         </tr>
                         <tr>
                             <td><b>El/la director/a</b> (signar digitalment o signar a mà i posar segell en cas que el/la docent no tingui signatura digital)</td>

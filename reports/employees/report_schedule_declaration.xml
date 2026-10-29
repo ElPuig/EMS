@@ -31,8 +31,9 @@
             <field name="paperformat_id" ref="paperformat_schedule_declaration"/>
             <!-- The form offers it from its Actions dropdown (action_print_schedule_declaration). -->
             <field name="binding_view_types">list</field>
-            <!-- Same groups as the scoped NIF it prints (hr.employee.scoped_identification_id). -->
-            <field name="groups_id" eval="[(6, 0, [ref('base.group_system'), ref('hr.group_hr_user'), ref('ems.group_teacher')])]"/>
+            <!-- Heads and Deputy Heads of Studies and above (developer, 2026-10-29); same list as
+                 hr.employee.SCHEDULE_DECLARATION_GROUPS, checked again by the form's button. -->
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_academic_admin'), ref('base.group_system')])]"/>
         </record>
 
         <template id="report_schedule_declaration">
@@ -48,33 +49,37 @@
             <t t-set="company" t-value="employee.company_id"/>
             <t t-set="calendar" t-value="employee.resource_calendar_id"/>
             <t t-set="summary" t-value="calendar.get_schedule_declaration_summary() if calendar else {'lective': {}, 'fixed': {}, 'reduction': 0, 'lective_total': 0, 'fixed_total': 0}"/>
-            <t t-set="left_rows" t-value="[('ESO', 'ESO', 'eso'), ('BATXILLERAT', 'BAT', 'bat'), ('C. FORM. G. BÀSIC', 'CFGB', 'cfgb'), ('C. FORM. G. MITJÀ', 'CFGM', 'cfgm'), ('C. FORM. G. SUPERIOR', 'CFGS', 'cfgs'), ('TUTORIA ESO', 'T-ESO', 't_eso'), ('TUTORIA Batxillerat', 'T-BAT', 't_bat'), ('TUTORIA FP', 'T-FP', 't_fp'), ('FCT - FP', 'FCT', 'fct'), ('Suport tècnic profes. (PSI)', 'PSI', 'psi'), ('Suport inten. Ed inclusiva', 'SIEI', 'siei')]"/>
-            <t t-set="right_rows" t-value="[('Prog. de formació i inserció', 'PFI', 'pfi'), ('Curs accés CFGM', 'CAM', 'cam'), ('Curs preparació inc. CFGS', 'CPIGS', 'cpigs'), ('Preparació proves accés', 'PPAS', 'ppas'), ('IOC – suport', 'IOC', 'ioc'), ('Curs d’especialització', 'CEFP', 'cefp'), ('Càrrec directiu', 'CD', 'cd'), ('Càrrec coordinació', 'CC', 'cc'), ('Reunions (depart., coord.)', 'RD/RC', 'rd_rc'), ('Guàrdies', 'G', 'g'), ('Altres:', '', 'other')]"/>
+            <!-- The summary table's rows as on the form: (label, code, key, lective applies, fixed
+                 applies). A cell that doesn't apply is grey, as on the form, and still shows any
+                 hours that land there, so a misconfigured code stands out. -->
+            <t t-set="left_rows" t-value="[('ESO', 'ESO', 'eso', True, False), ('BATXILLERAT', 'BAT', 'bat', True, False), ('C. FORM. G. BÀSIC', 'CFGB', 'cfgb', True, False), ('C. FORM. G. MITJÀ', 'CFGM', 'cfgm', True, False), ('C. FORM. G. SUPERIOR', 'CFGS', 'cfgs', True, False), ('TUTORIA ESO', 'T-ESO', 't_eso', True, True), ('TUTORIA Batxillerat', 'T-BAT', 't_bat', True, True), ('TUTORIA FP', 'T-FP', 't_fp', True, True), ('FCT - FP', 'FCT', 'fct', True, True), ('Suport tècnic profes. (PSI)', 'PSI', 'psi', True, True), ('Suport inten. Ed inclusiva', 'SIEI', 'siei', True, True)]"/>
+            <t t-set="right_rows" t-value="[('Prog. de formació i inserció', 'PFI', 'pfi', True, True), ('Curs accés CFGM', 'CAM', 'cam', True, False), ('Curs preparació inc. CFGS', 'CPIGS', 'cpigs', True, False), ('Preparació proves accés', 'PPAS', 'ppas', True, False), ('IOC – suport', 'IOC', 'ioc', True, False), ('Curs d’especialització', 'CEFP', 'cefp', True, False), ('Càrrec directiu', 'CD', 'cd', True, True), ('Càrrec coordinació', 'CC', 'cc', True, True), ('Reunions (depart., coord.)', 'RD/RC', 'rd_rc', False, True), ('Guàrdies', 'G', 'g', False, True), ('Altres:', '', 'other', False, True)]"/>
             <t t-call="web.basic_layout">
                 <div class="page sd-page">
                     <style>
                         .sd-page { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; }
                         .sd-page .ws-table { font-size: 10px; margin-bottom: 0; }
-                        .sd-page .ws-table th, .sd-page .ws-table td { padding: 1px 3px !important; }
+                        .sd-page .ws-table { border-collapse: collapse; }
+                        .sd-page .ws-table th, .sd-page .ws-table td { padding: 1px 3px !important; border: 1px solid #000; }
                         .sd-page .ws-cell-content { padding: 1px 2px; }
-                        .sd-page .ws-cell-room { font-size: 8px; }
                         .sd-header { width: 100%; margin-bottom: 8px; }
                         .sd-header td { vertical-align: top; }
+                        .sd-header, .sd-header *, .sd-signatures, .sd-signatures * { border: none !important; }
                         .sd-entity { font-size: 13px; line-height: 1.2; }
                         .sd-entity b { font-size: 14px; }
                         .sd-annual { text-align: right; font-size: 11px; }
-                        .sd-box { width: 100%; border-collapse: collapse; margin-bottom: 5px; }
-                        .sd-box td { border: 1px solid #000; padding: 2px 4px; }
-                        .sd-box td.sd-label { background: #e6e6e6; white-space: nowrap; width: 1%; }
+                        .sd-box { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
+                        .sd-box td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; }
+                        .sd-box td.sd-label { background: #dedede; }
+                        .sd-box td.sd-none { border: none; }
                         .sd-title { font-size: 13px; font-weight: bold; margin: 4px 0 3px 0; }
-                        .sd-title span, .sd-blue { color: #0070c0; font-weight: bold; }
-                        .sd-summary { width: 100%; border-collapse: collapse; margin-top: 6px; }
-                        .sd-summary td, .sd-summary th { border: 1px solid #000; padding: 1px 3px; }
-                        .sd-summary th { background: #e6e6e6; font-weight: normal; text-align: center; }
-                        .sd-summary td.sd-code { text-align: center; width: 6%; }
-                        .sd-summary td.sd-hours { text-align: center; width: 8%; }
+                        .sd-summary { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 6px; }
+                        .sd-summary td, .sd-summary th { border: 1px solid #000; padding: 1px 3px; height: 17px; vertical-align: middle; }
+                        .sd-summary th { background: #dedede; font-weight: normal; text-align: center; }
+                        .sd-summary td.sd-code, .sd-summary td.sd-hours { text-align: center; }
+                        .sd-summary td.sd-na { background: #c4c4c4; }
                         .sd-signatures { width: 100%; margin-top: 10px; }
-                        .sd-signatures td { width: 50%; vertical-align: top; padding-right: 20px; height: 70px; border: none; }
+                        .sd-signatures td { width: 50%; vertical-align: top; padding-right: 20px; height: 70px; }
                         .sd-footer { margin-top: 4px; font-size: 9px; }
                     </style>
 
@@ -86,6 +91,7 @@
                     </table>
 
                     <table class="sd-box">
+                        <colgroup><col style="width: 10%;"/><col style="width: 25%;"/><col style="width: 10%;"/><col style="width: 55%;"/></colgroup>
                         <tr>
                             <td class="sd-label">Codi</td><td t-esc="company.center_code"/>
                             <td class="sd-label">Centre</td><td t-esc="company.name"/>
@@ -95,37 +101,57 @@
                         </tr>
                     </table>
 
-                    <p class="sd-title">Horari professor/a <span>(L’horari del professorat pot omplir-se en qualsevol altre format sempre que contingui la mateixa informació, incloent la declaració de l’encapçalament i els peus de signatura).</span></p>
+                    <p class="sd-title">Horari professor/a</p>
 
                     <table class="sd-box">
+                        <colgroup><col style="width: 15%;"/><col style="width: 10%;"/><col style="width: 43%;"/><col style="width: 10%;"/><col style="width: 22%;"/></colgroup>
                         <tr>
-                            <td class="sd-label">Cognoms i nom</td><td t-esc="employee.name"/>
+                            <td class="sd-label">Cognoms i nom</td><td colspan="2" t-esc="employee.name"/>
                             <td class="sd-label">NIF</td><td t-esc="employee.scoped_identification_id"/>
                         </tr>
                         <tr>
-                            <td class="sd-label">Càrrec que desenvolupa</td>
+                            <td class="sd-label" colspan="2">Càrrec que desenvolupa</td>
                             <td colspan="3" t-esc="', '.join(employee.get_report_role_lines())"/>
                         </tr>
                     </table>
 
-                    <p class="sd-blue">DECLARO QUE LES DADES SEGÜENTS I L’HORARI QUE TINC ASSIGNAT SÓN AUTÈNTICS I EXACTES. ME’N FAIG RESPONSABLE.</p>
+                    <p class="sd-title">DECLARO QUE LES DADES SEGÜENTS I L’HORARI QUE TINC ASSIGNAT SÓN AUTÈNTICS I EXACTES. ME’N FAIG RESPONSABLE.</p>
 
                     <table class="sd-box">
+                        <colgroup>
+                            <col style="width: 12%;"/><col style="width: 28%;"/>
+                            <col style="width: 14%;"/><col style="width: 4%;"/><col style="width: 16%;"/><col style="width: 4%;"/>
+                            <col style="width: 14%;"/><col style="width: 8%;"/>
+                        </colgroup>
                         <tr>
-                            <td class="sd-label">Lloc de treball / Especialitat</td><td/>
-                            <td class="sd-label">Situació administrativa</td>
-                            <td>☐ Definitiu ☐ Provisional ☐ Comissió serveis ☐ Interí</td>
-                            <td class="sd-label">Anys a l’ensenyament</td><td/>
+                            <td class="sd-none" colspan="2"/>
+                            <td class="sd-label" colspan="4">Situació administrativa</td>
+                            <td class="sd-none" colspan="2"/>
                         </tr>
                         <tr>
-                            <td class="sd-label">Acreditació per impartir l’ensenyament en català</td><td colspan="5"/>
+                            <td class="sd-label" rowspan="2">Lloc de treball / Especialitat</td><td rowspan="2"/>
+                            <td class="sd-label">Definitiu</td><td/>
+                            <td class="sd-label">Comissió serveis</td><td/>
+                            <td class="sd-label" rowspan="2">Anys a l’ensenyament:</td><td rowspan="2"/>
+                        </tr>
+                        <tr>
+                            <td class="sd-label">Provisional</td><td/>
+                            <td class="sd-label">Interí</td><td/>
+                        </tr>
+                        <tr>
+                            <td class="sd-label" colspan="3">Acreditació per impartir l’ensenyament en català:</td><td colspan="5"/>
                         </tr>
                     </table>
 
-                    <p class="sd-blue">EN AQUEST APARTAT FEU SERVIR EL VOSTRE FORMAT D’HORARIS:</p>
-                    <t t-if="calendar" t-call="ems.report_working_schedule_grid"/>
+                    <t t-if="calendar" t-call="ems.report_working_schedule_grid">
+                        <t t-set="hide_rooms" t-value="True"/>
+                    </t>
 
                     <table class="sd-summary">
+                        <colgroup>
+                            <col style="width: 22%;"/><col style="width: 7%;"/><col style="width: 10.5%;"/><col style="width: 10.5%;"/>
+                            <col style="width: 22%;"/><col style="width: 7%;"/><col style="width: 10.5%;"/><col style="width: 10.5%;"/>
+                        </colgroup>
                         <thead>
                             <tr><th colspan="8"><b>QUADRE RESUM D’HORES</b></th></tr>
                             <tr>
@@ -137,16 +163,17 @@
                             <t t-foreach="range(len(left_rows))" t-as="i">
                                 <tr>
                                     <t t-foreach="(left_rows[i], right_rows[i])" t-as="row">
-                                        <td t-esc="row[0]"/>
-                                        <td class="sd-code" t-esc="row[1]"/>
-                                        <td class="sd-hours" t-esc="summary['lective'].get(row[2]) or ''"/>
-                                        <td class="sd-hours" t-esc="summary['fixed'].get(row[2]) or ''"/>
+                                        <td t-if="row[1]" t-esc="row[0]"/>
+                                        <td t-if="row[1]" class="sd-code" t-esc="row[1]"/>
+                                        <td t-else="" colspan="2" t-esc="row[0]"/>
+                                        <td t-att-class="'sd-hours' if row[3] else 'sd-hours sd-na'" t-esc="summary['lective'].get(row[2]) or ''"/>
+                                        <td t-att-class="'sd-hours' if row[4] else 'sd-hours sd-na'" t-esc="summary['fixed'].get(row[2]) or ''"/>
                                     </t>
                                 </tr>
                             </t>
                             <tr>
-                                <td colspan="2">Si disposeu de reducció de jornada, indiqueu quina:</td>
-                                <td colspan="2" class="sd-hours"><t t-if="summary['reduction']"><t t-esc="summary['reduction']"/> h</t></td>
+                                <td colspan="3">Si disposeu de reducció de jornada, indiqueu quina:</td>
+                                <td class="sd-hours"><t t-if="summary['reduction']"><t t-esc="summary['reduction']"/> h</t></td>
                                 <td colspan="2" class="sd-code">TOTAL</td>
                                 <td class="sd-hours" t-esc="summary['lective_total']"/>
                                 <td class="sd-hours" t-esc="summary['fixed_total']"/>

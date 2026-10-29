@@ -1,3 +1,4 @@
+from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
 from .common import create_level_study_group, create_role_employee, create_role_user
@@ -131,13 +132,37 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertIn(b'Dilluns', content)
         self.assertIn(b'TSDE-NIF-1', content)
 
-    def test_teacher_prints_another_teachers_declaration_without_their_nif(self):
-        user = create_role_user(self, 'teacher', 'tsde_teacher')
-        create_role_employee(self, user)
+    def test_head_of_studies_prints_it_with_the_nif(self):
+        user = create_role_user(self, 'head_of_studies', 'tsde_hos')
         self._apply(self.group)
 
+        action = self.teacher.with_user(user).action_print_schedule_declaration()
         content, _content_type = self.env['ir.actions.report'].with_user(user)._render_qweb_pdf(
-            'ems.report_schedule_declaration', self.teacher.ids)
+            action['report_name'], self.teacher.ids)
 
-        self.assertIn(self.teacher.name.encode(), content)
-        self.assertNotIn(b'TSDE-NIF-1', content)
+        self.assertIn(b'TSDE-NIF-1', content)
+
+    def test_teacher_cannot_print_it(self):
+        user = create_role_user(self, 'teacher', 'tsde_teacher')
+        create_role_employee(self, user)
+
+        with self.assertRaises(AccessError):
+            self.teacher.with_user(user).action_print_schedule_declaration()
+        # The list's Print menu: what _get_bindings offers this user.
+        printable = self.env['ir.actions.actions'].with_user(user).get_bindings('hr.employee').get('report', [])
+        self.assertNotIn(self.env.ref('ems.action_report_schedule_declaration').id, [report['id'] for report in printable])
+
+    def test_grid_has_no_rooms(self):
+        space = self.env['ems.space'].create({
+            'code': 'TSDE-ROOM', 'name': 'Test Room (Schedule Declaration)',
+            'space_type_id': self.env.ref('ems.space_type_classroom').id,
+            'work_location_id': self.env.ref('ems.work_location_main').id,
+        })
+        self.group.space_id = space
+        self._apply(self.group)
+
+        declaration, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_schedule_declaration', self.teacher.ids)
+        working_schedule, _content_type = self.env['ir.actions.report']._render_qweb_pdf('ems.report_working_schedule', self.teacher.ids)
+
+        self.assertNotIn(b'Test Room (Schedule Declaration)', declaration)
+        self.assertIn(b'Test Room (Schedule Declaration)', working_schedule)

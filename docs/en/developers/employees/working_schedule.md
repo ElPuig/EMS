@@ -391,9 +391,9 @@ that algorithm, not a scenario it special-cases.
 
 - **Always in Catalan**, whatever the user's language: it is an official Catalan form, so the template's own text is written in Catalan as on the form, and the document is rendered with `t-lang="'ca_ES'"` on a `with_context(lang='ca_ES')` employee, so the grid's day names and the roles come out in Catalan too.
 - **Paper format** `paperformat_schedule_declaration` (A4, 8 mm margins, no letterhead, `web.basic_layout`): the form carries its own header, and the whole declaration fits on one page.
-- **Printed from** the teachers' list (Print menu, `binding_view_types="list"`) for one page per selected teacher, and from the employee form's Actions dropdown (`hr.employee.action_print_schedule_declaration()`, a `type="object"` button so only that teacher is printed). Same groups as the NIF it prints (`base.group_system`, `hr.group_hr_user`, `ems.group_teacher`).
-- **Header data:** code (`res.company.center_code`), centre (company name), municipality (company partner's `city`), course (`current_course_id`), name, NIF (`scoped_identification_id`: blank for a teacher who is not in the person's chain of command, see `employee.md`), role (`get_report_role_lines()`). Workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place, date and signatures are left blank, to be filled in by hand.
-- **Grid:** `ems.report_working_schedule_grid`, the same template the Working Schedule PDF uses.
+- **Printed from** the teachers' list (Print menu, `binding_view_types="list"`) for one page per selected teacher, and from the employee form's Actions dropdown (`hr.employee.action_print_schedule_declaration()`, a `type="object"` button so only that teacher is printed). Only Heads and Deputy Heads of Studies and above (developer, 2026-10-29): `SCHEDULE_DECLARATION_GROUPS` (`ems.group_head_of_studies`, which the Director implies, `ems.group_academic_admin`, `base.group_system`), set on the report's `groups_id` and the button's `groups`, and re-checked by `action_print_schedule_declaration()` (AccessError). They are all HR officers, so the NIF is always printed.
+- **Header data:** code (`res.company.center_code`), centre (company name), municipality (company partner's `city`), course (`current_course_id`), name, NIF (`scoped_identification_id`), role (`get_report_role_lines()`). Workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place, date and signatures are left blank, to be filled in by hand.
+- **Grid:** `ems.report_working_schedule_grid`, the same template the Working Schedule PDF uses, with `hide_rooms` set (no classrooms, to save height) and its lines drawn. The form's explanatory sentences ("L'horari del professorat pot omplir-se...", "En aquest apartat feu servir...") are left out (developer, 2026-10-29).
 
 ```mermaid
 graph LR
@@ -403,6 +403,8 @@ graph LR
     R["teaching_reduction_ids"] -->|hours only| RR["Si disposeu de reducció...<br/>+ lective TOTAL"]
 ```
 
+**Layout:** the data boxes and the summary table follow the form's grid (fixed column widths, room to write by hand). The template's `left_rows`/`right_rows` say, per row, whether its lective and fixed cells apply: one that doesn't is grey, as on the form, and still shows any hours landing there, so a misconfigured code stands out.
+
 **Summary table** (`resource.calendar.get_schedule_declaration_summary()`): returns `{'lective': {code: hours}, 'fixed': {code: hours}, 'reduction', 'lective_total', 'fixed_total'}`, codes from `DECLARATION_CODES` (`models/employees/non_teaching_type.py`, one per row of the form). It walks the same blocks as `get_schedule_hours_summary()`, through the shared `_iter_summary_entries()` (Monday to Friday, a date-split slot once, durations rounded up, breaks out, and the lective/fixed split: `is_fixed`, or the coordination meeting on Wednesday). Only the rows differ:
 - a class goes to its group's level's `declaration_code`; a group without a level (a split or optative) takes its main groups' (`parent_group_ids`) level; no code: `other` (Altres);
 - tutoring goes to the row of the tutored level (`TUTORING_CODE_BY_LEVEL_CODE`: ESO to T-ESO, BAT to T-BAT, PFI to PFI, anything else to T-FP): a tutorship subject (`ems.subject.is_tutorship`) by its group's level, a non-teaching type coded `tutoring` (`TT`) by the level of the teacher's tutorship;
@@ -411,7 +413,7 @@ graph LR
 
 **Official codes are configuration:** `ems.level.declaration_code` (Selection `LEVEL_DECLARATION_CODES`) and `ems.non_teaching_type.declaration_code` (Selection `DECLARATION_CODES` plus `tutoring`, default `other` so a new type is never silently left out), edited on their forms. Neither is a data-file column (levels are `data/cat`, non-teaching types `data/main`, both re-applied on every upgrade, which would undo the centre's choice): `_ems_seed_declaration_codes()` on each model sets the initial codes once, by acronym (`LEVEL_DECLARATION_SEED`: ESO, BTX to BAT, CFGB, CFGM, CFGS, EFPS to CEFP, PFI) and by code (`NON_TEACHING_DECLARATION_SEED`: MT to CD; CT, AC, WIC to CC; CM, MM to RD/RC; G, GB, GWC to G; TT to tutoring; AA, ATAL, S, SC to Altres; BR and R not declared), from `post_init_hook` (clean install) and `migrations/18.0.0.43.0/post-migrate.py` (upgrade).
 
-Tests: `tests/test_schedule_declaration.py`; the tutor-on-a-colleague step of `ems_actions_dropdown_employee_no_archive` (`actions_dropdown_tour.js`) checks the form offers it.
+Tests: `tests/test_schedule_declaration.py`; `ems_actions_dropdown_employee` (administrator) checks the form offers it and `ems_actions_dropdown_employee_no_archive` (a tutor) that it doesn't.
 
 ## Co-teaching (`ems.attendance_template.teacher_ids`)
 

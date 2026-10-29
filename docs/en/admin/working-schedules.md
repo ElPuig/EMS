@@ -274,12 +274,12 @@ Once created, a reinforcement group is used in a teacher's schedule exactly like
 
 ## Print the Official Schedule Declaration
 
-The Departament d'Educació i FP's schedule declaration ("Horari professor/a", from the *Annexos Dades anuals*) is printed by EMS ready to sign, always in Catalan, one page per teacher:
+The Departament d'Educació i FP's schedule declaration ("Horari professor/a", from the *Annexos Dades anuals*) is printed by EMS ready to sign, always in Catalan, one page per teacher. Heads and Deputy Heads of Studies, the Director and the administrators can print it:
 
 - For several teachers: in **Educational Community → Teachers**, switch to the list view, select them and choose **Print → Schedule declaration**.
 - For one teacher: open their record and choose **Actions → Print schedule declaration**.
 
-Each page has the centre's code, name and municipality (from the company settings), the teacher's name, NIF and roles, their weekly schedule and the summary table of hours. What EMS doesn't store (workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place, date and signatures) is left blank, to be filled in by hand.
+Each page has the centre's code, name and municipality (from the company settings), the teacher's name, NIF and roles, their weekly schedule (without classrooms, to save space) and the summary table of hours. What EMS doesn't store (workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place, date and signatures) is left blank, to be filled in by hand.
 
 **Which row each hour goes to** is configuration, set up for you on installation and editable afterwards:
 
@@ -287,6 +287,8 @@ Each page has the centre's code, name and municipality (from the company setting
 - A tutorship (a tutorship subject, or the *Tutorship Time* non-teaching type) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level.
 - Any other non-teaching hour counts in the row set in its type's **Schedule declaration code** (**Configuration → Teachers → Non-teaching types**); empty means not declared.
 - Teaching-hour reductions appear only as their hours, in "Si disposeu de reducció de jornada", and are added to the lective TOTAL.
+
+As on the form, the cells of the summary table that don't apply are grey (e.g. fixed-schedule hours of ESO, lective hours of guard duties). If a number appears in a grey cell, the code of that level or non-teaching type needs reviewing.
 
 Whether an hour is lective or fixed-schedule follows the same rule as the Schedule tab's summary (guard duties, and the coordination meeting on Wednesday, are fixed-schedule).
 

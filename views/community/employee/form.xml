@@ -68,7 +68,7 @@
                         <button name="action_print_schedule_declaration" type="object"
                                 string="Print schedule declaration"
                                 invisible="employee_type != 'teacher'"
-                                groups="base.group_system,hr.group_hr_user,ems.group_teacher"/>
+                                groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system"/>
                     </div>
                 </xpath>
 

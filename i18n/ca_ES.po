@@ -27357,3 +27357,9 @@ msgstr "Declaració horària"
 #: model_terms:ir.ui.view,arch_db:ems.view_employee_form
 msgid "Print schedule declaration"
 msgstr "Imprimeix la declaració horària"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/employee.py:0
+msgid "Only the Heads and Deputy Heads of Studies, the Director and the administrators can print the schedule declaration."
+msgstr "Només els caps d'estudis i els caps d'estudis adjunts, la direcció i els administradors poden imprimir la declaració horària."

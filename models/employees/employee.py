@@ -6,7 +6,7 @@ from datetime import timedelta
 from pytz import UTC
 
 from odoo import SUPERUSER_ID, models, fields, api, _
-from odoo.exceptions import UserError, ValidationError
+from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools.sql import escape_psql
 
 from ..shared import base
@@ -22,6 +22,9 @@ WEEKDAYS = ('0', '1', '2', '3', '4')
 
 # Every chief rung of the chain implies it: Seminar/Department Chief, Head of Studies, Director.
 TUTOR_SCOPE_CHIEF_GROUP = 'ems.group_department_chief'
+# Issue #723: who prints the official schedule declaration (Heads and Deputy Heads of Studies,
+# the Director, who implies it, and the administrators; developer, 2026-10-29).
+SCHEDULE_DECLARATION_GROUPS = ('ems.group_head_of_studies', 'ems.group_academic_admin', 'base.group_system')
 
 # Classifies a real entry or a candidate break into "works mornings"/"works afternoons" for
 # '_get_derived_break_entries' - computed directly from 'hour_from' rather than trusting the
@@ -817,7 +820,10 @@ class ems_employee(models.AbstractModel):
 
     def action_print_schedule_declaration(self):
         """Issue #723: from the form's Actions dropdown, for this teacher only (a type="action"
-        button would print every record of the form's pager)."""
+        button would print every record of the form's pager). Heads and Deputy Heads of Studies
+        and above only, like the report's own groups."""
+        if not any(self.env.user.has_group(group) for group in SCHEDULE_DECLARATION_GROUPS):
+            raise AccessError(_("Only the Heads and Deputy Heads of Studies, the Director and the administrators can print the schedule declaration."))
         return self.env.ref('ems.action_report_schedule_declaration').report_action(self)
 
     def action_open_classroom_change_wizard(self):

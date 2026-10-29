@@ -274,12 +274,12 @@ Un cop creat, un grup de reforç s'utilitza a l'horari d'un docent exactament ig
 
 ## Imprimir la declaració horària oficial
 
-L'EMS imprimeix la declaració horària del Departament d'Educació i FP ("Horari professor/a", dels *Annexos Dades anuals*) a punt per signar, sempre en català, una pàgina per docent:
+L'EMS imprimeix la declaració horària del Departament d'Educació i FP ("Horari professor/a", dels *Annexos Dades anuals*) a punt per signar, sempre en català, una pàgina per docent. La poden imprimir els caps d'estudis i els caps d'estudis adjunts, la direcció i els administradors:
 
 - Per a diversos docents: a **Comunitat Educativa → Professors**, passa a la vista de llista, selecciona'ls i tria **Imprimeix → Declaració horària**.
 - Per a un docent: obre la seva fitxa i tria **Accions → Imprimeix la declaració horària**.
 
-Cada pàgina té el codi, el nom i el municipi del centre (de la configuració de l'empresa), el nom, el NIF i els càrrecs del docent, el seu horari setmanal i el quadre resum d'hores. El que l'EMS no desa (lloc de treball/especialitat, situació administrativa, anys a l'ensenyament, acreditació de català, lloc, data i signatures) queda en blanc per omplir a mà.
+Cada pàgina té el codi, el nom i el municipi del centre (de la configuració de l'empresa), el nom, el NIF i els càrrecs del docent, el seu horari setmanal (sense aules, per estalviar espai) i el quadre resum d'hores. El que l'EMS no desa (lloc de treball/especialitat, situació administrativa, anys a l'ensenyament, acreditació de català, lloc, data i signatures) queda en blanc per omplir a mà.
 
 **La fila on va cada hora** és configuració, que la instal·lació deixa preparada i que pots canviar després:
 
@@ -287,6 +287,8 @@ Cada pàgina té el codi, el nom i el municipi del centre (de la configuració d
 - Una tutoria (una assignatura de tutoria, o el tipus no lectiu *Tutoria*) compta a T-ESO, T-BAT o T-FP (o PFI) segons el nivell del grup tutoritzat.
 - Qualsevol altra hora no lectiva compta a la fila triada al **Codi a la declaració horària** del seu tipus (**Configuració → Professorat → Tipus d'hora no lectiva**); buit vol dir que no es declara.
 - Les reduccions lectives només hi surten com a hores, a "Si disposeu de reducció de jornada", i se sumen al TOTAL de lectives.
+
+Com al formulari, les cel·les del quadre resum que no s'hi apliquen són grises (p. ex. hores d'horari fix d'ESO, hores lectives de guàrdies). Si surt un número en una cel·la grisa, cal revisar el codi d'aquell nivell o tipus no lectiu.
 
 Si una hora és lectiva o d'horari fix segueix la mateixa regla que el resum de la pestanya Horari (les guàrdies, i la reunió de coordinació dels dimecres, són d'horari fix).
 

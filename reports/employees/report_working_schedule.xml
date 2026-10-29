@@ -81,7 +81,8 @@
         </template>
 
         <!-- The weekly grid of a teacher's schedule ('employee'), shared with the schedule
-             declaration (report_schedule_declaration.xml, issue #723). -->
+             declaration (report_schedule_declaration.xml, issue #723), which sets 'hide_rooms'
+             to save height. -->
         <template id="report_working_schedule_grid">
             <style>
                 .ws-table { font-size: 10px; table-layout: fixed; }
@@ -111,7 +112,7 @@
                                     <t t-if="cell['entry']">
                                         <span class="ws-cell-content" t-att-style="'background-color:' + cell['color']">
                                             <span class="ws-cell-label" t-esc="cell['entry'].get_report_label()"/>
-                                            <span t-if="cell['entry'].space_id" class="ws-cell-room" t-esc="cell['entry'].space_id.display_name"/>
+                                            <span t-if="cell['entry'].space_id and not hide_rooms" class="ws-cell-room" t-esc="cell['entry'].space_id.display_name"/>
                                         </span>
                                     </t>
                                 </td>

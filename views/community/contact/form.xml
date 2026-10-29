@@ -405,6 +405,14 @@
                                 <span class="badge text-bg-secondary" invisible="auth_share == True">No</span>
                             </div>
                         </group>
+                        <group>
+                            <span class="o_form_label" title="The family authorizes the student to leave the centre.">Leave the Centre</span>
+                            <div class="o_row">
+                                <field name="auth_leave" invisible="1"/>
+                                <span class="badge text-bg-success" invisible="auth_leave == False">Yes</span>
+                                <span class="badge text-bg-secondary" invisible="auth_leave == True">No</span>
+                            </div>
+                        </group>
                     </group>
                 </xpath>
 

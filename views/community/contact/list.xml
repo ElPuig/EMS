@@ -117,6 +117,8 @@
                            column_invisible="context.get('default_contact_type') != 'student'"/>
                     <field name="auth_share" optional="show" widget="boolean_toggle" readonly="1"
                            column_invisible="context.get('default_contact_type') != 'student'"/>
+                    <field name="auth_leave" optional="show" widget="boolean_toggle" readonly="1"
+                           column_invisible="context.get('default_contact_type') != 'student'"/>
                 </xpath>
             </field>
         </record>

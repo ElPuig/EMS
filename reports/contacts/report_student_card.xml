@@ -73,6 +73,9 @@
                         .o_ems_card_barcode img { height: 8mm; width: 36mm; margin-top: 1.2mm; }
                         .o_ems_card_stamp_image { max-width: 17mm; max-height: 17mm; }
                         .o_ems_card_stamp_empty { width: 17mm; height: 17mm; border: 0.2mm dashed #aaa; color: #999; font-size: 5pt; text-align: center; line-height: 17mm; }
+                        .o_ems_card_exit { color: #fff; font-size: 5.5pt; font-weight: bold; line-height: 1.2; border-radius: 1mm; padding: 0.6mm 0.5mm; margin-bottom: 1.5mm; }
+                        .o_ems_card_exit_yes { background: #2E7D32; }
+                        .o_ems_card_exit_no { background: #C62828; }
                         td.o_ems_card_stamp { width: 19mm; padding-right: 2mm; text-align: center; vertical-align: bottom; padding-bottom: 1.5mm; }
                     </style>
                     <!-- Each sheet of fronts (ten cards) is followed by its sheet of backs, for
@@ -162,6 +165,8 @@
                             </div>
                         </td>
                         <td class="o_ems_card_stamp">
+                            <div t-if="student.can_leave_centre" class="o_ems_card_exit o_ems_card_exit_yes">May leave the centre</div>
+                            <div t-else="" class="o_ems_card_exit o_ems_card_exit_no">May not leave the centre</div>
                             <img t-if="company.ems_card_stamp" class="o_ems_card_stamp_image" t-att-src="image_data_uri(company.ems_card_stamp)" alt="Stamp"/>
                             <div t-else="" class="o_ems_card_stamp_empty">Centre stamp</div>
                         </td>

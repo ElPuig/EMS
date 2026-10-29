@@ -33,7 +33,7 @@ Fill in:
 - **Mandatory to Respond**: turn it on if the student must answer it.
 - **Acceptance Only**: turn it on if the family can only accept it, with no option to reject.
 - **Template Download URL**: a link to the paper version, if there is one.
-- **Authorization Type**: choose the matching type (image rights, school trips, health data or sharing with the family) to have the answer update that indicator on the student's record. For anything else, leave *Other / General*.
+- **Authorization Type**: choose the matching type (image rights, school trips, health data, sharing with the family or leaving the centre) to have the answer update that indicator on the student's record. For anything else, leave *Other / General*.
 - **Applies to Levels** / **Applies to Studies**: leave both empty for a form that concerns every student. When you fill them in, the form only reaches the students of those levels and studies, both when it is added to enrollments and when it is sent during the course.
 
 In the **Legal Text** tab, write the text the family will read before answering. You can use `{{student_name}}`, `{{academic_year}}` and `{{study_name}}`; each one is replaced by the student's own data.

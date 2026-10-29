@@ -12,6 +12,16 @@ class ResPartner(models.Model):
 
     # Whoever may act on the student (ems.student.scope.mixin, issue #483) may print their card.
     can_print_student_card = fields.Boolean(string="Can print student card", compute='_compute_can_print_student_card')
+    # What the card tells the teacher at the door. Not stored: is_adult depends on today's date.
+    can_leave_centre = fields.Boolean(
+        string="May leave the centre", compute='_compute_can_leave_centre',
+        help="The student is of age, or the family accepted the 'Leave the Centre' authorization "
+             "for the academic year in force.")
+
+    @api.depends('birth_date', 'auth_leave')
+    def _compute_can_leave_centre(self):
+        for partner in self:
+            partner.can_leave_centre = partner.is_adult or partner.auth_leave
 
     @api.depends('contact_type', 'tutor_id')
     @api.depends_context('uid')

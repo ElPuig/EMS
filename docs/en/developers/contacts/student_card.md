@@ -13,8 +13,13 @@ card shows:
   (`student_id`).
 - The **level band**: the main group's level acronym (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big
   letters on that level's own colour, plus the study and the course year ("Gestió Administrativa ·
-  1r"). This is what the teacher at the door reads to decide whether the student may go out at
-  break time: the rule depends only on the level, so EMS stores no per-student exit permission.
+  1r").
+- Whether the student **may leave the centre** (`can_leave_centre`): a green "Pot sortir del centre"
+  or a red "No pot sortir del centre" above the stamp, for the teacher at the door. The student may
+  leave when they are of age (`is_adult`) **or** the family accepted an authorization whose template
+  is of type *Leave the Centre* (`auth_leave`) for the academic year in force. Computed when the
+  card is printed: a card printed before the student turns 18, or before the family accepts, keeps
+  saying "No" until it is printed again.
 - The academic year in force (`res.company.current_course_id`).
 - The centre's stamp (`res.company.ems_card_stamp`), or an empty "Segell del centre" box to stamp
   by hand when none was uploaded.
@@ -42,6 +47,9 @@ flowchart LR
 | `res.company` | `ems_card_stamp` (Image) | The centre's stamp, uploaded in Settings > EMS > Center Data. |
 | `res.config.settings` | `ems_card_stamp` (related) | |
 | `res.partner` | `can_print_student_card` (Boolean, non-stored, `depends_context('uid')`) | Reads the Actions dropdown entry's `invisible=`. |
+| `res.partner` | `can_leave_centre` (Boolean, non-stored) | `is_adult or auth_leave`. Not stored, since `is_adult` depends on today's date. |
+| `res.partner` | `auth_leave` (Boolean, stored compute, `contact.py`) | Accepted *Leave the Centre* authorization in the year in force; the same compute as the other `auth_*` flags (see [Authorizations](../enrollment/authorization.md)). |
+| `ems.authorization.template` | `auth_type` value `leave` | *Leave the Centre*. The centre creates the template itself (its legal text) from Academic management. |
 | `res.partner` | `action_print_student_card()` | Keeps the students (`contact_type == 'student'`) the user acts on, sorted by name, and returns the report action. Raises a `UserError` when none is left. |
 | `res.partner` | `_get_student_card_values()` | Per-student values for the template (document, level, study label). |
 | `ems.group` | `can_print_student_cards`, `action_print_student_cards()` | Same, for every student whose main group is this one. |

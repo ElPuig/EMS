@@ -74,6 +74,7 @@
                     <field name="auth_trip" optional="hide" widget="boolean_toggle" readonly="1"/>
                     <field name="auth_healt" optional="hide" widget="boolean_toggle" readonly="1"/>
                     <field name="auth_share" optional="hide" widget="boolean_toggle" readonly="1"/>
+                    <field name="auth_leave" optional="hide" widget="boolean_toggle" readonly="1"/>
                     <field name="benefit_status" optional="hide"/>
 
                     <field name="ems_enrollment_state" column_invisible="1"/>

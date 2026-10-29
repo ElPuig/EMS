@@ -27428,3 +27428,47 @@ msgstr "Escriu el motiu de l'anul·lació de la sol·licitud."
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__archived_with_calendar
 msgid "Archived with its calendar"
 msgstr "Arxivada amb el seu calendari"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"<span class=\"o_form_label\" title=\"The family authorizes the student to "
+"leave the centre.\">Leave the Centre</span>"
+msgstr ""
+"<span class=\"o_form_label\" title=\"La família autoritza l'alumne a sortir "
+"del centre.\">Sortir del centre</span>"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__auth_leave
+#: model:ir.model.fields,field_description:ems.field_res_users__auth_leave
+#: model:ir.model.fields.selection,name:ems.selection__ems_authorization_template__auth_type__leave
+msgid "Leave the Centre"
+msgstr "Sortir del centre"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_leave_centre
+#: model:ir.model.fields,field_description:ems.field_res_users__can_leave_centre
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "May leave the centre"
+msgstr "Pot sortir del centre"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
+msgid "May not leave the centre"
+msgstr "No pot sortir del centre"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__auth_leave
+#: model:ir.model.fields,help:ems.field_res_users__auth_leave
+msgid "The family authorizes the student to leave the centre."
+msgstr "La família autoritza l'alumne a sortir del centre."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_res_partner__can_leave_centre
+#: model:ir.model.fields,help:ems.field_res_users__can_leave_centre
+msgid ""
+"The student is of age, or the family accepted the 'Leave the Centre' "
+"authorization for the academic year in force."
+msgstr ""
+"L'alumne és major d'edat, o la família ha acceptat l'autorització «Sortir "
+"del centre» del curs vigent."

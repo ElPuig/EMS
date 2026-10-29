@@ -39,7 +39,7 @@ The top of the form gathers the student's data without switching tabs:
 
 - **First name** and **Last name**, with the **Personal email** and the **Corporate email** below. A name typed all in capitals or all in lower case is saved with capital initials ("ASHLEY BUENO" becomes "Ashley Bueno"); one with mixed case is saved as typed.
 - Three columns: **Contact** (address, phones and language), **Identification** (ID card/NIE, passport, Student ID, medical ID, NUSS and car plate) and **Personal data** (birth date, whether they are an adult, birth country, citizenship, benefits and special educational needs).
-- **Authorizations**: the Yes/No summary of image rights, school trips, health data and sharing with the family.
+- **Authorizations**: the Yes/No summary of image rights, school trips, health data, sharing with the family and leaving the centre.
 
 ![Top of a student's form: names, emails, the Contact, Identification and Personal data columns, and the authorizations summary](../../assets/secretary/fitxa-alumne-01-capcalera.png)
 
@@ -105,7 +105,7 @@ The search bar opens with two filters already applied: **Students**, which hides
 
 ## Columns shown in the student list view
 
-Switching the Students screen from Kanban to List view shows, by default, most of the fields already used in the centre's official student data export (document ID/DNI-NIE, birth date, whether the student is of legal age, social security number, nationality, address and postal code), plus the four authorization badges (image rights, school trips, health data, share with family). Any column can be hidden — click the icon at the right of the column headers and untick what you don't need; the choice is remembered for your next visit.
+Switching the Students screen from Kanban to List view shows, by default, most of the fields already used in the centre's official student data export (document ID/DNI-NIE, birth date, whether the student is of legal age, social security number, nationality, address and postal code), plus the five authorization badges (image rights, school trips, health data, share with family, leave the centre). Any column can be hidden — click the icon at the right of the column headers and untick what you don't need; the choice is remembered for your next visit.
 
 ## Fields only admin/secretary/Head of Studies/tutors can see
 

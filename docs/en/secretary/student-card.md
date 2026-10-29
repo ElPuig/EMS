@@ -17,7 +17,8 @@ EMS generates the student card as a PDF ready to print and cut.
 **Front:**
 
 - The centre's logo, name, address and phone, and the current academic year.
-- A coloured band with the student's level in big letters (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS), the study and the course year. Each level has its own colour. The teacher at the door reads this band to know whether the student may go out at break time.
+- A coloured band with the student's level in big letters (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS), the study and the course year. Each level has its own colour.
+- Whether the student may leave the centre, for the teacher at the door: **Pot sortir del centre** (green) when the student is of age or the family has accepted the *Leave the Centre* authorization for this academic year, **No pot sortir del centre** (red) otherwise. It is worked out when the card is printed: if the student turns 18 or the family accepts the authorization later, print the card again.
 - The photo, last names and first name, identity document (DNI or NIE, or the passport when there is none), birth date and IDALU, with its barcode.
 - The centre's stamp. Until the administrator uploads it, an empty box is printed instead, to stamp by hand.
 

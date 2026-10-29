@@ -247,6 +247,8 @@ class ResPartner(models.Model):
     auth_trip  = fields.Boolean(string="Scholar Trips", compute="_compute_auth_booleans", store=True)
     auth_healt = fields.Boolean(string="Health Data", compute="_compute_auth_booleans", store=True)
     auth_share = fields.Boolean(string="Share with family", compute="_compute_auth_booleans", store=True, help="If marked, the student (even if adult) allows to share its educational information with its family.")
+    # Read with is_adult by can_leave_centre (student_card.py), which the student card prints.
+    auth_leave = fields.Boolean(string="Leave the Centre", compute="_compute_auth_booleans", store=True, help="The family authorizes the student to leave the centre.")
     
     car_plate = fields.Char(string="Car Plate")
     is_adult = fields.Boolean(string="Adult", compute="_compute_is_adult", store=False)
@@ -446,6 +448,7 @@ class ResPartner(models.Model):
             student.auth_trip = 'trip' in accepted_types
             student.auth_healt = 'health' in accepted_types
             student.auth_share = 'share' in accepted_types
+            student.auth_leave = 'leave' in accepted_types
 
     @api.depends('sale_order_ids.ems_course_id', 'sale_order_ids.state',
                  'ems_authorization_all_ids.course_id')

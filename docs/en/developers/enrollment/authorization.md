@@ -43,7 +43,7 @@ authorization reaches a student by one of two routes:
 | `ems.authorization.template` | `apply_on_enrollment` / `sendable_during_course` | Two independent route flags; a form may take both, and `_check_has_a_route()` rejects one that takes neither. `apply_on_enrollment` (default on) = attached automatically to every open enrollment matching the scope below. `sendable_during_course` = offered in the send assistant. See [Standalone authorizations](#standalone-authorizations-sent-during-the-course). |
 | | `is_required` | If pending and required, blocks `sale.order.action_confirm()` (see [`enrollment.md`](enrollment.md#authorization-sync)). |
 | | `acceptance_only` | If set, `ems.authorization.write()` rejects any attempt to set `status='no'` on its responses. |
-| | `auth_type` | `image`/`trip`/`health`/`share`/`other` — drives `res.partner.auth_image`/`auth_trip`/`auth_healt`/`auth_share` (see below), not read anywhere else. |
+| | `auth_type` | `image`/`trip`/`health`/`share`/`leave`/`other` — drives `res.partner.auth_image`/`auth_trip`/`auth_healt`/`auth_share`/`auth_leave` (see below), not read anywhere else. |
 | | `ems_level_ids` / `ems_study_ids` | Scope. Empty on both = applies to every enrollment; when both are set, an enrollment must match **both** (AND-of-scopes — see [`_matches_scope()`](#keeping-authorizations-in-sync-with-open-enrollments) below). |
 | `ems.authorization` | `partner_id` / `course_id` | The student and academic year this authorization is addressed to — the real anchor of the record, stored on every row whichever route created it. Plain stored fields, not computes: set in `create()` (and in `write()` when `enrollment_id` changes), with an `@api.onchange` mirroring `enrollment_id` for the form. A stored compute was deliberately avoided — one that must preserve a value the send wizard set has no safe way to read its own current value without risking recursion. Deliberately **not** `required=True`: Odoo attempts `SET NOT NULL` during `_auto_init`, before the migration's backfill runs, which would leave the constraint silently absent on upgraded databases but present on fresh ones. `_check_target()` enforces them instead. |
 | | `enrollment_id` | Optional. Set for the enrollment route, empty for a standalone one. |
@@ -244,8 +244,8 @@ behavioural guarantee, not an accident: it is pinned by a test.
 
 ## `res.partner` auth booleans
 
-`ems.contact` (`models/contacts/contact.py`) exposes four derived flags —
-`auth_image`, `auth_trip`, `auth_healt`, `auth_share` — computed from every
+`ems.contact` (`models/contacts/contact.py`) exposes five derived flags —
+`auth_image`, `auth_trip`, `auth_healt`, `auth_share`, `auth_leave` — computed from every
 `ems.authorization` with `status == 'yes'` addressed to the student for the
 **academic year in force**, grouped by `template_id.auth_type`:
 
@@ -253,7 +253,7 @@ behavioural guarantee, not an accident: it is pinned by a test.
 flowchart LR
     A["res.partner._compute_auth_booleans()"] --> B["ems_authorization_all_ids\n(one2many on partner_id,\nevery year, either route)"]
     B --> C["keep status = 'yes' AND\ncourse_id = _ems_course_in_force()"]
-    C --> D["auth_image / auth_trip /\nauth_healt / auth_share = True\naccording to template auth_type"]
+    C --> D["auth_image / auth_trip /\nauth_healt / auth_share /\nauth_leave = True\naccording to template auth_type"]
 ```
 
 They read the student's own authorizations, not the enrollment's, so one

@@ -1,5 +1,7 @@
 import base64
 
+from dateutil.relativedelta import relativedelta
+
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
@@ -11,8 +13,8 @@ from .common import (
 
 class TestStudentCard(TransactionCase):
     """The student card PDF (issue #524): who may print it, which students end up on the sheet and
-    what each card shows. The level band is what the teacher at the door reads to let a student out
-    at break time, so it must always carry the main group's level."""
+    what each card shows, including whether the student may leave the centre (of age, or the
+    family accepted the 'Leave the Centre' authorization)."""
 
     @classmethod
     def setUpClass(cls):
@@ -137,3 +139,39 @@ class TestStudentCard(TransactionCase):
         html = self._render(self.own_a)
         self.assertIn('TSC Alpha Student', html)
         self.assertIn('background: #546E7A', html)
+
+    # --- May the student leave the centre -------------------------------------------------------
+
+    def _with_leave_authorization(self, student, status):
+        """The student's enrollment for the course in force, with a 'Leave the Centre' answer."""
+        order = self.env['sale.order'].create({
+            'partner_id': student.id, 'ems_study_id': self.study.id,
+            'ems_course_id': self.env.company.current_course_id.id, 'shift': 'morning'})
+        order.state = 'sale'
+        template = self.env['ems.authorization.template'].create({
+            'name': 'TSC Leave', 'auth_type': 'leave', 'legal_text': '<p>Text</p>'})
+        self.env['ems.authorization'].create({
+            'enrollment_id': order.id, 'template_id': template.id, 'status': status})
+
+    def _birth_date(self, years):
+        return self.env['ems.datetime_utils'].get_local_today() - relativedelta(years=years)
+
+    def test_minor_without_authorization_may_not_leave(self):
+        self.own_a.birth_date = self._birth_date(15)
+        self.assertFalse(self.own_a.can_leave_centre)
+        self.assertIn('class="o_ems_card_exit o_ems_card_exit_no"', self._render(self.own_a))
+
+    def test_adult_may_leave_without_authorization(self):
+        self.own_a.birth_date = self._birth_date(18)
+        self.assertTrue(self.own_a.can_leave_centre)
+        self.assertIn('class="o_ems_card_exit o_ems_card_exit_yes"', self._render(self.own_a))
+
+    def test_minor_may_leave_only_with_the_authorization_accepted(self):
+        self.own_a.birth_date = self._birth_date(15)
+        self.own_b.birth_date = self._birth_date(15)
+        self._with_leave_authorization(self.own_a, 'yes')
+        self._with_leave_authorization(self.own_b, 'no')
+        self.assertTrue(self.own_a.auth_leave)
+        self.assertTrue(self.own_a.can_leave_centre)
+        self.assertFalse(self.own_b.auth_leave)
+        self.assertFalse(self.own_b.can_leave_centre)

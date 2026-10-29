@@ -154,7 +154,7 @@ end up `text/plain` and show as "Binary file" (`sudo()` doesn't help, see above)
 also call `_refresh_stale_avatar_placeholder()`, which rewrites the placeholder as the
 superuser on the employee and on the linked user's partner. It always generates the SVG
 again rather than elevating the stored bytes, so no SVG that wasn't Odoo's own is ever served
-as an image. `migrations/18.0.0.41.1/post-migrate.py` repairs the photos already broken: every
+as an image. `migrations/18.0.0.42.0/post-migrate.py` repairs the photos already broken: every
 `hr.employee`/`res.partner` whose `image_1920` attachment is a `text/plain` SVG (or has lost
 its file) gets a freshly generated placeholder.
 

@@ -306,8 +306,8 @@ class TestEmployeePhotoVisibility(TransactionCase):
 
         path = os.path.join(
             os.path.dirname(os.path.dirname(__file__)),
-            'migrations', '18.0.0.41.1', 'post-migrate.py')
-        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_41_1', path)
+            'migrations', '18.0.0.42.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_post_migrate_18_0_0_42_0', path)
         migration = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(migration)
         migration._repair_text_plain_placeholders(self.env.cr)

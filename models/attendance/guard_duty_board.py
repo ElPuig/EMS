@@ -2365,6 +2365,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                 guard['can_support'] = bool(
                     (supportable and employee in line['guard_spans'] and course._can_move_teacher(employee, movable))
                     or (may_support and guard['support_cover_id']))
+                # The user themselves, free on guard then: they may take a class (issue #601).
+                guard['is_me_free'] = editable and employee == me and employee in line['guard_spans']
             # Who can be sent to one of this line's classes, and for which part of it (issue #637):
             # those covering all of it first, then the partial ones by time - see _guard_spans().
             # Only those the user may send (issue #721, see _can_move_teacher).

@@ -96,6 +96,23 @@ class TestGuardSupport(AbsenceCoverageCase):
         with self.assertRaises(UserError):
             self._support(user=self.eso_chief, hour_from=9, hour_to=10)
 
+    def test_a_guard_on_duty_sees_only_themselves_enabled(self):
+        """The badges the user can do nothing with look disabled: a plain teacher on guard sees
+        only their own (they may take a class themselves), never a colleague's."""
+        self._morning()
+
+        line = self._board_line(user=self.guard_user)
+        guards = self.teacher_guard | self.teacher_guard_2
+        self.assertEqual({badge['id']: badge['can_support'] or badge['is_me_free'] for badge in line['guards']
+                          if badge['id'] in guards.ids},
+                         {self.teacher_guard.id: True, self.teacher_guard_2.id: False})
+        self._absence(self.teacher_guard, self.day)
+        self.assertFalse(self._guard(self._board_line(user=self.guard_user), self.teacher_guard)['is_me_free'])
+        # Whoever manages the classes sees both enabled, though neither is them.
+        line = self._board_line()
+        self.assertTrue(self._guard(line, self.teacher_guard_2)['can_support'])
+        self.assertFalse(self._guard(line, self.teacher_guard_2)['is_me_free'])
+
     def test_only_a_class_whose_teacher_is_in_can_be_supported(self):
         self._morning()
         self._absence(self.teacher_a, self.day, 8, 9)

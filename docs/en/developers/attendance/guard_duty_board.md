@@ -1008,6 +1008,12 @@ flowchart LR
   line (`guard_spans`), may be sent by the user (`_can_move_teacher`, issue #721) and some class of
   the line has its teacher in and is managed by the user; or when the badge is a support already
   given (`support_cover_id`), to show it and remove it.
+- **Which badges look usable.** Every badge of the absences table's guard column that the user can
+  do nothing with looks disabled (`o_guard_board_guard_disabled`: pale text, and a grey dashed box
+  unless it carries a cover colour, which keeps pairing it with its class): only those with
+  `can_support`, and the user's own badge while they are free on guard then (`is_me_free`, on an
+  editable day: they may take a class themselves, #601), keep the usual look. So a plain teacher
+  sees the whole column greyed out except themselves when on guard.
 - **Which classes.** `ems.course._get_support_options(day, hour_from, hour_to, guard)`: the guard's
   part of the period (`_get_guard_candidates()`, so an absent, busy or non-regular guard gets none),
   every lesson overlapping it whose teacher is in (absences and, today, not checked in count as

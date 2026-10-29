@@ -410,7 +410,7 @@
                                                 <t t-foreach="state.board.lines[slot.line].guards" t-as="guard" t-key="guard.name">
                                                 <!-- Issue #725: whoever manages a class here may send the guard to support its teacher. -->
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="guardBadgeClass(guard) + (guard.can_support ? ' o_guard_board_guard_supportable' : '')"
+                                                      t-att-class="guardBadgeClass(guard) + (guard.can_support ? ' o_guard_board_guard_supportable' : '') + (guard.can_support or guard.is_me_free ? '' : ' o_guard_board_guard_disabled')"
                                                       t-att-data-tooltip="guard.busy or (guard.can_support ? supportTooltip : false)"
                                                       t-on-click="() => this.openSupportDialog(state.board.lines[slot.line], guard)">
                                                     <t t-esc="guard.name"/>

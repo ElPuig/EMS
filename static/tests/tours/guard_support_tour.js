@@ -33,8 +33,8 @@ registry.category("web_tour.tours").add("ems_guard_support", {
             run: "click",
         },
         {
-            trigger: `${guardBadge}.o_guard_board_guard_supportable`,
-            content: "The guard on duty can be sent as a support",
+            trigger: `${guardBadge}.o_guard_board_guard_supportable:not(.o_guard_board_guard_disabled)`,
+            content: "The guard on duty can be sent as a support, and does not look disabled",
             run: "click",
         },
         {

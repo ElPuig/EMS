@@ -28,7 +28,7 @@ En tots dos casos, secretaria registra després la resolució a l'Esfera i tanca
 | **Pendent de secretaria** | Ja està resolta; secretaria l'ha de registrar a l'Esfera. |
 | **Completada** | Registrada, amb algun mòdul convalidat. L'alumne ja veu la nota. |
 | **Rebutjada** | Registrada, sense cap mòdul convalidat. |
-| **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal. |
+| **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal, o el centre l'ha anul·lada indicant-ne el motiu. |
 
 L'estat només canvia amb les accions de cada pas, a dalt del formulari (al menú **Accions** quan n'hi ha més d'una).
 
@@ -95,6 +95,7 @@ A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta
 
 - **Nota:** cada mòdul es revisa i es qualifica d'un en un. En clicar ✔, un diàleg la demana: amb el **Mode** a **Amb nota** (per defecte), escriu la nota, 5 per defecte o la que tenen els estudis previs (de 5 a 10). Tria **Sense nota** quan el mòdul es convalida sense nota: la resolució el mostra com a **Convalidat**, les notes com a **CV**, i no compta per a la mitjana. Fins que no enviïs la proposta, encara pots canviar les columnes **Nota** i **Sense nota** de la línia.
 - **Motiu de la denegació:** en clicar ✖, un diàleg demana el **Motiu**, amb el més habitual ja seleccionat, i uns **Detalls** opcionals. Tots dos surten a la resolució. Fins que no enviïs la proposta, encara els pots canviar a la línia. La llista de motius la mantens tu mateix, juntament amb l'administrador de l'EMS, des de **Gestió acadèmica > Configuració > Convalidacions** (vegeu [Configuració de les convalidacions](../admin/convalidation-settings.md)).
+- **Què veu l'alumne:** res del que decideixis sobre cada mòdul, ni les observacions per a l'alumne, fins que secretaria registra la resolució. Fins aleshores, el portal només mostra els mòduls sol·licitats i l'estat de la sol·licitud.
 
 ![Convalidar un mòdul: la nota](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -191,8 +192,8 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ## Anul·lar i reobrir
 
-- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri.
-- **Reobrir** torna una sol·licitud anul·lada a **Pendent**.
+- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri. Un diàleg et demana el **Motiu**, que és obligatori: queda a la sol·licitud, i l'alumne o la família el veuen al portal i a les seves comunicacions.
+- **Reobrir** torna una sol·licitud anul·lada a **Pendent** i n'esborra el motiu.
 
 ---
 

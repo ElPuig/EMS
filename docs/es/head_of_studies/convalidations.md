@@ -28,7 +28,7 @@ En ambos casos, secretaría registra después la resolución en Esfera y cierra 
 | **Pendiente de secretaría** | Ya está resuelta; secretaría tiene que registrarla en Esfera. |
 | **Completada** | Registrada, con algún módulo convalidado. El alumno ya ve la nota. |
 | **Rechazada** | Registrada, sin ningún módulo convalidado. |
-| **Anulada** | El alumno o la familia la ha anulado desde el portal. |
+| **Anulada** | El alumno o la familia la ha anulado desde el portal, o el centro la ha anulado indicando el motivo. |
 
 El estado solo cambia con las acciones de cada paso, arriba del formulario (en el menú **Acciones** cuando hay más de una).
 
@@ -95,6 +95,7 @@ En cada línea de la pestaña **Asignaturas**, usa los botones de la derecha:
 
 - **Nota:** cada módulo se revisa y se califica de uno en uno. Al pulsar ✔, un diálogo la pide: con el **Modo** en **Con nota** (por defecto), escribe la nota, 5 por defecto o la que tienen los estudios previos (de 5 a 10). Elige **Sin nota** cuando el módulo se convalida sin nota: la resolución lo muestra como **Convalidat**, las notas como **CV**, y no cuenta para la media. Hasta que no envíes la propuesta, aún puedes cambiar las columnas **Nota** y **Sin nota** de la línea.
 - **Motivo de la denegación:** al pulsar ✖, un diálogo pide el **Motivo**, con el más habitual ya seleccionado, y unos **Detalles** opcionales. Ambos salen en la resolución. Hasta que no envíes la propuesta, aún puedes cambiarlos en la línea. La lista de motivos la mantienes tú mismo, junto con el administrador del EMS, desde **Gestión académica > Configuración > Convalidaciones** (ver [Configuración de las convalidaciones](../admin/convalidation-settings.md)).
+- **Qué ve el alumno:** nada de lo que decidas sobre cada módulo, ni las observaciones para el alumno, hasta que secretaría registra la resolución. Hasta entonces, el portal solo muestra los módulos solicitados y el estado de la solicitud.
 
 ![Convalidar un módulo: la nota](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -191,8 +192,8 @@ Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el 
 
 ## Anular y reabrir
 
-- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio.
-- **Reabrir** devuelve una solicitud anulada a **Pendiente**.
+- **Anular la solicitud** está disponible mientras la solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio. Un diálogo te pide el **Motivo**, que es obligatorio: queda en la solicitud, y el alumno o la familia lo ven en el portal y en sus comunicaciones.
+- **Reabrir** devuelve una solicitud anulada a **Pendiente** y borra el motivo.
 
 ---
 

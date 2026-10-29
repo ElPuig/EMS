@@ -31,7 +31,7 @@
 
 L'aprovador de cada persona és el responsable del seu departament de nivell superior. Es defineix al formulari del departament, camp **Responsable d'àrea**, i s'actualitza sol si canvia el càrrec.
 
-Ningú aprova la seva pròpia absència: la d'un responsable d'àrea la resol Direcció.
+El responsable d'àrea també és qui aprova la seva pròpia absència: valides la teva sol·licitud (i el justificant, quan en cal) com qualsevol altra de la teva àrea, i després Direcció la revisa com sempre. No pots desfer una decisió sobre la teva pròpia absència; Direcció sí.
 
 ---
 
@@ -104,7 +104,7 @@ Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella
 
 **Només Direcció.** Direcció revisa cada absència en últim lloc: li arriba un cop el cap l'ha validada, amb el justificant quan el tipus n'exigeix. En les absències d'**ATRI**, comprova que la sol·licitud s'ha tramitat de debò al portal de la Generalitat.
 
-**Assistència del personal > Absències > Administració > Absències sol·licitades** s'obre amb **Pendent de mi**: totes les absències **Pendent Direcció**, i les absències dels mateixos caps d'àrea, que gestiones tu com a cap seu (amb els botons del cap descrits més amunt). Cadascuna et deixa també una activitat ("Revisió de direcció de l'absència").
+**Assistència del personal > Absències > Administració > Absències sol·licitades** s'obre amb **Pendent de mi**: totes les absències **Pendent Direcció**. Cadascuna et deixa també una activitat ("Revisió de direcció de l'absència").
 
 Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o obre'n una i fes servir les accions de dalt del formulari, que et torna al llistat en acabar:
 
@@ -228,6 +228,6 @@ Quan el docent sol·licita l'absència pel seu compte, en qualsevol moment, l'ab
 
 ### Organitzar la cobertura
 
-Un cop una absència surt a l'horari de guàrdies, detectada o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans (si l'administrador ha activat aquests canvis), i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència detectada es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../teachers/guard-duty-schedule.md#organitzar-una-absencia).
+Un cop una absència surt a l'horari de guàrdies, detectada o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans (si l'administrador ha activat aquests canvis), i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència detectada es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../department_chiefs/absences.md#organitzar-una-absencia).
 
 Una classe el docent de la qual no ha fitxat quan comença també surt a la Taula d'absències, per cobrir-la amb una guàrdia. Si resulta que el docent és a l'aula, en pots registrar l'entrada des de la taula: consulta [Docents que no han fitxat](../teachers/guard-duty-schedule.md#docents-que-no-han-fitxat).

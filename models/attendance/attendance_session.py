@@ -725,6 +725,9 @@ class EmsAttendanceSessionLine(models.Model):
     # 0/100 rather than a boolean so the 'Attendance reports' graph's default measure (avg,
     # grouped by subject) resolves directly to a percentage of absence.
     absence_rate = fields.Float(string="Absence rate", compute="_compute_absence_rate", store=True, aggregator="avg")
+    # What the History form shows instead of the status of a student removed from the roll-call
+    # (issue #713): their status is kept for a restore, but counts neither as attended nor absent.
+    roll_call_label = fields.Char(string="Roll-call", compute="_compute_roll_call_label")
 
     # Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
     is_auto_generated = fields.Boolean(default=False)
@@ -880,6 +883,12 @@ class EmsAttendanceSessionLine(models.Model):
     def _compute_absence_rate(self):
         for line in self:
             line.absence_rate = 100.0 if line.status_id.category == 'absence' else 0.0
+
+    @api.depends('active')
+    def _compute_roll_call_label(self):
+        label = _("Not required to attend")
+        for line in self:
+            line.roll_call_label = False if line.active else label
 
     def action_view_strikes(self):
         self.ensure_one()

@@ -54,10 +54,15 @@ class ArrangementPlanner:
       away then (issue #678): co-teachers are a pack, the lesson moves with all of them (see
       ems.course._arrangement_sessions).
     - `free(teacher id, hour_from, hour_to)`: whether they can be with a group then.
+    - `enabled`: `{group id: change types}`, the timetable changes each group may have (see
+      ems.course._enabled_absence_changes).
     - `swaps`: the lesson swaps the timetable allows (see ems.course._get_arrangement_options),
       as steps: they combine with moves like any other step.
     - `partners`: `{group id: frozenset(group ids)}`, the other halves of a split group (issue
       #660): groups sharing some lesson in the weekly timetable.
+    - `fixed`: the teachers whose day must not change (issue #721: another area organises them,
+      see ems.course._can_move_teacher). No step moves, joins or swaps a lesson of theirs; a
+      co-teacher among them stays on guard at the lesson, like one who is busy.
 
     A step is a hashable tuple `(kind, teachers, lesson, target, group ids, absents, stays, joined)`:
     'move', 'swap' or 'join'; the pack that teaches its `lesson` in the gap (`target`) for those
@@ -74,7 +79,8 @@ class ArrangementPlanner:
     MAX_MOVES = 4
     BEAM = 30
 
-    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, sessions, free, swaps=(), partners=None):
+    def __init__(self, course, blocks, breaks, communicated, now_hour, teachers, sessions, free, enabled, swaps=(),
+                 partners=None, fixed=frozenset()):
         self.course = course
         self.blocks = blocks
         self.breaks = breaks
@@ -85,7 +91,8 @@ class ArrangementPlanner:
         self.free = free
         self.swaps = list(swaps)
         self.partners = partners or {}
-        self.enabled = course._enabled_absence_changes()
+        self.fixed = fixed
+        self.enabled = enabled
 
     # The state a sequence of steps leaves the groups' day in.
 
@@ -116,7 +123,7 @@ class ArrangementPlanner:
     def _side_options(self, group_id, blocks):
         """`{side: (options, communicated)}` of one group's simulated day: the changes still to come
         it allows, from the smallest to the largest, and what the families were told on that side."""
-        allowed = self.course._allowed_absence_changes(blocks, self.breaks.get(group_id, ()), self.enabled)
+        allowed = self.course._allowed_absence_changes(blocks, self.breaks.get(group_id, ()), self.enabled[group_id])
         return {side: ([option for option in options if not self._is_past(option, blocks)],
                        self.communicated.get(group_id, {}).get(side))
                 for side, options in allowed.items()}
@@ -235,7 +242,8 @@ class ArrangementPlanner:
         vacated = {(teacher_id, step[2]) for step in steps for teacher_id in step[1] | step[6]}
 
         def busy(teacher_id, period):
-            return any(other == teacher_id and overlaps(*other_period, *period) for other, other_period in taken)
+            return teacher_id in self.fixed or any(
+                other == teacher_id and overlaps(*other_period, *period) for other, other_period in taken)
 
         for step in self.swaps:
             _kind, teachers, lesson, target, group_ids, absents, stays, _joined = step

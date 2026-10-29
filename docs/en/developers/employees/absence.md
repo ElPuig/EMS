@@ -47,6 +47,16 @@ The field stays `readonly=False` (a stored editable compute, as Odoo defines it)
 administrator can override a single employee's approver by hand; the override holds until the
 next recompute — that employee changing department, or their Area Manager being replaced.
 
+**An Area Manager is the Head of their own absence** (issue #693). Their own `leave_manager_id`
+is themselves, like everyone else's in their area: they acknowledge and validate their own
+request (supporting document included), and Direction reviews it afterwards exactly as it reviews
+anybody else's. Odoo's own approval check already lets a user approve a request whose
+`leave_manager_id` they are, and `_ems_check_own_approved_write()` lets through what those steps
+write on a request already in effect (`HEAD_DECISION_FIELDS`: the state, the approvers, the
+calendar meeting, the document state) and nothing else, so the request stays as closed to its own
+editing as anybody's. They still cannot undo a decision on their own absence (see *Undoing the
+last decision*); Direction can.
+
 **The approver is a `res.users`, not an `hr.employee`.** An Area Manager with no user account
 therefore leaves every employee in their area with an empty `leave_manager_id`, which Odoo
 degrades to "approved by an officer" — the Head of Studies chain — rather than failing. Worth
@@ -106,8 +116,9 @@ never blocks — see the plan) and `leave_validation_type = 'manager'`, which ro
 `leave_manager_id` above.
 
 Since issue #440, `hr.employee.attendance_manager_id` (`hr_attendance`'s own approver field,
-unrelated to leave requests) is a stored compute that always mirrors this same
-`leave_manager_id` — see [My Profile restructuring](user_profile.md) for why and how.
+unrelated to leave requests) is a stored compute that mirrors this same `leave_manager_id`,
+except for an Area Manager, whose own attendance corrections go to the Director — see
+[My Profile restructuring](user_profile.md) for why and how.
 
 ## The request: what EMS adds to `hr.leave`
 
@@ -318,13 +329,15 @@ decision back, the reader stays on the request to correct it or decide again.
 Head of Studies, so Odoo would offer it Approve/Refuse on every request - right beside the Head's
 column, where clicking decides for the Head instead of recording Direction's review.
 `_compute_can_approve()` is overridden to be `False` for `ems.group_director` except where the
-Director is the employee's `leave_manager_id` (an Area Manager's own absence). The list and kanban
+Director is the employee's `leave_manager_id` (set by hand, or the Director's own absence when
+they manage an area). The list and kanban
 Approve/Refuse buttons, which natively look at `state` only, now also require `can_approve`; the
 form's already did. It is a screen rule only: server-side, Direction keeps its officer rights.
 
 **"Waiting For Me".** Odoo's own two filters only know the acknowledgement (`state = 'confirm'`),
 so both are re-scoped to the Head's two steps (`ems_status` Pending or Pending validation): the
-approver's `waiting_for_me` and the officers' `waiting_for_me_manager`. Direction's own
+approver's `waiting_for_me` and the officers' `waiting_for_me_manager`, which leaves out the
+reader's own requests except those they approve themselves (an Area Manager's). Direction's own
 (`ems_waiting_for_direction`, `groups="ems.group_director"`) lists what is Pending Direction, plus
 the Head's two steps on the requests Direction handles as the Head (`leave_manager_id = uid`).
 The officers' filter, which Direction would otherwise get and which lists the Head's pending work,

@@ -31,7 +31,7 @@
 
 Everyone's approver is the manager of their top-level department, set on the department's own form in the **Area Manager** field, and it follows the post when the holder changes.
 
-Nobody approves their own absence: an Area Manager's request is decided by Direction.
+An Area Manager is the approver of their own absence too: you validate your own request (and its supporting document, when it needs one) like any other in your area, and Direction then reviews it as usual. You cannot undo a decision on your own absence; Direction can.
 
 ---
 
@@ -106,7 +106,7 @@ Whether an absence is a whole day or a few hours is controlled by the **Whole da
 
 Direction goes last: a request reaches you once its Head has validated it, together with its supporting document when the type requires one.
 
-**Employee Attendances > Absences > Management > Requested absences** opens on **Waiting For Me**: every absence **Pending Direction**, plus the Area Managers' own absences, which you handle as their Head (with the Head's buttons described above). Each one also leaves you an activity ("Direction review of the absence").
+**Employee Attendances > Absences > Management > Requested absences** opens on **Waiting For Me**: every absence **Pending Direction**. Each one also leaves you an activity ("Direction review of the absence").
 
 Review them from the list with the icons beside **Direction status**, or open one and use the actions at the top of the form, which takes you back to the list once done:
 
@@ -230,6 +230,6 @@ When the teacher requests the absence themselves, at any moment, the detected ab
 
 ### Organising the cover
 
-Once an absence is on the guard duty schedule, detected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier (if the administrator has switched these changes on), and correct what an absence that changed afterwards made unnecessary. Whatever you organise for a detected absence stays when the teacher requests it. See [Organising an absence](../teachers/guard-duty-schedule.md#organising-an-absence).
+Once an absence is on the guard duty schedule, detected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier (if the administrator has switched these changes on), and correct what an absence that changed afterwards made unnecessary. Whatever you organise for a detected absence stays when the teacher requests it. See [Organising an absence](../department_chiefs/absences.md#organising-an-absence).
 
 A class whose teacher has not checked in when it starts also appears on the Absences table, to be covered with a guard. If the teacher turns out to be in the classroom, you can register their check-in from the table: see [Teachers who have not checked in](../teachers/guard-duty-schedule.md#teachers-who-have-not-checked-in).

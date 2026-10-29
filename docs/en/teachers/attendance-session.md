@@ -171,7 +171,8 @@ during that session, with a button to see their full detail.
 > **Current** in **Manual** mode and pick that session from the selector — the History list itself
 > doesn't allow edits.
 
-Students removed from a session's roll-call also appear in the session, greyed out.
+Students removed from a session's roll-call also appear in the session, at the end of the list, greyed out and
+struck through, with **Not required to attend** instead of a status: they count neither as attended nor as absent.
 
 ---
 

@@ -30,6 +30,12 @@ NATIVE_LEAVE_TYPE_XMLIDS = (
 ATTACHMENT_FIELDS = frozenset({
     'attachment_ids', 'supported_attachment_ids', 'message_main_attachment_id',
 })
+# What the Head's own steps write on a request already in effect (Odoo's approval and its
+# calendar meeting, the document validation), which an Area Manager deciding on their own
+# absence has to get through.
+HEAD_DECISION_FIELDS = frozenset({
+    'state', 'first_approver_id', 'second_approver_id', 'meeting_id', 'ems_document_state',
+})
 
 # The Catalan hr_holidays ships for its two approval activity types is machine-generated
 # nonsense, and it is the heading the chatter prints above every request awaiting a decision.
@@ -112,16 +118,12 @@ class EmsAbsenceEmployeeBase(models.AbstractModel):
         Like '_compute_parent_id', this depends only on 'department_id' - a recursive walk up
         'parent_id' cannot be expressed as an @api.depends - and is re-triggered explicitly from
         'ems_department._cascade_department_heads()' whenever an Area Manager changes.
+
+        An Area Manager is the Head of their own absence (issue #693): they validate it
+        themselves and Direction reviews it afterwards, like anybody else's.
         """
         for employee in self:
-            manager = employee.department_id._top_level_department().manager_id
-            # Compared by id, not by record: this abstract model is shared by 'hr.employee' and
-            # 'hr.employee.public', which are different models over the same ids, and Odoo's '=='
-            # is False across models. An Area Manager cannot approve their own absence, so they
-            # fall back to the Director.
-            if manager.id == employee.id:
-                manager = employee.company_id.director_id
-            employee.leave_manager_id = manager.user_id if manager.id != employee.id else False
+            employee.leave_manager_id = employee.department_id._top_level_department().manager_id.user_id
 
 
 class EmsAbsenceLeaveType(models.Model):
@@ -814,12 +816,17 @@ class EmsAbsenceLeave(models.Model):
         through the wider rule above, an ability they never had: editing their own approved
         absence. Somebody else's stays theirs to correct, which is the whole point of being an
         officer.
+
+        An Area Manager is their own approver (issue #693): what their own approval steps write
+        goes through, and nothing else.
         """
         if self.env.su or not (vals.keys() - ATTACHMENT_FIELDS):
             return
         employee = self.env.user.employee_id
+        own_decision = not (vals.keys() - ATTACHMENT_FIELDS - HEAD_DECISION_FIELDS)
         blocked = self.filtered(
-            lambda leave: leave.state in ('validate', 'validate1') and leave.employee_id == employee)
+            lambda leave: leave.state in ('validate', 'validate1') and leave.employee_id == employee
+            and not (own_decision and leave.employee_id.leave_manager_id == self.env.user))
         if blocked:
             raise AccessError(_(
                 "An approved absence request can no longer be changed. Its supporting document "

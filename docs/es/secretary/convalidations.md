@@ -66,4 +66,10 @@ Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el 
 
 ---
 
+## Anular una solicitud
+
+Mientras una solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio, puedes anularla desde **Acciones > Anular la solicitud**. Un diálogo te pide el **Motivo**, que es obligatorio: el alumno o la familia lo ven en el portal y en sus comunicaciones.
+
+---
+
 [← Volver al índice de Secretaría](index.md)

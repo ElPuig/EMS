@@ -158,7 +158,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if student and convalidation.exists() and convalidation.student_id == student \
                 and convalidation._ems_is_cancellable():
-            convalidation.action_cancel()
+            convalidation._ems_cancel()
         return request.redirect(self._redirect)
 
     @http.route('/my/convalidaciones/resolution/<int:convalidation_id>', type='http', auth='user', website=True)
@@ -168,7 +168,7 @@ class EmsPortalConvalidationController(CustomerPortal):
         convalidation = request.env['ems.convalidation'].sudo().browse(convalidation_id)
         if not (partner._ems_convalidation_portal_visible() and convalidation.exists()
                 and convalidation.student_id == partner.get_portal_student()
-                and convalidation.state in ('completed', 'rejected')):
+                and convalidation._ems_resolution_is_official()):
             return request.redirect(self._redirect)
         document = convalidation.resolution_pdf_id
         if not document:

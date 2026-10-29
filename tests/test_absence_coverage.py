@@ -6,7 +6,7 @@ from odoo.addons.ems.models.shared.datetime_utils import EmsDatetimeUtils
 from odoo.exceptions import AccessError, UserError, ValidationError
 
 from .common import (
-    create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, next_student_id)
+    allow_every_absence_change, create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, next_student_id)
 from .test_guard_duty_board import GuardDutyBoardCase
 
 
@@ -46,8 +46,7 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         for employee in cls.teacher_a | cls.teacher_b | cls.teacher_c:
             (employee.user_id.partner_id or employee.work_contact_id).lang = 'en_US'
         # Every timetable change is off by default (issue #679): these tests are about them.
-        cls.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                               'ems_absence_change_long_break': True})
+        allow_every_absence_change(cls.env)
 
     def setUp(self):
         super().setUp()
@@ -1195,6 +1194,29 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         proposals = [self.env['ems.course']._board_action_data(action) for action in self._actions()
                      if action['type'] == 'proposal' and action['group'] == self.group_a]
         self.assertEqual([action['students_only'] for action in proposals], [True])
+
+    def test_only_the_allowed_levels_come_in_later_or_leave_earlier(self):
+        """Issue #718: a group of a level not listed in the setting gets guards instead of a later
+        entry, no classes or an earlier leave, from the board and from the arrangement plans alike;
+        a longer break is still offered, the students staying in the centre."""
+        self.env.company.ems_absence_change_level_ids = self.level2
+        self._morning_with_break()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        self._absence(self.teacher_b, self.day, hour_from=10.5, hour_to=11.5)
+
+        states = self._states()
+
+        self.assertEqual(states['entry']['options'], [])
+        self.assertEqual(self._break_state()['options'], [('long_break', 10, 11.5)])
+        self.assertFalse([step for plan in self._plans() for step in plan['steps']
+                          if step['kind'] == 'notice' and step['change'][0] in ('late_entry', 'early_leave')])
+        enabled = self.env['ems.course']._enabled_absence_changes(self.group_a | self.group_c)
+        self.assertEqual(enabled[self.group_a.id], {'long_break'})
+        self.assertEqual(enabled[self.group_c.id], {'late_entry', 'no_classes', 'early_leave', 'long_break'})
+
+        self.env.company.ems_absence_change_level_ids |= self.group_a.level_id
+
+        self.assertEqual(self._states()['entry']['options'], [('late_entry', 9.0)])
 
     def test_a_correction_is_still_offered_once_its_change_is_switched_off(self):
         """What was told before the switch went off still has to be put right."""
@@ -2815,3 +2837,183 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
                     if ('notice', ('early_leave', 11.0), tuple(self.group_a.ids)) in self._plan_changes(plan))
 
         self.assertEqual(self._plan_changes(plan), [('notice', ('early_leave', 11.0), tuple(self.group_a.ids))])
+
+    # Teachers shared between areas (issue #721): ESO/BTX and the vocational families share some
+    # teachers, and each area organises its own. Only someone of a teacher's area (that of their
+    # department, or of one named on them as also managing them) moves them or sends them.
+
+    def _two_areas(self):
+        """teacher_a's department (headed by department_chief) hangs from a 'VET' area; teacher_b,
+        teacher_c and teacher_guard_2 belong to a department of an 'ESO' area, whose chief is
+        eso_chief and whose Deputy Head of Studies, eso_deputy, chiefs no department."""
+        Department = self.env['hr.department']
+        self.vet = Department.create({'name': 'TABC VET', 'is_top_level': True, 'top_level_area': 'academic',
+                                      'top_level_role': 'hos'})
+        self.eso = Department.create({'name': 'TABC ESO', 'is_top_level': True, 'top_level_area': 'academic',
+                                      'top_level_role': 'dhos'})
+        self.department.parent_id = self.vet
+        self.eso_chief = create_role_user(self, 'department_chief', 'test_eso_chief_tabc', name='TABC ESO Chief')
+        self.eso_department = Department.create({
+            'name': 'TABC ESO Department', 'parent_id': self.eso.id,
+            'manager_id': create_role_employee(self, self.eso_chief).id})
+        self.eso_deputy = create_role_user(self, 'head_of_studies', 'test_eso_deputy_tabc', name='TABC ESO Deputy')
+        create_role_employee(self, self.eso_deputy).department_id = self.eso_department
+        (self.teacher_b | self.teacher_c | self.teacher_guard_2).department_id = self.eso_department
+
+    def _can_move(self, user, teacher):
+        return self.env['ems.course'].with_user(user)._can_move_teacher(teacher)
+
+    def test_only_someone_of_the_teachers_area_may_move_them(self):
+        self._two_areas()
+        director = create_role_user(self, 'director', 'test_director_721_tabc', name='TABC 721 Director')
+        nobody = self.env['hr.employee'].create({'name': 'TABC Teacher Without Department', 'employee_type': 'teacher'})
+
+        for user, teacher, expected in (
+                (self.department_chief, self.teacher_a, True),
+                (self.department_chief, self.teacher_b, False),
+                (self.eso_chief, self.teacher_b, True),
+                (self.eso_chief, self.teacher_a, False),
+                # Their own department's area, though they chief none: a Deputy Head of Studies.
+                (self.eso_deputy, self.teacher_b, True),
+                (self.eso_deputy, self.teacher_a, False),
+                (director, self.teacher_b, True),
+                (self.env.ref('base.user_admin'), self.teacher_b, True),
+                # No area to protect: anybody's.
+                (self.department_chief, nobody, True)):
+            with self.subTest(user=user.name, teacher=teacher.name):
+                self.assertEqual(self._can_move(user, teacher), expected)
+
+        # Named as also managed by a department of the other area, both areas organise them, the
+        # other way round too: a VET teacher in an ESO group.
+        self.teacher_b.managing_department_ids = self.department
+        self.assertTrue(self._can_move(self.department_chief, self.teacher_b))
+        self.assertTrue(self._can_move(self.eso_chief, self.teacher_b))
+        self.teacher_a.managing_department_ids = self.eso_department
+        self.assertTrue(self._can_move(self.eso_deputy, self.teacher_a))
+
+    def test_no_arrangement_moves_a_teacher_of_another_area(self):
+        """_morning's swap (teacher_b's 11:00 lesson to 8:00) changes the day of teacher_b, an ESO
+        teacher: VET's department chief is not offered it, nor may apply it."""
+        self._two_areas()
+        self._morning()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+        Course = self.env['ems.course']
+
+        self.assertTrue(self._plans(), "whoever may move teacher_b gets the swap")
+        self.assertFalse(Course.with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_a))
+        self.assertFalse(self._board_row(self.department_chief)['arrangement_plans'])
+        with self.assertRaises(UserError):
+            self._arrange('swap', self.teacher_b, lesson=(11.0, 12.0))
+
+        self.teacher_b.managing_department_ids = self.department
+
+        self.assertTrue(Course.with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_a))
+        cover, _notice_action = self._arrange('swap', self.teacher_b, lesson=(11.0, 12.0))
+        self.assertEqual(cover.guard_employee_id, self.teacher_b)
+
+    def test_a_co_teacher_of_another_area_stays_at_their_lesson(self):
+        self._two_areas()
+        self._co_taught_last_lesson()
+        self.teacher_b.department_id = self.department
+        self._absence(self.teacher_a, self.day, hour_from=10, hour_to=12)
+
+        plan = self.env['ems.course'].with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_a)[0]
+
+        self.assertEqual(self._plan_summary(plan)[0], ('move', self.teacher_b, 11, 10, self.group_a))
+        self.assertEqual(plan['steps'][0]['stay_reasons'], {self.teacher_c: 'area'})
+        details = self.env['ems.course']._arrangement_plan_data(plan)['steps'][0]['warnings']
+        self.assertIn(f"{self.teacher_c.name} cannot follow the lesson (organised by another area)", details[0])
+
+    def test_a_manual_arrangement_names_no_teacher_of_another_area(self):
+        self._two_areas()
+        self._morning()
+        self._schedule_class(self.teacher_c, self.group_b, 'TABC Calendar C (group B)', periods=((8, 9),))
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        candidates = self.env['ems.course'].with_user(self.department_chief).get_arrangement_candidates(
+            str(self.day), 8, 9, self.teacher_a.id, self.group_a.id)
+
+        self.assertNotIn(self.teacher_c.id, [candidate['id'] for candidate in candidates])
+        with self.assertRaises(UserError):
+            self._arrange('manual', self.teacher_c, note='Groups A and B joined')
+        self.assertTrue(self._arrange('manual', note='Groups A and B joined')[0], "with nobody named it is still possible")
+
+    def test_a_guard_of_another_area_is_only_sent_by_their_own_area(self):
+        """VET's department chief cannot send teacher_guard_2 (ESO) to cover teacher_a's class; ESO's
+        chief, organising it because teacher_a is also managed by ESO, can - and not a VET guard."""
+        self._two_areas()
+        self._morning()
+        self.teacher_guard.department_id = self.department
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        candidates = [guard['id'] for guard in self._board_row_data(self.department_chief)['guard_candidates']]
+        self.assertEqual(candidates, [self.teacher_guard.id])
+        with self.assertRaises(UserError):
+            self._assign(self.teacher_guard_2)
+        # A guard taking the class themselves decides for themselves.
+        self.assertTrue(self._self_assign())
+
+        self.teacher_a.managing_department_ids = self.eso_department
+        candidates = [guard['id'] for guard in self._board_row_data(self.eso_chief)['guard_candidates']]
+        self.assertEqual(candidates, [self.teacher_guard_2.id])
+        self.assertTrue(self._assign(self.teacher_guard_2, user=self.eso_chief))
+        with self.assertRaises(UserError):
+            self._assign(self.teacher_guard, user=self.eso_chief)
+
+    def test_a_lesson_is_not_taken_to_the_guard_of_a_teacher_of_another_area(self):
+        """The case behind issue #721: an ESO teacher's lesson with a VET group moved to the hour of
+        their ESO guard (issue #709), which the ESO, organising its guards outside the board, needed."""
+        self._two_areas()
+        self._calendar_rows(self.teacher_a, ((8, 9, self.group_a), (9, 10, self.group_a), (10, 11, self.group_a)))
+        self._calendar_rows(self.teacher_c, ((9, 10, 'guard'), (11, 12, self.group_a)))
+        self._absence(self.teacher_a, self.day, hour_from=9, hour_to=10)
+        moves = [('move', self.teacher_c, 11, 9, self.group_a)]
+
+        self.assertIn(moves, [self._plan_summary(plan)[:1] for plan in self._plans()])
+        plans = self.env['ems.course'].with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_a)
+        self.assertFalse([plan for plan in plans if any(self.teacher_c in step.get('teacher', ()) for step in plan['steps'])])
+
+    def _entry_action_data(self, action_type):
+        action = next(action for action in self._actions() if action['type'] == action_type and action['group'] == self.group_a)
+        return self.env['ems.course']._board_action_data(action)
+
+    def test_how_much_of_a_change_to_tell_is_chosen_inside_its_sentence(self):
+        """The selector goes where the hour is when every option comes in later (or every one
+        leaves earlier), and where the whole change is when they differ in kind."""
+        self._morning()
+        leave = self._absence(self.teacher_a, self.day, hour_from=8, hour_to=10, approve=False)
+
+        data = self._entry_action_data('proposal')
+        self.assertEqual(data['label_parts'], [f"{self.group_a.name}: Could start at ", "."])
+        self.assertEqual([option['inline'] for option in data['options']], ['09:00', '10:00'])
+        self.assertEqual(data['label'], f"{self.group_a.name}: Could start at 10:00.")
+
+        self._communicate('late_entry', 10.0)
+        leave.action_refuse()
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        data = self._entry_action_data('rectification')
+        self.assertTrue(data['label_parts'][0].endswith("(now: "))
+        self.assertEqual(data['label_parts'][1], ").")
+        self.assertEqual([option['inline'] for option in data['options']], ['Starts at 09:00', 'Usual timetable'])
+
+    def test_no_swap_moves_an_absent_teacher_of_another_area(self):
+        """In a swap the absent teacher teaches the other lesson: their day changes too."""
+        self._two_areas()
+        self._morning()
+        self.teacher_b.department_id = self.department
+        self.teacher_a.department_id = self.eso_department
+        self._absence(self.teacher_a, self.day, hour_from=8, hour_to=9)
+
+        self.assertEqual([self._plan_summary(plan) for plan in self._plans()], [[('swap', self.teacher_b, 11, 8, self.group_a)]])
+        plans = self.env['ems.course'].with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_a)
+        self.assertFalse([step for plan in plans for step in plan['steps'] if step['kind'] == 'swap'])
+
+    def test_no_join_moves_a_teacher_of_another_area(self):
+        """_split_groups_day's join takes teacher_b's 12:00 lesson with group_b to 9:00."""
+        self._two_areas()
+        self._join_plan()  # whoever may move teacher_b (an ESO teacher here) gets it
+
+        plans = self.env['ems.course'].with_user(self.department_chief)._get_arrangement_plans(self.day, self.group_b)
+
+        self.assertFalse([step for plan in plans for step in plan['steps'] if step['kind'] == 'join'])

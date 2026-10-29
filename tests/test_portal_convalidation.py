@@ -221,8 +221,21 @@ class TestPortalConvalidation(HttpCase):
         self._login(self.student_user)
         self._submit(self.subject)
         request = self._requests(self.student)
+        self.assertIn('o_ems_convalidation_pending_resolution', self.url_open('/my/convalidaciones').text)
         self.url_open(f'/my/convalidaciones/cancel/{request.id}', data={'csrf_token': Request.csrf_token(self)})
         self.assertEqual(request.state, 'cancelled')
+        # Issue #719: no resolution will ever come, so no note announcing one.
+        self.assertNotIn('o_ems_convalidation_pending_resolution', self.url_open('/my/convalidaciones').text)
+
+    def test_the_portal_shows_why_the_centre_cancelled_a_request(self):
+        """Issue #720: the reason the staff wrote is on the request's card."""
+        self._login(self.student_user)
+        self._submit(self.subject)
+        request = self._requests(self.student)
+        request.sudo()._ems_cancel("Test filed twice by mistake")
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('o_ems_convalidation_cancel_reason', page)
+        self.assertIn('Test filed twice by mistake', page)
 
     def test_nobody_cancels_someone_elses_request(self):
         request = self.env['ems.convalidation'].create({
@@ -265,14 +278,36 @@ class TestPortalConvalidation(HttpCase):
         request.sudo().action_resolve()
         return request
 
-    def test_resolved_request_hides_the_grade_until_the_secretariat_completes(self):
-        request = self._resolved_request()
-        self.assertEqual(request.state, 'in_progress')
+    def test_decisions_stay_hidden_until_the_secretariat_registers_them(self):
+        """Issue #719: a decision can still change until the secretariat registers the
+        resolution, so the applicant only sees how far the request has got."""
+        request = self.env['ems.convalidation'].create({
+            'student_id': self.student.id, 'study_id': self.study.id, 'course_id': self.course.id,
+            'resolution_notes': 'Bring the original certificate',
+            'line_ids': [(0, 0, {'subject_id': self.subject.id, 'state': 'granted', 'grade': 7,
+                                 'resolution_notes': 'Same module in SMX'}),
+                         (0, 0, {'subject_id': self.other_subject.id, 'state': 'rejected',
+                                 'rejection_reason': 'Different contents'})],
+        }).sudo()
         self._login(self.student_user)
-        page = self.url_open('/my/convalidaciones').text
+        steps = (lambda: None, request.action_propose, request.action_resolve)
+        for step, state in zip(steps, ('pending', 'direction', 'in_progress')):
+            step()
+            self.assertEqual(request.state, state)
+            page = self.url_open('/my/convalidaciones').text
+            for leak in ('<th>Resolution</th>', '<th>Grade</th>', 'Same module in SMX', 'Different contents',
+                         'Bring the original certificate', '>Convalidated<'):
+                self.assertNotIn(leak, page, f"{leak!r} shown while {state}")
+            self.assertIn('o_ems_convalidation_pending_resolution', page)
+            self.assertIn(self.other_subject.name, page)
         self.assertIn('The secretariat is now registering it in your record', page)
-        self.assertNotIn('<th>Grade</th>', page)
         self.assertNotIn(f'/my/convalidaciones/cancel/{request.id}', page)
+        # Registered: the decisions show, the refusal's reason included (the rest is covered by
+        # test_completed_requests_show_their_resolution_and_grade).
+        request.action_complete()
+        page = self.url_open('/my/convalidaciones').text
+        self.assertIn('Different contents', page)
+        self.assertNotIn('o_ems_convalidation_pending_resolution', page)
 
     def test_completed_requests_show_their_resolution_and_grade(self):
         request = self._resolved_request()

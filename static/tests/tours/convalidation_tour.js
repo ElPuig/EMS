@@ -316,6 +316,28 @@ registry.category("web_tour.tours").add("ems_convalidation_director_returns", {
     ],
 });
 
+// Issue #720: the staff cancel a request from its form saying why, and the reason stays on it.
+registry.category("web_tour.tours").add("ems_convalidation_cancel", {
+    test: true,
+    steps: () => [
+        ...clickAction("action_cancel", "Cancel the request"),
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Say why",
+            run: "edit Filed twice by mistake",
+        },
+        {
+            trigger: ".modal footer button[name='action_cancel']",
+            content: "Cancel it",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .alert-secondary .o_field_widget[name='cancel_reason']:contains('Filed twice by mistake')",
+            content: "The form shows why it was cancelled",
+        },
+    ],
+});
+
 // The secretariat registers the resolution in Esfera and completes the request.
 registry.category("web_tour.tours").add("ems_convalidation_complete", {
     test: true,
@@ -509,6 +531,17 @@ registry.category("web_tour.tours").add("ems_portal_convalidation_submit", {
         {
             trigger: ".o_ems_convalidation_request form[action^='/my/convalidaciones/cancel/']",
             content: "The new request is listed and can still be cancelled",
+        },
+        {
+            // Issue #719: no resolution column until the secretariat registers it.
+            trigger: ".o_ems_convalidation_request .o_ems_convalidation_pending_resolution",
+            content: "Only the subjects are listed, with a note on when the resolution shows up",
+            run() {
+                const headers = this.anchor.closest(".o_ems_convalidation_request").querySelectorAll("thead th");
+                if (headers.length !== 1) {
+                    throw new Error(`Only the subject column expected before the resolution, got ${headers.length}`);
+                }
+            },
         },
         {
             trigger: ".o_ems_convalidation_reply textarea[name='message']",

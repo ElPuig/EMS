@@ -1,6 +1,6 @@
 # Ex officio withdrawal circuit (baixa d'ofici) - requirements
 
-**Status: phase 1 (requirements) closed; phase 2 (fit with EMS) agreed - 2026-10-29.** Issue #726. Not implemented yet.
+**Status: phase 1 (requirements) closed; phase 2 (fit with EMS) agreed; phase 3 deck drafted (https://claude.ai/artifact/B1dazs3tA6njF2tEwq2YTY, mockups with fictitious data) - 2026-10-29.** Issue #726. Not implemented yet.
 Source of truth: the centre's *Pla de comunicació*, revision 7 (29/10/2026), table "Baixes
 d'alumnat", plus the decisions agreed with the developer recorded below. Phases: 1 requirements,
 2 fit with EMS, 3 slides for the management team (with screenshots), 4 implementation.
@@ -34,7 +34,8 @@ comes in.
 - **Deadlines are calendar days from D0**, as the plan says (1 week, 15 days, 1 month, 1.5
   months, 2 months). Known effect, for Direction to decide in the phase 3 slides (keep calendar
   days or switch to school days): a student missing from 15 December reaches "1 month" on 15
-  January with only about 7 school days missed.
+  January with about 11 school days missed (assuming the Christmas break runs 23 December - 7
+  January), against about 21 in a month without holidays.
 
 ## Actors
 

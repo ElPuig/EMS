@@ -19,3 +19,7 @@
 ## Weekly hours summary counted some one-hour periods as two:
 
 - A period whose stored start and end don't add up to an exact whole hour in floating point (e.g. 15:40-16:40 is 1.0000000000000018 h) was rounded up to 2 hours, in the Schedule tab's hours summary and in the schedule declaration. The rounding now allows the same half-minute tolerance EMS already uses for schedule comparisons.
+
+## Break guard duties added up before rounding:
+
+- In both hours summaries (Schedule tab and schedule declaration) each period counted at least a whole hour, so a teacher with the 25-minute and 15-minute break guards on the same day got 2 hours. Non-teaching types now have "Add up its periods" (seeded on the break guard duty): their periods of the week are added up and then rounded up, so 1 to 3 short break guards count 1 hour and 3 of 25 minutes or 4 of 20 count 2 (developer, 2026-10-29).

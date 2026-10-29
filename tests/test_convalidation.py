@@ -1,34 +1,25 @@
 import base64
 
-from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests.common import TransactionCase
 
-from .common import (create_level_study, create_role_employee, create_role_user, mock_outgoing_email,
-                     next_student_id)
+from .common import (close_yearly_period, create_level_study, create_role_employee, create_role_user,
+                     mock_outgoing_email, next_student_id, open_yearly_period, set_yearly_period)
 
 
 def set_convalidation_period(env, start, end):
     """The portal request period, as (day, month, time) tuples for its opening and its closing."""
-    (start_day, start_month, start_time), (end_day, end_month, end_time) = start, end
-    env.company.write({
-        'convalidation_start_day': start_day, 'convalidation_start_month': str(start_month),
-        'convalidation_start_time': start_time,
-        'convalidation_end_day': end_day, 'convalidation_end_month': str(end_month),
-        'convalidation_end_time': end_time,
-    })
+    set_yearly_period(env, 'convalidation', start, end)
 
 
 def open_convalidation_period(env):
-    """A period covering the whole year, so the portal accepts requests whenever the suite runs."""
-    set_convalidation_period(env, (1, 1, 0.0), (31, 12, 23 + 59 / 60))
+    """Open all year long, so the portal accepts requests whenever the suite runs."""
+    open_yearly_period(env, 'convalidation')
 
 
 def close_convalidation_period(env):
-    """A two-day period six months away from today, so the portal refuses requests whenever the
-    suite runs."""
-    month = (fields.Date.today().month + 5) % 12 + 1
-    set_convalidation_period(env, (1, month, 0.0), (2, month, 0.0))
+    """Closed whenever the suite runs, so the portal refuses requests."""
+    close_yearly_period(env, 'convalidation')
 
 
 def create_convalidation_fixtures(cls):
@@ -421,12 +412,47 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(request._ems_resolution_representative(), family)
         self.assertFalse(self._request(self.other_subject)._ems_resolution_representative())
 
-    def test_cancel_and_reopen(self):
+    def _cancel(self, request, user, reason="Test the student has dropped out"):
+        """Cancel from the backend, as the staff do: the button opens the dialog asking why."""
+        action = request.with_user(user).action_cancel()
+        wizard = self.env[action['res_model']].with_user(user).with_context(action['context']).create(
+            {'reason': reason})
+        return wizard.action_cancel()
+
+    def test_cancelling_from_the_backend_asks_for_a_reason(self):
+        """Issue #720: the staff say why they cancel a request, and everybody sees it."""
         request = self._request()
-        request.with_user(self.secretary).action_cancel()
+        action = request.with_user(self.head_of_studies).action_cancel()
+        self.assertEqual(action['res_model'], 'ems.convalidation.cancel_wizard')
+        self.assertEqual(request.state, 'pending', 'the button alone cancels nothing')
+        self._cancel(request, self.head_of_studies, "Test filed twice by mistake")
         self.assertEqual(request.state, 'cancelled')
-        request.with_user(self.secretary).action_reopen()
+        self.assertEqual(request.cancel_reason, "Test filed twice by mistake")
+        # On the student's Communications page too.
+        comment = request.message_ids.filtered(
+            lambda message: message.subject == 'Convalidation request cancelled')
+        self.assertEqual(comment.subtype_id, self.env.ref('mail.mt_comment'))
+        self.assertIn("Test filed twice by mistake", comment.body)
+        # Reopening clears it: it no longer describes the request.
+        request.with_user(self.head_of_studies).action_reopen()
         self.assertEqual(request.state, 'pending')
+        self.assertFalse(request.cancel_reason)
+
+    def test_a_blank_cancel_reason_is_refused(self):
+        request = self._request()
+        with self.assertRaises(UserError):
+            self._cancel(request, self.secretary, "   ")
+        self.assertEqual(request.state, 'pending')
+
+    def test_the_cancel_dialog_checks_the_state_first(self):
+        request = self._proposed()
+        with self.assertRaises(UserError):
+            request.with_user(self.head_of_studies).action_cancel()
+        wizard = self.env['ems.convalidation.cancel_wizard'].with_user(self.head_of_studies).create({
+            'convalidation_id': request.id, 'reason': "Test too late"})
+        with self.assertRaises(UserError):
+            wizard.action_cancel()
+        self.assertEqual(request.state, 'direction')
 
     def test_cannot_cancel_once_proposed(self):
         request = self._proposed()
@@ -479,6 +505,29 @@ class TestConvalidation(TransactionCase):
         request = self._resolved()
         with self.assertRaises(UserError):
             request.with_user(self.head_of_studies).action_complete()
+
+    def test_academic_history_on_the_request(self):
+        """Issue #657: the request shows the student's academic history to whoever decides the
+        subjects (the Head of Studies, and the Director and the administrator above them) and to
+        the secretariat, who keeps it."""
+        request = self._request()
+        record = self.env['ems.student.year_record'].create({
+            'student_id': self.student.id, 'course_id': self.course.id})
+        admin = create_role_user(self, 'academic_admin', 'test_convalidation_history_admin')
+        for user in (self.head_of_studies, self.director, self.secretary, admin):
+            self.assertEqual(request.with_user(user).student_year_record_ids, record)
+
+    def test_resolution_comments_frozen_once_resolved(self):
+        """Issue #657: the resolution's PDF prints the comments, so they can change until the
+        Director issues it - the Director too, right before - and never afterwards, so the PDF,
+        the email and the portal say the same."""
+        request = self._proposed()
+        request.with_user(self.director).write({'resolution_notes': "Bring the original certificate"})
+        request.with_user(self.director).action_resolve()
+        for user in (self.secretary, self.head_of_studies, self.director):
+            with self.assertRaises(UserError):
+                request.with_user(user).write({'resolution_notes': "Rewritten"})
+        self.assertEqual(request.resolution_notes, "Bring the original certificate")
 
     def test_director_can_review(self):
         request = self._request()
@@ -633,7 +682,9 @@ class TestConvalidation(TransactionCase):
         self.assertEqual(mails.attachment_ids, request.resolution_pdf_id)
         self.assertTrue(request.message_ids.filtered(lambda message: self.student.email in (message.body or '')))
         # Editing a completed request does not notify again.
-        request.with_user(self.secretary).resolution_notes = 'See you in September'
+        # (Not its resolution comments, frozen since the Director resolved it - issue #657.)
+        request.with_user(self.secretary).write({'attachment_ids': [(0, 0, {
+            'name': 'esfera.pdf', 'datas': base64.b64encode(b'%PDF-1.4 esfera')})]})
         self.assertEqual(len(self._resolution_mails(request)), 1)
 
     def _minor_with_family(self):
@@ -710,7 +761,7 @@ class TestConvalidation(TransactionCase):
 
     def test_cancel_and_reopen_are_communicated(self):
         request = self._request()
-        request.with_user(self.secretary).action_cancel()
+        self._cancel(request, self.secretary)
         request.with_user(self.secretary).action_reopen()
         self.assertEqual(
             request.message_ids.filtered(lambda message: message.subtype_id == self.env.ref('mail.mt_comment'))
@@ -798,7 +849,7 @@ class TestConvalidation(TransactionCase):
     def test_the_applicant_can_cancel_while_waiting(self):
         request = self._request()
         self._ask_for_documentation(request, "Attach the certificate")
-        request.action_cancel()
+        request._ems_cancel()
         self.assertEqual(request.state, 'cancelled')
 
     def test_information_cannot_be_asked_for_once_completed(self):
@@ -844,7 +895,7 @@ class TestConvalidation(TransactionCase):
     def test_cancelling_closes_the_pending_task(self):
         hold_position(self.env, 'ems.role_dhos', self.head_of_studies)
         request = self._request()
-        request.action_cancel()
+        request._ems_cancel()
         self.assertFalse(request.activity_ids)
 
     def test_tasks_are_not_in_task_assignment(self):
@@ -863,6 +914,21 @@ class TestConvalidation(TransactionCase):
             'student_id': self.student.id, 'course_id': self.course.id, 'title_obtained': True})
         request.invalidate_recordset(['has_centre_title'])
         self.assertTrue(request.has_centre_title)
+
+    def test_previous_curriculum_title_at_the_centre_is_flagged(self):
+        """A previous curriculum's title (issue #672) counts only when this centre granted it."""
+        self.env.company.center_code = '08000777'
+        request = self._request()
+        record = self.env['ems.student.previous_curriculum_record'].sudo().create({
+            'student_id': self.student.id, 'curriculum_code': 'CFPS ICX0',
+            'curriculum_name': 'CFPS Cicle Inventat (LOE)', 'centre_code': '08999999',
+            'title_obtained': True})
+        self.assertFalse(request.has_centre_title)
+        record.centre_code = '08000777'
+        request.invalidate_recordset(['has_centre_title'])
+        self.assertTrue(request.has_centre_title)
+        # Listed in the request's academic history, next to the courses.
+        self.assertEqual(request.with_user(self.secretary).student_history_line_ids.previous_curriculum_record_id, record)
 
     # --- grades --------------------------------------------------------------
 
@@ -1187,8 +1253,13 @@ class TestConvalidation(TransactionCase):
         request = self._request()
         self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
                          self.other_subject)
-        # A rejected subject can be asked for again, with new documents.
+        # A refusal still under way is not official (issue #719): the subject stays taken, or the
+        # form would give the decision away. Once registered, it can be asked for again.
         self._refuse(request.line_ids)
+        self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
+                         self.other_subject)
+        self._close(request)
+        self.assertEqual(request.state, 'rejected')
         self.assertEqual(Convalidation._ems_portal_requestable_subjects(self.student, self.study),
                          self.subject | self.other_subject)
 

@@ -111,7 +111,10 @@ the invisible `shift` field plus `schedule_attendance_ids` with
 Odoo model, not one EMS owns — unlike `ems.group`'s own report, whose `ref="model_ems_group"`
 resolves against the `ems` module implicitly), bound so it appears in the student form's
 native Print menu. A near-verbatim copy of `report_group_schedule.xml`'s structure, with the
-header showing the student's name and (when set) their main group instead of a tutor.
+header showing the student's name and, when set, their main group and their tutor
+(`tutor_id`, related to `main_group_id.tutor_id`), followed by the tutor's `work_email` as a
+`mailto:` link when it has one. The portal renders this same report under `sudo()`, so a family
+sees the tutor's email even though portal users have no ACL on `hr.employee`.
 
 ## Access control
 

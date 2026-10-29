@@ -17,7 +17,7 @@
 5. [Undoing a decision](#undoing-a-decision)
 6. [Per-employee report](#per-employee-report)
 7. [Monthly report](#monthly-report)
-8. [Expected absences](#expected-absences)
+8. [Detected absences](#detected-absences)
 
 ---
 
@@ -31,7 +31,7 @@
 
 Everyone's approver is the manager of their top-level department, set on the department's own form in the **Area Manager** field, and it follows the post when the holder changes.
 
-Nobody approves their own absence: an Area Manager's request is decided by Direction.
+An Area Manager is the approver of their own absence too: you validate your own request (and its supporting document, when it needs one) like any other in your area, and Direction then reviews it as usual. You cannot undo a decision on your own absence; Direction can.
 
 ---
 
@@ -70,7 +70,7 @@ The cross refuses, at any of these steps. Once you decide from the form, you are
 
 The absence takes effect (absence calendar, hour balance, guard duty board) as soon as you acknowledge it, even while the document is missing or Direction has not reviewed it yet.
 
-If the employee has not attached the document a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up; the employee is reminded every day.
+If the employee has not attached the document a few days after the absence (three, unless the centre has set otherwise), you receive a message and an activity to follow it up; the employee is reminded every day. Each reminder and each message waits for the start of its reader's working day: nobody gets them outside their working hours.
 
 ![Absences list, with Approve/Refuse actions on a pending request](../../assets/head_of_studies/hos-absences-list.png)
 
@@ -106,7 +106,7 @@ Whether an absence is a whole day or a few hours is controlled by the **Whole da
 
 Direction goes last: a request reaches you once its Head has validated it, together with its supporting document when the type requires one.
 
-**Employee Attendances > Absences > Management > Requested absences** opens on **Waiting For Me**: every absence **Pending Direction**, plus the Area Managers' own absences, which you handle as their Head (with the Head's buttons described above). Each one also leaves you an activity ("Direction review of the absence").
+**Employee Attendances > Absences > Management > Requested absences** opens on **Waiting For Me**: every absence **Pending Direction**. Each one also leaves you an activity ("Direction review of the absence").
 
 Review them from the list with the icons beside **Direction status**, or open one and use the actions at the top of the form, which takes you back to the list once done:
 
@@ -186,26 +186,50 @@ To change the period, remove the **Current Course** filter and pick the one you 
 
 ---
 
-## Expected absences
+## Detected absences
 
-**Employee Attendances > Absences > Management > Expected absences**.
+**Employee Attendances > Absences > Management > Detected absences**.
 
-When you already know a teacher will be away but they have not requested the absence yet (they phoned in this morning, or it was agreed in a meeting), enter it here so guard duty can be planned around it straight away.
+This list holds the teachers' absences that nobody has requested yet. They come from two places, shown in the **Origin** column:
+
+- **Informed**: you (or a Department or Seminar Chief) entered it because you already knew the teacher would be away (they phoned in this morning, or it was agreed in a meeting).
+- **No check-in**: EMS added it on its own once the day was over, because the teacher did not check in at all, or checked in after their first lesson had ended. It goes from their first lesson to their last one, or to the time they checked in. Only the teachers of the areas the administrator has chosen go through this (for now, VET), and only on the days their schedule has lessons: a teacher with no schedule loaded is never detected.
+
+### Entering one
 
 1. Click **New**.
-2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Department and Seminar Chiefs can also enter expected absences, for the teachers of their own department. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET. Teachers of other departments who teach a group the department manages (the **Managed by the department** field of the group's study), or who name the department in the **Also managed by the departments** field of their form, are offered too.
+2. Choose the **Teacher**. Only the teachers in your own area are offered: a Head of Studies or Deputy sees their own teachers, and Direction sees everyone. Department and Seminar Chiefs can also enter them, for the teachers of their own department. Members of the management team (such as the Secretary) count as teachers of the area their department belongs to: the Secretary, who teaches in a VET department, is offered to the Head of Studies or Deputy in charge of VET. Teachers of other departments who teach a group the department manages (the **Managed by the department** field of the group's study), or who name the department in the **Also managed by the departments** field of their form, are offered too.
 3. Set **From** and **To**, date and time. They start out as today, 08:00 to 15:00. An absence can span several days.
-4. Optionally, add **Notes** for your own reference. The teacher never sees this entry.
+4. Optionally, add **Notes** for your own reference. The teacher can open the entry but never sees the notes.
 5. Save.
 
 From that moment the teacher appears on the guard duty schedule as absent with a request still awaiting approval (lighter italic red), for the hours you entered.
 
-When the teacher requests the absence themselves, the expected absence is linked to it automatically and its status changes from **Expected** to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
+### Reviewing a detected absence
 
-![Expected absences list, one still expected and one already requested by the teacher](../../assets/head_of_studies/hos-expected-absences-list.png)
+Every detected absence, whatever its origin, starts out **To review**: the teacher is not told anything and does not see it yet. Instead, the teacher's Head of Studies or Deputy (the person who corrects their check-ins) gets a **Review detected absence** task, which also appears in the daily summary of pending tasks. If the teacher has no Head of Studies above them, the task goes to the administrators. This keeps false alarms away from staff: for instance, a teacher who was not convened to the Wednesday meeting slot and checks in at 16:00.
 
-If the teacher turns out not to be absent after all, delete the entry.
+The list opens with the absences in **To review** and **Justification requested**, which are not resolved yet. Open one and choose what to do from its **Actions** menu:
+
+- **Request justification**: the teacher is asked to explain it. From now on they are reminded at the start of their working day to request the absence (or, if they were at the centre, to ask you to record their check-in), every day unless the centre has set otherwise. If they still have not requested it a few days after you asked (three, unless the centre has set otherwise), you receive a message and an activity to follow it up.
+- **Correct check-in**: the teacher was at the centre. EMS records their attendance for the hours detected, with your name as whoever registered it, and nobody is told. If they arrived late, the check-in they did make is kept and the missing part before it is added. Only offered once the absence is over.
+- **Create absence**: you prepare the absence request for the teacher, for the day and hours detected, with the absence type you choose in the dialog. It is not sent: the teacher is told, opens it already filled in, checks it, accepts the responsible declaration and sends it, and from then on it follows the usual steps (approval, supporting document, ATRI, Direction). Until they send it they are reminded, and you are told after a few days, as with **Request justification**.
+- **Discard**: it was nothing. The detected absence is closed and archived, and nobody is told. You can still find it with the **Archived** filter. Only the administrators can delete a detected absence altogether.
+
+To deal with several at once, select them in the list and choose the action from the **Actions** menu (the gear) at the top. Each action is only applied to the absences still waiting for review that you may review; EMS tells you how many it skipped and why.
+
+Only the teacher's own Head of Studies or Deputy, Direction and the administrators can take these actions. Department and Seminar Chiefs can enter and see detected absences of their department, but not review them.
+
+![Detected absences list, one per stage: one to review, one whose justification was requested, one whose check-in was corrected and one already requested](../../assets/head_of_studies/hos-detected-absences-list.png)
+
+### What happens next
+
+When the teacher requests the absence themselves, at any moment, the detected absence is linked to it automatically and its status changes to **Requested**. From then on only the teacher's own request counts, with its own dates and hours: if it is later refused or cancelled, the entry does not come back onto the schedule. A requested entry can no longer be edited; it stays in the list, under the **Requested** filter, as a record.
+
+**If the teacher's check-in turns up later** (registered from the guard duty schedule, or an accepted correction request), a detected absence from a missing check-in is **Discarded** on its own, or shortened if they arrived earlier than it said. The chatter says it was discarded because the check-in was recorded, so you can tell it apart from one discarded by hand.
 
 ### Organising the cover
 
-Once an absence is on the guard duty schedule, expected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier, and correct what an absence that changed afterwards made unnecessary. Whatever you organise for an expected absence stays when the teacher requests it. See [Organising an absence](../teachers/guard-duty-schedule.md#organising-an-absence).
+Once an absence is on the guard duty schedule, detected or requested, organise it from the schedule's **Absences table**: send a guard to each class, propose a notice to the families when the students can come in later or leave earlier (if the administrator has switched these changes on), and correct what an absence that changed afterwards made unnecessary. Whatever you organise for a detected absence stays when the teacher requests it. See [Organising an absence](../department_chiefs/absences.md#organising-an-absence).
+
+A class whose teacher has not checked in when it starts also appears on the Absences table, to be covered with a guard. If the teacher turns out to be in the classroom, you can register their check-in from the table: see [Teachers who have not checked in](../teachers/guard-duty-schedule.md#teachers-who-have-not-checked-in).

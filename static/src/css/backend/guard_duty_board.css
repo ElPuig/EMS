@@ -220,6 +220,12 @@
     color: #b52a37;
 }
 
+/* Issue #692: not checked in yet - maybe in the building, maybe not. */
+.o_guard_board_absent_unchecked {
+    color: #b52a37;
+    text-decoration: underline dotted;
+}
+
 /* A co-taught class whose other teacher is in: still listed so everyone knows who is away, but
    struck through because nobody needs to cover it. */
 .o_guard_board_absence_covered .o_guard_board_absence_text,
@@ -290,14 +296,16 @@
 /* Managing absences from the absences table (issues #539, #571, #581). */
 
 /* A row that answers a click: a struck-out one explains itself, one the current user can act on
-   sends a guard. */
+   sends a guard, and one they cannot cover says why (issue #659). */
 .o_guard_board_absence_manageable,
+.o_guard_board_absence_not_on_guard,
 .o_guard_board_absence_covered,
 .o_guard_board_absence_struck {
     cursor: pointer;
 }
 
 .o_guard_board_absence_manageable:hover,
+.o_guard_board_absence_not_on_guard:hover,
 .o_guard_board_absence_covered:hover,
 .o_guard_board_absence_struck:hover {
     background-color: rgba(0, 0, 0, 0.04);
@@ -352,6 +360,11 @@
     color: #6c757d;
 }
 
+.o_guard_board_unchecked_tag {
+    border-style: dotted;
+    color: #b52a37;
+}
+
 /* Issue #645: the proposals box, one section per group (with the groups sharing lessons with it):
    its name, then its proposals, each described below its own title. */
 .o_guard_board_section {
@@ -391,6 +404,19 @@
 .o_guard_board_plan_shift {
     margin-left: 1.25rem;
     color: #b35c00;
+    font-size: 12px;
+}
+
+/* What kind of move a step is (issue #709): a swap with a duty, a free hour, a shifted day. */
+.o_guard_board_plan_detail {
+    margin-left: 1.25rem;
+    color: #6c757d;
+    font-size: 12px;
+}
+
+/* What the whole plan still leaves to a guard (issue #710), under its steps. */
+.o_guard_board_plan_gaps {
+    margin: 0 0 4px 1.5rem;
     font-size: 12px;
 }
 
@@ -487,8 +513,19 @@
     margin-bottom: 4px;
 }
 
-.o_guard_board_action_option {
+/* The selector of how much of a timetable change to tell sits inside its sentence, in place of
+   the hour (or of the change): it reads as part of the text. */
+.o_guard_board_action_label .o_guard_board_action_option {
+    display: inline-block;
     width: auto;
+    min-height: 0;
+    margin: 0 2px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0.4em;
+    font-size: inherit;
+    line-height: inherit;
+    vertical-align: baseline;
 }
 
 /* Every action button of the boxes above the absences table shares one width, so they line up in
@@ -555,4 +592,27 @@
     border-style: dashed;
     border-color: #b52a37;
     color: #b52a37;
+}
+
+/* Issue #659: changing what the families were told, from the struck-out row itself. Sized like the
+   row's tags, so the row never grows onto a second line. */
+.o_guard_board_change_proposal {
+    margin-left: 6px;
+    font-size: 0.85em;
+    line-height: inherit;
+    vertical-align: baseline;
+}
+
+/* Issue #659: what the families were told and no longer matches the absences - urgent, in red
+   rather than the proposals' orange. */
+.o_guard_board_actions.o_guard_board_corrections {
+    border-color: #d9534f;
+    background-color: #fdf3f3;
+}
+
+/* "Only tell the families" with a correction pending: its rows are steps with a checkbox, applied
+   together like an arrangement plan's. */
+.o_guard_board_notice_step .o_guard_board_plan_check {
+    float: none;
+    margin: 0 6px 0 0;
 }

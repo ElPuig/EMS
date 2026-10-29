@@ -16,7 +16,8 @@ Esta guía explica el **histórico académico**: un resumen permanente por curso
 4. [Ajustar el resultado académico](#ajustar-el-resultado-académico)
 5. [Aplicar una revisión de calificaciones](#aplicar-una-revisión-de-calificaciones)
 6. [Añadir un expediente anterior](#añadir-un-expediente-anterior)
-7. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
+7. [Añadir un expediente de un plan de estudios anterior](#añadir-un-expediente-de-un-plan-de-estudios-anterior)
+8. [Finales pendientes de la estancia](#finales-pendientes-de-la-estancia)
 
 ---
 
@@ -88,14 +89,14 @@ Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **A
 
 ### Con el expediente académico de Esfera (PDF)
 
-1. En **Certificado académico**, subid el PDF del expediente académico de Esfera.
+1. En **Certificado académico**, subid el PDF del expediente académico de Esfera. También se acepta la pantalla del expediente de Esfera impresa en PDF, como la que entregan algunos centros privados.
 2. Se rellenan solos el centro de procedencia, su código, el estudio y una rejilla con todos los módulos, resultados de aprendizaje (RA) y estancias del certificado. Los cursos que el alumno/a ya tiene en el histórico no se incluyen; si el certificado tiene cursos de más de un centro, cada curso conserva el suyo.
 3. Revisad la rejilla:
-   - **Calificación del certificado** es lo que dice el PDF; **Nota** y **Calificado** es lo que se guardará. Corregidlas si hace falta. Un RA *No assolit* o *Pendent* queda sin nota, y el módulo, no superado.
+   - **Calificación del certificado** es lo que dice el PDF; **Nota** y **Calificado** es lo que se guardará. Corregidlas si hace falta. Un RA *No assolit* o *Pendent* (*NA* o *PDT* en la pantalla impresa) queda sin nota, y el módulo, no superado.
    - Las líneas con **Aviso** necesitan atención: un curso que no existe en EMS no se importa (la administración académica tiene que crearlo antes); un módulo que no es del estudio no se importa; si hay uno equivalente, elegidlo en **Módulo** y marcad **Importar**.
    - Las optativas propias del otro centro no se importan como tales. Si hay alguna aprobada y sus horas suman al menos las de la optativa del centro, aparece una línea **Optativa reconocida** que la aprueba con la media de sus notas ponderada por horas; si no llegan, la línea queda con aviso y no se importa. La optativa reconocida queda en el histórico con la marca **Reconocido** y sin resultados de aprendizaje.
    - Cuando la nota del módulo del certificado no coincide con la que dan los RA con las ponderaciones del centro, se aplica la del certificado, siempre que ambas coincidan en superado o no superado.
-4. Comprobad que **Alumno del certificado** es el alumno/a: si el identificador no coincide con su IDALU, el expediente no se crea.
+4. Comprobad que **Alumno del certificado** es el alumno/a: si el identificador no coincide con su IDALU, o no se puede comprobar (el PDF no lo trae o el alumno/a no tiene IDALU), el expediente no se crea.
 5. Haced clic en **Crear el expediente**. Se crean el registro y todos los módulos marcados a la vez, con el PDF adjunto.
 
 ![Asistente de expediente anterior con la rejilla de revisión leída del PDF: módulos, resultados de aprendizaje, estancia pendiente y optativa reconocida](../../assets/secretary/academic-history-previous-record-review.png)
@@ -114,6 +115,23 @@ Si el certificado todavía no tiene la nota de la estancia (EM) de un módulo, e
 ![Expediente anterior creado en el histórico, con la cinta Expediente anterior, el centro de procedencia, el certificado y los módulos](../../assets/secretary/academic-history-previous-record.png)
 
 El registro se muestra con la cinta **Expediente anterior**, el centro de procedencia y el certificado. El filtro **Expedientes anteriores** de la lista del histórico los muestra todos. Para corregirlo más adelante, usad la revisión de calificaciones como en cualquier otro registro.
+
+## Añadir un expediente de un plan de estudios anterior
+
+Un ciclo que el alumno/a cursó con un **plan de estudios anterior** (los ciclos LOE organizados en unidades formativas, UF, que gestionaba SAGA) no encaja en el histórico por cursos: se guarda aparte, tal como figura en el documento del historial académico, para poder consultarlo, por ejemplo para resolver una solicitud de convalidación. Lo pueden añadir secretaría, administración, jefatura de estudios y dirección.
+
+1. Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Añadir un expediente de un plan de estudios anterior**.
+2. En **Documento del historial académico**, subid el PDF del historial académico (*Historial acadèmic*).
+3. Se rellenan el plan de estudios, el centro, los años y una tabla con todos los módulos y, debajo de cada uno, sus unidades formativas, con las horas, la nota y la convocatoria. Corregid cualquier nota o convocatoria que no se haya leído bien.
+4. **Título obtenido** queda marcado cuando todos los módulos de la lista están superados, porque el documento no dice si el alumno/a se tituló. Confirmadlo o corregidlo y, si la sabéis, rellenad la **Fecha del título**.
+5. Comprobad que el **Alumno del documento** es el alumno/a: si el identificador no coincide con su IDALU, o no se puede comprobar, el expediente no se crea.
+6. Haced clic en **Crear el expediente**.
+
+![Asistente para añadir un expediente de un plan de estudios anterior con la tabla leída del PDF: módulos, unidades formativas, notas y convocatorias](../../assets/secretary/academic-history-previous-curriculum-review.png)
+
+![Expediente de plan de estudios anterior con los módulos y las unidades formativas, el título y el documento adjunto](../../assets/secretary/academic-history-previous-curriculum.png)
+
+El expediente aparece como una línea más del **Histórico académico** del alumno/a (pestaña **Estudios**), con los años en la columna **Curso** y **Plan de estudios anterior** marcado, y en la pestaña **Histórico académico** de las solicitudes de convalidación del alumno/a. Haced clic en la línea para abrirlo. **Planificación y evaluación → Notas → Planes de estudios anteriores** los muestra todos. Un título obtenido en este centro también hace aparecer el aviso **Tiene una titulación obtenida en el centro** en la solicitud de convalidación. Para corregir más adelante una nota, el título o las observaciones, abrid el expediente y modificadlo.
 
 ## Finales pendientes de la estancia
 

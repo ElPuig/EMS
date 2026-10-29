@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.38.1',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.42.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -61,6 +61,7 @@
    'data': [
         'security/groups.xml',
         'security/rules/attendance.xml',
+        'security/rules/quality.xml',
         'security/rules/coexistence.xml',
         'security/rules/erasmus.xml',
         'security/rules/communications.xml',
@@ -75,6 +76,36 @@
 
 
         'views/menu.xml',
+        'views/quality/menu.xml',
+        'reports/shared/report_validation_stamp.xml',
+        'reports/minute_report.xml',
+        'views/minutes_agreements/minute/call_email.xml',
+        'views/minutes_agreements/menu.xml',
+            'views/minutes_agreements/minute/search.xml',
+            'views/minutes_agreements/minute/list.xml',
+            'views/minutes_agreements/minute/form.xml',
+            'views/minutes_agreements/minute/menu.xml',
+            'views/minutes_agreements/minute_type/menu.xml',
+            'views/quality/process/list.xml',
+            'views/quality/process/form.xml',
+            'views/quality/process/menu.xml',
+            'views/quality/procedure/list.xml',
+            'views/quality/procedure/form.xml',
+            'views/quality/procedure/search.xml',
+            'views/quality/procedure/menu.xml',
+            'views/quality/document_link_import/form.xml',
+            'views/quality/document/list.xml',
+            'views/quality/document/form.xml',
+            'views/quality/document/search.xml',
+            'views/quality/document/menu.xml',
+            'views/quality/followup/form.xml',
+            'views/quality/action/list.xml',
+            'views/quality/action/form.xml',
+            'views/quality/action/search.xml',
+            'views/quality/action/menu.xml',
+            # After views/quality/action/: its action uses view_quality_action_search.
+            'views/minutes_agreements/agreement/menu.xml',
+            'views/quality/process_map/menu.xml',
 
         # Before form.xml: the settings button references this action by XML ID.
         'views/settings/course.xml',
@@ -209,6 +240,7 @@
             'views/planning_grading/grading/year_record/form.xml',
             'views/planning_grading/grading/year_record/search.xml',
             'views/planning_grading/grading/year_record/menu.xml',
+            'views/planning_grading/grading/previous_curriculum_record/views.xml',
 
             'views/communications/menu.xml',
 
@@ -246,6 +278,7 @@
 
             'views/attendance/attendance_schedule/form.xml',
 
+            'views/attendance/attendance_justification/wizard.xml',
             'views/attendance/attendance_justification/menu.xml',
             'views/attendance/attendance_justification/list.xml',
             'views/attendance/attendance_justification/form.xml',
@@ -285,7 +318,6 @@
 
         # Report first: the form's Print button references it.
         'reports/meetings/report_meeting_presence.xml',
-        'views/minutes_agreements/menu.xml',
             'views/minutes_agreements/presence/search.xml',
             'views/minutes_agreements/presence/list.xml',
             'views/minutes_agreements/presence/form.xml',
@@ -308,8 +340,8 @@
             'views/academic_management/enrollment/enrollment_proposal_wizard.xml',
             'views/academic_management/enrollment/enrollment_search.xml',
             'views/academic_management/enrollment/menu.xml',
-            'views/academic_management/enrollment/no_destination.xml',
             'views/academic_management/enrollment/applicants.xml',
+            'views/academic_management/enrollment/no_destination.xml',
             'views/academic_management/enrollment/applicant_import_wizard.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_form.xml',
             'views/academic_management/enrollment_configuration/enrollment_items_view.xml',
@@ -331,9 +363,9 @@
             'views/academic_management/authorizations/authorization_template_view.xml',
             'views/academic_management/authorizations/authorization_template_form.xml',
             'views/academic_management/authorizations/authorization_search.xml',
+            'views/academic_management/authorizations/authorization_send_wizard.xml',  # before authorization_view.xml: its list's New button opens this wizard's action
             'views/academic_management/authorizations/authorization_view.xml',
             'views/academic_management/authorizations/authorization_form.xml',
-            'views/academic_management/authorizations/authorization_send_wizard.xml',
             'views/academic_management/authorizations/menu.xml',
             'views/academic_management/task_assignment/view.xml',
             'views/academic_management/task_assignment/menu.xml',
@@ -383,10 +415,6 @@
             'views/portal/portal_erasmus_group.xml',
             'views/portal/portal_under_construction.xml',
 
-        'views/documentation/menu.xml',       
-            'views/documentation/minutes/menu.xml',       
-            'views/documentation/minutes/list.xml',       
-            'views/documentation/minutes/form.xml',   
 
         'views/shared/attachment/form.xml',  
 
@@ -432,10 +460,12 @@
         'data/main/mail.template-google_welcome.csv',
         'data/main/mail.template-google_lifecycle.csv',
         'data/main/ir.cron-google_workspace.csv',
+        'data/main/ir.cron-coming_of_age.csv',
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
         'data/main/ir.cron-task_digest.csv',
         'data/main/ir.cron-erasmus.csv',
+        'data/main/ir.cron-preenrollment_period.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
         'data/main/ems.convalidation.info_reason.csv',
@@ -473,6 +503,7 @@
         'data/cat/ems.outcome.csv',    
         'data/cat/ems.role.csv',
         'data/cat/ems.workgroup.csv',
+        'data/main/sync_quality_committee.xml',
         'data/cat/hr.job.csv',
         'data/cat/hr.leave.type.csv',
         'data/cat/product.template-generic.csv',
@@ -514,6 +545,15 @@
         'data/custom/ems.authorization.template.csv',
         'data/custom/ir.sequence-enrollment_number.csv',
         'data/custom/erasmus/ems.erasmus.project.csv',
+
+        # Quality management system: the centre's process map. Load order matters - a procedure
+        # references its process, and a document references its procedure.
+        'data/custom/quality/ems.quality.process.csv',
+        'data/custom/quality/ems.quality.procedure.csv',
+        'data/custom/quality/ems.quality.document.csv',
+        'data/custom/quality/ems.minute.section.csv',
+        'data/custom/quality/ems.minute.type.csv',
+        'data/custom/quality/ems.minute.type.section.csv',
 
         # Teacher's data (teaching = subject x teacher x group)
         #'data/custom/hr.employee.csv',        
@@ -587,6 +627,8 @@
             #'ems/static/src/css/**/*',
         ],
         'web.assets_tests': [
+            'ems/static/tests/tours/quality_tour.js',
+            'ems/static/tests/tours/minute_tour.js',
             'ems/static/tests/tours/**/*',
         ],
     },

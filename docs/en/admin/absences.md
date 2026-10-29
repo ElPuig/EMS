@@ -16,12 +16,31 @@
 |---|---|---|
 | Whole-day absence | 7:30 | Hours a whole-day absence is worth. It always counts that much, however many lessons the person had scheduled that day |
 | Health absence allowance | 15:00 | Hours of self-declared health absence each person may use per course |
-| Supporting document reminder | 1 day | Once an absence is over and still awaiting its supporting document, the employee is reminded every this many days |
-| Missing supporting document report | 3 days | This many days after the absence, a document still missing is also reported to the Head who approves it |
+| Absence reminder | 1 day | Once an absence is over and still waits for the employee (its supporting document, or requesting a detected absence their Head of Studies asked them to justify), they are reminded every this many days |
+| Absence report | 3 days | What is still missing is also reported this many days after the absence (a supporting document, to the Head who approves the absence) or after the Head of Studies asked for a justification (a detected absence not requested yet, to the teacher's Head of Studies) |
+| Detected absences | (empty) | The areas whose teachers go through the detected absences circuit: a day a teacher did not check in (or checked in after their first lesson) becomes a detected absence, and the teacher's Head of Studies reviews every detected absence before the teacher is reminded of it. Empty, the circuit is off. To start with, choose only the VET area |
 
 The allowance **warns, it does not block**: someone going over it is warned and the request is flagged for the Head of Studies, but it goes through.
 
-![Staff Absence Settings block, with the whole-day, health allowance and supporting document reminder fields](../../assets/admin/admin-absences-settings.png)
+Every reminder and report waits for the start of its reader's working day, so nobody gets them outside their working hours. Someone with no schedule at all goes by the centre's default schedule framework.
+
+A teacher belongs to an area through their department. The detected absences are explained in the [Head of Studies' manual](../head_of_studies/absences.md#detected-absences).
+
+![Staff Absence Settings block, with the whole-day, health allowance, reminder, report and detected absences fields](../../assets/admin/admin-absences-settings.png)
+
+### Timetable changes on the guard duty schedule
+
+**Settings > EMS > Guard Duty Board Settings** decides which changes the guard duty schedule may propose when a teacher is away. The three are **off by default**: with all of them off, the lessons without a teacher are always covered with a guard.
+
+| Setting | What the schedule proposes when it is on |
+|---|---|
+| Come in later | If the first lessons of a group's day have no teacher, telling the students and families that they can come in later (or that they have no classes, if no lesson has a teacher) |
+| Leave earlier | If the last lessons of the day have no teacher, telling the students and families that they can leave earlier |
+| Longer break | If the lessons right before or after a break have no teacher, making the break longer. Only the students are told, and those under 18 still cannot leave the centre, so those lessons keep needing a guard teacher |
+
+Coming in later and leaving earlier are only offered to the groups of the levels listed in **Levels that may come in later or leave earlier** (shown once either of the two is on), for example CFGM and CFGS: the groups of any other level, such as compulsory education (ESO), get a guard instead. **If the list is empty, no group is offered either change**, even with them switched on, so list every level that may have them. The longer break does not depend on this list.
+
+Switching one off does not undo what was already communicated: if the absence changes afterwards, the schedule still offers the correction.
 
 ---
 

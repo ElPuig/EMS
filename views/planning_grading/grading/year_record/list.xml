@@ -25,6 +25,34 @@
             </field>
         </record>
 
+        <!-- One student's whole history, without the student column (issue #672): the courses of the
+             history and the previous curriculum records in one list (ems.student.history_line), as the
+             student form and the convalidation request (issue #657) show it. Opened through the
+             ems_history_lines widget, which opens the record behind the line. -->
+        <record model="ir.ui.view" id="view_student_history_line_list">
+            <field name="name">ems.student.history_line.list</field>
+            <field name="model">ems.student.history_line</field>
+            <field name="arch" type="xml">
+                <list decoration-info="is_provisional" decoration-muted="is_previous_curriculum">
+                    <field name="course_name"/>
+                    <field name="is_provisional"/>
+                    <field name="is_external" optional="show"/>
+                    <field name="is_previous_curriculum" optional="show"/>
+                    <field name="study_name"/>
+                    <field name="group_name"/>
+                    <field name="centre_name" optional="hide"/>
+                    <field name="tutor_name" optional="hide"/>
+                    <field name="academic_result" widget="badge"
+                           decoration-success="academic_result == 'full'"
+                           decoration-warning="academic_result in ['partial', 'repeating']"
+                           decoration-danger="academic_result == 'withdrawn'"/>
+                    <field name="title_obtained"/>
+                    <field name="subject_count"/>
+                    <field name="attendance_rate" optional="show" invisible="is_previous_curriculum"/>
+                </list>
+            </field>
+        </record>
+
         <!-- Standalone list of the subject lines: what the "Search more..." dialog of the grade
              review wizard's subject picker renders. Without it Odoo falls back to a generated
              single-column view, and the reader has to pick a module out of a list of ids. -->

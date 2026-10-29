@@ -17,12 +17,22 @@ CONVALIDATED_GRADE = 5
 # States a request can no longer move on from.
 CLOSED_STATES = ('completed', 'rejected', 'cancelled')
 
+# States in which the resolution is official, registered by the secretariat (issue #719): only
+# then does the applicant see what was decided for each subject. Until then any decision can
+# still change, so the portal only shows how far the request has got.
+OFFICIAL_STATES = ('completed', 'rejected')
+
 # What the applicant filed, fixed once the request exists.
 FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'prior_studies_origin', 'student_notes'}
 
 # States in which the Head of Studies still decides the subjects, and in which the applicant can
 # be asked for (and send) more documentation: before the resolution exists.
 REVIEW_STATES = ('pending', 'documentation', 'ministry')
+
+# States in which the resolution comments can still change (issue #657): until the Director
+# issues the resolution, whose PDF prints them. From then on the PDF, the email the secretariat's
+# step sends and the portal must all say the same.
+RESOLUTION_NOTES_STATES = REVIEW_STATES + ('direction',)
 
 # Whose turn each state is (issue #610): what each role finds when opening the list. 'ministry' is
 # the Head of Studies' too (they record the Ministry's answer); 'documentation' is nobody's - the
@@ -46,6 +56,19 @@ class EmsConvalidation(models.Model):
                                  domain="[('contact_type', 'in', ('student', 'applicant'))]")
     student_idalu = fields.Char(string="Student ID", related='student_id.student_id',
                                 help="The student's IDALU, to look up their academic record in Esfera.")
+    student_document_id = fields.Char(string="Document ID", related='student_id.document_id',
+                                      help="The student's identity document, to look them up in other applications.")
+    # Issue #657: what the student studied before, for whoever decides the subjects and for the
+    # secretariat, who keeps it. Field-level groups too, not only the page's: nobody else reads it
+    # by RPC either.
+    student_year_record_ids = fields.One2many(
+        string="Academic history", related='student_id.year_record_ids',
+        groups='ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin')
+    # What the tab shows: the history above together with the previous curriculum records (issue
+    # #672), often what the request is based on.
+    student_history_line_ids = fields.One2many(
+        string="Whole academic history", related='student_id.history_line_ids',
+        groups='ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin')
     requester_id = fields.Many2one(string="Requested by", comodel_name='res.partner', ondelete='set null',
                                    help="Portal user who submitted the request: the student or a family contact.")
     course_id = fields.Many2one(string="Course", comodel_name='ems.course', required=True,
@@ -110,6 +133,9 @@ class EmsConvalidation(models.Model):
                                help="The details of the last request for information sent to the applicant, "
                                     "shown on the portal next to the answer form while the request is under review.")
     info_request_date = fields.Date(string="Documentation requested on", readonly=True, copy=False)
+    cancel_reason = fields.Text(string="Reason for cancelling", readonly=True, copy=False,
+                                help="Why the centre cancelled the request, shown to the student too. "
+                                     "Empty when the applicant cancelled it from the portal.")
     return_reason = fields.Text(string="Returned by the Director", readonly=True, copy=False,
                                 help="Why the Director sent the last proposal back for review.")
     validation_date = fields.Date(string="Proposal date", readonly=True, copy=False)
@@ -191,7 +217,11 @@ class EmsConvalidation(models.Model):
             # A previous record (issue #585) counts only when this centre granted the title.
             '|', ('is_external', '=', False),
             ('origin_centre_code', '=', self.env.company.center_code or False)])
-        with_title = set(records.mapped('student_id').ids)
+        # And a previous curriculum's title granted here (issue #672).
+        previous = self.env['ems.student.previous_curriculum_record'].sudo().search([
+            ('student_id', 'in', self.student_id.ids), ('title_obtained', '=', True),
+            ('centre_code', '=', self.env.company.center_code or False)])
+        with_title = set((records.student_id | previous.student_id).ids)
         for convalidation in self:
             convalidation.has_centre_title = convalidation.student_id.id in with_title
 
@@ -247,6 +277,9 @@ class EmsConvalidation(models.Model):
             # The state only moves through the circuit's own actions, which write it with sudo.
             if 'state' in vals:
                 raise UserError(_("The state of a request only changes through its buttons."))
+            if 'resolution_notes' in vals and self.filtered(
+                    lambda convalidation: convalidation.state not in RESOLUTION_NOTES_STATES):
+                raise UserError(_("The resolution comments cannot be changed once the resolution is issued."))
         res = super().write(vals)
         if 'attachment_ids' in vals:
             self._ems_link_attachments()
@@ -574,20 +607,47 @@ class EmsConvalidation(models.Model):
         self.ensure_one()
         return self.state == 'pending' or (self.state == 'documentation' and not self.resolved_by_ministry)
 
-    def action_cancel(self):
+    def _ems_resolution_is_official(self):
+        """Whether the applicant may see the resolution: what was decided for each subject, the
+        comments and the official document (see OFFICIAL_STATES)."""
+        self.ensure_one()
+        return self.state in OFFICIAL_STATES
+
+    def _ems_check_cancellable(self):
         for convalidation in self:
             if not convalidation._ems_is_cancellable():
                 convalidation._ems_check_state(('pending',))
-        self.sudo().write({'state': 'cancelled'})
+
+    def action_cancel(self):
+        """The staff cancel a request from the backend saying why (issue #720): a dialog asks
+        for the reason first."""
+        self.ensure_one()
+        self._ems_check_cancellable()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Cancel request"),
+            'res_model': 'ems.convalidation.cancel_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_convalidation_id': self.id},
+        }
+
+    def _ems_cancel(self, reason=False):
+        """Cancel the request: with the staff's reason from the backend, without one when the
+        applicant withdraws it from the portal. The reason reaches the student too, on the
+        portal and on the Communications page."""
+        self._ems_check_cancellable()
+        self.sudo().write({'state': 'cancelled', 'cancel_reason': reason})
         self._ems_close_tasks()
+        body = _("The request has been cancelled by %s.") % self.env.user.name
+        if reason:
+            body = Markup("<p>{}</p><p>{}</p>").format(body, reason)
         for convalidation in self:
-            convalidation._ems_post_communication(
-                _("Convalidation request cancelled"),
-                _("The request has been cancelled by %s.") % self.env.user.name)
+            convalidation._ems_post_communication(_("Convalidation request cancelled"), body)
 
     def action_reopen(self):
         self._ems_check_state(('cancelled',))
-        self.sudo().write({'state': 'pending'})
+        self.sudo().write({'state': 'pending', 'cancel_reason': False})
         for convalidation in self:
             convalidation._ems_post_communication(
                 _("Convalidation request reopened"),
@@ -815,12 +875,14 @@ class EmsConvalidation(models.Model):
     @api.model
     def _ems_portal_requestable_subjects(self, student, study):
         """Subjects the student can still ask for: the study's, minus those already requested
-        and not rejected (a rejected subject can be asked for again with new documents)."""
+        and not officially rejected (a rejected subject can be asked for again with new
+        documents, once the refusal is official: before that, freeing it would give a decision
+        that can still change away, issue #719)."""
         taken = self.env['ems.convalidation.line'].sudo().search([
             ('student_id', '=', student.id),
             ('subject_id', 'in', study._ems_convalidable_subjects().ids),
             ('convalidation_id.state', '!=', 'cancelled'),
-            ('state', '!=', 'rejected'),
+            '|', ('state', '!=', 'rejected'), ('convalidation_id.state', 'not in', OFFICIAL_STATES),
         ]).mapped('subject_id')
         return study._ems_convalidable_subjects() - taken
 

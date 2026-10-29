@@ -16,7 +16,8 @@ This guide explains the **academic history**: a permanent, per-course summary of
 4. [Adjusting the academic result](#adjusting-the-academic-result)
 5. [Applying a grade review](#applying-a-grade-review)
 6. [Adding a previous record](#adding-a-previous-record)
-7. [Finals pending the work placement](#finals-pending-the-work-placement)
+7. [Adding a previous curriculum record](#adding-a-previous-curriculum-record)
+8. [Finals pending the work placement](#finals-pending-the-work-placement)
 
 ---
 
@@ -88,14 +89,14 @@ Open the student's form and, in the **Actions** dropdown, click **Add a previous
 
 ### From the Esfera academic record (PDF)
 
-1. In **Academic certificate**, upload the Esfera academic record PDF.
+1. In **Academic certificate**, upload the Esfera academic record PDF. Esfera's record screen printed to PDF, as some private centres hand it over, is accepted too.
 2. The origin centre, its code, the study and a grid with every module, learning outcome (RA) and work placement of the certificate are filled in. Courses the student already has in the history are left out; if the certificate holds courses of more than one centre, each course keeps its own.
 3. Check the grid:
-   - **Certificate grade** is what the PDF says; **Grade** and **Graded** are what will be saved. Correct them if needed. An RA *No assolit* or *Pendent* is left without a grade, and its module not passed.
+   - **Certificate grade** is what the PDF says; **Grade** and **Graded** are what will be saved. Correct them if needed. An RA *No assolit* or *Pendent* (*NA* or *PDT* on the printed screen) is left without a grade, and its module not passed.
    - Lines with a **Warning** need attention: a course that does not exist in EMS is not imported (the academic administration has to create it first); a module that is not part of the study is not imported; if there is an equivalent one, pick it in **Module** and tick **Import**.
    - The other centre's own optional modules are not imported as such. If some are passed and their hours add up to at least this centre's optional module's, a **Recognised optional module** line passes it with their hours-weighted average grade; if they fall short, the line is flagged and not imported. The recognised optional module is kept in the history with the **Recognised** mark and no learning outcomes.
    - When the certificate's module grade differs from the one the RAs give with this centre's weights, the certificate's is applied, as long as both agree on passed or not passed.
-4. Check that **Certificate student** is the student: if the identifier does not match their IDALU, the record is not created.
+4. Check that **Certificate student** is the student: if the identifier does not match their IDALU, or cannot be checked (the PDF does not carry it or the student has no IDALU), the record is not created.
 5. Click **Create record**. The record and every ticked module are created at once, with the PDF attached.
 
 ![Previous record wizard with the review grid read from the PDF: modules, learning outcomes, pending work placement and recognised optional module](../../assets/secretary/academic-history-previous-record-review.png)
@@ -114,6 +115,23 @@ If the certificate does not have a module's work placement (EM) grade yet, the m
 ![Previous record created in the history, with the Previous record ribbon, the origin centre, the certificate and the modules](../../assets/secretary/academic-history-previous-record.png)
 
 The record shows with the **Previous record** ribbon, the origin centre and the certificate. The **Previous records** filter of the history list shows all of them. To correct it later, use the grade review as on any other record.
+
+## Adding a previous curriculum record
+
+A cycle the student studied under a **previous curriculum** (the LOE cycles organised in units, UF, which SAGA managed) does not fit the per-course history: it is kept apart, exactly as printed on its academic history document, so it can be looked up, for example to decide a convalidation request. Secretariat, administration, Head of Studies and Director can add it.
+
+1. Open the student's form and, in the **Actions** dropdown, click **Add a previous curriculum record**.
+2. In **Academic history document**, upload the academic history (*Historial acadèmic*) PDF.
+3. The curriculum, the centre, the years and a grid with every module and, under it, its units are filled in, with their hours, grade and sitting. Correct any grade or sitting that was not read right.
+4. **Title obtained** is ticked when every module listed is passed, since the document does not say whether the student graduated. Confirm or correct it and, if you know it, fill in **Title date**.
+5. Check that **Document student** is the student: if the identifier does not match their IDALU, or cannot be checked, the record is not created.
+6. Click **Create record**.
+
+![Previous curriculum record wizard with the review grid read from the PDF: modules, units, grades and sittings](../../assets/secretary/academic-history-previous-curriculum-review.png)
+
+![Previous curriculum record with its modules and units, the title and the attached document](../../assets/secretary/academic-history-previous-curriculum.png)
+
+The record shows as one more line of the student's **Academic history** (**Studies** tab), with its years in the **Course** column and **Previous curriculum** ticked, and in the **Academic history** tab of the student's convalidation requests. Click the line to open it. **Planning and Grading → Grades → Previous curricula** lists all of them. A title obtained at this centre also shows the **Holds a title obtained at this centre** notice on the convalidation request. To correct a grade, the title or the notes later, open the record and edit it.
 
 ## Finals pending the work placement
 

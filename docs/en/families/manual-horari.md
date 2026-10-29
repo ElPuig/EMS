@@ -32,7 +32,8 @@ On a mobile phone, slide the grid sideways to see every day.
 
 ## Downloading the Schedule as PDF
 
-Click **Download PDF** to save a printable copy of the same schedule.
+Click **Download PDF** to save a printable copy of the same schedule. The PDF also shows the
+student's group and tutor, with the tutor's email address so you can contact them.
 
 ---
 

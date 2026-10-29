@@ -37,24 +37,31 @@
             <field name="model">ems.student.document</field>
             <field name="arch" type="xml">
                 <form string="Student document">
+                    <!-- A new document is one the secretary's office registers itself (e.g. sent by
+                         email): it is approved on save (issue #717), so its data can only be filled
+                         in before the first save and the review buttons only apply afterwards. -->
                     <header>
-                        <button name="action_approve" type="object" string="Approve" groups="ems.group_academic_admin,ems.group_secretary"
-                                class="btn-success" invisible="status != 'pending'"/>
-                        <button name="action_reject" type="object" string="Reject" groups="ems.group_academic_admin,ems.group_secretary"
-                                class="btn-danger" invisible="status != 'pending'"/>
-                        <button name="action_reset_to_pending" type="object" string="Reset to pending" groups="ems.group_academic_admin,ems.group_secretary"
-                                invisible="status == 'pending'"/>
-                        <field name="status" widget="statusbar" readonly="1"
+                        <div name="ems_actions" string="Actions">
+                            <button name="action_approve" type="object" string="Approve" groups="ems.group_academic_admin,ems.group_secretary"
+                                    class="btn-primary" invisible="not id or status != 'pending'"/>
+                            <button name="action_reject" type="object" string="Reject" groups="ems.group_academic_admin,ems.group_secretary"
+                                    invisible="not id or status != 'pending'"/>
+                            <button name="action_cancel" type="object" string="Cancel submission" groups="ems.group_academic_admin,ems.group_secretary"
+                                    invisible="not id or status != 'pending'"/>
+                            <button name="action_reset_to_pending" type="object" string="Reset to pending" groups="ems.group_academic_admin,ems.group_secretary"
+                                    invisible="not id or status == 'pending'"/>
+                        </div>
+                        <field name="status" widget="statusbar" readonly="1" invisible="not id"
                                statusbar_visible="pending,approved,rejected,cancelled"/>
                     </header>
                     <sheet>
                         <group>
                             <group>
-                                <field name="partner_id" readonly="1"/>
-                                <field name="doc_type" readonly="1"/>
-                                <field name="upload_date" readonly="1"/>
+                                <field name="partner_id" string="Student" readonly="id or context.get('default_partner_id')"/>
+                                <field name="doc_type" readonly="id"/>
+                                <field name="upload_date" readonly="1" invisible="not id"/>
                             </group>
-                            <group>
+                            <group invisible="not id">
                                 <field name="review_uid" readonly="1"/>
                                 <field name="review_date" readonly="1"/>
                                 <field name="rejection_reason"
@@ -63,17 +70,17 @@
                             </group>
                         </group>
                         <group string="Benefit data" invisible="doc_type != 'benefit'">
-                            <field name="benefit_type" readonly="1"/>
+                            <field name="benefit_type" readonly="id" required="not id and doc_type == 'benefit'"/>
                         </group>
                         <group string="IBAN data" invisible="doc_type != 'iban'">
-                            <field name="doc_value" string="IBAN" readonly="1"/>
-                            <field name="doc_value2" string="Account holder" readonly="1"/>
+                            <field name="doc_value" string="IBAN" readonly="id" required="not id and doc_type == 'iban'"/>
+                            <field name="doc_value2" string="Account holder" readonly="id"/>
                             <field name="expiry_date"/>
                         </group>
                         <group string="Document file" invisible="doc_type == 'iban'">
-                            <field name="doc_file" widget="binary"
-                                   filename="doc_file_name" readonly="1"/>
-                            <field name="doc_file_name" readonly="1"/>
+                            <field name="doc_file" widget="binary" filename="doc_file_name"
+                                   readonly="id" required="not id and doc_type and doc_type != 'iban'"/>
+                            <field name="doc_file_name" readonly="1" invisible="not id"/>
                             <field name="expiry_date"/>
                         </group>
                     </sheet>
@@ -108,7 +115,7 @@
             <field name="res_model">ems.student.document</field>
             <field name="view_mode">list,form</field>
             <field name="context">{'search_default_pending': 1}</field>
-            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary'))]"/>
+            <field name="groups_id" eval="[(4, ref('ems.group_academic_admin')), (4, ref('ems.group_secretary')), (4, ref('ems.group_head_of_studies'))]"/>
         </record>
         <!-- Menu: see views/academic_management/enrollment_configuration/menu.xml
              (menu_student_documents, under Academic Management). -->

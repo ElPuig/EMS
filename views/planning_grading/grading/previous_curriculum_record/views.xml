@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #672: academic histories under a previous curriculum, imported from their
+             document and kept as printed, only to be looked up (convalidations). -->
+        <record model="ir.ui.view" id="view_previous_curriculum_record_list">
+            <field name="name">ems.student.previous_curriculum_record.list</field>
+            <field name="model">ems.student.previous_curriculum_record</field>
+            <field name="arch" type="xml">
+                <list create="0">
+                    <field name="student_id"/>
+                    <field name="curriculum_code" optional="hide"/>
+                    <field name="curriculum_name"/>
+                    <field name="centre_name"/>
+                    <field name="start_year" options="{'enable_formatting': false}"/>
+                    <field name="end_year" options="{'enable_formatting': false}"/>
+                    <field name="passed_module_count"/>
+                    <field name="module_count"/>
+                    <field name="title_obtained"/>
+                    <field name="title_date" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_previous_curriculum_record_form">
+            <field name="name">ems.student.previous_curriculum_record.form</field>
+            <field name="model">ems.student.previous_curriculum_record</field>
+            <field name="arch" type="xml">
+                <form create="0">
+                    <sheet>
+                        <div class="oe_title">
+                            <h2><field name="curriculum_name" readonly="1"/></h2>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="student_id" readonly="1"/>
+                                <field name="curriculum_code" readonly="1"/>
+                                <field name="study_id" readonly="1" options="{'no_open': True}"/>
+                                <field name="centre_name"/>
+                                <field name="centre_code"/>
+                            </group>
+                            <group>
+                                <field name="start_year" options="{'enable_formatting': false}"/>
+                                <field name="end_year" options="{'enable_formatting': false}"/>
+                                <field name="title_obtained"/>
+                                <field name="title_date" invisible="not title_obtained"/>
+                                <field name="source_application" readonly="1"/>
+                                <field name="certificate_file" filename="certificate_filename" readonly="1"/>
+                                <field name="certificate_filename" invisible="1"/>
+                            </group>
+                        </group>
+                        <field name="line_ids" nolabel="1">
+                            <list editable="bottom" create="0" delete="0"
+                                  decoration-bf="kind == 'module'"
+                                  decoration-muted="kind == 'unit'"
+                                  decoration-danger="kind == 'module' and not is_passed">
+                                <field name="kind" column_invisible="1"/>
+                                <field name="code" readonly="1" width="80px"/>
+                                <field name="name" readonly="1"/>
+                                <field name="hours" readonly="1" width="70px" invisible="not hours"/>
+                                <field name="grade" width="80px"/>
+                                <field name="sitting" width="110px"/>
+                                <field name="is_passed" width="80px"/>
+                            </list>
+                        </field>
+                        <group string="Notes">
+                            <field name="notes" nolabel="1"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.ui.view" id="view_previous_curriculum_record_search">
+            <field name="name">ems.student.previous_curriculum_record.search</field>
+            <field name="model">ems.student.previous_curriculum_record</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="student_id"/>
+                    <field name="curriculum_name"/>
+                    <field name="centre_name"/>
+                    <filter name="title_obtained" string="Title obtained"
+                            domain="[('title_obtained', '=', True)]"/>
+                    <filter name="group_by_curriculum" string="Curriculum"
+                            context="{'group_by': 'curriculum_name'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_previous_curriculum_record_list">
+            <field name="name">Previous curricula</field>
+            <field name="res_model">ems.student.previous_curriculum_record</field>
+            <field name="view_mode">list,form</field>
+        </record>
+
+        <menuitem name="Previous curricula" sequence="6" id="menu_previous_curriculum_record"
+                  parent="menu_grades" action="action_previous_curriculum_record_list"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_teacher"/>
+
+        <record model="ir.ui.view" id="view_previous_curriculum_wizard_form">
+            <field name="name">ems.previous_curriculum_wizard.form</field>
+            <field name="model">ems.previous_curriculum_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Add a previous curriculum record">
+                    <sheet>
+                        <div class="alert alert-info" role="alert" invisible="line_ids">
+                            Adds to the academic history a cycle the student studied under a
+                            previous curriculum (organised in units, UF), kept as printed on its
+                            document. Upload the academic history (Historial acadèmic, PDF).
+                        </div>
+                        <div class="alert alert-info" role="alert" invisible="not line_ids">
+                            Check what was read from the document before creating the record:
+                            correct any grade, and confirm whether the student obtained the title,
+                            which the document does not state. It is proposed when every module
+                            listed is passed.
+                        </div>
+                        <div class="alert alert-warning" role="alert" invisible="not certificate_message">
+                            <field name="certificate_message" nolabel="1" force_save="1"/>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="student_id" readonly="1"/>
+                                <field name="certificate_file" filename="certificate_filename"/>
+                                <field name="certificate_filename" invisible="1"/>
+                                <field name="certificate_student_name" force_save="1"
+                                       invisible="not certificate_student_identifier"/>
+                                <field name="certificate_student_identifier" force_save="1"
+                                       invisible="not certificate_student_identifier"/>
+                            </group>
+                            <group invisible="not line_ids">
+                                <field name="curriculum_name" required="line_ids"/>
+                                <field name="curriculum_code" required="line_ids"/>
+                                <field name="study_id" options="{'no_create': True, 'no_open': True}"/>
+                                <field name="centre_name"/>
+                                <field name="centre_code"/>
+                                <field name="start_year" options="{'enable_formatting': false}"/>
+                                <field name="end_year" options="{'enable_formatting': false}"/>
+                                <field name="title_obtained"/>
+                                <field name="title_date" invisible="not title_obtained"/>
+                            </group>
+                        </group>
+                        <!-- Read-only columns are not sent back by the client unless force_save. -->
+                        <field name="line_ids" nolabel="1" invisible="not line_ids">
+                            <list editable="bottom" create="0" delete="0"
+                                  decoration-bf="kind == 'module'"
+                                  decoration-muted="kind == 'unit'">
+                                <field name="sequence" column_invisible="1"/>
+                                <field name="kind" column_invisible="1" force_save="1"/>
+                                <field name="code" readonly="1" force_save="1" width="80px"/>
+                                <field name="name" readonly="1" force_save="1"/>
+                                <field name="hours" readonly="1" force_save="1" width="70px" invisible="not hours"/>
+                                <field name="grade" width="80px"/>
+                                <field name="sitting" width="110px"/>
+                            </list>
+                        </field>
+                        <group string="Notes" invisible="not line_ids">
+                            <field name="notes" nolabel="1"/>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_create" type="object" string="Create record"
+                                class="btn-primary" data-hotkey="q" invisible="not line_ids"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel"
+                                data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="action_previous_curriculum_wizard">
+            <field name="name">Add a previous curriculum record</field>
+            <field name="res_model">ems.previous_curriculum_wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="context">{'dialog_size': 'extra-large'}</field>
+        </record>
+    </data>
+</odoo>

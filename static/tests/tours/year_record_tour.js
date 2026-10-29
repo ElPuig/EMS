@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // "Academic history" (action_year_record_list, ems.student.year_record) had zero coverage -
 // neither its own standalone list/form, nor the nested subject/outcome dialogs it opens, nor
@@ -69,7 +70,7 @@ registry.category("web_tour.tours").add("ems_year_record_partner_tab", {
             content: "The search facet is applied",
         },
         {
-            trigger: ".o_list_view .o_data_cell:contains('Year Record Tour Student')",
+            trigger: `.o_list_view ${studentCell("Year Record Tour Student")}`,
             content: "Open the seeded student",
             run: "click",
         },
@@ -79,8 +80,17 @@ registry.category("web_tour.tours").add("ems_year_record_partner_tab", {
             run: "click",
         },
         {
-            trigger: ".o_field_widget[name='year_record_ids'] .o_data_row",
-            content: "The embedded year_record_ids list rendered on the partner's own form (a separate rendering path from the standalone list/form tour)",
+            trigger: ".o_field_widget[name='history_line_ids'] .o_data_row",
+            content: "The embedded academic history list rendered on the partner's own form (a separate rendering path from the standalone list/form tour)",
+        },
+        {
+            trigger: ".o_field_widget[name='history_line_ids'] .o_data_row td[name='study_name']",
+            content: "Open a course of the history (issue #672: the line opens the record behind it)",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_form_view div[name='subject_record_ids']",
+            content: "The course's own record opened, with its subjects",
         },
     ],
 });

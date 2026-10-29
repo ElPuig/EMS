@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 from odoo.exceptions import UserError
 from odoo.tests.common import TransactionCase
 
-from .common import mock_outgoing_email
+from .common import create_role_user, mock_outgoing_email
 
 
 class TestEmployeeEmsUser(TransactionCase):
@@ -65,6 +65,25 @@ class TestEmployeeEmsUser(TransactionCase):
         teacher = self._new_employee(image_1920=image_1x1_png)
         self._create_account(teacher)
         self.assertEqual(teacher.user_id.image_1920, teacher.image_1920)
+
+    def _photo_mimetypes(self, record):
+        self.env.flush_all()
+        self.env.cr.execute(
+            "SELECT DISTINCT mimetype FROM ir_attachment "
+            "WHERE res_model = %s AND res_field LIKE 'image_%%' AND res_id = %s",
+            (record._name, record.id))
+        return {row[0] for row in self.env.cr.fetchall()}
+
+    def test_creation_by_head_of_studies_keeps_placeholder_renderable(self):
+        # Issue #714: a Head of Studies can't write ir.ui.view, so Odoo stored the initials
+        # placeholder Odoo bakes for a new user as text/plain and the photo showed as
+        # "Binary file" on both the user and the teacher.
+        head_of_studies = create_role_user(self, 'head_of_studies', 'test_714_hos', email='test_714_hos@example.com')
+        teacher = self._new_employee(work_email='berta.hos@elpuig.xeill.net')
+        teacher.with_user(head_of_studies)._ems_create_user()
+        self.assertTrue(teacher.user_id)
+        self.assertEqual(self._photo_mimetypes(teacher.user_id.partner_id), {'image/svg+xml'})
+        self.assertEqual(self._photo_mimetypes(teacher), {'image/svg+xml'})
 
     # --- name sync (issue #542) -----------------------------------------
     def test_renaming_the_employee_renames_the_user(self):

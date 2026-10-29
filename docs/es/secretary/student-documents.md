@@ -11,28 +11,45 @@ Esta guía explica cómo revisar los documentos que envían alumnos y familias �
 ## Contenido
 
 1. [Dónde se revisan los documentos](#dónde-se-revisan-los-documentos)
-2. [Aprobar, rechazar, cancelar](#aprobar-rechazar-cancelar)
-3. [Qué hace aprobar un IBAN](#qué-hace-aprobar-un-iban)
-4. [Qué hace aprobar un documento de beneficio](#qué-hace-aprobar-un-documento-de-beneficio)
-5. [Notificaciones](#notificaciones)
-6. [Descargar las credenciales de Google](#descargar-las-credenciales-de-google)
+2. [Añadir un documento que la familia ha enviado por correo](#añadir-un-documento-que-la-familia-ha-enviado-por-correo)
+3. [Aprobar, rechazar, cancelar](#aprobar-rechazar-cancelar)
+4. [Qué hace aprobar un IBAN](#qué-hace-aprobar-un-iban)
+5. [Qué hace aprobar un documento de beneficio](#qué-hace-aprobar-un-documento-de-beneficio)
+6. [Notificaciones](#notificaciones)
+7. [Descargar las credenciales de Google](#descargar-las-credenciales-de-google)
 
 ---
 
 ## Dónde se revisan los documentos
 
-Ve a **Gestión académica > Documentos del alumnado**. La lista se abre mostrando solo las tramitaciones **Pendientes** por defecto (quita el filtro para verlas todas). Esta es la única pantalla con acciones de Aprobar/Rechazar — la lista de solo lectura que también ves en la ficha del alumno (sección **Documentación** de la pestaña **Secretaría**) es solo de referencia.
+Ve a **Gestión académica > Documentos del alumnado**. La lista se abre mostrando solo las tramitaciones **Pendientes** por defecto (quita el filtro para verlas todas). Esta es la única pantalla donde se revisan los documentos. La lista de la ficha del alumno (sección **Documentación** de la pestaña **Secretaría**) muestra sus documentos y sirve para añadir otros nuevos (ver la sección siguiente).
 
 ![Lista de documentos del alumnado filtrada por Pendiente, con los iconos de aprobar (✓) y rechazar (✗) en cada fila](../../assets/secretary/documents-01-pendents.png)
 
+## Añadir un documento que la familia ha enviado por correo
+
+Cuando una familia no consigue subir un documento desde el portal y os lo envía por correo (DNI, tarjeta sanitaria, IBAN, justificante de una bonificación...), lo podéis registrar vosotros en la ficha del alumno:
+
+1. Abre la ficha del alumno y ve a la pestaña **Secretaría**.
+2. En la sección **Documentación**, pulsa **Añadir una línea**.
+3. Elige el **Tipo de documento** y rellénalo:
+   - **Cuenta bancaria (IBAN):** el IBAN, el titular de la cuenta y, si procede, la fecha de caducidad.
+   - **Bonificación / Exención:** el tipo de bonificación y el fichero del justificante.
+   - **Cualquier otro tipo:** el fichero (el PDF o la imagen que os han enviado) y, si procede, la fecha de caducidad.
+4. Pulsa **Guardar y cerrar** y guarda la ficha del alumno.
+
+![Ventana para añadir un documento desde la ficha del alumno](../../assets/secretary/documents-03-afegir.png)
+
+El documento queda **aprobado** directamente, porque ya lo habéis revisado vosotros: no genera ninguna tarea de revisión ni envía ningún correo a la familia. Tiene los mismos efectos que aprobarlo (un IBAN pasa a ser la cuenta bancaria activa del alumno, una bonificación se añade a sus beneficios) y sustituye al documento aprobado anterior del mismo tipo. Una vez guardado, el tipo, el fichero y los datos ya no se pueden cambiar: si hay que corregirlo, añadid uno nuevo.
+
 ## Aprobar, rechazar, cancelar
 
-- **Aprobar** (✓ desde la lista, o el botón de cabecera en la ficha): marca el documento como revisado y aplica sus efectos (ver más abajo). Si ya había otro documento del mismo tipo aprobado para ese alumno, se elimina automáticamente — solo se conserva el último aprobado.
-- **Rechazar** (✗ desde la lista, o el botón de cabecera): escribe primero el motivo (en el campo **Motivo de rechazo**) — un solo clic en Rechazar cierra inmediatamente la tramitación, no hay ningún paso de confirmación aparte.
-- **Cancelar**: disponible desde la ficha cuando hay que retirar una tramitación sin marcarla como rechazada (por ejemplo, se subió por error).
+- **Aprobar** (✓ desde la lista, o el desplegable **Acciones** de la ficha): marca el documento como revisado y aplica sus efectos (ver más abajo). Si ya había otro documento del mismo tipo aprobado para ese alumno, se elimina automáticamente — solo se conserva el último aprobado.
+- **Rechazar** (✗ desde la lista, o el desplegable **Acciones**): escribe primero el motivo (en el campo **Motivo de rechazo**) — un solo clic en Rechazar cierra inmediatamente la tramitación, no hay ningún paso de confirmación aparte.
+- **Cancelar envío**: en el desplegable **Acciones** de la ficha, cuando hay que retirar una tramitación sin marcarla como rechazada (por ejemplo, se subió por error).
 - **Reabrir para revisión**: disponible en un documento aprobado o rechazado, por si hay que revisar una decisión — reabre la revisión (se asigna una nueva tarea a los revisores).
 
-![Un documento de IBAN pendiente, con los botones Aprobar y Rechazar y el campo Motivo de rechazo](../../assets/secretary/documents-02-revisio.png)
+![Un documento de IBAN pendiente, con el desplegable Acciones abierto (Aprobar, Rechazar, Cancelar envío) y el campo Motivo de rechazo](../../assets/secretary/documents-02-revisio.png)
 
 ## Qué hace aprobar un IBAN
 
@@ -46,7 +63,7 @@ Aprobar un documento de bonificación/exención crea la entrada correspondiente 
 
 ## Notificaciones
 
-El alumno recibe un correo cuando su documento se aprueba o rechaza. Los revisores (configurados en *Gestión académica > Configuración > Asignación de tareas*) reciben una tarea pendiente en lugar de un correo por cada nueva tramitación pendiente — consulta tus Actividades para ver "Review document: ...".
+El alumno recibe un correo cuando su documento se aprueba o rechaza. Los revisores (configurados en *Gestión académica > Configuración > Matrícula > Asignación de tareas*) reciben una tarea pendiente en lugar de un correo por cada nueva tramitación pendiente — consulta tus Actividades para ver "Review document: ...".
 
 ## Descargar las credenciales de Google
 

@@ -121,7 +121,7 @@ class ems_employee_base(models.AbstractModel):
         string="Also managed by the departments", comodel_name="hr.department",
         relation="hr_employee_managing_department_rel", column1="hr_employee_public_id", column2="hr_department_id",
         help="The chiefs of these departments, and whoever is above them, can also organise this employee's "
-             "guards and absences (covering their classes and guard duties, entering an expected absence), "
+             "guards and absences (covering their classes and guard duties, entering a detected absence), "
              "besides the Manager above and their own chain of command. For someone who in practice works for "
              "another department or area than the one they belong to. It does not change who approves their "
              "absences.")
@@ -834,8 +834,14 @@ class ems_employee(models.AbstractModel):
 
     @api.depends("leave_manager_id")
     def _compute_attendance_manager_id(self):
+        # An Area Manager is the approver of their own absence (issue #693), but not of their
+        # own attendance corrections: those stay the Director's.
         for employee in self:
-            employee.attendance_manager_id = employee.leave_manager_id
+            manager = employee.leave_manager_id
+            if manager and manager == employee.user_id:
+                director = employee.company_id.director_id
+                manager = director.user_id if director != employee else self.env['res.users']
+            employee.attendance_manager_id = manager
 
     def _inverse_work_contact_details(self):
         # hr's inverse writes work_email/mobile_phone to the linked user's partner, and
@@ -880,6 +886,7 @@ class ems_employee(models.AbstractModel):
         # between teachers would break the 1:1 assumption 'apply_schedule_changes' relies on.
         # See '_ems_create_personal_calendar' for why this is a shared method, not inline here.
         employees._ems_create_personal_calendar()
+        employees.filtered('user_id')._refresh_stale_avatar_placeholder()
         return employees
 
     def _ems_create_personal_calendar(self):
@@ -943,8 +950,9 @@ class ems_employee(models.AbstractModel):
         if 'name' in vals:
             for employee in self:
                 employee.resource_calendar_id._refresh_personal_name()
-            self._refresh_stale_avatar_placeholder()
             self._sync_user_name()
+        if 'name' in vals or vals.get('user_id'):
+            self._refresh_stale_avatar_placeholder()
 
         if photo is not _UNSET:
             for employee in self:
@@ -977,15 +985,22 @@ class ems_employee(models.AbstractModel):
     def _refresh_stale_avatar_placeholder(self):
         """Regenerate the initials placeholder for any employee in `self` whose
         `image_1920` already holds a self-generated SVG, so a rename doesn't leave it
-        showing the OLD initial.
+        showing the OLD initial, and after linking a user (issue #714).
 
-        Two, otherwise unrelated, code paths bake a real SVG into the normally-empty
+        Linking copies the user's placeholder onto an employee without a photo (native
+        `_sync_user()`), and creating the user had already baked it, both as whoever acts:
+        Odoo stores an SVG as text/plain for someone who can't write ir.ui.view (a Head of
+        Studies creating a teacher's account), which shows as "Binary file". Rewriting it
+        here as the superuser stores it as an image on both the employee and the user.
+
+        Three, otherwise unrelated, code paths bake a real SVG into the normally-empty
         `image_1920` instead of leaving it to the live `avatar.mixin` compute the rest
         of the app relies on: native Odoo's own `hr.employee.create()` (every new
         employee with no photo, teacher/ASP or not - includes every pending-
         identification teacher, always created with a placeholder name that is renamed
-        later during Google account creation) and this module's own "Disable profile
-        picture" (`res.users.image_disabled`, see `user.py`). Both always use
+        later during Google account creation), native `res.users.create()` (copied onto
+        the employee on linking, see above) and this module's own "Disable profile
+        picture" (`res.users.image_disabled`, see `user.py`). All of them use
         `_avatar_generate_svg()`, which always produces SVG - and `fields.Image`'s
         upload pipeline (PIL-based) cannot store a genuinely uploaded SVG photo, so
         sniffing the content this way never risks overwriting a real photo.
@@ -1053,20 +1068,16 @@ class ems_employee(models.AbstractModel):
         return result
 
     def action_unarchive(self):
-        """Symmetric with action_archive() above - a teacher rehired/returning before a course
-        transition ever rolled their calendar over should find it active again rather than having
-        to recreate it by hand. Deliberately calendar-level only: this never reactivates any of
-        the calendar's own 'attendance_ids' rows (already cascaded to inactive by
-        'ems_working_schedule.action_archive()' when the calendar itself was archived above) -
-        some of those rows could equally have gone inactive earlier for an unrelated reason (e.g.
-        superseded by a later room change via '_write_or_new_version()'), so blindly reviving
-        every one of them here would resurrect stale, superseded schedule versions alongside the
-        genuine ones. A returning teacher gets a fresh schedule import/assignment regardless."""
+        """Symmetric with action_archive() above: reactivates this teacher's own personal calendar
+        and the blocks archived together with it (issue #722), so a returning teacher gets their
+        schedule and roll-calls back. Blocks archived earlier for another reason stay archived (see
+        'resource.calendar._restore_blocks_archived_with_calendar()')."""
         result = super().action_unarchive()
         for employee in self:
             calendar = employee.resource_calendar_id
             if calendar.employee_id == employee and not calendar.active:
                 calendar.action_unarchive()
+                calendar._restore_blocks_archived_with_calendar()
         return result
 
     @api.model
@@ -1151,19 +1162,37 @@ class ems_employee(models.AbstractModel):
             employee = employee.parent_id
         return self.env["hr.employee"]
 
-    def _find_attendance_approvers(self):
+    def _find_attendance_approvers(self, skip_hierarchy=False):
         """Who corrects this employee's attendance (res.users): the nearest Head or Deputy Head
         of Studies above them in the chain of command; failing that, whoever manages their area's
         attendance (attendance_manager_id); failing that, the administrators. Shared by the
         routing of an attendance correction request (ems.attendance_correction._find_approver)
         and by the auto-checkout notice asking for a check-out to be corrected (issue #648), so
         both reach the same person. Never the Department or Seminar Chief ('parent_id'): they
-        can only read their branch's attendance, not correct it."""
+        can only read their branch's attendance, not correct it. `skip_hierarchy`: the
+        administrators alone."""
         self.ensure_one()
         employee = self.sudo()
-        head_of_studies = employee.find_head_of_studies()
-        if head_of_studies:
-            return head_of_studies.user_id
-        if employee.attendance_manager_id:
-            return employee.attendance_manager_id
+        if not skip_hierarchy:
+            head_of_studies = employee.find_head_of_studies()
+            if head_of_studies:
+                return head_of_studies.user_id
+            if employee.attendance_manager_id:
+                return employee.attendance_manager_id
         return self.env["res.users"].sudo().search([("groups_id", "=", self.env.ref("ems.group_academic_admin").id)])
+
+    def _ems_is_attendance_approver(self, user):
+        """Whether `user` may decide on this employee's attendance (issue #543): a Head or Deputy
+        Head of Studies of the employee's own branch - above them in the chain of command (the
+        Director is above everybody), or the manager of their area's attendance -, never every
+        holder of the role centre-wide. The administrator always can: they sit above the whole
+        hierarchy although they appear nowhere in it. Shared by the attendance correction requests
+        and the review of detected absences (issue #707)."""
+        self.ensure_one()
+        if any(user.has_group(xmlid) for xmlid in (
+                "base.group_system", "ems.group_academic_admin", "ems.group_director")):
+            return True
+        if not user.has_group("ems.group_head_of_studies"):
+            return False
+        employee = self.sudo()
+        return user in employee.tutor_scope_user_ids or employee.attendance_manager_id == user

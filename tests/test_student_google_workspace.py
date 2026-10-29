@@ -542,13 +542,22 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
 
     # --- the cron ----------------------------------------------------------
 
+    def _enqueued_by_cron(self, helper):
+        """The students the cron hands to one of its enqueueing helpers, patched out: a mock
+        can't be a queue_job job, and the development data the test shards clone may well
+        have real students falling due today."""
+        partners = self.env['res.partner']
+        with patch.object(type(partners), helper, autospec=True) as enqueue:
+            partners._gw_cron_process_lifecycle()
+        return partners.union(*(call.args[0] for call in enqueue.call_args_list))
+
     def test_cron_does_nothing_before_the_dates(self):
         student = self._new_student()
         student.write({'active': False})
-        with patch.object(type(student), 'action_suspend_google_account') as suspend:
-            self.env['res.partner'].with_context(
-            queue_job__no_delay=True)._gw_cron_process_lifecycle()
-        suspend.assert_not_called()
+        # Patched one level up, at the enqueueing helper: a real former student falling due
+        # today in the development data the test shards clone would otherwise hand a mock to
+        # queue_job, which refuses it.
+        self.assertNotIn(student, self._enqueued_by_cron('_gw_enqueue_suspend'))
 
     def test_cron_suspends_once_the_deactivation_date_is_reached(self):
         student = self._new_student()
@@ -587,6 +596,16 @@ class TestStudentGoogleWorkspaceLifecycle(TransactionCase):
         self.env['res.partner'].with_context(
             queue_job__no_delay=True)._gw_cron_process_lifecycle()
         self.assertFalse(student.google_ws_suspended)
+
+    # --- turning 18 (issue #690) --------------------------------------------
+
+    def test_coming_of_age_relocates_the_account(self):
+        # The daily check itself is tests/test_coming_of_age.py's; here, only that the
+        # Google integration hooks into it.
+        student = self._new_student()
+        with patch.object(type(student), '_gw_enqueue_relocate', autospec=True) as relocate:
+            student._ems_on_coming_of_age()
+        relocate.assert_called_once_with(student)
 
     # --- withdrawal / graduation path --------------------------------------
 

@@ -6,12 +6,15 @@
             <field name="name">ems.convalidation.list</field>
             <field name="model">ems.convalidation</field>
             <field name="arch" type="xml">
-                <list string="Convalidations"
+                <!-- Issue #657: first come, first served - the oldest request on top. Only here: the
+                     student's own requests on the portal keep the model's order, newest first. -->
+                <list string="Convalidations" default_order="name asc, id asc"
                       decoration-muted="state == 'cancelled'"
                       decoration-success="state == 'completed'">
                     <field name="name"/>
                     <field name="student_id"/>
                     <field name="student_idalu" optional="hide"/>
+                    <field name="student_document_id" optional="hide"/>
                     <field name="study_id"/>
                     <field name="course_id" optional="show"/>
                     <field name="submission_date"/>
@@ -74,8 +77,7 @@
                                     groups="ems.group_head_of_studies,ems.group_academic_admin"
                                     help="The documentation arrived some other way (on paper, by email): the request goes back under review."/>
                             <button name="action_cancel" type="object" string="Cancel request"
-                                    invisible="state != 'pending' and (state != 'documentation' or resolved_by_ministry)"
-                                    confirm="The request will be cancelled. Continue?"/>
+                                    invisible="state != 'pending' and (state != 'documentation' or resolved_by_ministry)"/>
                             <button name="action_reopen" type="object" string="Reopen"
                                     invisible="state != 'cancelled'"/>
                         </div>
@@ -86,6 +88,9 @@
                                 invisible="state != 'cancelled'"/>
                         <widget name="web_ribbon" title="Rejected" bg_color="text-bg-danger"
                                 invisible="state != 'rejected'"/>
+                        <div class="alert alert-secondary" role="alert" invisible="state != 'cancelled' or not cancel_reason">
+                            <strong>Reason for cancelling:</strong> <field name="cancel_reason" class="d-inline"/>
+                        </div>
                         <div class="alert alert-warning" role="alert" invisible="state != 'pending' or not return_reason">
                             <strong>Returned by the Director:</strong> <field name="return_reason" class="d-inline"/>
                         </div>
@@ -109,19 +114,9 @@
                                 <field name="requester_id" readonly="1" invisible="not requester_id"/>
                                 <!-- Issue #576: one click to copy it into Esfera. -->
                                 <field name="student_idalu" widget="CopyClipboardChar" class="o_ems_copy_compact" invisible="not student_idalu"/>
-                                <field name="ministry_date" invisible="not resolved_by_ministry"/>
-                                <field name="validation_date" invisible="not validation_date"/>
-                                <field name="validated_by_id" invisible="not validated_by_id"/>
-                                <field name="signature_date" invisible="not signature_date"/>
-                                <field name="signed_by_id" invisible="not signed_by_id"/>
-                                <field name="resolution_pdf_id" invisible="1"/>
-                                <field name="resolution_pdf_link" invisible="not resolution_pdf_id"/>
-                                <field name="resolved_by_ministry" invisible="1"/>
-                                <field name="ministry_resolution" filename="ministry_resolution_filename"
-                                       invisible="not resolved_by_ministry" readonly="state != 'ministry'"/>
-                                <field name="ministry_resolution_filename" invisible="1"/>
-                                <field name="resolution_date" invisible="not resolution_date"/>
-                                <field name="resolved_by_id" invisible="not resolved_by_id"/>
+                                <!-- Issue #657: the same, to look the student up in other applications. -->
+                                <field name="student_document_id" widget="CopyClipboardChar" class="o_ems_copy_compact"
+                                       invisible="not student_document_id"/>
                             </group>
                         </group>
                         <notebook>
@@ -175,6 +170,13 @@
                                     Every refused subject needs its reason, which the resolution states.
                                 </div>
                             </page>
+                            <!-- Issue #657: what the student studied before, for whoever decides the subjects
+                                 and for the secretariat, who keeps it. -->
+                            <page name="academic_history" string="Academic history"
+                                  groups="ems.group_head_of_studies,ems.group_secretary,ems.group_academic_admin">
+                                <field name="student_history_line_ids" readonly="1" widget="ems_history_lines"
+                                       context="{'list_view_ref': 'ems.view_student_history_line_list'}"/>
+                            </page>
                             <page name="documents" string="Supporting documents">
                                 <field name="attachment_ids" widget="many2many_binary"/>
                             </page>
@@ -189,8 +191,30 @@
                                 <field name="student_notes" placeholder="Comments from the student or the family..."
                                        readonly="id"/>
                             </page>
+                            <!-- Issue #657: the circuit's outcome lives here, out of the request's own data. -->
                             <page name="resolution" string="Resolution">
+                                <group>
+                                    <group>
+                                        <field name="ministry_date" invisible="not resolved_by_ministry"/>
+                                        <field name="validation_date" invisible="not validation_date"/>
+                                        <field name="validated_by_id" invisible="not validated_by_id"/>
+                                        <field name="signature_date" invisible="not signature_date"/>
+                                        <field name="signed_by_id" invisible="not signed_by_id"/>
+                                    </group>
+                                    <group>
+                                        <field name="resolution_pdf_id" invisible="1"/>
+                                        <field name="resolution_pdf_link" invisible="not resolution_pdf_id"/>
+                                        <field name="resolved_by_ministry" invisible="1"/>
+                                        <field name="ministry_resolution" filename="ministry_resolution_filename"
+                                               invisible="not resolved_by_ministry" readonly="state != 'ministry'"/>
+                                        <field name="ministry_resolution_filename" invisible="1"/>
+                                        <field name="resolution_date" invisible="not resolution_date"/>
+                                        <field name="resolved_by_id" invisible="not resolved_by_id"/>
+                                    </group>
+                                </group>
+                                <!-- The resolution's PDF prints them: frozen once the Director issues it. -->
                                 <field name="resolution_notes"
+                                       readonly="state not in ('pending', 'documentation', 'ministry', 'direction')"
                                        placeholder="Comments for the student, sent with the resolution..."/>
                             </page>
                         </notebook>
@@ -207,7 +231,7 @@
                 <search string="Convalidations">
                     <field name="name"/>
                     <field name="student_id"
-                           filter_domain="['|', ('student_id', 'ilike', self), ('student_idalu', 'ilike', self)]"/>
+                           filter_domain="['|', '|', ('student_id', 'ilike', self), ('student_idalu', 'ilike', self), ('student_document_id', 'ilike', self)]"/>
                     <field name="study_id"/>
                     <field name="course_id"/>
                     <field name="line_ids" string="Subject" filter_domain="[('line_ids.subject_id', 'ilike', self)]"/>
@@ -294,6 +318,24 @@
                     <footer>
                         <button name="action_reject" type="object" string="Reject" class="btn-primary"/>
                         <button string="Cancel" class="btn-secondary" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_convalidation_cancel_wizard_form" model="ir.ui.view">
+            <field name="name">ems.convalidation.cancel_wizard.form</field>
+            <field name="model">ems.convalidation.cancel_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cancel request">
+                    <field name="convalidation_id" invisible="1"/>
+                    <group>
+                        <field name="student_id" readonly="1"/>
+                    </group>
+                    <field name="reason" placeholder="Why the request is cancelled (the student will see it)..."/>
+                    <footer>
+                        <button name="action_cancel" type="object" string="Cancel request" class="btn-primary"/>
+                        <button string="Close" class="btn-secondary" special="cancel"/>
                     </footer>
                 </form>
             </field>

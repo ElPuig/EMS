@@ -2,7 +2,7 @@
 
 ## Overview
 
-`ems.student.document` is the reviewable-submission model behind the "Document management" workflow: a student or family uploads (or the secretary/admin registers) a document — an ID card, a medical card, an IBAN, proof of a benefit/exemption — which then goes through a pending → approved/rejected/cancelled review cycle. Approving certain document types has real side effects elsewhere in the app: an approved IBAN updates the student's bank account (`res.partner.bank`), an approved benefit document creates/refreshes an [`ems.student.benefit`](contact.md#emsstudentbenefit) line.
+`ems.student.document` is the reviewable-submission model behind the "Document management" workflow: a student or family uploads (or the secretary/admin registers, already approved) a document — an ID card, a medical card, an IBAN, proof of a benefit/exemption — which then goes through a pending → approved/rejected/cancelled review cycle. Approving certain document types has real side effects elsewhere in the app: an approved IBAN updates the student's bank account (`res.partner.bank`), an approved benefit document creates/refreshes an [`ems.student.benefit`](contact.md#emsstudentbenefit) line.
 
 **Module file:** `models/contacts/student_document.py` (`EmsStudentDocument`)
 
@@ -12,13 +12,20 @@
 
 ```mermaid
 stateDiagram-v2
-    [*] --> pending: create()
+    [*] --> pending: create() (family / EMS, sudo)
+    [*] --> approved: create() by the secretary's office (no sudo)
     pending --> approved: action_approve()
     pending --> rejected: action_reject()
     pending --> cancelled: action_cancel()
     approved --> pending: action_reset_to_pending()
     rejected --> pending: action_reset_to_pending()
 ```
+
+### Documents the secretary's office registers itself (issue #717)
+
+A family that can't upload a document from the portal sometimes emails it instead. The secretary's office (or the academic administration) adds it from the **Documentation** section of the student form (or with **New** on the Student Documents list). Every other creation path runs under `sudo()`: the portal routes in `controllers/portal_enrollment.py` and `_gw_deliver_credentials()`. So `create()` treats a pending document created **without** `env.su` as a staff upload; only those two roles have create rights (`ir.model.access.csv`). It is approved on the spot through `_approve(notify=False)`, which is `action_approve()`'s body: the same side effects (dedup of the previous approved document of that type, `_apply_bank_account()`, `_apply_benefit()`), but the approval is logged as an internal note (`mail.mt_note`), not a comment. No "submitted for review" note is posted, no review task is scheduled and the family gets no email: they already know, since they sent the document. `review_uid` is whoever registered it.
+
+In the form, the student, type, file, IBAN and benefit fields are editable only before the first save (`readonly="id"`); the student is fixed too when the form is opened from the student's own Documentation list (`default_partner_id` in the context). The file is required for every type but IBAN, the IBAN for an IBAN document and the benefit type for a benefit document.
 
 Every transition drops any pending review `activity_ids` first (approve/reject/cancel all clear them; reset schedules a fresh one) and posts a chatter message. Creation and reset post an **internal note** (`mail.mt_note` — does not email followers, since the reviewer is already notified via their activity, see below); approve/reject post a **comment** (`mail.mt_comment` — does email the student, the only follower, see `create()` below).
 
@@ -35,7 +42,7 @@ flowchart LR
 
 Two deliberately separate notification channels, to avoid double-emailing anyone:
 - **The student** is the only chatter follower — they get emailed on `action_approve`/`action_reject` (a `mail.mt_comment` post), which is the outcome they actually need to hear about.
-- **Reviewers** (secretary/admin configured in *Academic Management > Configuration > Task Assignment*, keyed off the `ems.mail_activity_student_document_review` activity type — see `docs/en/developers/shared/task_assignment.md`) get a **to-do activity** instead of a chatter subscription; `mail_activity_quick_update` suppresses Odoo's own "X assigned you an activity" email (would otherwise read as if the submitting family were assigning work to the office), and `_unsubscribe_reviewers` keeps them off `message_partner_ids` so the later approve/reject comment doesn't double-notify them either.
+- **Reviewers** (secretary/admin configured in *Academic Management > Configuration > Enrollment > Task Assignment*, keyed off the `ems.mail_activity_student_document_review` activity type — see `docs/en/developers/shared/task_assignment.md`) get a **to-do activity** instead of a chatter subscription; `mail_activity_quick_update` suppresses Odoo's own "X assigned you an activity" email (would otherwise read as if the submitting family were assigning work to the office), and `_unsubscribe_reviewers` keeps them off `message_partner_ids` so the later approve/reject comment doesn't double-notify them either.
 
 ---
 
@@ -89,22 +96,24 @@ Small shared helper — the human-readable label for a document's type, in the c
 | Tutor (`ems.group_tutor`) | — | ✓ | — | — |
 | TAC (`ems.group_tac`) | — | ✓ | — | — |
 | Chiefs above a tutor (through the tutor rule) | — | ✓ | — | — |
+| Head of Studies / Deputy / Director (through the tutor ACL, own rule) | — | ✓ | — | — |
 | Portal (`base.group_portal`) | — | ✓ | — | — |
 
-### `security/rules/contacts.xml` — tutor access to Google credentials
+### `security/rules/contacts.xml` — tutor, TAC and Head of Studies access
 
-The tutor, TAC and Head of Studies rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the **Documentation** section of the student form's **Secretary** tab (shown only to whoever can read some document of that student, `res.partner.can_see_documents`): tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). Four rules:
+The tutor and TAC rows exist only to read the **Google Workspace credentials PDF** (`doc_type='google_credentials'`, created by `_gw_deliver_credentials()` in `google_workspace_integration.py`) from the **Documentation** section of the student form's **Secretary** tab (shown only to whoever can read some document of that student, `res.partner.can_see_documents`): tutors for their own students, the TAC team for every student, since they reset those passwords (see [google_workspace_student.md](google_workspace_student.md#password-reset)). The Head of Studies/Deputy Head of Studies and the Director read every document type of the students below them in the chain of command, from **Academic Management > Student Documents** (`menu_student_documents` and `action_student_document` include `ems.group_head_of_studies`, issue #654) and from the same Documentation section, read only: creating and reviewing stays with the secretary's office. Five rules:
 
 | Rule | Group | Domain |
 |------|-------|--------|
 | `rule_ems_student_document_tutor` | `ems.group_tutor` | `doc_type = 'google_credentials'` and `partner_id.tutor_id.tutor_scope_user_ids = user` (read only) |
+| `rule_ems_student_document_head_of_studies` | `ems.group_head_of_studies` | `partner_id.tutor_id.tutor_scope_user_ids = user` (read only, every type) |
 | `rule_ems_student_document_tac` | `ems.group_tac` | `doc_type = 'google_credentials'` (read only) |
 | `rule_ems_student_document_secretary` | `ems.group_secretary` | none (full access) |
 | `rule_ems_student_document_admin` | `ems.group_academic_admin` | none (full access) |
 
-Rules of the groups a user belongs to are ORed, so the two unrestricted rules are what keep the tutor rule from narrowing staff who are also in `group_tutor`: the academic admin always is (admin → director → head of studies → department chief → tutor), and a secretary may also tutor a group. Through `tutor_scope_user_ids`, the tutor rule also gives every chief above a tutor (Seminar/Department Chief, Head of Studies, Director) the credentials of that tutor's students (see [Tutor scope](../employees/role_hierarchy.md#tutor-scope-permissions-escalate-along-the-chain-of-command-issue-483)). Every other document type (ID card, IBAN, medical card, benefit proof) stays invisible to tutors, their chiefs and TAC. The PDF download works through the normal `ir.attachment` check, which defers to read access on the owning `ems.student.document` record.
+Rules of the groups a user belongs to are ORed, so the two unrestricted rules are what keep the tutor rule from narrowing staff who are also in `group_tutor`: the academic admin always is (admin → director → head of studies → department chief → tutor), and a secretary may also tutor a group. Through `tutor_scope_user_ids`, the tutor rule also gives every chief above a tutor (Seminar/Department Chief, Head of Studies, Director) the credentials of that tutor's students (see [Tutor scope](../employees/role_hierarchy.md#tutor-scope-permissions-escalate-along-the-chain-of-command-issue-483)). Every other document type (ID card, IBAN, medical card, benefit proof) stays invisible to tutors, Department/Seminar Chiefs and TAC; the Head of Studies rule adds them for the Head of Studies/Deputy and the Director, for the same students only (another Head of Studies' chain stays out). The PDF download works through the normal `ir.attachment` check, which defers to read access on the owning `ems.student.document` record.
 
-In the views, the Documentation page adds `ems.group_tutor` (which every chief implies) and `ems.group_tac` to its `groups`, and the Approve / Reject / Reset to pending buttons of the document list and form are restricted to `ems.group_academic_admin,ems.group_secretary`, so a tutor opening a credentials row gets a plain read-only form.
+In the views, the Documentation page adds `ems.group_tutor` (which every chief implies) and `ems.group_tac` to its `groups`, and the Approve / Reject / Reset to pending buttons of the document list and form are restricted to `ems.group_academic_admin,ems.group_secretary`, so a tutor (or a Head of Studies) opening a row gets a plain read-only form.
 
 ### Bulk download: "Download Google credentials"
 
@@ -164,7 +173,7 @@ The review list's Approve/Reject buttons are icon-only (label as tooltip): with 
 
 | View | File | Notes |
 |------|------|-------|
-| List/Form/Search | `views/community/contact/student_document.xml` | `view_student_document_list/_form/_search` — the **only** place Approve/Reject/Reset are reachable; header statusbar + buttons |
+| List/Form/Search | `views/community/contact/student_document.xml` | `view_student_document_list/_form/_search` — the **only** place Approve/Reject/Cancel/Reset are reachable: the list's ✓/✗ icons and the form's **Actions** dropdown (see [actions_dropdown.md](../shared/actions_dropdown.md)), all hidden on an unsaved document |
 | Action | same file | `action_student_document`, `context: {'search_default_pending': 1}` |
 | Menu | `views/academic_management/enrollment_configuration/menu.xml` | `menu_student_documents`, under *Academic Management* (not under the Educational Community / Students menu tree — easy to miss when looking for it there) |
-| Read-only embed | `views/community/contact/form.xml`, "Documentation" page | `document_ids` one2many, `create="0" delete="0"`, no action buttons — review only happens from the standalone screen above |
+| Embed | `views/community/contact/form.xml`, "Documentation" section of the Secretary tab | `document_ids` one2many, `delete="0"`, no review buttons. "Add a line" opens the document form in a dialog for the secretary's office and the academic administration; for everyone else the field is read only (`readonly="not can_add_documents"`, `res.partner.can_add_documents` = create access on `ems.student.document`), since Odoo doesn't drop an embedded list's "Add a line" by access rights |

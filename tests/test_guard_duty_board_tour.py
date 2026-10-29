@@ -1,6 +1,8 @@
 from datetime import date, timedelta
+from unittest.mock import patch
 
 from odoo.tests import HttpCase, tagged
+from odoo.tests.common import ChromeBrowser
 
 from .common import create_level_study, create_role_user, mock_outgoing_email, shift_ems_clock
 
@@ -179,3 +181,16 @@ class TestGuardDutyBoardTour(HttpCase):
         }).action_approve()
 
         self.start_tour("/odoo", "ems_guard_duty_board", login="guard_duty_board_tour_teacher")
+
+    def test_week_arrows_across_clock_changes(self):
+        """Issue #678: the week arrows never skip or repeat a day where the clocks change. The test
+        browser runs in UTC, which has no such days: it is put in the centre's timezone."""
+        create_role_user(self, 'teacher', 'guard_duty_board_clock_teacher')
+        navigate_to = ChromeBrowser.navigate_to
+
+        def navigate_in_madrid(browser, url, wait_stop=False):
+            browser._websocket_request('Emulation.setTimezoneOverride', params={'timezoneId': 'Europe/Madrid'})
+            return navigate_to(browser, url, wait_stop=wait_stop)
+
+        with patch.object(ChromeBrowser, 'navigate_to', navigate_in_madrid):
+            self.start_tour("/odoo", "ems_guard_duty_board_clock_change", login="guard_duty_board_clock_teacher")

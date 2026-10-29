@@ -28,7 +28,7 @@ En tots dos casos, secretaria registra després la resolució a l'Esfera i tanca
 | **Pendent de secretaria** | Ja està resolta; secretaria l'ha de registrar a l'Esfera. |
 | **Completada** | Registrada, amb algun mòdul convalidat. L'alumne ja veu la nota. |
 | **Rebutjada** | Registrada, sense cap mòdul convalidat. |
-| **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal. |
+| **Anul·lada** | L'alumne o la família l'ha anul·lada des del portal, o el centre l'ha anul·lada indicant-ne el motiu. |
 
 L'estat només canvia amb les accions de cada pas, a dalt del formulari (al menú **Accions** quan n'hi ha més d'una).
 
@@ -49,6 +49,8 @@ La llista s'obre amb el filtre **Pendents de mi** activat, que mostra les sol·l
 
 Les que esperen la documentació del sol·licitant no hi surten mai: fes servir el filtre **Pendent de documentació** per veure-les. Treu el filtre **Pendents de mi** per veure totes les sol·licituds, o fes servir el filtre d'un estat concret (**Pendent de direcció**, **Completades**, **Rebutjades**, **Anul·lades**...) per seguir les que són en mans d'algú altre.
 
+La llista mostra primer la sol·licitud més antiga, per número de registre, perquè les sol·licituds s'atenguin en l'ordre en què han arribat.
+
 ![Llista de sol·licituds de convalidació](../../assets/head_of_studies/convalidations-list.png)
 
 Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó **Convalidacions**.
@@ -68,14 +70,16 @@ Obre la sol·licitud des de la llista. El formulari mostra:
 
 - El **número de registre** (per exemple CONV-2026-27-0001), a sobre del nom de l'alumne.
 - L'IDALU de l'alumne (**Identificador d'estudiant**), sota *Sol·licitada per*, amb un botó que el copia per enganxar-lo a Esfera i consultar-ne l'expedient acadèmic. També pots escriure un IDALU al cercador de la llista, a *Alumne*, per trobar-ne les sol·licituds.
+- El document d'identitat de l'alumne (**Document d'identitat (DNI/NIE)**), just sota l'IDALU i amb el mateix botó de copiar, per trobar l'alumne en altres aplicacions. També el pots cercar a *Alumne*.
 - **Estudi**, **Curs** i **Motiu**. Aquestes dades, l'alumne i les observacions del sol·licitant són les de la sol·licitud i no es poden modificar.
 - **Estudis superats** (només estudis previs): en aquest centre o en un altre centre o a la universitat. Una sol·licitud del portal per estudis superats en un altre lloc, o per qualsevol altre motiu, sempre arriba amb documentació justificativa; només els estudis superats aquí poden arribar sense.
-- Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic hi consta un títol obtingut aquí.
+- Sota el nom de l'alumne, l'avís **Té una titulació obtinguda al centre** quan a l'històric acadèmic, o en un expedient de currículum anterior, hi consta un títol obtingut aquí.
 - Pestanya **Assignatures**: una línia per cada mòdul sol·licitat.
+- Pestanya **Històric acadèmic** (cap d'estudis, cap d'estudis adjunt, direcció, secretaria i administrador): l'històric de l'alumne al centre, una línia per curs, el mateix que mostra la seva fitxa. Obre una línia per veure'n les assignatures i les notes. També hi surten els cicles cursats amb un currículum anterior (LOE per unitats formatives), amb **Currículum anterior** marcat: en obrir-ne un es veuen tots els mòduls i unitats tal com figuren al document.
 - Pestanya **Documentació justificativa**: els fitxers adjuntats.
 - Pestanya **Observacions del sol·licitant**: el que ha escrit l'alumne o la família.
 - Pestanya **Documentació sol·licitada**: l'última documentació que has demanat, si n'has demanat.
-- Pestanya **Resolució**: observacions per a l'alumne, que s'envien amb la resolució.
+- Pestanya **Resolució**: com s'ha resolt la sol·licitud, a mesura que avança (data de la proposta i qui l'ha enviada, data de tramitació al Ministeri, data de resolució i qui l'ha emesa, el PDF de la resolució, data de registre i qui l'ha registrada), i les observacions per a l'alumne, que s'inclouen al PDF i al correu de la resolució. Les observacions es poden modificar fins que direcció emet la resolució; a partir d'aquell moment queden fixades, perquè el PDF, el correu i el portal diguin sempre el mateix.
 
 ![Formulari de sol·licitud de convalidació](../../assets/head_of_studies/convalidations-form.png)
 
@@ -90,7 +94,8 @@ A cada línia de la pestanya **Assignatures**, fes servir els botons de la dreta
 | ↺ (Torna a pendent) | Desfà la decisió de la línia. |
 
 - **Nota:** cada mòdul es revisa i es qualifica d'un en un. En clicar ✔, un diàleg la demana: amb el **Mode** a **Amb nota** (per defecte), escriu la nota, 5 per defecte o la que tenen els estudis previs (de 5 a 10). Tria **Sense nota** quan el mòdul es convalida sense nota: la resolució el mostra com a **Convalidat**, les notes com a **CV**, i no compta per a la mitjana. Fins que no enviïs la proposta, encara pots canviar les columnes **Nota** i **Sense nota** de la línia.
-- **Motiu de la denegació:** en clicar ✖, un diàleg demana el **Motiu**, amb el més habitual ja seleccionat, i uns **Detalls** opcionals. Tots dos surten a la resolució. Fins que no enviïs la proposta, encara els pots canviar a la línia. La llista de motius la manté l'administrador de l'EMS (vegeu [Configuració de les convalidacions](../admin/convalidation-settings.md)).
+- **Motiu de la denegació:** en clicar ✖, un diàleg demana el **Motiu**, amb el més habitual ja seleccionat, i uns **Detalls** opcionals. Tots dos surten a la resolució. Fins que no enviïs la proposta, encara els pots canviar a la línia. La llista de motius la mantens tu mateix, juntament amb l'administrador de l'EMS, des de **Gestió acadèmica > Configuració > Convalidacions** (vegeu [Configuració de les convalidacions](../admin/convalidation-settings.md)).
+- **Què veu l'alumne:** res del que decideixis sobre cada mòdul, ni les observacions per a l'alumne, fins que secretaria registra la resolució. Fins aleshores, el portal només mostra els mòduls sol·licitats i l'estat de la sol·licitud.
 
 ![Convalidar un mòdul: la nota](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -112,7 +117,7 @@ La sol·licitud passa a **Pendent de documentació** fins que arriba la document
 
 Mentrestant pots continuar decidint els mòduls, però no pots enviar la proposta ni tramitar-la amb el Ministeri. La pestanya **Documentació sol·licitada** mostra la data, el motiu i els detalls de l'última petició.
 
-Es pot demanar documentació mentre la sol·licitud és **Pendent**, **Pendent de documentació** o **En procés Ministeri**. La llista de motius la manté l'administrador de l'EMS (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)).
+Es pot demanar documentació mentre la sol·licitud és **Pendent**, **Pendent de documentació** o **En procés Ministeri**. La llista de motius la mantens tu mateix, juntament amb l'administrador de l'EMS, des de **Gestió acadèmica > Configuració > Convalidacions** (vegeu [Configuració de convalidacions](../admin/convalidation-settings.md)).
 
 ---
 
@@ -129,7 +134,7 @@ Les dues opcions són al menú **Accions** del formulari.
 
 ![Proposta pendent de direcció](../../assets/head_of_studies/convalidations-director.png)
 
-- **Resoldre:** emet la resolució oficial tal com s'ha proposat. Es genera el PDF de la resolució i la sol·licitud passa a **Pendent de secretaria**. El PDF apareix al camp **Resolució** del formulari: fes clic al nom del fitxer per obrir-lo.
+- **Resoldre:** emet la resolució oficial tal com s'ha proposat. Es genera el PDF de la resolució i la sol·licitud passa a **Pendent de secretaria**. El PDF apareix al camp **Resolució** de la pestanya **Resolució**: fes clic al nom del fitxer per obrir-lo. Si vols afegir observacions per a l'alumne, escriu-les en aquella pestanya abans de resoldre: s'imprimeixen al PDF i després ja no es poden modificar.
 - **Retornar al cap d'estudis:** escriu-hi el motiu i fes clic a **Retorna**. La sol·licitud torna a **Pendent**, amb el motiu en un avís groc a dalt del formulari, i Cap d'Estudis en rep de nou la tasca. L'alumne no veu el motiu. Quan Cap d'Estudis envia la proposta de nou, l'avís desapareix.
 
 ### La resolució en PDF
@@ -152,7 +157,7 @@ Els textos dels fonaments de dret i del recurs, i la signatura per delegació, e
 1. Tramita la sol·licitud amb el Ministeri.
 2. A **Accions**, tria **En procés Ministeri** i confirma. La sol·licitud continua a les teves mans: l'alumne ja no la pot anul·lar, però li pots continuar demanant documentació.
 3. Quan arribi la resposta del Ministeri, decideix cada mòdul segons el que resolgui, amb el motiu dels rebutjats.
-4. Si tens la resolució del Ministeri, puja-la al camp **Resolució del Ministeri**. És opcional.
+4. Si tens la resolució del Ministeri, puja-la al camp **Resolució del Ministeri**, a la pestanya **Resolució**. És opcional.
 5. A **Accions**, tria **Resolució del Ministeri rebuda**.
 
 La sol·licitud passa directament a **Pendent de secretaria**, sense passar per Direcció. Si has pujat la resolució del Ministeri, és la que rep l'alumne.
@@ -187,8 +192,8 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ## Anul·lar i reobrir
 
-- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri.
-- **Reobrir** torna una sol·licitud anul·lada a **Pendent**.
+- **Anul·la la sol·licitud** està disponible mentre la sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri. Un diàleg et demana el **Motiu**, que és obligatori: queda a la sol·licitud, i l'alumne o la família el veuen al portal i a les seves comunicacions.
+- **Reobrir** torna una sol·licitud anul·lada a **Pendent** i n'esborra el motiu.
 
 ---
 

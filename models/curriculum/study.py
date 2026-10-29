@@ -75,6 +75,15 @@ class EmsStudy(models.Model):
             year = self.env['ems.datetime_utils'].get_local_today().year if study.date is False else study.date.year
             study.display_name = "%s (%s): %s" % (study.acronym, year, study.name)
 
+    @api.model
+    def find_by_code_token(self, token):
+        """The study in force whose code ends with a certificate's study token ("IC10" ->
+        CFGM_IC10, "ICB0" -> CFGS_ICB0): how the Esfera record (issue #585) and the previous
+        curriculum record (issue #672) find the study they belong to."""
+        if not token:
+            return self.browse()
+        return self.search([('code', '=like', f"%\\_{token}"), ('deprecated', '=', False)], limit=1)
+
     def _ems_last_course(self):
         """Highest group course of this study (2 for a CFGM/CFGS, 4 for ESO...), 0 when
         the study has no group yet. Answers "is this the final year?", which drives both

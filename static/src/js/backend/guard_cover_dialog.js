@@ -25,6 +25,9 @@ export class GuardCoverDialog extends Component {
     static props = {
         row: Object,
         line: Object,
+        // Opened right after applying a plan that leaves this class to a guard (issue #710): only
+        // sending a guard is offered, never another arrangement.
+        guardOnly: { type: Boolean, optional: true },
         onAssign: Function,
         onApplyPlan: Function,
         onArrange: Function,
@@ -60,7 +63,7 @@ export class GuardCoverDialog extends Component {
         if (arrangement) {
             return arrangement.type === "manual" ? "manual" : "current";
         }
-        if (covers.length || !plans.length) {
+        if (covers.length || !plans.length || this.props.guardOnly) {
             return "guard";
         }
         return "plan-0";
@@ -168,7 +171,9 @@ export class GuardCoverDialog extends Component {
             if (this.state.mode === "guard") {
                 await this.props.onAssign(this.state.guardId, this.state.message);
             } else if (planIndex !== null) {
-                await this.props.onApplyPlan(this.props.row.arrangement_plans[planIndex], this.state.selections[planIndex]);
+                if (!(await this.props.onApplyPlan(this.props.row.arrangement_plans[planIndex], this.state.selections[planIndex]))) {
+                    return;  // cancelled: the planner may change the steps
+                }
             } else {
                 await this.props.onArrange(this.state.teacherId, this.state.note);
             }

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Give the committee's access (group_quality) to the members the committee workgroup
+         (ems.quality) already has, which an installation that predates this sync needs once; from
+         then on ems.workgroup keeps it in step on each change of members. Only adds, so it is
+         idempotent; runs on every install and upgrade. -->
+    <function model="ems.workgroup" name="_ems_sync_quality_committee"/>
+</odoo>

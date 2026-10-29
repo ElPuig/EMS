@@ -17,7 +17,7 @@
 5. [Desfer una decisió](#desfer-una-decisió)
 6. [Informe per empleat](#informe-per-empleat)
 7. [Informe mensual](#informe-mensual)
-8. [Absències previstes](#absències-previstes)
+8. [Absències detectades](#absències-detectades)
 
 ---
 
@@ -31,7 +31,7 @@
 
 L'aprovador de cada persona és el responsable del seu departament de nivell superior. Es defineix al formulari del departament, camp **Responsable d'àrea**, i s'actualitza sol si canvia el càrrec.
 
-Ningú aprova la seva pròpia absència: la d'un responsable d'àrea la resol Direcció.
+El responsable d'àrea també és qui aprova la seva pròpia absència: valides la teva sol·licitud (i el justificant, quan en cal) com qualsevol altra de la teva àrea, i després Direcció la revisa com sempre. No pots desfer una decisió sobre la teva pròpia absència; Direcció sí.
 
 ---
 
@@ -70,7 +70,7 @@ La creu rebutja, en qualsevol d'aquests passos. Quan decideixes des del formular
 
 L'absència té efecte (calendari d'absències, saldo d'hores, quadrant de guàrdies) tan bon punt la dones per rebuda, encara que falti el justificant o Direcció no l'hagi revisada.
 
-Si uns dies després de l'absència (tres, si el centre no ho ha canviat) la persona encara no ha adjuntat el justificant, reps un missatge i una activitat per fer-ne el seguiment; a la persona se li recorda cada dia.
+Si uns dies després de l'absència (tres, si el centre no ho ha canviat) la persona encara no ha adjuntat el justificant, reps un missatge i una activitat per fer-ne el seguiment; a la persona se li recorda cada dia. Cada recordatori i cada missatge espera l'inici de la jornada de qui el rep: ningú no en rep fora del seu horari.
 
 ![Llistat d'absències, amb les accions sobre una sol·licitud pendent](../../assets/head_of_studies/hos-absences-list.png)
 
@@ -104,7 +104,7 @@ Si l'absència és de dia sencer o d'unes hores concretes ho controla la casella
 
 **Només Direcció.** Direcció revisa cada absència en últim lloc: li arriba un cop el cap l'ha validada, amb el justificant quan el tipus n'exigeix. En les absències d'**ATRI**, comprova que la sol·licitud s'ha tramitat de debò al portal de la Generalitat.
 
-**Assistència del personal > Absències > Administració > Absències sol·licitades** s'obre amb **Pendent de mi**: totes les absències **Pendent Direcció**, i les absències dels mateixos caps d'àrea, que gestiones tu com a cap seu (amb els botons del cap descrits més amunt). Cadascuna et deixa també una activitat ("Revisió de direcció de l'absència").
+**Assistència del personal > Absències > Administració > Absències sol·licitades** s'obre amb **Pendent de mi**: totes les absències **Pendent Direcció**. Cadascuna et deixa també una activitat ("Revisió de direcció de l'absència").
 
 Revisa-les des del llistat amb les icones del costat d'**Estat Direcció**, o obre'n una i fes servir les accions de dalt del formulari, que et torna al llistat en acabar:
 
@@ -184,26 +184,50 @@ Per canviar el període, treu el filtre **Curs actual** i tria el que necessitis
 
 ---
 
-## Absències previstes
+## Absències detectades
 
-**Assistència del personal > Absències > Administració > Absències previstes**.
+**Assistència del personal > Absències > Administració > Absències detectades**.
 
-Quan ja saps que un docent faltarà però encara no ha sol·licitat l'absència (ha trucat aquest matí, o s'ha acordat en una reunió), entra-la aquí perquè les guàrdies es puguin planificar tot seguit.
+Aquesta llista recull les absències dels docents que encara no ha sol·licitat ningú. Tenen dos orígens, que es veuen a la columna **Origen**:
+
+- **Informada**: l'has introduïda tu (o un cap de departament o de seminari) perquè ja sabies que el docent faltaria (ha trucat aquest matí, o s'ha acordat en una reunió).
+- **Sense fitxatge**: l'ha afegida EMS sol en acabar el dia, perquè el docent no va fitxar, o va fitxar quan ja havia acabat la seva primera classe. Va de la seva primera classe a l'última, o fins a l'hora en què va fitxar. Només hi entren els docents de les àrees que ha triat l'administrador (de moment, FP), i només els dies que el seu horari té classes: a un docent sense horari carregat no se li detecta mai res.
+
+### Introduir-ne una
 
 1. Fes clic a **Nou**.
-2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el Cap d'Estudis o el Cap d'Estudis Adjunt veu els seus docents, i Direcció els veu tots. Els caps de departament i de seminari també poden introduir absències previstes, per als docents del seu propi departament. Els membres de l'equip directiu (com el Secretari) compten com a docents de l'àrea a què pertany el seu departament: el Secretari, que fa classe en un departament d'FP, surt al Cap d'Estudis o Cap d'Estudis Adjunt responsable d'FP. També hi surten els docents d'altres departaments que fan classe a un grup que gestiona el departament (camp **Gestionat pel departament** dels estudis del grup) i els que tenen el departament al camp **També gestionat pels departaments** de la seva fitxa.
+2. Tria el **Professor/a**. Només surten els docents de la teva àrea: el cap d'estudis o el cap d'estudis adjunt veu els seus docents, i Direcció els veu tots. Els caps de departament i de seminari també en poden introduir, per als docents del seu propi departament. Els membres de l'equip directiu (com el secretari) compten com a docents de l'àrea a què pertany el seu departament: el secretari, que fa classe en un departament d'FP, surt al cap d'estudis o cap d'estudis adjunt responsable d'FP. També hi surten els docents d'altres departaments que fan classe a un grup que gestiona el departament (camp **Gestionat pel departament** dels estudis del grup) i els que tenen el departament al camp **També gestionat pels departaments** de la seva fitxa.
 3. Indica **De** i **A**, amb data i hora. Per defecte, avui de 08:00 a 15:00. Una absència pot ocupar diversos dies.
-4. Si vols, afegeix-hi **Notes** per a tu. El docent no veu mai aquesta entrada.
+4. Si vols, afegeix-hi **Notes** per a tu. El docent pot obrir l'entrada, però no veu mai les notes.
 5. Desa.
 
 A partir d'aquest moment, el docent surt a l'horari de guàrdies com a absent amb una sol·licitud pendent d'aprovar (vermell més clar i en cursiva), durant les hores que has indicat.
 
-Quan el docent sol·licita l'absència, l'absència prevista s'hi vincula automàticament i el seu estat passa de **Prevista** a **Sol·licitada**. Des d'aleshores només compta la sol·licitud del docent, amb les seves dates i hores: si després es rebutja o es cancel·la, l'entrada no torna a l'horari de guàrdies. Una entrada sol·licitada ja no es pot modificar; queda a la llista, amb el filtre **Sol·licitada**, com a registre.
+### Revisar una absència detectada
 
-![Llista d'absències previstes, una encara prevista i una ja sol·licitada pel docent](../../assets/head_of_studies/hos-expected-absences-list.png)
+Tota absència detectada, sigui quin sigui el seu origen, comença **Per revisar**: el docent no en sap res i encara no la veu. En canvi, el cap d'estudis o el cap d'estudis adjunt del docent (qui li corregeix els fitxatges) rep una tasca **Revisar absència detectada**, que també surt al resum diari de tasques pendents. Si el docent no té cap d'estudis per sobre, la tasca va als administradors. Així les falses alarmes no arriben al personal: per exemple, un docent que no estava convocat a la franja de reunions dels dimecres i fitxa a les 16:00.
 
-Si finalment el docent no falta, esborra l'entrada.
+La llista s'obre amb les absències en estat **Per revisar** i **Justificació sol·licitada**, que encara no estan resoltes. Obre'n una i tria què fer des del menú **Accions**:
+
+- **Demana justificació**: es demana al docent que l'expliqui. A partir d'ara, a l'inici de la seva jornada se li recorda que sol·liciti l'absència (o, si era al centre, que et demani que registris el seu fitxatge), cada dia si el centre no ho ha canviat. Si uns dies després que la demanessis (tres, si el centre no ho ha canviat) encara no l'ha sol·licitada, reps un missatge i una activitat per fer-ne el seguiment.
+- **Corregeix el fitxatge**: el docent era al centre. L'EMS registra la seva assistència durant les hores detectades, amb el teu nom com a qui l'ha registrada, i no s'avisa ningú. Si va arribar tard, es manté el fitxatge que va fer i s'afegeix la part que faltava abans. Només s'ofereix un cop acabada l'absència.
+- **Crea l'absència**: prepares la sol·licitud d'absència per al docent, per al dia i les hores detectats, amb el tipus d'absència que tries al diàleg. No s'envia: s'avisa el docent, que l'obre ja emplenada, la revisa, accepta la declaració responsable i l'envia, i a partir d'aquí segueix els passos habituals (aprovació, justificant, ATRI, Direcció). Mentre no l'enviï se li recorda, i al cap d'uns dies se t'avisa, igual que amb **Demana justificació**.
+- **Descarta**: no era res. L'absència detectada es tanca i s'arxiva, i no s'avisa ningú. La pots trobar igualment amb el filtre **Arxivat**. Només els administradors poden esborrar del tot una absència detectada.
+
+Per resoldre'n diverses alhora, selecciona-les a la llista i tria l'acció al menú **Accions** (l'engranatge) de dalt. Cada acció només s'aplica a les absències que encara esperen revisió i que pots revisar; l'EMS t'indica quantes n'ha deixat i per què.
+
+Només el cap d'estudis o el cap d'estudis adjunt del docent, la Direcció i els administradors poden fer aquestes accions. Els caps de departament i de seminari poden introduir i veure les absències detectades del seu departament, però no revisar-les.
+
+![Llista d'absències detectades, una per etapa: una per revisar, una amb la justificació sol·licitada, una amb el fitxatge corregit i una ja sol·licitada](../../assets/head_of_studies/hos-detected-absences-list.png)
+
+### Què passa després
+
+Quan el docent sol·licita l'absència pel seu compte, en qualsevol moment, l'absència detectada s'hi vincula automàticament i el seu estat passa a **Sol·licitada**. Des d'aleshores només compta la sol·licitud del docent, amb les seves dates i hores: si després es rebutja o es cancel·la, l'entrada no torna a l'horari de guàrdies. Una entrada sol·licitada ja no es pot modificar; queda a la llista, amb el filtre **Sol·licitada**, com a registre.
+
+**Si el fitxatge del docent apareix després** (registrat des de l'horari de guàrdies, o una sol·licitud de correcció acceptada), una absència detectada per un fitxatge que faltava passa sola a **Descartada**, o s'escurça si va arribar abans del que deia. El xat indica que s'ha descartat perquè s'ha registrat el fitxatge, perquè la puguis distingir d'una descartada a mà.
 
 ### Organitzar la cobertura
 
-Un cop una absència surt a l'horari de guàrdies, prevista o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans, i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència prevista es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../teachers/guard-duty-schedule.md#organitzar-una-absencia).
+Un cop una absència surt a l'horari de guàrdies, detectada o sol·licitada, organitza-la des de la **Taula d'absències** de l'horari: envia un docent de guàrdia a cada classe, proposa un comunicat a les famílies quan l'alumnat pot entrar més tard o sortir abans (si l'administrador ha activat aquests canvis), i corregeix el que una absència que ha canviat després ha deixat sense sentit. El que organitzis per a una absència detectada es manté quan el docent la sol·licita. Consulta [Organitzar una absència](../department_chiefs/absences.md#organitzar-una-absencia).
+
+Una classe el docent de la qual no ha fitxat quan comença també surt a la Taula d'absències, per cobrir-la amb una guàrdia. Si resulta que el docent és a l'aula, en pots registrar l'entrada des de la taula: consulta [Docents que no han fitxat](../teachers/guard-duty-schedule.md#docents-que-no-han-fitxat).

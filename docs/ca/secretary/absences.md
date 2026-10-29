@@ -38,4 +38,4 @@ El detall dels passos, d'aquests camps i dels dos informes és al manual de [Cap
 
 ## Les teves pròpies absències
 
-Es demanen com les de qualsevol altra persona — consulta [Sol·licitar una absència](../teachers/absences.md). Com que ets responsable d'àrea, la teva sol·licitud la resol Direcció.
+Es demanen com les de qualsevol altra persona — consulta [Sol·licitar una absència](../teachers/absences.md). Com que ets responsable d'àrea, la teva sol·licitud la valides tu, des de les mateixes pantalles que les de la teva àrea, i després la revisa Direcció.

@@ -13,6 +13,7 @@ from unittest.mock import patch
 
 import werkzeug.urls
 
+from odoo import fields
 from odoo.tests.common import ChromeBrowser
 
 
@@ -104,16 +105,22 @@ def next_student_id():
     return f"TEST{next(_test_student_id_sequence):06d}"
 
 
-def build_academic_record_pdf(student_identifier, study_token, courses, student_name='Inventat , Alumne'):
+def build_academic_record_pdf(student_identifier, study_token, courses, student_name='Inventat , Alumne',
+                              printed=False):
     """An invented Esfera academic record ("Expedient acadèmic") PDF, laid out in columns like the
     real one so pdftotext reads it the same way (issue #585). Never use a real certificate in a
     test: it carries a real student's name, document number and signatures.
 
     courses: list of (centre_code, centre_name, 'YYYY/YYYY', rows), each row a tuple
     (code, name, type, qualification[, hours]) - type 'MP', 'RA', 'EM' or 'MP_' (an optional
-    module of the issuing centre)."""
-    from reportlab.pdfgen import canvas
+    module of the issuing centre).
 
+    printed: Esfera's record screen printed to PDF instead (issue #705): no study token in the
+    heading, blank lines in the centre block, the course as 'YYYY-YYYY  1er', and outcome rows with
+    no level, their code in the middle of their name wrapped over three lines. Give the
+    qualifications as that screen shows them ('A8', 'PQ', 'PDT'...)."""
+    if printed:
+        return _build_printed_academic_record_pdf(student_identifier, courses, student_name)
     lines = [
         f"Expedient acadèmic{' ' * 40}CFPM    {study_token}",
         "Dades de l'alumne/a",
@@ -139,6 +146,94 @@ def build_academic_record_pdf(student_identifier, study_token, courses, student_
             if wrapped:
                 lines.append(f"{'':<72}qualificar")
         lines += ["Observacions", "Accedeix al curs següent"]
+    return _academic_record_lines_to_pdf(lines)
+
+
+def _build_printed_academic_record_pdf(student_identifier, courses, student_name):
+    lines = [
+        f"Expedient acadèmic{' ' * 60}Formació professional",
+        "Dades de l'alumne/a",
+        f"{'Cognoms i nom':<36}{'Identificador de l' + chr(39) + 'alumne/a':<32}Tipus i número de document",
+        f"{student_name:<36}{student_identifier:<32}DNI: X0000000X",
+    ]
+    for centre_code, centre_name, course, rows in courses:
+        lines += [
+            "Centre que avalua",
+            "",
+            f"{'Codi':<30}Nom",
+            f"{centre_code:<30}{centre_name}",
+            "",
+            f"{'Curs acadèmic':<30}{'Nivell':<33}Ensenyament",
+            f"{course.replace('/', '-'):<30}{'1er':<33}Estudi Inventat (Nova FP)",
+            "",
+            "Resultats de l'avaluació",
+            " Nivell   Codi                 Nom                                 Tipus (MP/RA/EM)   Qualificació   Convocatòria   Hores",
+        ]
+        for code, name, kind, qualification, *hours in rows:
+            hours_column = f"{hours[0]:>8}" if hours else ''
+            if kind in ('RA', 'EM'):
+                lines += [f"{'':<30}{name} begins here and",
+                          f"{'':<10}{code:<20}carries on next to its code{'':<14}{kind:<9}{qualification:<14}{hours_column}",
+                          f"{'':<30}and ends on a third line.", ""]
+            else:
+                lines += [f"   1      {code:<20}{name:<44}{kind:<9}{qualification:<14}1{hours_column}", ""]
+        lines += ["Qualificació final", "Observacions"]
+    return _academic_record_lines_to_pdf(lines)
+
+
+def build_previous_curriculum_pdf(student_identifier, modules, student_name='Inventat, Alumne',
+                                  centre=('08000777', 'Institut Inventat'),
+                                  curriculum=('CFPS ICX0', 'CFPS Cicle Inventat (LOE)'),
+                                  years='De 2080 a 2082'):
+    """An invented academic history ("Historial acadèmic") of a previous curriculum, as SAGA laid it
+    out (issue #672): the module and its units side by side, names wrapped over several lines. Never
+    use a real one in a test: it carries a real student's name, document number and signatures.
+
+    modules: list of (code, name, hours, grade, sitting, units), each unit (code, name, hours,
+    grade, sitting). A '|' in a name wraps it onto the next line; hours 0 leaves the module's hours,
+    grade and sitting blank, as SAGA does until every unit is graded."""
+    lines = [
+        "Historial acadèmic de l'alumne                       Formació professional inicial",
+        "Dades del centre",
+        f"{'Codi':<20}{'Nom':<44}Municipi",
+        f"{centre[0]:<20}{centre[1]:<44}Santa Coloma de Gramenet",
+        "Dades de l'alumne",
+        f"{'Cognoms i nom':<64}Identificador de l'alumne/a",
+        f"{student_name:<64}{student_identifier}",
+        "Dades acadèmiques",
+        f"{'Codi':<20}{'Nom del cicle formatiu':<58}Grau",
+        f"{curriculum[0]:<20}{curriculum[1]:<58}Superior",
+        "Matriculacions en el cicle formatiu",
+        f"{'Codi del centre':<20}{'Nom del centre':<36}Anys acadèmics",
+        f"{centre[0]:<20}{centre[1]:<36}{years}",
+        "Historial acadèmic",
+        "Resultats de l'avaluació dels mòduls i unitats formatives",
+        "Qualificacions",
+        f"{'Mòdul':<34}Hores Qualif. Conv. Unitat Formativa{' ' * 16}Hores Qualif. Conv.",
+    ]
+
+    def cells(code, name, hours, grade, sitting, width):
+        parts = name.split('|')
+        first = f"{code} {parts[0]}"
+        values = f"{hours:>5}{grade:>7}{sitting:>6}" if hours else ''
+        return [f"{first:<{width}}{values}", *parts[1:]]
+
+    for code, name, hours, grade, sitting, units in modules:
+        left = cells(code, name, hours, grade, sitting, 34)
+        right = [line for unit in units for line in cells(*unit, width=40)]
+        for index in range(max(len(left), len(right))):
+            module_part = left[index] if index < len(left) else ''
+            unit_part = right[index] if index < len(right) else ''
+            # The unit code a few characters right of the "Unitat Formativa" title, as SAGA prints it.
+            lines.append(f"{module_part:<59}{unit_part}".rstrip())
+    lines += ["Observacions", "Diligència de validesa de l'historial acadèmic",
+              "Signatura del secretari del centre"]
+    return _academic_record_lines_to_pdf(lines)
+
+
+def _academic_record_lines_to_pdf(lines):
+    from reportlab.pdfgen import canvas
+
     buffer = io.BytesIO()
     pdf = canvas.Canvas(buffer)
     pdf.setFont('Courier', 7)
@@ -172,6 +267,40 @@ def create_level_study_group(cls, prefix, **overrides):
         **overrides.get('group', {}),
     })
     return level, study, group
+
+
+def set_yearly_period(env, prefix, start, end):
+    """A yearly period of res.company (the convalidation request one, the pre-enrollment one), as
+    (day, month, time) tuples for its opening and its closing."""
+    (start_day, start_month, start_time), (end_day, end_month, end_time) = start, end
+    env.company.write({
+        f'{prefix}_start_day': start_day, f'{prefix}_start_month': str(start_month),
+        f'{prefix}_start_time': start_time,
+        f'{prefix}_end_day': end_day, f'{prefix}_end_month': str(end_month),
+        f'{prefix}_end_time': end_time,
+    })
+
+
+def open_yearly_period(env, prefix):
+    """The whole year, so the period is open whenever the suite runs."""
+    set_yearly_period(env, prefix, (1, 1, 0.0), (31, 12, 23 + 59 / 60))
+
+
+def close_yearly_period(env, prefix):
+    """Two days six months away from today, so the period is closed whenever the suite runs."""
+    month = (fields.Date.today().month + 5) % 12 + 1
+    set_yearly_period(env, prefix, (1, month, 0.0), (2, month, 0.0))
+
+
+def allow_every_absence_change(env):
+    """Switches on every timetable change the guard duty board may propose (issue #679), for
+    every level that exists by now (issue #718: coming in later and leaving earlier only apply to
+    the levels listed). Call it after creating the fixture's levels."""
+    env.company.write({
+        'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
+        'ems_absence_change_long_break': True,
+        'ems_absence_change_level_ids': [(6, 0, env['ems.level'].search([]).ids)],
+    })
 
 
 def mock_outgoing_email(cls):
@@ -234,10 +363,13 @@ def shift_ems_clock(case, hour=10.0, weekdays=None):
         target = utils.time_float_to_local_datetime(real_now.date() + real.timedelta(days=1), hour)
     while weekdays is not None and target.weekday() not in weekdays:
         target = utils.time_float_to_local_datetime(target.date() + real.timedelta(days=1), hour)
-    delta = target - real_now
+    # In UTC: between two datetimes of the same zone Python counts wall-clock time, so a shift across a
+    # daylight saving change (e.g. a Friday in summer time to the Monday after it ends) was an hour off.
+    delta = target.astimezone(real.timezone.utc) - real_now.astimezone(real.timezone.utc)
 
     def now(tz=None):
-        return real.datetime.now(tz) + delta
+        shifted = real.datetime.now(real.timezone.utc) + delta
+        return shifted.astimezone(tz) if tz is not None else shifted.astimezone().replace(tzinfo=None)
 
     def utc_naive_now():
         return now(real.timezone.utc).replace(tzinfo=None)

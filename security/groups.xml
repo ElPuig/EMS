@@ -237,21 +237,23 @@
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 
-        <!-- The Surveys section (EMS's own LimeSurvey integration), not to be confused with
-             Odoo's native "Surveys" app (hidden - see group.py). -->
+        <!-- The quality committee: the Quality menu and the Surveys section (EMS's own LimeSurvey
+             integration, not to be confused with Odoo's native "Surveys" app, hidden - see
+             group.py). Given by hand in the user form, or by being a member of the committee
+             workgroup (ems.quality), see ems.workgroup._ems_sync_quality_committee(). -->
         <record model="res.groups" id="group_quality">
-            <field name="name">Manager</field>
-            <field name="comment">Access rights for the Quality team (EMS Surveys section).</field>
+            <field name="name">Committee member</field>
+            <field name="comment">Access rights for the quality committee: the Quality menu and the Surveys section.</field>
             <field name="category_id" ref="ems.category_quality"/>
         </record>
 
-        <!-- Same privileges as Manager for now; kept as its own group so it can be
-             differentiated later without another migration. root/admin are added directly
+        <!-- Quality coordination: what a committee member has, plus maintaining the quality
+             structure and its links, the minute catalogue and notices. root/admin are added directly
              (not via group_academic_admin's implied_ids) so the blocks stay independent:
              see group_academic_admin below. -->
         <record model="res.groups" id="group_quality_admin">
             <field name="name">Administrator</field>
-            <field name="comment">Access rights for the Quality coordinator. Currently identical to Manager.</field>
+            <field name="comment">Access rights for the Quality coordinator: those of a committee member, plus maintaining the quality structure, its links and the minute catalogue.</field>
             <field name="category_id" ref="ems.category_quality"/>
             <field name="implied_ids" eval="[(4, ref('ems.group_quality'))]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>

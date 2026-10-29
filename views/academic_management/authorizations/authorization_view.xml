@@ -31,6 +31,14 @@
             <field name="model">ems.authorization</field>
             <field name="arch" type="xml">
                 <list string="Authorizations" create="false">
+                    <!-- create="false" stays: an authorization is never made by hand, the
+                         assistant sends it (issue #654). Same groups as the assistant's own
+                         _check_rights. -->
+                    <header>
+                        <button name="%(action_ems_authorization_send)d" type="action" string="New"
+                                class="btn-primary" display="always"
+                                groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
+                    </header>
                     <field name="partner_id"/>
                     <field name="course_id"/>
                     <field name="template_id"/>

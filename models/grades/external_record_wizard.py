@@ -114,25 +114,30 @@ class EmsExternalRecordWizard(models.TransientModel):
             self.certificate_message = _("Every course of the certificate is already in the student's "
                                          "academic history.")
             return None
+        self._mark_other_centre_optionals(courses)
         self.certificate_student_identifier = certificate['student_identifier']
         self.certificate_student_name = certificate['student_name']
         self.origin_centre_code = courses[0]['centre_code']
         self.origin_centre_name = courses[0]['centre_name']
-        self.study_id = self._study_from_code(certificate['study_code'])
+        self.study_id = self.env['ems.study'].find_by_code_token(certificate['study_code'])
         self.line_ids = self._line_commands(courses, certificate['study_code'])
         self.course_id = self.line_ids.course_id[:1]
         return self._certificate_warning()
 
+    def _mark_other_centre_optionals(self, courses):
+        """A module coded "OPT..." of another centre is that centre's own optional module, whatever
+        its type column says (a printed record shows "MP", not "MP_OP_CEN"): it is read like one."""
+        own_code = self.env.company.center_code
+        for course in courses:
+            if course['centre_code'] == own_code:
+                continue
+            for module in course['modules']:
+                if module['code'].upper().startswith('OPT'):
+                    module['is_optional'] = True
+
     def _course_available(self, course):
         # By id: inside an onchange both sides may be new records wrapping the real ones.
         return bool(course) and course._origin.id in self.available_course_ids._origin.ids
-
-    def _study_from_code(self, study_code):
-        """The study whose EMS code ends with the certificate's (CFPM IC10 -> CFGM_IC10)."""
-        if not study_code:
-            return self.env['ems.study']
-        return self.env['ems.study'].search([('code', '=like', f"%\\_{study_code}"),
-                                             ('deprecated', '=', False)], limit=1)
 
     def _line_commands(self, courses, study_code):
         """One review line per module, learning outcome and work placement of the certificate, in
@@ -231,15 +236,14 @@ class EmsExternalRecordWizard(models.TransientModel):
         return match.group(1) if match else None
 
     def _certificate_warning(self):
-        identifier = self.certificate_student_identifier
-        if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
-            return {'warning': {
-                'title': _("Another student's certificate"),
-                'message': _("The certificate belongs to %(name)s (%(identifier)s), not to this "
-                             "student (%(own)s).", name=self.certificate_student_name,
-                             identifier=identifier, own=self.student_id.student_id),
-            }}
+        problem = self._certificate_student_problem()
+        if problem:
+            return {'warning': {'title': _("Check the certificate's student"), 'message': problem}}
         return None
+
+    def _certificate_student_problem(self):
+        return self.env['ems.base'].get_certificate_student_problem(
+            self.student_id, self.certificate_student_identifier, self.certificate_student_name)
 
     @api.onchange('study_id')
     def _onchange_study_id(self):
@@ -301,9 +305,9 @@ class EmsExternalRecordWizard(models.TransientModel):
         })
 
     def _create_from_certificate(self):
-        identifier = self.certificate_student_identifier
-        if identifier and self.student_id.student_id and identifier != self.student_id.student_id:
-            raise UserError(self._certificate_warning()['warning']['message'])
+        problem = self._certificate_student_problem()
+        if problem:
+            raise UserError(problem)
         modules = self.line_ids.filtered(lambda line: line.kind in ('module', 'optional') and line.to_import)
         if not modules:
             raise UserError(_("Tick at least one module to import."))

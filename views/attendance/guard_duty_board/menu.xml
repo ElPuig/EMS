@@ -10,6 +10,8 @@
             <field name="tag">ems_guard_duty_board</field>
         </record>
 
-        <menuitem name="Guard schedule" sequence="7" id="menu_guard_duty_board" parent="hr_attendance.menu_hr_attendance_root" action="action_guard_duty_board"/>
+        <!-- Teachers (every role above them included) and the Secretary only: Quality and
+             Settings don't organise guards and can't read ems.group, which the board needs. -->
+        <menuitem name="Guard schedule" sequence="7" id="menu_guard_duty_board" parent="hr_attendance.menu_hr_attendance_root" action="action_guard_duty_board" groups="ems.group_teacher,ems.group_secretary"/>
     </data>
 </odoo>

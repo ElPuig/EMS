@@ -11,28 +11,45 @@ This guide explains how to review the documents students and families submit —
 ## Contents
 
 1. [Where to review documents](#where-to-review-documents)
-2. [Approving, rejecting, cancelling](#approving-rejecting-cancelling)
-3. [What approving an IBAN does](#what-approving-an-iban-does)
-4. [What approving a benefit document does](#what-approving-a-benefit-document-does)
-5. [Notifications](#notifications)
-6. [Downloading Google credentials](#downloading-google-credentials)
+2. [Adding a document the family sent by email](#adding-a-document-the-family-sent-by-email)
+3. [Approving, rejecting, cancelling](#approving-rejecting-cancelling)
+4. [What approving an IBAN does](#what-approving-an-iban-does)
+5. [What approving a benefit document does](#what-approving-a-benefit-document-does)
+6. [Notifications](#notifications)
+7. [Downloading Google credentials](#downloading-google-credentials)
 
 ---
 
 ## Where to review documents
 
-Go to **Academic Management > Student Documents**. The list opens showing only **Pending** submissions by default (remove the filter to see everything). This is the only screen with Approve/Reject actions — the read-only list you also see on a student's own record (**Documentation** section of the **Secretary** tab) is for reference only.
+Go to **Academic Management > Student Documents**. The list opens showing only **Pending** submissions by default (remove the filter to see everything). This is the only screen where documents are reviewed. The list on the student's own record (**Documentation** section of the **Secretary** tab) shows their documents and is where you add new ones (see the next section).
 
 ![Student documents list filtered to Pending, with the approve (✓) and reject (✗) icons on each row](../../assets/secretary/documents-01-pendents.png)
 
+## Adding a document the family sent by email
+
+When a family can't upload a document from the portal and emails it to you instead (ID card, medical card, IBAN, proof of a bonification...), you can register it yourselves on the student's record:
+
+1. Open the student's record and go to the **Secretary** tab.
+2. In the **Documentation** section, click **Add a line**.
+3. Choose the **Document type** and fill it in:
+   - **Bank account (IBAN):** the IBAN, the account holder and, if needed, the expiry date.
+   - **Bonification / Exemption:** the benefit type and the proof file.
+   - **Any other type:** the file (the PDF or image you were sent) and, if needed, the expiry date.
+4. Click **Save & Close** and save the student's record.
+
+![Dialog to add a document from the student's record](../../assets/secretary/documents-03-afegir.png)
+
+The document is **approved** straight away, since you have already checked it: it creates no review task and sends no email to the family. It has the same effects as approving it (an IBAN becomes the student's active bank account, a bonification is added to their benefits) and replaces the previously approved document of the same type. Once saved, its type, file and data can no longer be changed: to correct it, add a new one.
+
 ## Approving, rejecting, cancelling
 
-- **Approve** (✓ from the list, or the header button on the form): marks the document as reviewed and applies its side effects (see below). If another document of the same type was already approved for this student, it is removed automatically — only the latest approved one is kept.
-- **Reject** (✗ from the list, or the header button): write the reason first (in the **Rejection reason** field) — a single click on Reject immediately closes the submission, there is no separate confirmation step.
-- **Cancel**: available from the form when you need to withdraw a submission without marking it rejected (e.g. it was uploaded by mistake).
+- **Approve** (✓ from the list, or the form's **Actions** dropdown): marks the document as reviewed and applies its side effects (see below). If another document of the same type was already approved for this student, it is removed automatically — only the latest approved one is kept.
+- **Reject** (✗ from the list, or the **Actions** dropdown): write the reason first (in the **Rejection reason** field) — a single click on Reject immediately closes the submission, there is no separate confirmation step.
+- **Cancel submission**: in the form's **Actions** dropdown, when you need to withdraw a submission without marking it rejected (e.g. it was uploaded by mistake).
 - **Reset to pending**: available on an approved/rejected document, in case a decision needs to be revisited — it reopens the review (a fresh task is assigned to the reviewers again).
 
-![A pending IBAN document, with the Approve and Reject buttons and the Rejection reason field](../../assets/secretary/documents-02-revisio.png)
+![A pending IBAN document, with the Actions dropdown open (Approve, Reject, Cancel submission) and the Rejection reason field](../../assets/secretary/documents-02-revisio.png)
 
 ## What approving an IBAN does
 
@@ -46,7 +63,7 @@ Approving a benefit/exemption document creates the corresponding entry in the st
 
 ## Notifications
 
-The student is notified by email when their document is approved or rejected. Reviewers (configured in *Academic Management > Configuration > Task Assignment*) get a to-do task instead of an email for each new pending submission — check your Activities for "Review document: ...".
+The student is notified by email when their document is approved or rejected. Reviewers (configured in *Academic Management > Configuration > Enrollment > Task Assignment*) get a to-do task instead of an email for each new pending submission — check your Activities for "Review document: ...".
 
 ## Downloading Google credentials
 

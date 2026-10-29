@@ -35,6 +35,18 @@ one hop further down.
 against two teachers creating the same day's session twice; `create()` catches the resulting
 `IntegrityError` and re-raises as a friendly `ValidationError`.
 
+`_check_class_taken_once` (`@api.constrains('date', 'attendance_schedule_id')`) — one roll-call per
+class and day, whichever schedule line it hangs from. A line that already has sessions is never
+edited when its room changes: the sync archives it and creates a copy with the same template,
+weekday and hours (`ems.attendance_mixin._write_or_new_version`), which the `UNIQUE` above can't
+tell apart from the original. Without this check, a teacher consulting a day taken before the
+change could start a second session of the same class, counting it twice in every student's
+attendance and absence rate (issue #699). A session is rejected when another session of the same
+date and template overlaps its hours (consecutive hours of the same template are different
+classes, a continuation). It checks every session of the day, under `sudo()` and with
+`active_test=False` (the other session may be another teacher's, on an archived line), through
+`_taken_time_slots(date)` + `_is_slot_taken(taken, schedule)`, shared with the selector below.
+
 ---
 
 ## `_auto_populate_lines`: continuation vs. fresh roll-call
@@ -184,7 +196,7 @@ same screen.
 | Continuation | `_auto_populate_lines()` reads the previous period's lines with `active_test=False` and copies each line's `active`, so a student removed from the first period of a double period stays removed (and restorable) in the second. |
 | Strikes | `write()` refuses to archive a line with `strike_ids` (`UserError`): a student with a strike was in class. |
 | Roll-call widget | `_loadLines()` reads with `active_test: false`; archived rows sort last, greyed out (`ems-av-line--removed`) with their status/notes/strike buttons disabled, and a remove/restore button per row. The write goes through `_writeSessionLine()`, i.e. `write_guard_session_line()` in Guard mode, like any other line edit. |
-| History form | Uses `all_attendance_session_line_ids`, a second One2many over the same lines declared with `context={'active_test': False}`, so archived lines are listed (muted). A view-level `context` isn't enough: the header's own read of `attendance_session_line_ids` already filters archived lines out before the sub-read. `attendance_session_line_ids` keeps Odoo's default filtering for every other caller. |
+| History form | Uses `all_attendance_session_line_ids`, a second One2many over the same lines declared with `context={'active_test': False}`, so archived lines are listed: last (`default_order="active desc, student_id asc"`), muted, the name struck through, and with `roll_call_label` ("Not required to attend", non-stored compute on `active`) in place of the status radio, hidden for them (issue #713): the status is kept only for a restore and counts nowhere. A view-level `context` isn't enough: the header's own read of `attendance_session_line_ids` already filters archived lines out before the sub-read. `attendance_session_line_ids` keeps Odoo's default filtering for every other caller. |
 
 ```mermaid
 flowchart TD
@@ -206,7 +218,12 @@ flowchart TD
 `ems.group_academic_admin` membership and running under `sudo()` internally (a guard teacher
 needs to see/edit sessions they don't personally own). `get_guard_sessions` returns today's
 sessions **excluding** the caller's own (already shown in normal mode); `get_guard_planned`
-returns not-yet-created schedules for **other** teachers today. `create_scheduled_session`
+returns not-yet-created schedules for **other** teachers today. Both `get_guard_planned` and
+`get_normal_sessions_and_planned` build their planned slots through `_read_planned`, which leaves
+out any line whose class already has a session that day (`_is_slot_taken`: same template,
+overlapping hours, any line, archived or not), so a line replaced after a room change is never
+offered again on the days taken with the original. Planned slots are labelled with the line's
+`display_name` (weekday in the reader's language), like the sessions. `create_scheduled_session`
 is the click-to-start-a-session entry point (when the caller has no teaching employee, e.g. an
 admin, who sees every slot, the session's teacher is the slot's own first template teacher instead
 of the caller - `teacher_ids` is required on the template, so there always is one), returning whether the new session is a

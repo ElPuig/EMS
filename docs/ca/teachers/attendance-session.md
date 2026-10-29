@@ -42,9 +42,10 @@ El selector de la dreta llista el que hi ha disponible per a la data triada, sep
   alumne.
 - **Previstes (sense sessió)**: una franja del teu horari setmanal per a la qual encara no s'ha
   creat cap sessió. En seleccionar-ne una apareix el botó **Iniciar sessió** — fes-hi clic per
-  crear la sessió i carregar-ne l'alumnat.
+  crear la sessió i carregar-ne l'alumnat. Una classe de la qual ja s'ha passat llista aquell dia
+  només apareix a **Sessions**, encara que després n'hagi canviat l'horari (per exemple, l'aula).
 
-> Si més d'una sessió o frange prevista coincideix amb l'hora actual, veuràs un avís que et demana
+> Si més d'una sessió o franja prevista coincideix amb l'hora actual, veuràs un avís que et demana
 > triar-ne una manualment o canviar al mode **Manual** — pot passar si el teu horari té entrades
 > superposades.
 
@@ -174,7 +175,8 @@ quants strikes es van posar durant aquella sessió, amb un botó per veure'n el 
 > **Actual** en mode **Manual** i selecciona aquella sessió des del selector — la llista de
 > l'Historial no permet editar.
 
-Els alumnes que s'han tret de la llista d'una sessió també hi apareixen, en gris.
+Els alumnes que s'han tret de la llista d'una sessió també hi apareixen, al final, en gris i ratllats, amb
+**No ha d'assistir** en lloc d'un estat: no compten ni com a assistència ni com a falta.
 
 ---
 

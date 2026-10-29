@@ -19,7 +19,6 @@ This section contains the manuals for **teachers**.
 | [Strikes: Flagging a Disciplinary Incident](strike.md) | Issue a strike from the roll-call view when a student's behaviour needs to be flagged |
 | [Your Weekly Schedule](working-schedules.md) | View your subjects, groups, classrooms, breaks and meetings on your weekly timetable |
 | [Guard Duty Schedule](guard-duty-schedule.md) | See where every teacher is, and who is on guard duty, in each time block of the week |
-| [Notices: Writing to Your Department's Groups](notice.md) | Send notices to the students and families of the groups your department teaches (Department and Seminar Chiefs) |
 | [Students: Your Own Groups](student-list-my-groups.md) | Open the student list already filtered to the groups you teach or tutor, and widen it when you need everyone |
 | [Disabling Your Profile Picture](photo-visibility.md) | Turn your profile picture on or off |
 | [Daily Summary of Pending Tasks](task-digest.md) | The morning email listing everything still pending in your EMS tray, and how to turn it off |
@@ -35,6 +34,9 @@ This section contains the manuals for **teachers**.
 | [Applying for an Erasmus+ staff mobility](erasmus-staff-call.md) | How to apply from the portal for a job shadowing, a course or a teaching assignment, and follow your application |
 | [Rating Erasmus+ mobility plans](erasmus-plan-ratings.md) | How the panel of the staff call rates the mobility plans with the rubric of the call |
 | [Accompanying an Erasmus+ group mobility](erasmus-group-mobility.md) | What the leader teacher does (the selection, the documents, the follow-up, the EU Survey) and what the accompanying teacher does |
+| [Meeting minutes](minutes.md) | Writing department, staff meeting, teaching team or improvement team minutes, with attendees and agreements carried over automatically |
+
+> Are you a Department or Seminar Chief? Your own manuals (organising absences, notices to your department's groups) are in [Department and Seminar Chiefs](../department_chiefs/index.md).
 
 ---
 

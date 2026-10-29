@@ -177,8 +177,9 @@ distinctions that matter to whoever assigns guards: `validate` → `'approved'` 
 around), `confirm`/`validate1` → `'pending'` (a request nobody has decided on yet). The two
 pre-approval states are collapsed deliberately — "waiting for the first approver" vs "the
 second" changes nothing here. Refused and cancelled requests are not in the mapping at all,
-which is what keeps them off the board entirely. When the same teacher has both an approved and
-a pending absence overlapping one period, approved wins: the period needs covering either way,
+which is what keeps them off the board entirely. (A third state, `'unchecked'`, is not an absence
+at all: a teacher who has not checked in today, see "Teachers who have not checked in" below.) When
+the same teacher has both an approved and a pending absence overlapping one period, approved wins: the period needs covering either way,
 and reporting it as merely requested would understate it.
 
 **Co-taught classes: listed, but marked as covered.** Every row of `line['absences']` carries
@@ -197,9 +198,10 @@ half has nobody. On this centre's data every shared slot is same room and same s
 genuine co-teaching. A co-teacher away for any part of the period does not cover, the same
 overlap test `_guard_duty_absence_state` uses.
 
-**Expected absences are pending absences too.** An `ems.absence_pending` entry the
-teacher's chief, the Head of Studies or their Deputy entered on the teacher's behalf (see
-[Expected absences](../employees/absence.md#expected-absences)) is added as a
+**Detected absences are pending absences too.** An `ems.absence_pending` entry, entered by the
+teacher's chief, the Head of Studies or their Deputy on the teacher's behalf or found from a
+missing check-in once the day was over (see
+[Detected absences](../employees/absence.md#detected-absences)), is added as a
 `'pending'` interval while its own state is `pending`, clipped to the requested day in the
 company's timezone by `_get_local_hours()`. Once the teacher files the real absence the entry is
 linked to it and ignored here for good: only the teacher's own request counts, with its own range
@@ -259,6 +261,15 @@ class docstring in `models/attendance/guard_duty_board.py` for why this replaced
 (which itself groups Overview/Correction Requests/Management) and "Time off" — deliberately not
 under "Working Schedules" (`menu_work_locations`), which only Head of Studies/Direction can see.
 
+The menu item is limited to `ems.group_teacher` and `ems.group_secretary`
+(`groups=` on `menu_guard_duty_board`). Every role that organises or looks up guards implies one of
+the two (Tutor, Department/Seminar Chief, Head of Studies/Deputy, Director, the academic
+administrator, Coexistence, TAC and Orientation all imply `group_teacher`). Quality and Settings
+(and their administrators) imply neither: they don't organise guards and have no read access to
+`ems.group`, which the board needs, so the menu is hidden from them rather than widening their
+access for this screen alone (issue #680). Covered per role by
+`test_menu_visible_only_to_the_roles_that_can_open_the_board`.
+
 ## Client action
 
 `static/src/js/backend/guard_duty_board.js` (`GuardDutyBoard`, registered as
@@ -288,12 +299,18 @@ and the template just does `t-esc="title"`.
 weekday tabs render their own day of the month alongside their name, so the tab strip doubles
 as that week's calendar. The toolbar carries `‹ ›` week navigation plus a native
 `<input type="date">`; picking any date moves the whole week and lands on that date's own
-weekday tab. Three helpers at the top of the file keep this honest: `toIsoDate()` formats from
+weekday tab. Four helpers at the top of the file keep this honest: `toIsoDate()` formats from
 the browser's **local** calendar fields, deliberately not `toISOString()` (which converts to UTC
 first and so returns the previous day for anyone east of Greenwich during the evening — the
 board's date is a calendar day, never an instant); `fromIsoDate()` parses one back; `mondayOf()`
 maps any date onto its week's Monday, with a weekend belonging to the week it closes, which is
-also what makes picking a Saturday in the date input land on a real, showable weekday.
+also what makes picking a Saturday in the date input land on a real, showable weekday; and
+`addDays()` moves by calendar days (`new Date(year, month, day + n)`), never by adding milliseconds:
+the day the clocks go back has 25 hours, so a week of 7 x 24h from a Monday landed on Sunday 23:00
+and Monday and Tuesday both showed as the 25th (issue #678, October 2026; the 23-hour day in March
+did the same going back). `ems_guard_duty_board_clock_change` checks both, with the test browser
+put in the centre's timezone (`Emulation.setTimezoneOverride`): it runs in UTC otherwise, which has
+no clock changes.
 
 **Two views of the same payload, no extra round trip.** `state.activeView` switches between the
 absences table (`table`, first and the default since 2026-10-07: it is the one the centre works from
@@ -651,7 +668,9 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 1. **Send a guard** to a class left without its teacher, with a message for them (#571).
 2. **Tell the families** that the students can come in later, leave earlier or have no classes,
    when the empty lessons are at the start or the end of the group's day (#539). Once told, those
-   lessons need no guard and are struck out (#581).
+   lessons need no guard and are struck out (#581). A longer break is told to the students only
+   and still needs a guard (#679, see "A longer break" below). Each kind of change can be switched
+   off, and all of them are off by default (#679, see "Which changes the board may propose").
 3. **Apply an internal arrangement** instead of a guard (#605, #645): the board detects how the
    teachers of the group (and of the groups sharing lessons with it) could swap or move their
    lessons, in chains, so that the students lose as few lessons as possible and nobody has to cover
@@ -664,11 +683,12 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 flowchart TD
     ABS["hr.leave / ems.absence_pending<br/>(same intervals as the board)"] --> BLK["ems.course._get_group_day_blocks(day, groups)<br/>each group's whole day, block by block:<br/>teachers, who is away, covers, empty?"]
     COV["ems.absence_cover (state assigned)"] --> BLK
-    BLK --> EXP["_allowed_absence_changes(blocks)<br/>every late_entry / early_leave / no_classes option"]
+    CFG["res.company ems_absence_change_*<br/>(_enabled_absence_changes, per group)"] --> EXP
+    BLK --> EXP["_allowed_absence_changes(blocks, breaks, enabled)<br/>every enabled late_entry / early_leave / no_classes / long_break option"]
     NOT["ems.notice with absence_changes<br/>(scheduled / sent / failed = communicated)"] --> ST
     EXP --> ST["_get_absence_change_states(day, groups)<br/>per side (entry/leave): expected vs communicated<br/>status: proposal / communicated / rectification"]
     ST --> MGT["_get_board_absence_management()<br/>covers + states + day's pending actions"]
-    MGT --> ROWS["each absence row: cover, authorized, proposed, can_manage"]
+    MGT --> ROWS["each absence row: cover, authorized, break_change, proposed, can_manage"]
     MGT --> ACT["actions: proposal / rectification / obsolete_cover"]
     ROWS --> UI["absences table: colours, strike-through, guard dialog"]
     ACT --> UI
@@ -683,12 +703,31 @@ the period (`hour_from`/`hour_to`, the board row's own bounds), the group, the g
 message; the timetable change lives on the `ems.notice` itself (`absence_date`,
 `absence_group_id`, `absence_changes`, `models/communications/notice_absence_change.py`). Neither
 points at an `hr.leave` or an
-`ems.absence_pending`. That is what makes an expected absence and the request the teacher files
-afterwards (which takes its place, see [Expected absences](../employees/absence.md#expected-absences))
-behave as one absence: whatever was organised on the expected one still matches the same
+`ems.absence_pending`. That is what makes a detected absence and the request the teacher files
+afterwards (which takes its place, see [Detected absences](../employees/absence.md#detected-absences))
+behave as one absence: whatever was organised on the detected one still matches the same
 teacher, date, period and group, so nothing is redone, and the days or hours the request adds
 come up as new, uncovered rows. Whatever the request no longer covers shows up as a pending action
 instead (below).
+
+### Which changes the board may propose (issue #679)
+
+Three company settings (Settings > EMS Management > Guard Duty Board Settings, `res.company`
+`ems_absence_change_late_entry`, `ems_absence_change_early_leave`, `ems_absence_change_long_break`,
+all `False` by default) decide which kinds of change the board and the arrangement planner propose;
+`no_classes` goes with the late entry, being the start of the day stretched over all of it.
+A fourth one, `ems_absence_change_level_ids` (issue #718, many2many to `ems.level`, shown only while
+coming in later or leaving earlier is on), is an **allowlist**: `late_entry`, `no_classes` and
+`early_leave` (`SHORTER_DAY_CHANGES`) are only allowed for the groups whose `level_id` is listed, and
+an empty list allows them for no group. The level is what tells compulsory education (ESO) from the
+rest, whose students can never be sent home early, and a forgotten level must fail safe. `long_break` does not depend on it: the students stay
+in the centre. `_enabled_absence_changes(groups)` reads all four once per request into
+`{group id: set of change types}`, which `_allowed_absence_changes(blocks, breaks, enabled[group])`
+filters `_all_absence_changes()` (the rules below) with; `_arrangement_planner()` passes the
+same dict to `ArrangementPlanner`. A disabled kind is simply never offered, so its empty lessons
+only get guards. What was already communicated keeps counting, and
+its correction (`normal_*`) is still offered if the absences change, whatever the setting is now:
+a notice already sent has to be put right.
 
 ### Late entry, early leave, no classes
 
@@ -696,7 +735,7 @@ instead (below).
 its first lesson and ends it at its last), one block per period, merged the same way the board's
 rows are. A block is **empty** when every teacher in it is away and no guard covers it: a
 co-teacher who is in, the other half of a split group, an optional subject with its own teacher or
-a guard already sent all mean somebody is with the students. `_allowed_absence_changes()` then
+a guard already sent all mean somebody is with the students. `_all_absence_changes()` then
 lists, per side, every change the run of empty blocks allows, from the smallest to the largest: at
 the start of the day, starting at the `hour_from` of the 2nd, 3rd... block up to the first
 non-empty one; at the end, leaving at the `hour_to` of the block before the last, the one before
@@ -707,7 +746,7 @@ absences count as much as approved ones: the planner sees the state on the row a
 
 ### A longer break
 
-`_allowed_absence_changes(blocks, breaks)` also gets the group's level's break periods for that
+`_all_absence_changes(blocks, breaks)` also gets the group's level's break periods for that
 weekday (`_get_guard_duty_board_break_periods([level])`; none for a group without a level). A break
 that falls between two of the group's lessons is its own side (`BoardBreakSide.key()`,
 `break@<from>-<to>`), whose options are every `('long_break', start, end)` combination of the break
@@ -718,6 +757,18 @@ break, so "coming in after the break" and "going home at the break" stay what th
 change carries its span (`('long_break', from, to)` in the notice's `absence_changes`); the
 correction back is `('normal_break', from, to)`. A free lesson in the middle of the day that is not
 next to a break is not proposed (developer decision, 2026-10-07): it is covered with a guard.
+
+**A longer break still needs a guard, and only the students are told (issue #679).** The students
+under 18 cannot leave the centre, so during the lessons a longer break takes in they are in the
+playground and somebody has to watch them. `_change_frees_guard()` (a change that frees the group
+from the period and is not a `long_break`) is what decides "no guard needed": in
+`_get_needed_absence_block()`, in a row's `authorized` (which strikes it out) and in
+`_plan_resolves()`. A communicated longer break comes on the row as `break_change` instead: shown
+as a tag (`o_guard_board_break_change_tag`), but the row is not struck out and a guard can still be
+sent. Its notice goes to the students only and reminds those under 18 that they cannot leave the
+centre (see [notice.md](../communications/notice.md)); a notice that also changes the entry or the
+leave goes to the families too, break included. A break proposal carries `students_only` (`_board_action_data()`), so the proposals box titles a
+group's notice-only section **Only tell the students** when all of its proposals are breaks.
 
 ### What was communicated, and the sides of the day
 
@@ -749,19 +800,21 @@ sides keeping what was told.
 |---|---|---|---|
 | none | none | - | - |
 | some | none | `proposal` | every allowed option, the largest by default |
-| any | one of the allowed options | `communicated` | - (its rows struck out) |
+| any | one of the allowed options | `communicated` | - (its rows struck out); `change_options` until its time comes (#659, below) |
 | any | anything else | `rectification` | every allowed option and `normal_<side>`, the largest allowed (or normal) by default |
 
 Communicating a smaller option than the largest is the planner's decision and is never nagged
 about: the lessons beyond it simply stay on the table to be covered. Likewise, an absence that grows
 after the notice keeps the notice valid - the new lesson is one more to cover. Only telling the
 families more than the absences now allow (they shrank, were refused or cancelled, or the timetable
-changed) asks for a correction. `board_send_absence_change()` (**Send notice** / **Send correction**)
-prepares the notice (`_board_absence_change_draft()`) and sends it at once (#652), with the same
-fallback as an accepted plan: one that cannot be sent stays a draft and opens with the reason. It accepts any option of the side's
-current state and refuses anything else. A draft notice for one of the options is reused
-(`'draft'`, the option being `'draft_change'`): the box then offers **Open draft** instead of the
-selector. Rows whose period falls inside the communicated window (`_change_window_contains`)
+changed) asks for a correction. Telling the families goes through the "Only tell the families"
+steps (`board_apply_plan()`, see "Pending actions"), or, for one change chosen in the **Change
+proposal** dialog (#659, below), through `board_send_absence_change()`, which prepares the notice
+(`_board_absence_change_draft()`) and sends it at once (#652), with the same fallback as an
+accepted plan: one that cannot be sent stays a draft and opens with the reason. Both accept any
+option of the side's current state (`_find_change_state()`, over `options + change_options`) and
+refuse anything else. A draft notice for one of the options (`'draft'`, the option being
+`'draft_change'`) gets an **Open draft** button on its step; applying the step again replaces it. Rows whose period falls inside the communicated window (`_change_window_contains`)
 carry `authorized` and are struck out; rows inside an expected window nobody has communicated yet
 carry `proposed`, shown as a dashed tag.
 
@@ -775,6 +828,52 @@ arrive too late. `_board_day_hour()` gives the company-time hour of `day` (None 
 come, so nothing is dropped; past every lesson for a day already over), and since
 `_board_absence_change_draft()` validates against the same states, it refuses an option that went
 past while the board stayed open.
+
+### Changing a communicated change (issue #659)
+
+A communicated change still allowed is the planner's decision, but they may change their mind (a
+guard turns out to be free, they would rather rearrange the lessons than lengthen the break). Until
+its time comes, its state carries `change_options`: every allowed option except the one told, and
+`normal_<side>` last. Every row it strikes out carries `change_side` (the side's key) when there is
+something to change it for, and the board shows a **Change proposal** button on it to whoever can
+manage the row (also offered from the row's reason popover). It opens `GuardChangeProposalDialog`
+(`static/src/js/backend/guard_change_proposal_dialog.js`), fed by
+`ems.course.get_change_proposal_options(day, group_id, side)` (same manager and past-day checks as
+every board action), which returns:
+
+- `options`: the `change_options`, sent like any other option by `board_send_absence_change()`
+  (`_board_absence_change_draft()` accepts `options + change_options`). The notice is a correction
+  (`rectification=True`, "Correction:"), since something was communicated on that side.
+- `plans`: the arrangement plans of the group's day **as if nothing had been told on that side**,
+  only those with a move or a swap of the group, and `reopen` (`[group id, side]`), which the dialog
+  passes back to `board_apply_plan(..., reopen=...)`.
+
+"As if nothing had been told" is the `ems_reopen_side` context key (`_reopened_side()`): the
+planner builds that side's `communicated` as None, so its lessons are gaps it can fill and its
+notices can change; `_get_needed_absence_block()` ignores that side's window, so a swap can be
+applied to a lesson the families were told the students skip; `board_apply_plan(reopen=...)`
+re-enters itself with the key set. The states themselves are never reopened: what the families
+were told is still what they were told until the correction goes out.
+
+**Corrections are steps of a plan** (kind `correction`, after every other step), built by
+`_arrangement_plan_records()` from the planner's per-group notices (`raw['notices']`, before they
+are grouped into one step per change) and the groups' states, which `_arrangement_planner()`
+returns along with the planner:
+
+- In every plan of a set of groups, one per side of each of its groups in `rectification` (the
+  side's `target`), so that the plan and the correction go out in one notice per group, and a
+  planner who only wants the correction unchecks the rest.
+- In a reopened plan, the group being changed always gets its side settled: a notice of the plan
+  on that side becomes the correction, one that repeats what was told is dropped (that side
+  stays as told: correcting it back to the usual timetable would contradict the plan), and
+  without either the correction is `normal_<side>`.
+
+Deciding this per group, before grouping, is what keeps a notice for several groups intact for
+the others with no step to split or renumber.
+
+`board_apply_plan()` gathers notices and corrections per group, looks each change up in the
+group's `options + change_options` (refusing it when it is in neither), and creates one notice per
+group, a correction when any of its changes is on a side already told.
 
 ### Guard assignment
 
@@ -873,7 +972,10 @@ themselves: one a planner sent them to is the planner's to release. The planner 
 or release a self-assigned guard as any other. The board sends `can_self_assign` (the user is a
 candidate in the row and their part is free and editable), `self_label` (that part) and
 `self_cover_id` (the cover they took themselves, to leave it) per absence row; a
-manager's own dialog takes precedence when both apply.
+manager's own dialog takes precedence when both apply. A row still to be covered that the user can
+do nothing about on an editable day (the board's `editable`), because they have no guard duty
+there (`self_label` empty), answers the pointer too, saying so (`notOnGuardReason()`, #659): every
+row of the table reacts the same way.
 
 ### Internal arrangements (#605, #645)
 
@@ -885,6 +987,7 @@ chains of steps that can be applied whole or in part. What it cannot work out is
 |---|---|---|
 | `swap` | Another teacher B of the group, free now, teaches now; the absent teacher A teaches B's lesson with the group later that day | No |
 | `move` | A teacher B, free now, brings one of their lessons with the group into the gap; the lesson they leave is a new gap, which another step can fill | Only when the last gap is left free (start or end of the day, or next to a break) |
+| `join` (#660) | A teacher teaching the same subject to the other half of a split group then brings their lesson with this half from another hour: both halves are taught together, in the other half's room; the lesson left is a new gap, as in a move | As in a move |
 | notice | The families are told the group comes in later, leaves earlier or has a longer break | It is the notice |
 | `manual` | Anything else, described by hand (two groups joined for the same subject, a teacher of another group...), with the teacher involved if any | No |
 
@@ -894,11 +997,39 @@ during the first one, brings their lessons forward; a teacher on guard right aft
 the last lesson of the day, which they teach both groups; both groups leave one lesson earlier. No
 guard, one notice per group.
 
+#### Co-teaching: a lesson moves with all its teachers (#678)
+
+The teachers who give a lesson together (the same group or groups at the same time, whatever the
+subject or room) are a **pack**: a move or a swap takes the lesson with all of them, never with one
+while the other stays behind teaching a lesson that is no longer there.
+`ems.course._arrangement_sessions(context)` builds, once per board load, every lesson of the day
+with its teachers and those of them away then: `(lesson, group ids, teacher ids, away ids)`.
+
+- **Who moves**: every teacher of the lesson free in the gap (`_is_free_for_arrangement()`) whose
+  day does not get longer. A teacher away at the lesson moves it too if they are in at the gap (it
+  is how an absent teacher's lesson is taught after all).
+- **Who stays on guard**: a teacher in at the lesson who cannot follow it (busy or away in the gap,
+  or their day would get longer). The step is still offered, with a warning per teacher saying why
+  (`_stay_reason()`: `away`, `busy`, `day`; `_stay_warning()`), and ranks after the same
+  arrangement with the whole pack (criterion 5 below). While the lesson is gone they are on guard
+  at its usual time: they show in the guard column of that row tagged "lesson moved"
+  (`stayed_guards`, `_stayed_on_guard()`) and can be sent to cover a class like a regular guard
+  (`_guard_spans()` adds that piece). Teachers away at the lesson are neither: they are away.
+- **Swaps**: on the lesson's side, the same as a move. On the absent side, every teacher away from
+  the class (`_block_absents()`) must be in and free at the other lesson, or the swap is not
+  offered: nobody is left on guard in somebody else's place.
+- Splitting a pack on purpose (one co-teacher covers a guard while the other stays with the group)
+  is still a manual arrangement.
+
 #### Finding the plans (`ArrangementPlanner`, `models/attendance/arrangement_planner.py`)
+
+Teachers another area organises (`fixed`, issue #721) are never moved, see "Teachers of another
+area" below.
 
 A plain Python class, like `BoardTimeGrid`: no query, so it can try many combinations.
 `ems.course._arrangement_planner(context, groups)` feeds it what `_arrangement_context()` already
-read once per board load (the weekday's timetable, indexed by teacher; absences; covers).
+read once per board load (the weekday's timetable, indexed by teacher; absences; covers), and
+returns it with the groups' timetable-change states it was built from.
 
 - **Linked groups** (`_linked_groups()`): the plans of a group cover every group sharing a lesson
   with it that day, directly or through another one: moving a shared lesson changes all their days.
@@ -906,29 +1037,48 @@ read once per board load (the weekday's timetable, indexed by teacher; absences;
 - **State**: each group's day block by block (from `_get_group_day_blocks()`): its teachers, those
   away or whose lesson went elsewhere, and whether something already fills it (a guard, an
   arrangement in effect or still waiting for its notice).
-- **Steps** from a state (`_steps()`): into every gap (an empty block), a **move** of a lesson of
-  a teacher free then (`_is_free_for_arrangement()`: not away, no class of their own, no guard duty
-  that is not regular, not covering anything else), when every group of that lesson has that gap;
+- **Steps** from a state (`_steps()`): into every gap (an empty block), a **move** of a lesson
+  with its teachers free then (`_is_free_for_arrangement()`: not away, no class of their own, no
+  guard duty that is not regular, not covering anything else; see "Co-teaching" above for the
+  others), when every group of that lesson has that gap;
   or a **swap** detected by `_get_arrangement_options()` (never a shared lesson). Nobody's working
   day may get longer (`schedule_shift()`, developer decision 2026-10-10), counting all their steps.
+  A lesson taken to one of the teacher's non-teaching hours (a regular guard, a coordination, any
+  timetable period with no subject and no group, `_duty_periods()`) swaps with it: the duty goes to
+  the hour the lesson leaves, so that hour stays in their day and their entry and exit do not change
+  (#709). Only a lesson taken to an hour off their timetable can change them.
+  On the board, a swapped **regular guard** moves too (`_moved_guards()`, which also gives the
+  co-teachers left on guard, #678): once the arrangement is in effect the teacher is struck out at
+  the guard's hour (`_arrangement_busy()`, they are with the group) and on guard at the lesson's
+  usual hour, tagged "guard moved from HH:MM", in the guard column, the PDF and
+  `_get_guard_candidates()`. Any other swapped duty shows nowhere.
 - **Evaluation** (`_evaluate()`): `_allowed_absence_changes()` on the simulated day gives, per
   side, the largest change still to come (`_change_start()` against `_board_day_hour()`); a side the
   families were already told about keeps its change and gets no new notice. The score, lower is
   better:
   1. lessons the students lose;
   2. of those, hours they spend in the centre without class (a guard, or a longer break);
-  3. of those, the ones needing a guard;
+  3. of those, the ones needing a guard (a longer break does too, #679);
   4. notices to the families;
-  5. teachers who move a lesson;
-  6. runs of a teacher's lessons with a group cut in two (two hours of a subject in a row are
+  5. co-taught lessons moved without all their teachers (#678);
+  6. teachers who move a lesson;
+  7. runs of a teacher's lessons with a group cut in two (two hours of a subject in a row are
      kept together: bringing both hours forward wins over bringing only the second one);
-  7. changes to somebody's entry or exit time.
+  8. changes to somebody's entry or exit time.
 - **Search** (`plans()`): a beam search, at most `MAX_MOVES` (4) steps, `BEAM` (30) states per
-  depth. Only plans no worse than leaving the day as it is in criteria 1-4 are kept, never one that
-  merely adds steps to another one that does as well, and one per resulting day (a swap seen from
+  depth. Only plans strictly better than leaving the day as it is in criteria 1-4 are kept (#711:
+  moving the gap to another hour where it still needs a guard, or turning a late entry into an early
+  leave, is no proposal), never one that merely adds steps to another one that does as well, and one per resulting day (a swap seen from
   each of its two absences is one plan). The best 3 are shown.
 - **Dependencies** (`_plan()`): a move into a gap another step left needs that step; a notice needs
   the moves whose lessons it frees the group from.
+- **What it leaves to a guard** (#710, `gaps(steps, notices)`): the classes still to come that the
+  steps leave without anybody and that no change told to the families (already, or by `notices`)
+  frees the group from, or only a longer break does (`_needs_guard()`, the same test as criteria
+  2-3). `ems.course._get_arrangement_plans()` stores them in each plan's `gaps` (with the plan's notices
+  and corrections), and `_arrangement_plan_data()` turns
+  them into one line under the steps ("It still leaves 1A (09:00) without a teacher: once applied,
+  you will choose the guard teacher."), for the whole plan.
 
 Measured on a real centre's timetable (`odoo shell`, cold): ~55 ms for the plans of two linked
 groups, ~0.3 s for both shifts of the whole board.
@@ -936,7 +1086,58 @@ groups, ~0.3 s for both shifts of the whole board.
 `_arrangement_plan_records()` turns a plan into records, its steps ordered by time (never before a
 step they need), one notice step per change told to every group it applies to, and each teacher's
 entry/exit changes on their last step. `_arrangement_plan_data()` is its JSON: "Proposal N:", one
-sentence per step, `depends` (indexes) and the `payload` the server needs to apply it.
+sentence per step, `depends` (indexes) and the `payload` the server needs to apply it, plus
+`schedule_changes` (the entry/exit sentences) and `schedule_teachers` (whose). A move, join or swap
+reads as one short line, "Ferran: 13:00 lesson → 10:00 (AIX1A and AIX1B)" or "Sergi and Carla swap
+their 08:00 and 11:00 lessons (AIX1A)" (`_arrangement_step_label()`), with grey `details` lines under
+it saying what kind of move it is for each teacher (#709): `_arrangement_step_how()` sorts them into
+a swap with their regular guard or another non-teaching hour, a join, a shifted day (their entry and
+exit both change) or a free hour, and `_arrangement_step_details()` words them, naming the teachers
+only when a co-taught step mixes kinds. A teacher's timetable
+cannot be changed without them (#709): when the checked steps carry any entry/exit change, the
+board's `applyPlan()` asks first "Have you talked to …?" (Working day changes), and applies nothing
+if the planner answers "Not yet" (the dialog the plan came from stays open).
+
+#### Joining the two halves of a split group (#660)
+
+A **join** is a move whose target is not a free hour of the teacher but one where they are already
+teaching the **same subject** to the other half of a split group: that half is joined to it, and the
+lesson the teacher had with it at another hour is left free, exactly as a moved lesson leaves it
+(a notice can then free the group from it: typically both halves leave an hour earlier, each told by
+its own notice when its own day changes; the half that only receives the other one is told nothing).
+
+- **Halves** (`ems.course._split_partners(context)`): two groups set as halves of each other on their forms
+  (`ems.group.joinable_group_ids`, "Joins with", issue #676: sharing a lesson is not enough, DAM2A and
+  DAM2B share some without being halves), restricted to those a teacher
+  teaches the same subject at different hours on the board's day. Read once per board load, lazily
+  (only when plans are computed). `_linked_groups()` links them too, so both halves are planned
+  together and `board_apply_plan()` accepts them.
+- **Planner** (`ArrangementPlanner._join_steps()`): for each gap of a group and each of its
+  lessons at another hour (a session, with every teacher who gives it, #678), the teachers of that
+  lesson who are then really with a partner of the gap's group (in the simulated day, not away nor
+  moved) teaching it the same subject they teach the lesson (every group of the lesson a partner of
+  the joined one). The step is `('join', teachers, lesson, target, groups, (), stays, joined groups)`;
+  it is simulated, scored, depended on and checked like a move (`schedule_shift()`: the teachers'
+  day can only get shorter, the target being already theirs). The teachers' lessons carry their
+  subject for this (`teachers[...]['lessons']` items are `(period, group ids, subject id)`).
+- **Co-teachers in a join** (developer decision, 2026-10-22): the lesson goes with those of its
+  teachers who are with the other half then; the rest of the pack who are in at the lesson's usual
+  time stay on guard then (`stays`, as in a move), with the warning "cannot follow the lesson (not
+  with the other half then)" (`_stay_reason()` = 'apart'). Example: GA1A's 9:00 lesson given by A
+  and B, joined to GA1B at 8:00 where only A teaches it: A joins, B is on guard at 9:00.
+- **Applied** as a move (`_board_create_move(..., joined=...)`): `arrangement_type = 'move'` with
+  `joined_group_ids` set and `space_id` the room of the teacher's lesson with the other half. Every
+  move behaviour applies unchanged: waiting for the notice that frees its lesson, siblings, withdrawal,
+  #659's corrections, the teachers' notifications. Only the wording differs (`_arrangement_label()`,
+  the plan step's "groups joined with ..." line).
+- **Students' notice** of the half that moves (`_arrangement_moved_lessons()`): the lesson carries the
+  room and the other half's name (`(..., room id, other half)`), told as "... together with X in
+  room Y".
+- **Timetable and PDF**: `_board_cell_arrangements()` returns `joined`, the other half taught with the
+  cell's group then, for both halves; the cell shows "Together with ...".
+
+The same-hour split (both halves at once with two teachers, one away) is not a join: nothing is left
+free.
 
 #### Where they show
 
@@ -959,22 +1160,36 @@ action button of the boxes above the table shares one width (`.o_guard_board_act
 for the day as it is now and checks the subset (`ArrangementPlanner.check()`): each step still
 possible with the earlier ones applied, each notice one of the changes the resulting day allows on
 a side nobody was told about. So a stale screen, or a step kept without one it needs, is refused.
+It also works out what the checked steps still leave to a guard (`ArrangementPlanner.gaps()`, #710) and returns
+it as `gaps` (`{'group_id', 'hour_from', 'hour_to'}`): once the board reloads, it opens the guard
+dialog of each of those classes in turn, offering only "Send a guard teacher" (`openGapCovers()`,
+`GuardCoverDialog`'s `guardOnly`: no other proposal, which could also open its own gaps' dialogs on
+top of the queue), skipping one not on the shift shown or already covered. Not when
+a notice could not be sent: its draft opens instead.
 Then:
 
 - A **move** creates, per group of the lesson, one `ems.absence_cover` (`cover_type =
   'arrangement'`, `arrangement_type = 'move'`) per teacher whose class in the gap it fills
-  (`_board_create_move()`): the absent teacher, or the teacher whose lesson an earlier step moved.
-  `guard_employee_id` = who moves, `vacated_hour_from/_to` = their lesson.
-- The **notice** steps become **one notice per group** (#652, `_create_absence_change_notice()`
+  (`_board_create_move()`): the absent teacher, or the teacher whose lesson an earlier step moved;
+  and per co-teacher who moves it (#678). `guard_employee_id` = who moves, `vacated_hour_from/_to`
+  = their lesson, `stayed_employee_ids` = the co-teachers left on guard (the same on every cover of
+  the step).
+- The covers of one step are **one decision** (`_same_decision()`: same lesson, same gap, and the
+  same group or, for a shared lesson, the same teacher): `_with_siblings()` withdraws them together,
+  `_decision_pack()` names all its teachers in the label ("B and C: 11:00 lesson → 10:00 (1A),
+  working day shifted.": the proposal step's own wording, #709, its kind read by `_cover_step_how()`
+  from the teachers' timetable and that day's other moves), and `_check_one_guard_per_class` lets them share the class. Withdrawing it also releases
+  any guard the co-teachers left on guard were sent to meanwhile: they are back at their lesson.
+- The **notice** and **correction** steps (#659, see above) become **one notice per group** (#652, `_create_absence_change_notice()`
   with every change the kept steps bring to that group: a later entry, an earlier leave, a longer
   break), never one notice for several groups, so each stays addressed to its own group
   (`_check_absence_change_recipients`). It links (`notice_id`) the moves whose lessons it frees the
   group from: they only count once it is sent (`is_effective`). A draft prepared earlier for those
-  same changes (one sent alone with **Send notice** that could not be sent, or the draft of a plan
-  that could not be sent) is replaced: what waited for it now waits for the new notice, and it is deleted.
+  same changes (a step of "Only tell the families" or a plan that could not be sent, or one change
+  sent from the **Change proposal** dialog that could not be sent) is replaced: what waited for it now waits for the new notice, and it is deleted.
 - A **swap** is applied as `board_arrange()` applies it (`_board_arrange_cover()`, without the
-  students' notice, prepared once below); `board_arrange()` itself only takes swaps and manual
-  arrangements.
+  students' notice, prepared once below): one cover per absent teacher and per co-teacher who
+  comes; `board_arrange()` itself only takes swaps and manual arrangements.
 - Every cover is checked with `_check_cover_manager()` (below); any failure rolls everything back.
 - **Sent at once** (`_board_send_notices()`, `ems.notice._send_or_keep_draft()`): checking a notice
   step is the confirmation, so the families' notices are sent right away (`action_send()`, as from
@@ -1071,6 +1286,13 @@ its own notice: the families of each group are told separately.
   `_notify_arrangements()` so that each teacher is told once per lesson of theirs that moves,
   whatever the number of covers - groups, absent teachers - of that move); for a move, its teacher's
   whole day with every lesson of theirs moved that day (`_cover_schedule_changes()`).
+- **The group's tutors get a copy of every board notice** (#658): when a families' timetable-change
+  notice (`absence_group_id`) or a students' moved-lessons notice (`arrangement_group_id`) enters a
+  communicated state, the state hook in `ems.notice.write()` calls `_notify_group_tutors()`, a
+  `message_notify()` on the notice to each tutor (`tutor_id` of the group and of its
+  `parent_group_ids`, since a reinforcement group has none) with the notice's own text; taken back
+  to draft (`action_cancel()`), they are told it was cancelled. It runs whatever
+  `ems_skip_arrangement_notify` says: that key only defers the teachers' messages.
 - **No longer valid** (`_is_cover_still_needed()`): shown under **Guards no longer needed** with
   **Remove arrangement**.
 
@@ -1083,11 +1305,20 @@ teacher they are noise, and the struck-out rows already say what was decided):
 - **Proposals for the absences** (`o_guard_board_arrangements`): one section per group together
   with the groups sharing lessons with it that day (`_board_action_sections()`, the action's
   `section_key`/`section_title`; the same sets of groups the arrangement plans work on). In each
-  section: first what is waiting (`pending_arrangement`, an arrangement waiting for its notice, and
-  `rectification`, a notice to correct), then the arrangement plans (`arrangement_plan`,
-  "Proposal 1:", "Proposal 2:"...) and last, numbered after them, **Only tell the families**: the
-  `proposal` of each group and side, with a selector of its options (sending the notice strikes
+  section: first what is waiting (`pending_arrangement`, an arrangement waiting for its notice),
+  then the arrangement plans (`arrangement_plan`, "Proposal 1:", "Proposal 2:"...) and last,
+  numbered after them, **Only tell the families**: the `proposal` of each group and side as a
+  checked step with a selector of its options inside its sentence (`ems.GuardBoardNoticeStep`:
+  `_board_action_data()` sends the sentence split around it, `label_parts`, and each option's
+  `inline` text - only the hour when every option is a late entry, or every one an early leave,
+  else the whole change), applied together with
+  **Apply the checked steps** by `board_apply_plan()`, one notice per group (sending it strikes
   those lessons off, so no guard has to cover them; a shorter change leaves the rest to a guard).
+- **Corrections to absences already organised** (`o_guard_board_corrections`, red, above the
+  proposals; #659): the sections with a `rectification`, the same template
+  (`ems.GuardBoardProposalsBox`). Their plans carry the corrections as steps (see "Changing a
+  communicated change"), and their **Only tell the families** has the corrections among its
+  steps, so a notice and a correction of the same group go out as one.
 - **Guards no longer needed** (an `obsolete_cover` for every guard of the shift whose class
   `_get_needed_absence_block()` no longer finds: the absence was refused, cancelled or shrunk, the
   families were told the students stay at home, or a co-teacher is now in).
@@ -1097,13 +1328,18 @@ setting, is planned in `plans/absence_management_automation.md`.
 
 ### Colours
 
-`_board_cover_colors(lines)` gives colour indexes (`COVER_COLOR_COUNT` = 8) once for the whole
-shift, not per line (issue #637): a guard can cover part of a class on another line than their own
-guard block, and both must match. The colour belongs to the class covered (developer decision): every
+`_board_cover_colors(lines, guard_covers)` gives colour indexes (`COVER_COLOR_COUNT` = 8) once for
+the whole shift, not per line (issue #637): a guard can cover part of a class on another line than
+their own guard block, and both must match. Each line carries that shift-wide map as
+`line['cover_colors']`, read by the absence rows and their guard tags. A guard's badge in the Guard
+duty column only takes the colour in the blocks where they cover something
+(`line['guard_colors']`, issue #675): on guard 10-12 and sent to a 10-11 class, their 11-12 badge
+stays plain. `_board_guard_covers(lines)` (what each guard covers, and whether it is partial) is
+computed once and feeds both. The colour belongs to the class covered (developer decision): every
 guard covering one class shares it, and a guard covering several classes joins them under one
 colour, since their badge can only have one (a union-find over classes and guards). Groups are
 coloured in time order, greedily: a group never takes the colour of another overlapping it in time -
-their classes, or the guard blocks their badges show in -, while one overlapping nobody may reuse a
+their classes, or the guard blocks their badges show the colour in -, while one overlapping nobody may reuse a
 colour, so the palette only runs short with more groups at the same time than colours. The screen
 uses `o_guard_board_cover_N`, the PDF `gdb-cover-N`, with the same palette. This is the board's one
 deliberate use of background colour (see "No cell colouring" above): it pairs two things the
@@ -1112,7 +1348,7 @@ planner must match at a glance, which plain text can't do.
 **Whole or partial: the border.** On top of the colour, a solid bar means a whole class covered and
 a thin dotted one a partial cover (`o_guard_board_cover_partial`/`gdb-cover-partial`): on the row
 while a part is still `missing`, on a guard's tag when their cover is partial, and on a guard's badge
-when any of their covers is (`line['partial_guard_ids']`, computed with the colours). Dotted and 2px
+when any of their covers overlapping that block is (`line['partial_guard_ids']`). Dotted and 2px
 rather than dashed: a 4px dashed bar draws as big blocks (developer feedback).
 
 ### Who can manage
@@ -1177,6 +1413,7 @@ vocational families work and leaves ESO/BTX blank.
 | See and apply detected arrangements, record a manual one, remove one (`board_arrange`, `board_release`) | No | Yes |
 | Send a timetable change or correction (`board_send_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
+| Check in a teacher who has not (`board_mark_present`, issue #692) | Only a guard on duty then | Yes |
 
 Department and Seminar chiefs use Communications > Notices limited to the groups their department
 teaches or manages (see the access table in [notice.md](../communications/notice.md)); a
@@ -1190,10 +1427,141 @@ say) simply stays a draft. `ems.absence_cover` is read-only to every teacher
 (`ems.access_ems_absence_cover_teacher`): every write goes through the board methods above,
 which check who manages the class and then write with `sudo()`.
 
+### Teachers of another area (issue #721)
+
+Who may organise an absence (above) says nothing about whose day an arrangement may change. Some
+teachers are shared between areas (an ESO/BTX teacher with lessons in VET groups), and an area that
+organises its guards outside the board (ESO/BTX) would otherwise lose them without knowing: the
+board treats a regular guard as free (#709), so a VET chief could take an ESO teacher's VET lesson
+to the hour of their ESO guard. `ems.course._can_move_teacher(teacher, context=None)` decides it
+from **who is deciding**, whatever group the class is of, so it works both ways:
+
+- The teacher's areas: the top-level department (`_top_level_department()`) of their own
+  department and of each department on `hr.employee.managing_department_ids` ("Also managed by the
+  departments", issue #622). That field is the switch: naming a department of the other area is
+  what lets that area move them too.
+- The user's areas (`_organiser_areas()`): those of the departments they chief
+  (`headed_department_ids`, `seminar_department_ids`) and of their own department (a Deputy Head of
+  Studies may chief none). Direction (`ems.group_director`) and the administrator: every area.
+- Allowed when they share an area, or when the teacher has none (nothing to protect).
+
+```mermaid
+flowchart TD
+    Q["_can_move_teacher(teacher)"] --> ALL{"Direction or administrator?"}
+    ALL -->|yes| YES["may move / send"]
+    ALL -->|no| NONE{"teacher has an area?"}
+    NONE -->|no| YES
+    NONE -->|yes| SHARE{"teacher's areas (own department +<br/>Also managed by) ∩ user's areas<br/>(departments chiefed + own department)"}
+    SHARE -->|not empty| YES
+    SHARE -->|empty| NO["cannot"]
+```
+
+Where it applies:
+
+| Path | Effect |
+|---|---|
+| Detected swaps (`_get_arrangement_options`) | Not offered if an absent teacher who would teach the other lesson cannot be moved; a co-teacher who cannot be moved stays at the lesson (`stays`) |
+| Moves and joins (`ArrangementPlanner`, `fixed`) | `busy()` is always true for them: no step takes a lesson of theirs anywhere; a co-teacher among them stays on guard, with the reason `'area'` ("organised by another area") |
+| Applying (`board_apply_plan`, `board_arrange`) | Re-planned on the server as the user, so a stale screen cannot apply it |
+| Manual arrangement (`get_arrangement_candidates`, `board_arrange`) | Not listed; naming them raises a `UserError` |
+| Sending a guard (`guard_candidates` of each line, `board_assign`) | Not listed; sending them raises a `UserError` (`_check_board_assignable`) |
+| Self-assignment (`board_self_assign`) | Unaffected: the guard decides for themselves, and their own area is theirs |
+
+The answers are cached per board load in the arrangement context (or a plain dict for the guard
+candidates), so the check costs a few queries per load (measured on this box's data: at most 15 ms
+of a 0.43 s afternoon load).
+
 ### Dates
 
 The day comes from the board (a calendar date); the server refuses to manage a day before
 `ems.datetime_utils.get_local_today()` - what is over is over.
+
+## Teachers who have not checked in (issue #692)
+
+A class whose teacher has not checked in is left without anybody as surely as an absent teacher's,
+so from the moment it starts it is on the absences table, to be covered with a guard. Whoever is on
+guard then, or manages the absence, can also say the teacher is in the classroom after all, which
+checks them in.
+
+```mermaid
+flowchart TD
+    ATT["hr.attendance._ems_first_check_in_hours(day, employees)<br/>first real check_in of today, per employee (one _read_group)"] --> UI["_get_unchecked_intervals(day, employees)<br/>{employee: (now, arrival, 'unchecked')}"]
+    UI -->|"unchecked=True only"| INT["_get_guard_duty_absence_intervals"]
+    INT --> ST["_guard_duty_absence_state<br/>approved > pending > unchecked"]
+    ST --> ROWS["board rows, guard column, guard candidates,<br/>_get_group_day_blocks (assign / obsolete cover)"]
+    ROWS -->|"row in progress, can_mark_present"| MP["ems.absence_cover.board_mark_present<br/>hr.attendance sudo create, ems_checked_in_by_id"]
+    MP --> MSG["_notify_checked_in_by(): message to the teacher"]
+```
+
+**The rule.** `_get_unchecked_intervals()` only answers for today (`get_local_today()`), with one
+query: the first check-in of each employee that company day (`hr.attendance._ems_first_check_in_hours()`,
+shared with the detected absences, which turn what is still missing into an absence once the day
+is over; technical attendances are no presence). Its interval is not an overlap like an
+absence's but `(now, arrival)`: a period counts as unchecked when it has started (`hour_from <= now`)
+and the teacher had not arrived before it ended (`hour_to <= arrival`, `arrival` = 24.0 without a
+check-in). Checking in at 10:05 clears the 10-11 class and the next ones, while the 8-9 one stays: a
+guard sent to it was the right decision and must not turn into a "no longer needed" action.
+`_guard_duty_absence_state()` applies that test to `'unchecked'` intervals and ranks it below an
+absence: an approved or pending one on the same period wins.
+
+**Who sees it, who doesn't.** `_get_guard_duty_absence_intervals(..., unchecked=True)` is passed only
+by the guard side of the board: its own lines (classes and the guard column), `_get_group_day_blocks`
+(so `board_assign`, `_get_needed_absence_block` and the obsolete-cover action treat it like an
+absence), `_get_needed_duty_entry` (a WC or break guard not checked in is a post to cover, issue #606)
+and `_get_guard_candidates` (a guard not checked in cannot be sent). A teacher who has not checked
+in may still be in the building, so nothing else reacts to it:
+- A block's `empty` ignores them, so `_all_absence_changes()` never proposes telling the families.
+- The arrangement planner's `away` excludes them, `_board_row_arrangement_plans()` returns nothing
+  for an `'unchecked'` row, `_arrangement_context()` does not ask for them, and `board_arrange`
+  refuses such a class (the dialog hides the manual arrangement too).
+
+**"The teacher is in the classroom".** `board_mark_present(day, hour_from, hour_to, absent, group_id |
+duty_id)` checks that the current user may (`_can_mark_present`: `_is_absence_manager()`, which
+already covers the chain of command, Direction and the administrator, or a guard duty of their own
+overlapping the period, `_is_on_guard`), then that the class is going on now and the teacher is
+still unchecked (`_is_unchecked_in_progress`). A class already over is refused: checking the teacher
+in at this hour would not take it off the table. The check-in is created with `sudo()`, `check_in =
+fields.Datetime.now()` (naive UTC without microseconds, as `_auto_checkin_teacher` does, for
+`last_attendance_id`), `in_mode='manual'` and `ems_checked_in_by_id` = the user, its own field since
+`create_uid` would be the superuser. The attendance form shows it when set (the list does not), and
+`hr.attendance._notify_checked_in_by()` tells the teacher in their language, with the time in the
+company's timezone. The board sends `can_mark_present` per row: the row is `'unchecked'`, its line
+is in progress (`_in_progress`) and the user manages it or is among the line's guards.
+
+On screen the row shows the name in red with a dotted underline and the tag "Not checked in" (the
+PDF prints the tag too). Clicking a row with `can_mark_present` opens `GuardUncheckedDialog`
+(`guard_unchecked_dialog.js`): "They are in the classroom" and, when the user can, the usual next
+step (send a guard, cover it themselves, stop covering it). Both "They are in the classroom" and
+"Cover it myself" act straight away: choosing them in the dialog is the confirmation, so "Cover it
+myself" calls `selfAssign()` directly instead of `confirmSelfAssign()`, the confirmation a plain
+click on a free line still asks for (there the click is the only step).
+
+**Live updates, only when something changes.** The board never polls. It reloads in two cases:
+- **The server says so.** `ems.guard_board_notifier` (`models/shared/guard_board_notifier.py`), an
+  abstract mixin, is added to every model whose records the board shows: `hr.attendance` (check-in),
+  `ems.absence_cover`, `hr.leave`, `ems.absence_pending` and `ems.notice` (the timetable changes told
+  to the families). On create, unlink and any write touching its `_guard_board_fields`, it sends
+  `ems.guard_duty_board/changed` on the bus channel `ems.guard_duty_board` with the days affected
+  (`_guard_board_spans()`, before and after a write, so moving an absence tells both days). Sent on
+  commit (`bus.bus._sendone`), so a rolled-back change says nothing. The channel is a plain string
+  any client can subscribe to, the guard room kiosk (#591/#642) included, and the message only
+  carries dates, never who or what.
+- **A lesson starts or ends today.** The client sets one timer for the next `hour_from`/`hour_to`
+  of the lines on screen (plus a second): that is when a class whose teacher has not checked in
+  appears, and when a row stops offering "They are in the classroom".
+
+Client side (`guard_duty_board.js`): `onBoardChanged` only reacts to the day on screen, and
+`requestRefresh` groups a burst of messages (applying a plan writes several covers) into one reload
+after 500 ms. The reload has no spinner, keeps the planner's checked steps and only replaces
+`state.board` when the JSON differs. It waits (stays pending) while a load is running, the tab is
+hidden, or a dialog or a popover (not a tooltip) is open, and runs as soon as that ends: every
+dialog and popover the board opens goes through `addDialog`/`addPopover`, whose `onClose` flushes it,
+and so does `visibilitychange`. A result for another day, shift or area than the one now on screen
+is dropped. The current-time line keeps its own once-a-minute timer, independent of all this.
+
+Cost: nothing while nothing changes. Each reload costs the same as opening the board, measured on the
+dev database (2026-10-22, `odoo shell`, cold) at 0.15-0.24 s, the extra check-in query included (0.06
+s for every employee of the centre).
 
 ## Related docs
 

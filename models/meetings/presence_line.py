@@ -32,10 +32,13 @@ class EmsMeetingPresenceLine(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         self.env['ems.meeting.presence'].browse([vals['presence_id'] for vals in vals_list if vals.get('presence_id')])._check_not_closed()
-        if not self.env.context.get('ems_presence_scan'):
-            # Someone marked present by a manager in the form: same bookkeeping as a scan.
-            vals_list = [self._manual_vals(vals) if vals.get('state') == 'present' else vals for vals in vals_list]
-        return super().create(vals_list)
+        if self.env.context.get('ems_presence_scan'):
+            return super().create(vals_list)
+        # Someone marked present by a manager in the form: same bookkeeping as a scan.
+        vals_list = [self._manual_vals(vals) if vals.get('state') == 'present' else vals for vals in vals_list]
+        lines = super().create(vals_list)
+        lines._ems_sync_minutes()
+        return lines
 
     def write(self, vals):
         self._check_session_not_closed()
@@ -49,7 +52,13 @@ class EmsMeetingPresenceLine(models.Model):
             if line.state != vals['state']:
                 line_vals.update(self._manual_vals(vals))
             result = super(EmsMeetingPresenceLine, line).write(line_vals) and result
+        self._ems_sync_minutes()
         return result
+
+    def _ems_sync_minutes(self):
+        """A correction made by hand (a tag left at home, a broken one) reaches the lists of the
+        minute the session belongs to at once, without waiting for it to be closed again."""
+        self.presence_id.sudo().minute_ids._ems_sync_attendance()
 
     @api.model
     def _manual_vals(self, vals):

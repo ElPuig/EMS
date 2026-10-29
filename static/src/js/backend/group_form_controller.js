@@ -15,6 +15,50 @@ export class EmsGroupFormController extends FormController {
         this.action = useService("action");
     }
 
+    async onWillSaveRecord(record, changes) {
+        // Issue #688: the halves of a split group usually share their tutor, delegate and
+        // sub-delegate, but may have their own (co-tutors, a delegate per half). Saving only fills
+        // the other halves' blanks; when it would replace one they already have (linking a half, or
+        // changing a shared value), ask: replicate it, or keep each half's own. Closing the dialog
+        // does not save. See get_joinable_confirmation_message in models/contacts/group.py.
+        this.joinableReplicate = null;
+        const shared = ["tutor_id", "delegate_id", "subdelegate_id"];
+        const halves = record.data.joinable_group_ids.currentIds;
+        if (!halves.length || !["joinable_group_ids", ...shared].some((field) => field in changes)) {
+            return super.onWillSaveRecord(...arguments);
+        }
+        const values = Object.fromEntries(shared.map(
+            (field) => [field, record.data[field] ? record.data[field][0] : false]));
+        const question = await this.orm.call("ems.group", "get_joinable_confirmation_message", [
+            record.resId ? [record.resId] : [], halves, values]);
+        if (!question) {
+            return super.onWillSaveRecord(...arguments);
+        }
+        return new Promise((resolve) => {
+            this.dialog.add(ConfirmationDialog, {
+                title: _t("Replicate to the other halves?"),
+                body: question.message,
+                confirmLabel: _t("Replicate"),
+                confirm: () => {
+                    this.joinableReplicate = question.replicate;
+                    resolve(true);
+                },
+                cancelLabel: _t("Keep each half's own"),
+                cancel: () => resolve(true),
+                dismiss: () => resolve(false),
+            }, { onClose: () => resolve(false) });
+        });
+    }
+
+    async onRecordSaved(record, changes) {
+        const replicate = this.joinableReplicate;
+        this.joinableReplicate = null;
+        if (replicate) {
+            await this.orm.call("ems.group", "action_replicate_joinable_fields", [[record.resId], replicate]);
+        }
+        return super.onRecordSaved(...arguments);
+    }
+
     getStaticActionMenuItems() {
         // Archiving a group already asks its own confirmation when it still has active
         // students (see _archive_confirmation_message in models/contacts/group.py). Rather

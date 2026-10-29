@@ -406,6 +406,26 @@ class TestExternalRecord(TransactionCase):
             wizard.action_create()
         self.assertFalse(self.student.year_record_ids)
 
+    def test_a_certificate_whose_student_identifier_cannot_be_read_is_rejected(self):
+        pdf = build_academic_record_pdf('', 'EXR1', [('08999999', 'Institut Inventat', '2080/2081', [
+            ('EXRSUBB_EXR1', 'Module B', 'MP', '9'),
+            ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'Assolit-8'),
+        ])])
+        wizard = self._read(pdf).save()
+        self.assertFalse(wizard.certificate_student_identifier)
+        with self.assertRaises(UserError):
+            wizard.action_create()
+        self.assertFalse(self.student.year_record_ids)
+
+    def test_a_student_without_an_idalu_cannot_take_a_certificate(self):
+        # A legacy student, from before the IDALU was required (issue #460).
+        self.env.cr.execute("UPDATE res_partner SET student_id = NULL WHERE id = %s", [self.student.id])
+        self.student.invalidate_recordset(['student_id'])
+        wizard = self._read(self._certificate(identifier='TEST999998')).save()
+        with self.assertRaises(UserError):
+            wizard.action_create()
+        self.assertFalse(self.student.year_record_ids)
+
     def test_a_module_ticked_without_a_teaching_plan_is_rejected(self):
         wizard = self._read(self._certificate()).save()
         self._module_line(wizard, 'EXRSUBC_EXR1').to_import = True
@@ -475,3 +495,57 @@ class TestExternalRecord(TransactionCase):
         # The default certificate's only optional module (M_OP_09) was not sat.
         wizard = self._read(self._certificate()).save()
         self.assertFalse(self._recognition_line(wizard))
+
+    # --- Esfera's record screen printed to PDF (issue #705) ---------------------
+
+    def _printed_certificate(self, rows):
+        return build_academic_record_pdf(self.student.student_id, 'EXR1', [
+            ('08999999', 'Institut Inventat', '2080/2081', rows)], printed=True)
+
+    def test_a_printed_record_is_read_and_imported_like_the_issued_one(self):
+        wizard = self._read(self._printed_certificate([
+            ('EXRSUBA_EXR1', 'Module A', 'MP', 'PQ', 99),
+            ('EXRSUBA_EXR1_01EM', "Estada a l'empresa", 'EM', 'PDT', 33),
+            ('EXRSUBA_EXR1_01RA', 'Outcome one', 'RA', 'A7'),
+            ('EXRSUBA_EXR1_02RA', 'Outcome two', 'RA', 'A6'),
+            ('EXRSUBB_EXR1', 'Module B', 'MP', 'A9', 66),
+            ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'A8'),
+            ('EXRSUBC_EXR1', 'Module C', 'MP', 'A6', 33),
+            ('EXRSUBC_EXR1_01RA', 'Outcome one', 'RA', 'NA'),
+        ]), user=self.secretary).save()
+        # No study token in the heading: the study comes from the module codes.
+        self.assertEqual(wizard.study_id, self.study)
+        self.assertEqual((wizard.origin_centre_code, wizard.origin_centre_name),
+                         ('08999999', 'Institut Inventat'))
+        self.assertEqual(wizard.course_id, self.past_course)
+        self.assertEqual(wizard.certificate_student_identifier, self.student.student_id)
+        # The short codes read as the issued PDF's wording.
+        self.assertEqual(self._module_line(wizard, 'EXRSUBA_EXR1').certificate_text, 'Pendent de qualificar')
+        self.assertEqual(self._module_line(wizard, 'EXRSUBA_EXR1_01EM').kind, 'placement')
+        outcome = self._module_line(wizard, 'EXRSUBA_EXR1_01RA')
+        self.assertEqual((outcome.kind, outcome.score, outcome.is_scored), ('outcome', 7, True))
+        not_achieved = self._module_line(wizard, 'EXRSUBC_EXR1_01RA')
+        self.assertEqual((not_achieved.certificate_text, not_achieved.is_scored), ('No assolit', False))
+        self.assertEqual(self._module_line(wizard, 'EXRSUBB_EXR1').hours, 66)
+        wizard.action_create()
+        record = self.student.year_record_ids
+        self.assertEqual(record.subject_record_ids.subject_id, self.subject_a | self.subject_b)
+        by_subject = {line.subject_id: line for line in record.subject_record_ids}
+        self.assertTrue(by_subject[self.subject_a].final_pending)
+        self.assertEqual((by_subject[self.subject_b].internal_grade, by_subject[self.subject_b].final_grade),
+                         (9, 9))
+
+    def test_another_centres_opt_module_counts_towards_this_centres_optional(self):
+        # A printed record types the other centre's optional module "MP", not "MP_OP_CEN".
+        wizard = self._read(self._printed_certificate([
+            ('EXRSUBB_EXR1', 'Module B', 'MP', 'A8', 66),
+            ('EXRSUBB_EXR1_01RA', 'Outcome one', 'RA', 'A8'),
+            ('OPTX_EXR1', 'Other optional', 'MP', 'A8', 99),
+            ('OPTX_EXR1_01RA', 'Outcome one', 'RA', 'A8'),
+        ])).save()
+        other_optional = self._module_line(wizard, 'OPTX_EXR1').filtered(lambda line: line.kind == 'module')
+        self.assertTrue(other_optional.is_optional)
+        self.assertFalse(other_optional.to_import)
+        line = self._recognition_line(wizard)
+        self.assertEqual((line.subject_id, line.hours, line.score), (self.subject_opt, 99, 8))
+        self.assertTrue(line.to_import)

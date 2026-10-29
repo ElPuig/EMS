@@ -9,6 +9,10 @@
                 <xpath expr="//header" position="inside">
                     <button string="Request Correction" type="action" name="%(ems.action_attendance_correction_new)d" class="btn-secondary" context="{'default_attendance_id': id}"/>
                 </xpath>
+                <!-- Issue #692: who checked the employee in from the guard duty board. -->
+                <field name="in_mode" position="after">
+                    <field name="ems_checked_in_by_id" invisible="not ems_checked_in_by_id"/>
+                </field>
                 <xpath expr="//sheet/group[1]" position="before">
                     <div class="oe_button_box" name="button_box">
                         <button class="oe_stat_button" type="object" name="action_view_corrections" icon="fa-clock-o" invisible="correction_count == 0">

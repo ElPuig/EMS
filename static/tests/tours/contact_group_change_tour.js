@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // Issue #395: a tutor can now change their tutorand's main group (e.g. moving the student
 // from group A to group B) - this field used to be locked by 'is_tutor_readonly' for tutors
@@ -21,7 +22,7 @@ registry.category("web_tour.tours").add("ems_contact_group_change", {
             run: "click",
         },
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('0000 Group Change Tour Student')",
+            trigger: `.o_list_view ${studentCell("0000 Group Change Tour Student")}`,
             content: "Open the tutorand",
             run: "click",
         },

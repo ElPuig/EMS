@@ -36,11 +36,12 @@
             <field name="model">res.partner</field>
             <field name="arch" type="xml">
                 <list string="Students without destination"
-                      default_order="study_id asc, name asc" create="0">
+                      default_order="study_id asc, name asc" create="0" delete="0">
                     <header>
                         <button name="action_suggest_destination_group"
                                 type="object"
-                                string="Suggest destination group"/>
+                                string="Suggest destination group"
+                                groups="ems.group_academic_admin,ems.group_secretary"/>
                     </header>
                     <field name="name" string="Student"/>
                     <field name="main_group_id"/>
@@ -68,6 +69,7 @@
             <field name="search_view_id" ref="view_student_search_no_destination"/>
             <field name="view_ids" eval="[(5,0,0),
                 (0,0,{'view_mode': 'list', 'view_id': ref('view_student_list_no_destination')}),
+                (0,0,{'view_mode': 'form', 'view_id': ref('view_enrollment_contact_form')}),
             ]"/>
         </record>
 
@@ -75,7 +77,7 @@
                   name="Students without destination"
                   parent="menu_ems_enrollment"
                   action="action_students_no_destination"
-                  groups="ems.group_academic_admin,ems.group_secretary"
+                  groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies"
                   sequence="50"/>
     </data>
 </odoo>

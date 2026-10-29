@@ -37,11 +37,13 @@ Una ficha de alumno que ya existía sin ID de estudiante sigue funcionando con n
 
 La parte superior de la ficha reúne los datos del alumno sin tener que cambiar de pestaña:
 
-- **Nombre** y **Apellidos**, con el **Correo personal** y el **Correo corporativo** debajo.
+- **Nombre** y **Apellidos**, con el **Correo personal** y el **Correo corporativo** debajo. Un nombre escrito todo en mayúsculas o todo en minúsculas se guarda con las iniciales en mayúscula ("ASHLEY BUENO" pasa a "Ashley Bueno"); si mezcla mayúsculas y minúsculas, se guarda tal como se ha escrito.
 - Tres columnas: **Contacto** (dirección, teléfonos e idioma), **Identificación** (DNI/NIE, pasaporte, identificador de estudiante, identificación médica, NUSS y matrícula del vehículo) y **Datos personales** (fecha de nacimiento, si es mayor de edad, país de nacimiento, ciudadanía, beneficios y necesidades educativas especiales).
 - **Autorizaciones**: el resumen Sí/No de los derechos de imagen, las excursiones escolares, los datos de salud y compartir con la familia.
 
 ![Parte superior de la ficha de un alumno: nombres, correos, las columnas Contacto, Identificación y Datos personales, y el resumen de autorizaciones](../../assets/secretary/fitxa-alumne-01-capcalera.png)
+
+La **fecha de nacimiento** es obligatoria para dar de alta un alumno/a nuevo: sin ella, EMS lo trata como menor de edad. Un alumno/a que no la tiene muestra un aviso en la parte superior de la ficha hasta que se rellena, y el filtro **Sin fecha de nacimiento** de la lista de alumnos los muestra todos.
 
 Debajo están las pestañas: **Horario** (la que se abre por defecto), **Estudios** (grupo, matrícula por asignaturas e histórico académico), **Contactos y direcciones** (familiares), **Secretaría** (lista de autorizaciones, bonificaciones y exenciones, documentación y cuentas bancarias) y las notas: consulta [Notas públicas y notas privadas del alumno](../teachers/student-notes.md).
 

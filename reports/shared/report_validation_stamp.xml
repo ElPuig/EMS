@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- The stamp EMS puts where a signature goes: the record was validated in EMS, by whom,
+             when and under which reference. Not a qualified electronic signature (issue #530): the
+             evidence is EMS's own record of who did it. Shared by every signed PDF (convalidation
+             resolutions, minutes) so the stamp looks the same everywhere.
+
+             Takes stamp_title (what was done, e.g. "Validated in EMS"), stamp_by_label (e.g.
+             "Resolved by:"), stamp_by (a name), stamp_date (a date) and stamp_reference (the
+             record's code). A table, not flexbox: wkhtmltopdf's WebKit does not lay flexbox out. -->
+        <template id="report_validation_stamp">
+            <style>
+                .o_ems_stamp { display: inline-block; margin: 6px 0 4px 0; border: 2px solid #2e7d32; border-radius: 8px; color: #2e7d32; font-size: 10px; line-height: 1.35; text-align: left; }
+                /* The report layout frames every table (a ::before border, opted out of with
+                   o_ignore_layout_styling) and borders every cell. */
+                /* !important and specific selectors throughout: the report the stamp sits in may size
+                   its own tables and cells, even nested ones (a minute stretches every table to the full
+                   width and its signature cells to half of it). */
+                div.o_ems_stamp table.o_ignore_layout_styling { width: auto !important; max-width: none !important; margin: 0 !important; font-size: 10px !important; border-collapse: collapse; }
+                div.o_ems_stamp table.o_ignore_layout_styling td { width: auto !important; border: none !important; padding: 6px 12px 6px 0 !important; vertical-align: middle; background: none !important; white-space: nowrap; }
+                div.o_ems_stamp table.o_ignore_layout_styling td.o_ems_stamp_check { padding: 6px 10px 6px 12px !important; font-size: 30px; }
+                .o_ems_stamp .o_ems_stamp_title { font-size: 13px; font-weight: bold; }
+            </style>
+            <div class="o_ems_stamp">
+                <table class="o_ignore_layout_styling">
+                    <tr>
+                        <td class="o_ems_stamp_check"><i class="fa fa-check-circle"/></td>
+                        <td>
+                            <div class="o_ems_stamp_title" t-out="stamp_title"/>
+                            <div><t t-out="stamp_by_label"/> <t t-out="stamp_by"/></div>
+                            <div>Date: <t t-out="stamp_date" t-options="{'widget': 'date'}"/></div>
+                            <div>Reference: <t t-out="stamp_reference"/></div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </template>
+    </data>
+</odoo>

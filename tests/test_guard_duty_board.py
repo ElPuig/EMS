@@ -3,7 +3,10 @@ from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, create_level_study_group, mock_outgoing_email
+from .common import (
+    ROLE_GROUP_XMLIDS, create_level_study, create_level_study_group, create_role_user,
+    mock_outgoing_email,
+)
 
 class GuardDutyBoardCase(TransactionCase):
     """Fixtures and helpers shared by the guard duty board's own tests and the absence
@@ -366,6 +369,19 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertTrue(data['lines'])
         json_data = self.env['ems.course'].with_user(self.teacher_user).get_guard_duty_board_data('0', 'morning')
         self.assertTrue(json_data['lines'])
+
+    def test_secretary_can_open_the_board(self):
+        """The Secretary sees the board's menu without being a teacher (they can be the Area
+        Manager who organises absences): opening it must not hit the covers' own access rights,
+        which only teachers have - the covers-per-guard count (issue #600) is read for everybody."""
+        calendar_guard = self._new_calendar(self.teacher_guard, 'Test Calendar Guard (Secretary Access)')
+        calendar_guard.apply_schedule_changes([{
+            'dayofweek': '0', 'hour_from': 9, 'hour_to': 10, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard',
+        }])
+        secretary = create_role_user(self, 'secretary', 'test_secretary_for_guard_duty_board')
+        data = self.env['ems.course'].with_user(secretary).get_guard_duty_board_data('0', 'morning', None, str(self._monday()))
+        self.assertTrue(data['lines'])
 
     def test_report_guard_duty_board_renders(self):
         calendar_a = self._new_calendar(self.teacher_a, 'Test Calendar A (PDF)')
@@ -1186,3 +1202,15 @@ class TestGuardDutyBoard(GuardDutyBoardCase):
         self.assertIn(b'gdb-duty-table', table_content)
         # Whoever needs covering is still named on the table tab, same as the live screen.
         self.assertIn(self.teacher_a.name.encode(), table_content)
+
+    def test_menu_visible_only_to_the_roles_that_can_open_the_board(self):
+        """Quality, Settings and the Erasmus+ team don't organise guards, so the menu is hidden from
+        them (issue #680); an Erasmus+ team member who also teaches sees it as a teacher. Every
+        other role keeps it: they all imply group_teacher or group_secretary."""
+        menu = self.env.ref('ems.menu_guard_duty_board')
+        hidden_roles = {'quality', 'quality_admin', 'settings', 'settings_admin', 'erasmus', 'erasmus_coordinator'}
+        for role in ROLE_GROUP_XMLIDS:
+            user = create_role_user(self, role, f'test_guard_menu_{role}')
+            visible = menu.id in self.env['ir.ui.menu'].with_user(user)._visible_menu_ids()
+            with self.subTest(role=role):
+                self.assertEqual(visible, role not in hidden_roles)

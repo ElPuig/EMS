@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { clickAction } from "./actions_dropdown_helpers";
 
 // Both tours run against a document/student seeded by the Python test (never a real
 // production record). Split into two registered tours, run sequentially from Python
@@ -52,13 +53,10 @@ registry.category("web_tour.tours").add("ems_student_document_review", {
             content: "Fill in a rejection reason",
             run: "edit Tour: illegible scan",
         },
+        ...clickAction("action_reject", "Reject it from the form's Actions dropdown"),
         {
-            trigger: ".o_form_view button[name='action_reject']",
-            content: "Reject it from the form",
-            run: "click",
-        },
-        {
-            trigger: ".o_form_view button[name='action_reset_to_pending']",
+            // The only action left, so a plain header button rather than the dropdown.
+            trigger: ".o_form_view .o_form_statusbar button[name='action_reset_to_pending']",
             content: "Reset-to-pending button now visible — confirms the status left 'pending'",
         },
     ],
@@ -102,6 +100,61 @@ registry.category("web_tour.tours").add("ems_student_document_embed_view", {
         {
             trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row:contains('Rejected')",
             content: "Documentation tab renders the rejected document without crashing",
+        },
+    ],
+});
+
+// Issue #717: the secretary's office adds a document the family sent by email from the student's
+// own Documentation section. An IBAN needs no file upload, which a tour can't drive.
+registry.category("web_tour.tours").add("ems_student_document_secretary_upload", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_view .o_notebook .nav-link[name='secretary']",
+            content: "Open the Secretary tab, home of the documentation section",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_field_x2many_list_row_add a",
+            content: "Add a document",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='doc_type'] select",
+            content: "Pick the IBAN type",
+            run: "selectByLabel IBAN",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='doc_value'] input",
+            content: "Fill in the IBAN",
+            run: "edit ES9121000418450200051332",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='doc_value2'] input",
+            content: "Fill in the account holder",
+            run: "edit Tour Holder",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Save the document",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal))",
+            content: "Dialog closed",
+        },
+        {
+            trigger: ".o_form_view .o_form_button_save",
+            content: "Save the student",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_form_saved",
+            content: "Student saved",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='document_ids'] .o_data_row:contains('Bank account (IBAN)'):contains('Approved')",
+            content: "The document is approved on save, without going through review",
         },
     ],
 });

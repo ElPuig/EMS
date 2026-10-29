@@ -2,6 +2,8 @@
 
 from datetime import timedelta
 
+from pytz import UTC
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
@@ -243,20 +245,11 @@ class ems_attendance_correction(models.Model):
         return self.employee_id._find_attendance_approvers()
 
     def _check_is_approver(self):
-        """Whether the current user may decide on this request (issue #543): a Head or Deputy
-        Head of Studies of the employee's own branch - above them in the chain of command
-        (the Director is above everybody), or the manager of their area's attendance -, never
-        every holder of the role centre-wide. A Head of Studies still decides on their own
-        request, as before: nobody below the Director is above them. The administrator always
-        can: they sit above the whole hierarchy although they appear nowhere in it."""
+        """Whether the current user may decide on this request: see
+        hr.employee._ems_is_attendance_approver. A Head of Studies still decides on their own
+        request, as before: nobody below the Director is above them."""
         self.ensure_one()
-        user = self.env.user
-        if user.has_group("ems.group_academic_admin") or user.has_group("ems.group_director"):
-            return True
-        employee = self.employee_id.sudo()
-        if not user.has_group("ems.group_head_of_studies"):
-            return False
-        return user in employee.tutor_scope_user_ids or employee.attendance_manager_id == user
+        return self.employee_id._ems_is_attendance_approver(self.env.user)
 
     def _check_approver(self):
         # NOTE: no longer restricted to state == 'pending' — the approver can revise their own
@@ -279,10 +272,17 @@ class ems_attendance_correction(models.Model):
 
 
 class ems_attendance(models.Model):
-    _inherit = "hr.attendance"
+    _name = "hr.attendance"
+    # The guard duty board reloads when a check-in changes (issue #692).
+    _inherit = ["hr.attendance", "ems.guard_board_notifier"]
+    _guard_board_fields = ("employee_id", "check_in")
 
     correction_ids = fields.One2many(string="Correction requests", comodel_name="ems.attendance_correction", inverse_name="attendance_id")
     correction_count = fields.Integer(string="Correction requests count", compute="_compute_correction_count")
+    # Issue #692: who checked the employee in on their behalf from the guard duty board ("The
+    # teacher is in the classroom"). Its own field: the check-in is created with sudo(), so
+    # create_uid would only ever say the superuser.
+    ems_checked_in_by_id = fields.Many2one(string="Check-in registered by", comodel_name="res.users", readonly=True)
 
     @api.depends("correction_ids")
     def _compute_correction_count(self):
@@ -295,3 +295,25 @@ class ems_attendance(models.Model):
         action["domain"] = [("attendance_id", "=", self.id)]
         action["context"] = {}
         return action
+
+    def _guard_board_spans(self):
+        return {(day, day) for day in map(self._guard_board_local_date, self.mapped("check_in"))}
+
+    def _notify_checked_in_by(self):
+        """Tells the employee that someone else checked them in (issue #692), and who: an Odoo
+        message, to their inbox or by email as their own notification preference says."""
+        self.ensure_one()
+        partner = self.employee_id.user_id.partner_id or self.employee_id.work_contact_id
+        if not partner:
+            return
+        attendance = self.with_context(lang=partner.lang or self.env.lang)
+        utils = self.env["ems.datetime_utils"]
+        check_in = utils.utc_datetime_to_local(self.check_in.replace(tzinfo=UTC)).strftime("%H:%M")
+        values = {"user": self.ems_checked_in_by_id.name, "time": check_in}
+        attendance.sudo().message_notify(
+            partner_ids=partner.ids,
+            subject=attendance.env._("Check-in registered for you at %(time)s", **values),
+            body=attendance.env._(
+                "%(user)s registered your check-in at %(time)s from the guard duty board, because you were "
+                "in the classroom but had not checked in. If it is not right, request a correction.", **values),
+        )

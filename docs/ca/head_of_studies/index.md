@@ -18,6 +18,8 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Gestió de contactes d'alumnes i famílies](../secretary/student-contacts.md) — tens el mateix accés complet de lectura/escriptura que secretaria aquí, per a qualsevol alumne de tot el centre.
 - [Tramitar una baixa o una expulsió](../secretary/graduation-withdrawal.md) — pots tramitar la baixa o l'expulsió d'un alumne, amb els mateixos passos que secretaria (manual compartit).
 - [Credencials de Google de l'alumnat](../tutors/google-credentials.md) — consultar-les, crear el compte i restablir la contrasenya, els mateixos passos que els tutors, per a l'alumnat dels tutors de la teva àrea.
+- [Consulta dels documents de l'alumnat](student-documents.md) — Tots els documents que ha lliurat l'alumnat dels tutors de la teva àrea, només de consulta.
+- [Matriculació per l'alumnat de preinscripció](../secretary/manual-matriculacio-preinscripcio.md) — podeu consultar totes les pantalles de **Gestió acadèmica > Matrícula** (matrícules, preinscripció, alumnat sense destinació) i la seva configuració (elements i plantilles de matrícula, assignació de tasques), de tot el centre, només de consulta: els passos d'aquest manual són de secretaria (manual compartit).
 - [Decidir sobre sol·licituds de correcció de fitxatges](attendance-corrections.md)
 - [Strikes: menú Convivència i correus d'escalat](strike.md)
 - [L'horari setmanal d'un grup](../admin/group-schedule.md)
@@ -28,6 +30,7 @@ Aquesta secció conté els manuals per a **Cap d'Estudis, Cap d'Estudis Adjunt/a
 - [Sol·licituds de dades de contacte: demanar a les famílies que actualitzin les dades](../tutors/contact-data-requests.md) — Demanar a l'alumnat i a les famílies que revisin les dades de contacte des del portal, fer el seguiment de les respostes i aprovar els canvis (manual compartit amb els tutors).
 - [Comunicats: enviar els vostres propis correus massius](notice.md)
 - [Horari de guàrdies](../teachers/guard-duty-schedule.md) — Qui falta a cada franja horària, i qui està de guàrdia per cobrir-ho.
+- [Organitzar les absències](../department_chiefs/absences.md) — Enviar guàrdies, reorganitzar les classes i avisar les famílies d'un canvi d'horari quan falta un docent.
 - [Notes públiques i notes privades de l'alumne](../teachers/student-notes.md) — On tot el professorat llegeix les notes públiques d'un alumne, i qui pot llegir i escriure les privades de tutoria.
 
 ---

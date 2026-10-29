@@ -1,6 +1,7 @@
 /** @odoo-module **/
 
 import { registry } from "@web/core/registry";
+import { studentCell } from "@ems/../tests/tours/student_list_helpers";
 
 // The teacher issues a strike from the roll-call view (button left of the notes
 // pencil), accepting the default reason with no typing, then it's verified in the
@@ -219,7 +220,7 @@ registry.category("web_tour.tours").add("ems_strike_partner_stat_button", {
             run: "press Enter",
         },
         {
-            trigger: ".o_list_view .o_data_row .o_data_cell:contains('Strike Tour Student')",
+            trigger: `.o_list_view ${studentCell("Strike Tour Student")}`,
             content: "Open the seeded student",
             run: "click",
         },

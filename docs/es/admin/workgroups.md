@@ -4,7 +4,7 @@
 
 # Grupos de trabajo
 
-Los grupos de trabajo son agrupaciones libres de empleados — un equipo de proyecto, una comisión intersdepartamental, o cualquier grupo de profesores, proveedores o personal PAS que necesites seguir en conjunto. No tienen ningún efecto en el resto del sistema; son puramente organizativos.
+Los grupos de trabajo son agrupaciones libres de empleados — un equipo de proyecto, una comisión interdepartamental, o cualquier grupo de profesores, proveedores o personal PAS que necesites seguir en conjunto. Uno de ellos, **Quality Comission**, es la comisión de calidad: sus miembros ven el menú **Calidad**, y lo dejan de ver cuando salen del grupo de trabajo.
 
 **Rol requerido:** Administrador
 

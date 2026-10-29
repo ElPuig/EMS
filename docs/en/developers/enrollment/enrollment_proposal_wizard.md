@@ -11,7 +11,7 @@ Two mechanisms cover it:
 - **`preinscription_study_id` on `res.partner`** — the destination GEDAC grants, recorded by the import. When it is set, the wizard resolves templates, course, group and shift against the **destination**, with no manual input.
 - **`allow_other_study`** — the manual escape hatch, for a study change that does *not* come from GEDAC (a student asking in October to move from SMX to GA). It drops the template filters so the secretary can pick any template in the catalogue.
 
-**Module files:** `models/contacts/enrollment_proposal_wizard.py`, `models/contacts/contact.py`, `models/contacts/applicant_import_wizard.py`, `views/academic_management/enrollment/enrollment_proposal_wizard.xml`, `views/academic_management/enrollment/list_tutor.xml`
+**Module files:** `models/contacts/enrollment_proposal_wizard.py`, `models/contacts/contact.py`, `models/contacts/applicant_import_wizard.py`, `models/settings/company.py` (pre-enrollment period), `models/settings/menu.py`, `data/main/ir.cron-preenrollment_period.csv`, `views/academic_management/enrollment/enrollment_proposal_wizard.xml`, `views/academic_management/enrollment/list_tutor.xml`, `views/settings/form.xml`
 
 ---
 
@@ -134,7 +134,34 @@ Without this the "With GEDAC assignment" filter would accumulate every past year
         domain="[('preinscription_study_id', '!=', False)]"/>
 ```
 
-No dedicated view, action or menu: the proposals list already lists every student **and** already carries the `action_enrollment_proposal` button, so the secretary sees and enrolls them in the same place. (The Educational Community list has no such button, which is why it was not chosen.) Being opt-in, the filter never alters the default view, and a tutor activating it still only sees its own students (the server action's domain).
+No dedicated view, action or menu: the proposals list already lists every student **and** already carries the `action_enrollment_proposal` button, so the secretary sees and enrolls them in the same place. (The Educational Community list has no such button, which is why it was not chosen.) Being opt-in, the filter never alters the default view, and a tutor activating it still only sees the students they act as tutor of (the server action's domain: `tutor_id.tutor_scope_user_ids`, so a Department/Seminar Chief also sees those of the tutors below them, issue #654).
+
+---
+
+## Availability: the pre-enrollment period
+
+Academic management → Enrollment → Enrollment proposal (`ems.menu_students_tutor`, server action `ems.action_student_group_enrollment`) is only used during pre-enrollment, so outside a yearly **pre-enrollment period** it is hidden from everyone but the roles that always need it (issue #654).
+
+| Field on `res.company` | Default | Notes |
+|-------|---------|-------|
+| `preenrollment_start_day`, `preenrollment_start_month`, `preenrollment_start_time` | 1, May, 08:00 | Opening. |
+| `preenrollment_end_day`, `preenrollment_end_month`, `preenrollment_end_time` | 31, July, 23:59 | Closing; the closing minute is still inside. |
+
+Edited in Settings → EMS Management → Course Management Settings. Same shape, validation and arithmetic as the [convalidation request period](../grades/convalidation.md#request-period), through the shared `_ems_yearly_period_*(prefix)` helpers.
+
+```mermaid
+flowchart TD
+    A[Menu load / action run] --> B{Sees every student, or system admin?}
+    B -- yes --> V[Enrollment shown / action runs]
+    B -- no --> C{_ems_preenrollment_period_open?}
+    C -- yes --> V
+    C -- no --> H[Menu hidden, empty folders pruned / UserError with the next opening]
+```
+
+- **Who always sees it:** the staff who see every student (`EmsBase.get_user_sees_every_student()`: `ems.group_academic_admin`, `ems.group_secretary`, `ems.group_head_of_studies`, which the Director implies) and `base.group_system`. Everyone else reaching the menu (tutors, Department/Seminar Chiefs through `group_tutor`, guidance and coexistence through `group_student_data_reader`) loses it outside the period. Decided in `res.company._ems_preenrollment_closed_for_user()`, the one method both checks below use.
+- **Menu:** `ir.ui.menu._visible_menu_ids()` (`models/settings/menu.py`) drops `menu_students_tutor` after `super()`, then every folder above it left with no visible child and no action (`menu_ems_enrollment`; for guidance/coexistence also Academic management itself, which had nothing else for them). `super()`'s set is ormcached and shared, so it is copied, never changed in place.
+- **Action:** the server action calls `res.company._ems_check_preenrollment_access()` first, which raises a `UserError` naming the next opening (company time zone), so a bookmarked URL does not open the screen either.
+- **Cache:** menu visibility is ormcached (`_visible_menu_ids` by groups, `load_menus` by user), so a change of state does not show by itself. `res.company._ems_sync_preenrollment_period()` compares the current state with the last one seen (`ir.config_parameter` `ems.preenrollment_period_open`) and only on a change stores it and clears the registry cache (`registry.clear_cache()`, signalled to every worker): twice a year. It runs from the cron `ems.ir_cron_preenrollment_period` (daily, the safety net) and whenever a `preenrollment_*` field is written, and each run triggers the cron again one minute after the next change (`_trigger(at=...)`; one minute later because the closing minute is still inside the period).
 
 ---
 
@@ -142,7 +169,7 @@ No dedicated view, action or menu: the proposals list already lists every studen
 
 | Group | Open the wizard | Same-study proposal | Cross-study proposal | Offered the GEDAC destination |
 |-------|-----------------|---------------------|----------------------|-------------------------------|
-| `ems.group_tutor` | Yes (own tutored students) | Yes | **No** — field invisible and ORM-protected; `action_create_enrollments()` raises `UserError` | **No** (falls back to `study_id`) |
+| `ems.group_tutor` | Yes (own tutored students), during the pre-enrollment period only | Yes | **No** — field invisible and ORM-protected; `action_create_enrollments()` raises `UserError` | **No** (falls back to `study_id`) |
 | `ems.group_secretary` | Yes | Yes | Yes | Yes |
 | `ems.group_academic_admin` | Yes | Yes | Yes | Yes |
 

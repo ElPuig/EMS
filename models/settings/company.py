@@ -2,14 +2,17 @@
 
 import calendar
 import logging
-from datetime import date
+from datetime import date, timedelta
 
 from pytz import UTC
 
-from odoo.tools import config, email_normalize
+from odoo.tools import config, email_normalize, format_datetime
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import UserError, ValidationError
 from cryptography.fernet import Fernet
+
+from ..shared import base
+from .mail_guard import DEV_SERVER_ROLE
 
 _logger = logging.getLogger(__name__)
 
@@ -72,9 +75,27 @@ class ems_company(models.Model):
     ems_full_day_hours = fields.Float(default=7.5)
     ems_health_allowance_hours = fields.Float(default=15.0)
     ems_absence_document_reminder_days = fields.Integer(
-        string="Supporting document reminder (days)", default=1)
+        string="Absence reminder (days)", default=1)
     ems_absence_document_escalation_days = fields.Integer(
-        string="Missing supporting document report (days)", default=3)
+        string="Absence report (days)", default=3)
+    # Issue #696: the areas (top-level departments) whose teachers go through the detected
+    # absences circuit: missing check-ins become detected absences, and every detected absence
+    # (also the ones entered by hand) reminds the teacher to request it. Empty, the circuit is off.
+    ems_absence_circuit_area_ids = fields.Many2many(
+        string="Detected absences: areas", comodel_name="hr.department",
+        relation="ems_company_absence_circuit_area_rel", column1="company_id", column2="department_id",
+        domain=[('parent_id', '=', False)])
+    # Issue #679: which timetable changes the guard duty board may propose when a teacher is away
+    # (see ems.course._enabled_absence_changes). All off unless the centre opts in.
+    ems_absence_change_late_entry = fields.Boolean(string="Groups may come in later", default=False)
+    ems_absence_change_early_leave = fields.Boolean(string="Groups may leave earlier", default=False)
+    ems_absence_change_long_break = fields.Boolean(string="Groups may have a longer break", default=False)
+    # Issue #718: coming in later and leaving earlier only for the groups of these levels (the
+    # level decides whether the education is compulsory: those students cannot go home early). An
+    # allowlist on purpose: empty, no group may.
+    ems_absence_change_level_ids = fields.Many2many(
+        string="Levels that may come in later or leave earlier", comodel_name="ems.level",
+        relation="ems_company_absence_change_level_rel", column1="company_id", column2="level_id")
 
     schedule_import_first_entry_time = fields.Float(default=8.0)
     schedule_import_last_entry_time  = fields.Float(default=21.0)
@@ -88,6 +109,15 @@ class ems_company(models.Model):
     convalidation_end_day = fields.Integer(default=31)
     convalidation_end_month = fields.Selection(selection=MONTHS, default='3', required=True)
     convalidation_end_time = fields.Float(default=23 + 59 / 60)
+    # Issue #654 - yearly pre-enrollment period, same shape as the convalidation one: outside it
+    # only the staff who see every student see Academic management > Enrollment
+    # (ir.ui.menu._visible_menu_ids) and can open the enrollment proposals.
+    preenrollment_start_day = fields.Integer(default=1)
+    preenrollment_start_month = fields.Selection(selection=MONTHS, default='5', required=True)
+    preenrollment_start_time = fields.Float(default=8.0)
+    preenrollment_end_day = fields.Integer(default=31)
+    preenrollment_end_month = fields.Selection(selection=MONTHS, default='7', required=True)
+    preenrollment_end_time = fields.Float(default=23 + 59 / 60)
     # The convalidation resolution's configurable texts (issue #529): the grounds of law of each
     # basis and the appeal footer. Empty means the standard text (ems.convalidation
     # _ems_resolution_legal_grounds / _ems_resolution_appeal_text), issued in Catalan.
@@ -163,21 +193,31 @@ class ems_company(models.Model):
     @api.constrains('convalidation_start_day', 'convalidation_start_month', 'convalidation_start_time',
                     'convalidation_end_day', 'convalidation_end_month', 'convalidation_end_time')
     def _check_convalidation_period(self):
-        month_names = dict(self._fields['convalidation_start_month']._description_selection(self.env))
+        self._ems_check_yearly_period('convalidation', _("convalidation request period"))
+
+    @api.constrains('preenrollment_start_day', 'preenrollment_start_month', 'preenrollment_start_time',
+                    'preenrollment_end_day', 'preenrollment_end_month', 'preenrollment_end_time')
+    def _check_preenrollment_period(self):
+        self._ems_check_yearly_period('preenrollment', _("pre-enrollment period"))
+
+    def _ems_check_yearly_period(self, prefix, period):
+        """Validates the yearly period whose fields start with `prefix` ('<prefix>_start_day',
+        ...); `period` names it in the error, lowercase."""
+        month_names = dict(self._fields[f'{prefix}_start_month']._description_selection(self.env))
         for company in self:
-            start, end = company._ems_convalidation_period_keys()
+            start, end = company._ems_yearly_period_keys(prefix)
             for month, day, minute in (start, end):
                 # A non-leap year: the period has to be the same every year, so no 29 February.
                 if not 1 <= day <= calendar.monthrange(2001, month)[1]:
                     raise ValidationError(_(
-                        "The convalidation request period uses a day that does not exist: "
-                        "%(day)s %(month)s.", day=day, month=month_names[str(month)]))
+                        "The %(period)s uses a day that does not exist: %(day)s %(month)s.",
+                        period=period, day=day, month=month_names[str(month)]))
                 if not 0 <= minute < 24 * 60:
                     raise ValidationError(_(
-                        "The convalidation request period's times must be between 00:00 and 23:59."))
+                        "The times of the %(period)s must be between 00:00 and 23:59.", period=period))
             if start == end:
                 raise ValidationError(_(
-                    "The convalidation request period must open and close at different moments."))
+                    "The %(period)s must open and close at different moments.", period=period))
 
     def get_current_course_or_raise(self):
         """The configured "Current course" (current_course_id), or a friendly ValidationError
@@ -249,6 +289,9 @@ class ems_company(models.Model):
             self.env['ems.group'].sudo().search([])._mark_public_schedule_dirty()
         if 'enrollment_course_id' in vals:
             self._sync_enrollment_course_flag()
+        if any(key.startswith('preenrollment_') for key in vals):
+            for company in self:
+                company._ems_sync_preenrollment_period()
         if 'director_id' in vals:
             for company in self:
                 old_director = old_directors[company]
@@ -265,17 +308,24 @@ class ems_company(models.Model):
         return res
 
     def _register_hook(self):
-        """Warns once per server start if this database has never declared whether it's a
-        development or a production environment (see 'ems.environment_type', set by
-        install.sh/devel.sh/deploy.sh - CLAUDE.md's own 'Development vs. production environment
-        declaration' section has the full picture). Skipped during automated test runs
-        (config['test_enable']) - a throwaway test database never runs any of those scripts and
-        never needs to."""
+        """Freezes the centre's own data and, outside automated test runs (a throwaway test
+        database never runs install.sh/devel.sh/deploy.sh and never needs to), checks this
+        environment's declaration once per server start."""
         super()._register_hook()
         self._ems_freeze_living_custom_data()
         if config['test_enable']:
             return
-        if not self.env['ir.config_parameter'].sudo().get_param('ems.environment_type'):
+        self._ems_check_environment_declaration()
+
+    @api.model
+    def _ems_check_environment_declaration(self):
+        """Warns if this database has never declared whether it's a development or a production
+        environment ('ems.environment_type', set by install.sh/devel.sh/deploy.sh - CLAUDE.md's
+        own 'Development vs. production environment declaration' section has the full picture),
+        or if it is a development one but this machine's odoo.conf lacks the role that turns on
+        the development mail guard (issue #691: devel.sh only sets it since #590)."""
+        environment_type = self.env['ir.config_parameter'].sudo().get_param('ems.environment_type')
+        if not environment_type:
             _logger.warning(
                 "EMS: 'ems.environment_type' is not set on this database - neither install.sh, "
                 "devel.sh nor deploy.sh has declared this environment yet. If this is a local "
@@ -283,6 +333,13 @@ class ems_company(models.Model):
                 "onto it (it redirects every stored email to your own inbox, avoiding accidental "
                 "sends to real people); if this is a real deployment, run deploy.sh, or set "
                 "ir.config_parameter 'ems.environment_type' to 'production' directly."
+            )
+        elif environment_type == 'dev' and config.get('ems_server_role') != DEV_SERVER_ROLE:
+            _logger.warning(
+                "EMS: this is a development database but odoo.conf has no "
+                "'ems_server_role = dev', so this machine's development mail guard is off: "
+                "emails are not checked against the developer's redirect and allowlist, and a "
+                "restored production copy could send real ones. Run devel.sh again to set it up."
             )
 
     def _ems_freeze_living_custom_data(self):
@@ -314,45 +371,96 @@ class ems_company(models.Model):
             ('noupdate', '=', False),
         ]).write({'noupdate': True})
 
-    def _ems_convalidation_period_keys(self):
-        """(month, day, minute of the day) of the convalidation request period's opening and
-        closing: tuples in calendar order, whatever the year."""
+    def _ems_yearly_period_keys(self, prefix):
+        """(month, day, minute of the day) of the opening and closing of the yearly period whose
+        fields start with `prefix`: tuples in calendar order, whatever the year."""
         self.ensure_one()
-        return tuple((int(month), day, round(time * 60)) for day, month, time in (
-            (self.convalidation_start_day, self.convalidation_start_month, self.convalidation_start_time),
-            (self.convalidation_end_day, self.convalidation_end_month, self.convalidation_end_time),
-        ))
+        return tuple(
+            (int(self[f'{prefix}_{end}_month']), self[f'{prefix}_{end}_day'],
+             round(self[f'{prefix}_{end}_time'] * 60))
+            for end in ('start', 'end'))
 
-    def _ems_convalidation_datetime_utils(self):
+    def _ems_company_datetime_utils(self):
         """ems.datetime_utils in the centre's own time zone, whoever is asking."""
         return self.env['ems.datetime_utils'].with_context(tz=self.partner_id.tz)
 
-    def _ems_convalidation_now_key(self, now):
-        local = self._ems_convalidation_datetime_utils().utc_datetime_to_local(
+    def _ems_period_now_key(self, now):
+        local = self._ems_company_datetime_utils().utc_datetime_to_local(
             (now or fields.Datetime.now()).replace(tzinfo=UTC))
         return local.year, (local.month, local.day, local.hour * 60 + local.minute)
 
-    def _ems_convalidation_period_open(self, now=None):
-        """Whether students and families can file convalidation requests from the portal at `now`
-        (naive UTC, defaults to the current moment). The closing minute is still inside; a
-        period whose opening comes after its closing in the calendar spans the new year."""
+    def _ems_yearly_period_open(self, prefix, now=None):
+        """Whether the yearly period whose fields start with `prefix` is open at `now` (naive UTC,
+        defaults to the current moment). The closing minute is still inside; a period whose
+        opening comes after its closing in the calendar spans the new year."""
         self.ensure_one()
-        start, end = self._ems_convalidation_period_keys()
-        now_key = self._ems_convalidation_now_key(now)[1]
+        start, end = self._ems_yearly_period_keys(prefix)
+        now_key = self._ems_period_now_key(now)[1]
         if start < end:
             return start <= now_key <= end
         return now_key >= start or now_key <= end
 
-    def _ems_convalidation_period_next_change(self, now=None):
+    def _ems_yearly_period_next_change(self, prefix, now=None):
         """The next time the period opens (while closed) or closes (while open), as naive UTC."""
         self.ensure_one()
-        start, end = self._ems_convalidation_period_keys()
-        year, now_key = self._ems_convalidation_now_key(now)
-        month, day, minute = end if self._ems_convalidation_period_open(now) else start
+        start, end = self._ems_yearly_period_keys(prefix)
+        year, now_key = self._ems_period_now_key(now)
+        month, day, minute = end if self._ems_yearly_period_open(prefix, now) else start
         if (month, day, minute) < now_key:
             year += 1
-        utils = self._ems_convalidation_datetime_utils()
+        utils = self._ems_company_datetime_utils()
         return utils.datetime_to_odoo(utils.time_float_to_utc_datetime(date(year, month, day), minute / 60))
+
+    def _ems_convalidation_period_open(self, now=None):
+        """Whether students and families can file convalidation requests from the portal."""
+        return self._ems_yearly_period_open('convalidation', now)
+
+    def _ems_convalidation_period_next_change(self, now=None):
+        return self._ems_yearly_period_next_change('convalidation', now)
+
+    def _ems_preenrollment_period_open(self, now=None):
+        return self._ems_yearly_period_open('preenrollment', now)
+
+    def _ems_preenrollment_closed_for_user(self):
+        """Whether the current user is kept out of the enrollment proposals right now: the
+        pre-enrollment period is closed and they are not among the staff who see every student
+        (academic admin, secretary, Head of Studies/Deputy and Director) or a system admin."""
+        if self.env.user.has_group('base.group_system') or base.EmsBase.get_user_sees_every_student(self):
+            return False
+        return not self._ems_preenrollment_period_open()
+
+    def _ems_check_preenrollment_access(self):
+        """Refuses the enrollment proposals to a user _ems_preenrollment_closed_for_user() keeps
+        out: the menu is hidden, but a bookmarked URL still reaches the action."""
+        if self._ems_preenrollment_closed_for_user():
+            opening = self._ems_yearly_period_next_change('preenrollment')
+            raise UserError(_(
+                "Enrollment proposals are only available during the pre-enrollment period. "
+                "It opens on %(date)s.",
+                date=format_datetime(self.env, opening, tz=self.partner_id.tz,
+                                     dt_format="d MMMM yyyy, HH:mm")))
+
+    @api.model
+    def _cron_ems_preenrollment_period(self):
+        self.env.company._ems_sync_preenrollment_period()
+
+    def _ems_sync_preenrollment_period(self):
+        """Makes the pre-enrollment period's opening and closing show in the menus. Menu visibility
+        is ormcached (ir.ui.menu._visible_menu_ids by groups, load_menus by user), so a change of
+        state needs the registry cache cleared; only on a real change, i.e. twice a year, against
+        the last state seen ('ems.preenrollment_period_open'). Then wakes the cron up again a minute
+        after the next change (the closing minute is still inside the period): run daily, it is
+        only the safety net."""
+        self.ensure_one()
+        is_open = str(self._ems_preenrollment_period_open())
+        params = self.env['ir.config_parameter'].sudo()
+        if params.get_param('ems.preenrollment_period_open') != is_open:
+            params.set_param('ems.preenrollment_period_open', is_open)
+            self.env.registry.clear_cache()
+        cron = self.env.ref('ems.ir_cron_preenrollment_period', raise_if_not_found=False)
+        if cron:
+            cron.sudo()._trigger(
+                at=self._ems_yearly_period_next_change('preenrollment') + timedelta(minutes=1))
 
     @api.model
     def _get_fernet_key(self):
@@ -383,6 +491,15 @@ class ems_company(models.Model):
         Same fallback rationale as above."""
         return (self.ems_absence_document_escalation_days
                 or self._fields['ems_absence_document_escalation_days'].default(self))
+
+    def _ems_absence_circuit_domain(self):
+        """Domain on hr.employee of the teachers in the detected absences circuit (issue #696):
+        those whose department hangs from one of its areas. None while no area is chosen."""
+        self.ensure_one()
+        if not self.ems_absence_circuit_area_ids:
+            return None
+        return [('employee_type', '=', 'teacher'),
+                ('department_id', 'child_of', self.ems_absence_circuit_area_ids.ids)]
 
     def _ems_is_corporate_email(self, email):
         """True if `email` belongs to the centre's own Google Workspace domain (or a subdomain

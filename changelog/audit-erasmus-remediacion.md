@@ -68,6 +68,9 @@
 ## Own destination proposals refuse the files every other upload refuses (audit R-11):
 - The host's written commitment goes through the same upload check (no HTML, SVG, scripts or programs).
 
+## Contact form opens for roles that cannot read the academic history:
+- The academic history list on the contact form is shown only to the roles that can read it (teachers, Secretary, Head of Studies, administrators, student data readers). Any other role that opens a contact, such as the Erasmus+ team, got an access error on families, providers and host entities.
+
 # Internal changes
 
 ## Regression tests and audit probes for the Erasmus+ audit remediation:

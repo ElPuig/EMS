@@ -205,7 +205,7 @@ corresponds to one root app menu as it actually appears in the running backend: 
 "Educational Community" (`menu_community`), `academic_management/` ↔ "Academic management"
 (`menu_ems_academic_management`), `planning_grading/` ↔ "Planning and Grading" (`menu_planning`),
 `attendance/` ↔ "Student's Attendances" (`menu_attendance`), `communications/` ↔ "Communications"
-(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`), `minutes_agreements/` ↔ "Meetings" (`menu_minutes`). A handful of
+(`menu_communications`), `coexistence/` ↔ "Coexistence" (`menu_coexistence`), `minutes_agreements/` ↔ "Meetings" (`menu_minutes`), `quality/` ↔ "Quality" (`menu_quality`). A handful of
 folders don't map to one of EMS's own root app menus, for a different, legitimate reason each:
 `settings/` (inherits of the native Settings screens — `res.config.settings`, `base.view_users_form`
 — reached from Odoo's own Settings app, not any EMS menu), `portal/` (QWeb website/portal
@@ -512,7 +512,7 @@ Key rules applied in this project:
 - Model attribute order: private attrs (`_name`, `_description`, `_order`, `_sql_constraints`) → fields → compute/inverse/search methods → constraints/onchange → CRUD overrides → action methods → business methods.
 - Loop variable named after the model, not `rec` (`for level in self:`).
 - **No shadowed builtins** (`list`, `type`, `hash`, `bytes`, `id`, `date`, ...) as local variable or parameter names — this bug class was found by hand several times during the DTON rollout (`LimesurveyApi.count_participants`'s `list`, `ems.base.notify`'s `type` parameter, `datetime_utils`' `datetime` parameters). Check for it with `pylint --disable=all --enable=redefined-builtin models/` (installed via `apt install pylint`) — not wired into a blocking hook, run it by hand after any pass touching several files.
-- **A form's actions on its record go in its "Actions" dropdown, never loose in the header (developer, 2026-09-30).** Put every header button inside `<header><div name="ems_actions" string="Actions">...</div></header>` (`static/src/js/backend/actions_dropdown.js`, see `docs/en/developers/shared/actions_dropdown.md`), frequent ones included: *"siempre dentro del desplegable, porque sino en algún momento tendremos muchos otra vez."* Each entry keeps its own `invisible=`/`groups=`/`confirm=`, and the dropdown isn't rendered when none applies, which is what the native ⚙ cog menu can't do (it filters by role only, never per record, and users don't find it). A bulk method run on the form's one record is a `type="object"` button calling it, never `type="action"` (a form sends `active_ids` = the pager's `resIds`, possibly the whole list). A per-record permission is a non-stored `@api.depends_context('uid')` compute read by `invisible=` and re-checked server-side (`can_reset_google_password`). Native header buttons go in too (`position="move"` from a view that runs after the one adding them, see the doc). Applied so far to the contact, employee and convalidation request forms (`views/community/{contact,employee}/form.xml`, `views/academic_management/convalidations/views.xml`); other forms still have loose header buttons and move over when next touched.
+- **A form's actions on its record go in its "Actions" dropdown, never loose in the header (developer, 2026-09-30).** Put every header button inside `<header><div name="ems_actions" string="Actions">...</div></header>` (`static/src/js/backend/actions_dropdown.js`, see `docs/en/developers/shared/actions_dropdown.md`), frequent ones included: *"siempre dentro del desplegable, porque sino en algún momento tendremos muchos otra vez."* Each entry keeps its own `invisible=`/`groups=`/`confirm=`, and the dropdown isn't rendered when none applies, which is what the native ⚙ cog menu can't do (it filters by role only, never per record, and users don't find it). A bulk method run on the form's one record is a `type="object"` button calling it, never `type="action"` (a form sends `active_ids` = the pager's `resIds`, possibly the whole list). A per-record permission is a non-stored `@api.depends_context('uid')` compute read by `invisible=` and re-checked server-side (`can_reset_google_password`). Native header buttons go in too (`position="move"` from a view that runs after the one adding them, see the doc). Applied so far to the contact, employee, convalidation request and student document forms (`views/community/{contact,employee}/form.xml`, `views/academic_management/convalidations/views.xml`); other forms still have loose header buttons and move over when next touched.
 - **Every EMS-added action bound to a model (`binding_model_id` on an `ir.actions.server`/`ir.actions.act_window`) must be reachable from both the model's list and its form**, so a user never finds it in one view and not the other. On a form that has an "Actions" dropdown (above), the form side is an entry of that dropdown and the binding is `list` only (binding it to `form` too would show it twice); on a form without one, `binding_view_types` stays `list,form` (Odoo's own default - don't restrict it to `list` by hand). Native Odoo actions (or a third-party/OCA module's own actions) are left exactly as that module defines them - this rule is only about actions EMS itself adds. Found 2026-09-17 (issue #482): three `res.partner`-bound server actions (`action_portal_access_bulk`, `action_authorization_send_bulk`, `action_google_credentials_download_bulk`) had `binding_view_types` hand-restricted to `list`, so a student's own form was missing them entirely even though the list view had them; since 2026-09-30 they are list-only again on purpose, with the student form offering them from its Actions dropdown. The only other legitimate reason to restrict a *new* EMS action to one view type is a genuine functional one (e.g. an action that only makes sense on a multi-record selection) - document it in a comment next to the field when that's the case, the same way `views/community/contact/native_action_bindings.xml` documents its own deliberate exclusions.
 - XML `<record>`: `id` attribute before `model`.
 - f-strings instead of `%s` formatting.
@@ -545,7 +545,7 @@ Key rules applied in this project:
 There are **two distinct categories** of documentation, for two different audiences — every new feature needs both, they are not alternatives:
 
 - **Technical documentation** (`docs/en/developers/`): for developers reading the code. English only. Mermaid diagrams of hierarchy/relations, CRUD flow, access-control tables.
-- **User documentation** (`docs/{en,ca,es}/<role>/`): manuals for the people who actually operate the feature in the running app — one folder per role (`admin`, `teachers`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families`). Trilingual: every user doc needs a Catalan, Spanish and English version. A single feature can need more than one role's manual (e.g. a teacher-facing screen plus the admin config behind it) — see the Development workflow below for how to identify which roles apply.
+- **User documentation** (`docs/{en,ca,es}/<role>/`): manuals for the people who actually operate the feature in the running app — one folder per role (`admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families`, `quality`). Trilingual: every user doc needs a Catalan, Spanish and English version. A single feature can need more than one role's manual (e.g. a teacher-facing screen plus the admin config behind it) — see the Development workflow below for how to identify which roles apply.
 
 Trilingual tree: English (`docs/en/`), Catalan (`docs/ca/`), Spanish (`docs/es/`).
 
@@ -557,9 +557,11 @@ docs/
 ├── en/
 │   ├── admin/         # [USER doc] Administrator manuals
 │   ├── developers/    # [TECHNICAL doc] Mermaid diagrams, CRUD flow, access-control tables (English only)
+│   ├── department_chiefs/  # [USER doc] Department/Seminar Chief manuals (organising absences, notices)
 │   ├── erasmus/       # [USER doc] Erasmus+ team manuals (coordination, mobility technician)
 │   ├── families/      # [USER doc] Family/student manuals
 │   ├── head_of_studies/  # [USER doc] Head of Studies / Deputy / Director manuals
+│   ├── quality/       # [USER doc] Quality coordination manuals (ISO 9001 system)
 │   ├── secretary/      # [USER doc] Secretariat manuals
 │   ├── teachers/       # [USER doc] Teacher manuals
 │   └── tutors/         # [USER doc] Group tutor manuals
@@ -782,6 +784,32 @@ Two independent conditions gate deletion, both need to hold: **(1)** the record'
 
 **Deciding `noupdate=True` vs `False` for `data/main/`/`data/cat/` (EMS's own data, not `data/custom/`'s centre config): default to `False` — EMS owns its data and should keep improving it. `noupdate=True` is the exception, earned per record, not a default courtesy** — and being Odoo-native vs EMS-authored has no bearing on the decision either way (Odoo's own official docs leave this entirely to each module's judgment, and Odoo core itself is inconsistent about it). The actual test, and worked examples (`ems.schedule_framework_default.xml` genuinely earns `noupdate=True`; `ems.mail_activity_type.xml`/`res.partner.category.xml` don't): see `docs/en/developers/shared/data_loading.md`'s "Deciding `noupdate=True` vs `False`" section.
 
+**Language of the data itself: Catalan, verbatim - `.po` translation can never reach a `data/custom/`
+record (2026-09-20).** The "English is the source language" rule in "Coding standards" is about *module
+strings* (`_()`, `_t()`, view `string=`), not about the content of `data/` records. A record owned by
+`__import__` is invisible to the translation pipeline: `TranslationModuleReader._export_translatable_records`
+(`odoo/tools/translate.py`) selects `ir_model_data` rows with `module = ANY(<modules being exported>)`, and
+`__import__` is never in that set, so such a record is neither exported to nor matched from `i18n/*.po`. The
+value a CSV writes lands as the `en_US` key of the jsonb field and is therefore what **every** reader sees,
+in every language, with no second place to put a translation. Since the centre's working language is
+Catalan, a `data/custom/` CSV carries the centre's own Catalan wording directly, copied verbatim from
+whatever document is the real source of truth (a controlled quality document, the curriculum decree, the
+authorization text) - typos included, when the registry has to match what an auditor or a family reads in
+the original. This is what `data/cat/ems.study.csv`, `ems.subject.csv`, `ems.outcome.csv` and
+`data/custom/ems.authorization.template.csv` have always done. **How to apply:** never seed
+institutional content in English "to be translated later", and never write a production step that says
+"translate these N names from the interface" - that step is unversioned, has to be repeated on every
+environment, and is exactly the gap found on 2026-09-20 in the quality module's phase 1 and 2 seeds (120
+names in English, with a manual translation step in the deployment guide). `hr.department.csv` is the one
+pre-existing exception, translated from the UI ([[project_department_names_ui_translation]]); it is a
+leftover, not a pattern to copy.
+
+**Careful when *changing* the text of an already-seeded `data/custom/` record:** every `__import__`
+record is frozen (see "`data/custom/` is seeded once and then frozen" above), so editing its CSV row
+changes nothing on an upgrade of an existing installation. Correct the record in the app or with a
+migration, and edit the CSV row too so a clean install gets the same text; say so in the production
+guide, since a deploy that merely loads the new CSV will not pick the change up either.
+
 **Load order:** always list files so that referenced records are declared before the files that reference them (e.g. `data/cat/ems.study.csv` before every `ems.subject.csv`, whose `study_ids` reference the studies).
 
 ## Migrations
@@ -829,7 +857,7 @@ forward, use the **Development workflow** below for both new models and changes 
 ones — it already folds D/T/O/N into a single cycle and doesn't need a separate retroactive
 pass to catch up to.
 
-1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages, one file per role that actually interacts with the feature (`docs/{en,ca,es}/<role>/`, where `<role>` is `admin`, `teachers`, `tutors`, `secretary`, `head_of_studies`, `erasmus` or `families` — not only `admin/`; a feature can be relevant to more than one role and then needs a doc file under each).
+1. **D — Diagrams:** Technical docs in English (`docs/en/developers/`) with Mermaid diagrams; user docs in all three languages, one file per role that actually interacts with the feature (`docs/{en,ca,es}/<role>/`, where `<role>` is `admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families` or `quality` — not only `admin/`; a feature can be relevant to more than one role and then needs a doc file under each).
 2. **T — Testing:** Backend `TransactionCase` tests + browser tour test. The tour must exercise **every view where the model's data is actually rendered**, not just its own canonical list/kanban/form action — a clean `./upgrade.sh` and passing `TransactionCase` tests only prove the arch loads and the model's logic works; neither renders anything in a browser, so neither catches a client-side (OWL template, widget) crash. Concretely, check for and cover:
    - The model's own primary list/kanban/form views (the ones reachable from its normal menu).
    - Any **secondary view** for the same model reachable only via a different action (e.g. a kanban view inherited/overridden separately from the model's main list+form action) — these are easy to forget precisely because they're not in the model's own menu.
@@ -847,17 +875,49 @@ separate cleanup pass later. It is TDD's Red-Green-Refactor cycle, with D/O/N sl
 no separate process to remember, and no distinction between "new" and "existing" beyond
 whether Spec/Red start from a blank file or a diff:
 
-1. **Spec (before Red) — D:** Before any test or code, stub or update `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table) with the requirements this change needs to cover. From that access-control table, identify **every role that will actually use the feature** (`admin`, `teachers`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families` — a feature is frequently relevant to more than one, e.g. a teacher-facing grading screen plus an admin config screen) and stub or update one `docs/{en,ca,es}/<role>/<model>.md` per role identified, not just `admin/`. These stubs are the acceptance criteria for the cycle below.
+1. **Spec (before Red) — D:** Before any test or code, stub or update `docs/en/developers/<area>/<model>.md` (Mermaid diagram of hierarchy/relations, CRUD flow, access-control table) with the requirements this change needs to cover. From that access-control table, identify **every role that will actually use the feature** (`admin`, `teachers`, `department_chiefs`, `tutors`, `secretary`, `head_of_studies`, `erasmus`, `families`, `quality` — a feature is frequently relevant to more than one, e.g. a teacher-facing grading screen plus an admin config screen) and stub or update one `docs/{en,ca,es}/<role>/<model>.md` per role identified, not just `admin/`. These stubs are the acceptance criteria for the cycle below.
 2. **Red — T:** Write or adapt `tests/test_<model>.py` (`TransactionCase`) and the tour (`static/tests/tours/<model>_tour.js` + `tests/test_<model>_tour.py`) for the behavior this change needs — before writing the implementation. The tour is the default, not an optional extra; skip it only for a model with no UI surface at all (pure backend/abstract model, never rendered in any view). The tour must cover every view the model's data ends up in, including secondary views under a different action and any embedding in another model's view — not only the model's own screen. **This applies just as much to a change on an already-DTON'd model as to a brand-new one** — found the hard way (2026-07-30): a checkbox-to-radio widget change on `ems.limesurvey_block` was initially shipped without a tour ("no tour exists for this view" was treated as a reason to move on, not as the gap it was); the developer had to ask "¿no haría falta un tour para comprobar que abrir esta vista no falla?" before one got added — and it caught real, non-trivial bugs in the process (`select` on a plain `<select>` doesn't work the way it looks like it should, since Odoo's `SelectionField` JSON-stringifies the option `value` attribute — use `selectByLabel` instead; a `widget="code"` field is an Ace editor, not a plain `<textarea>`, and needs `ace.edit(anchor).setValue(...)` in a custom `run()`, not the generic `edit` action). `./upgrade.sh` succeeding only proves the view's XML is structurally valid (fields exist, widgets are compatible with the field type) — it proves nothing about whether the page actually renders or a click actually works in a real browser. `./test.sh TestClassName` (scoped to the relevant test class) must fail. **Log in as the least-privileged role that should have access to the screen, not `admin` by default** — from the Spec step's access-control table, using `create_role_user`/`create_role_employee` (`tests/common.py`), not `admin`/an `hr.group_hr_user`-implying role. Admin login is only justified when the feature genuinely is admin/`academic_admin`-only by design. Found the hard way (issue #434, 2026-09-10): 78 of 89 existing tours logged in as admin or a role implying `hr.group_hr_user`, so a widget's field *dependency* bypassing the view's group-based arch stripping reached production unnoticed — every existing employee tour happened to be run by someone the bug couldn't affect. If the action under test exposes more than one `view_mode` (kanban+list+form, etc.), the tour must visit each view type at least once, not only whichever renders first — the #434 bug broke the kanban specifically while the list view of the same action was fine.
 3. **Green — T:** Write the minimum code to pass: `models/<area>/<model>.py`, `security/ir.model.access.csv` (+ `security/rules/*.xml` if needed), `views/<area>/<model>/{form,list,menu}.xml`, manifest bump. `./test.sh TestClassName` must pass. If a new validation/constraint conflicts with an existing test, don't relax the new check to fit the test on assumption alone — see "Full-scenario exploration before implementing" in Coding standards above.
 4. **Refactor — O:** In the same cycle, not as a later pass: add `_order`, `_sql_constraints`, computed field guards, view fixes for *this* model. Also check for **cross-cutting duplication** while you're here — the same shape of code (or test fixture/mock boilerplate) hand-written in more than one file is worth extracting into a shared helper (`ems.base` for production code, `tests/common.py` for test utilities) rather than left copy-pasted; this is exactly how the same escaping bug got independently found and fixed five times before `EmsBase.build_html_list` existed. Don't go looking for unrelated duplication elsewhere in the codebase on every change — but if this change's own work reveals an existing duplicate, fold the extraction into this same cycle instead of deferring it.
 5. **Normalize — N:** Apply the Odoo v18 coding guidelines from the "Coding standards" section above — model attribute order, alphabetical imports, f-strings, loop variable naming, translatable literals, no shadowed builtins. Run `pylint --disable=all --enable=redefined-builtin` on the files you touched (see "Coding standards" above for the full command) — cheap, and this exact bug class (`list`, `type`, `datetime`, `bytes`/`hash` shadowing builtins) has recurred often enough to be worth a mechanical check rather than relying on reading alone.
 6. **Gate:** `./upgrade.sh` and `./test.sh TestClassName` after each Red-Green-Refactor-Normalize cycle (see "The full test suite is slow" above — don't reach for the unscoped `./test.sh` here).
-7. **Close — D:** For every role identified in the Spec step, fill in (or update) the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every change with a user-facing effect, not an optional extra to be requested separately; skipping it because the change "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the manual if it's new. Add the new/changed strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. The full, unscoped `./test.sh` is not part of Close on a development branch: CI runs it before merge (see "Never run the full, unscoped `./test.sh` on a development branch" above). Then deliver the PR changelog summary described below — it's part of Close, not a separate ask.
+7. **Close — D:** For every role identified in the Spec step, fill in (or update) the three language versions of that role's user doc (`docs/{en,ca,es}/<role>/<model>.md`) — this is a mandatory deliverable of every change with a user-facing effect, not an optional extra to be requested separately; skipping it because the change "isn't for admins" is the most common way this step gets missed. Also update the role's `index.md` to link the manual if it's new. Add the new/changed strings' real Catalan/Spanish translations to `i18n/ca_ES.po` and `i18n/es_ES.po` (see "All literals must be translatable" above — wrapping in `_()`/`_t()` during Green/Refactor is not enough on its own), and reconcile the developer doc's diagram if the implementation diverged from the initial spec during the cycle. The full, unscoped `./test.sh` is not part of Close on a development branch: CI runs it before merge (see "Never run the full, unscoped `./test.sh` on a development branch" above). Then deliver the PR changelog summary described below — it's part of Close, not a separate ask. Before handing the issue over (Ready to merge), run the quality audit in "Quality audit when closing" below.
 
    **Defer the full user-doc pass — and especially screenshots — while the feature is still under active design iteration in the same conversation (developer feedback 2026-08-10):** found while doing exactly this on the working-schedules import wizard — several small, still-evolving design tweaks in a row (a screen's position, its name, its own technical `state` key, then per-screen intro text) each triggered their own full Close step, rewriting the same admin-manual prose repeatedly for what was really one feature the developer hadn't yet confirmed as final. Screenshots are the expensive part to redo (capture, crop, verify no personal data leaked, re-crop); prose is cheaper but still wasted effort when the next message changes the same paragraph again. **How to apply:** keep the Spec-time *stub* current every cycle (already the rule above, and cheap either way), and keep the developer-facing English dev doc (`docs/en/developers/...`) current every cycle too (plain text, no screenshots, and it's the running record of *why*, needed to explain each iteration's own reasoning while it's still fresh) — but hold off writing the *full* three-language user-doc content and any screenshots until the developer actually confirms the feature has reached its final shape (a clear signal like "ya está", or simply moving on to unrelated work without more tweaks), then do one real Close pass covering everything that changed since the stub. If a change is genuinely a one-shot (no back-and-forth expected), there's no "still iterating" state to wait out — do the full Close immediately as before. When unsure whether more iteration is coming, ask rather than guessing which side to default to.
 
    **Track every deferred Close-step obligation proactively once it's been deferred — don't rely on being reminded (developer feedback 2026-08-11):** deferring the screenshot/full-doc pass above (or, on a release branch, the full unscoped `./test.sh` gate) to "later, once confirmed," is fine — but once deferred, it must stay tracked as a live, explicit item (e.g. via the `TodoWrite` tool) for the rest of the session, not just left as prose inside this file or a memory/plan file to be re-discovered later. Real incident: after finishing a feature (a new wizard screen, tested and working), the developer asked "¿qué nos queda de este trabajo?" — the answer covered an unrelated plan-file audit but omitted that the full test gate had never been run and the screenshot-inclusive doc close was still outstanding, both already known to be deferred. The developer had to point out both themselves: *"te has olvidado de lo que quedaba pendiente... que esto no vuelva a pasar, por favor. Si te pregunto que queda pendiente, deberías saberlo si esto ya se ha hecho o no."* **How to apply:** the moment a Close-step item is deliberately deferred, add it to the todo list right then, not after the fact. When asked "what's left/pending" in any phrasing, check that tracked state first, before answering from memory/plan files alone — the answer should reflect what you already know is outstanding, not require the developer to notice a gap you already knew about.
+
+## Quality audit when closing (developer, 2026-10-21)
+
+Closing work is not only docs, translations and green tests: the code and the tests it leaves behind
+must be clean. Every close runs this audit over everything the work changed: closing an issue
+("completa/cierra la issue", the Close step above) and the "revisión del cierre" of a release PR
+(below), whether or not the developer asks for it. Found the hard way on issue #659: after several
+design iterations the code had piled up a convoluted post-processing step (which also hid a real bug),
+duplicated logic on server and client, two UIs for the same thing, redundant tests and no tests for the
+most complex branch, and only an audit the developer happened to ask for caught it (*"Si no te lo llego
+a pedir, estaríamos metiendo código sucio en el proyecto"*).
+
+**What it looks at, in the changed code (and what it touches directly):**
+- Refactoring: duplicated logic (server and client), code that grew convoluted through iterations
+  and can be restructured, two paths or two UIs doing the same job, leftovers (unused labels, methods,
+  translations, stale comments and docstrings).
+- Runtime efficiency, per "Efficiency first" above: measured on this box's real data (`odoo shell`,
+  cold, read-only and rolled back), with the numbers reported.
+- Tests: redundant or overlapping ones (same code path, same assertion), and **missing** ones,
+  especially where the code is most complex.
+
+**Order (developer, 2026-10-21): coverage first, then clean, then the tests themselves.** *"Con la
+cobertura de pruebas garantizamos que el refactoring, limpieza, optimizaciones, etc. no rompe nada. Y
+después haríamos la mejora sobre las propias pruebas."*
+1. Add the missing tests for what is about to be touched and run them against the current code
+   (a new test failing there is a bug found, report it).
+2. Refactor, simplify and optimize, with those tests as the safety net.
+3. Then improve the tests: remove or merge the redundant ones.
+
+**Reporting:** say what was found and what was changed, with numbers. A finding that changes what
+users see, or a judgment call, is asked before applying (e.g. #659's "two UIs for 'Only tell the
+families'"). When the developer asks for the audit alone ("sin hacer cambios"), report and wait.
 
 ## "Revisión del cierre" — pre-production close review across merged branches (2026-09-15)
 
@@ -869,7 +929,8 @@ branch's own session already did on its own branch in isolation: a "revisión de
 second, holistic pass across *everything that landed together*, since one feature's own Close step
 has no visibility into whether it stayed consistent with another feature merged alongside it.
 
-**Covers, across every branch merged since the last release tag:**
+**Covers, across every branch merged since the last release tag** (plus the quality audit in "Quality
+audit when closing" above, over everything integrated):
 - Technical documentation (`docs/en/developers/`) — actually reflects current behavior (see
   "Documentation describes current behavior, not history" above), not stale from an earlier
   design iteration that shipped differently than first drafted.
@@ -895,6 +956,71 @@ assume it happened. If every change on the branch was made by the developer dire
 usually decline (they already know whether they closed their own work properly) — but always
 offer when the branch integrates a colleague's changes, since that's precisely the situation where
 the developer can't already know by memory alone.
+
+## Permission audit and closing checklist table (developer, 2026-10-21)
+
+**Permission audit, part of every close.** Alongside the quality audit above, closing an issue and the
+"revisión del cierre" of a release audit the permissions of the area the work touched (everything
+integrated, for a release). Found on issue #654: a whole-menu audit of Academic management turned up
+five inconsistencies nobody had noticed, two of them ending in an access error on save (a view forcing
+`create="1"`/`edit="1"` over a read-only ACL; a button offered to a role whose record rules refused the
+write). How: one throwaway user per role of `tests/common.py`'s `ROLE_GROUP_XMLIDS`, inside an
+`odoo shell` transaction rolled back at the end; for every menu of the area, cross menu visibility
+(`ir.ui.menu._visible_menu_ids()`), ACL (`has_access`), readable records (the action's domain) and what
+the views really offer (`get_views(action.views)`: the root's create/edit/delete and the header/Actions
+buttons). Flag a screen offering New/Edit/Delete or a writing button the role can't complete, a menu
+with nothing readable, a role with rights but no way in, and anything contradicting what the developer
+decided for that role (e.g. "read only"). Report, fix with tests, then re-run the audit to show 0
+mismatches.
+
+**Closing checklist table, every time (developer, 2026-10-21).** A countermeasure so that what reaches
+`main` always has the best possible quality: *"Si Juan o yo vemos que esa tabla no nos aparece, te
+avisaremos."* Whenever an issue is completed (its card moved to "📦 Ready to merge") and whenever a
+release PR is closed (when asking for the go-ahead to merge, updated once the deploy is confirmed), the
+final message shows a table with every item below and its state: ✅ done, ❌ not done, ⚠️ tried with
+problems (say which), ➖ doesn't apply (say why). One row per item, a short note each, never omitted or
+merged into prose. An ❌ or ⚠️ is stated, never hidden: the table is how the developer decides whether
+to go ahead.
+
+Issue items:
+
+| # | Item |
+|---|------|
+| 1 | Quality audit over the whole branch diff: missing tests first, run on the current code |
+| 2 | Refactoring: duplication (server/client), convoluted code, two paths/UIs, leftovers |
+| 3 | Efficiency measured on real data, with numbers |
+| 4 | Redundant tests removed or merged |
+| 5 | Permission audit of the touched area, re-run with 0 mismatches |
+| 6 | Backend tests + tour (least-privileged role, every view mode); scoped `./test.sh` green |
+| 7 | `./upgrade.sh` clean (no WARNING/ERROR) |
+| 8 | Migrations (upgrade and clean-install paths) when xmlids or data change |
+| 9 | Developer docs describe current behavior |
+| 10 | User manuals ca/es/en per role, linked from `index.md` |
+| 11 | Screenshots (audience's role, no personal data) |
+| 12 | ca/es translations, verified in the DB; `TestI18nCoverage` green |
+| 13 | LanguageTool on Catalan/Spanish text |
+| 14 | `pylint` redefined-builtin on touched files |
+| 15 | `changelog/<branch>.md` up to date |
+| 16 | Nothing deferred left untracked |
+| 17 | `git status` clean, branch pushed, card in "Ready to merge" (GitHub issue left open) |
+
+Release PR items:
+
+| # | Item |
+|---|------|
+| 1 | Every "Ready to merge" branch integrated in ascending order, cards moved |
+| 2 | Conflicts resolved keeping both sides (`.po` blocks checked, migrations above the last tag) |
+| 3 | Quality audit over everything integrated |
+| 4 | Permission audit over everything integrated, 0 mismatches |
+| 5 | Developer docs current; user manuals in three-language parity |
+| 6 | Translations verified in the DB |
+| 7 | LanguageTool `--since <last tag>` |
+| 8 | Backend, feature tours and the role-smoke crawler tours green (scoped run) |
+| 9 | PR text: every changelog reassembled in template order, condensed, `Related with` checked, put on the PR |
+| 10 | CI green on the newest head |
+| 11 | `/changelog-clean` and then `/deploy-check` green |
+| 12 | Developer's go-ahead to merge |
+| 13 | Squash merge, release and deploy confirmed |
 
 ## "Prepara la release" — integrate every ready branch into the release branch (2026-09-25)
 
@@ -1380,3 +1506,17 @@ markup instead of rebuilding it from this description.
   different track and a different author for each video.
 - The rendering pipeline is not in this repo: on the developer's desktop box it lives in
   `/root/ems-slides-video/` (never keep it only under `/tmp`, which is wiped on reboot).
+
+**Live demos in videos (developer, 2026-10-22):** informative slides alone show too little of how
+EMS is used; a video about a screen includes a live demo of it, recorded in a real browser with
+fictitious data. The recipe, the scripts and every gotcha are in
+`/root/ems-slides-video/live/README.md` (read it before starting, it saves the trial and error of
+the first one). In short: a throwaway `HttpCase` recorder (copied into `tests/`, deleted after) with
+a fictitious fixture and the screen narrowed to it; viewport 960x720 at scale 1.5 captured with
+`Page.captureScreenshot` from a second thread (the screencast ignores the scale, CSS `zoom` breaks
+positions); a drawn cursor with hover and click dispatched in JS (real mouse events don't mix with
+the capture loop); a clock warp in the page and the server for time-lapses; for live updates, three
+test patches on the bus (websocket allowed, bus post-commit hooks run by `TestCursor.commit`,
+`bus.bus._poll` from the start id); other people act through their own HTTP session
+(`self.session = None` before `authenticate()`, which otherwise logs the recording browser out). The
+demo is laid out as the app (1440 px) plus a 480 px panel with the clock and the text of each step.

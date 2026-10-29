@@ -44,7 +44,7 @@ class TestEnrollmentPlacementTour(HttpCase):
             (0, 0, {'product_id': cls.tutorship.product_id.id})]
         cls.student = cls.env['res.partner'].create({
             'name': 'Enrollment Placement Tour Student', 'contact_type': 'student', 'student_id': next_student_id(),
-            'main_group_id': cls.g2a.id})
+            'main_group_id': cls.g2a.id, 'birth_date': '2010-01-01'})
         cls.order = cls.env['sale.order'].create({
             'partner_id': cls.student.id, 'ems_study_id': cls.study.id,
             'ems_course_id': cls.course.id, 'shift': 'morning', 'ems_group_id': cls.g2a.id})

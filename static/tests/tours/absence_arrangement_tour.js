@@ -40,20 +40,20 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
             content: "The empty lesson says there are possible arrangements",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Swap Teacher teaches at 08:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Swap Teacher and Tour Absent Teacher swap their 08:00 and') input:checked",
             content: "Proposal 1 starts with the swap, checked",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Move Teacher moves their 12:00 lesson to 09:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Move Teacher: 12:00 lesson → 09:00') input:checked",
             content: "...then the move into the 9:00 lesson",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher moves their 09:00 lesson to 12:00') input:checked",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher: 09:00 lesson → 12:00') input:checked",
             content: "...and the absent teacher's 9:00 lesson at 12:00: keep all but this one",
             run: "click",
         },
         {
-            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher moves') input:not(:checked)",
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_step:contains('Tour Absent Teacher: ') input:not(:checked)",
             content: "It is unchecked",
         },
         {
@@ -79,6 +79,21 @@ registry.category("web_tour.tours").add("ems_absence_arrangement", {
         {
             trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
             content: "Apply the checked steps",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')):contains('Tour Move Teacher comes in at 09:00 instead of 12:00.'):contains('Have you talked to Tour Swap Teacher and Tour Move Teacher?') .modal-footer .btn-secondary",
+            content: "Their entry and exit times change: the board asks whether they agreed (issue #709). Not yet",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
+            content: "Nothing was applied: the proposal is still there. Apply it again",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
             run: "click",
         },
         {
@@ -181,7 +196,7 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_dialog", {
             run: "click",
         },
         {
-            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher moves their 12:00 lesson to 09:00') input:checked:enabled",
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher: 12:00 lesson → 09:00') input:checked:enabled",
             content: "The plan that solves it is chosen, every step checked",
         },
         {
@@ -191,6 +206,11 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_dialog", {
         {
             trigger: ".o_guard_cover_assign:enabled",
             content: "Apply it",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
             run: "click",
         },
         {
@@ -231,6 +251,137 @@ registry.category("web_tour.tours").add("ems_absence_arrangement_change", {
         {
             trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck:has(.o_guard_board_arrangement_tag:contains('Tour Move Teacher')) .o_guard_board_arrangement_change_tag:contains('Leaves at 11:00')",
             content: "The 9:00 class says who teaches it and that the group leaves at 11:00",
+        },
+    ],
+});
+
+// Issue #678, as the absent teacher's Department Chief: the 12:00 lesson is co-taught and one of
+// its teachers has another class at 9:00. The plan moves it with the other teacher and warns that
+// this one stays on guard; applied without the notice to the families, they show in the guard
+// column at 12:00. Seed data comes from TestAbsenceCoverageTour.test_absence_arrangement_co_teaching_tour.
+registry.category("web_tour.tours").add("ems_absence_arrangement_co_teaching", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_manageable:contains('Tour Absent Teacher')",
+            content: "Open the 9:00 lesson",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Tour Move Teacher: 12:00 lesson → 09:00'):contains('Tour Co-Teacher cannot follow the lesson (busy then): on guard at 12:00 instead.')",
+            content: "The step warns that the co-teacher who cannot follow the lesson stays on guard",
+        },
+        {
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Notice to the families') input:checked",
+            content: "Leave the notice to the families out",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_cover_option:has(input[type=radio]:checked) .o_guard_board_plan_step:contains('Notice to the families') input:not(:checked)",
+            content: "The notice is unchecked",
+        },
+        {
+            trigger: ".o_guard_cover_assign:enabled",
+            content: "Apply the move",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Confirm the teachers whose working day changes agreed (issue #709)",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .o_field_widget[name='group_ids']:contains('TABTG')",
+            content: "The students' notice opens: the group has no students to send it to",
+        },
+        {
+            trigger: ".o_breadcrumb .o_back_button a, .o_breadcrumb li.breadcrumb-item:first-child a",
+            content: "Back to the board",
+            run: "click",
+        },
+        {
+            trigger: "td:has(.o_guard_board_block_time:contains('12:00-13:00')) .o_guard_board_guard_badge:contains('Tour Co-Teacher'):contains('lesson moved')",
+            content: "The co-teacher is on guard at 12:00, tagged",
+        },
+    ],
+});
+
+// Issue #710, as the absent teacher's Department Chief: the best proposal moves the group's 12:00
+// lesson to 11:00 and tells the families the group leaves at 12:00, but nothing fills the 9:00
+// class. The proposal says so, and applying it opens that class's guard assignment, where the
+// guard on duty is sent. Seed data comes from TestAbsenceCoverageTour.test_absence_arrangement_gaps_tour.
+registry.category("web_tour.tours").add("ems_absence_arrangement_gaps", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        {
+            trigger: ".o_guard_board_week_nav button:last-child",
+            content: "Move to next week",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_tabs .nav-link:contains('Monday')",
+            content: "Open Monday",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_shift_select",
+            content: "Morning shift",
+            run: "selectByLabel Morning",
+        },
+        {
+            trigger: ".o_guard_board_view_tabs .nav-link:contains('Absences table')",
+            content: "Switch to the absences table",
+            run: "click",
+        },
+        {
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_gaps:contains('TABTG (09:00) without a teacher')",
+            content: "Proposal 1 says the 9:00 class still needs a guard",
+        },
+        {
+            trigger: ".o_guard_board_arrangements .o_guard_board_plan:has(.o_guard_board_plan_title:contains('Proposal 1:')) .o_guard_board_plan_apply",
+            content: "Apply it",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('Working day changes')) .modal-footer .btn-primary",
+            content: "Tour Move Teacher comes in and leaves an hour earlier: they agreed (issue #709)",
+            run: "click",
+        },
+        {
+            trigger: ".modal:has(.modal-title:contains('09:00')):not(:has(.o_guard_cover_mode)) .o_guard_cover_guard_select",
+            content: "The 9:00 class's guard assignment opens, offering nothing but a guard",
+            run: "selectByLabel Tour Cover Guard",
+        },
+        {
+            trigger: ".modal .o_guard_cover_assign:enabled",
+            content: "Assign and notify",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) td:has(.o_guard_board_block_time:contains('09:00-10:00')) .o_guard_board_absence_struck:contains('Tour Cover Guard')",
+            content: "The 9:00 class is covered by the guard",
         },
     ],
 });

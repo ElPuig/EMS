@@ -98,6 +98,7 @@ class EmsMeetingPresence(models.Model):
             ('all_staff', "All staff"),
             ('department', "A department"),
             ('workgroup', "A workgroup"),
+            ('group', "A group's teaching team"),
             ('manual', "Chosen by hand"),
         ],
         required=True,
@@ -122,6 +123,7 @@ class EmsMeetingPresence(models.Model):
     )
     department_id = fields.Many2one(string="Department", comodel_name="hr.department")
     workgroup_id = fields.Many2one(string="Workgroup", comodel_name="ems.workgroup")
+    group_id = fields.Many2one(string="Group", comodel_name="ems.group")
     state = fields.Selection(
         string="State",
         selection=[('draft', "Draft"), ('open', "Open"), ('closed', "Closed")],
@@ -147,6 +149,12 @@ class EmsMeetingPresence(models.Model):
         help="The language of the kiosk page. Whoever passes the tag is anonymous, so the page cannot follow their own language.",
     )
     line_ids = fields.One2many(string="People", comodel_name="ems.meeting.presence.line", inverse_name="presence_id")
+    # The minute that asked for this session, if any: whoever may write it may correct its
+    # attendance by hand (security/rules/quality.xml), and a correction updates its lists.
+    minute_ids = fields.One2many(string="Minutes", comodel_name="ems.minute", inverse_name="presence_id")
+    waits_for_meeting = fields.Boolean(
+        string="Waits for the meeting", compute="_compute_waits_for_meeting", compute_sudo=True,
+        help="The session of a minute still being prepared: it opens when its meeting starts.")
 
     convened_count = fields.Integer(string="Convened", compute="_compute_counts")
     present_count = fields.Integer(string="Present", compute="_compute_counts")
@@ -198,18 +206,25 @@ class EmsMeetingPresence(models.Model):
             presence.justified_count = states.count('justified')
             presence.absent_count = states.count('absent')
 
+    @api.depends('minute_ids.state')
+    def _compute_waits_for_meeting(self):
+        for presence in self:
+            presence.waits_for_meeting = any(minute.state == 'draft' for minute in presence.minute_ids)
+
     @api.constrains('date', 'date_end', 'duration')
     def _check_ends_after_start(self):
         if any(presence.duration <= 0 for presence in self):
             raise ValidationError(_("The meeting must end after it starts."))
 
-    @api.constrains('scope', 'department_id', 'workgroup_id')
+    @api.constrains('scope', 'department_id', 'workgroup_id', 'group_id')
     def _check_scope_target(self):
         for presence in self:
             if presence.scope == 'department' and not presence.department_id:
                 raise ValidationError(_("Choose the department to convene."))
             if presence.scope == 'workgroup' and not presence.workgroup_id:
                 raise ValidationError(_("Choose the workgroup to convene."))
+            if presence.scope == 'group' and not presence.group_id:
+                raise ValidationError(_("Choose the group whose teaching team is convened."))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -224,21 +239,32 @@ class EmsMeetingPresence(models.Model):
         if any(presence.state != 'draft' for presence in self):
             raise UserError(_("Only a draft meeting attendance can be deleted: archive the others."))
 
-    def _ems_scope_employees(self):
-        """The people the scope convenes. Read through hr.employee.public on purpose: the
-        secretariat does not imply hr.group_hr_user, so hr.employee itself is out of its reach."""
-        self.ensure_one()
+    @api.model
+    def _ems_convened_employees(self, scope, company, department=None, workgroup=None, group=None):
+        """The people a scope convenes: the one rule behind both a session's list and a minute's
+        attendees. Read through hr.employee.public on purpose: the secretariat does not imply
+        hr.group_hr_user, so hr.employee itself is out of its reach. Either list can still take
+        anybody else by hand afterwards."""
         employees = self.env['hr.employee.public']
-        domain = [('company_id', '=', self.company_id.id)]
-        if self.scope == 'all_teachers':
+        domain = [('company_id', '=', company.id)]
+        if scope == 'all_teachers':
             return employees.search(domain + [('employee_type', '=', 'teacher')])
-        if self.scope == 'all_staff':
+        if scope == 'all_staff':
             return employees.search(domain)
-        if self.scope == 'department':
-            return employees.search(domain + [('department_id', 'child_of', self.department_id.id)])
-        if self.scope == 'workgroup':
-            return self.workgroup_id.employee_ids
+        if scope == 'department' and department:
+            # child_of: an area's meeting (VET, ESO/BTX) convenes every department under it.
+            return employees.search(domain + [('department_id', 'child_of', department.id)])
+        if scope == 'workgroup' and workgroup:
+            return employees.browse(workgroup.employee_ids.ids)
+        if scope == 'group' and group:
+            # Whoever teaches the group, plus its tutor even without a subject of their own in it.
+            teacher_ids = self.env['ems.teaching'].search([('group_id', '=', group.id)]).teacher_id.ids
+            return employees.search(domain + [('id', 'in', teacher_ids + group.tutor_id.ids)])
         return employees
+
+    def _ems_scope_employees(self):
+        self.ensure_one()
+        return self._ems_convened_employees(self.scope, self.company_id, self.department_id, self.workgroup_id, self.group_id)
 
     def _check_not_closed(self):
         if any(presence.state == 'closed' for presence in self):
@@ -258,6 +284,8 @@ class EmsMeetingPresence(models.Model):
         for presence in self:
             if presence.state != 'draft':
                 raise UserError(_("Only a draft meeting attendance can be opened."))
+            if presence.waits_for_meeting:
+                raise UserError(_("This attendance belongs to a minute: it opens when its meeting starts."))
             presence.state = 'open'
         return True
 
@@ -269,6 +297,8 @@ class EmsMeetingPresence(models.Model):
                 raise UserError(_("Only an open meeting attendance can be closed."))
             presence.line_ids.filtered(lambda line: line.state == 'pending').write({'state': 'absent'})
             presence.state = 'closed'
+        # A session taken for a minute hands its result over to it.
+        self.env['ems.minute'].sudo().search([('presence_id', 'in', self.ids)])._ems_sync_attendance()
         return True
 
     def action_reopen(self):

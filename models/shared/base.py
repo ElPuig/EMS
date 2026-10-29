@@ -1,4 +1,5 @@
 import hashlib, traceback
+from lxml import etree
 from markupsafe import Markup
 from odoo import models, fields, _
 
@@ -28,7 +29,26 @@ class EmsBase(models.AbstractModel):
     # The current user may add, change or remove a student's enrollments (issue #534): academic
     # admin and the secretary's office only - a tutor only customizes which sessions are attended.
     def get_user_can_edit_enrollments(self):
-        return self.get_user_is_admin() or self.get_user_is_secretary()
+        # Unbound-safe: view_read_only_for_non_enrollment_editors() calls it from other models.
+        return EmsBase.get_user_is_admin(self) or EmsBase.get_user_is_secretary(self)
+
+    # Turns a get_view() result for one of `view_xmlids` into a read-only screen (no New, or
+    # whatever `operations` lists) for whoever may not edit enrollments: the Heads of Studies only
+    # read Academic management > Enrollment (issue #654), though their ACL allows more elsewhere.
+    # Per user, like Odoo's own _postprocess_access_rights(): the cached view is shared by every
+    # group, and an inherited view can't carry groups. Called unbound from res.partner and
+    # sale.order.
+    def view_read_only_for_non_enrollment_editors(self, result, view_xmlids, operations=('create',)):
+        if EmsBase.get_user_can_edit_enrollments(self):
+            return result
+        view_ids = {self.env['ir.model.data']._xmlid_to_res_id(xmlid, raise_if_not_found=False)
+                    for xmlid in view_xmlids}
+        if result['id'] not in view_ids:
+            return result
+        node = etree.fromstring(result['arch'])
+        for operation in operations:
+            node.set(operation, '0')
+        return dict(result, arch=etree.tostring(node, encoding='unicode'))
 
     # The current user is Head of Studies, Deputy Head of Studies or Director - all three
     # share the single ems.group_head_of_studies group (Director implies it).
@@ -40,6 +60,22 @@ class EmsBase(models.AbstractModel):
     def get_user_can_edit_history(self):
         return self.get_user_is_secretary() or self.get_user_is_admin() \
             or self.get_user_is_head_of_studies()
+
+    # Why an academic certificate read from a PDF cannot be told to be `student`'s, if it cannot:
+    # its identifier (IDALU) was not read, the student has none to check it against, or they
+    # differ. Shared by every certificate reader (Esfera, issue #585; previous curricula, #672).
+    def get_certificate_student_problem(self, student, identifier, name):
+        own = student.student_id
+        if not identifier:
+            return _("The student identifier could not be read from the certificate, so it cannot "
+                     "be checked against the student's IDALU.")
+        if not own:
+            return _("%(student)s has no Student ID (IDALU) to check the certificate's (%(identifier)s) "
+                     "against: fill it in first.", student=student.display_name, identifier=identifier)
+        if identifier != own:
+            return _("The certificate belongs to %(name)s (%(identifier)s), not to this "
+                     "student (%(own)s).", name=name, identifier=identifier, own=own)
+        return False
 
     # The current user works with every student (secretary's office, academic administration,
     # Head of Studies/Deputy/Director); anyone else who reaches students - a tutor - only with the

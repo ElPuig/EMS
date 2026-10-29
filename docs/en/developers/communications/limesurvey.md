@@ -297,14 +297,13 @@ repeated once per non-tutorship subject enrollment on the recipient.
 
 Applies identically to all 4 models in this file (`ems.limesurvey_header`/`.block`/
 `.recipient`/`.enrollment`), enforced by `security/rules/communications.xml` (one admin rule +
-two quality-coordinator rules per model, mirroring the coexistence/`ems.strike` idiom in
+two quality-committee rules per model, mirroring the coexistence/`ems.strike` idiom in
 `security/rules/coexistence.xml`):
 
 | Group | Sees | Creates/edits/deletes |
 |-------|------|------------------------|
 | `group_academic_admin` | Every survey/block/recipient/enrollment | Everything |
-| `group_quality_admin` (Quality coordinator) | Every survey/block/recipient/enrollment (read-only for others') | Only the ones they created |
-| `group_quality` (plain Quality team member) | Everything (unchanged, unrestricted) | Everything except unlink (unchanged — `ir.model.access.csv` only, no per-owner `ir.rule`) |
+| `group_quality` (Committee member, implied by `group_quality_admin`, the Quality coordinator) | Every survey/block/recipient/enrollment (read-only for others') | Only the ones they created |
 
 **Fixed a pre-existing gap:** `group_academic_admin` previously had **no**
 `ir.model.access.csv` row at all for any of these 4 models — despite `menu_limesurvey_headers`
@@ -314,8 +313,8 @@ immediately. Added `access_ems_limesurvey_{header,block,recipient,enrollment}_ad
 matching `rule_limesurvey_*_admin` `ir.rule`s (`domain_force=[(1,'=',1)]`), so admin access now
 actually matches what the menu already implied.
 
-**New restriction for the Quality coordinator specifically** (`group_quality_admin` —
-previously had unrestricted full CRUD, same as plain `group_quality`): two rules per model,
+**Read all, edit own for the quality committee** (`group_quality`, so also the Quality
+coordinator, whose `group_quality_admin` implies it): two rules per model,
 one read-only with an open domain (`perm_read=True`, `domain_force=[]`) and one write/create/
 unlink-only scoped to `create_uid = user.id` (`perm_read=False`). Every record across all 4
 models is created directly by whichever coordinator is operating that survey — no `sudo()`,
@@ -323,7 +322,7 @@ cron, or `queue_job` path exists in this file that creates or writes these on so
 behalf (`action_compute`/`action_upload`/etc. all run synchronously or via
 [`ems.multithreading`](../shared/multithreading.md)'s `run_in_thread`, which explicitly
 captures and reuses `self.env.uid` from the request that triggered it — see
-`run_in_thread`'s own docstring) — so `create_uid` reliably identifies the owning coordinator
+`run_in_thread`'s own docstring) — so `create_uid` reliably identifies the owning member
 everywhere, including `ems.limesurvey_block`/`.recipient`/`.enrollment`, which have no
 standalone menu and are only ever reached inline through their parent header's form.
 Regression-covered by `TestLimesurveyAccessControl` in `tests/test_limesurvey_header.py`.

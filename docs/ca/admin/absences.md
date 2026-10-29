@@ -16,12 +16,31 @@
 |---|---|---|
 | Absència de dia sencer | 7:30 | Hores que val una absència de dia sencer. Sempre compta aquestes hores, tingui la persona les classes que tingui programades aquell dia |
 | Crèdit d'hores per motius de salut | 15:00 | Hores d'absència per motius de salut que pot fer servir cada persona per curs |
-| Recordatori del justificant | 1 dia | Un cop passada una absència que encara espera el justificant, es recorda a la persona cada aquest nombre de dies |
-| Avís de justificant pendent | 3 dies | Passats aquests dies des de l'absència, un justificant que encara falti també es comunica al cap que l'aprova |
+| Recordatori d'absències | 1 dia | Un cop passada una absència que encara espera la persona (el justificant, o sol·licitar una absència detectada que el seu cap d'estudis li ha demanat que justifiqui), se li recorda cada aquest nombre de dies |
+| Avís d'absències pendents | 3 dies | El que encara falta també es comunica passats aquests dies des de l'absència (un justificant, a qui aprova l'absència) o des que el cap d'estudis va demanar la justificació (una absència detectada encara no sol·licitada, al cap d'estudis del docent) |
+| Absències detectades | (buit) | Les àrees els docents de les quals segueixen el circuit d'absències detectades: un dia que un docent no ha fitxat (o ha fitxat després de la primera classe) es converteix en una absència detectada, i el cap d'estudis del docent revisa cada absència detectada abans que se li recordi al docent. Buit, el circuit està desactivat. Per començar, tria només l'àrea d'FP |
 
 El crèdit **avisa, no bloqueja**: qui el supera rep un avís i la sol·licitud queda marcada per al cap d'estudis, però es tramita igual.
 
-![Bloc de configuració d'absències del personal, amb els camps de dia sencer, crèdit de salut i recordatoris del justificant](../../assets/admin/admin-absences-settings.png)
+Cada recordatori i cada avís espera l'inici de la jornada de qui el rep, de manera que ningú no en rep fora del seu horari. Qui no té cap horari es regeix pel marc horari per defecte del centre.
+
+Un docent pertany a una àrea pel seu departament. Les absències detectades s'expliquen al [manual del cap d'estudis](../head_of_studies/absences.md#absències-detectades).
+
+![Bloc de configuració d'absències del personal, amb els camps de dia sencer, crèdit de salut, recordatori, avís i absències detectades](../../assets/admin/admin-absences-settings.png)
+
+### Canvis d'horari al quadre de guàrdies
+
+**Ajustos > EMS > Configuració del quadre de guàrdies** decideix quins canvis pot proposar el quadre de guàrdies quan falta un docent. Tots tres estan **desactivats per defecte**: amb tots desactivats, les classes sense docent sempre es cobreixen amb una guàrdia.
+
+| Paràmetre | Què proposa el quadre quan està activat |
+|---|---|
+| Entrar més tard | Si les primeres classes del dia d'un grup no tenen docent, avisar l'alumnat i les famílies que poden entrar més tard (o que no tenen classe, si cap classe té docent) |
+| Sortir abans | Si les últimes classes del dia no tenen docent, avisar l'alumnat i les famílies que poden sortir abans |
+| Pati més llarg | Si les classes just abans o després d'un pati no tenen docent, allargar el pati. Només s'avisa l'alumnat, i els menors de 18 anys continuen sense poder sortir del centre, de manera que aquestes classes continuen necessitant un professor de guàrdia |
+
+Entrar més tard i sortir abans només s'ofereixen als grups dels nivells de la llista **Nivells que poden entrar més tard o sortir abans** (apareix quan algun dels dos està activat), per exemple CFGM i CFGS: els grups de qualsevol altre nivell, com l'educació obligatòria (ESO), tenen una guàrdia. **Si la llista és buida, no s'ofereix cap dels dos canvis a cap grup**, encara que estiguin activats, així que indica-hi tots els nivells que els poden tenir. El pati més llarg no depèn d'aquesta llista.
+
+Desactivar-ne un no desfà el que ja s'ha comunicat: si l'absència canvia després, el quadre continua oferint la correcció.
 
 ---
 

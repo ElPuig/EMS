@@ -31,8 +31,15 @@ class EMSPortalCommsController(CustomerPortal):
             ('student_id', '=', partner.id)
         ]).ids
 
-        # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula, de documentos
-        # o de convalidaciones. Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
+        # Revisión de datos de contacto (issue #700): solo su propio registro (subtipo
+        # mt_contact_data_request), nunca la actividad del tutor cerrada al revisarla.
+        contact_data_request_ids = request.env['ems.contact.data.request'].sudo().search([
+            ('student_id', '=', partner.id)
+        ]).ids
+        contact_data_subtype = request.env.ref('ems.mt_contact_data_request')
+
+        # Dominio combinado: mensajes dirigidos al partner, del chatter de matrícula, de documentos,
+        # de convalidaciones o de la revisión de datos de contacto. Excluimos notas internas (mail.mt_note) para que no sean visibles en el portal
         note_subtype = request.env.ref('mail.mt_note')
         # Whoever only consults (a minor on his own account, a family looking at its adult
         # child) only sees what is addressed to the student: the enrollment, document and
@@ -46,11 +53,13 @@ class EMSPortalCommsController(CustomerPortal):
                 origin = ['|'] + origin + ['&', ('model', '=', 'ems.convalidation'), ('res_id', 'in', convalidation_ids)]
         else:
             origin = [
-                '|', '|', '|',
+                '|', '|', '|', '|',
                     ('partner_ids', 'in', [partner.id]),
                     '&', ('model', '=', 'sale.order'), ('res_id', 'in', sale_order_ids),
                     '&', ('model', '=', 'ems.student.document'), ('res_id', 'in', document_ids),
                     '&', ('model', '=', 'ems.convalidation'), ('res_id', 'in', convalidation_ids),
+                    '&', '&', ('model', '=', 'ems.contact.data.request'), ('res_id', 'in', contact_data_request_ids),
+                        ('subtype_id', '=', contact_data_subtype.id),
             ]
         domain = origin + [
             ('message_type', 'in', ['email', 'comment', 'notification']),

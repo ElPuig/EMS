@@ -17,7 +17,7 @@
 5. [Deshacer una decisión](#deshacer-una-decisión)
 6. [Informe por empleado](#informe-por-empleado)
 7. [Informe mensual](#informe-mensual)
-8. [Ausencias previstas](#ausencias-previstas)
+8. [Ausencias detectadas](#ausencias-detectadas)
 
 ---
 
@@ -31,7 +31,7 @@
 
 El aprobador de cada persona es el responsable de su departamento de nivel superior. Se define en el formulario del departamento, campo **Responsable de área**, y se actualiza solo si cambia el cargo.
 
-Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dirección.
+El responsable de área también es quien aprueba su propia ausencia: validas tu solicitud (y el justificante, cuando hace falta) como cualquier otra de tu área, y después Dirección la revisa como siempre. No puedes deshacer una decisión sobre tu propia ausencia; Dirección sí.
 
 ---
 
@@ -70,7 +70,7 @@ La cruz rechaza, en cualquiera de estos pasos. Cuando decides desde el formulari
 
 La ausencia tiene efecto (calendario de ausencias, saldo de horas, cuadrante de guardias) en cuanto la das por recibida, aunque falte el justificante o Dirección no la haya revisado.
 
-Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) la persona todavía no ha adjuntado el justificante, recibes un mensaje y una actividad para hacer el seguimiento; a la persona se le recuerda cada día.
+Si unos días después de la ausencia (tres, si el centro no lo ha cambiado) la persona todavía no ha adjuntado el justificante, recibes un mensaje y una actividad para hacer el seguimiento; a la persona se le recuerda cada día. Cada recordatorio y cada mensaje espera al inicio de la jornada de quien lo recibe: nadie los recibe fuera de su horario.
 
 ![Listado de ausencias, con las acciones sobre una solicitud pendiente](../../assets/head_of_studies/hos-absences-list.png)
 
@@ -104,7 +104,7 @@ Si la ausencia es de día entero o de unas horas concretas lo controla la casill
 
 **Solo Dirección.** Dirección revisa cada ausencia en último lugar: le llega una vez el jefe la ha validado, con el justificante cuando el tipo lo exige. En las ausencias de **ATRI**, comprueba que la solicitud se ha tramitado de verdad en el portal de la Generalitat.
 
-**Asistencia del personal > Ausencias > Administración > Ausencias solicitadas** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**, y las ausencias de los propios jefes de área, que gestionas tú como su jefe (con los botones del jefe descritos más arriba). Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
+**Asistencia del personal > Ausencias > Administración > Ausencias solicitadas** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**. Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
 
 Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa las acciones de arriba del formulario, que te devuelve al listado al acabar:
 
@@ -184,26 +184,50 @@ Para cambiar el periodo, quita el filtro **Curso actual** y elige el que necesit
 
 ---
 
-## Ausencias previstas
+## Ausencias detectadas
 
-**Asistencia del personal > Ausencias > Administración > Ausencias previstas**.
+**Asistencia del personal > Ausencias > Administración > Ausencias detectadas**.
 
-Cuando ya sabes que un docente faltará pero todavía no ha solicitado la ausencia (ha llamado esta mañana, o se ha acordado en una reunión), regístrala aquí para que las guardias se puedan planificar enseguida.
+Esta lista recoge las ausencias de los docentes que todavía no ha solicitado nadie. Tienen dos orígenes, que se ven en la columna **Origen**:
+
+- **Informada**: la has introducido tú (o un jefe de departamento o de seminario) porque ya sabías que el docente faltaría (ha llamado esta mañana, o se ha acordado en una reunión).
+- **Sin fichaje**: la ha añadido EMS solo al terminar el día, porque el docente no fichó, o fichó cuando ya había terminado su primera clase. Va de su primera clase a la última, o hasta la hora en que fichó. Solo entran los docentes de las áreas que ha elegido el administrador (de momento, FP), y solo los días que su horario tiene clases: a un docente sin horario cargado no se le detecta nunca nada.
+
+### Introducir una
 
 1. Haz clic en **Nuevo**.
-2. Elige el **Profesor**. Solo aparecen los docentes de tu área: la Jefatura de Estudios o la Jefatura de Estudios Adjunta ve a sus docentes, y Dirección los ve a todos. Los jefes de departamento y de seminario también pueden introducir ausencias previstas, para los docentes de su propio departamento. Los miembros del equipo directivo (como el Secretario) cuentan como docentes del área a la que pertenece su departamento: el Secretario, que da clase en un departamento de FP, aparece a la Jefatura de Estudios o Jefatura de Estudios Adjunta responsable de FP. También aparecen los docentes de otros departamentos que dan clase a un grupo que gestiona el departamento (campo **Gestionado por el departamento** de los estudios del grupo) y los que tienen el departamento en el campo **También gestionado por los departamentos** de su ficha.
-3. Indica **De** y **A**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede abarcar varios días.
-4. Si quieres, añade **Notas** para ti. El docente nunca ve esta entrada.
+2. Elige el **Profesor**. Solo aparecen los docentes de tu área: el jefe de estudios o el jefe de estudios adjunto ve a sus docentes, y Dirección los ve a todos. Los jefes de departamento y de seminario también pueden introducirlas, para los docentes de su propio departamento. Los miembros del equipo directivo (como el secretario) cuentan como docentes del área a la que pertenece su departamento: el secretario, que da clase en un departamento de FP, aparece al jefe de estudios o jefe de estudios adjunto responsable de FP. También aparecen los docentes de otros departamentos que dan clase a un grupo que gestiona el departamento (campo **Gestionado por el departamento** de los estudios del grupo) y los que tienen el departamento en el campo **También gestionado por los departamentos** de su ficha.
+3. Indica **Desde** y **Hasta**, con fecha y hora. Por defecto, hoy de 08:00 a 15:00. Una ausencia puede ocupar varios días.
+4. Si quieres, añade **Notas** para ti. El docente puede abrir la entrada, pero nunca ve las notas.
 5. Guarda.
 
 A partir de ese momento, el docente aparece en el horario de guardias como ausente con una solicitud pendiente de aprobar (rojo más claro y en cursiva), durante las horas que has indicado.
 
-Cuando el docente solicita la ausencia, la ausencia prevista se vincula a ella automáticamente y su estado pasa de **Prevista** a **Solicitada**. Desde entonces solo cuenta la solicitud del docente, con sus fechas y horas: si después se rechaza o se cancela, la entrada no vuelve al horario de guardias. Una entrada solicitada ya no se puede modificar; queda en la lista, con el filtro **Solicitada**, como registro.
+### Revisar una ausencia detectada
 
-![Lista de ausencias previstas, una todavía prevista y otra ya solicitada por el docente](../../assets/head_of_studies/hos-expected-absences-list.png)
+Toda ausencia detectada, sea cual sea su origen, empieza **Por revisar**: el docente no sabe nada y todavía no la ve. En cambio, el jefe de estudios o el jefe de estudios adjunto del docente (quien le corrige los fichajes) recibe una tarea **Revisar ausencia detectada**, que también sale en el resumen diario de tareas pendientes. Si el docente no tiene jefe de estudios por encima, la tarea va a los administradores. Así las falsas alarmas no llegan al personal: por ejemplo, un docente que no estaba convocado a la franja de reuniones de los miércoles y ficha a las 16:00.
 
-Si finalmente el docente no falta, borra la entrada.
+La lista se abre con las ausencias en estado **Por revisar** y **Justificación solicitada**, que todavía no están resueltas. Abre una y elige qué hacer desde el menú **Acciones**:
+
+- **Pedir justificación**: se pide al docente que la explique. A partir de ahora, al inicio de su jornada se le recuerda que solicite la ausencia (o, si estaba en el centro, que te pida que registres su fichaje), cada día si el centro no lo ha cambiado. Si unos días después de que la pidieras (tres, si el centro no lo ha cambiado) todavía no la ha solicitado, recibes un mensaje y una actividad para hacer el seguimiento.
+- **Corregir fichaje**: el docente estaba en el centro. El EMS registra su asistencia durante las horas detectadas, con tu nombre como quien la ha registrado, y no se avisa a nadie. Si llegó tarde, se mantiene el fichaje que hizo y se añade la parte que faltaba antes. Solo se ofrece una vez terminada la ausencia.
+- **Crear ausencia**: preparas la solicitud de ausencia para el docente, para el día y las horas detectados, con el tipo de ausencia que eliges en el diálogo. No se envía: se avisa al docente, que la abre ya rellenada, la revisa, acepta la declaración responsable y la envía, y a partir de ahí sigue los pasos habituales (aprobación, justificante, ATRI, Dirección). Mientras no la envíe se le recuerda, y al cabo de unos días se te avisa, igual que con **Pedir justificación**.
+- **Descartar**: no era nada. La ausencia detectada se cierra y se archiva, y no se avisa a nadie. Puedes encontrarla igualmente con el filtro **Archivado**. Solo los administradores pueden borrar del todo una ausencia detectada.
+
+Para resolver varias a la vez, selecciónalas en la lista y elige la acción en el menú **Acciones** (el engranaje) de arriba. Cada acción solo se aplica a las ausencias que todavía esperan revisión y que puedes revisar; el EMS te indica cuántas ha dejado y por qué.
+
+Solo el jefe de estudios o el jefe de estudios adjunto del docente, la Dirección y los administradores pueden hacer estas acciones. Los jefes de departamento y de seminario pueden introducir y ver las ausencias detectadas de su departamento, pero no revisarlas.
+
+![Lista de ausencias detectadas, una por etapa: una por revisar, una con la justificación solicitada, una con el fichaje corregido y una ya solicitada](../../assets/head_of_studies/hos-detected-absences-list.png)
+
+### Qué pasa después
+
+Cuando el docente solicita la ausencia por su cuenta, en cualquier momento, la ausencia detectada se vincula a ella automáticamente y su estado pasa a **Solicitada**. Desde entonces solo cuenta la solicitud del docente, con sus fechas y horas: si después se rechaza o se cancela, la entrada no vuelve al horario de guardias. Una entrada solicitada ya no se puede modificar; queda en la lista, con el filtro **Solicitada**, como registro.
+
+**Si el fichaje del docente aparece después** (registrado desde el horario de guardias, o una solicitud de corrección aceptada), una ausencia detectada por un fichaje que faltaba pasa sola a **Descartada**, o se acorta si llegó antes de lo que decía. El chat indica que se ha descartado porque se ha registrado el fichaje, para que la puedas distinguir de una descartada a mano.
 
 ### Organizar la cobertura
 
-Una vez una ausencia aparece en el horario de guardias, prevista o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes, y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia prevista se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../teachers/guard-duty-schedule.md#organizar-una-ausencia).
+Una vez una ausencia aparece en el horario de guardias, detectada o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes (si el administrador ha activado estos cambios), y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia detectada se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../department_chiefs/absences.md#organizar-una-ausencia).
+
+Una clase cuyo docente no ha fichado cuando empieza también aparece en la Tabla de ausencias, para cubrirla con una guardia. Si resulta que el docente está en el aula, puedes registrar su entrada desde la tabla: ver [Docentes que no han fichado](../teachers/guard-duty-schedule.md#docentes-que-no-han-fichado).

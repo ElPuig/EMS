@@ -15,7 +15,7 @@ Cuando un alumno o una familia hace algo desde el portal que requiere la atenci�
 - **Revisar documento de alumno** — un alumno sube el DNI, la tarjeta sanitaria, el IBAN o un certificado de bonificación y alguien tiene que validarlo.
 - **Revisar comentario de matrícula** — una familia escribe un comentario en su matrícula.
 
-**Gestión académica → Configuración → Asignación de tareas** es donde decidís **quién recibe cada una de esas tareas**.
+**Gestión académica → Configuración → Matrícula → Asignación de tareas** es donde decidís **quién recibe cada una de esas tareas**.
 
 La pantalla es accesible para el **Administrador de Secretaría**, además de para el Administrador: es secretaría quien gestiona estas tareas, así que también decide quién se encarga de ellas, sin tener que pedírselo a un administrador. Desde aquí solo puede modificar los tipos de tarea propios de EMS, ninguna otra parte del sistema.
 
@@ -36,7 +36,7 @@ Esto es intencionado. Antes las tareas se enviaban a todo el que estuviera en el
 
 ![Pantalla de asignación de tareas](../../assets/admin/Asignacio-de-tasques-01.png)
 
-1. **El menú** — Entrad en **Gestión académica → Configuración → Asignación de tareas**.
+1. **El menú** — Entrad en **Gestión académica → Configuración → Matrícula → Asignación de tareas**.
 2. **La lista de tareas** — Una línea por cada tipo de tarea que EMS crea por su cuenta: *Revisar comentario de matrícula* y *Revisar documento de alumno*. No se pueden añadir ni eliminar líneas: son las tareas que el sistema genera, no una lista libre.
 3. **Los usuarios asignados** — Las personas que reciben esa tarea. Haced clic en la celda para añadir o quitar usuarios y guardad. Solo se puede añadir personal interno (los usuarios del portal —alumnos y familias— no).
 

@@ -54,6 +54,7 @@ pestanya Horari del professor corresponent, o des de les matrícules del mateix 
 
 Fes clic a **PDF** a la barra d'eines de la pestanya Horari per descarregar una versió
 imprimible de l'horari setmanal de l'alumne, incloent-hi la taula Assignatura → Docent(s).
+La capçalera mostra el grup de l'alumne i el seu tutor, amb l'adreça de correu del tutor.
 
 ---
 

@@ -5,6 +5,7 @@ from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tools import email_normalize, format_date
 from odoo.osv import expression
 from ..shared import base
+from .coming_of_age import ADULT_AGE
 import re
 from dateutil.relativedelta import relativedelta
 from markupsafe import Markup
@@ -78,6 +79,14 @@ class EmsStudentBenefit(models.Model):
 # Every contact_type of a student's lifecycle. A contact of any of them is identified by its
 # Student ID (IDALU), which must be unique (issue #460).
 STUDENT_LIFECYCLE_TYPES = ('student', 'applicant', 'alumni', 'withdrawal', 'expelled')
+# Contacts whose name is a person's, given capital initials when typed all in capitals or all in
+# lower case (issue #472): students and families. Providers and staff are left as they are.
+PERSON_NAME_CONTACT_TYPES = STUDENT_LIFECYCLE_TYPES + ('family',)
+PERSON_NAME_FIELDS = ('name', 'firstname', 'lastname')
+# Words kept in lower case inside a name ("de la Fuente", "Puig i Cadafalch"), unless they start it.
+# Not "el": here it mostly starts an Arabic surname ("El Maazouzi"), which keeps its capital.
+NAME_PARTICLES = frozenset({'de', 'del', 'la', 'las', 'les', 'los', 'i', 'y', 'da', 'das', 'do', 'dos',
+                            'di', 'du', 'van', 'von', 'der'})
 
 class ResPartner(models.Model):
     _inherit = ['res.partner'] # NOTE: unable to inherit also from ems.base, I got an error like 'TypeError: Many2many fields ResPartner.channel_ids and res.partner.channel_ids use the same table and columns'.
@@ -177,6 +186,13 @@ class ResPartner(models.Model):
     year_record_ids = fields.One2many(string="Academic history",
                                       comodel_name='ems.student.year_record',
                                       inverse_name='student_id')
+    # Academic history under a previous curriculum, imported from its document (issue #672).
+    previous_curriculum_record_ids = fields.One2many(
+        string="Previous curricula", comodel_name='ems.student.previous_curriculum_record',
+        inverse_name='student_id')
+    # Both of them in one list, the "Academic history" the student form shows (issue #672).
+    history_line_ids = fields.One2many(string="Whole academic history", comodel_name='ems.student.history_line',
+                                       inverse_name='student_id')
     # Derived transition state (not stored). Consumed by the "no destination" report.
     transition_status = fields.Selection([
         ('enrolled', 'Enrolled next course'),
@@ -241,6 +257,9 @@ class ResPartner(models.Model):
     # let read something of this student - admin/secretary (all), TAC (credentials), the student's
     # tutor scope (credentials) - so nobody else gets an empty list that looks as if there were none.
     can_see_documents = fields.Boolean(string='Can see documents', compute='_compute_can_see_documents')
+    # Adding a document there is for whoever may create one (secretary's office, academic
+    # administration; issue #717): Odoo doesn't drop an embedded list's "Add a line" by access rights.
+    can_add_documents = fields.Boolean(string='Can add documents', compute='_compute_can_see_documents')
     # Same for the Bonifications & Exemptions section: mirrors the ems.student.benefit record rules
     # (security/rules/contacts.xml) - admin, secretary, Head of Studies, guidance, coexistence, and
     # the student's tutor scope.
@@ -680,6 +699,13 @@ class ResPartner(models.Model):
         action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
         return action
 
+    def action_previous_curriculum_wizard(self):
+        """Import the student's academic history under a previous curriculum (issue #672)."""
+        self.ensure_one()
+        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_previous_curriculum_wizard')
+        action['context'] = {'dialog_size': 'extra-large', 'default_student_id': self.id}
+        return action
+
     def action_title_register_wizard(self):
         """Register a title obtained by the student in its academic history (issue #635)."""
         self.ensure_one()
@@ -889,7 +915,7 @@ class ResPartner(models.Model):
     def _compute_is_adult(self):
         for partner in self:
             partner.is_adult = bool(partner.birth_date) and (
-                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= 18)
+                relativedelta(self.env['ems.datetime_utils'].get_local_today(), partner.birth_date).years >= ADULT_AGE)
 
     @api.depends('main_group_id')
     def _compute_main_group_pending_change(self):
@@ -923,6 +949,54 @@ class ResPartner(models.Model):
         are the same identifier for the uniqueness check."""
         if 'student_id' in values:
             values['student_id'] = (values['student_id'] or '').strip() or False
+
+    @api.model
+    def _ems_normalize_person_name(self, value):
+        """`value` with capital initials if it was typed all in capitals or all in lower case
+        ("ASHLEY BUENO", "laila" -> "Ashley Bueno", "Laila"), the particles in lower case unless
+        they start it, and a capital after a hyphen or an apostrophe ("D'Amico", "Pérez-Luna"). A
+        value with mixed case was written that way on purpose ("McKenzie") and is returned as is, and
+        so is a word with digits, a code rather than a name."""
+        if not isinstance(value, str) or not any(char.isalpha() for char in value) \
+                or value not in (value.upper(), value.lower()):
+            return value
+
+        def normalize_word(index, word):
+            if any(char.isdigit() for char in word):
+                return word  # a code, not a name ("E2E")
+            word = word.lower()
+            if index and word in NAME_PARTICLES:
+                return word
+            return re.sub(r"(^|[-'’])(\w)", lambda match: match.group(1) + match.group(2).upper(), word)
+        return ' '.join(normalize_word(index, word) for index, word in enumerate(value.split(' ')))
+
+    @api.model
+    def _ems_normalize_person_name_values(self, values):
+        for field in ('firstname', 'lastname'):
+            if field in values:
+                values[field] = self._ems_normalize_person_name(values[field])
+        name = values.get('name')
+        if isinstance(name, str) and self._ems_normalize_person_name(name) != name:
+            # Decided on the whole name ("E2E Import Test" has mixed case: left alone), then
+            # normalized the way partner_firstname splits it with the centre's "first_last" order
+            # (first word, then the last names), so the last names come out the same as when they
+            # are typed on their own: "maria de la fuente" -> "Maria" + "De la Fuente".
+            values['name'] = ' '.join(self._ems_normalize_person_name(part) for part in name.split(' ', 1))
+
+    @api.model
+    def _ems_normalize_stored_person_names(self):
+        """Give capital initials to the students' and families' names stored before they were
+        normalized on the way in (issue #472): run once by migrations/18.0.0.40.0. Through the ORM,
+        so the complete name follows and a student's Google account is renamed too (#542)."""
+        partners = self.with_context(active_test=False).search([('contact_type', 'in', PERSON_NAME_CONTACT_TYPES)])
+        fixed = 0
+        for partner in partners:
+            values = {field: self._ems_normalize_person_name(partner[field]) for field in ('firstname', 'lastname')}
+            values = {field: value for field, value in values.items() if value != partner[field]}
+            if values:
+                partner.write(values)
+                fixed += 1
+        return fixed
 
     def _ems_check_student_id_available(self, student_id):
         """Raise if `student_id` already belongs to a contact other than `self`, archived
@@ -966,6 +1040,16 @@ class ResPartner(models.Model):
             if partner.contact_type not in STUDENT_LIFECYCLE_TYPES:
                 partner._ems_raise_student_id_required(partner.display_name)
 
+    @api.model
+    def get_view(self, view_id=None, view_type='form', **options):
+        """Academic management > Enrollment > Preinscription and Students without destination,
+        and the contact form they open, are read only for whoever does not edit enrollments
+        (issue #654): the Heads of Studies only read them, though they manage contacts
+        elsewhere."""
+        return base.EmsBase.view_read_only_for_non_enrollment_editors(
+            self, super().get_view(view_id, view_type, **options),
+            ('ems.view_applicant_list', 'ems.view_enrollment_contact_form'), ('create', 'edit', 'delete'))
+
     @api.model_create_multi
     def create(self, values):
         # Fired when the model is created (Source: https://www.cybrosys.com/blog/how-to-override-create-write-and-unlink-methods-in-odoo-17)
@@ -1004,6 +1088,8 @@ class ResPartner(models.Model):
             # with the Students action's default_contact_type='student' but becomes a family.
             self._ems_normalize_student_id(entry)
             contact_type = entry.get('contact_type', self.env.context.get('default_contact_type'))
+            if contact_type in PERSON_NAME_CONTACT_TYPES:
+                self._ems_normalize_person_name_values(entry)
             if contact_type in STUDENT_LIFECYCLE_TYPES and not entry.get('student_id'):
                 name = entry.get('name') or ' '.join(
                     filter(None, (entry.get('firstname'), entry.get('lastname'))))
@@ -1045,6 +1131,11 @@ class ResPartner(models.Model):
             self._ems_store_private_notes(values.pop('private_notes'))
             if not values:
                 return True
+        if set(PERSON_NAME_FIELDS) & set(values) and self and (
+                values.get('contact_type') in PERSON_NAME_CONTACT_TYPES
+                or all(partner.contact_type in PERSON_NAME_CONTACT_TYPES for partner in self)):
+            values = dict(values)
+            self._ems_normalize_person_name_values(values)
         self._ems_normalize_student_id(values)
         self._ems_check_student_id_on_write(values)
         self._ems_check_orientation_write(values)
@@ -1684,8 +1775,10 @@ class ResPartner(models.Model):
         user = self.env.user
         sees_all = any(user.has_group(group) for group in (
             'ems.group_academic_admin', 'ems.group_secretary', 'ems.group_tac'))
+        can_add = self.env['ems.student.document'].has_access('create')
         for partner in self:
             partner.can_see_documents = sees_all or base.EmsBase.user_acts_as_tutor(partner, partner.tutor_id)
+            partner.can_add_documents = can_add
 
     @api.depends('tutor_id')
     @api.depends_context('uid')

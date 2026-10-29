@@ -20,6 +20,12 @@ class TestConvalidationTour(HttpCase):
         super().setUpClass()
         mock_outgoing_email(cls)
         create_portal_convalidation_fixtures(cls)
+        # Issue #657: the request shows both, to the Head of Studies and the secretariat.
+        cls.student.document_id = '00000657T'
+        cls.env['ems.student.year_record'].create({
+            'student_id': cls.student.id, 'course_id': cls.env['ems.course'].create({'start': 2092, 'end': 2093}).id,
+            'study_name': 'Previous Study (Convalidation)', 'is_external': True,
+        })
         cls.request = cls.env['ems.convalidation'].create({
             'student_id': cls.student.id, 'study_id': cls.study.id, 'course_id': cls.course.id,
             'line_ids': [(0, 0, {'subject_id': cls.subject.id})],
@@ -84,12 +90,19 @@ class TestConvalidationTour(HttpCase):
         self.start_tour("/odoo", "ems_convalidation_director_resolves", login=self.director.login)
         self.assertEqual(self.request.state, 'in_progress')
         self.assertTrue(self.request.resolution_pdf_id)
+        self.assertEqual(self.request.resolution_notes, 'Bring the original certificate')
 
     def test_director_returns(self):
         self._propose()
         self.start_tour("/odoo", "ems_convalidation_director_returns", login=self.director.login)
         self.assertEqual(self.request.state, 'pending')
         self.assertEqual(self.request.return_reason, 'Check the hours')
+
+    def test_secretary_cancels_with_a_reason(self):
+        self.start_tour(f"/odoo/action-ems.action_convalidation/{self.request.id}", "ems_convalidation_cancel",
+                        login=self.secretary.login)
+        self.assertEqual(self.request.state, 'cancelled')
+        self.assertEqual(self.request.cancel_reason, 'Filed twice by mistake')
 
     def test_secretary_completes(self):
         self._resolve()
@@ -142,7 +155,7 @@ class TestConvalidationTour(HttpCase):
         self.start_tour("/odoo", "ems_convalidation_grade_tutor_matrix_without_grade", login=self.teacher.login)
 
     def test_portal_student_submits(self):
-        self.request.action_cancel()
+        self.request._ems_cancel()
         self.start_tour("/my/convalidaciones", "ems_portal_convalidation_submit", login=self.student_user.login)
         submitted = self.env['ems.convalidation'].search([
             ('student_id', '=', self.student.id), ('state', '=', 'pending')])

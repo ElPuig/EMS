@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
+from collections import defaultdict
 
 from odoo import models, fields, api, _
 from ..shared import base
@@ -134,6 +135,44 @@ class EmsAttendanceSessionHeader(models.Model):
     def _compute_display_name(self):
         for session in self:
             session.display_name = "%s | %s | %s" % (session.attendance_schedule_id.display_name, session.date, session.space_id.name)
+
+    @api.constrains('date', 'attendance_schedule_id')
+    def _check_class_taken_once(self):
+        """One roll-call per class and day, whatever line it hangs from: a line with sessions whose
+        room changes is archived and replaced by a copy with the same template, weekday and hours
+        (ems.attendance_mixin._write_or_new_version), which the UNIQUE(date, schedule) constraint
+        can't tell apart from the original (issue #699). A second session would count that class
+        twice in every student's attendance. Overlapping hours, not equal ones: the next hour of
+        the same template is a different class (a continuation). sudo() and active_test=False: the
+        other session may be another teacher's, on an archived line."""
+        for session in self:
+            taken = self._taken_time_slots(session.date)
+            if self._is_slot_taken(taken, session.attendance_schedule_id, exclude_id=session.id):
+                raise ValidationError(self._duplicate_session_message())
+
+    @api.model
+    def _taken_time_slots(self, date):
+        """{template id: [(session id, start_time, end_time)]} of every session of 'date', anyone's
+        (sudo) and also those on archived lines (active_test=False): what '_is_slot_taken' checks
+        against. One search for the whole day, so a caller checking many lines pays it once."""
+        taken = defaultdict(list)
+        sessions = self.sudo().with_context(active_test=False).search([('date', '=', date)])
+        for session in sessions:
+            taken[session.attendance_schedule_id.attendance_template_id.id].append(
+                (session.id, session.start_time, session.end_time))
+        return taken
+
+    @api.model
+    def _is_slot_taken(self, taken, schedule, exclude_id=None):
+        """Whether 'schedule's class already has a session in 'taken' ('_taken_time_slots'): same
+        template and overlapping hours."""
+        return any(
+            session_id != exclude_id and start < schedule.end_time and end > schedule.start_time
+            for session_id, start, end in taken.get(schedule.attendance_template_id.id, ())
+        )
+
+    def _duplicate_session_message(self):
+        return _('The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.')
 
     def _default_teacher_id(self):
         return self.env["hr.employee"].search([("user_id", "=", self.env.uid), ("employee_type", "=", "teacher")]) or False
@@ -401,7 +440,7 @@ class EmsAttendanceSessionHeader(models.Model):
         try:
             records = super().create(vals_list)
         except IntegrityError as e:
-            raise e if "attendance_session_is_duped" not in str(e) else ValidationError(_('The current session already exists. Please, edit the existing one (maybe has been created by another teacher) or choose another available session.'))
+            raise e if "attendance_session_is_duped" not in str(e) else ValidationError(self._duplicate_session_message())
 
         # NOTE: Optional, but computed here for optimization
         notification_status_eta = self._get_notification_status_eta()
@@ -533,20 +572,10 @@ class EmsAttendanceSessionHeader(models.Model):
                 self.env.user.has_group('ems.group_academic_admin')):
             raise AccessError(_("Guard mode requires teacher access."))
         own_emp = self.env['hr.employee'].search([['user_id', '=', self.env.uid]], limit=1)
-        weekday = str(datetime.strptime(date, '%Y-%m-%d').weekday())
-        used_ids = set(
-            self.sudo().search([['date', '=', date], ['attendance_schedule_id', '!=', False]])
-            .mapped('attendance_schedule_id.id')
-        )
-        domain = [['weekday', '=', weekday], ['id', 'not in', list(used_ids)],
-                  ['start_date', '<=', date], ['end_date', '>=', date]]
+        domain = []
         if own_emp:
             domain.append(['attendance_template_id.teacher_ids', 'not in', own_emp.id])
-        return self.env['ems.attendance_schedule'].sudo().search_read(
-            domain,
-            fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
-            order='start_time asc',
-        )
+        return self._read_planned(date, domain, sudo=True)
 
     @api.model
     def get_normal_sessions_and_planned(self, date):
@@ -572,24 +601,31 @@ class EmsAttendanceSessionHeader(models.Model):
             order='start_time asc',
         )
 
-        weekday  = str(datetime.strptime(date, '%Y-%m-%d').weekday())
-        used_ids = [s['attendance_schedule_id'][0] for s in sessions if s['attendance_schedule_id']]
-        sched_domain = [
-            ['weekday',    '=',  weekday],
-            ['start_date', '<=', date],
-            ['end_date',   '>=', date],
-            ['id', 'not in', used_ids],
-        ]
+        sched_domain = []
         if is_teacher_emp:
             sched_domain.append(['attendance_template_id.teacher_ids', 'in', own_emp.id])
         elif not is_admin:
             sched_domain.append(('id', '=', False))
-        planned = self.env['ems.attendance_schedule'].search_read(
-            sched_domain,
-            fields=['id', 'name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'],
+        return {'sessions': sessions, 'planned': self._read_planned(date, sched_domain)}
+
+    @api.model
+    def _read_planned(self, date, domain, sudo=False):
+        """The schedule lines of 'date' matching 'domain' whose class has no session that day yet,
+        for the pass-list selector. Checked by class ('_is_slot_taken'), not by line: a line replaced
+        after a room change (archived, with a copy carrying the same template and hours) would
+        otherwise offer the copy on the days already taken with the original (issue #699).
+        'display_name' labels them like the sessions, with the weekday translated."""
+        weekday = str(datetime.strptime(date, '%Y-%m-%d').weekday())
+        Schedule = self.env['ems.attendance_schedule']
+        if sudo:
+            Schedule = Schedule.sudo()
+        schedules = Schedule.search(
+            [['weekday', '=', weekday], ['start_date', '<=', date], ['end_date', '>=', date]] + domain,
             order='start_time asc',
         )
-        return {'sessions': sessions, 'planned': planned}
+        taken = self._taken_time_slots(date)
+        return schedules.filtered(lambda schedule: not self._is_slot_taken(taken, schedule)).read(
+            ['id', 'display_name', 'time_range', 'attendance_template_id', 'start_time', 'end_time'])
 
     @api.model
     def create_scheduled_session(self, date, schedule_id):
@@ -689,6 +725,9 @@ class EmsAttendanceSessionLine(models.Model):
     # 0/100 rather than a boolean so the 'Attendance reports' graph's default measure (avg,
     # grouped by subject) resolves directly to a percentage of absence.
     absence_rate = fields.Float(string="Absence rate", compute="_compute_absence_rate", store=True, aggregator="avg")
+    # What the History form shows instead of the status of a student removed from the roll-call
+    # (issue #713): their status is kept for a restore, but counts neither as attended nor absent.
+    roll_call_label = fields.Char(string="Roll-call", compute="_compute_roll_call_label")
 
     # Used to know if the student can be chosen manually or not (should be disabled, otherwise a justified student can be swaped for another).
     is_auto_generated = fields.Boolean(default=False)
@@ -844,6 +883,12 @@ class EmsAttendanceSessionLine(models.Model):
     def _compute_absence_rate(self):
         for line in self:
             line.absence_rate = 100.0 if line.status_id.category == 'absence' else 0.0
+
+    @api.depends('active')
+    def _compute_roll_call_label(self):
+        label = _("Not required to attend")
+        for line in self:
+            line.roll_call_label = False if line.active else label
 
     def action_view_strikes(self):
         self.ensure_one()

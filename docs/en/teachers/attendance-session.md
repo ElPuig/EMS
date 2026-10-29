@@ -42,7 +42,8 @@ The selector on the right lists what's available for the chosen date, split into
   students' statuses.
 - **Planned (no session)**: a scheduled slot (from your weekly timetable) for which no session has
   been created yet. Selecting one shows a **Start session** button — click it to create the
-  session and load its students.
+  session and load its students. A class whose roll-call has already been taken that day only
+  appears under **Sessions**, even if its timetable entry changed afterwards (e.g. its classroom).
 
 > If more than one session or planned slot matches the current time slot, you'll see a warning
 > telling you to pick one manually or switch to **Manual** mode — this can happen if your
@@ -170,7 +171,8 @@ during that session, with a button to see their full detail.
 > **Current** in **Manual** mode and pick that session from the selector — the History list itself
 > doesn't allow edits.
 
-Students removed from a session's roll-call also appear in the session, greyed out.
+Students removed from a session's roll-call also appear in the session, at the end of the list, greyed out and
+struck through, with **Not required to attend** instead of a status: they count neither as attended nor as absent.
 
 ---
 

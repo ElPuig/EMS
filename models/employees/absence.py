@@ -6,6 +6,7 @@ from markupsafe import Markup
 
 from odoo import _, api, fields, models, Command
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.osv.expression import OR
 from odoo.tools import format_date, plaintext2html
 
 # The Apps Script this replaces rounded every partial absence to quarters of an hour; the
@@ -28,6 +29,12 @@ NATIVE_LEAVE_TYPE_XMLIDS = (
 # 'rule_absence_own_request_write' is meant to open up.
 ATTACHMENT_FIELDS = frozenset({
     'attachment_ids', 'supported_attachment_ids', 'message_main_attachment_id',
+})
+# What the Head's own steps write on a request already in effect (Odoo's approval and its
+# calendar meeting, the document validation), which an Area Manager deciding on their own
+# absence has to get through.
+HEAD_DECISION_FIELDS = frozenset({
+    'state', 'first_approver_id', 'second_approver_id', 'meeting_id', 'ems_document_state',
 })
 
 # The Catalan hr_holidays ships for its two approval activity types is machine-generated
@@ -111,16 +118,12 @@ class EmsAbsenceEmployeeBase(models.AbstractModel):
         Like '_compute_parent_id', this depends only on 'department_id' - a recursive walk up
         'parent_id' cannot be expressed as an @api.depends - and is re-triggered explicitly from
         'ems_department._cascade_department_heads()' whenever an Area Manager changes.
+
+        An Area Manager is the Head of their own absence (issue #693): they validate it
+        themselves and Direction reviews it afterwards, like anybody else's.
         """
         for employee in self:
-            manager = employee.department_id._top_level_department().manager_id
-            # Compared by id, not by record: this abstract model is shared by 'hr.employee' and
-            # 'hr.employee.public', which are different models over the same ids, and Odoo's '=='
-            # is False across models. An Area Manager cannot approve their own absence, so they
-            # fall back to the Director.
-            if manager.id == employee.id:
-                manager = employee.company_id.director_id
-            employee.leave_manager_id = manager.user_id if manager.id != employee.id else False
+            employee.leave_manager_id = employee.department_id._top_level_department().manager_id.user_id
 
 
 class EmsAbsenceLeaveType(models.Model):
@@ -463,10 +466,21 @@ class EmsAbsenceLeave(models.Model):
         """
         super()._compute_display_name()
         for leave in self:
+            leave._ems_translate_person_on_type()
             long_name = leave.holiday_status_id.name
             short_name = leave.holiday_status_id.ems_short_name
             if long_name and short_name and short_name != long_name and leave.display_name:
                 leave.display_name = leave.display_name.replace(long_name, short_name)
+
+    def _ems_translate_person_on_type(self):
+        """hr_holidays' "<person> on <type>: <duration> (<date>)" has no Catalan translation, so
+        a Catalan reader got the English "on" in the middle of the name (issue #707). EMS cannot
+        translate another module's code string, so the untranslated part is replaced here, only
+        when it came out untranslated."""
+        prefix = f"{self.employee_id.name} on {self.holiday_status_id.name}: "
+        if self.employee_id and self.holiday_status_id and (self.display_name or '').startswith(prefix):
+            self.display_name = _("%(person)s on %(leave_type)s", person=self.employee_id.name,
+                                  leave_type=self.holiday_status_id.name) + self.display_name[len(prefix) - 2:]
 
     is_absence_direction = fields.Boolean(
         string="Current user is Direction", compute="_compute_is_absence_manager",
@@ -802,12 +816,17 @@ class EmsAbsenceLeave(models.Model):
         through the wider rule above, an ability they never had: editing their own approved
         absence. Somebody else's stays theirs to correct, which is the whole point of being an
         officer.
+
+        An Area Manager is their own approver (issue #693): what their own approval steps write
+        goes through, and nothing else.
         """
         if self.env.su or not (vals.keys() - ATTACHMENT_FIELDS):
             return
         employee = self.env.user.employee_id
+        own_decision = not (vals.keys() - ATTACHMENT_FIELDS - HEAD_DECISION_FIELDS)
         blocked = self.filtered(
-            lambda leave: leave.state in ('validate', 'validate1') and leave.employee_id == employee)
+            lambda leave: leave.state in ('validate', 'validate1') and leave.employee_id == employee
+            and not (own_decision and leave.employee_id.leave_manager_id == self.env.user))
         if blocked:
             raise AccessError(_(
                 "An approved absence request can no longer be changed. Its supporting document "
@@ -1398,13 +1417,6 @@ class EmsAbsenceLeave(models.Model):
         self._ems_notify_request_changes()
         return True
 
-    def _ems_notify(self, partners, message):
-        """A note addressed to these partners only: unlike a comment, it is not sent to every
-        follower of the request - whoever else follows it does not need each reminder."""
-        self.ensure_one()
-        if partners:
-            self.message_post(body=message, partner_ids=partners.ids, subtype_xmlid='mail.mt_note')
-
     def _ems_head_users(self):
         """Who acts as this request's Head: the employee's approver, or, when they have none,
         whoever Odoo would route the approval to."""
@@ -1459,28 +1471,35 @@ class EmsAbsenceLeave(models.Model):
         the supporting document, or requesting it in ATRI (EMPLOYEE_STEPS) - every day by
         default, and reports it once, a few days after the absence, to whoever has the request
         in hand - their Head, or the Director for an ATRI absence it sent back (both intervals
-        configurable in the settings). Calendar days, in the centre's own timezone."""
+        configurable in the settings). Calendar days, in the centre's own timezone.
+
+        Each message waits for its reader's working day to start (issue #696): the scheduled
+        action runs every few minutes and sends each one on the first run after that, never
+        outside their working hours, and never on a day they don't work."""
         company = self.env.company
         today = self.env['ems.datetime_utils'].get_local_today()
+        now = fields.Datetime.now()
         interval = company._ems_absence_document_reminder_days()
         escalation = company._ems_absence_document_escalation_days()
-        leaves = self.search([('ems_status', 'in', list(EMPLOYEE_STEPS)), ('request_date_to', '<', today)])
+        # Only what is due today, so a request leaves the search once it has been dealt with.
+        leaves = self.search([('request_date_to', '<', today)] + OR([[
+            ('ems_status', '=', status),
+            '|', '|', (reminder_field, '=', False), (reminder_field, '<=', today - timedelta(days=interval)),
+            '&', (escalated_field, '=', False), ('request_date_to', '<=', today - timedelta(days=escalation)),
+        ] for status, (reminder_field, escalated_field, _xmlid) in EMPLOYEE_STEPS.items()]))
+        started = {}
         for leave in leaves:
             reminder_field, escalated_field, overdue_xmlid = EMPLOYEE_STEPS[leave.ems_status]
-            reminder, report = leave._ems_reminder_messages()
-            last = leave[reminder_field]
-            if not last or (today - last).days >= interval:
-                leave._ems_notify(leave.employee_id.user_id.partner_id, reminder)
-                leave[reminder_field] = today
+            leave._ems_remind_at_workday_start(
+                leave.employee_id.user_id,
+                lambda user, leave=leave: leave.with_context(lang=user.lang)._ems_reminder_messages()[0],
+                today, now, started, reminder_field, interval)
             if not leave[escalated_field] and (today - leave.request_date_to).days >= escalation:
                 # Whoever has it in hand: the Director for an ATRI absence it sent back.
-                heads = leave._ems_stage_users()
-                leave._ems_notify(heads.partner_id, report)
-                # The note above is the Head's email; the activity only goes on their list.
-                for head in heads:
-                    leave.with_context(mail_activity_quick_update=True).activity_schedule(
-                        overdue_xmlid, date_deadline=today, user_id=head.id)
-                leave[escalated_field] = True
+                leave._ems_report_at_workday_start(
+                    leave._ems_stage_users(),
+                    lambda user, leave=leave: leave.with_context(lang=user.lang)._ems_reminder_messages()[1],
+                    overdue_xmlid, today, now, started, escalated_field)
 
     def _ems_reminder_messages(self):
         """(reminder for the employee, report for their Head) of the step the request waits on."""

@@ -6,6 +6,7 @@ EMS does not define its own "contact" model: every student, family member, appli
 
 **Module files:**
 - `models/contacts/contact.py` — `ResPartner` (`_inherit = 'res.partner'`), `EmsStudentBenefit`
+- `models/contacts/coming_of_age.py` — `ResPartnerComingOfAge`, the daily check and hook for students turning 18 (`ADULT_AGE`, shared with `is_adult`; see [Students coming of age](coming_of_age.md))
 - `models/contacts/contact_relation.py` — `EmsContactRelationWizard`, `ResPartnerRelationAll` (`_inherit = 'res.partner.relation.all'`, from the `partner_multi_relation` OCA module)
 - `models/contacts/google_workspace_integration.py` — `ResPartnerGoogleWorkspace`, the corporate-account side of the lifecycle (not covered here — see [Google Workspace student integration](google_workspace_student.md))
 
@@ -87,11 +88,20 @@ Tests: `tests/test_student_private_note.py` (access matrix, create/write, direct
 
 ---
 
+## Birth date of a student (issue #640)
+
+Without a `birth_date` EMS takes a student for a minor (`is_adult` is `False`): the family keeps managing the portal, receives the notices meant for a minor, and the Google account stays in the minors' OU. So:
+
+- **Enrollment confirmation** (`sale.order.action_confirm()`): an enrollment (`ems_study_id` set) whose `partner_id` has no `birth_date` is refused with a `ValidationError` naming the students. It is the step that turns an applicant (or a returning ex-student) into a student, and it covers the backend and the portal alike. The GEDAC import cannot provide the date: its export has no birth date column.
+- **Portal** (`controllers/portal_enrollment.py`, `portal_enrollment_confirm`): when the student has no birth date, the confirmation form shows a required date input (`views/portal/portal_enrollment_draft.xml`, `.o_ems_portal_birth_date`; required only for the confirm button, not for sending comments). The value is checked by `res.partner._ems_portal_birth_date()` (a past day, at most 100 years ago) and written before `action_confirm()`; a missing or implausible one redirects with `?error=missing_birth_date`, which the page shows.
+- **Student form**: `birth_date` is required on a **new** student only (`not id`, like the IDALU). On an existing one it would block every header button, since the web client validates required fields before running any button, even with no change. An existing student without it shows a warning at the top of the form instead (secretariat and administration), and the **Without birth date** search filter lists them.
+- Other paths that write `contact_type = 'student'` (course transition, undoing a withdrawal, the Esfera import) are not blocked: a single student without a date must not stop a bulk process.
+
 ## Key computed/derived fields on `res.partner`
 
 | Field | Depends on | Notes |
 |-------|-----------|-------|
-| `is_adult` | `birth_date` | `>= 18` years via `relativedelta`; `False` if no birth date |
+| `is_adult` | `birth_date` | `>= 18` years via `relativedelta`; `False` if no birth date. That is why nobody becomes a student without one (issue #640, see below) |
 | `strike_count` | `strike_ids` | `len()` of `ems.strike` records |
 | `transition_status` | `contact_type`, `exit_type`, next-course `sale_order_ids` | `enrolled` / `unplaced` / `graduated` / `former` / `missing`; computed in batch (one read of the next-course enrollments for all the rows); searchable via `_search_transition_status`, which returns the same rules as a domain (`_ems_transition_status_domain()`: `any`/`not any` on the live next-course `sale_order_ids`), so the database resolves it in one query. The "next course" is the enrollment-default one (`_ems_transition_course()`). Only students and ex-students are found by status. `tests/test_exit_management.py` checks that search and compute agree on every status and operator, with and without a next course. |
 | `is_my_student` | (not stored) | `True` when the student belongs to one of the current user's own groups. Searchable via `_search_is_my_student`; backs the "My students" search filter that the Students action applies by default. See below. |
@@ -337,6 +347,28 @@ IDALU in the development database the test shards are cloned from.
 
 ---
 
+## Name normalization (issue #472)
+
+Students (`STUDENT_LIFECYCLE_TYPES`) and families get capital initials on the way in:
+`create()` and `write()` pass `name`/`firstname`/`lastname` through
+`_ems_normalize_person_name_values()`, whatever writes them (the form, the family contact wizard,
+the importers, an approved contact data request). Providers and staff are left alone.
+
+- `_ems_normalize_person_name()` only touches a value typed all in capitals or all in lower case
+  ("ASHLEY BUENO", "laila"); one with mixed case was written that way on purpose ("McKenzie",
+  "DiMaria") and is kept. Each word gets a capital initial, and another one after a hyphen or an
+  apostrophe ("Pérez-Luna", "D'Amico"); `NAME_PARTICLES` ("de", "la", "i", "y"...) stay in lower
+  case unless they start the value. "el" is not a particle: here it mostly starts an Arabic surname
+  ("El Maazouzi").
+- A complete `name` is normalized as partner_firstname splits it with the centre's `first_last`
+  order (first word, then the last names), so "MARIA DE LA FUENTE" gives "Maria" + "De la Fuente",
+  the same last names as typed on their own.
+- A contact data request normalizes the family's names before comparing them with the ones on file
+  (`_ems_submit()`), so a name typed in capitals is not a change to review.
+- `migrations/18.0.0.40.0/post-migrate.py` runs `_ems_normalize_stored_person_names()` once over the
+  names stored before: through the ORM, so the complete name follows and a student's Google account
+  is renamed too (`_gw_enqueue_rename()`, #542). A clean install has no such names.
+
 ## Portal email change
 
 `write()` detects, **before** calling `super()`, any student/family partner whose `email` is about to change while holding active portal access (`_has_active_portal_user`), then **after** the write calls `_apply_portal_email_change()` for each: revokes portal access at the old email and re-grants it at the new one via `ems.portal.access.wizard` (sudo — tutors lack `res.users` rights), and posts a portal-visible message on the related student(s) explaining what happened. `_onchange_email_portal_warning` gives the same heads-up client-side, before Save, via a non-blocking `warning`.
@@ -437,6 +469,7 @@ The **field-level** editing surface for tutors is narrower than the record rule 
 | View | File | Notes |
 |------|------|-------|
 | List | `views/community/contact/list.xml` | `js_class="student_list"`; columns conditional on `default_contact_type` context |
+| Students list | `views/community/contact/list.xml` (`view_student_list`) | Primary child of `base.view_partner_tree` bound to `action_student_kanban`'s list mode only (`ir.actions.act_window.view`, after the kanban): `firstname` and `lastname` columns, `complete_name` `optional="hide"`, `default_order="lastname, firstname"`, the same order as the roll-call (issue #655). Families and Providers keep the shared list |
 | Kanban | `views/community/contact/kanban.xml` | Default view for the Students menu |
 | Form | `views/community/contact/form.xml` | Inherits `base.view_partner_form`; `js_class="studentpopup_expand_button"`; conditional pages per `contact_type` - see "Student form pages" below |
 | Search | `views/community/contact/search.xml` | `view_student_search` carries the `students_only` default facet and the `my_students` one (issue #421, see above) |
@@ -491,7 +524,7 @@ Graduation and withdrawal are not on the student form: they are header buttons o
 
 ### List view columns (2026-09-03)
 
-`views/community/contact/list.xml`'s student-only columns (`document_id`, `birth_date`, `is_adult`, `nuss`, `citizenship_id`, `street`, `zip`, `city`, `main_group_id`, `tutor_id`, `special_needs`, `auth_image`/`auth_trip`/`auth_healt`/`auth_share`) were chosen to mirror, as closely as EMS's data model allows, the centre's own official Esfera student data export ("DADES ALUMNAT" CSV) — the fields that don't have a stored equivalent (a split second surname, sex, age as a column) were deliberately left out rather than added as new fields. `exit_type`/`exit_course_id` stay fully removed for students (`column_invisible="1"`) since they aren't part of that reference sheet. All optional columns default to `optional="show"` (visible unless a user hides them via the column selector) except `state_id`/`vat`/`invoice_sending_method`/`invoice_edi_format`/`category_id`, forced `column_invisible="True"` — not useful on a student record.
+`views/community/contact/list.xml`'s student-only columns (`document_id`, `birth_date`, `is_adult`, `nuss`, `citizenship_id`, `street`, `zip`, `city`, `main_group_id`, `tutor_id`, `special_needs`, `auth_image`/`auth_trip`/`auth_healt`/`auth_share`) were chosen to mirror, as closely as EMS's data model allows, the centre's own official Esfera student data export ("DADES ALUMNAT" CSV) — the fields that don't have a stored equivalent (a split second surname, sex, age as a column) were deliberately left out rather than added as new fields. `exit_type`/`exit_course_id` stay fully removed for students (`column_invisible="1"`) since they aren't part of that reference sheet. The Students list's own view adds `firstname`/`lastname` and hides `complete_name` by default (see the Views table). All other optional columns default to `optional="show"` (visible unless a user hides them via the column selector) except `state_id`/`vat`/`invoice_sending_method`/`invoice_edi_format`/`category_id`, forced `column_invisible="True"` — not useful on a student record.
 
 **Gotcha: `<field name="priority">99</field>` is load-bearing.** `invoice_sending_method`/`invoice_edi_format` aren't part of `base.view_partner_tree` itself — a separate `account` module view (`account.res_partner_view_tree`) adds them via its own inherit of the same parent. Odoo composes every view inheriting the same parent in priority order (default 16), applying each one's xpath modifications to the accumulating arch in turn; at default priority, this view's own xpaths run *before* `account`'s addition lands, so `//field[@name='invoice_sending_method']` can't be located and the whole view fails to load (`ParseError`). Raising this view's `priority` to 99 forces it to compose after `account`'s (and any other default-priority) inherit — remove it and the view breaks again the moment any xpath here targets a field added by another module's same-parent inherit, not one from `base.view_partner_tree` directly.
 

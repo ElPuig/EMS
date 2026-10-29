@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="view_quality_process_list">
+            <field name="name">ems.quality.process.list</field>
+            <field name="model">ems.quality.process</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="sequence" widget="handle"/>
+                    <field name="code"/>
+                    <field name="name"/>
+                    <field name="kind"/>
+                    <field name="procedure_count"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

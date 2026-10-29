@@ -342,6 +342,61 @@ class TestStudentDocumentPortalAccess(TransactionCase):
             })
 
 
+class TestStudentDocumentSecretaryUpload(TransactionCase):
+    """Issue #717: the secretary's office registers a document the family sent by other means
+    (e.g. by email). It is approved on the spot: no review task, no email to the family."""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        # The approval note is posted as the secretary, who needs an email as its author.
+        cls.secretary = create_role_user(cls, 'secretary', 'test_secretary_document_upload',
+                                         email='secretary.upload@example.com')
+        cls.reviewer = create_role_user(cls, 'secretary', 'test_reviewer_document_upload')
+        cls.env.ref('ems.mail_activity_student_document_review').ems_assignee_ids = [(6, 0, cls.reviewer.ids)]
+        cls.student = cls.env['res.partner'].create({
+            'name': 'Secretary Upload Student', 'contact_type': 'student', 'student_id': next_student_id(),
+        })
+
+    def _upload(self, **vals):
+        return self.env['ems.student.document'].with_user(self.secretary).create({
+            'partner_id': self.student.id, **vals,
+        })
+
+    def test_upload_is_approved_without_review_or_email(self):
+        document = self._upload(doc_type='dni', doc_file=base64.b64encode(b'dni'), doc_file_name='dni.pdf')
+        self.assertEqual(document.status, 'approved')
+        self.assertEqual(document.review_uid, self.secretary)
+        self.assertFalse(document.activity_ids)
+        self.assertFalse(document.message_ids.filtered(lambda m: 'submitted for review' in (m.body or '')))
+        approval = document.message_ids.filtered(lambda m: 'Document approved' in (m.body or ''))
+        self.assertEqual(approval.subtype_id, self.env.ref('mail.mt_note'))
+        self.assertFalse(approval.notification_ids)
+
+    def test_upload_replaces_previous_approved_of_same_type(self):
+        old = self._upload(doc_type='dni', doc_file=base64.b64encode(b'old'), doc_file_name='old.pdf')
+        self._upload(doc_type='dni', doc_file=base64.b64encode(b'new'), doc_file_name='new.pdf')
+        self.assertFalse(old.exists())
+
+    def test_upload_iban_trusts_bank_account(self):
+        self._upload(doc_type='iban', doc_value='ES9121000418450200051332', doc_value2='Family Holder')
+        bank = self.env['res.partner.bank'].search([('partner_id', '=', self.student.id)])
+        self.assertEqual(bank.acc_number.replace(' ', ''), 'ES9121000418450200051332')
+        self.assertTrue(bank.allow_out_payment)
+
+    def test_upload_benefit_creates_student_benefit(self):
+        self._upload(doc_type='benefit', benefit_type='disability',
+                     doc_file=base64.b64encode(b'proof'), doc_file_name='proof.pdf')
+        benefit = self.env['ems.student.benefit'].search([('student_id', '=', self.student.id)])
+        self.assertEqual(benefit.benefit_type, 'disability')
+        self.assertEqual(benefit.document_name, 'proof.pdf')
+
+    def test_documentation_section_offers_adding_only_to_who_can_create(self):
+        tutor = create_role_user(self, 'tutor', 'test_tutor_document_upload')
+        self.assertTrue(self.student.with_user(self.secretary).can_add_documents)
+        self.assertFalse(self.student.with_user(tutor).can_add_documents)
+
+
 def create_tutored_students_with_credentials(cls, prefix):
     """A tutor user with one tutored student and one student of another group, each with a
     Google credentials PDF, plus a DNI on the tutored one. Sets cls.tutor_user, cls.tutor, cls.student,
@@ -472,9 +527,10 @@ class TestStudentDocumentTacAccess(TransactionCase):
 
 
 class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
-    """Issue #483: Head of Studies and Director read the Google credentials of the students whose
-    tutor sits below them, through the tutor rule itself - still read only, and still nothing
-    else from the Documentation tab."""
+    """Issue #483: Department/Seminar Chiefs read the Google credentials of the students whose
+    tutor sits below them, through the tutor rule itself. Issue #654: Head of Studies/Deputy Head
+    of Studies and the Director read every document of those students, from Academic management >
+    Student Documents too - always read only, and never another chain's students."""
 
     @classmethod
     def setUpClass(cls):
@@ -486,8 +542,8 @@ class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
         return self.env['ems.student.document'].with_user(user).search(
             [('id', 'in', (self.credentials | self.dni | self.other_credentials).ids)])
 
-    def test_head_of_studies_reads_their_branch_credentials_only(self):
-        self.assertEqual(self._documents_seen_by(self.head_of_studies), self.credentials)
+    def test_head_of_studies_reads_every_document_of_their_branch_only(self):
+        self.assertEqual(self._documents_seen_by(self.head_of_studies), self.credentials | self.dni)
 
     def test_other_head_of_studies_reads_no_credentials(self):
         self.assertFalse(self._documents_seen_by(self.other_head_of_studies))
@@ -499,11 +555,24 @@ class TestStudentDocumentHeadOfStudiesAccess(TransactionCase):
     def test_director_reads_every_tutored_students_credentials(self):
         director = create_role_user(self, 'director', 'test_director_student_document', name='HSD Director')
         self.env.company.director_id = create_role_employee(self, director)
-        self.assertEqual(self._documents_seen_by(director), self.credentials)
+        self.assertEqual(self._documents_seen_by(director), self.credentials | self.dni)
 
-    def test_head_of_studies_cannot_modify_credentials(self):
+    def test_head_of_studies_cannot_modify_documents(self):
+        for document in (self.credentials, self.dni):
+            with self.subTest(doc_type=document.doc_type), self.assertRaises(AccessError):
+                document.with_user(self.head_of_studies).write({'status': 'pending'})
         with self.assertRaises(AccessError):
-            self.credentials.with_user(self.head_of_studies).write({'status': 'pending'})
+            self.dni.with_user(self.head_of_studies).unlink()
+        with self.assertRaises(AccessError):
+            self.env['ems.student.document'].with_user(self.head_of_studies).create({
+                'partner_id': self.student.id, 'doc_type': 'dni',
+            })
+
+    def test_student_documents_menu_for_head_of_studies_not_department_chief(self):
+        menu = self.env.ref('ems.menu_student_documents')
+        Menu = self.env['ir.ui.menu']
+        self.assertIn(menu.id, Menu.with_user(self.head_of_studies)._visible_menu_ids())
+        self.assertNotIn(menu.id, Menu.with_user(self.department_chief)._visible_menu_ids())
 
     def test_head_of_studies_downloads_their_branch_credentials(self):
         students = (self.student | self.other_student).with_user(self.head_of_studies)

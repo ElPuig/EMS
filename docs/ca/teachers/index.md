@@ -19,7 +19,6 @@ Aquesta secció conté els manuals per als **professors**.
 | [Strikes: notificar una incidència disciplinària](strike.md) | Posar un strike des de la vista de passar llista quan cal deixar constància del comportament d'un alumne |
 | [El teu horari setmanal](working-schedules.md) | Consultar les teves assignatures, grups, aules, patis i reunions al teu horari setmanal |
 | [Horari de guàrdies](guard-duty-schedule.md) | Consultar on és cada docent, i qui està de guàrdia, a cada franja horària de la setmana |
-| [Comunicats: escriure als grups del teu departament](notice.md) | Enviar comunicats a l'alumnat i les famílies dels grups on fa classe el teu departament (Caps de departament i de seminari) |
 | [Alumnat: els teus grups](student-list-my-groups.md) | Obrir la llista d'alumnat ja filtrada als grups on fas classe o ets tutor, i ampliar-la quan la necessitis sencera |
 | [Desactivar la teva foto de perfil](photo-visibility.md) | Activar o desactivar la teva foto de perfil |
 | [Resum diari de tasques pendents](task-digest.md) | El correu de cada matí amb tot el que tens pendent a la safata de l'EMS, i com desactivar-lo |
@@ -35,6 +34,9 @@ Aquesta secció conté els manuals per als **professors**.
 | [Sol·licitar una mobilitat Erasmus+ de personal](erasmus-staff-call.md) | Com sol·licitar des del portal un job shadowing, un curs o una estada de docència, i seguir la sol·licitud |
 | [Valorar plans de mobilitat Erasmus+](erasmus-plan-ratings.md) | Com valora el tribunal de la convocatòria del personal els plans de mobilitat amb la rúbrica de la convocatòria |
 | [Acompanyar una mobilitat de grup Erasmus+](erasmus-group-mobility.md) | Què fa el docent responsable (la selecció, els documents, el seguiment, l'EU Survey) i el docent acompanyant |
+| [Actes de reunió](minutes.md) | Redactar actes de departament, claustre, equip docent o equip de millora, amb els assistents i els acords arrossegats automàticament |
+
+> Ets cap de departament o de seminari? Els teus manuals (organitzar les absències, comunicats als grups del teu departament) són a [Caps de departament i de seminari](../department_chiefs/index.md).
 
 ---
 

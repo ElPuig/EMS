@@ -19,7 +19,7 @@ You can add and remove the family members (father, mother, legal guardian…) of
 3. Pick the **relation** (Father, Mother, Legal guardian…).
 
    ![New student contact window, choosing the relation](../../assets/tutors/contactes-familia-02-afegir.png)
-4. Pick an **existing** contact or fill in a **new** one: at least a first or last name, an identity document (DNI/NIE or passport) and a phone, mobile or email.
+4. Pick an **existing** contact or fill in a **new** one: at least a first or last name, an identity document (DNI/NIE or passport) and a phone, mobile or email. A name typed all in capitals or all in lower case is saved with capital initials.
 5. Save. The family member appears in the student's contact list.
 
 ---

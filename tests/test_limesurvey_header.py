@@ -296,6 +296,10 @@ class TestLimesurveyAccessControl(TransactionCase):
             'name': 'Test Quality Coordinator B (Survey)', 'login': 'test_quality_admin_b_survey', 'email': 'test_quality_admin_b_survey@example.com',
             'groups_id': [(4, cls.env.ref('ems.group_quality_admin').id), (4, cls.env.ref('base.group_user').id)],
         })
+        cls.committee_user = cls.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Committee Member (Survey)', 'login': 'test_committee_survey', 'email': 'test_committee_survey@example.com',
+            'groups_id': [(4, cls.env.ref('ems.group_quality').id), (4, cls.env.ref('base.group_user').id)],
+        })
 
         header_vals = {
             'title': 'Test Header', 'description': 'A test header',
@@ -354,3 +358,31 @@ class TestLimesurveyAccessControl(TransactionCase):
         self.assertEqual(self.block_a.name, 'Updated block')
         self.recipient_a.with_user(self.quality_admin_a_user).write({'name': 'Updated recipient'})
         self.assertEqual(self.recipient_a.name, 'Updated recipient')
+
+    def test_committee_member_reads_others_survey_records(self):
+        for model, record in (
+            ('ems.limesurvey_header', self.header_a),
+            ('ems.limesurvey_block', self.block_a),
+            ('ems.limesurvey_recipient', self.recipient_a),
+            ('ems.limesurvey_enrollment', self.enrollment_a),
+        ):
+            found = self.env[model].with_user(self.committee_user).search([('id', '=', record.id)])
+            self.assertEqual(found, record, f"a committee member should be able to read {model}")
+
+    def test_committee_member_cannot_write_others_survey_records(self):
+        with self.assertRaises(AccessError):
+            self.header_a.with_user(self.committee_user).write({'title': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.block_a.with_user(self.committee_user).write({'name': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.recipient_a.with_user(self.committee_user).write({'name': 'Hijacked'})
+        with self.assertRaises(AccessError):
+            self.enrollment_a.with_user(self.committee_user).write({'group_id': False})
+
+    def test_committee_member_can_write_own_survey_records(self):
+        header = self.env['ems.limesurvey_header'].with_user(self.committee_user).create({
+            'name': 'header_committee', 'title': 'Committee header', 'description': 'A test header',
+            'target': 'students', 'tsv_raw_text': "col1\tcol2\n{'TITLE'}\t{'DESCRIPTION'}",
+        })
+        header.write({'title': 'Updated by owner'})
+        self.assertEqual(header.title, 'Updated by owner')

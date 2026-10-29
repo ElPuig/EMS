@@ -37,11 +37,13 @@ A student record that already existed with no Student ID keeps working normally 
 
 The top of the form gathers the student's data without switching tabs:
 
-- **First name** and **Last name**, with the **Personal email** and the **Corporate email** below.
+- **First name** and **Last name**, with the **Personal email** and the **Corporate email** below. A name typed all in capitals or all in lower case is saved with capital initials ("ASHLEY BUENO" becomes "Ashley Bueno"); one with mixed case is saved as typed.
 - Three columns: **Contact** (address, phones and language), **Identification** (ID card/NIE, passport, Student ID, medical ID, NUSS and car plate) and **Personal data** (birth date, whether they are an adult, birth country, citizenship, benefits and special educational needs).
 - **Authorizations**: the Yes/No summary of image rights, school trips, health data and sharing with the family.
 
 ![Top of a student's form: names, emails, the Contact, Identification and Personal data columns, and the authorizations summary](../../assets/secretary/fitxa-alumne-01-capcalera.png)
+
+The **birth date** is required when registering a new student: without it EMS treats the student as a minor. A student who does not have it shows a warning at the top of the form until it is filled in, and the **Without birth date** filter of the student list shows all of them.
 
 The tabs are below: **Schedule** (the one that opens by default), **Studies** (group, subject enrollments and academic history), **Contacts & Addresses** (family members), **Secretary** (authorizations list, bonifications and exemptions, documentation and bank accounts) and the notes: see [A Student's Public and Private Notes](../teachers/student-notes.md).
 

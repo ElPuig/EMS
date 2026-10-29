@@ -121,7 +121,7 @@ registry.category("web_tour.tours").add("ems_external_record", {
             run: "click",
         },
         {
-            trigger: ".o_form_view div[name='year_record_ids'] .o_data_row:contains('2078-2079')",
+            trigger: ".o_form_view div[name='history_line_ids'] .o_data_row:contains('2078-2079')",
             content: "The record shows in the student's Academic history",
         },
     ],
@@ -171,7 +171,7 @@ registry.category("web_tour.tours").add("ems_external_record_certificate", {
             run: "click",
         },
         {
-            trigger: ".o_form_view div[name='year_record_ids'] .o_data_row:contains('2078-2079')",
+            trigger: ".o_form_view div[name='history_line_ids'] .o_data_row:contains('2078-2079')",
             content: "The record shows in the student's Academic history",
         },
     ],

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
     <data noupdate="0">
-        <!-- The Secretary Administrator manages who handles the tasks EMS schedules, so
+        <!-- The Secretary Administrator (and the academic admin, at the top of every permission,
+             issue #654) manages who handles the tasks EMS schedules, so
              they need write access on mail.activity.type (Odoo natively reserves it for
              base.group_system). That access is confined to the types EMS manages: without
              this rule, the ACL would also let them rename or reconfigure every other
@@ -9,7 +10,7 @@
         <record id="rule_mail_activity_type_ems_only" model="ir.rule">
             <field name="name">Task Assignment: Secretary Administrator writes EMS task types only</field>
             <field name="model_id" ref="mail.model_mail_activity_type"/>
-            <field name="groups" eval="[(4, ref('ems.group_secretary_admin'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_secretary_admin')), (4, ref('ems.group_academic_admin'))]"/>
             <field name="domain_force">[('ems_task_assignment', '=', True)]</field>
             <field name="perm_read" eval="False"/>
             <field name="perm_write" eval="True"/>

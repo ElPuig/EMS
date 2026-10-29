@@ -82,8 +82,9 @@ class TestAbsencePending(TransactionCase):
 
         self.assertEqual(self.Pending.with_user(self.head_of_studies).search([('id', '=', pending.id)]), pending)
         pending.with_user(self.head_of_studies).note = 'Known in advance'
-        pending.with_user(self.head_of_studies).unlink()
-        self.assertFalse(pending.exists())
+        with self.assertRaises(AccessError):
+            pending.with_user(self.head_of_studies).unlink()  # issue #707: administrators only
+        self.assertTrue(pending.exists())
 
     def test_head_of_studies_cannot_reach_another_branch(self):
         pending = self._pending()
@@ -127,8 +128,9 @@ class TestAbsencePending(TransactionCase):
 
         self.assertEqual(self.Pending.with_user(self.department_chief).search([('id', '=', pending.id)]), pending)
         pending.with_user(self.department_chief).note = 'Phoned in'
-        pending.with_user(self.department_chief).unlink()
-        self.assertFalse(pending.exists())
+        with self.assertRaises(AccessError):
+            pending.with_user(self.department_chief).unlink()  # issue #707: administrators only
+        self.assertTrue(pending.exists())
 
     def test_department_chief_cannot_reach_another_department(self):
         pending = self._pending()
@@ -209,10 +211,15 @@ class TestAbsencePending(TransactionCase):
             with self.assertRaises(AccessError):
                 self._pending(user=user)
 
-    def test_teachers_have_no_access(self):
-        self._pending()
-        with self.assertRaises(AccessError):
-            self.Pending.with_user(self.teacher_user).search([])
+    def test_teachers_only_read_their_own(self):
+        """Issue #696: so the reminder's link opens. Nothing else, and never their colleagues'.
+        Issue #707: not while it waits for review either."""
+        mine, under_review, theirs = self._pending(), self._pending(hour_from=12.0, hour_to=13.0), \
+            self._pending(employee=self.other_teacher)
+        mine.state = 'justification_requested'
+
+        self.assertEqual(self.Pending.with_user(self.teacher_user).search(
+            [('id', 'in', (mine | under_review | theirs).ids)]), mine)
         with self.assertRaises(AccessError):
             self._pending(user=self.teacher_user)
 

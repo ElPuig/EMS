@@ -187,8 +187,9 @@ preview list nobody while sending (on the saved record) worked; both halves are 
 ### Tutors
 
 A tutor (`ems.group_tutor`, granted by the "Tutor" employee role; the students are the ones
-whose main group they tutor, `res.partner.tutor_id.user_id`) sends forms from the catalogue to
-their own students and follows up the answers:
+they act as tutor of, `res.partner.tutor_id.tutor_scope_user_ids`: their own main group's, and
+for a Department/Seminar Chief those of the tutors below them, issue #483) sends forms from the
+catalogue to their own students and follows up the answers:
 
 - **Menu.** The Authorizations submenu includes `ems.group_tutor`; its Configuration section
   (the catalogue) does not.
@@ -217,7 +218,8 @@ their own students and follows up the answers:
   inside the web client.
 - **Following up.** The Responses menu entry opens `action_ems_authorizations_follow_up`, a
   server action calling `ems.authorization.action_open_follow_up()`: the whole list for the
-  staff, `partner_id.tutor_id.user_id = uid` for a tutor. It is decided there, not in a record
+  staff, `partner_id.tutor_id.tutor_scope_user_ids = uid` for a tutor (so a Department/Seminar
+  Chief follows the answers of the students of the tutors below them too). It is decided there, not in a record
   rule, because the teacher read rule already lets every teacher read every authorization -
   the same reason and pattern as `action_student_group_enrollment`. `action_ems_authorizations`
   stays the window action tours and links open directly.
@@ -407,9 +409,9 @@ which is what allows one email per student instead of one per authorization.
 | Group | Templates / fields | `ems.authorization` | Notes |
 |-------|--------------------|---------------------|-------|
 | `group_academic_admin`, `group_secretary` | full CRUD | full CRUD | Unrestricted (`security/rules/contacts.xml`). |
-| `group_head_of_studies` | full CRUD | read/write/create | Needs a rule of its own with `domain_force = []`: rules of *different* groups are ANDed, so inheriting only the teacher's read-only rule and the tutor's own-students-only one would stop them sending anything to a student they do not tutor. |
+| `group_head_of_studies` | full CRUD | read/write/create; unlink only pending ones (`rule_ems_authorization_head_of_studies_unlink_pending`, so the catalogue's "Remove from Pre-Enrollments" works for them, issue #654) | Needs a rule of its own with `domain_force = []`: rules of *different* groups are ANDed, so inheriting only the teacher's read-only rule and the tutor's own-students-only one would stop them sending anything to a student they do not tutor. |
 | `group_teacher` | read-only | read-only | Every teacher can read every authorization (`rule_ems_authorization_teacher`, domain `[]`); it predates issue #443 and the student file relies on it. |
-| `group_tutor` | read-only | create/write, no unlink, own students only | Scoped to `partner_id.tutor_id.user_id = user.id`. Sends forms from the catalogue to their own students through the send assistant and follows up their answers; never sees the catalogue's Configuration section. |
+| `group_tutor` | read-only | create/write, no unlink, own students only | Scoped to `partner_id.tutor_id.tutor_scope_user_ids = user.id` (the tutor and every chief above them). Sends forms from the catalogue to their own students through the send assistant and follows up their answers; never sees the catalogue's Configuration section. |
 | `base.group_portal` | read-only | read/write, no create/unlink | `[('partner_id', 'in', [user.partner_id.id] + user.partner_id.get_portal_students().ids)]`. |
 | `group_student_data_reader` | — | read-only | |
 
@@ -419,13 +421,19 @@ relation table: the family↔student link goes through
 traversal would be a subquery-rights hazard. It is pinned by a real
 `with_user(portal_user).search([])` test rather than trusted.
 
-Everything lives under its own submenu, Academic Management → Authorizations
-(`views/academic_management/authorizations/menu.xml`): Send Authorizations and Responses
-first, then a Configuration child holding Authorization Forms, which the navbar renders as
-a section header inside the same dropdown. The whole submenu is gated to academic admin,
-secretary and head of studies, so the head of studies reaches the forms without being given
-the enrollment Configuration menu. `menu_ems_authorization_forms` kept its xmlid (it exists
-on released databases); only its parent and defining file changed, so no migration.
+Academic Management → Authorizations (`menu_ems_authorization_root`,
+`views/academic_management/authorizations/menu.xml`) is a single entry, like the other
+sections (issue #654): it opens the responses list (`action_ems_authorizations_follow_up`),
+whose header **New** button (`create="false"` stays, an authorization is never made by hand)
+opens the Send Authorizations assistant, for the same groups as the assistant's own
+`_check_rights`. Authorization Forms (`menu_ems_authorization_forms`) sits in Academic
+Management → Configuration → Authorizations (`menu_ems_configuration_authorizations`, a section
+header of the dropdown next to Enrollment and Convalidations), for academic admin, secretary and
+head of studies. The head of studies reaches nothing else there: `menu_ems_configuration` lists
+`group_head_of_studies` and every other entry of that folder names its own groups. `menu_ems_authorization_forms` kept its
+xmlid (it exists on released databases), so no migration; the submenus it replaced
+(`menu_ems_authorization_send`, `menu_ems_authorizations`, `menu_ems_authorization_config`) are
+removed by the upgrade itself.
 
 ## Migration notes (18.0.0.25.0)
 

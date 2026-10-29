@@ -44,6 +44,7 @@ Technical reference for developers working on the EMS module.
 | [Group schedule (read-only aggregation)](contacts/group_schedule.md) | The group form's "Schedule" tab: aggregating teachers' `resource.calendar.attendance` rows by `group_ids`, deriving the break period from the level's schedule framework, the "Subject → Teacher(s)" co-teaching summary, and the PDF export |
 | [Student schedule (read-only aggregation)](contacts/student_schedule.md) | The student form's own "Schedule" tab: the same read-only mechanism as the group's, reused via the shared `readonly_schedule_grid` widget, but scoped per `(subject_id, group_id)` enrollment pair instead of a whole group — and the overlap-aware column-split layout that scoping makes necessary |
 | [ems.contact.data.request](contacts/contact_data_request.md) | Contact data update requests: sending them from the backend (individually or by group, study or level), the portal page students and families answer on, family-contact recognition and linking, and the review/approval flow that applies the staged changes |
+| [Students coming of age](contacts/coming_of_age.md) | The daily check for students turning 18 and the hook every feature plugs into that day (Google Workspace OU move), versus the live `is_adult` checks that need nothing |
 
 ---
 
@@ -100,6 +101,12 @@ Technical reference for developers working on the EMS module.
 |-------|-------------|
 | [Erasmus+ calls and applications](erasmus/erasmus.md) | `ems.erasmus.call` (+ modalities, requested documents) and `ems.erasmus.application` (+ document lines): who can apply (modality levels), call and application states, document versions and review, admission checks (requirements, and conduct warnings this course checked automatically), the `/my/erasmus` portal and access control; phase 2: the scoring of art. 12 (record average and conduct warnings frozen at closing, manual criteria), `ems.erasmus.interview` with two evaluators and the per-modality ranking; phase 3: resolutions, claims, place offers and the participants spreadsheet; phase 4: the staff call (`audience`), its panel and `ems.erasmus.plan_rating`, the staff criteria of art. 11 and one ranking per call |
 
+## Quality
+
+| Model | Description |
+|-------|-------------|
+| [Quality management](quality/quality_overview.md) | `ems.quality.*`: the process map, procedures and controlled documents with their Drive links, agreements and improvement actions with their follow-up, numbering, states and access control |
+
 ---
 
 ## Enrollment
@@ -127,6 +134,7 @@ Technical reference for developers working on the EMS module.
 | [Free-pick color widget](shared/color_widget.md) | `widget="color"` + the `ems_color_swatch` styling, the `role_color_tags` badge widget, and `ems.hex_color_mixin` — used by `ems.role`, `ems.attendance_template`, and `hr.department`'s `custom_color` |
 | [A record's own files](shared/attachments.md) | `ems.attachment_mixin` + the `ems_attachments` widget: direct upload, preview/download/delete, files tied to their record and deleted when removed - used by `ems.attendance_justification` and `ems.study` |
 | [Form "Actions" dropdown](shared/actions_dropdown.md) | One header button listing a form's actions on its record, each entry keeping its own `invisible=`/`groups=`/`confirm=` - used instead of loose header buttons or the cog menu on the contact form |
+| [Own records first in dropdowns](shared/mine_first_mixin.md) | `ems.mine_first_mixin`: departments, workgroups and groups offer the user's own first; departments shown in the reader's language |
 | [Task assignment](shared/task_assignment.md) | `mail.activity.type`'s `ems_task_assignment`/`ems_assignee_ids` — an explicit, config-driven recipient list decoupled from security groups |
 | [Daily pending-tasks digest](shared/task_digest.md) | `res.users`' morning email listing each person's open activities, sent at the start of their working day (own schedule, else the default framework) |
 | [Chatter conversations and their answers by email](shared/chatter_email_answers.md) | Who follows a contact (nobody for creating it), how an emailed answer is filed on the chatter (answers address, incoming mail server), and why a development machine reads no mailbox |

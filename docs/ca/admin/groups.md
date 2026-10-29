@@ -33,10 +33,11 @@ Navega a: **Comunitat Educativa → Grups**
    - **Delegat**: un alumne representant (només seleccionable un cop el grup té alumnes).
    - **Sotsdelegat**: l'alumne que substitueix el delegat. Es tria entre els mateixos alumnes i no pot ser el delegat.
    - **Torn**, **Aula de referència**, **ID extern** (codi Esfera/SAGA) segons calgui.
+   - **S'uneix amb**: en una meitat d'un grup desdoblat, l'altra meitat (p. ex., `AIF2B` a `AIF2A`). Quan falta un docent, l'horari de guàrdies pot proposar llavors que el docent que fa la mateixa matèria a les dues meitats els faci classe alhora. Indica-ho en una meitat i l'altra també ho tindrà. Les dues meitats han de ser del mateix tipus (dos grups principals o dos grups de reforç). Dues meitats principals solen compartir **Tutor**, **Delegat** i **Sotsdelegat**, i els delegats es trien entre l'alumnat de totes dues, però cada meitat també pot tenir els seus (cotutors, un delegat per meitat). Quan les enllaces, o més endavant en canvies un en una meitat, l'altra meitat només el pren si no en té cap. Si ja en té un de diferent, la fitxa ho pregunta abans de desar: **Replicar** li posa el mateix, **Cada meitat manté els seus** desa sense tocar l'altra meitat, i si tanques el diàleg no es desa res. Deixa'l buit en els grups que només comparteixen algunes classes sense ser meitats (p. ex., `DAM2A` i `DAM2B`).
    - **Gestionat pels departaments** (només lectura, visible quan n'hi ha): el departament indicat als estudis del grup o, en un grup de reforç, als estudis dels seus grups principals. Els seus caps també poden organitzar les absències de les classes del grup. Es canvia des de la fitxa dels estudis (consulta [Estudis](curriculum-studies.md)).
 4. Fes clic a **Desa**.
 
-![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat i sotsdelegat, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
+![Fitxa d'un grup principal: nivell, estudi, curs, acrònim, tutor, delegat, sotsdelegat i l'altra meitat amb què s'uneix, amb els seus alumnes](../../assets/admin/admin-groups-form.png)
 
 Els alumnes no s'afegeixen des d'aquí — consulta la pestanya **Alumnes** per revisar qui està assignat, però és el propi registre de l'alumne (o el procés de matrícula) el que realment l'assigna a un grup.
 

@@ -16,7 +16,8 @@ Aquesta guia explica l'**històric acadèmic**: un resum permanent per curs de c
 4. [Ajustar el resultat acadèmic](#ajustar-el-resultat-acadèmic)
 5. [Aplicar una revisió de qualificacions](#aplicar-una-revisió-de-qualificacions)
 6. [Afegir un expedient anterior](#afegir-un-expedient-anterior)
-7. [Finals pendents de l'estada](#finals-pendents-de-lestada)
+7. [Afegir un expedient de currículum anterior](#afegir-un-expedient-de-currículum-anterior)
+8. [Finals pendents de l'estada](#finals-pendents-de-lestada)
 
 ---
 
@@ -88,14 +89,14 @@ Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix
 
 ### Amb l'expedient acadèmic d'Esfera (PDF)
 
-1. A **Certificat acadèmic**, pugeu el PDF de l'expedient acadèmic d'Esfera.
+1. A **Certificat acadèmic**, pugeu el PDF de l'expedient acadèmic d'Esfera. També s'accepta la pantalla de l'expedient d'Esfera impresa en PDF, com la que lliuren alguns centres privats.
 2. S'omplen sols el centre de procedència, el seu codi, l'estudi i una graella amb tots els mòduls, resultats d'aprenentatge (RA) i estades del certificat. Els cursos que l'alumne/a ja té a l'històric no s'hi inclouen; si el certificat té cursos de més d'un centre, cada curs conserva el seu.
 3. Reviseu la graella:
-   - **Qualificació del certificat** és el que diu el PDF; **Nota** i **Qualificat** és el que es desarà. Corregiu-les si cal. Un RA *No assolit* o *Pendent* queda sense nota, i el mòdul, no superat.
+   - **Qualificació del certificat** és el que diu el PDF; **Nota** i **Qualificat** és el que es desarà. Corregiu-les si cal. Un RA *No assolit* o *Pendent* (*NA* o *PDT* a la pantalla impresa) queda sense nota, i el mòdul, no superat.
    - Les línies amb **Avís** necessiten atenció: un curs que no existeix a EMS no s'importa (l'administració acadèmica l'ha de crear abans); un mòdul que no és de l'estudi no s'importa; si n'hi ha un d'equivalent, trieu-lo a **Mòdul** i marqueu **Importa**.
    - Les optatives pròpies de l'altre centre no s'importen com a tals. Si n'hi ha d'aprovades i les seves hores sumen almenys les de l'optativa del centre, apareix una línia **Optativa reconeguda** que l'aprova amb la mitjana de les seves notes ponderada per hores; si no hi arriben, la línia queda amb avís i no s'importa. L'optativa reconeguda queda a l'històric amb la marca **Reconegut** i sense resultats d'aprenentatge.
    - Quan la nota del mòdul del certificat no coincideix amb la que donen els RA amb les ponderacions del centre, s'aplica la del certificat, sempre que totes dues coincideixin en superat o no superat.
-4. Comproveu que **Alumne del certificat** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, l'expedient no es crea.
+4. Comproveu que **Alumne del certificat** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, o no es pot comprovar (el PDF no el porta o l'alumne/a no té IDALU), l'expedient no es crea.
 5. Feu clic a **Crea l'expedient**. Es creen el registre i tots els mòduls marcats alhora, amb el PDF adjunt.
 
 ![Assistent d'expedient anterior amb la graella de revisió llegida del PDF: mòduls, resultats d'aprenentatge, estada pendent i optativa reconeguda](../../assets/secretary/academic-history-previous-record-review.png)
@@ -114,6 +115,23 @@ Si el certificat encara no té la nota de l'estada (EM) d'un mòdul, el mòdul q
 ![Expedient anterior creat a l'històric, amb la cinta Expedient anterior, el centre de procedència, el certificat i els mòduls](../../assets/secretary/academic-history-previous-record.png)
 
 El registre es mostra amb la cinta **Expedient anterior**, el centre de procedència i el certificat. El filtre **Expedients anteriors** de la llista de l'històric els mostra tots. Per corregir-lo més endavant, feu servir la revisió de qualificacions com en qualsevol altre registre.
+
+## Afegir un expedient de currículum anterior
+
+Un cicle que l'alumne/a va cursar amb un **currículum anterior** (els cicles LOE organitzats en unitats formatives, UF, que gestionava SAGA) no encaixa a l'històric per cursos: es guarda a part, tal com figura al document de l'historial acadèmic, per poder-lo consultar, per exemple per resoldre una sol·licitud de convalidació. El poden afegir secretaria, administració, cap d'estudis i direcció.
+
+1. Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix un expedient de currículum anterior**.
+2. A **Document de l'historial acadèmic**, pugeu el PDF de l'historial acadèmic.
+3. S'emplenen el currículum, el centre, els anys i una graella amb tots els mòduls i, a sota de cadascun, les seves unitats formatives, amb les hores, la nota i la convocatòria. Corregiu qualsevol nota o convocatòria que no s'hagi llegit bé.
+4. **Títol obtingut** queda marcat quan tots els mòduls de la llista estan superats, perquè el document no diu si l'alumne/a es va titular. Confirmeu-ho o corregiu-ho i, si la sabeu, ompliu la **Data del títol**.
+5. Comproveu que l'**Alumne del document** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, o no es pot comprovar, l'expedient no es crea.
+6. Feu clic a **Crea l'expedient**.
+
+![Assistent per afegir un expedient de currículum anterior amb la graella llegida del PDF: mòduls, unitats formatives, notes i convocatòries](../../assets/secretary/academic-history-previous-curriculum-review.png)
+
+![Expedient de currículum anterior amb els mòduls i les unitats formatives, el títol i el document adjunt](../../assets/secretary/academic-history-previous-curriculum.png)
+
+L'expedient apareix com una línia més de l'**Històric acadèmic** de l'alumne/a (pestanya **Estudis**), amb els anys a la columna **Curs** i **Currículum anterior** marcat, i a la pestanya **Històric acadèmic** de les sol·licituds de convalidació de l'alumne/a. Feu clic a la línia per obrir-lo. **Planificació i avaluació → Notes → Currículums anteriors** els mostra tots. Un títol obtingut en aquest centre també fa sortir l'avís **Té una titulació obtinguda al centre** a la sol·licitud de convalidació. Per corregir més endavant una nota, el títol o les observacions, obriu l'expedient i modifiqueu-lo.
 
 ## Finals pendents de l'estada
 

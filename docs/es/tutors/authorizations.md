@@ -19,7 +19,7 @@ Esta guía explica cómo enviar autorizaciones del catálogo del centro a vuestr
 
 ## Enviar autorizaciones
 
-Id a **Gestión académica > Autorizaciones > Enviar autorizaciones**.
+Id a **Gestión académica > Autorizaciones** y haced clic en **Nuevo**.
 
 ![Asistente Enviar autorizaciones para un tutor](../../assets/tutors/authorizations-tutor-send.png)
 
@@ -48,7 +48,7 @@ El alumno y la familia responden desde **Matrícula y autorizaciones** en el por
 
 ## Seguimiento de las respuestas
 
-Id a **Gestión académica > Autorizaciones > Seguimiento**. La lista muestra las autorizaciones de vuestro alumnado, tanto las enviadas durante el curso como las de la matrícula.
+Id a **Gestión académica > Autorizaciones**. La lista muestra las autorizaciones de vuestro alumnado, tanto las enviadas durante el curso como las de la matrícula. Si sois jefe de departamento o de seminario, también veis las del alumnado de los tutores de vuestro departamento.
 
 - Filtrad por **Pendiente**, **Aceptado** o **Rechazado**, y por **Enviada durante el curso** o **De una matrícula**.
 - Agrupad por autorización, alumno o estado.
@@ -56,7 +56,7 @@ Id a **Gestión académica > Autorizaciones > Seguimiento**. La lista muestra la
 
 ## Responder en nombre de una familia
 
-Cuando una familia entrega el formulario firmado en papel, abrid la autorización desde **Seguimiento**, indicad el **Estado** y adjuntad el documento escaneado en el campo **Documento**. El estado no se puede cambiar sin adjuntarlo.
+Cuando una familia entrega el formulario firmado en papel, abrid la autorización desde la lista de **Autorizaciones**, indicad el **Estado** y adjuntad el documento escaneado en el campo **Documento**. El estado no se puede cambiar sin adjuntarlo.
 
 ---
 

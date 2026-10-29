@@ -16,11 +16,13 @@ Selecciona tu perfil para acceder a los manuales correspondientes:
 |--------|------------|
 | [Familias y alumnos](families/index.md) | Portal de matrícula, cuenta bancaria, documentos y bonificaciones |
 | [Profesores](teachers/index.md) | Pasar lista, calificaciones y planificación de sesiones |
+| [Jefes de departamento y de seminario](department_chiefs/index.md) | Organizar las ausencias de los docentes de tu departamento y escribir a sus grupos |
 | [Tutores](tutors/index.md) | Gestión de propuestas de matrícula y seguimiento de los alumnos del grupo |
 | [Secretaría](secretary/index.md) | Gestión de matrículas, documentos, pagos y bonificaciones |
 | [Jefatura de Estudios](head_of_studies/index.md) | Decidir sobre solicitudes de corrección de fichajes |
 | [Equipo Erasmus+](erasmus/index.md) | Convocatorias y solicitudes Erasmus+ |
 | [Administrador](admin/index.md) | Configuración curricular, gestión de profesores y cuentas de Google Workspace |
+| [Coordinación de Calidad](quality/index.md) | Sistema de gestión de la calidad: procesos, documentación y acuerdos |
 | [Desarrolladores](../en/developers/index.md) | Referencia técnica para desarrolladores |
 
 ---

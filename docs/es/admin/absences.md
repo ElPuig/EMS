@@ -16,12 +16,31 @@
 |---|---|---|
 | Ausencia de día entero | 7:30 | Horas que vale una ausencia de día entero. Siempre cuenta esas horas, tenga la persona las clases que tenga programadas ese día |
 | Crédito de horas por motivos de salud | 15:00 | Horas de ausencia por motivos de salud que puede usar cada persona por curso |
-| Recordatorio del justificante | 1 día | Una vez pasada una ausencia que todavía espera el justificante, se recuerda a la persona cada este número de días |
-| Aviso de justificante pendiente | 3 días | Pasados estos días desde la ausencia, un justificante que todavía falte también se comunica al jefe que la aprueba |
+| Recordatorio de ausencias | 1 día | Una vez pasada una ausencia que todavía espera a la persona (el justificante, o solicitar una ausencia detectada que su jefe de estudios le ha pedido que justifique), se le recuerda cada este número de días |
+| Aviso de ausencias pendientes | 3 días | Lo que todavía falta también se comunica pasados estos días desde la ausencia (un justificante, a quien aprueba la ausencia) o desde que el jefe de estudios pidió la justificación (una ausencia detectada aún no solicitada, al jefe de estudios del docente) |
+| Ausencias detectadas | (vacío) | Las áreas cuyos docentes siguen el circuito de ausencias detectadas: un día que un docente no ha fichado (o ha fichado después de su primera clase) se convierte en una ausencia detectada, y el jefe de estudios del docente revisa cada ausencia detectada antes de que se le recuerde al docente. Vacío, el circuito está desactivado. Para empezar, elige solo el área de FP |
 
 El crédito **avisa, no bloquea**: quien lo supera recibe un aviso y la solicitud queda marcada para la jefatura de estudios, pero se tramita igual.
 
-![Bloque de configuración de ausencias del personal, con los campos de día entero, crédito de salud y recordatorios del justificante](../../assets/admin/admin-absences-settings.png)
+Cada recordatorio y cada aviso espera al inicio de la jornada de quien lo recibe, de modo que nadie los recibe fuera de su horario. Quien no tiene ningún horario se rige por el marco horario por defecto del centro.
+
+Un docente pertenece a un área por su departamento. Las ausencias detectadas se explican en el [manual del jefe de estudios](../head_of_studies/absences.md#ausencias-detectadas).
+
+![Bloque de configuración de ausencias del personal, con los campos de día entero, crédito de salud, recordatorio, aviso y ausencias detectadas](../../assets/admin/admin-absences-settings.png)
+
+### Cambios de horario en el cuadro de guardias
+
+**Ajustes > EMS > Configuración del cuadro de guardias** decide qué cambios puede proponer el cuadro de guardias cuando falta un docente. Los tres están **desactivados por defecto**: con todos desactivados, las clases sin docente siempre se cubren con una guardia.
+
+| Parámetro | Qué propone el cuadro cuando está activado |
+|---|---|
+| Entrar más tarde | Si las primeras clases del día de un grupo no tienen docente, avisar al alumnado y a las familias de que pueden entrar más tarde (o de que no tienen clase, si ninguna clase tiene docente) |
+| Salir antes | Si las últimas clases del día no tienen docente, avisar al alumnado y a las familias de que pueden salir antes |
+| Patio más largo | Si las clases justo antes o después de un patio no tienen docente, alargar el patio. Solo se avisa al alumnado, y los menores de 18 años siguen sin poder salir del centro, así que esas clases siguen necesitando un profesor de guardia |
+
+Entrar más tarde y salir antes solo se ofrecen a los grupos de los niveles de la lista **Niveles que pueden entrar más tarde o salir antes** (aparece cuando alguno de los dos está activado), por ejemplo CFGM y CFGS: los grupos de cualquier otro nivel, como la educación obligatoria (ESO), tienen una guardia. **Si la lista está vacía, no se ofrece ninguno de los dos cambios a ningún grupo**, aunque estén activados, así que indica en ella todos los niveles que los pueden tener. El patio más largo no depende de esta lista.
+
+Desactivar uno no deshace lo que ya se ha comunicado: si la ausencia cambia después, el cuadro sigue ofreciendo la corrección.
 
 ---
 

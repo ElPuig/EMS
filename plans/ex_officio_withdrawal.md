@@ -67,6 +67,8 @@ absence, when they know the student is not coming although the roll calls say ot
 teacher who always marks everyone present). The attendances recorded in that period are then
 listed for the tutor to verify with the teachers concerned, with the same correction tool as in
 "An attendance during the circuit".
+A manually started case file never moves past the tutor's step until the tutor decides so; the
+pending verification stays in the tutor's to-do tray (and so in the daily digest) meanwhile.
 
 ### 2. Steps
 
@@ -141,6 +143,6 @@ student authorised sharing with it), the family when a minor.
 
 ## Open questions
 
-- Manual start: when must the tutor have verified the conflicting attendances? Proposal: before
-  the case file goes past the tutor's own steps (i.e. before it reaches the Secretariat).
+- Postponing a pending task so the daily digest stops listing it for a while: to be decided as
+  a general mechanism for every task in the digest, not only this circuit.
 - Contents of every email template (phase 2).

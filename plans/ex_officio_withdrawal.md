@@ -1,6 +1,6 @@
 # Ex officio withdrawal circuit (baixa d'ofici) - requirements
 
-**Status: phase 1 (requirements) closed; phase 2 (fit with EMS) drafted - 2026-10-29.** Issue #726. Not implemented yet.
+**Status: phase 1 (requirements) closed; phase 2 (fit with EMS) agreed - 2026-10-29.** Issue #726. Not implemented yet.
 Source of truth: the centre's *Pla de comunicació*, revision 7 (29/10/2026), table "Baixes
 d'alumnat", plus the decisions agreed with the developer recorded below. Phases: 1 requirements,
 2 fit with EMS, 3 slides for the management team (with screenshots), 4 implementation.
@@ -173,7 +173,7 @@ student authorised sharing with it), the family when a minor.
 - **`ems.ex_officio_withdrawal.step`** (one line per step of the case file): what the plan's row
   asks, due date (D0 + offset), responsible, checklist of off-EMS actions, notes, evidence files,
   done by / on, email sent.
-- **Steps catalog**: what each circuit's steps are. Either in code or as data (see decisions).
+- **Steps catalog**: what each circuit's steps are, in code.
 - **Daily detection cron**: one grouped read of the roll-call lines of the last ~2 months for the
   levels with a circuit (one query, indexed by student and date, per the efficiency rule), the
   current run per student, and a proposal for each student whose run reached 1 week without an
@@ -189,19 +189,17 @@ student authorised sharing with it), the family when a minor.
   button on the student's form. Tutors reach their own case files through the activity and the
   student form.
 
-## Decisions to take (phase 2)
+## Decisions (phase 2, agreed 2026-10-29)
 
-1. **Steps catalog in code or as data.** As data (`data/main/`, editable by the administrator:
-   order, offset in days, responsible group, checklist items, email template) the circuit follows a
-   future revision of the plan without a release; today's revision 7 already changed responsibles.
-   Recommendation: data.
-2. **Exit kind**: a new `exit_type` value *ex officio withdrawal* (simplest for reports) vs keeping
-   `withdrawal` with a "voluntary / ex officio" flag (keeps every existing "withdrawal" filter
-   working). Recommendation: the flag, since many screens and the year record filter on
-   `exit_type == 'withdrawal'`.
-3. **What the Inspection email carries**: a PDF of the case file (steps, dates, who) attached.
-4. **Who can see the list**: tutor (own students), COCOBE, management team, Secretariat; teachers
-   not.
+1. **Steps catalog in code**, not data: no configuration until the circuit works well.
+2. **Exit kind**: `exit_type` stays `withdrawal`; a new flag says *voluntary* or *ex officio*, so
+   every existing withdrawal filter keeps working.
+3. **The Inspection email** carries a PDF of the case file (steps, dates, who).
+4. **Who sees the case files**: the tutor (own students, tutor scope), Coexistence (COCOBE),
+   Guidance (same as Coexistence), the management team and the Secretariat: all of them; other
+   teachers: none.
+5. **Social Services and Inspection addresses**: settings fields (`res.config.settings`).
+6. **Email texts**: reviewed later; the drafts below are placeholders.
 
 ## Email drafts (Catalan, to agree)
 
@@ -228,4 +226,3 @@ Placeholders in brackets. Not yet checked with LanguageTool (no key in this envi
 - **Secretariat, withdrawal done:** us comuniquem que s'ha tramitat la baixa d'ofici de [alumne] amb
   data [data].
 
-Open: the Social Services and Inspection addresses (fixed addresses in the settings?).

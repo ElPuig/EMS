@@ -185,3 +185,75 @@ class TestStudentCard(TransactionCase):
         self.assertTrue(self.own_a.can_leave_centre)
         self.assertFalse(self.own_b.auth_leave)
         self.assertFalse(self.own_b.can_leave_centre)
+
+    # --- The card's code (QR on the back) -------------------------------------------------------
+
+    def _token(self, student):
+        return student.sudo().ems_card_token
+
+    def test_print_issues_a_code_kept_on_reprint(self):
+        self.own_a.with_user(self.tutor_user).action_print_student_card()
+        token = self._token(self.own_a)
+        self.assertTrue(token)
+        self.assertEqual(self.own_a.sudo().ems_card_course_id, self.env.company.current_course_id)
+        # A damaged card printed again, alone or with its whole group, keeps working.
+        self.group.with_user(self.tutor_user).action_print_student_cards()
+        self.assertEqual(self._token(self.own_a), token)
+        self.assertEqual(self.env['res.partner']._ems_card_from_token(token), self.own_a)
+
+    def test_code_expires_with_the_academic_year(self):
+        self.own_a.with_user(self.tutor_user).action_print_student_card()
+        token = self._token(self.own_a)
+        self.env.company.current_course_id = self.env['ems.course'].create({'start': 2098, 'end': 2099})
+        self.assertFalse(self.env['res.partner']._ems_card_from_token(token))
+        self.assertFalse(self.own_a.sudo()._ems_card_check_url())
+        # The first card of the new year gets a new code.
+        self.own_a.with_user(self.tutor_user).action_print_student_card()
+        self.assertNotEqual(self._token(self.own_a), token)
+        self.assertEqual(self.env['res.partner']._ems_card_from_token(self._token(self.own_a)), self.own_a)
+
+    def test_revoke_voids_every_printed_card(self):
+        self.own_a.with_user(self.tutor_user).action_print_student_card()
+        token = self._token(self.own_a)
+        messages = len(self.own_a.message_ids)
+        self.own_a.with_user(self.tutor_user).action_revoke_student_card()
+        self.assertFalse(self.env['res.partner']._ems_card_from_token(token))
+        self.assertTrue(self.env['res.partner']._ems_card_from_token(self._token(self.own_a)))
+        # Left on the student's record, so whoever looks later knows why an old card fails.
+        self.assertEqual(len(self.own_a.message_ids), messages + 1)
+
+    def test_revoke_only_by_who_prints(self):
+        teacher = create_role_user(self, 'teacher', 'test_card_revoke_teacher')
+        with self.assertRaises(UserError):
+            self.own_a.with_user(teacher).action_revoke_student_card()
+        with self.assertRaises(UserError):
+            self.foreign.with_user(self.tutor_user).action_revoke_student_card()
+
+    def test_withdrawn_student_card_not_valid(self):
+        self.own_a.with_user(self.tutor_user).action_print_student_card()
+        token = self._token(self.own_a)
+        self.own_a.contact_type = 'withdrawal'
+        self.assertFalse(self.env['res.partner']._ems_card_from_token(token))
+
+    def test_unknown_or_empty_code_not_valid(self):
+        self.assertFalse(self.env['res.partner']._ems_card_from_token('not-a-real-code'))
+        self.assertFalse(self.env['res.partner']._ems_card_from_token(''))
+
+    def test_check_values_show_the_least(self):
+        self.own_a.write({'firstname': 'Laia', 'lastname': 'Inventat Prova', 'student_id': '99000001234'})
+        values = self.own_a._ems_card_check_values()
+        self.assertEqual(values['initials'], 'L. I. P.')
+        self.assertEqual(values['idalu'], '*******1234')
+        self.assertEqual(values['study'], 'TSCX')
+        self.assertEqual(values['course'], 3)
+
+    def test_qr_on_the_back_behind_its_own_front(self):
+        # Two cards in a row: printed double-sided, the left front's back lands on the right.
+        (self.own_a | self.own_b).with_user(self.tutor_user).action_print_student_card()
+        html = self._render(self.own_a | self.own_b)
+        back = html[html.index('o_ems_card_back'):]
+        self.assertLess(back.index(self._token(self.own_b)), back.index(self._token(self.own_a)))
+        self.assertEqual(html.count('class="o_ems_card_qr"'), 2)
+
+    def test_no_qr_without_a_valid_code(self):
+        self.assertNotIn('class="o_ems_card_qr"', self._render(self.own_a))

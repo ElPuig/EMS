@@ -35,11 +35,12 @@ registry.category("web_tour.tours").add("ems_student_card_list", {
     ],
 });
 
-// The tutor's own student's form, and their group's: an entry of the Actions dropdown.
+// The tutor's own student's form, and their group's: an entry of the Actions dropdown (and, on the
+// student's form, "Revoke student card").
 registry.category("web_tour.tours").add("ems_student_card_student_form", {
     test: true,
     steps: () => [
-        ...checkActions({ offered: ["action_print_student_card"] }, "The tutor's student: the card is offered"),
+        ...checkActions({ offered: ["action_print_student_card", "action_revoke_student_card"] }, "The tutor's student: the card is offered, and can be revoked"),
     ],
 });
 

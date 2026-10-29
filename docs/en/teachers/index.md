@@ -26,6 +26,7 @@ This section contains the manuals for **teachers**.
 | [A Group's Weekly Schedule](../admin/group-schedule.md) | View a group's aggregated timetable (subjects, teachers, classrooms, breaks) and export it to PDF |
 | [A Student's Weekly Schedule](../admin/student-schedule.md) | View a student's own timetable (subjects, teachers, classrooms, breaks), including overlapping classes, and export it to PDF |
 | [Consulting a Student's Academic Data](student-academic-data.md) | Where to consult any student's academic history, and the student data the Guidance and Coexistence roles can read |
+| [Checking a Student Card](student-card-check.md) | Scan the QR on the back of a student card to check it is genuine and whether the student may leave the centre |
 | [Requesting an absence](absences.md) | Request an absence: choosing its type, a whole day or a few hours, the responsible declaration, the supporting document and sending it |
 | [Plannings: checking your subjects' grading ponderations](planning.md) | Check where the internal/work-placement split and the per-learning-outcome weighting of the subjects you teach comes from |
 | [A Student's Public and Private Notes](student-notes.md) | Where every teacher reads a student's public notes, and who can read and write the private tutoring ones |

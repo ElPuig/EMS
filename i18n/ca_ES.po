@@ -4735,6 +4735,7 @@ msgstr "ID"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
 msgid "IDALU"
 msgstr ""
 
@@ -27518,3 +27519,112 @@ msgstr "Sorra"
 #: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__yellow
 msgid "Yellow"
 msgstr "Groc"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "<i class=\"fa fa-ban\"/> Card not valid"
+msgstr "<i class=\"fa fa-ban\"/> Carnet no vàlid"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "<i class=\"fa fa-check-circle\"/><span>May leave the centre</span>"
+msgstr "<i class=\"fa fa-check-circle\"/><span>Pot sortir del centre</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "<i class=\"fa fa-shield\"/> Valid card"
+msgstr "<i class=\"fa fa-shield\"/> Carnet vàlid"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "<i class=\"fa fa-times-circle\"/><span>May not leave the centre</span>"
+msgstr "<i class=\"fa fa-times-circle\"/><span>No pot sortir del centre</span>"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_res_partner_ems_card_token_unique
+msgid "Another student card already uses this code."
+msgstr "Un altre carnet d'estudiant ja fa servir aquest codi."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "Compare these details with the ones printed on the card."
+msgstr "Compara aquestes dades amb les impreses al carnet."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "Initials"
+msgstr "Inicials"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_card.py:0
+msgid "None of the selected contacts is a student you can revoke the card of."
+msgstr ""
+"Cap dels contactes seleccionats és un alumne del qual puguis anul·lar el "
+"carnet."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Revoke student card"
+msgstr "Anul·lar carnet d'estudiant"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_student_card_back
+msgid "Scan to check the card"
+msgstr "Escaneja per comprovar el carnet"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "Student card check"
+msgstr "Comprovació del carnet d'estudiant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__ems_card_token
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_card_token
+msgid "Student card code"
+msgstr "Codi del carnet d'estudiant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__ems_card_course_id
+#: model:ir.model.fields,field_description:ems.field_res_users__ems_card_course_id
+msgid "Student card course"
+msgstr "Curs del carnet d'estudiant"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_card.py:0
+msgid "Student card revoked. Print a new card for the student."
+msgstr "Carnet anul·lat. Imprimeix-ne un de nou per a l'alumne."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/student_card.py:0
+msgid "Student card revoked: the cards printed until now are no longer valid."
+msgstr ""
+"Carnet d'estudiant anul·lat: els carnets impresos fins ara ja no són vàlids."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The QR of every card printed so far for this student will show 'not valid'. "
+"Continue?"
+msgstr ""
+"El QR de tots els carnets impresos fins ara per a aquest alumne mostrarà «no"
+" vàlid». Vols continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid ""
+"This card has been revoked or has expired, or it was not issued by the "
+"centre."
+msgstr "Aquest carnet s'ha anul·lat o ha caducat, o no l'ha emès el centre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "Too many attempts"
+msgstr "Massa intents"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.student_card_check
+msgid "Try again in a few minutes."
+msgstr "Torna-ho a provar d'aquí a uns minuts."

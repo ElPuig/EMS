@@ -96,6 +96,17 @@ class TestDocsScreenshotsStudentCard(DocsScreenshotMixin, HttpCase):
                       run=self.HIDE_CHATTER, wait_after='.o_form_view',
                       max_height=330, marks=[('button[name=action_print_student_cards]', 1, 'right')])
 
+    def test_capture_student_card_check_page(self):
+        # What the QR on the back opens, on a phone, without logging in: a valid card and a revoked one.
+        student = self.students[0]
+        student.sudo()._ems_ensure_card_token()
+        token = student.sudo().ems_card_token
+        self._capture(f'/ems/card/{token}', '.o_ems_check_card', 'student-card-check-valid.png',
+                      viewport_width=420)
+        student.sudo()._ems_ensure_card_token(renew=True)
+        self._capture(f'/ems/card/{token}', '.o_ems_check_card', 'student-card-check-invalid.png',
+                      viewport_width=420)
+
     def test_capture_student_card_admin_screens(self):
         # Settings > EMS: only the stamp's own setting (the rest of the block names real people).
         self._capture('/odoo/action-base_setup.action_general_configuration', '#ems_card_stamp',

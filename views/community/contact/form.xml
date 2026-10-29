@@ -141,6 +141,12 @@
                                     string="Print student card"
                                     invisible="not can_print_student_card"
                                     groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"/>
+                            <!-- A lost or stolen card: the QR of every card printed so far stops working. -->
+                            <button name="action_revoke_student_card" type="object"
+                                    string="Revoke student card"
+                                    invisible="not can_print_student_card"
+                                    groups="ems.group_academic_admin,ems.group_secretary,ems.group_head_of_studies,ems.group_tutor"
+                                    confirm="The QR of every card printed so far for this student will show 'not valid'. Continue?"/>
                             <!-- Issue #585: the roles that sign grade reviews, the only other
                                  write path into the academic history. -->
                             <button name="action_external_record_wizard" type="object"

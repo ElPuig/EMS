@@ -386,6 +386,7 @@
         'views/portal/portal_main.xml',
             'views/portal/frontend_branding.xml',
             'views/portal/portal_loading_overlay.xml',
+            'views/portal/student_card_check.xml',
             'views/portal/portal_header.xml',
             'views/portal/portal_account_readonly.xml',
             'views/portal/portal_authorizations.xml',

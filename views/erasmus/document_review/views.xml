@@ -13,19 +13,25 @@
                         <p class="text-muted">
                             Tick each signature you see on the uploaded copy: EMS keeps who ticked it and when. The document can be marked valid once every signature is ticked.
                         </p>
+                        <p class="text-muted" invisible="not can_send_to_sign">
+                            Or send it to sign electronically with Send to sign: each signature is ticked when it is signed.
+                        </p>
                         <group>
                             <field name="name" readonly="1"/>
                             <field name="signers" readonly="1"/>
                             <field name="signatures_missing" readonly="1" invisible="not signatures_missing"/>
                             <field name="review_state" readonly="1"/>
+                            <field name="can_send_to_sign" invisible="1"/>
+                            <field name="sign_request_id" readonly="1" invisible="not sign_request_id"/>
                         </group>
                         <field name="signature_ids">
                             <list editable="bottom" create="false" delete="false" decoration-muted="not is_required">
                                 <field name="signer"/>
                                 <field name="is_required" column_invisible="1"/>
-                                <field name="signed" widget="boolean_toggle"/>
+                                <field name="signed" widget="boolean_toggle" readonly="sign_signer_id"/>
                                 <field name="signed_user_id"/>
                                 <field name="signed_date"/>
+                                <field name="sign_signer_id" optional="show"/>
                             </list>
                         </field>
                     </sheet>

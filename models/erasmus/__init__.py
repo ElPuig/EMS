@@ -9,3 +9,5 @@ from . import group_mobility
 # document_review after group_mobility: it extends the documents of both kinds of mobility.
 from . import document_review
 from . import attachment
+# electronic_signature after document_review: it signs the documents' signature lines through sign_oca.
+from . import electronic_signature

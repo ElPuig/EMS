@@ -3675,6 +3675,7 @@ msgstr "Domiciliació bancària"
 #: model:ems.role,name:ems.role_director model:ir.model.fields,field_description:ems.field_res_company__director_id model:ir.model.fields,field_description:ems.field_res_config_settings__director_id model:res.groups,name:ems.group_director model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_document_signature__signer__director
+#: model:ir.model.fields.selection,name:ems.selection__sign_oca_role__ems_signer__director
 msgid "Director"
 msgstr "Director/a"
 
@@ -4376,6 +4377,7 @@ msgstr "Introdueix el text legal complet aquí..."
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: code:addons/ems/models/erasmus/call.py:0
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_document_signature__signer__coordinator
+#: model:ir.model.fields.selection,name:ems.selection__sign_oca_role__ems_signer__coordinator
 msgid "Erasmus coordinator"
 msgstr "Coordinador/a d'Erasmus"
 
@@ -6781,6 +6783,7 @@ msgstr "NUSS"
 #: model_terms:ir.ui.view,arch_db:ems.report_minute
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard_line__name
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__name
+#: model:ir.model.fields,field_description:ems.field_sign_oca_role__name
 msgid "Name"
 msgstr "Nom"
 
@@ -32467,6 +32470,7 @@ msgstr "Entitats d'acollida"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__host_partner_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_document_signature__signer__host
+#: model:ir.model.fields.selection,name:ems.selection__sign_oca_role__ems_signer__host
 msgid "Host entity"
 msgstr "Entitat d'acollida"
 
@@ -32489,6 +32493,7 @@ msgstr "Et toca triar la destinació, abans del"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_document_signature__signer__guardian
+#: model:ir.model.fields.selection,name:ems.selection__sign_oca_role__ems_signer__guardian
 msgid "Legal guardian"
 msgstr "Tutor legal"
 
@@ -32620,6 +32625,7 @@ msgstr "Obre l'elecció de destinació"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_participant__partner_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_document_signature__signer__participant
+#: model:ir.model.fields.selection,name:ems.selection__sign_oca_role__ems_signer__participant
 msgid "Participant"
 msgstr "Participant"
 
@@ -34008,6 +34014,7 @@ msgstr "Pagament de beca Erasmus+"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_res_partner__is_erasmus_host
 #: model:ir.model.fields,field_description:ems.field_res_users__is_erasmus_host
+#: model:sign.oca.role,name:ems.sign_role_erasmus_host
 msgid "Erasmus+ host entity"
 msgstr "Entitat d'acollida Erasmus+"
 
@@ -35441,6 +35448,7 @@ msgstr "Signat pel tutor/a del centre"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_document_signature__signer__tutor
+#: model:ir.model.fields.selection,name:ems.selection__sign_oca_role__ems_signer__tutor
 msgid "Centre's tutor"
 msgstr "Tutor/a del centre"
 
@@ -39477,3 +39485,175 @@ msgstr "<i class=\"fa fa-arrow-left me-1\"/>Tornar"
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__archived_with_calendar
 msgid "Archived with its calendar"
 msgstr "Arxivada amb el seu calendari"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "%(document)s can't be sent to sign: %(problems)s."
+msgstr "%(document)s no es pot enviar a signar: %(problems)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/document_review.py:0
+msgid "%(document)s: %(signer)s signed electronically."
+msgstr "%(document)s: %(signer)s ha signat electrònicament."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "%(signer)s (%(name)s) has no email"
+msgstr "%(signer)s (%(name)s) no té correu electrònic"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "%s has no signature template: it is signed outside EMS."
+msgstr "%s no té plantilla de signatura: se signa fora de l'EMS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "%s is valid or its record is closed: nothing left to sign."
+msgstr "%s és vàlid o el seu expedient està tancat: no queda res per signar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "%s: prepared to sign electronically."
+msgstr "%s: preparat per signar electrònicament."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
+msgid "<i class=\"fa fa-pencil me-1\"/>Sign it here"
+msgstr "<i class=\"fa fa-pencil me-1\"/>Signa-ho aquí"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "A signature made electronically can't be unticked."
+msgstr "Una signatura feta electrònicament no es pot desmarcar."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__can_send_to_sign
+msgid "Can be sent to sign"
+msgstr "Es pot enviar a signar"
+
+#. module: ems
+#: model:ir.model.constraint,message:ems.constraint_sign_oca_role_ems_signer_unique
+msgid "Each Erasmus+ signer has one role."
+msgstr "Cada signant Erasmus+ té un sol rol."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__sign_state
+msgid "Electronic signature"
+msgstr "Signatura electrònica"
+
+#. module: ems
+#: model:sign.oca.role,name:ems.sign_role_erasmus_director
+msgid "Erasmus+ Director"
+msgstr "Erasmus+ director"
+
+#. module: ems
+#: model:sign.oca.role,name:ems.sign_role_erasmus_tutor
+msgid "Erasmus+ centre's tutor"
+msgstr "Erasmus+ tutor del centre"
+
+#. module: ems
+#: model:sign.oca.role,name:ems.sign_role_erasmus_coordinator
+msgid "Erasmus+ coordinator"
+msgstr "Erasmus+ coordinador"
+
+#. module: ems
+#: model:sign.oca.role,name:ems.sign_role_erasmus_guardian
+msgid "Erasmus+ legal guardian"
+msgstr "Erasmus+ tutor legal"
+
+#. module: ems
+#: model:sign.oca.role,name:ems.sign_role_erasmus_participant
+msgid "Erasmus+ participant"
+msgstr "Erasmus+ participant"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_sign_oca_role__ems_signer
+msgid "Erasmus+ signer"
+msgstr "Signant Erasmus+"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "Every signature of %s is already there."
+msgstr "Totes les signatures de %s ja hi són."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "Only the Erasmus team sends documents to sign."
+msgstr "Només l'equip Erasmus envia documents a signar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_document_signatures_form
+msgid "Or send it to sign electronically with Send to sign: each signature is ticked when it is signed."
+msgstr "O envieu-lo a signar electrònicament amb Envia a signar: cada signatura es marca quan se signa."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_participant_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_mobility_form
+msgid "Send to sign"
+msgstr "Envia a signar"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__sign_request_id
+msgid "Signature request"
+msgstr "Sol·licitud de signatura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_call_document__sign_template_id
+msgid "Signature template"
+msgstr "Plantilla de signatura"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_document_signature__sign_signer_id
+msgid "Signed electronically"
+msgstr "Signat electrònicament"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_call_document__sign_template_id
+msgid "Signed in EMS: the SEPIE model (a copy already filled in) with the place of each signer's signature. The Erasmus team sends every filled-in copy to sign from the participant's record. Empty: signed outside EMS and uploaded."
+msgstr "Signat a l'EMS: el model del SEPIE (una còpia ja emplenada) amb el lloc de la signatura de cada signant. L'equip Erasmus envia a signar cada còpia emplenada des de l'expedient del participant. Buit: se signa fora de l'EMS i es puja."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "The template %(template)s has boxes for %(roles)s, which are not Erasmus+ signers."
+msgstr "La plantilla %(template)s té caselles per a %(roles)s, que no són signants Erasmus+."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_document_signature__sign_signer_id
+msgid "Ticked by the electronic signature, not by the team."
+msgstr "Marcada per la signatura electrònica, no per l'equip."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "Upload the filled-in PDF of %s first."
+msgstr "Primer pugeu el PDF emplenat de %s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "no %s found to sign it"
+msgstr "no s'ha trobat cap %s que el signi"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "signed"
+msgstr "signat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/electronic_signature.py:0
+msgid "the template has no place for the signature of %s"
+msgstr "la plantilla no té lloc per a la signatura de %s"

@@ -238,6 +238,8 @@
                                         </span>
                                     </t>
                                 </p>
+                                <t t-set="sign_url" t-value="line._ems_portal_sign_url(request.env.user.partner_id)"/>
+                                <p t-if="sign_url" class="small mb-1"><a t-att-href="sign_url" class="btn btn-sm btn-primary o_ems_erasmus_sign"><i class="fa fa-pencil me-1"/>Sign it here</a></p>
                                 <p t-if="line.deadline" class="small mb-1">Deadline: <t t-out="line.deadline" t-options="{'widget': 'date'}"/></p>
                                 <p t-if="line.review_state == 'needs_change' and line.review_comment" class="small text-danger mb-1" t-esc="line.review_comment"/>
                                 <div t-if="line.prepared_attachment_ids" class="small mb-1">

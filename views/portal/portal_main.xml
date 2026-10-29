@@ -2,7 +2,9 @@
 <odoo>
     <data>
 
-        <template id="portal_my_home_ems_custom_landing" name="EMS Custom Portal Landing" inherit_id="portal.portal_my_home" priority="99">
+        <!-- Priority above sign_oca's portal_my_home (100), which adds its card inside o_portal_docs:
+             this replaces the whole block, so it has to come last. -->
+        <template id="portal_my_home_ems_custom_landing" name="EMS Custom Portal Landing" inherit_id="portal.portal_my_home" priority="110">
             
             <xpath expr="//div[hasclass('o_portal_docs')]" position="replace">
 

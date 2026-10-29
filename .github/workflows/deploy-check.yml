@@ -112,7 +112,7 @@ jobs:
         run: |
           cat <<EOF | sudo tee /tmp/odoo-deploy-check.conf
           [options]
-          addons_path = /usr/lib/python3/dist-packages/odoo/addons,${{ github.workspace }}/pr-checkout,/root/myModules/queue,/root/myModules/partner-contact
+          addons_path = /usr/lib/python3/dist-packages/odoo/addons,${{ github.workspace }}/pr-checkout,/root/myModules/queue,/root/myModules/partner-contact,/root/myModules/sign
           EOF
 
       - name: Clone production data into a scratch database

@@ -6,6 +6,7 @@ MODULES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 OCA_REPOS=(
     "https://github.com/OCA/queue.git"
     "https://github.com/OCA/partner-contact.git"
+    "https://github.com/OCA/sign.git"
 )
 OCA_BRANCH="18.0"
 

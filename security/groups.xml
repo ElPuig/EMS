@@ -376,12 +376,15 @@
              those groups instead (see their 'users' field above). -->
         <!-- Issue #683: full access to every Erasmus+ call and application, confidential evidence
              included. Given through the roles "Erasmus coordinator" and "Erasmus mobility
-             technician" (data/cat/ems.role.csv). No implied group: the technician may not be a
-             teacher. -->
+             technician" (data/cat/ems.role.csv). No teacher group implied: the technician may not
+             be a teacher. It implies Sign's "All Documents" (sign_oca): the team prepares, sends and
+             follows the documents signed electronically (security/ir.model.access.csv adds editing
+             the signature templates). -->
         <record model="res.groups" id="group_erasmus">
             <field name="name">Manager</field>
             <field name="comment">Erasmus team: manages the Erasmus+ calls and applications.</field>
             <field name="category_id" ref="ems.category_erasmus"/>
+            <field name="implied_ids" eval="[(4, ref('sign_oca.sign_oca_group_manager'))]"/>
             <field name="users" eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]"/>
         </record>
 

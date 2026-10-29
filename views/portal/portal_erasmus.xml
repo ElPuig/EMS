@@ -579,6 +579,8 @@
                                         </span>
                                     </t>
                                 </p>
+                                <t t-set="sign_url" t-value="line._ems_portal_sign_url(request.env.user.partner_id)"/>
+                                <p t-if="sign_url" class="small mb-1"><a t-att-href="sign_url" class="btn btn-sm btn-primary o_ems_erasmus_sign"><i class="fa fa-pencil me-1"/>Sign it here</a></p>
                                 <p t-if="line.prepared_attachment_ids" class="small mb-1"><t t-if="line.handled_by == 'team'">To download:</t><t t-else="">To download and sign:</t>
                                     <t t-foreach="line.prepared_attachment_ids" t-as="prepared">
                                         <a t-attf-href="/my/erasmus/call/#{call.id}/mobility/file/#{prepared.id}" class="o_ems_erasmus_prepared_file" t-esc="prepared.name"/><t t-if="not prepared_last">, </t>

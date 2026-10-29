@@ -1,0 +1,7 @@
+id,name,ems_signer
+sign_role_erasmus_participant,Erasmus+ participant,participant
+sign_role_erasmus_guardian,Erasmus+ legal guardian,guardian
+sign_role_erasmus_director,Erasmus+ Director,director
+sign_role_erasmus_coordinator,Erasmus+ coordinator,coordinator
+sign_role_erasmus_tutor,Erasmus+ centre's tutor,tutor
+sign_role_erasmus_host,Erasmus+ host entity,host

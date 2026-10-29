@@ -224,9 +224,11 @@ acceptance while the destination or the start date is still to be confirmed
 not ready to leave. Internships never call it (their letter is the call's annex, fixed once
 published), so they behave as before. Versions are read by the Erasmus team and the administrator only.
 
-### Signatures: what EMS does and what is missing
+### Signatures
 
-What EMS has today (no electronic signature system):
+Who signs each document and how the signature reaches EMS. A document whose call document has a
+**signature template** is signed electronically in EMS (see "Electronic signature" below); without
+one it is signed outside EMS and uploaded, as in this table:
 
 | Document | Who signs | How it reaches EMS |
 |---|---|---|
@@ -260,10 +262,61 @@ What EMS has today (no electronic signature system):
   otherwise, decided by the coordination 2026-10-29). Nothing to sign is ever complete on upload, and
   a mobility cannot be closed, nor a participant be ready to leave, with a required document not
   complete.
-- Not there: a verifiable electronic signature (the Catalan idCAT/VALid or an external provider such
-  as DocuSeal or OpenSign) and how the host entity would sign (it has no EMS account). The
-  commitment letter keeps its click acceptance. A provider would fill the same signature lines
-  (send, webhook, signed PDF stored as a new version) instead of the team's tick.
+- The commitment letter keeps its click acceptance; the sBID documents are signed in sBID. Neither
+  has a signature template.
+
+### Electronic signature (sign_oca)
+
+`models/erasmus/electronic_signature.py`, on top of OCA's `sign_oca` (repository `OCA/sign`, branch
+18.0, a dependency of EMS: `install.sh` clones it next to `queue` and `partner-contact`, and the
+production `addons_path` must include it before upgrading). It is a simple electronic signature
+(the signer draws or types it on a page reached by a personal link), with sign_oca's log of each
+step (date, IP, hash of the PDF after each signature), not a qualified one with a certificate.
+
+```mermaid
+sequenceDiagram
+    participant Team as Erasmus team
+    participant Line as Document line
+    participant Req as sign.oca.request
+    participant S as Signers (participant, family, Director, coordinator, host)
+    Team->>Line: uploads the filled-in PDF
+    Team->>Line: Send to sign
+    Line->>Req: draft: the PDF + the template's boxes of whoever still signs
+    Team->>Req: checks the boxes (Configure), Send
+    Req->>S: email with a personal link (no EMS account needed)
+    S->>Req: signs
+    Req->>Line: ticks that signer's signature (sign_signer_id)
+    Req->>Line: last signature: the signed PDF becomes a file of the line (to review)
+    Team->>Line: Valid
+```
+
+- **Roles:** one `sign.oca.role` per Erasmus+ signer (`data/main/sign.oca.role-erasmus.csv`,
+  `ems_signer`, unique). The template's boxes are placed with these roles.
+- **Template:** `ems.erasmus.call.document.sign_template_id`, a `sign.oca.template` whose PDF is
+  the SEPIE model (Annex 6), ideally a copy already filled in: every filled-in copy has the same
+  pages, so the boxes land in the same place. Empty: signed outside EMS.
+- **Send to sign** (`action_send_to_sign`, Erasmus team only: it holds Sign's "All Documents" group,
+  implied by `ems.group_erasmus`, plus editing the templates): the PDF is the newest one the team
+  uploaded (`prepared_attachment_ids`), or the participant's for a document they upload (e.g. the
+  report). The signers are the required signatures not ticked yet: the participant, the first family
+  contact with an email (minors only), the Director (`ems.group_director`), the Erasmus coordinator,
+  the host contact person (`host_contact_id`, individual or group). The centre's tutor is never
+  found (only sBID asks for it). Only the boxes of those roles are kept (no guardian's for an adult).
+  Anything missing (a signer, an email, a box for a signer, a box of a role that is not an Erasmus+
+  signer) is listed in one error. The request is created as a **draft** and opened: the team checks
+  it and sends it with sign_oca's own buttons (and can change a signer, e.g. the other parent). A
+  request still open is reopened, never duplicated; a cancelled one allows a new one.
+- **Signing** (`sign.oca.request.signer.action_sign`): each signature ticks its line
+  (`sign_signer_id`, chatter "signed electronically"); the team can't untick it. sign_oca emails all
+  signers at once, there is no order. When the last one signs, the signed PDF is added to the line's
+  files as `<name> - signed.pdf` and the line goes back to review (`to_review`): the team marks it
+  valid as with any other signed document, so it then enters the records and the ZIP as usual.
+- **Portal:** a document waiting for the logged-in person's signature shows **Sign it here**
+  (`_ems_portal_sign_url`), the same link as in the email.
+- **Assets:** sign_oca 18.0 adds an Odoo 16-style tour to `web.assets_tests` that no longer loads;
+  EMS removes it there (`__manifest__.py`), or its console error would fail every tour.
+- **Portal home:** sign_oca adds a card inside `o_portal_docs` (priority 100); EMS's landing
+  replaces that block, so it runs at priority 110.
 
 ### Prepared for later
 

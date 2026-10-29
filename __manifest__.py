@@ -44,7 +44,8 @@
         'base_vat',
         'spreadsheet_dashboard',
         'partner_firstname',
-        'partner_multi_relation'
+        'partner_multi_relation',
+        'sign_oca',
     ],
     
     # just for debugging
@@ -465,6 +466,7 @@
         'data/main/ir.cron-absence.csv',
         'data/main/ir.cron-task_digest.csv',
         'data/main/ir.cron-erasmus.csv',
+        'data/main/sign.oca.role-erasmus.csv',
         'data/main/ir.cron-preenrollment_period.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',
@@ -627,6 +629,9 @@
             #'ems/static/src/css/**/*',
         ],
         'web.assets_tests': [
+            # sign_oca 18.0 ships an Odoo 16-style tour (odoo.define + require("web_tour.tour")) that
+            # no longer loads: its console error would fail every EMS tour.
+            ('remove', 'sign_oca/static/src/tests/sign_tour.esm.js'),
             'ems/static/tests/tours/quality_tour.js',
             'ems/static/tests/tours/minute_tour.js',
             'ems/static/tests/tours/**/*',

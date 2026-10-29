@@ -221,6 +221,10 @@
                                                 icon="fa-pencil" invisible="review_state == 'needs_change' or (handled_by == 'team' and not signers)"/>
                                         <button name="action_open_signatures" type="object" string="Signatures" icon="fa-check-square-o"
                                                 invisible="not signers"/>
+                                        <field name="can_send_to_sign" column_invisible="1"/>
+                                        <field name="sign_state" optional="show" groups="ems.group_erasmus,ems.group_academic_admin"/>
+                                        <button name="action_send_to_sign" type="object" string="Send to sign" icon="fa-pencil-square-o"
+                                                invisible="not can_send_to_sign and sign_state not in ('1_draft', '0_sent')" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                         <button name="action_remove_file" type="object" string="Remove a file" icon="fa-trash"
                                                 invisible="review_state == 'valid' or not (attachment_ids or prepared_attachment_ids)"/>
                                     </list>

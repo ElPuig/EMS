@@ -296,3 +296,5 @@ from . import test_erasmus_group_mobility_tour
 from . import test_erasmus_integration
 from . import test_erasmus_integrity
 from . import test_erasmus_decisions
+from . import test_erasmus_signature
+from . import test_erasmus_signature_tour

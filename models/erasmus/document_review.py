@@ -85,8 +85,12 @@ class EmsErasmusDocumentSignature(models.Model):
         for signature in changed:
             line = signature.line_id
             owner = line._ems_record_owner() or line.application_id
-            message = _("%(document)s: signature of %(signer)s ticked.") if vals['signed'] else \
-                _("%(document)s: signature of %(signer)s unticked.")
+            if self.env.context.get('ems_signed_electronically'):
+                message = _("%(document)s: %(signer)s signed electronically.")
+            elif vals['signed']:
+                message = _("%(document)s: signature of %(signer)s ticked.")
+            else:
+                message = _("%(document)s: signature of %(signer)s unticked.")
             owner.sudo().chatter(message % {'document': line._ems_record_label(),
                                             'signer': labels[signature.signer]})
         return result

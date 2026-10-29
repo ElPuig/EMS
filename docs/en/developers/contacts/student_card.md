@@ -14,7 +14,7 @@ card shows:
 - The **band**, two rounded blocks side by side. On the left, the main group's level acronym (ESO,
   BTX, CFGB, CFGM, CFGS, PFI, EFPS) in big letters on that level's own colour, the study's acronym
   (never its full name, so the block keeps one line; left out when it equals the level's, as in ESO
-  and BTX) and the group's course year, big and framed (in ESO a 1st and a 4th year are told apart
+  and BTX) and the group's course year, big in a white circle (in ESO a 1st and a 4th year are told apart
   at a glance). On the right, whether the student **may leave the centre** (`can_leave_centre`), for
   the teacher at the door: "Pot sortir del centre" on green or "No pot sortir del centre" on red. The student may
   leave when they are of age (`is_adult`) **or** the family accepted an authorization whose template

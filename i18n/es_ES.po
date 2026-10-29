@@ -27521,8 +27521,3 @@ msgstr "Arena"
 #: model:ir.model.fields.selection,name:ems.selection__ems_level__card_color__yellow
 msgid "Yellow"
 msgstr "Amarillo"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.report_student_card_single
-msgid "Year"
-msgstr "Curso"

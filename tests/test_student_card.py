@@ -108,7 +108,7 @@ class TestStudentCard(TransactionCase):
         html = self._render(self.own_a)
         self.assertIn('<div class="o_ems_card_study">TSCX</div>', html)
         self.assertNotIn('Test TSC Study', html)
-        self.assertIn('<div class="o_ems_card_course_number">3</div>', html)
+        self.assertIn('<div class="o_ems_card_course">3</div>', html)
         self.assertNotIn('class="o_ems_card_study"', self._render(self.foreign))
 
     def test_stamp_box_or_uploaded_stamp(self):

@@ -42,6 +42,18 @@ Si una clase la imparten realmente dos docentes a la vez (misma asignatura, mism
 
 ---
 
+## Imprimir tu declaración horaria
+
+Cada curso firmas la declaración horaria oficial del Departament d'Educació i FP ("Horari professor/a"). EMS te la rellena, siempre en catalán:
+
+1. Ve a **Comunidad Educativa → Profesores**, abre tu ficha y elige **Acciones → Imprimir la declaración horaria**.
+2. Se descarga un PDF de una página con los datos del centro, tu nombre, NIF y cargos, tu horario semanal y el cuadro resumen de horas por código oficial (horas lectivas y de horario fijo, y tu reducción lectiva, si tienes).
+3. Rellena a mano lo que EMS no sabe (lugar de trabajo/especialidad, situación administrativa, años en la enseñanza, acreditación de catalán, lugar y fecha) y fírmala.
+
+Si una hora sale en la fila equivocada del cuadro resumen, díselo al jefe de estudios: la fila a la que va cada actividad se configura en el centro.
+
+---
+
 ## Exportar tu horario a PDF
 
 Haz clic en **PDF** en la barra de herramientas de la pestaña Horario para descargar una versión imprimible de tu horario semanal.

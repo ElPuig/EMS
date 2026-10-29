@@ -71,6 +71,7 @@ The list of non-teaching reasons (Break, Guard, Coordination Meeting...) shown w
 2. Click **New**, set a short **Code** (must match exactly what the external planner uses for that activity) and a **Name** (what teachers and reports will show).
 3. Optionally mark it **Is a break** (dropped from the weekly hours summary entirely, like the patio break) or **Always a fixed-schedule commitment** (always counted in the "Other fixed-schedule hours" column, like a guard duty).
    If it is a guard duty, tick **Is guard duty** (it shows on the guard duty schedule) and, if whoever does it can be sent to cover classes and other guard duties, **Regular guard** too. Leave it unticked for a guard duty that is a fixed post, like the WC or break guard: whoever does it is never sent to cover anything, and when they are away, their guard duty is what needs covering.
+   Choose its **Schedule declaration code**: the row of the [official schedule declaration](#print-the-official-schedule-declaration)'s summary table its hours go to (leave it empty for something not declared, like the break).
 4. Save. The new type is immediately available in the "non-teaching" dropdown when editing a schedule, and recognised the next time you import a planner file that uses its code.
 
 ---
@@ -268,6 +269,26 @@ A reinforcement group is a class **group** (the same "Groups" record a regular c
 5. Save.
 
 Once created, a reinforcement group is used in a teacher's schedule exactly like any other group — assign it manually in the Schedule tab, or let the file importer resolve it by name.
+
+---
+
+## Print the Official Schedule Declaration
+
+The Departament d'Educació i FP's schedule declaration ("Horari professor/a", from the *Annexos Dades anuals*) is printed by EMS ready to sign, always in Catalan, one page per teacher:
+
+- For several teachers: in **Educational Community → Teachers**, switch to the list view, select them and choose **Print → Schedule declaration**.
+- For one teacher: open their record and choose **Actions → Print schedule declaration**.
+
+Each page has the centre's code, name and municipality (from the company settings), the teacher's name, NIF and roles, their weekly schedule and the summary table of hours. What EMS doesn't store (workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place, date and signatures) is left blank, to be filled in by hand.
+
+**Which row each hour goes to** is configuration, set up for you on installation and editable afterwards:
+
+- A class counts in the row of its group's **level**: set it in the level's **Schedule declaration code** (**Educational Community → Configuration → Curriculum → Levels**). A split or optative group with no level of its own takes the level of its main groups. A level with no code goes to *Altres*.
+- A tutorship (a tutorship subject, or the *Tutorship Time* non-teaching type) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level.
+- Any other non-teaching hour counts in the row set in its type's **Schedule declaration code** (**Configuration → Teachers → Non-teaching types**); empty means not declared.
+- Teaching-hour reductions appear only as their hours, in "Si disposeu de reducció de jornada", and are added to the lective TOTAL.
+
+Whether an hour is lective or fixed-schedule follows the same rule as the Schedule tab's summary (guard duties, and the coordination meeting on Wednesday, are fixed-schedule).
 
 ---
 

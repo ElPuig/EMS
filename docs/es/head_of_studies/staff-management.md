@@ -94,6 +94,10 @@ Cuando la cuenta se crea, o se restablece su contraseña, las credenciales viaja
 
 ---
 
+## Imprimir las declaraciones horarias
+
+La declaración horaria oficial del Departament de cada docente ("Horari professor/a"), lista para firmar: en **Comunidad Educativa → Profesores**, pasad a la vista de lista, seleccionad los docentes y elegid **Imprimir → Declaración horaria** (una página por docente), o abrid un docente y elegid **Acciones → Imprimir la declaración horaria**. En [Imprimir la declaración horaria oficial](../admin/working-schedules.md#imprimir-la-declaración-horaria-oficial) tenéis qué contiene cada página y cómo se rellena el cuadro resumen.
+
 ## Qué no podéis hacer
 
 Hay dos límites deliberados, y Odoo rechazará la operación si lo intentáis:

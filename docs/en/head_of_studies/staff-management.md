@@ -94,6 +94,10 @@ When the account is created, or its password is reset, the credentials travel tw
 
 ---
 
+## Print the Schedule Declarations
+
+The Departament's official schedule declaration of each teacher ("Horari professor/a"), ready to sign: in **Educational Community → Teachers**, switch to the list view, select the teachers and choose **Print → Schedule declaration** (one page each), or open one teacher and choose **Actions → Print schedule declaration**. See [Print the Official Schedule Declaration](../admin/working-schedules.md#print-the-official-schedule-declaration) for what each page contains and how its summary table is filled in.
+
 ## What you cannot do
 
 Two limits are deliberate, and Odoo will refuse the operation if you try:

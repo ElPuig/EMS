@@ -71,6 +71,7 @@ La llista de motius no lectius (Pati, Guàrdia, Reunió de coordinació...) que 
 2. Fes clic a **Nou**, estableix un **Codi** curt (ha de coincidir exactament amb el que utilitza el planificador extern per a aquesta activitat) i un **Nom** (el que veuran els docents i els informes).
 3. Opcionalment, marca'l com **És un pati** (es descarta completament del resum d'hores setmanals, igual que el pati) o **Sempre és un compromís d'horari fix** (sempre es compta a la columna "Altres hores en horari fix", com una guàrdia).
    Si és una guàrdia, marca **És una guàrdia** (apareix al quadrant de guàrdies) i, si qui la fa pot anar a cobrir classes i altres guàrdies, també **Guàrdia ordinària**. Deixa-la desmarcada en una guàrdia que és un lloc fix, com la de WC o la de pati: qui la fa no s'envia a cobrir res, i quan falta, la seva guàrdia és la que s'ha de cobrir.
+   Tria'n el **Codi a la declaració horària**: la fila del quadre resum de la [declaració horària oficial](#imprimir-la-declaració-horària-oficial) on se sumen les seves hores (deixa-ho buit per a una cosa que no es declara, com el pati).
 4. Desa. El nou tipus queda disponible immediatament al desplegable "no lectiva" en editar un horari, i es reconeix la propera vegada que importis un fitxer del planificador que faci servir el seu codi.
 
 ---
@@ -268,6 +269,26 @@ Un grup de reforç és un **grup** d'alumnes (el mateix registre de "Grups" que 
 5. Desa.
 
 Un cop creat, un grup de reforç s'utilitza a l'horari d'un docent exactament igual que qualsevol altre grup — assigna'l manualment a la pestanya Horari, o deixa que l'importador de fitxers el localitzi pel nom.
+
+---
+
+## Imprimir la declaració horària oficial
+
+L'EMS imprimeix la declaració horària del Departament d'Educació i FP ("Horari professor/a", dels *Annexos Dades anuals*) a punt per signar, sempre en català, una pàgina per docent:
+
+- Per a diversos docents: a **Comunitat Educativa → Professors**, passa a la vista de llista, selecciona'ls i tria **Imprimeix → Declaració horària**.
+- Per a un docent: obre la seva fitxa i tria **Accions → Imprimeix la declaració horària**.
+
+Cada pàgina té el codi, el nom i el municipi del centre (de la configuració de l'empresa), el nom, el NIF i els càrrecs del docent, el seu horari setmanal i el quadre resum d'hores. El que l'EMS no desa (lloc de treball/especialitat, situació administrativa, anys a l'ensenyament, acreditació de català, lloc, data i signatures) queda en blanc per omplir a mà.
+
+**La fila on va cada hora** és configuració, que la instal·lació deixa preparada i que pots canviar després:
+
+- Una classe compta a la fila del **nivell** del seu grup: es tria al **Codi a la declaració horària** del nivell (**Comunitat Educativa → Configuració → Currículum → Nivells**). Un desdoblament o una optativa sense nivell propi pren el nivell dels seus grups principals. Un nivell sense codi va a *Altres*.
+- Una tutoria (una assignatura de tutoria, o el tipus no lectiu *Tutoria*) compta a T-ESO, T-BAT o T-FP (o PFI) segons el nivell del grup tutoritzat.
+- Qualsevol altra hora no lectiva compta a la fila triada al **Codi a la declaració horària** del seu tipus (**Configuració → Professorat → Tipus d'hora no lectiva**); buit vol dir que no es declara.
+- Les reduccions lectives només hi surten com a hores, a "Si disposeu de reducció de jornada", i se sumen al TOTAL de lectives.
+
+Si una hora és lectiva o d'horari fix segueix la mateixa regla que el resum de la pestanya Horari (les guàrdies, i la reunió de coordinació dels dimecres, són d'horari fix).
 
 ---
 

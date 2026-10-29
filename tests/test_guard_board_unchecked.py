@@ -211,6 +211,32 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
                 self._mark_present(user)
         self.assertFalse(self.Attendance.search([('employee_id', '=', self.teacher_a.id)]))
 
+    def test_a_guard_who_has_not_checked_in_is_checked_in_from_their_badge(self):
+        """Issue #725: a guard on duty now who has not checked in is checked in by another guard on
+        duty, or whoever manages them, from their badge - nobody else."""
+        late = self.teacher_c
+        late.parent_id = self.teacher_a.parent_id
+        self._new_calendar(late, 'TGBU Late Guard Calendar').apply_schedule_changes([{
+            'dayofweek': self.weekday, 'hour_from': 10, 'hour_to': 11, 'day_period': 'morning',
+            'non_teaching': self.non_teaching_guard.id, 'name': 'Guard'}])
+
+        def badge(user):
+            data = self.env['ems.course'].with_user(user).get_guard_duty_board_data(self.weekday, 'morning', None, str(self.today))
+            line = next(line for line in data['lines'] if (line['hour_from'], line['hour_to']) == (10, 11))
+            return next(guard for guard in line['guards'] if guard['id'] == late.id)
+
+        self.assertEqual(badge(self.guard_user)['absence'], 'unchecked')
+        for user, expected in ((self.guard_user, True), (self.department_chief, True), (self.other_teacher, False)):
+            with self.subTest(user=user.login):
+                self.assertEqual(badge(user)['can_mark_present'], expected)
+        with self.assertRaises(AccessError):
+            self.Cover.with_user(self.other_teacher).board_mark_present(str(self.today), 10, 11, late.id)
+
+        self.Cover.with_user(self.guard_user).board_mark_present(str(self.today), 10, 11, late.id)
+
+        self.assertEqual(self.Attendance.search([('employee_id', '=', late.id)]).ems_checked_in_by_id, self.guard_user)
+        self.assertFalse(badge(self.guard_user)['absence'])
+
     def test_only_a_class_in_progress_on_a_teacher_still_not_checked_in(self):
         # Already over: checking them in now would not take it off the table.
         with self.assertRaises(UserError):

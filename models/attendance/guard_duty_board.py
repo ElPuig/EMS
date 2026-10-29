@@ -2349,6 +2349,8 @@ class EmsCourseGuardDutyBoard(models.Model):
             for guard in stayed:
                 guard['stayed'] = line['stayed_labels'][guard['id']]
             guards += stayed
+            in_progress = course._in_progress(now, line['hour_from'], line['hour_to'])
+            on_guard_here = in_progress and me in line['guards'].employee_id
             # Issue #725: a class here whose teacher is in and whose absences the user manages.
             supportable = may_support and bool(line['guard_spans']) and any(
                 not cell['absences'].get(teacher.id) and course._is_absence_manager(teacher, cell['group'], managed)
@@ -2367,6 +2369,11 @@ class EmsCourseGuardDutyBoard(models.Model):
                     or (may_support and guard['support_cover_id']))
                 # The user themselves, free on guard then: they may take a class (issue #601).
                 guard['is_me_free'] = editable and employee == me and employee in line['guard_spans']
+                # A guard on duty now who has not checked in (issue #692): whoever is on guard then,
+                # or manages them, may say they are in the centre (ems.absence_cover.board_mark_present).
+                guard['can_mark_present'] = bool(
+                    in_progress and guard['absence'] == 'unchecked' and employee != me
+                    and (on_guard_here or course._is_absence_manager(employee, cache=managed)))
             # Who can be sent to one of this line's classes, and for which part of it (issue #637):
             # those covering all of it first, then the partial ones by time - see _guard_spans().
             # Only those the user may send (issue #721, see _can_move_teacher).
@@ -2374,8 +2381,6 @@ class EmsCourseGuardDutyBoard(models.Model):
                             if course._can_move_teacher(guard, movable)), key=lambda item: (
                 item[1] != (line['hour_from'], line['hour_to']), item[1], item[0].name))
             my_span = line['guard_spans'].get(me) if editable else None
-            in_progress = course._in_progress(now, line['hour_from'], line['hour_to'])
-            on_guard_here = in_progress and me in line['guards'].employee_id
             lines.append({
                 'time_label': line['time_label'],
                 'hour_from': line['hour_from'],

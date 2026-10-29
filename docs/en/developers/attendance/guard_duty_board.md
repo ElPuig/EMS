@@ -1015,7 +1015,9 @@ flowchart LR
   editable day: they may take a class themselves, #601), keep the usual look. So a plain teacher
   sees the whole column greyed out except themselves when on guard. A guard who has not checked
   in yet today (#692, so unavailable) carries the same clock icon as a "Not checked in" row, on both
-  views, so a disabled badge is not mistaken for a permission problem.
+  views, so a disabled badge is not mistaken for a permission problem. While their guard is going
+  on, whoever is on guard then or manages them clicks that badge to say they are in the centre
+  (`can_mark_present`, see "Teachers who have not checked in").
 - **Which classes.** `ems.course._get_support_options(day, hour_from, hour_to, guard)`: the guard's
   part of the period (`_get_guard_candidates()`, so an absent, busy or non-regular guard gets none),
   every lesson overlapping it whose teacher is in (absences and, today, not checked in count as
@@ -1538,6 +1540,13 @@ The day comes from the board (a calendar date); the server refuses to manage a d
 `ems.datetime_utils.get_local_today()` - what is over is over.
 
 ## Teachers who have not checked in (issue #692)
+
+A guard on regular duty who has not checked in is checked in the same way from their badge in the
+guard column (issue #725): `board_mark_present()` with neither a group nor a duty means their
+regular guard duty in the period, with the same checks (`_can_mark_present()`, today, in progress,
+still not checked in). The badge carries `can_mark_present` for the user (on guard in that line, or
+managing the guard, never the guard themselves); the dialog is the same `GuardUncheckedDialog`, worded
+for a guard ("They are in the centre").
 
 A class whose teacher has not checked in is left without anybody as surely as an absent teacher's,
 so from the moment it starts it is on the absences table, to be covered with a guard. Whoever is on

@@ -75,6 +75,13 @@ class TestGuardBoardUncheckedTour(HttpCase):
         self.start_tour(f"/odoo/hr.attendance/{attendance.id}", "ems_guard_board_unchecked_form",
                         login=self.teacher_user.login)
 
+    def test_the_guard_checks_in_a_guard_who_has_not(self):
+        """Issue #725: the guard on duty clicks the badge of the other guard, who has not checked in."""
+        self.start_tour("/odoo", "ems_guard_board_unchecked_guard", login=self.guard_user.login)
+
+        late = self.env['hr.employee'].search([('name', '=', 'Tour Unchecked Late Guard')])
+        self.assertEqual(self.env['hr.attendance'].search([('employee_id', '=', late.id)]).ems_checked_in_by_id, self.guard_user)
+
     def test_the_guard_covers_it_from_the_dialog(self):
         self.start_tour("/odoo", "ems_guard_board_unchecked_cover", login=self.guard_user.login)
         cover = self.env['ems.absence_cover'].search([('absent_employee_id', '=', self.teacher.id)])

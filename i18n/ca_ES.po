@@ -27440,3 +27440,21 @@ msgstr "Enviar de suport a un docent que és a classe"
 #: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
 msgid "Support:"
 msgstr "Suport:"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_unchecked_dialog.js:0
+msgid "%(teacher)s has not checked in yet. If they are in the centre, their check-in is registered now in your name and they are told."
+msgstr "%(teacher)s encara no ha fitxat. Si és al centre, se li registra ara l'entrada en nom teu i se li comunica."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_unchecked_dialog.js:0
+msgid "They are in the centre"
+msgstr "És al centre"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Not checked in: say they are in the centre"
+msgstr "Sense fitxar: indica que és al centre"

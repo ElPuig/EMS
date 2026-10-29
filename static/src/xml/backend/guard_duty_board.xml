@@ -412,9 +412,9 @@
                                                 <t t-foreach="state.board.lines[slot.line].guards" t-as="guard" t-key="guard.name">
                                                 <!-- Issue #725: whoever manages a class here may send the guard to support its teacher. -->
                                                 <span class="o_guard_board_guard_badge"
-                                                      t-att-class="guardBadgeClass(guard) + (guard.can_support ? ' o_guard_board_guard_supportable' : '') + (guard.can_support or guard.is_me_free ? '' : ' o_guard_board_guard_disabled')"
-                                                      t-att-data-tooltip="guard.busy or (guard.can_support ? supportTooltip : false)"
-                                                      t-on-click="() => this.openSupportDialog(state.board.lines[slot.line], guard)">
+                                                      t-att-class="guardBadgeClass(guard) + (guard.can_support or guard.can_mark_present ? ' o_guard_board_guard_supportable' : '') + (guard.can_support or guard.is_me_free or guard.can_mark_present ? '' : ' o_guard_board_guard_disabled')"
+                                                      t-att-data-tooltip="guard.busy or (guard.can_mark_present ? markPresentTooltip : guard.can_support ? supportTooltip : false)"
+                                                      t-on-click="() => this.onGuardClick(state.board.lines[slot.line], guard)">
                                                     <!-- Issue #692: not checked in yet, so not available (issue #725). -->
                                                     <i t-if="guard.absence === 'unchecked'" class="fa fa-clock-o me-1" title="Not checked in"/>
                                                     <t t-esc="guard.name"/>
@@ -502,7 +502,7 @@
             <p class="o_guard_unchecked_dialog" t-esc="body"/>
             <t t-set-slot="footer">
                 <button type="button" class="btn btn-primary o_guard_unchecked_present" t-att-disabled="state.saving"
-                        t-on-click="markPresent">They are in the classroom</button>
+                        t-on-click="markPresent" t-esc="presentLabel"/>
                 <button t-if="props.onCover" type="button" class="btn btn-secondary o_guard_unchecked_cover"
                         t-att-disabled="state.saving" t-on-click="cover" t-esc="props.coverLabel"/>
                 <button type="button" class="btn btn-link" t-on-click="props.close">Cancel</button>

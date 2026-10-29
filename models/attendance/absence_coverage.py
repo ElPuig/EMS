@@ -894,11 +894,12 @@ class EmsAbsenceCover(models.Model):
         """Checks `absent_employee_id` in now, on behalf of the current user - on guard in the period
         or managing the absence (ems.course._can_mark_present) - because they are in the classroom
         after all, and tells them. Only while their class (of `group_id`, or their guard duty
-        `duty_id`) is going on and they have still not checked in."""
+        `duty_id`) is going on and they have still not checked in. With neither (issue #725), it is
+        their regular guard duty in the period: a guard on the board's guard column."""
         day = fields.Date.to_date(day)
         absent = self.env['hr.employee'].browse(absent_employee_id).exists()
         group = self.env['ems.group'].browse(group_id).exists() if group_id else self.env['ems.group']
-        if not absent or bool(group_id) == bool(duty_id) or (group_id and not group):
+        if not absent or (group_id and duty_id) or (group_id and not group):
             raise UserError(_("The class or the teacher no longer exists."))
         course = self.env['ems.course']
         course._check_board_day_not_past(day)

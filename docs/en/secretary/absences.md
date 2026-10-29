@@ -38,4 +38,4 @@ The steps, those fields and the two reports are covered in the [Head of Studies]
 
 ## Your own absences
 
-Requested like anyone else's — see [Requesting an absence](../teachers/absences.md). As an Area Manager, your own request is decided by Direction.
+Requested like anyone else's — see [Requesting an absence](../teachers/absences.md). As an Area Manager, you validate your own request yourself, from the same screens as your area's, and Direction then reviews it.

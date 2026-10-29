@@ -513,8 +513,19 @@
     margin-bottom: 4px;
 }
 
-.o_guard_board_action_option {
+/* The selector of how much of a timetable change to tell sits inside its sentence, in place of
+   the hour (or of the change): it reads as part of the text. */
+.o_guard_board_action_label .o_guard_board_action_option {
+    display: inline-block;
     width: auto;
+    min-height: 0;
+    margin: 0 2px;
+    padding-top: 0;
+    padding-bottom: 0;
+    padding-left: 0.4em;
+    font-size: inherit;
+    line-height: inherit;
+    vertical-align: baseline;
 }
 
 /* Every action button of the boxes above the absences table shares one width, so they line up in

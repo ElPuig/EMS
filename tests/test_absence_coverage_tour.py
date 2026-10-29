@@ -3,8 +3,8 @@ from datetime import date, timedelta
 from odoo.tests import HttpCase, tagged
 
 from .common import (
-    create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user, mock_outgoing_email,
-    next_student_id,
+    allow_every_absence_change, create_head_of_studies_branch, create_level_study, create_role_employee, create_role_user,
+    mock_outgoing_email, next_student_id,
 )
 
 
@@ -35,14 +35,13 @@ class TestAbsenceCoverageTour(HttpCase):
         """Next Monday: 'Tour Absent Teacher' teaches TABTG 8-11 (or `periods`) and is away 8-10 (or
         `away`), while `guard` (a plain employee unless given) is on guard duty 8-11. Returns
         (teacher, guard, group)."""
-        # Every timetable change is off by default (issue #679): these tours are about them.
-        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                                'ems_absence_change_long_break': True})
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1997, 'end': 1998})
         level, study = create_level_study(self, 'TABT', level={'name': 'Tour Absence Coverage Level'}, study={
             'code': 'TABT001', 'name': 'Tour Absence Coverage Study', 'date': date.today(),
         })
+        # Every timetable change is off by default (issue #679): these tours are about them.
+        allow_every_absence_change(self.env)
         subject = self.env['ems.subject'].create({
             'code': 'TABT001', 'acronym': 'TABT', 'name': 'Tour Absence Coverage Subject',
             'study_ids': [(6, 0, [study.id])],

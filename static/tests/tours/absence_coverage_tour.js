@@ -35,20 +35,21 @@ registry.category("web_tour.tours").add("ems_absence_coverage", {
             run: "click",
         },
         {
-            trigger: ".o_guard_board_notice_step:contains('TABTG'):contains('Could start at 10:00') .o_guard_board_plan_check:checked",
+            trigger: ".o_guard_board_notice_step:contains('TABTG'):contains('Could start at') .o_guard_board_plan_check:checked",
             content: "Both empty first lessons let the group start at 10:00, a step checked by default",
         },
         {
-            trigger: ".o_guard_board_section:contains('TABTG') .o_guard_board_notice_plan:contains('Only tell the families') .o_guard_board_action:contains('Could start at 10:00')",
+            trigger: ".o_guard_board_section:contains('TABTG') .o_guard_board_notice_plan:contains('Only tell the families') .o_guard_board_action:contains('Could start at')",
             content: "The change alone is the group's last proposal: only telling the families",
         },
         {
-            trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_option",
-            content: "A shorter change (only an hour late) can be chosen too, the full one by default",
+            trigger: ".o_guard_board_action:contains('TABTG') .o_guard_board_action_label > .o_guard_board_action_option",
+            content: "A shorter change (only an hour late) can be chosen too, the full one by default, inside the sentence in place of the hour",
             run: () => {
                 const select = document.querySelector(".o_guard_board_action_option");
                 const labels = [...select.options].map((option) => option.textContent.trim());
-                if (labels.join("|") !== "Starts at 09:00|Starts at 10:00" || select.selectedIndex !== 1) {
+                const sentence = select.parentElement.firstChild.textContent;
+                if (labels.join("|") !== "09:00|10:00" || select.selectedIndex !== 1 || !sentence.endsWith("Could start at ")) {
                     throw new Error(`Unexpected options ${labels} (selected ${select.selectedIndex})`);
                 }
             },

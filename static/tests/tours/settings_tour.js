@@ -79,6 +79,29 @@ registry.category("web_tour.tours").add("ems_settings_edit", {
             content: "The checkbox actually toggled (not just clicked)",
         },
         {
+            trigger: ".app_settings_block[data-key='ems']:not(:has(.o_field_widget[name='ems_absence_change_level_ids']))",
+            content: "With neither coming in later nor leaving earlier on, there are no levels to pick",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='ems_absence_change_late_entry'] input[type='checkbox']",
+            content: "Let the groups come in later",
+            run: "click",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='ems_absence_change_level_ids'] input",
+            content: "Pick the levels that may",
+            run: "edit TSTR",
+        },
+        {
+            trigger: ".o-autocomplete--dropdown-item a:contains('TSTR')",
+            content: "The tour's level is offered",
+            run: "click",
+        },
+        {
+            trigger: ".app_settings_block[data-key='ems'] .o_field_widget[name='ems_absence_change_level_ids'] .o_tag:contains('TSTR')",
+            content: "The level is listed",
+        },
+        {
             // Discard (unlike Save) stays a normal in-place SPA action - res.config.settings.
             // cancel() just re-reads the record, no client-side "reload" action tag involved -
             // so it's the safe way to leave the tour with a clean (non-dirty) form.

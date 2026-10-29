@@ -172,6 +172,11 @@
                                     }" t-esc="state_labels.get(convalidation.state)"/>
                                 </div>
                                 <div class="card-body p-0">
+                                    <div t-if="convalidation.state == 'cancelled' and convalidation.cancel_reason"
+                                         class="alert alert-secondary mb-0 rounded-0 small o_ems_convalidation_cancel_reason">
+                                        <p class="fw-bold mb-1"><i class="fa fa-times-circle me-1"/>Reason for cancelling</p>
+                                        <div style="white-space: pre-line;" t-esc="convalidation.cancel_reason"/>
+                                    </div>
                                     <div t-if="convalidation.state == 'ministry'" class="alert alert-info mb-0 rounded-0 small o_ems_convalidation_ministry">
                                         <i class="fa fa-clock-o me-1"/> The request has been filed with the Ministry, which resolves it. It can no longer be cancelled; you will be notified once the resolution arrives.
                                     </div>
@@ -181,19 +186,22 @@
                                     <div t-if="convalidation.state == 'in_progress'" class="alert alert-warning mb-0 rounded-0 small">
                                         <i class="fa fa-clock-o me-1"/> The request has been resolved. The secretariat is now registering it in your record; you will receive the resolution once it is done.
                                     </div>
+                                    <!-- Issue #719: a decision can still change until the secretariat registers
+                                         the resolution, so before that the applicant only sees the subjects. -->
+                                    <t t-set="official" t-value="convalidation._ems_resolution_is_official()"/>
                                     <table class="table table-sm mb-0">
                                         <thead class="table-light">
                                             <tr>
                                                 <th class="ps-3">Subject</th>
-                                                <th>Resolution</th>
+                                                <th t-if="official">Resolution</th>
                                                 <th t-if="convalidation.state == 'completed'">Grade</th>
-                                                <th class="pe-3">Remarks</th>
+                                                <th t-if="official" class="pe-3">Remarks</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             <tr t-foreach="convalidation.line_ids" t-as="line">
                                                 <td class="ps-3" t-esc="line.subject_id.display_name"/>
-                                                <td>
+                                                <td t-if="official">
                                                     <span t-attf-class="badge #{
                                                         'bg-success' if line.state == 'granted' else
                                                         'bg-danger' if line.state == 'rejected' else 'bg-light text-dark'
@@ -205,13 +213,17 @@
                                                         <strong t-else="" t-esc="line.grade"/>
                                                     </t>
                                                 </td>
-                                                <td class="pe-3 text-muted small">
+                                                <td t-if="official" class="pe-3 text-muted small">
                                                     <t t-if="line.state == 'rejected'" t-esc="line._ems_rejection_text()"/>
                                                     <t t-if="line.resolution_notes" t-esc="line.resolution_notes"/>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
+                                    <p t-if="not official and convalidation.state != 'cancelled'"
+                                       class="small text-muted px-3 py-2 mb-0 border-top o_ems_convalidation_pending_resolution">
+                                        <i class="fa fa-info-circle me-1"/> You will see the resolution of each subject here once the secretariat has registered it.
+                                    </p>
                                 </div>
                                 <!-- What the centre asked for last (issue #529), right above the answer form. -->
                                 <div t-if="convalidation.info_request_date and convalidation.state in ('pending', 'documentation', 'ministry')"
@@ -239,11 +251,12 @@
                                         </button>
                                     </form>
                                 </div>
-                                <t t-set="official" t-value="convalidation.state in ('completed', 'rejected') and convalidation.resolution_pdf_id"/>
-                                <div t-if="convalidation.resolution_notes or official or (can_request and convalidation._ems_is_cancellable())"
+                                <t t-set="notes" t-value="official and convalidation.resolution_notes"/>
+                                <t t-set="document" t-value="official and convalidation.resolution_pdf_id"/>
+                                <div t-if="notes or document or (can_request and convalidation._ems_is_cancellable())"
                                      class="card-footer d-flex flex-wrap align-items-center justify-content-between gap-2">
-                                    <span class="small" t-esc="convalidation.resolution_notes or ''"/>
-                                    <a t-if="official" t-attf-href="/my/convalidaciones/resolution/#{convalidation.id}"
+                                    <span class="small" t-esc="notes or ''"/>
+                                    <a t-if="document" t-attf-href="/my/convalidaciones/resolution/#{convalidation.id}"
                                        class="btn btn-sm btn-outline-primary o_ems_convalidation_resolution">
                                         <i class="fa fa-download me-1"/>Official resolution
                                     </a>

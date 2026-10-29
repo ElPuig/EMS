@@ -31,7 +31,7 @@
 
 El aprobador de cada persona es el responsable de su departamento de nivel superior. Se define en el formulario del departamento, campo **Responsable de área**, y se actualiza solo si cambia el cargo.
 
-Nadie aprueba su propia ausencia: la de un responsable de área la resuelve Dirección.
+El responsable de área también es quien aprueba su propia ausencia: validas tu solicitud (y el justificante, cuando hace falta) como cualquier otra de tu área, y después Dirección la revisa como siempre. No puedes deshacer una decisión sobre tu propia ausencia; Dirección sí.
 
 ---
 
@@ -104,7 +104,7 @@ Si la ausencia es de día entero o de unas horas concretas lo controla la casill
 
 **Solo Dirección.** Dirección revisa cada ausencia en último lugar: le llega una vez el jefe la ha validado, con el justificante cuando el tipo lo exige. En las ausencias de **ATRI**, comprueba que la solicitud se ha tramitado de verdad en el portal de la Generalitat.
 
-**Asistencia del personal > Ausencias > Administración > Ausencias solicitadas** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**, y las ausencias de los propios jefes de área, que gestionas tú como su jefe (con los botones del jefe descritos más arriba). Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
+**Asistencia del personal > Ausencias > Administración > Ausencias solicitadas** se abre con **Esperándome**: todas las ausencias **Pendiente Dirección**. Cada una te deja también una actividad ("Revisión de dirección de la ausencia").
 
 Revísalas desde el listado con los iconos junto a **Estado Dirección**, o abre una y usa las acciones de arriba del formulario, que te devuelve al listado al acabar:
 
@@ -228,6 +228,6 @@ Cuando el docente solicita la ausencia por su cuenta, en cualquier momento, la a
 
 ### Organizar la cobertura
 
-Una vez una ausencia aparece en el horario de guardias, detectada o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes (si el administrador ha activado estos cambios), y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia detectada se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../teachers/guard-duty-schedule.md#organizar-una-ausencia).
+Una vez una ausencia aparece en el horario de guardias, detectada o solicitada, organízala desde la **Tabla de ausencias** del horario: envía un docente de guardia a cada clase, propón un comunicado a las familias cuando el alumnado puede entrar más tarde o salir antes (si el administrador ha activado estos cambios), y corrige lo que una ausencia que ha cambiado después ha dejado sin sentido. Lo que organices para una ausencia detectada se mantiene cuando el docente la solicita. Ver [Organizar una ausencia](../department_chiefs/absences.md#organizar-una-ausencia).
 
 Una clase cuyo docente no ha fichado cuando empieza también aparece en la Tabla de ausencias, para cubrirla con una guardia. Si resulta que el docente está en el aula, puedes registrar su entrada desde la tabla: ver [Docentes que no han fichado](../teachers/guard-duty-schedule.md#docentes-que-no-han-fichado).

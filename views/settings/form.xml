@@ -124,6 +124,9 @@
                             <setting string="Leave earlier" help="When the last lessons of a group's day have no teacher, the guard duty board offers to tell the students and their families that they can leave earlier." id="ems_absence_change_early_leave">
                                 <field name="ems_absence_change_early_leave"/>
                             </setting>
+                            <setting string="Levels that may come in later or leave earlier" help="Only the groups of these levels are offered coming in later or leaving earlier; the groups of any other level (compulsory education, for instance) get a guard teacher instead. Leave it empty and no group is offered either change." id="ems_absence_change_level_ids" invisible="not ems_absence_change_late_entry and not ems_absence_change_early_leave">
+                                <field name="ems_absence_change_level_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                            </setting>
                             <setting string="Longer break" help="When the lessons right before or after a break have no teacher, the guard duty board offers to make the break longer. Only the students are told, and students under 18 still cannot leave the centre, so those lessons keep needing a guard teacher." id="ems_absence_change_long_break">
                                 <field name="ems_absence_change_long_break"/>
                             </setting>

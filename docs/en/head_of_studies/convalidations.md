@@ -28,7 +28,7 @@ Either way, the secretariat then registers the resolution in Esfera and closes t
 | **Pending the secretariat** | It is resolved; the secretariat has to register it in Esfera. |
 | **Completed** | Registered, with at least one module convalidated. The student can see the grade. |
 | **Rejected** | Registered, with no module convalidated. |
-| **Cancelled** | The student or the family cancelled it from the portal. |
+| **Cancelled** | The student or the family cancelled it from the portal, or the centre cancelled it saying why. |
 
 The state only changes through the actions of each step, at the top of the form (in its **Actions** menu when more than one applies).
 
@@ -95,6 +95,7 @@ On each line of the **Subjects** tab, use the buttons on the right:
 
 - **Grade:** each module is checked and graded one by one. When you click ✔, a dialog asks for it: with **Mode** set to **With grade** (the default), write the grade, 5 by default or the one the previous studies hold (from 5 to 10). Choose **Without grade** when the module is convalidated with no grade: the resolution shows it as **Convalidat**, the grades as **CV**, and it does not count towards the average. Until you send the proposal, you can still change the **Grade** and **Without grade** columns on the line.
 - **Reason for refusal:** when you click ✖, a dialog asks for the **Reason**, with the most usual one already selected, and optional **Details**. Both appear on the resolution. They can still be changed on the line until you send the proposal. You maintain the list of reasons yourself, together with the EMS administrator, from **Academic management > Configuration > Convalidations** (see [Convalidation settings](../admin/convalidation-settings.md)).
+- **What the student sees:** nothing of what you decide on each module, nor the comments for the student, until the secretariat registers the resolution. Until then the portal only shows the modules requested and the state of the request.
 
 ![Convalidating a module: its grade](../../assets/head_of_studies/convalidations-grant.png)
 
@@ -191,8 +192,8 @@ You can register a request, and process any request, at any time: the portal's r
 
 ## Cancelling and reopening
 
-- **Cancel request** is available while the request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry.
-- **Reopen** takes a cancelled request back to **Pending**.
+- **Cancel request** is available while the request is **Pending**, or **Pending documentation** if it has not been filed with the Ministry. A dialog asks for the **Reason**, which is required: it stays on the request, and the student or the family see it on the portal and in their communications.
+- **Reopen** takes a cancelled request back to **Pending** and clears the reason.
 
 ---
 

@@ -31,13 +31,18 @@ graph TD
   that point (guard duty, a coordination meeting) was never in scope for that step, and without
   this cascade stayed `active=True` forever on a calendar nobody's `resource_calendar_id` points
   to any more (see `plans/course_transition_stale_teacher_assignments.md` — found via the Guard
-  Duty Board still showing a departed/reassigned teacher).
+  Duty Board still showing a departed/reassigned teacher). Each block it archives is marked
+  `archived_with_calendar=True`, so unarchiving the teacher can restore exactly those (issue #722).
+- **`_restore_blocks_archived_with_calendar()`** (issue #722) — reactivates the blocks marked
+  `archived_with_calendar`, through the ORM (`action_unarchive()`), so the roll-calls, the groups'
+  reference classroom and the public schedule PDF follow. Called by `hr.employee.action_unarchive()`.
 
 **`resource.calendar.attendance`** (`ems_working_schedule_assignation`):
 - `subject_id` (Many2one `ems.subject`), `group_ids` (Many2many `ems.group`) — what's being taught in that slot.
 - `non_teaching` (Many2one `ems.non_teaching_type`) — a non-teaching commitment instead of a subject (guard duty, break, coordination meeting...). See "Non-teaching types" below.
 - `space_id` (Many2one `ems.space`, plain stored field since 2026-08-05 — was a compute) — the classroom. Defaulted from `group_ids[:1].space_id` at creation (`create()`, same "first group wins when several share a slot" simplification as before), but a one-off divergence from the group's own room now survives instead of being silently re-derived on every load — see "Room granularity" below.
-- `active` (Boolean, default `True`, added 2026-08-06) — core `resource.calendar.attendance` has no `active` field of its own; added here so a course transition can *archive* a teacher's migrating blocks instead of `unlink()`-ing them, which would destroy the exact per-block history (`subject_id`/`group_ids`) a later "who taught what, which course" query needs (see `plans/course_transition_teacher_schedule_archival.md`). Odoo's own generic `action_archive()`/`action_unarchive()` (`odoo/models.py`) already work for any model carrying this field — no override needed. As of this phase, nothing writes `active=False` here yet; `apply_schedule_changes()` still `unlink()`s the Mon–Fri rows on every Schedule-tab save, unaffected until a later phase of that same plan changes the transition wizard's own call sites.
+- `active` (Boolean, default `True`, added 2026-08-06) — core `resource.calendar.attendance` has no `active` field of its own; added here so a course transition can *archive* a teacher's migrating blocks instead of `unlink()`-ing them, which would destroy the exact per-block history (`subject_id`/`group_ids`) a later "who taught what, which course" query needs (see `plans/course_transition_teacher_schedule_archival.md`). Odoo's own generic `action_archive()`/`action_unarchive()` (`odoo/models.py`) work on it as is.
+- `archived_with_calendar` (Boolean, issue #722) — true only for a block archived by its calendar's own `action_archive()`. `write()` clears it on any other change of `active`, so a block archived for another reason (a superseded version, a lost room conflict, a block archived by hand) is never restored when the teacher comes back.
 
 **`ems.non_teaching_type`** (`models/employees/non_teaching_type.py`) — a configurable vocabulary of non-teaching activities, replacing what used to be a hardcoded `Selection` so an admin can add a new code from **Configuration → Teachers → Non-teaching types** without a developer deploying code (the planner app that feeds the XML importer is outside our control and can introduce new codes at any time):
 - `code` (Char, required, unique) — the stable, external-planner-facing identifier (e.g. `G`, `BR`, `CM`); what the XML import and the CM+Wednesday special case key off.
@@ -179,11 +184,10 @@ sequenceDiagram
   personal calendar (`resource_calendar_id.employee_id == employee`; never a framework or a
   calendar shared with another employee, same guard as `unlink()` above). Archiving calls the
   calendar's own `action_archive()`, reusing its existing cascade to `attendance_ids` (see the
-  "Model extensions" section above) for free. Unarchiving only flips the calendar itself back to
-  active — it deliberately does **not** reactivate `attendance_ids`, since some of those rows
-  could have gone inactive earlier for an unrelated reason (e.g. superseded by a later room
-  change via `_write_or_new_version()`); a returning teacher gets a fresh schedule
-  import/assignment regardless. Fixes a real gap distinct from the course-transition-rollover
+  "Model extensions" section above) for free. Unarchiving reactivates the calendar and then the
+  blocks archived together with it (`_restore_blocks_archived_with_calendar()`, issue #722), so a
+  returning teacher gets their schedule and roll-calls back; a block archived earlier for another
+  reason stays archived. Fixes a real gap distinct from the course-transition-rollover
   cascade (`ems_working_schedule.action_archive()`, 2026-09-01/02, see above): archiving a
   teacher **directly** — a mid-course departure, never going through `_apply_calendar_rollover()`
   — left their calendar, and every row still on it, active indefinitely, keeping them visible on

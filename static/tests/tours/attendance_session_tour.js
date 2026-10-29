@@ -240,17 +240,37 @@ registry.category("web_tour.tours").add("ems_attendance_session_remove_line", {
     ],
 });
 
-// The History form lists removed students too, greyed out.
+// The History form lists removed students too, greyed out, as "Not required to attend" instead of
+// a status (issue #713: they count neither as attended nor as absent).
+const removedRow = ".o_field_one2many .o_data_row.text-muted:contains('Ana Bosch')";
+const keptRow = ".o_field_one2many .o_data_row:not(.text-muted):contains('Zoe Aguilar')";
 registry.category("web_tour.tours").add("ems_attendance_session_removed_line_form", {
     test: true,
     steps: () => [
         {
-            trigger: ".o_field_one2many .o_data_row.text-muted:contains('Ana Bosch')",
-            content: "The removed student is listed, muted",
+            trigger: `${removedRow} td[name='roll_call_label']:contains('Not required to attend')`,
+            content: "The removed student is listed, muted, as not required to attend",
         },
         {
-            trigger: ".o_field_one2many .o_data_row:not(.text-muted):contains('Zoe Aguilar')",
-            content: "The student still on the roll-call is listed normally",
+            trigger: `${removedRow}:not(:has(.o_field_radio))`,
+            content: "...with no status shown",
+        },
+        {
+            trigger: `${removedRow} td.text-strikethrough[name='student_id']`,
+            content: "...with their name struck through",
+        },
+        {
+            // Alphabetically Ana Bosch would go first: after Zoe Aguilar proves removed students go last.
+            trigger: ".o_field_one2many .o_data_row:contains('Zoe Aguilar') ~ .o_data_row:contains('Ana Bosch')",
+            content: "...and last",
+        },
+        {
+            trigger: `${keptRow} .o_field_radio`,
+            content: "The student still on the roll-call shows their status",
+        },
+        {
+            trigger: `${keptRow} td[name='roll_call_label']:not(:contains('Not required to attend'))`,
+            content: "...and no label",
         },
     ],
 });

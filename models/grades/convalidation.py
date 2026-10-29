@@ -17,6 +17,11 @@ CONVALIDATED_GRADE = 5
 # States a request can no longer move on from.
 CLOSED_STATES = ('completed', 'rejected', 'cancelled')
 
+# States in which the resolution is official, registered by the secretariat (issue #719): only
+# then does the applicant see what was decided for each subject. Until then any decision can
+# still change, so the portal only shows how far the request has got.
+OFFICIAL_STATES = ('completed', 'rejected')
+
 # What the applicant filed, fixed once the request exists.
 FILED_FIELDS = {'student_id', 'course_id', 'study_id', 'basis', 'prior_studies_origin', 'student_notes'}
 
@@ -128,6 +133,9 @@ class EmsConvalidation(models.Model):
                                help="The details of the last request for information sent to the applicant, "
                                     "shown on the portal next to the answer form while the request is under review.")
     info_request_date = fields.Date(string="Documentation requested on", readonly=True, copy=False)
+    cancel_reason = fields.Text(string="Reason for cancelling", readonly=True, copy=False,
+                                help="Why the centre cancelled the request, shown to the student too. "
+                                     "Empty when the applicant cancelled it from the portal.")
     return_reason = fields.Text(string="Returned by the Director", readonly=True, copy=False,
                                 help="Why the Director sent the last proposal back for review.")
     validation_date = fields.Date(string="Proposal date", readonly=True, copy=False)
@@ -599,20 +607,47 @@ class EmsConvalidation(models.Model):
         self.ensure_one()
         return self.state == 'pending' or (self.state == 'documentation' and not self.resolved_by_ministry)
 
-    def action_cancel(self):
+    def _ems_resolution_is_official(self):
+        """Whether the applicant may see the resolution: what was decided for each subject, the
+        comments and the official document (see OFFICIAL_STATES)."""
+        self.ensure_one()
+        return self.state in OFFICIAL_STATES
+
+    def _ems_check_cancellable(self):
         for convalidation in self:
             if not convalidation._ems_is_cancellable():
                 convalidation._ems_check_state(('pending',))
-        self.sudo().write({'state': 'cancelled'})
+
+    def action_cancel(self):
+        """The staff cancel a request from the backend saying why (issue #720): a dialog asks
+        for the reason first."""
+        self.ensure_one()
+        self._ems_check_cancellable()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Cancel request"),
+            'res_model': 'ems.convalidation.cancel_wizard',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_convalidation_id': self.id},
+        }
+
+    def _ems_cancel(self, reason=False):
+        """Cancel the request: with the staff's reason from the backend, without one when the
+        applicant withdraws it from the portal. The reason reaches the student too, on the
+        portal and on the Communications page."""
+        self._ems_check_cancellable()
+        self.sudo().write({'state': 'cancelled', 'cancel_reason': reason})
         self._ems_close_tasks()
+        body = _("The request has been cancelled by %s.") % self.env.user.name
+        if reason:
+            body = Markup("<p>{}</p><p>{}</p>").format(body, reason)
         for convalidation in self:
-            convalidation._ems_post_communication(
-                _("Convalidation request cancelled"),
-                _("The request has been cancelled by %s.") % self.env.user.name)
+            convalidation._ems_post_communication(_("Convalidation request cancelled"), body)
 
     def action_reopen(self):
         self._ems_check_state(('cancelled',))
-        self.sudo().write({'state': 'pending'})
+        self.sudo().write({'state': 'pending', 'cancel_reason': False})
         for convalidation in self:
             convalidation._ems_post_communication(
                 _("Convalidation request reopened"),
@@ -840,12 +875,14 @@ class EmsConvalidation(models.Model):
     @api.model
     def _ems_portal_requestable_subjects(self, student, study):
         """Subjects the student can still ask for: the study's, minus those already requested
-        and not rejected (a rejected subject can be asked for again with new documents)."""
+        and not officially rejected (a rejected subject can be asked for again with new
+        documents, once the refusal is official: before that, freeing it would give a decision
+        that can still change away, issue #719)."""
         taken = self.env['ems.convalidation.line'].sudo().search([
             ('student_id', '=', student.id),
             ('subject_id', 'in', study._ems_convalidable_subjects().ids),
             ('convalidation_id.state', '!=', 'cancelled'),
-            ('state', '!=', 'rejected'),
+            '|', ('state', '!=', 'rejected'), ('convalidation_id.state', 'not in', OFFICIAL_STATES),
         ]).mapped('subject_id')
         return study._ems_convalidable_subjects() - taken
 

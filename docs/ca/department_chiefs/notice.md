@@ -1,4 +1,4 @@
-[Català](notice.md) | [Castellano](../../es/teachers/notice.md) | [English](../../en/teachers/notice.md)
+[Català](notice.md) | [Castellano](../../es/department_chiefs/notice.md) | [English](../../en/department_chiefs/notice.md)
 
 ---
 
@@ -24,9 +24,9 @@ La llista s'obre amb el filtre **"Mostrar tan sols els meus"**, amb els comunica
 
 ## Canvis d'horari per una absència
 
-Quan falta un docent del teu departament, l'horari de guàrdies pot enviar un comunicat que digui a l'alumnat i les famílies d'un grup que poden entrar més tard, sortir abans o no tenir classes, o només a l'alumnat que el pati serà més llarg (els menors de 18 anys continuen sense poder sortir del centre). Tant si l'envies des del quadrant (**Enviar comunicat**) com si acceptes una reorganització de les classes (un comunicat per grup, amb tots els canvis del seu dia), s'envia de seguida, i només s'obre aquí com a esborrany adreçat a aquell grup si no s'ha pogut enviar; els seus grups no es poden canviar. Consulta [Organitzar una absència](guard-duty-schedule.md#organitzar-una-absencia).
+Quan falta un docent del teu departament, l'horari de guàrdies pot enviar un comunicat que digui a l'alumnat i les famílies d'un grup que poden entrar més tard, sortir abans o no tenir classes, o només a l'alumnat que el pati serà més llarg (els menors de 18 anys continuen sense poder sortir del centre). Tant si l'envies des del quadrant (**Enviar comunicat**) com si acceptes una reorganització de les classes (un comunicat per grup, amb tots els canvis del seu dia), s'envia de seguida, i només s'obre aquí com a esborrany adreçat a aquell grup si no s'ha pogut enviar; els seus grups no es poden canviar. Consulta [Organitzar una absència](absences.md#organitzar-una-absencia).
 
-Quan reorganitzes les classes (un intercanvi o una classe moguda), el quadrant també envia un comunicat només a l'alumnat del grup, amb les classes que canvien d'hora aquell dia; només s'obre aquí com a esborrany si no s'ha pogut enviar, o com a rectificació per revisar si treus una reorganització després d'haver-lo enviat. Ni els seus grups ni els seus destinataris es poden canviar. Consulta [Organitzar una absència](guard-duty-schedule.md#organitzar-una-absencia).
+Quan reorganitzes les classes (un intercanvi o una classe moguda), el quadrant també envia un comunicat només a l'alumnat del grup, amb les classes que canvien d'hora aquell dia; només s'obre aquí com a esborrany si no s'ha pogut enviar, o com a rectificació per revisar si treus una reorganització després d'haver-lo enviat. Ni els seus grups ni els seus destinataris es poden canviar. Consulta [Organitzar una absència](absences.md#organitzar-una-absencia).
 
 ---
 

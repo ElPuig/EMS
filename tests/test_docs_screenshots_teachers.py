@@ -16,7 +16,7 @@ from odoo.tests.common import HttpCase, tagged
 
 from .common import (
     shift_ems_clock,
-    DocsScreenshotMixin, create_level_study_group, create_role_employee, create_role_user,
+    DocsScreenshotMixin, allow_every_absence_change, create_level_study_group, create_role_employee, create_role_user,
     mock_outgoing_email, next_student_id,
 )
 
@@ -594,14 +594,13 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
-        # The board only proposes timetable changes the centre allows (issue #679): this one does.
-        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                                'ems_absence_change_long_break': True})
         level, study, group_a = create_level_study_group(self, 'DOCMGMT', level={
             'name': 'Formació professional',
         }, study={
             'code': 'DOCMGMT01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
         }, group={'acronym': 'A', 'course': 1})
+        # The board only proposes timetable changes the centre allows (issue #679): this one does.
+        allow_every_absence_change(self.env)
         group_b, group_c = (self.env['ems.group'].create({
             'course': 1, 'acronym': acronym, 'level_id': level.id, 'study_id': study.id}) for acronym in ('B', 'C'))
         subject = self.env['ems.subject'].create({
@@ -703,12 +702,11 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
-        # The timetable changes the proposals end with, whatever this database has switched on.
-        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                                'ems_absence_change_long_break': True})
         level, study, group_a = create_level_study_group(self, 'DOCCHAIN', level={'name': 'Formació professional'}, study={
             'code': 'DOCCHAIN01', 'acronym': 'AIX', 'name': 'Administració (exemple)',
         }, group={'acronym': 'A', 'course': 1})
+        # The timetable changes the proposals end with, whatever this database has switched on.
+        allow_every_absence_change(self.env)
         group_b = self.env['ems.group'].create({'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id})
         subject = self.env['ems.subject'].create({
             'code': 'DOCCHAINSUB', 'acronym': 'MP', 'name': 'Mòdul exemple', 'study_ids': [(6, 0, [study.id])]})
@@ -801,11 +799,10 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
-        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                                'ems_absence_change_long_break': True})
         _level, study, group = create_level_study_group(self, 'DOC710', level={'name': 'Formació professional'}, study={
             'code': 'DOC710ST', 'acronym': 'AIX', 'name': 'Administració (exemple)',
         }, group={'acronym': 'A', 'course': 1})
+        allow_every_absence_change(self.env)
         subject = self.env['ems.subject'].create({
             'code': 'DOC710SUB', 'acronym': 'MP', 'name': 'Mòdul exemple', 'study_ids': [(6, 0, [study.id])]})
         chief = create_role_employee(self, create_role_user(
@@ -875,12 +872,11 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         if not self.env.company.current_course_id:
             self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
         mock_outgoing_email(self)
-        # The board only proposes timetable changes the centre allows (issue #679): this one does.
-        self.env.company.write({'ems_absence_change_late_entry': True, 'ems_absence_change_early_leave': True,
-                                'ems_absence_change_long_break': True})
         _level, study, group = create_level_study_group(self, 'DOC659', level={'name': 'Formació professional'}, study={
             'code': 'DOC659ST', 'acronym': 'AIX', 'name': 'Administració (exemple)',
         }, group={'acronym': 'A', 'course': 1})
+        # The board only proposes timetable changes the centre allows (issue #679): this one does.
+        allow_every_absence_change(self.env)
         subject = self.env['ems.subject'].create({
             'code': 'DOC659SUB', 'acronym': 'MP', 'name': 'Mòdul exemple', 'study_ids': [(6, 0, [study.id])]})
         chief = create_role_employee(self, create_role_user(

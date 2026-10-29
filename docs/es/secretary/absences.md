@@ -38,4 +38,4 @@ El detalle de los pasos, de estos campos y de los dos informes está en el manua
 
 ## Tus propias ausencias
 
-Se piden como las de cualquier otra persona — consulta [Solicitar una ausencia](../teachers/absences.md). Al ser responsable de área, tu solicitud la resuelve Dirección.
+Se piden como las de cualquier otra persona — consulta [Solicitar una ausencia](../teachers/absences.md). Al ser responsable de área, tu solicitud la validas tú, desde las mismas pantallas que las de tu área, y después la revisa Dirección.

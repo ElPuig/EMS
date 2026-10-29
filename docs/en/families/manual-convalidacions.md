@@ -63,7 +63,7 @@ Requests already submitted are not affected: you can keep checking them, answeri
 
 If anything else is needed, the centre will ask you for it and you can attach it from this same page.
 
-A message confirms the request has been submitted. Modules already requested no longer appear on the form, unless they were rejected.
+A message confirms the request has been submitted. Modules already requested no longer appear on the form, unless their rejection has already been registered.
 
 ---
 
@@ -80,9 +80,9 @@ Each request appears below the form, with its registration number (e.g. CONV-202
 | **Pending the secretariat** | Resolved; the secretariat is registering it in the student's record. |
 | **Completed** | Registered, with at least one module convalidated. You can see each convalidated module's grade, and no longer attend those modules. |
 | **Rejected** | Registered, with no module convalidated. |
-| **Cancelled** | The request was cancelled. |
+| **Cancelled** | The request was cancelled. If the centre cancelled it, its box shows why. |
 
-The table shows each module's resolution (**Pending**, **Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones. Once the request is **Completed**, the **Grade** column appears too: a module convalidated without a grade shows **Convalidated** there.
+While the request is being processed, the table only lists the modules requested: the state tells you how far it has got. The decision on each module can still change until the secretariat registers it, so it is not shown before. Once the request is **Completed** or **Rejected**, the table shows each module's resolution (**Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones; on a **Completed** request the **Grade** column appears too: a module convalidated without a grade shows **Convalidated** there.
 
 When the request becomes **Completed** or **Rejected**, you get an email with the official resolution as a PDF. You can also download it from the portal with the **Official resolution** button.
 

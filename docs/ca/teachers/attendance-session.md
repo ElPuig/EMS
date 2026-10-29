@@ -175,7 +175,8 @@ quants strikes es van posar durant aquella sessió, amb un botó per veure'n el 
 > **Actual** en mode **Manual** i selecciona aquella sessió des del selector — la llista de
 > l'Historial no permet editar.
 
-Els alumnes que s'han tret de la llista d'una sessió també hi apareixen, en gris.
+Els alumnes que s'han tret de la llista d'una sessió també hi apareixen, al final, en gris i ratllats, amb
+**No ha d'assistir** en lloc d'un estat: no compten ni com a assistència ni com a falta.
 
 ---
 

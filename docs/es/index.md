@@ -16,6 +16,7 @@ Selecciona tu perfil para acceder a los manuales correspondientes:
 |--------|------------|
 | [Familias y alumnos](families/index.md) | Portal de matrícula, cuenta bancaria, documentos y bonificaciones |
 | [Profesores](teachers/index.md) | Pasar lista, calificaciones y planificación de sesiones |
+| [Jefes de departamento y de seminario](department_chiefs/index.md) | Organizar las ausencias de los docentes de tu departamento y escribir a sus grupos |
 | [Tutores](tutors/index.md) | Gestión de propuestas de matrícula y seguimiento de los alumnos del grupo |
 | [Secretaría](secretary/index.md) | Gestión de matrículas, documentos, pagos y bonificaciones |
 | [Jefatura de Estudios](head_of_studies/index.md) | Decidir sobre solicitudes de corrección de fichajes |

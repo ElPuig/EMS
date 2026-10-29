@@ -683,7 +683,7 @@ taken from it, all of them manually (nothing is ever sent or changed on its own)
 flowchart TD
     ABS["hr.leave / ems.absence_pending<br/>(same intervals as the board)"] --> BLK["ems.course._get_group_day_blocks(day, groups)<br/>each group's whole day, block by block:<br/>teachers, who is away, covers, empty?"]
     COV["ems.absence_cover (state assigned)"] --> BLK
-    CFG["res.company ems_absence_change_*<br/>(_enabled_absence_changes)"] --> EXP
+    CFG["res.company ems_absence_change_*<br/>(_enabled_absence_changes, per group)"] --> EXP
     BLK --> EXP["_allowed_absence_changes(blocks, breaks, enabled)<br/>every enabled late_entry / early_leave / no_classes / long_break option"]
     NOT["ems.notice with absence_changes<br/>(scheduled / sent / failed = communicated)"] --> ST
     EXP --> ST["_get_absence_change_states(day, groups)<br/>per side (entry/leave): expected vs communicated<br/>status: proposal / communicated / rectification"]
@@ -716,10 +716,16 @@ Three company settings (Settings > EMS Management > Guard Duty Board Settings, `
 `ems_absence_change_late_entry`, `ems_absence_change_early_leave`, `ems_absence_change_long_break`,
 all `False` by default) decide which kinds of change the board and the arrangement planner propose;
 `no_classes` goes with the late entry, being the start of the day stretched over all of it.
-`_enabled_absence_changes()` reads them once per request into a set of change types, which
-`_allowed_absence_changes(blocks, breaks, enabled)` filters `_all_absence_changes()` (the rules
-below) with; `ArrangementPlanner` reads it once when built. A disabled kind is simply never
-offered, so its empty lessons only get guards. What was already communicated keeps counting, and
+A fourth one, `ems_absence_change_level_ids` (issue #718, many2many to `ems.level`, shown only while
+coming in later or leaving earlier is on), is an **allowlist**: `late_entry`, `no_classes` and
+`early_leave` (`SHORTER_DAY_CHANGES`) are only allowed for the groups whose `level_id` is listed, and
+an empty list allows them for no group. The level is what tells compulsory education (ESO) from the
+rest, whose students can never be sent home early, and a forgotten level must fail safe. `long_break` does not depend on it: the students stay
+in the centre. `_enabled_absence_changes(groups)` reads all four once per request into
+`{group id: set of change types}`, which `_allowed_absence_changes(blocks, breaks, enabled[group])`
+filters `_all_absence_changes()` (the rules below) with; `_arrangement_planner()` passes the
+same dict to `ArrangementPlanner`. A disabled kind is simply never offered, so its empty lessons
+only get guards. What was already communicated keeps counting, and
 its correction (`normal_*`) is still offered if the absences change, whatever the setting is now:
 a notice already sent has to be put right.
 
@@ -1017,6 +1023,9 @@ with its teachers and those of them away then: `(lesson, group ids, teacher ids,
 
 #### Finding the plans (`ArrangementPlanner`, `models/attendance/arrangement_planner.py`)
 
+Teachers another area organises (`fixed`, issue #721) are never moved, see "Teachers of another
+area" below.
+
 A plain Python class, like `BoardTimeGrid`: no query, so it can try many combinations.
 `ems.course._arrangement_planner(context, groups)` feeds it what `_arrangement_context()` already
 read once per board load (the weekday's timetable, indexed by teacher; absences; covers), and
@@ -1299,7 +1308,10 @@ teacher they are noise, and the struck-out rows already say what was decided):
   section: first what is waiting (`pending_arrangement`, an arrangement waiting for its notice),
   then the arrangement plans (`arrangement_plan`, "Proposal 1:", "Proposal 2:"...) and last,
   numbered after them, **Only tell the families**: the `proposal` of each group and side as a
-  checked step with a selector of its options (`ems.GuardBoardNoticeStep`), applied together with
+  checked step with a selector of its options inside its sentence (`ems.GuardBoardNoticeStep`:
+  `_board_action_data()` sends the sentence split around it, `label_parts`, and each option's
+  `inline` text - only the hour when every option is a late entry, or every one an early leave,
+  else the whole change), applied together with
   **Apply the checked steps** by `board_apply_plan()`, one notice per group (sending it strikes
   those lessons off, so no guard has to cover them; a shorter change leaves the rest to a guard).
 - **Corrections to absences already organised** (`o_guard_board_corrections`, red, above the
@@ -1414,6 +1426,50 @@ the notices of the groups they manage, and one they may not send (someone else's
 say) simply stays a draft. `ems.absence_cover` is read-only to every teacher
 (`ems.access_ems_absence_cover_teacher`): every write goes through the board methods above,
 which check who manages the class and then write with `sudo()`.
+
+### Teachers of another area (issue #721)
+
+Who may organise an absence (above) says nothing about whose day an arrangement may change. Some
+teachers are shared between areas (an ESO/BTX teacher with lessons in VET groups), and an area that
+organises its guards outside the board (ESO/BTX) would otherwise lose them without knowing: the
+board treats a regular guard as free (#709), so a VET chief could take an ESO teacher's VET lesson
+to the hour of their ESO guard. `ems.course._can_move_teacher(teacher, context=None)` decides it
+from **who is deciding**, whatever group the class is of, so it works both ways:
+
+- The teacher's areas: the top-level department (`_top_level_department()`) of their own
+  department and of each department on `hr.employee.managing_department_ids` ("Also managed by the
+  departments", issue #622). That field is the switch: naming a department of the other area is
+  what lets that area move them too.
+- The user's areas (`_organiser_areas()`): those of the departments they chief
+  (`headed_department_ids`, `seminar_department_ids`) and of their own department (a Deputy Head of
+  Studies may chief none). Direction (`ems.group_director`) and the administrator: every area.
+- Allowed when they share an area, or when the teacher has none (nothing to protect).
+
+```mermaid
+flowchart TD
+    Q["_can_move_teacher(teacher)"] --> ALL{"Direction or administrator?"}
+    ALL -->|yes| YES["may move / send"]
+    ALL -->|no| NONE{"teacher has an area?"}
+    NONE -->|no| YES
+    NONE -->|yes| SHARE{"teacher's areas (own department +<br/>Also managed by) ∩ user's areas<br/>(departments chiefed + own department)"}
+    SHARE -->|not empty| YES
+    SHARE -->|empty| NO["cannot"]
+```
+
+Where it applies:
+
+| Path | Effect |
+|---|---|
+| Detected swaps (`_get_arrangement_options`) | Not offered if an absent teacher who would teach the other lesson cannot be moved; a co-teacher who cannot be moved stays at the lesson (`stays`) |
+| Moves and joins (`ArrangementPlanner`, `fixed`) | `busy()` is always true for them: no step takes a lesson of theirs anywhere; a co-teacher among them stays on guard, with the reason `'area'` ("organised by another area") |
+| Applying (`board_apply_plan`, `board_arrange`) | Re-planned on the server as the user, so a stale screen cannot apply it |
+| Manual arrangement (`get_arrangement_candidates`, `board_arrange`) | Not listed; naming them raises a `UserError` |
+| Sending a guard (`guard_candidates` of each line, `board_assign`) | Not listed; sending them raises a `UserError` (`_check_board_assignable`) |
+| Self-assignment (`board_self_assign`) | Unaffected: the guard decides for themselves, and their own area is theirs |
+
+The answers are cached per board load in the arrangement context (or a plain dict for the guard
+candidates), so the check costs a few queries per load (measured on this box's data: at most 15 ms
+of a 0.43 s afternoon load).
 
 ### Dates
 

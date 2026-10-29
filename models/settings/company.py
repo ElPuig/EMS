@@ -90,6 +90,12 @@ class ems_company(models.Model):
     ems_absence_change_late_entry = fields.Boolean(string="Groups may come in later", default=False)
     ems_absence_change_early_leave = fields.Boolean(string="Groups may leave earlier", default=False)
     ems_absence_change_long_break = fields.Boolean(string="Groups may have a longer break", default=False)
+    # Issue #718: coming in later and leaving earlier only for the groups of these levels (the
+    # level decides whether the education is compulsory: those students cannot go home early). An
+    # allowlist on purpose: empty, no group may.
+    ems_absence_change_level_ids = fields.Many2many(
+        string="Levels that may come in later or leave earlier", comodel_name="ems.level",
+        relation="ems_company_absence_change_level_rel", column1="company_id", column2="level_id")
 
     schedule_import_first_entry_time = fields.Float(default=8.0)
     schedule_import_last_entry_time  = fields.Float(default=21.0)

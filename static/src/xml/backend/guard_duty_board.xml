@@ -307,6 +307,8 @@
                                                 <t t-foreach="state.board.lines[slot.line].guards" t-as="guard" t-key="guard.name">
                                                     <span class="o_guard_board_guard_badge"
                                                           t-att-class="absenceClass(guard.absence) + (guard.busy ? ' o_guard_board_guard_busy' : '')" t-att-data-tooltip="guard.busy">
+                                                        <!-- Issue #692: not checked in yet, so not available (issue #725). -->
+                                                        <i t-if="guard.absence === 'unchecked'" class="fa fa-clock-o me-1" title="Not checked in"/>
                                                         <t t-esc="guard.name"/>
                                                         <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
                                                         <span t-if="guard.stayed" class="o_guard_board_guard_wc_tag"> (<t t-esc="guard.stayed"/>)</span>
@@ -413,6 +415,8 @@
                                                       t-att-class="guardBadgeClass(guard) + (guard.can_support ? ' o_guard_board_guard_supportable' : '') + (guard.can_support or guard.is_me_free ? '' : ' o_guard_board_guard_disabled')"
                                                       t-att-data-tooltip="guard.busy or (guard.can_support ? supportTooltip : false)"
                                                       t-on-click="() => this.openSupportDialog(state.board.lines[slot.line], guard)">
+                                                    <!-- Issue #692: not checked in yet, so not available (issue #725). -->
+                                                    <i t-if="guard.absence === 'unchecked'" class="fa fa-clock-o me-1" title="Not checked in"/>
                                                     <t t-esc="guard.name"/>
                                                     <span t-if="guard.is_wc" class="o_guard_board_guard_wc_tag"> <t t-esc="wcSuffix"/></span>
                                                     <span t-if="guard.stayed" class="o_guard_board_guard_wc_tag"> (<t t-esc="guard.stayed"/>)</span>

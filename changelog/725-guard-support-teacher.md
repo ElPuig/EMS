@@ -6,7 +6,7 @@
 - Only a free, regular guard of the user's own area can be sent (same rule as sending a guard to cover, issue #721), for the part of the class their guard duty overlaps; a past day is read-only.
 - The guard and the teacher are both notified (Odoo inbox or email, in their language, with the message), and again when the support is removed from the same dialog.
 - While supporting, the guard is struck out of the guard column ("With <group>: Support for <teacher>"), is no longer offered to cover absences or to take one themselves, and no internal arrangement moves them. The timetable view and the PDF show the support in the class cell, and it counts in the guard's "covered this course" number.
-- On the absences table, every guard the user can do nothing with looks disabled, so the ones they can send stand out; a teacher on guard sees themselves enabled (they may take a class themselves) and their colleagues disabled. A guard covering a class keeps its cover colour.
+- On the absences table, every guard the user can do nothing with looks disabled, so the ones they can send stand out; a teacher on guard sees themselves enabled (they may take a class themselves) and their colleagues disabled. A guard covering a class keeps its cover colour. A guard who has not checked in yet today carries the "not checked in" clock icon, on both views of the board.
 - A support never resolves an absence: if the supported teacher is away afterwards, their class is still to cover.
 
 # Internal changes

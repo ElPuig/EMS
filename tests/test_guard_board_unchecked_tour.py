@@ -44,6 +44,9 @@ class TestGuardBoardUncheckedTour(HttpCase):
         self._calendar(self.teacher, weekday, ((8, 9), (10, 11)), subject_id=subject.id, group_ids=[group.id],
                        name='TGBUT: TGBUT')
         self._calendar(self.guard, weekday, ((10, 11),), non_teaching=self.env.ref('ems.non_teaching_g').id, name='Guard')
+        # A second guard who has not checked in either: their badge says so (issue #725).
+        late_guard = self.env['hr.employee'].create({'name': 'Tour Unchecked Late Guard', 'employee_type': 'teacher'})
+        self._calendar(late_guard, weekday, ((10, 11),), non_teaching=self.env.ref('ems.non_teaching_g').id, name='Guard')
         utils = self.env['ems.datetime_utils']
         self.env['hr.attendance'].create({
             'employee_id': self.guard.id,

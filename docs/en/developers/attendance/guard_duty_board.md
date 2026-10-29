@@ -1013,7 +1013,9 @@ flowchart LR
   unless it carries a cover colour, which keeps pairing it with its class): only those with
   `can_support`, and the user's own badge while they are free on guard then (`is_me_free`, on an
   editable day: they may take a class themselves, #601), keep the usual look. So a plain teacher
-  sees the whole column greyed out except themselves when on guard.
+  sees the whole column greyed out except themselves when on guard. A guard who has not checked
+  in yet today (#692, so unavailable) carries the same clock icon as a "Not checked in" row, on both
+  views, so a disabled badge is not mistaken for a permission problem.
 - **Which classes.** `ems.course._get_support_options(day, hour_from, hour_to, guard)`: the guard's
   part of the period (`_get_guard_candidates()`, so an absent, busy or non-regular guard gets none),
   every lesson overlapping it whose teacher is in (absences and, today, not checked in count as

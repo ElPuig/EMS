@@ -25,6 +25,14 @@ const openAbsencesTable = [
         trigger: `${pastLesson} .o_guard_board_absence_row:contains('${teacher}'):has(.o_guard_board_unchecked_tag)`,
         content: "So is the one already over",
     },
+    {
+        trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge:contains('Tour Unchecked Late Guard'):has(.fa-clock-o)`,
+        content: "A guard who has not checked in carries the clock icon (issue #725)...",
+    },
+    {
+        trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge:contains('Tour Unchecked Guard'):not(:has(.fa-clock-o))`,
+        content: "...and one who has, not",
+    },
 ];
 
 const stillOnlyThePastLesson = [

@@ -20,7 +20,7 @@ EMS generates the student card as a PDF ready to print and cut.
 - A band split in two. On the left, the student's level in big letters (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS), the study's acronym (SMX, DAW...; not for ESO and BTX, where it would repeat the level) and the course year (1, 2, 3, 4) in a white circle, in the level's own colour.
 - On the right, whether the student may leave the centre, for the teacher at the door: **Pot sortir del centre** (green) when the student is of age or the family has accepted the *Leave the Centre* authorization for this academic year, **No pot sortir del centre** (red) otherwise. The card shows it as it was when printed; the QR on the back always shows it as it is now. If the student turns 18 or the family accepts the authorization later, you can print the card again.
 - The photo, last names and first name, identity document (DNI or NIE, or the passport when there is none), birth date and IDALU, with its barcode.
-- The centre's stamp, over the photo's lower corner. Until the administrator uploads it, an empty circle is printed there instead, to stamp by hand. Stamping by hand with ink, over the photo, and then laminating the card makes it much harder to swap the photo.
+- The centre's stamp, right of the barcode. Until the administrator uploads it, an empty circle is printed there instead, to stamp by hand.
 
 **Back:** the logo of the Departament d'Educació i Formació Professional, the centre's details, a note saying the card is personal and non-transferable, and a **QR code** to check the card is genuine (see [Checking a student card](../teachers/student-card-check.md)).
 

@@ -22,9 +22,8 @@ card shows:
   card is printed: a card printed before the student turns 18, or before the family accepts, keeps
   saying "No" until it is printed again.
 - The academic year in force (`res.company.current_course_id`).
-- The centre's stamp (`res.company.ems_card_stamp`) over the photo's lower right corner, as on
-  official documents (swapping the photo breaks it), or an empty dashed circle to stamp by hand when
-  none was uploaded.
+- The centre's stamp (`res.company.ems_card_stamp`), right of the barcode, or an empty dashed circle
+  to stamp by hand when none was uploaded.
 - A Code128 barcode of the IDALU, for a future check-in at the entrance.
 
 The back carries the Departament d'Educació i Formació Professional's logo
@@ -73,7 +72,7 @@ initials, the IDALU's last four digits (the rest as asterisks) and "Pot sortir /
 centre", never the name, the photo, the birth date or *why* the student may leave. Plus the time of
 the check and a CSS-animated "live" dot, which tell the real page from a screenshot. A code that is
 not valid shows "Carnet no vàlid" and nothing else. The page shows no photo, so the protection
-against a swapped photo is physical: the ink stamp over the photo, and laminating.
+against a swapped photo is physical: laminating the card.
 
 **Hardening:** `X-Robots-Tag: noindex, nofollow, noarchive`, `Cache-Control: no-store`,
 `Referrer-Policy: no-referrer`, `sitemap=False`, no listing anywhere. Failed checks (unknown or no

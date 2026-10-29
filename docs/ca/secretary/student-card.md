@@ -20,7 +20,7 @@ L'EMS genera el carnet d'estudiant en un PDF llest per imprimir i retallar.
 - Una franja partida en dues. A l'esquerra, el nivell de l'alumne en gran (ESO, BTX, CFGB, CFGM, CFGS, PFI, EFPS), les sigles de l'estudi (SMX, DAW...; no a l'ESO ni al BTX, on repetirien el nivell) i el curs (1, 2, 3, 4) dins d'un cercle blanc, en el color del nivell.
 - A la dreta, si l'alumne pot sortir del centre, per al professorat de la porta: **Pot sortir del centre** (en verd) quan l'alumne és major d'edat o la família ha acceptat l'autorització *Sortir del centre* d'aquest curs, i **No pot sortir del centre** (en vermell) en cas contrari. El carnet ho mostra tal com era en imprimir-lo; el QR del revers ho mostra sempre tal com és ara. Si l'alumne fa 18 anys o la família accepta l'autorització més tard, pots tornar a imprimir el carnet.
 - La foto, els cognoms i el nom, el document d'identitat (DNI o NIE, o el passaport si no en té), la data de naixement i l'IDALU, amb el codi de barres corresponent.
-- El segell del centre, sobre la cantonada inferior de la foto. Si l'administració encara no l'ha pujat, hi surt un cercle en blanc per segellar-lo a mà. Segellar a mà amb tinta, damunt de la foto, i després plastificar el carnet fa molt més difícil canviar-ne la foto.
+- El segell del centre, a la dreta del codi de barres. Si l'administració encara no l'ha pujat, hi surt un cercle en blanc per segellar-lo a mà.
 
 **Revers:** el logotip del Departament d'Educació i Formació Professional, les dades del centre, l'avís que el carnet és personal i intransferible i un **codi QR** per comprovar que el carnet és autèntic (vegeu [Comprovar un carnet d'estudiant](../teachers/student-card-check.md)).
 

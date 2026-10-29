@@ -20,7 +20,7 @@
 
 - The back of every card carries a QR that opens a public check page (no login needed): the level, study and course, the student's initials, the IDALU's last four digits and whether the student may leave the centre right now, plus the time of the check and a moving "live" dot so a screenshot can't pass for it. Never the name or the photo.
 - Each student's code lasts the whole academic year (a reprinted card keeps working), expires at the course change and stops working when the student leaves the centre. A new "Revoke student card" action on the student's form voids every card printed so far (lost or stolen card).
-- Unknown codes are rate-limited per address, the page is never indexed or cached, and the centre's stamp now sits over the photo's corner so a swapped photo shows.
+- Unknown codes are rate-limited per address, and the page is never indexed or cached.
 - Fixed the order of the backs for double-sided printing so each QR lands behind its own front.
 - New teachers' manual on checking a card; secretary manual updated (reprinting, revoking).
 

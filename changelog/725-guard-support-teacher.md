@@ -14,4 +14,5 @@
 
 - `ems.absence_cover.cover_type` gains `support` (`absent_employee_id` = the teacher supported); new `get_support_options()`/`board_support()`, release through the existing `board_release()`. Every place that matches covers to absences leaves supports out, and `_arrangement_busy()` counts them.
 - `ems.course._is_absence_manager()` takes an optional per-load cache of the group side and the teacher side, used by the board (the old per-pair `setdefault` never actually cached); `_may_manage_absences()` is a one-query pre-check so plain teachers pay nothing for the new flags.
-- Tests: `TestGuardSupport` (8) and the `ems_guard_support` tour, as a Department Chief; the shared fixtures of `TestAbsenceCoverage` moved to `AbsenceCoverageCase`.
+- The support is created through the same `_board_create_cover()` as a guard cover (subject and room from the teacher's own lesson).
+- Tests: `TestGuardSupport` (9, "also managed by" included) and the `ems_guard_support` tour, as a Department Chief; the shared fixtures of `TestAbsenceCoverage` moved to `AbsenceCoverageCase` (with `_two_areas()`).

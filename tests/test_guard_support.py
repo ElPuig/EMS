@@ -75,6 +75,27 @@ class TestGuardSupport(AbsenceCoverageCase):
                 with self.assertRaises(AccessError):
                     self._support(user=outsider)
 
+    def test_also_managed_by_decides_who_sends_and_which_guard(self):
+        """The same rules as sending a guard to cover (issues #622, #721): a teacher also managed by
+        another area's department can be supported by that area's chiefs, who only send their own
+        area's guards."""
+        self._two_areas()
+        self._morning()
+        self.teacher_guard.department_id = self.department  # VET; teacher_guard_2 is ESO
+
+        self.assertEqual(self._options(user=self.eso_chief)['options'], [])
+        with self.assertRaises(AccessError):
+            self._support(user=self.eso_chief, guard=self.teacher_guard_2)
+        with self.assertRaises(UserError):
+            self._support(guard=self.teacher_guard_2)
+
+        self.teacher_a.managing_department_ids = self.eso_department
+        self.assertEqual([option['teacher_id'] for option in self._options(user=self.eso_chief, guard=self.teacher_guard_2)['options']],
+                         [self.teacher_a.id])
+        self.assertTrue(self._support(user=self.eso_chief, guard=self.teacher_guard_2))
+        with self.assertRaises(UserError):
+            self._support(user=self.eso_chief, hour_from=9, hour_to=10)
+
     def test_only_a_class_whose_teacher_is_in_can_be_supported(self):
         self._morning()
         self._absence(self.teacher_a, self.day, 8, 9)

@@ -641,8 +641,8 @@ class EmsCourseGuardDutyBoard(models.Model):
                 options[(teacher.id, group.id)] = {
                     'teacher_id': teacher.id, 'teacher': teacher.name,
                     'group_id': group.id, 'group': group.name,
-                    'subject_id': attendance.subject_id.id, 'subject': attendance.subject_id.acronym or '',
-                    'space_id': attendance.space_id.id, 'room': attendance.space_id.display_name or '',
+                    'attendance_id': attendance.id,
+                    'subject': attendance.subject_id.acronym or '', 'room': attendance.space_id.display_name or '',
                     'hour_from': start, 'hour_to': stop, 'time': self._period_label(start, stop),
                 }
         return sorted(options.values(), key=lambda option: (option['group'], option['teacher']))

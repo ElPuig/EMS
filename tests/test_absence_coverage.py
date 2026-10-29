@@ -92,6 +92,24 @@ class AbsenceCoverageCase(GuardDutyBoardCase):
         return self.env['mail.message'].search([
             ('model', '=', 'ems.absence_cover'), ('partner_ids', 'in', partner.ids)])
 
+    def _two_areas(self):
+        """teacher_a's department (headed by department_chief) hangs from a 'VET' area; teacher_b,
+        teacher_c and teacher_guard_2 belong to a department of an 'ESO' area, whose chief is
+        eso_chief and whose Deputy Head of Studies, eso_deputy, chiefs no department."""
+        Department = self.env['hr.department']
+        self.vet = Department.create({'name': 'TABC VET', 'is_top_level': True, 'top_level_area': 'academic',
+                                      'top_level_role': 'hos'})
+        self.eso = Department.create({'name': 'TABC ESO', 'is_top_level': True, 'top_level_area': 'academic',
+                                      'top_level_role': 'dhos'})
+        self.department.parent_id = self.vet
+        self.eso_chief = create_role_user(self, 'department_chief', 'test_eso_chief_tabc', name='TABC ESO Chief')
+        self.eso_department = Department.create({
+            'name': 'TABC ESO Department', 'parent_id': self.eso.id,
+            'manager_id': create_role_employee(self, self.eso_chief).id})
+        self.eso_deputy = create_role_user(self, 'head_of_studies', 'test_eso_deputy_tabc', name='TABC ESO Deputy')
+        create_role_employee(self, self.eso_deputy).department_id = self.eso_department
+        (self.teacher_b | self.teacher_c | self.teacher_guard_2).department_id = self.eso_department
+
 
 class TestAbsenceCoverage(AbsenceCoverageCase):
     """Managing absences from the guard duty board's absences table (issues #539, #571, #581):
@@ -2846,24 +2864,6 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
     # Teachers shared between areas (issue #721): ESO/BTX and the vocational families share some
     # teachers, and each area organises its own. Only someone of a teacher's area (that of their
     # department, or of one named on them as also managing them) moves them or sends them.
-
-    def _two_areas(self):
-        """teacher_a's department (headed by department_chief) hangs from a 'VET' area; teacher_b,
-        teacher_c and teacher_guard_2 belong to a department of an 'ESO' area, whose chief is
-        eso_chief and whose Deputy Head of Studies, eso_deputy, chiefs no department."""
-        Department = self.env['hr.department']
-        self.vet = Department.create({'name': 'TABC VET', 'is_top_level': True, 'top_level_area': 'academic',
-                                      'top_level_role': 'hos'})
-        self.eso = Department.create({'name': 'TABC ESO', 'is_top_level': True, 'top_level_area': 'academic',
-                                      'top_level_role': 'dhos'})
-        self.department.parent_id = self.vet
-        self.eso_chief = create_role_user(self, 'department_chief', 'test_eso_chief_tabc', name='TABC ESO Chief')
-        self.eso_department = Department.create({
-            'name': 'TABC ESO Department', 'parent_id': self.eso.id,
-            'manager_id': create_role_employee(self, self.eso_chief).id})
-        self.eso_deputy = create_role_user(self, 'head_of_studies', 'test_eso_deputy_tabc', name='TABC ESO Deputy')
-        create_role_employee(self, self.eso_deputy).department_id = self.eso_department
-        (self.teacher_b | self.teacher_c | self.teacher_guard_2).department_id = self.eso_department
 
     def _can_move(self, user, teacher):
         return self.env['ems.course'].with_user(user)._can_move_teacher(teacher)

@@ -833,13 +833,10 @@ class EmsAbsenceCover(models.Model):
         if not option:
             raise UserError(_("%(guard)s cannot be sent to support this class now: they are no longer free, or the "
                               "class or its teacher has changed. Reload the board.", guard=guard.name))
-        cover = self.sudo().create({
-            'date': day, 'hour_from': option['hour_from'], 'hour_to': option['hour_to'],
-            'absent_employee_id': teacher.id, 'group_id': group.id,
-            'subject_id': option['subject_id'], 'space_id': option['space_id'],
-            'cover_type': 'support', 'guard_employee_id': guard.id, 'message': message,
-            'assigned_by_id': self.env.uid,
-        })
+        lesson = self.env['resource.calendar.attendance'].browse(option['attendance_id'])
+        cover = self._board_create_cover(
+            day, option['hour_from'], option['hour_to'], teacher, group, self.env['ems.non_teaching_type'], guard,
+            {'entries': lesson}, message, cover_type='support')
         cover._notify_support(released=False, message=message)
         return cover.id
 

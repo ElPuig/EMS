@@ -69,6 +69,22 @@ Todos los docentes que cubren la misma clase comparten su color. Un borde de pun
 
 Cuando falta el docente de una guardia de WC o de patio, su guardia aparece como una línea en la columna **Guardia** de la tabla de ausencias, debajo de los docentes de guardia de su bloque, con el nombre de la guardia en lugar de un grupo. Se cubre exactamente como una clase: haz clic en ella, elige uno de los docentes de guardia ordinaria de esa franja y haz clic en **Asignar y avisar**. El mensaje que recibe indica que lo que debe cubrir es una guardia. Si después la ausencia se anula, se te ofrece liberar al docente de guardia como cualquier otro.
 
+### Enviar un docente de guardia de apoyo
+
+Un docente de guardia también se puede enviar a una clase en la que el docente **sí** está, para apoyarlo: un grupo movido, una práctica que necesita dos personas.
+
+1. En la columna **Guardia** de la tabla de ausencias, haz clic en la casilla de un docente de guardia libre (la indicación dice **Enviar de apoyo a un docente que está en clase**).
+2. En **Clase a la que dar apoyo**, elige la clase: el diálogo muestra las clases de esa franja con el docente presente en el centro y que organizas tú (las mismas que organizarías si el docente faltara). Si la guardia solo coincide con una parte de la clase, la hora muestra la parte que cubriría.
+3. Escribe para qué hace falta el apoyo en **Mensaje para el docente de guardia y el docente** y haz clic en **Enviar y avisar**.
+
+![Enviar un docente de guardia de apoyo: las clases de esa franja con el docente presente y un mensaje para ambos](../../assets/teachers/guard-duty-17-suport.png)
+
+El docente de guardia y el docente al que apoya reciben ambos un mensaje de Odoo con la clase y tu mensaje. Mientras dura el apoyo, el docente de guardia está con ese grupo: su casilla aparece tachada y en gris (la indicación dice con qué grupo), ya no se le ofrece cubrir ninguna ausencia y el horario lo muestra en la clase con un icono de apretón de manos. Cuenta en el número de clases que ha cubierto este curso.
+
+![Columna Guardia una vez enviado el apoyo: el docente de guardia tachado de 08:00 a 09:00, ocupado con el grupo, y libre de nuevo de 09:00 a 10:00](../../assets/teachers/guard-duty-18-suport-enviat.png)
+
+Para retirarlo, vuelve a hacer clic en la casilla del docente de guardia y después en **Quitar el apoyo**: ambos reciben el aviso. Un apoyo no es una cobertura: si después el docente al que apoya se pone enfermo, su clase se tiene que cubrir igualmente. Solo puedes enviar un docente de guardia de tu área (consulta *Docentes de otra área* más arriba), y un día que ya ha pasado no se puede cambiar.
+
 ### Reorganizar las clases en lugar de enviar una guardia
 
 A menudo no hace falta ninguna guardia, porque los docentes pueden reorganizar sus clases de ese día. El cuadrante lo calcula para cada clase que todavía no tiene a nadie y lo propone en el recuadro **Propuestas para las ausencias**, encima de la tabla (solo lo ve quien puede organizar la ausencia); esas líneas muestran además una etiqueta como **3 reorganizaciones posibles**.

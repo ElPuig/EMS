@@ -29,9 +29,12 @@ comes in.
 - **Justified absences do not count.** A justification (`ems.attendance_justification`) covering
   days of a run removes them from it.
 - **Run:** consecutive days of absence, counted from the first one (D0). Any attendance breaks
-  it (see "An attendance during the circuit").
+  it (see "An attendance during the circuit"). It never starts before the student's enrolment
+  date; the enrolment itself plays no other part.
 - **Deadlines are calendar days from D0**, as the plan says (1 week, 15 days, 1 month, 1.5
-  months, 2 months). Pending: confirm with the developer, see open questions.
+  months, 2 months). Known effect, for Direction to decide in the phase 3 slides (keep calendar
+  days or switch to school days): a student missing from 15 December reaches "1 month" on 15
+  January with only about 7 school days missed.
 
 ## Actors
 
@@ -49,7 +52,8 @@ Where the plan says "COCOBE de CCFF o alguna persona de l'equip directiu", any o
 
 ### 1. Detection and proposal
 
-EMS watches the roll calls. When a student's run reaches the first threshold, it creates an
+EMS watches the roll calls. When a student's run reaches **1 week** (both circuits: the tutor
+must contact the family a week after the first absence), it creates an
 **ex officio withdrawal proposal** (a case file for that student) and notifies the tutor, who
 decides:
 
@@ -57,6 +61,12 @@ decides:
 - **Dismiss it with a reason.** If the reason is a justifiable one (e.g. a hospital stay), EMS
   opens the justification form already filled with the student and the run's dates, so the
   absences become justified and the run disappears.
+
+**Manual start.** The tutor can also open a case file by hand, giving the date of the first
+absence, when they know the student is not coming although the roll calls say otherwise (e.g. a
+teacher who always marks everyone present). The attendances recorded in that period are then
+listed for the tutor to verify with the teachers concerned, with the same correction tool as in
+"An attendance during the circuit".
 
 ### 2. Steps
 
@@ -70,7 +80,7 @@ convalidation circuit does). Template contents are still to be agreed.
 
 | Due | Responsible | Action in EMS | Email sent | Off-EMS (checkbox) |
 |---|---|---|---|---|
-| Before day 15 | Tutor | Contact with the family recorded | - | Phone call |
+| 1 week | Tutor | Contact with the family recorded | - | Phone call |
 | Day 15 | COCOBE / management team (ESO: Pedagogical Coordination) | Contact with the family recorded | - | Phone call (ESO: iEduca) |
 | 1 month | Same responsible -> Secretariat | Hands over to the Secretariat | Secretariat -> family | - |
 | 1 month | COCOBE / management team (ESO: Pedagogical Coordination) | Notifies Social Services | -> Social Services | - |
@@ -119,13 +129,18 @@ wizard gets a new kind, **ex officio**, distinct from voluntary, so reports can 
 The case file keeps the whole history (steps, dates, who, evidence): it is the "Registre" column
 of the plan and what Direction sends to Inspection.
 
+### 7. Notifications and reminders
+
+Every notification to staff (proposal to the tutor, a step due, an attendance to verify) is an
+EMS activity in the responsible's to-do tray, never an email of its own. A pending one shows up
+in the existing daily pending-tasks digest (`docs/en/developers/shared/task_digest.md`), sent
+at the start of each person's working day, which is also the reminder when a step is overdue.
+
+Emails to families follow EMS's standard: the student when adult (and the family too when the
+student authorised sharing with it), the family when a minor.
+
 ## Open questions
 
-- Calendar vs school days (see answer to the developer: recommendation is to keep calendar days).
-- First detection threshold of the compulsory circuit: the plan has the tutor contacting the
-  family "before" day 15 with no date. Proposal: 1 week, as post-compulsory.
-- Reminders when a step is due and its responsible has not acted.
-- Who is notified, and how (email + EMS activity?), at each step besides the responsible.
-- Adult students who authorised sharing with their family: email the family too?
-- Contents of every email template (to be agreed).
-- Detection for students starting the course late, or with a run spanning a holiday period.
+- Manual start: when must the tutor have verified the conflicting attendances? Proposal: before
+  the case file goes past the tutor's own steps (i.e. before it reaches the Secretariat).
+- Contents of every email template (phase 2).

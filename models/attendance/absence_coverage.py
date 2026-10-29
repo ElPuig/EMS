@@ -43,10 +43,13 @@ COMMUNICATED_NOTICE_STATES = ('scheduled', 'sent', 'failed')
 
 # How a class left without its teacher gets resolved (issues #571/#605): a guard teacher is sent to
 # it, or the teachers rearrange themselves (two of them swap lessons, one moves a lesson earlier so
-# the group leaves sooner...) so that nobody has to cover it.
+# the group leaves sooner...) so that nobody has to cover it. A guard can also be sent to a class
+# whose teacher is there, to support them (issue #725): nothing is left to cover then, the guard is
+# simply busy with that class.
 COVER_TYPES = [
     ('guard', 'Guard teacher'),
     ('arrangement', 'Internal arrangement'),
+    ('support', 'Support for the teacher'),
 ]
 # The arrangements: the two lessons of the group swapped between their teachers (nobody loses a
 # lesson), a lesson at the start or end of the group's day moved into the empty one (the group
@@ -95,7 +98,11 @@ class EmsAbsenceCover(models.Model):
     Co-teachers are a pack (issue #678): a lesson swapped or moved goes with all its teachers, one
     cover per teacher who moves it (and per absent teacher and group, as usual), all of them one
     decision. A co-teacher who cannot follow it ('stayed_employee_ids', the same on every cover of
-    the decision) stays on guard at the lesson's usual time while it is gone."""
+    the decision) stays on guard at the lesson's usual time while it is gone.
+
+    A support (issue #725, 'cover_type' 'support') sends a guard to a class whose teacher is there,
+    to help them: 'absent_employee_id' is then the teacher supported, who is not away. It resolves
+    nothing on the absences table; it only makes the guard busy then, like an arrangement does."""
     _name = 'ems.absence_cover'
     _description = "Absence cover: a guard teacher sent to a class left without its teacher"
     # The guard duty board reloads on every change of a cover (issue #692).
@@ -163,13 +170,13 @@ class EmsAbsenceCover(models.Model):
         notice its free lesson needs has left the draft state (issue #605) - accepting it and
         telling the families go together, never one without the other."""
         for cover in self:
-            cover.is_effective = (cover.cover_type == 'guard' or not cover.notice_id
+            cover.is_effective = (cover.cover_type != 'arrangement' or not cover.notice_id
                                   or cover.notice_id.state in COMMUNICATED_NOTICE_STATES)
 
     @api.constrains('cover_type', 'arrangement_type', 'guard_employee_id', 'message', 'vacated_hour_from', 'vacated_hour_to')
     def _check_arrangement(self):
         for cover in self:
-            if cover.cover_type == 'guard' or cover.arrangement_type in ('swap', 'move'):
+            if cover.cover_type in ('guard', 'support') or cover.arrangement_type in ('swap', 'move'):
                 if not cover.guard_employee_id:
                     raise ValidationError(_("Choose the teacher who will be with the group."))
             if cover.cover_type != 'arrangement':
@@ -188,6 +195,8 @@ class EmsAbsenceCover(models.Model):
         messages: worded as the board's proposal step was (issue #709, see
         ems.course._arrangement_step_label), with what kind of move it is for each teacher."""
         self.ensure_one()
+        if self.cover_type == 'support':
+            return _("Support for %s", self.absent_employee_id.name)
         if self.arrangement_type not in ('swap', 'move'):
             if self.guard_employee_id:
                 return _("%(teacher)s: %(note)s", teacher=self.guard_employee_id.name, note=self.message)
@@ -216,9 +225,11 @@ class EmsAbsenceCover(models.Model):
 
     @api.constrains('date', 'hour_from', 'hour_to', 'absent_employee_id', 'group_id', 'duty_id', 'state')
     def _check_one_guard_per_class(self):
-        for cover in self.filtered(lambda cover: cover.state == 'assigned'):
+        # A support (issue #725) covers nothing: a class may have several, and a cover besides.
+        for cover in self.filtered(lambda cover: cover.state == 'assigned' and cover.cover_type != 'support'):
             others = self.search([
                 ('id', '!=', cover.id), ('state', '=', 'assigned'), ('date', '=', cover.date),
+                ('cover_type', '!=', 'support'),
                 ('absent_employee_id', '=', cover.absent_employee_id.id),
                 ('group_id', '=', cover.group_id.id), ('duty_id', '=', cover.duty_id.id),
             ])
@@ -260,20 +271,49 @@ class EmsAbsenceCover(models.Model):
             subject = cover.env._("Guard duty: cover %(group)s, %(date)s %(time)s", **values)
             intro = (cover.env._("You have been assigned to cover this guard duty:") if cover.duty_id
                      else cover.env._("You have been assigned to cover this class:"))
+        details = cover._class_details() + [cover.env._("Absent teacher: %s", cover.absent_employee_id.name)]
+        cover._send_notification(partner, subject, intro, details, message)
+
+    def _class_details(self):
+        """The date, time, group (or guard duty), subject and room lines of a message about this
+        cover, in the language of its environment."""
         details = [
-            cover.env._("Date: %s", values['date']),
-            cover.env._("Time: %s", values['time']),
-            cover.env._("Guard duty: %s", values['group']) if cover.duty_id else cover.env._("Group: %s", values['group']),
+            self.env._("Date: %s", format_date(self.env, self.date)),
+            self.env._("Time: %s", self._time_label()),
+            self.env._("Guard duty: %s", self.display_name) if self.duty_id else self.env._("Group: %s", self.display_name),
         ]
-        if cover.subject_id:
-            details.append(cover.env._("Subject: %s", cover.subject_id.display_name))
-        if cover.space_id:
-            details.append(cover.env._("Room: %s", cover.space_id.display_name))
-        details.append(cover.env._("Absent teacher: %s", cover.absent_employee_id.name))
+        if self.subject_id:
+            details.append(self.env._("Subject: %s", self.subject_id.display_name))
+        if self.space_id:
+            details.append(self.env._("Room: %s", self.space_id.display_name))
+        return details
+
+    def _send_notification(self, partner, subject, intro, details, message=False):
         body = Markup("<p>{}</p>{}").format(intro, self.env['ems.base'].build_html_list(details))
         if message:
             body += plaintext2html(message)
-        cover.sudo().message_notify(partner_ids=partner.ids, subject=subject, body=body)
+        self.sudo().message_notify(partner_ids=partner.ids, subject=subject, body=body)
+
+    def _notify_support(self, released, message=False):
+        """Tells the guard and the teacher they support (issue #725) that the guard is sent to the
+        class, or no longer: an Odoo message each, as their own notification preference says. The
+        planner's message goes to both."""
+        self.ensure_one()
+        for teacher, is_guard in ((self.guard_employee_id, True), (self.absent_employee_id, False)):
+            partner = self._guard_partner(teacher)
+            if not partner:
+                continue
+            cover = self.with_context(lang=partner.lang or self.env.lang)
+            values = {'group': cover.display_name, 'date': format_date(cover.env, cover.date), 'time': cover._time_label()}
+            if released:
+                subject = cover.env._("Support cancelled: %(group)s, %(date)s %(time)s", **values)
+                intro = (cover.env._("You no longer need to support %s in this class:", cover.absent_employee_id.name) if is_guard
+                         else cover.env._("%s will no longer come to support you in this class:", cover.guard_employee_id.name))
+            else:
+                subject = cover.env._("Support: %(group)s, %(date)s %(time)s", **values)
+                intro = (cover.env._("You have been sent to support %s in this class:", cover.absent_employee_id.name) if is_guard
+                         else cover.env._("%s, on guard duty, has been sent to support you in this class:", cover.guard_employee_id.name))
+            cover._send_notification(partner, subject, intro, cover._class_details(), message)
 
     def _notify_arrangements(self, cancelled=False):
         """_notify_arrangement for each of these covers, telling each teacher once about each
@@ -449,6 +489,8 @@ class EmsAbsenceCover(models.Model):
             cover.write({'state': 'released'})
             if cover.cover_type == 'guard':
                 cover._notify_guard(cover.guard_employee_id, released=True, message=message)
+            elif cover.cover_type == 'support':
+                cover._notify_support(released=True, message=message)
             else:
                 arrangements |= cover
         arrangements._notify_arrangements(cancelled=True)
@@ -742,6 +784,64 @@ class EmsAbsenceCover(models.Model):
                     'joined_group_ids': [Command.set((joined or self.env['ems.group']).ids)],
                 } for teacher in teachers]
         return self.sudo().create(vals)
+
+    # Support (issue #725): a guard sent to a class whose teacher is there, to help them.
+
+    @api.model
+    def get_support_options(self, day, hour_from, hour_to, guard_employee_id):
+        """What the guard duty board's dialog needs to send `guard_employee_id`, on guard in the
+        period, as a support: the classes they could go to ('options', see
+        ems.course._get_support_options) and the supports they already give then ('current'), each
+        with whether the user may withdraw it."""
+        day = fields.Date.to_date(day)
+        guard = self.env['hr.employee'].browse(guard_employee_id).exists()
+        if not guard:
+            raise UserError(_("The class or the guard teacher no longer exists."))
+        course = self.env['ems.course']
+        covers = self.sudo().search([
+            ('date', '=', day), ('state', '=', 'assigned'), ('cover_type', '=', 'support'),
+            ('guard_employee_id', '=', guard.id), ('hour_from', '<', hour_to), ('hour_to', '>', hour_from)])
+        editable = day >= self.env['ems.datetime_utils'].get_local_today()
+        return {
+            'options': course._get_support_options(day, hour_from, hour_to, guard) if not covers else [],
+            'current': [{
+                'id': cover.id,
+                'label': _("%(group)s - %(teacher)s", group=cover.group_id.name, teacher=cover.absent_employee_id.name),
+                'time': course._period_label(cover.hour_from, cover.hour_to),
+                'message': cover.message or '',
+                'can_release': editable and course._is_absence_manager(cover.absent_employee_id, cover.group_id),
+            } for cover in covers],
+        }
+
+    @api.model
+    def board_support(self, day, hour_from, hour_to, guard_employee_id, teacher_employee_id, group_id, message=False):
+        """Sends `guard_employee_id`, on guard in the period, to `teacher_employee_id`'s class of
+        `group_id` to support them, for the part of the class their guard duty overlaps, and tells
+        both. Only whoever manages that teacher's absences in that group may (the same people who
+        would organise the class if the teacher were away), and only a guard of their area."""
+        day = fields.Date.to_date(day)
+        guard = self.env['hr.employee'].browse(guard_employee_id).exists()
+        teacher = self.env['hr.employee'].browse(teacher_employee_id).exists()
+        group = self.env['ems.group'].browse(group_id).exists()
+        if not (guard and teacher and group):
+            raise UserError(_("The class or the guard teacher no longer exists."))
+        course = self.env['ems.course']
+        course._check_board_day_not_past(day)
+        course._check_absence_manager(teacher, group)
+        option = next((option for option in course._get_support_options(day, hour_from, hour_to, guard)
+                       if option['teacher_id'] == teacher.id and option['group_id'] == group.id), None)
+        if not option:
+            raise UserError(_("%(guard)s cannot be sent to support this class now: they are no longer free, or the "
+                              "class or its teacher has changed. Reload the board.", guard=guard.name))
+        cover = self.sudo().create({
+            'date': day, 'hour_from': option['hour_from'], 'hour_to': option['hour_to'],
+            'absent_employee_id': teacher.id, 'group_id': group.id,
+            'subject_id': option['subject_id'], 'space_id': option['space_id'],
+            'cover_type': 'support', 'guard_employee_id': guard.id, 'message': message,
+            'assigned_by_id': self.env.uid,
+        })
+        cover._notify_support(released=False, message=message)
+        return cover.id
 
     @api.model
     def board_release(self, cover_id, message=False):

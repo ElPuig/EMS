@@ -10,10 +10,9 @@ from .common import (
 from .test_guard_duty_board import GuardDutyBoardCase
 
 
-class TestAbsenceCoverage(GuardDutyBoardCase):
-    """Managing absences from the guard duty board's absences table (issues #539, #571, #581):
-    sending a guard to a class, proposing the timetable change an absence allows, and spotting
-    what an absence that changed afterwards has made unnecessary or wrong."""
+class AbsenceCoverageCase(GuardDutyBoardCase):
+    """The fixtures of managing absences from the guard duty board: a department with its chain
+    of command, guards, and helpers to send them. Shared with test_guard_support.py."""
 
     @classmethod
     def setUpClass(cls):
@@ -92,6 +91,12 @@ class TestAbsenceCoverage(GuardDutyBoardCase):
         partner = guard.user_id.partner_id or guard.work_contact_id
         return self.env['mail.message'].search([
             ('model', '=', 'ems.absence_cover'), ('partner_ids', 'in', partner.ids)])
+
+
+class TestAbsenceCoverage(AbsenceCoverageCase):
+    """Managing absences from the guard duty board's absences table (issues #539, #571, #581):
+    sending a guard to a class, proposing the timetable change an absence allows, and spotting
+    what an absence that changed afterwards has made unnecessary or wrong."""
 
     # Guard assignment (issue #571)
 

@@ -151,6 +151,7 @@ from . import test_portal_schedule
 from . import test_portal_schedule_tour
 from . import test_guard_duty_board
 from . import test_absence_coverage
+from . import test_guard_support
 from . import test_guard_board_unchecked
 from . import test_guard_board_unchecked_tour
 from . import test_absence_coverage_tour

@@ -977,6 +977,58 @@ do nothing about on an editable day (the board's `editable`), because they have 
 there (`self_label` empty), answers the pointer too, saying so (`notOnGuardReason()`, #659): every
 row of the table reacts the same way.
 
+### Sending a guard as support (issue #725)
+
+A guard on duty can also be sent to a class whose teacher **is** there, to support them (a
+restless group, a practical that needs two people). Nothing is left to cover: the guard is simply
+busy with that class, like a teacher an arrangement has with a group.
+
+It is an `ems.absence_cover` with `cover_type = 'support'`: `absent_employee_id` is the teacher
+supported (who is not away), `group_id` the group, `guard_employee_id` the guard, `hour_from`/
+`hour_to` the part of the class the guard's regular duty overlaps (as for a partial cover,
+issue #637), subject and room the teacher's own lesson. Reusing the model gives it the guard's
+notification, the release, the live board refresh (#692) and the course's cover count (#600) for
+free; every place that matches covers against absences leaves supports out.
+
+```mermaid
+flowchart LR
+    BADGE["Guard badge, absences table<br/>(can_support)"] --> OPT["ems.absence_cover.get_support_options(day, from, to, guard)<br/>-> ems.course._get_support_options()"]
+    OPT --> DLG["GuardSupportDialog<br/>class + message / current support"]
+    DLG -->|board_support| COV["ems.absence_cover<br/>cover_type = support"]
+    DLG -->|board_release| COV
+    COV --> BUSY["_arrangement_busy(): guard busy<br/>(struck out, not a candidate)"]
+    COV --> CELL["_board_cell_arrangements(): 'supports'<br/>(timetable + PDF)"]
+    COV --> COUNT["_guard_cover_counts()"]
+```
+
+- **Where.** On the absences table, the guard's badge in the guard column. `get_guard_duty_board_data()`
+  sets `can_support` on a badge when the day is editable, the user may organise absences at all
+  (`_may_manage_absences()`: administrator, Director, a Department or Seminar Chief, or above a
+  teacher in their chain; one query, so plain teachers pay nothing more), the guard is free in that
+  line (`guard_spans`), may be sent by the user (`_can_move_teacher`, issue #721) and some class of
+  the line has its teacher in and is managed by the user; or when the badge is a support already
+  given (`support_cover_id`), to show it and remove it.
+- **Which classes.** `ems.course._get_support_options(day, hour_from, hour_to, guard)`: the guard's
+  part of the period (`_get_guard_candidates()`, so an absent, busy or non-regular guard gets none),
+  every lesson overlapping it whose teacher is in (absences and, today, not checked in count as
+  away, `unchecked=True`), never the guard's own, and only the (teacher, group) pairs the user
+  manages (`_is_absence_manager(teacher, group)`: the same people who would organise that class if
+  the teacher were away). A guard already supporting someone gets no options; the dialog shows the
+  current support instead.
+- **Saving.** `board_support()` re-checks everything on the server (day not past,
+  `_check_absence_manager(teacher, group)`, the pair among the options), creates the cover and
+  tells both the guard and the teacher (`_notify_support()`, an Odoo message each, in their own
+  language, with the planner's message). `board_release()` withdraws it the same way as a cover and
+  tells both again.
+- **Effects.** `_arrangement_busy()` counts supports too: the guard is struck out of the guard
+  column ("With <group>: Support for <teacher>"), is not a candidate to cover anything nor to take a
+  class themselves, and no arrangement moves them then. The timetable cell and the PDF show
+  "Support: <guard>". It counts in the course's covers of the guard.
+- **What it is not.** A support never resolves an absence: `_get_board_absence_management()`,
+  `_board_absence_row_management()` and `_check_one_guard_per_class` leave it out, so if the
+  supported teacher falls ill afterwards their class is still to cover (and the support is not
+  offered for release as no longer needed: whoever sent it decides).
+
 ### Internal arrangements (#605, #645)
 
 The other way of resolving a class: no guard is sent because the teachers rearrange themselves.
@@ -1414,6 +1466,7 @@ vocational families work and leaves ESO/BTX blank.
 | Send a timetable change or correction (`board_send_absence_change`) | No | Yes |
 | Send that notice | No | Yes (own notice) |
 | Check in a teacher who has not (`board_mark_present`, issue #692) | Only a guard on duty then | Yes |
+| Send a guard on duty as support to a teacher who is in, remove it (`board_support`, `board_release`, issue #725) | No | Yes (for that teacher's class, and a guard of their area) |
 
 Department and Seminar chiefs use Communications > Notices limited to the groups their department
 teaches or manages (see the access table in [notice.md](../communications/notice.md)); a

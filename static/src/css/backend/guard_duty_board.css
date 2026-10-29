@@ -443,6 +443,15 @@
     color: #0d6efd;
 }
 
+/* Issue #725: a guard sent to support the class's teacher, and a guard whom the user may send. */
+.o_guard_board_cell_support {
+    color: #198754;
+}
+
+.o_guard_board_guard_supportable {
+    cursor: pointer;
+}
+
 /* A guard who is with a group through an internal arrangement: struck out of the guard column,
    nobody can ask them to cover anything else then. */
 .o_guard_board_guard_busy {

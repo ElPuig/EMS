@@ -74,6 +74,20 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertEqual(summary['lective'], {'rd_rc': 1, 'cd': 1})
         self.assertEqual((summary['lective_total'], summary['fixed_total']), (2, 2))
 
+    def test_break_guards_are_added_up_before_rounding(self):
+        # Developer, 2026-10-29: 25-minute break guards, 1/2/3 -> 1/1/2 h; 20-minute ones (the
+        # afternoon), 1/2/3/4 -> 1/1/1/2 h.
+        self.env['ems.non_teaching_type']._ems_seed_declaration_codes()
+        cases = [(25, 1, 1), (25, 2, 1), (25, 3, 2), (20, 1, 1), (20, 2, 1), (20, 3, 1), (20, 4, 2)]
+        for minutes, count, hours in cases:
+            with self.subTest(minutes=minutes, count=count):
+                self._apply(*[('ems.non_teaching_gb', str(day), minutes / 60) for day in range(count)])
+
+                summary = self.calendar.get_schedule_declaration_summary()
+
+                self.assertEqual(summary['fixed'], {'g': hours})
+                self.assertEqual(self.calendar.get_schedule_hours_summary()['fixed']['total'], hours)
+
     def test_tutoring_goes_to_the_tutored_groups_level(self):
         self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
         self._apply('ems.non_teaching_tt')
@@ -115,6 +129,8 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertEqual(self.env.ref('ems.non_teaching_tt').declaration_code, 'tutoring')
         self.assertFalse(self.env.ref('ems.non_teaching_br').declaration_code)
         self.assertFalse(self.env.ref('ems.non_teaching_r').declaration_code)
+        self.assertTrue(self.env.ref('ems.non_teaching_gb').adds_up_periods)
+        self.assertFalse(self.env.ref('ems.non_teaching_g').adds_up_periods)
 
     def test_print_from_the_form_prints_only_this_teacher(self):
         action = self.teacher.action_print_schedule_declaration()

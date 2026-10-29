@@ -27363,3 +27363,13 @@ msgstr "Imprimeix la declaració horària"
 #: code:addons/ems/models/employees/employee.py:0
 msgid "Only the Heads and Deputy Heads of Studies, the Director and the administrators can print the schedule declaration."
 msgstr "Només els caps d'estudis i els caps d'estudis adjunts, la direcció i els administradors poden imprimir la declaració horària."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_non_teaching_type__adds_up_periods
+msgid "Add up its periods"
+msgstr "Suma les seves franges"
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_non_teaching_type__adds_up_periods
+msgid "Its periods of the week are added up before rounding up to whole hours in the hours summaries, instead of each one counting at least one hour (e.g. break guard duties: three of 25 minutes count 2 hours)."
+msgstr "Als resums d'hores, les seves franges de la setmana se sumen abans d'arrodonir a hores senceres, en lloc de comptar cadascuna com a mínim una hora (p. ex. les guàrdies de pati: tres de 25 minuts compten 2 hores)."

@@ -280,9 +280,14 @@ class ems_working_schedule(models.Model):
 		Friday, a date-split slot only once (_dedupe_date_split_blocks), each block rounded UP to
 		whole hours, breaks and unassigned blocks left out. 'is_fixed' is the "other fixed-schedule
 		hours" column: guard duties (is_fixed) and the coordination meeting on Wednesday. Shared by
-		get_schedule_hours_summary() and get_schedule_declaration_summary() (issue #723)."""
+		get_schedule_hours_summary() and get_schedule_declaration_summary() (issue #723).
+
+		A non-teaching type that adds up its periods (adds_up_periods, e.g. the break guard duty) is
+		rounded once over the week's total instead: one (first block, hours) per type and column, so
+		three break guards of 25 minutes count 2 hours, not 3 (developer, 2026-10-29)."""
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
-		for attendance in self._dedupe_date_split_blocks(weekday_entries):
+		added_up = {}
+		for attendance in self._dedupe_date_split_blocks(weekday_entries).sorted(lambda block: (block.dayofweek, block.hour_from)):
 			if attendance.subject_id:
 				is_fixed = False
 			elif attendance.non_teaching and not attendance.non_teaching.is_break:
@@ -290,9 +295,20 @@ class ems_working_schedule(models.Model):
 				is_fixed = non_teaching.is_fixed or (non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
 			else:
 				continue
-			# HOUR_EPSILON: a period stored as 15.666...-16.666... is 1.0000000000000018 h, which a
-			# bare ceil() counted as 2 (found on issue #723).
-			yield attendance, math.ceil(attendance.hour_to - attendance.hour_from - HOUR_EPSILON), is_fixed
+			duration = attendance.hour_to - attendance.hour_from
+			if attendance.non_teaching.adds_up_periods:
+				first, total = added_up.get((attendance.non_teaching, is_fixed), (attendance, 0))
+				added_up[(attendance.non_teaching, is_fixed)] = (first, total + duration)
+				continue
+			yield attendance, self._summary_hours(duration), is_fixed
+		for (_non_teaching, is_fixed), (first, total) in added_up.items():
+			yield first, self._summary_hours(total), is_fixed
+
+	@staticmethod
+	def _summary_hours(duration):
+		"""'duration' rounded UP to whole hours. HOUR_EPSILON: a period stored as 15.666...-16.666...
+		is 1.0000000000000018 h, which a bare ceil() counted as 2 (found on issue #723)."""
+		return math.ceil(duration - HOUR_EPSILON)
 
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly

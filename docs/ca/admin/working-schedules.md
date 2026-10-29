@@ -71,6 +71,7 @@ La llista de motius no lectius (Pati, Guàrdia, Reunió de coordinació...) que 
 2. Fes clic a **Nou**, estableix un **Codi** curt (ha de coincidir exactament amb el que utilitza el planificador extern per a aquesta activitat) i un **Nom** (el que veuran els docents i els informes).
 3. Opcionalment, marca'l com **És un pati** (es descarta completament del resum d'hores setmanals, igual que el pati) o **Sempre és un compromís d'horari fix** (sempre es compta a la columna "Altres hores en horari fix", com una guàrdia).
    Si és una guàrdia, marca **És una guàrdia** (apareix al quadrant de guàrdies) i, si qui la fa pot anar a cobrir classes i altres guàrdies, també **Guàrdia ordinària**. Deixa-la desmarcada en una guàrdia que és un lloc fix, com la de WC o la de pati: qui la fa no s'envia a cobrir res, i quan falta, la seva guàrdia és la que s'ha de cobrir.
+   Marca **Suma les seves franges** per a franges curtes que no han de comptar una hora sencera cadascuna, com la guàrdia de pati: les franges de la setmana se sumen i després s'arrodoneix a hores senceres (tres guàrdies de pati de 25 minuts compten 2 hores, no 3).
    Tria'n el **Codi a la declaració horària**: la fila del quadre resum de la [declaració horària oficial](#imprimir-la-declaració-horària-oficial) on se sumen les seves hores (deixa-ho buit per a una cosa que no es declara, com el pati).
 4. Desa. El nou tipus queda disponible immediatament al desplegable "no lectiva" en editar un horari, i es reconeix la propera vegada que importis un fitxer del planificador que faci servir el seu codi.
 

@@ -28,6 +28,8 @@ NON_TEACHING_DECLARATION_SEED = {
     'AA': 'other', 'ATAL': 'other', 'S': 'other', 'SC': 'other',
     'BR': False, 'R': False,
 }
+# The break guard duty's periods (20-25 minutes) are added up before rounding (developer, 2026-10-29).
+NON_TEACHING_ADDED_UP_SEED = {'GB'}
 
 
 class EmsNonTeachingType(models.Model):
@@ -48,6 +50,11 @@ class EmsNonTeachingType(models.Model):
         help="A teacher on this guard duty can be sent to cover a class, or a guard duty that is not regular "
              "(WC, break...), left without its teacher. A guard duty that is not regular has to be covered "
              "itself when its teacher is away.")
+    adds_up_periods = fields.Boolean(
+        string="Add up its periods",
+        help="Its periods of the week are added up before rounding up to whole hours in the hours summaries, "
+             "instead of each one counting at least one hour (e.g. break guard duties: three of 25 minutes "
+             "count 2 hours).")
     declaration_code = fields.Selection(
         selection=DECLARATION_CODES + [('tutoring', 'Tutoring (T-ESO, T-BAT, T-FP or PFI)')],
         string="Schedule declaration code", default='other',
@@ -57,7 +64,11 @@ class EmsNonTeachingType(models.Model):
 
     @api.model
     def _ems_seed_declaration_codes(self):
-        """Issue #723: the official code of the centre's non-teaching types, by their code."""
+        """Issue #723: the official code of the centre's non-teaching types, and which add up their
+        periods, by their code."""
         for non_teaching in self.with_context(active_test=False).search(
                 [('code', 'in', list(NON_TEACHING_DECLARATION_SEED))]):
-            non_teaching.declaration_code = NON_TEACHING_DECLARATION_SEED[non_teaching.code]
+            non_teaching.write({
+                'declaration_code': NON_TEACHING_DECLARATION_SEED[non_teaching.code],
+                'adds_up_periods': non_teaching.code in NON_TEACHING_ADDED_UP_SEED,
+            })

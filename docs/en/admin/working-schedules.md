@@ -71,6 +71,7 @@ The list of non-teaching reasons (Break, Guard, Coordination Meeting...) shown w
 2. Click **New**, set a short **Code** (must match exactly what the external planner uses for that activity) and a **Name** (what teachers and reports will show).
 3. Optionally mark it **Is a break** (dropped from the weekly hours summary entirely, like the patio break) or **Always a fixed-schedule commitment** (always counted in the "Other fixed-schedule hours" column, like a guard duty).
    If it is a guard duty, tick **Is guard duty** (it shows on the guard duty schedule) and, if whoever does it can be sent to cover classes and other guard duties, **Regular guard** too. Leave it unticked for a guard duty that is a fixed post, like the WC or break guard: whoever does it is never sent to cover anything, and when they are away, their guard duty is what needs covering.
+   Tick **Add up its periods** for short periods that shouldn't count a whole hour each, like the break guard duty: the week's periods are added up and then rounded up to whole hours (three break guards of 25 minutes count 2 hours, not 3).
    Choose its **Schedule declaration code**: the row of the [official schedule declaration](#print-the-official-schedule-declaration)'s summary table its hours go to (leave it empty for something not declared, like the break).
 4. Save. The new type is immediately available in the "non-teaching" dropdown when editing a schedule, and recognised the next time you import a planner file that uses its code.
 

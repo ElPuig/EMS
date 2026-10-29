@@ -15,6 +15,7 @@
                             <field name="is_fixed"/>
                             <field name="is_guard"/>
                             <field name="is_regular_guard" invisible="not is_guard"/>
+                            <field name="adds_up_periods"/>
                             <field name="declaration_code"/>
                         </group>
                     </sheet>

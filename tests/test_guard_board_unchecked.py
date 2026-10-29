@@ -257,3 +257,14 @@ class TestGuardBoardUnchecked(GuardDutyBoardCase):
         self.assertFalse(self._data_row(8, 9, self.guard_user)['can_mark_present'])
         self.assertTrue(self._data_row(10, 11, self.department_chief)['can_mark_present'])
         self.assertFalse(self._data_row(10, 11, self.other_teacher)['can_mark_present'])
+
+    def test_a_teacher_who_has_not_checked_in_cannot_be_supported(self):
+        """Issue #725: a class whose teacher has not checked in is left to cover, not to support -
+        only teacher_b, who has, is offered for the guard on duty at 10-11."""
+        self.teacher_b.parent_id = self.teacher_a.parent_id
+        options = self.Cover.with_user(self.department_chief).get_support_options(
+            str(self.today), 10, 11, self.teacher_guard.id)['options']
+        self.assertEqual([option['teacher_id'] for option in options], [self.teacher_b.id])
+        with self.assertRaises(UserError):
+            self.Cover.with_user(self.department_chief).board_support(
+                str(self.today), 10, 11, self.teacher_guard.id, self.teacher_a.id, self.group_a.id)

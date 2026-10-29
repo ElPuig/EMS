@@ -1,6 +1,6 @@
 # Ex officio withdrawal circuit (baixa d'ofici) - requirements
 
-**Status: phase 1 (requirements), in progress - 2026-10-29.** Issue #726. Not implemented yet.
+**Status: phase 1 (requirements) closed; phase 2 (fit with EMS) drafted - 2026-10-29.** Issue #726. Not implemented yet.
 Source of truth: the centre's *Pla de comunicació*, revision 7 (29/10/2026), table "Baixes
 d'alumnat", plus the decisions agreed with the developer recorded below. Phases: 1 requirements,
 2 fit with EMS, 3 slides for the management team (with screenshots), 4 implementation.
@@ -146,3 +146,86 @@ student authorised sharing with it), the family when a minor.
 - Postponing a pending task so the daily digest stops listing it for a while: to be decided as
   a general mechanism for every task in the digest, not only this circuit.
 - Contents of every email template (phase 2).
+
+# Phase 2 - fit with EMS
+
+## What is reused
+
+| Need | EMS piece | Notes |
+|---|---|---|
+| Absences per day | `ems.attendance_session_line` (`student_id`, `date`, `status_id`, stored `level_id`) | A day of absence = the student has lines that day and every one is `ems.attendance_status_miss`. A severe delay (`delayed_severe`, category absence) means the student did come to the centre: it breaks the run. `justified` never counts. |
+| Justifying from a dismissal | `ems.attendance_justification_wizard` | Opened pre-filled (student, first and last day of the run). Creating the justification re-marks the lines as justified, which is what removes the days from the run. Only the student's tutor (or an admin) can justify: the same person who decides on the proposal. |
+| Tasks and reminders | `mail.activity` + `ems.base` task pattern of `ems.convalidation` (`_ems_schedule_task`, `_ems_close_tasks`, `mail_activity_quick_update`) + daily digest | One activity type per kind of task (proposal to decide, step due, attendance to verify). No email per task. |
+| Who gets the family emails | `res.partner._ems_notification_recipients()` | Adult: the student; minor: the family. Extended for this circuit with the family of an adult who authorised sharing (`auth_share`), as agreed. |
+| Who acts | `tutor_scope_user_ids` (tutor and the chain above), `ems.group_coexistence` (COCOBE), `ems.group_director`, `ems.group_head_of_studies`, `ems.group_secretary` | The administrator is always on top (CLAUDE.md rule). |
+| Approve, then execute | Convalidation circuit (Director resolves, Secretariat registers) | Same split: Direction approves, the Secretariat runs the withdrawal. |
+| The withdrawal itself | `ems.withdrawal_wizard` / `res.partner._ems_register_exit()` | Gets the case file's student and date pre-filled. New exit kind **ex officio** (`exit_type` gains `ex_officio_withdrawal`, or a separate flag; see decisions). Everything else (history frozen, portal revoked, archive) unchanged. |
+| Circuit per level | `ems.level` | New selection `withdrawal_circuit`: `compulsory` / `post_compulsory` / empty. Seeded in `data/cat/ems.level.csv`: CFGB and ESO compulsory, CFGM, CFGS, EFPS, PFI and BTX post-compulsory. ESO and BTX produce nothing until they take roll call in EMS. |
+| Email templates | `mails/` folder pattern (one record per language) | Catalan wording first; Spanish and English for the multilingual pattern. |
+
+## What is new
+
+- **`ems.ex_officio_withdrawal`** (the case file): student, study and level (circuit), tutor, first day
+  of absence (D0), origin (`detected` / `manual`), state, current step, history in the chatter,
+  attachments. States: `proposal` (waiting for the tutor), `in_progress`, `direction` (waiting for
+  approval), `secretariat` (approved, waiting for execution), `done`, `cancelled` (with the reason:
+  student came back, justified, voluntary withdrawal, dismissed by the tutor).
+- **`ems.ex_officio_withdrawal.step`** (one line per step of the case file): what the plan's row
+  asks, due date (D0 + offset), responsible, checklist of off-EMS actions, notes, evidence files,
+  done by / on, email sent.
+- **Steps catalog**: what each circuit's steps are. Either in code or as data (see decisions).
+- **Daily detection cron**: one grouped read of the roll-call lines of the last ~2 months for the
+  levels with a circuit (one query, indexed by student and date, per the efficiency rule), the
+  current run per student, and a proposal for each student whose run reached 1 week without an
+  open case file. Runs at night, after the day's roll calls.
+- **Attendance hook**: when a line of a student with an open case file becomes an attendance, an
+  activity for the tutor ("verify this attendance"), with the correction offer. Hooked where
+  `ems.attendance_session_line` already reacts to status changes (`_update_notification`).
+- **Correction wizard for the tutor**: lists the lines of the period, lets them flip attendance <->
+  absence after talking to the teachers. Writes under `sudo()` after checking the user acts as the
+  student's tutor (`ems.base.user_acts_as_tutor`), since the lines belong to other teachers'
+  sessions. Every change is logged in the case file and in the line's chatter.
+- **Menu**: *Academic management > Ex officio withdrawals* (next to convalidations), plus a smart
+  button on the student's form. Tutors reach their own case files through the activity and the
+  student form.
+
+## Decisions to take (phase 2)
+
+1. **Steps catalog in code or as data.** As data (`data/main/`, editable by the administrator:
+   order, offset in days, responsible group, checklist items, email template) the circuit follows a
+   future revision of the plan without a release; today's revision 7 already changed responsibles.
+   Recommendation: data.
+2. **Exit kind**: a new `exit_type` value *ex officio withdrawal* (simplest for reports) vs keeping
+   `withdrawal` with a "voluntary / ex officio" flag (keeps every existing "withdrawal" filter
+   working). Recommendation: the flag, since many screens and the year record filter on
+   `exit_type == 'withdrawal'`.
+3. **What the Inspection email carries**: a PDF of the case file (steps, dates, who) attached.
+4. **Who can see the list**: tutor (own students), COCOBE, management team, Secretariat; teachers
+   not.
+
+## Email drafts (Catalan, to agree)
+
+Placeholders in brackets. Not yet checked with LanguageTool (no key in this environment).
+
+- **Tutor, 1 week (post-compulsory), after a phone call:** *Assumpte: Faltes d'assistència de [alumne].*
+  Benvolguda família / Benvolgut [alumne]: tal com hem parlat per telèfon, us confirmem que [alumne]
+  no assisteix a classe des del [D0]. Si no té intenció de continuar els estudis, us demanem que
+  feu la baixa voluntària a la secretaria del centre.
+- **Same, unreachable:** ... us escrivim perquè no us hem pogut localitzar per telèfon. [alumne] no
+  assisteix a classe des del [D0]. Poseu-vos en contacte amb el tutor o la tutora tan aviat com
+  pugueu.
+- **Secretariat, 15 days (post-compulsory):** [alumne] no assisteix al centre des del [D0]. Si no
+  s'hi torna a incorporar, el centre en tramitarà la baixa d'ofici. Si no voleu continuar els
+  estudis, us demanem que en feu la baixa voluntària a la secretaria.
+- **Secretariat, 1 month (compulsory):** [alumne] no assisteix al centre des del [D0]. Us
+  recordem que l'escolarització és obligatòria i us demanem que us poseu en contacte amb el centre.
+- **Secretariat, 1.5 months (compulsory, besides eNotum):** si [alumne] no s'incorpora al centre,
+  d'aquí a quinze dies se'n tramitarà la baixa d'ofici.
+- **Social Services, 1 month (compulsory):** comunicació de la no assistència de [alumne], [grup],
+  des del [D0], i de les actuacions fetes pel centre.
+- **Inspection, 2 months (compulsory):** comunicació del procediment seguit amb [alumne] i que es
+  procedeix a la baixa d'ofici, amb el PDF de l'expedient adjunt.
+- **Secretariat, withdrawal done:** us comuniquem que s'ha tramitat la baixa d'ofici de [alumne] amb
+  data [data].
+
+Open: the Social Services and Inspection addresses (fixed addresses in the settings?).

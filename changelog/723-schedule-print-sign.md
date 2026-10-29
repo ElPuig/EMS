@@ -15,3 +15,7 @@
 ## Class blocks named the same way however they were saved:
 
 - The import named a class block "MP 0485: Programació (DAM1A)" and the Schedule tab "MP 0485: Programació: DAM1A", so the PDFs mixed both. Both now write the first one (one shared function, subject_block_name, with its JS twin), a migration rewrote the saved blocks (archived ones included), and the PDFs compose the label from the block's subject, groups and topic instead of the stored name. Also fixes a topic printed twice for a block edited from the Schedule tab.
+
+## Weekly hours summary counted some one-hour periods as two:
+
+- A period whose stored start and end don't add up to an exact whole hour in floating point (e.g. 15:40-16:40 is 1.0000000000000018 h) was rounded up to 2 hours, in the Schedule tab's hours summary and in the schedule declaration. The rounding now allows the same half-minute tolerance EMS already uses for schedule comparisons.

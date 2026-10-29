@@ -12,6 +12,7 @@ import math
 import re
 
 from .non_teaching_type import TUTORING_CODE_BY_LEVEL_CODE, TUTORING_DEFAULT_CODE
+from ..shared.schedule_report_mixin import HOUR_EPSILON
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC, EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
 
@@ -289,7 +290,9 @@ class ems_working_schedule(models.Model):
 				is_fixed = non_teaching.is_fixed or (non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
 			else:
 				continue
-			yield attendance, math.ceil(attendance.hour_to - attendance.hour_from), is_fixed
+			# HOUR_EPSILON: a period stored as 15.666...-16.666... is 1.0000000000000018 h, which a
+			# bare ceil() counted as 2 (found on issue #723).
+			yield attendance, math.ceil(attendance.hour_to - attendance.hour_from - HOUR_EPSILON), is_fixed
 
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly

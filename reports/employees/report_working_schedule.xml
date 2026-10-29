@@ -111,7 +111,7 @@
                                 <td>
                                     <t t-if="cell['entry']">
                                         <span class="ws-cell-content" t-att-style="'background-color:' + cell['color']">
-                                            <span class="ws-cell-label" t-esc="cell['entry'].get_report_label()"/>
+                                            <span class="ws-cell-label"><span class="ws-cell-label-text" t-esc="cell['entry'].get_report_label()"/></span>
                                             <span t-if="cell['entry'].space_id and not hide_rooms" class="ws-cell-room" t-esc="cell['entry'].space_id.display_name"/>
                                         </span>
                                     </t>

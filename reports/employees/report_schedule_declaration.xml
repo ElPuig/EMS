@@ -61,7 +61,11 @@
                         .sd-page .ws-table { font-size: 10px; margin-bottom: 0; }
                         .sd-page .ws-table { border-collapse: collapse; }
                         .sd-page .ws-table th, .sd-page .ws-table td { padding: 1px 3px !important; border: 1px solid #000; }
-                        .sd-page .ws-cell-content { padding: 1px 2px; }
+                        .sd-page .ws-table th { background: #dedede; text-align: center !important; font-weight: bold; }
+                        /* Every block two lines high, so the grid is even: a longer label is cut. */
+                        .sd-page .ws-cell-content { display: table; width: 100%; height: 26px; padding: 1px 2px; }
+                        .sd-page .ws-cell-label { display: table-cell; vertical-align: middle; }
+                        .sd-page .ws-cell-label-text { display: block; font-size: 9px; line-height: 12px; max-height: 24px; overflow: hidden; }
                         .sd-header { width: 100%; margin-bottom: 8px; }
                         .sd-header td { vertical-align: top; }
                         .sd-header, .sd-header *, .sd-signatures, .sd-signatures * { border: none !important; }
@@ -69,7 +73,7 @@
                         .sd-entity b { font-size: 14px; }
                         .sd-annual { text-align: right; font-size: 11px; }
                         .sd-box { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
-                        .sd-box td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; }
+                        .sd-box td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; empty-cells: show; }
                         .sd-box td.sd-label { background: #dedede; }
                         .sd-box td.sd-none { border: none; }
                         .sd-title { font-size: 13px; font-weight: bold; margin: 4px 0 3px 0; }
@@ -93,11 +97,11 @@
                     <table class="sd-box">
                         <colgroup><col style="width: 10%;"/><col style="width: 25%;"/><col style="width: 10%;"/><col style="width: 55%;"/></colgroup>
                         <tr>
-                            <td class="sd-label">Codi</td><td t-esc="company.center_code"/>
-                            <td class="sd-label">Centre</td><td t-esc="company.name"/>
+                            <td class="sd-label">Codi</td><td><t t-esc="company.center_code"/></td>
+                            <td class="sd-label">Centre</td><td><t t-esc="company.name"/></td>
                         </tr>
                         <tr>
-                            <td class="sd-label">Municipi</td><td colspan="3" t-esc="company.partner_id.city"/>
+                            <td class="sd-label">Municipi</td><td colspan="3"><t t-esc="company.partner_id.city"/></td>
                         </tr>
                     </table>
 
@@ -106,12 +110,12 @@
                     <table class="sd-box">
                         <colgroup><col style="width: 15%;"/><col style="width: 10%;"/><col style="width: 43%;"/><col style="width: 10%;"/><col style="width: 22%;"/></colgroup>
                         <tr>
-                            <td class="sd-label">Cognoms i nom</td><td colspan="2" t-esc="employee.name"/>
-                            <td class="sd-label">NIF</td><td t-esc="employee.scoped_identification_id"/>
+                            <td class="sd-label">Cognoms i nom</td><td colspan="2"><t t-esc="employee.name"/></td>
+                            <td class="sd-label">NIF</td><td><t t-esc="employee.scoped_identification_id"/></td>
                         </tr>
                         <tr>
                             <td class="sd-label" colspan="2">Càrrec que desenvolupa</td>
-                            <td colspan="3" t-esc="', '.join(employee.get_report_role_lines())"/>
+                            <td colspan="3"><t t-esc="', '.join(employee.get_report_role_lines())"/></td>
                         </tr>
                     </table>
 

@@ -105,7 +105,7 @@
                 </thead>
                 <tbody>
                     <t t-foreach="employee.resource_calendar_id.get_schedule_report_lines()" t-as="line">
-                        <tr>
+                        <tr t-att-class="'ws-break-row' if line['is_break'] else None">
                             <td class="ws-time" t-esc="line['time_label']"/>
                             <t t-foreach="line['cells']" t-as="cell">
                                 <td>

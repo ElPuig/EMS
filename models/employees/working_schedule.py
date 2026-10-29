@@ -31,6 +31,16 @@ def _m2m_command_ids(commands):
 			ids.extend(command[2])
 	return ids
 
+def subject_block_name(subject, groups, topic=False):
+	"""The stored 'name' of a class block: 'MP 0485: Programació (DAM1A)', plus ' - <topic>' when it
+	has one (developer, 2026-10-29). The one format written by the import, the Schedule tab (its JS
+	twin in schedule_grid_field.js) and migrations/18.0.0.43.0, and the label the PDFs print."""
+	name = subject.display_name
+	if groups:
+		name = "%s (%s)" % (name, ", ".join(groups.mapped('name')))
+	return "%s - %s" % (name, topic) if topic else name
+
+
 class ems_working_schedule(models.Model):
 	# NOTE: 'ems.schedule_report_mixin' is only mixed in alongside 'resource.calendar' — a 2-item
 	# '_inherit' list without an explicit '_name' would make Odoo's metaclass define a brand-new model
@@ -218,9 +228,12 @@ class ems_working_schedule(models.Model):
 					'entry': entry,
 					'color': color_by_key.get(self._report_color_key(entry)) if entry else False,
 				})
+			entries = [cell['entry'] for cell in cells if cell['entry']]
 			lines.append({
 				'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
 				'cells': cells,
+				# Only breaks in this period (issue #723: one line high on the schedule declaration).
+				'is_break': bool(entries) and all(entry.non_teaching.is_break for entry in entries),
 			})
 		return lines
 
@@ -564,12 +577,12 @@ class ems_working_schedule_assignation(models.Model):
 		see 'non_teaching_items' in this file and 'catalog.nonTeaching' in schedule_grid_field.js), so a
 		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish.
 		'non_teaching.name' is translatable, so it resolves to the report's current language for free.
-		'topic' (issue #428) is appended as-is when set - it's free text typed directly by the
-		teacher, not a translatable label, so there's nothing to resolve there."""
+		A class is composed from its subject, groups and topic (subject_block_name), not read from
+		'name', so every block reads the same whichever way it was saved (issue #723)."""
 		self.ensure_one()
 		if self.non_teaching:
 			return self.non_teaching.name
-		return "%s - %s" % (self.name, self.topic) if self.topic else self.name
+		return subject_block_name(self.subject_id, self.group_ids, self.topic)
 
 	def get_subject_display_label(self):
 		"""Translatable 'subject [- topic]' label (issue #428) for the group/student schedule PDF
@@ -2120,7 +2133,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			set(existing_ids) | {name_to_group[name].id for name in pending_names}
 		))
 		entry['group_ids'] = [(6, 0, groups.ids)] if is_command_form else groups.ids
-		entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
+		if entry.get('subject_id'):
+			entry['name'] = subject_block_name(self.env['ems.subject'].browse(entry['subject_id']), groups, entry.get('topic'))
+		else:
+			entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
 
 	def _finalize_subject_correction(self, entry, corrections):
 		"""Substitutes 'entry's own 'group_ids'/'subject_id' with whatever was actually picked on
@@ -2152,9 +2168,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			return
 		entry['subject_id'] = corrected_subject.id
 		entry['group_ids'] = [(6, 0, corrected_groups.ids)] if is_command_form else corrected_groups.ids
-		entry['name'] = "%s: %s (%s)" % (
-			corrected_subject.acronym, corrected_subject.name, ", ".join(corrected_groups.mapped('name'))
-		)
+		entry['name'] = subject_block_name(corrected_subject, corrected_groups, entry.get('topic'))
 
 	def _parse_schedule_entries(self, xml_node):
 		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
@@ -2263,6 +2277,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						# '(group names)' suffix below is skipped while any name is still pending -
 						# rebuilt from the FULL final group set once resolution completes.
 						new_entry["pending_group_names"] = pending_names
+					elif new_entry.get("subject_id"):
+						new_entry["name"] = subject_block_name(subject, groups, topic)
 					else:
 						new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
 				dwe.append(new_entry)

@@ -1059,7 +1059,8 @@ class TestWorkingSchedule(TransactionCase):
         }])
         attendance = schedule.attendance_ids
 
-        self.assertEqual(attendance.get_report_label(), 'TWSL: TWSL - Castellà')
+        # Composed from the block's subject, groups and topic, not its stored name (issue #723).
+        self.assertEqual(attendance.get_report_label(), f"{self.subject.display_name} ({self.group.name}) - Castellà")
 
     def test_get_report_label_unaffected_without_topic(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Report Label No Topic (Working Schedule)'})
@@ -1068,7 +1069,7 @@ class TestWorkingSchedule(TransactionCase):
             'subject_id': self.subject.id, 'group_ids': [self.group.id], 'name': 'TWSL: TWSL',
         }])
 
-        self.assertEqual(schedule.attendance_ids.get_report_label(), 'TWSL: TWSL')
+        self.assertEqual(schedule.attendance_ids.get_report_label(), f"{self.subject.display_name} ({self.group.name})")
 
     def test_get_subject_display_label_appends_topic_when_set(self):
         schedule = self.env['resource.calendar'].create({'name': 'Test Subject Display Label (Working Schedule)'})

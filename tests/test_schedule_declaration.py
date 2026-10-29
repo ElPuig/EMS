@@ -152,6 +152,20 @@ class TestScheduleDeclaration(TransactionCase):
         printable = self.env['ir.actions.actions'].with_user(user).get_bindings('hr.employee').get('report', [])
         self.assertNotIn(self.env.ref('ems.action_report_schedule_declaration').id, [report['id'] for report in printable])
 
+    def test_break_periods_are_flagged_for_the_grid(self):
+        self._apply(self.group, 'ems.non_teaching_br')
+
+        lines = self.calendar.get_schedule_report_lines()
+
+        self.assertEqual([line['is_break'] for line in lines], [False, True])
+
+    def test_class_label_is_composed_in_one_format(self):
+        self._apply(self.group)
+        block = self.calendar.attendance_ids.filtered('subject_id')
+        block.name = 'TSDE: an old free-form name'
+
+        self.assertEqual(block.get_report_label(), f"{self.subject.display_name} ({self.group.name})")
+
     def test_grid_has_no_rooms(self):
         space = self.env['ems.space'].create({
             'code': 'TSDE-ROOM', 'name': 'Test Room (Schedule Declaration)',

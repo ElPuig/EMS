@@ -11,7 +11,7 @@
             <field name="format">A4</field>
             <field name="orientation">Portrait</field>
             <field name="margin_top">8</field>
-            <field name="margin_bottom">8</field>
+            <field name="margin_bottom">16</field>
             <field name="margin_left">8</field>
             <field name="margin_right">8</field>
             <field name="header_line" eval="False"/>
@@ -66,6 +66,8 @@
                         .sd-page .ws-cell-content { display: table; width: 100%; height: 26px; padding: 1px 2px; }
                         .sd-page .ws-cell-label { display: table-cell; vertical-align: middle; }
                         .sd-page .ws-cell-label-text { display: block; font-size: 9px; line-height: 12px; max-height: 24px; overflow: hidden; }
+                        .sd-page .ws-table td { vertical-align: middle !important; }
+                        .sd-page .ws-break-row .ws-cell-content { height: 14px; }
                         .sd-header { width: 100%; margin-bottom: 8px; }
                         .sd-header td { vertical-align: top; }
                         .sd-header, .sd-header *, .sd-signatures, .sd-signatures * { border: none !important; }
@@ -83,8 +85,8 @@
                         .sd-summary td.sd-code, .sd-summary td.sd-hours { text-align: center; }
                         .sd-summary td.sd-na { background: #c4c4c4; }
                         .sd-signatures { width: 100%; margin-top: 10px; }
-                        .sd-signatures td { width: 50%; vertical-align: top; padding-right: 20px; height: 70px; }
-                        .sd-footer { margin-top: 4px; font-size: 9px; }
+                        .sd-signatures td { width: 50%; vertical-align: top; padding-right: 20px; height: 95px; }
+                        
                     </style>
 
                     <table class="sd-header">
@@ -196,7 +198,11 @@
                         </tr>
                     </table>
 
-                    <p class="sd-footer">Aquestes declaracions horàries restaran arxivades al centre a disposició de la Inspecció d’Educació, preferentment compartides per mitjans telemàtics, amb les possibles modificacions que calgui fer al llarg del curs.</p>
+                </div>
+                <!-- Printed by wkhtmltopdf in the page's bottom margin (ir.actions.report moves every
+                     div.footer there), leaving the room above it for the signatures. -->
+                <div class="footer" style="font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #000;">
+                    Aquestes declaracions horàries restaran arxivades al centre a disposició de la Inspecció d’Educació, preferentment compartides per mitjans telemàtics, amb les possibles modificacions que calgui fer al llarg del curs.
                 </div>
             </t>
         </template>

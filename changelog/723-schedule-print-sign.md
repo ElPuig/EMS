@@ -23,3 +23,7 @@
 ## Break guard duties added up before rounding:
 
 - In both hours summaries (Schedule tab and schedule declaration) each period counted at least a whole hour, so a teacher with the 25-minute and 15-minute break guards on the same day got 2 hours. Non-teaching types now have "Add up its periods" (seeded on the break guard duty): their periods of the week are added up and then rounded up, so 1 to 3 short break guards count 1 hour and 3 of 25 minutes or 4 of 20 count 2 (developer, 2026-10-29).
+
+## Same period shown as two rows in the teacher's schedule PDFs:
+
+- Two blocks of the same period could store hours differing in the last decimal (e.g. a break guard saved from the Schedule tab and the break derived from the level's framework, both 10:00-10:25), and the grid of the Working Schedule PDF and the schedule declaration showed them as two rows with the same time. The grid now groups periods by minute (and looks cells up from an index instead of filtering per cell).

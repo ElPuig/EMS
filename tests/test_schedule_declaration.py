@@ -175,6 +175,20 @@ class TestScheduleDeclaration(TransactionCase):
 
         self.assertEqual([line['is_break'] for line in lines], [False, True])
 
+    def test_same_period_with_float_noise_is_one_grid_row(self):
+        # 10:00-10:25 stored as ...666 on one day and ...668 on another (issue #723).
+        self.calendar.apply_schedule_changes([
+            {'dayofweek': '0', 'hour_from': 10, 'hour_to': 10.416666666666666, 'day_period': 'morning',
+             'non_teaching': self.env.ref('ems.non_teaching_gb').id, 'name': 'GB'},
+            {'dayofweek': '1', 'hour_from': 10, 'hour_to': 10.416666666666668, 'day_period': 'morning',
+             'non_teaching': self.env.ref('ems.non_teaching_br').id, 'name': 'BR'},
+        ])
+
+        lines = self.calendar.get_schedule_report_lines()
+
+        self.assertEqual([line['time_label'] for line in lines], ['10:00-10:25'])
+        self.assertTrue(lines[0]['cells'][0]['entry'] and lines[0]['cells'][1]['entry'])
+
     def test_class_label_is_composed_in_one_format(self):
         self._apply(self.group)
         block = self.calendar.attendance_ids.filtered('subject_id')

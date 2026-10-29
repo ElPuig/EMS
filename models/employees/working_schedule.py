@@ -192,6 +192,14 @@ class ems_working_schedule(models.Model):
 		employees = self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
 		return employees if len(employees) == 1 else self.env['hr.employee']
 
+	@staticmethod
+	def _report_slot_key(attendance):
+		"""(weekday, start, end) in whole minutes: two blocks of the same period can store hours that
+		differ in the last decimal (10.416666666666666 and ...668 for 10:25, e.g. a break derived from
+		the framework and a guard saved from the Schedule tab), which must share one row of the
+		grid (issue #723)."""
+		return attendance.dayofweek, round(attendance.hour_from * 60), round(attendance.hour_to * 60)
+
 	def get_schedule_report_lines(self):
 		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the
 		working schedule PDF report. Unassigned slots are never stored (see apply_schedule_changes),
@@ -205,33 +213,33 @@ class ems_working_schedule(models.Model):
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		employee = self.get_employee()
 		if employee:
-			occupied = {(attendance.dayofweek, attendance.hour_from, attendance.hour_to) for attendance in weekday_entries}
+			occupied = {self._report_slot_key(attendance) for attendance in weekday_entries}
 			derived_breaks = employee._get_derived_break_entries().filtered(
-				lambda attendance: (attendance.dayofweek, attendance.hour_from, attendance.hour_to) not in occupied)
+				lambda attendance: self._report_slot_key(attendance) not in occupied)
 			weekday_entries = weekday_entries | derived_breaks
-		periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in weekday_entries})
 
 		color_by_key = {}
+		entries_by_slot = {}
 		for attendance in weekday_entries.sorted(key=lambda attendance: (attendance.dayofweek, attendance.hour_from)):
 			key = self._report_color_key(attendance)
 			if key not in color_by_key:
 				color_by_key[key] = self.REPORT_COLOR_PALETTE[len(color_by_key) % len(self.REPORT_COLOR_PALETTE)]
+			slot = self._report_slot_key(attendance)
+			entries_by_slot[slot] = entries_by_slot.get(slot, attendance.browse()) | attendance
+		periods = sorted({(minute_from, minute_to) for _dayofweek, minute_from, minute_to in entries_by_slot})
 
 		lines = []
-		for hour_from, hour_to in periods:
+		for minute_from, minute_to in periods:
 			cells = []
 			for dayofweek in ('0', '1', '2', '3', '4'):
-				entry = weekday_entries.filtered(
-					lambda attendance, dayofweek=dayofweek, hour_from=hour_from, hour_to=hour_to:
-						attendance.dayofweek == dayofweek and attendance.hour_from == hour_from and attendance.hour_to == hour_to
-				)
+				entry = entries_by_slot.get((dayofweek, minute_from, minute_to), weekday_entries.browse())
 				cells.append({
 					'entry': entry,
 					'color': color_by_key.get(self._report_color_key(entry)) if entry else False,
 				})
 			entries = [cell['entry'] for cell in cells if cell['entry']]
 			lines.append({
-				'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
+				'time_label': "%s-%s" % (self._format_report_time(minute_from / 60), self._format_report_time(minute_to / 60)),
 				'cells': cells,
 				# Only breaks in this period (issue #723: one line high on the schedule declaration).
 				'is_break': bool(entries) and all(entry.non_teaching.is_break for entry in entries),

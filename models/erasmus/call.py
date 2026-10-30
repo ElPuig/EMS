@@ -574,6 +574,32 @@ class EmsErasmusCall(models.Model):
         places = sum(self.modality_ids.mapped('places')) if self.audience == 'staff' else modality.places
         return places - len(self._ems_holding_applications(modality))
 
+    def _ems_free_place_names(self):
+        """Where a free place can be offered to a reserve: the modalities of a students' call, the
+        call itself for a staff one."""
+        self.ensure_one()
+        if self.audience == 'staff':
+            return [self.name] if self._ems_free_places() > 0 and self._ems_next_reserve() else []
+        return [modality.name for modality in self.modality_ids
+                if self._ems_free_places(modality) > 0 and self._ems_next_reserve(modality)]
+
+    def _ems_sync_free_place_tasks(self):
+        """A task for each member of the Erasmus team when a place a reserve can take is free (a
+        renunciation, an offer without an answer, a rectification); EMS never offers it on its own
+        (offer wizard). Marked done once no such place is left."""
+        activity_type = self.env.ref('ems.mail_activity_erasmus_free_place')
+        team = self._ems_erasmus_team()
+        for call in self.sudo():
+            tasks = call.activity_ids.filtered(lambda activity: activity.activity_type_id == activity_type)
+            names = call._ems_free_place_names()
+            if not names:
+                tasks.action_feedback()
+                continue
+            for user in team - tasks.user_id:
+                call.activity_schedule(
+                    activity_type_id=activity_type.id, user_id=user.id,
+                    summary=_("Erasmus+: a place is free in %s: offer it to the next reserve", ", ".join(names)))
+
     def _ems_next_reserve(self, modality=None):
         """The best-ranked reserve without a place, of `modality` (students) or the call (staff)."""
         self.ensure_one()

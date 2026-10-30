@@ -50,6 +50,12 @@
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
+                        <div class="alert alert-warning" role="alert" invisible="not places_warning">
+                            <p><strong>More people would have a place than places.</strong>
+                                A place already accepted is never withdrawn, so this rectification cannot be published
+                                as it is. Decide with the Erasmus team what to do (e.g. add a place to the modality).</p>
+                            <field name="places_warning"/>
+                        </div>
                         <div class="oe_title">
                             <h1><field name="name"/></h1>
                         </div>

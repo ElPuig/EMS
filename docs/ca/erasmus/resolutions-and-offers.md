@@ -60,10 +60,12 @@ Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple
 **Erasmus+ > Ofertes de plaça** mostra totes les ofertes i la resposta: *Pendent de resposta*, *Plaça acceptada*, *Renúncia*, *Sense resposta* o *Retirada*.
 
 - L'alumnat accepta o renuncia al portal abans del termini. Si no respon a temps, EMS hi marca la renúncia.
-- Quan queda una plaça lliure, **EMS no l'ofereix mai pel seu compte**. A la convocatòria, la pestanya **Resolucions** mostra les places lliures de cada modalitat i la **Següent reserva**. Fes clic a **Accions > Ofereix una plaça lliure**: comprova la persona proposada, posa un nou termini a **Resposta abans de** i fes clic a **Ofereix la plaça**. La persona rep un correu.
+- Quan queda una plaça lliure i hi ha reserves, tot l'equip Erasmus rep una tasca a la convocatòria (*Erasmus+: plaça lliure a ...*). Es marca com a feta quan s'ofereix la plaça. **EMS no l'ofereix mai pel seu compte**. A la convocatòria, la pestanya **Resolucions** mostra les places lliures de cada modalitat i la **Següent reserva**. Fes clic a **Accions > Ofereix una plaça lliure**: comprova la persona proposada, posa un nou termini a **Resposta abans de** i fes clic a **Ofereix la plaça**. La persona rep un correu.
 - Per retirar una oferta pendent (per exemple, feta per error), fes-hi clic a **Retira l'oferta**.
 
 Una rectificació no desfà mai una oferta ja acceptada o renunciada: a aquestes persones se'ls diu que mantenen la plaça acceptada (o que hi havien renunciat). Si algú amb una oferta encara pendent deixa d'estar seleccionat amb la rectificació, EMS retira aquesta oferta i la plaça passa a qui selecciona la rectificació.
+
+Com que una plaça acceptada no es retira mai, una rectificació pot deixar més persones amb plaça que places. Llavors EMS mostra un avís a la rectificació i no deixa publicar-la fins que l'equip Erasmus decideix què cal fer, per exemple afegir una plaça a la modalitat de la convocatòria.
 
 ## 6. Exportar els participants
 

@@ -60,10 +60,12 @@ If a claim is upheld, correct the application's data (for example the language c
 **Erasmus+ > Place offers** lists every offer and its answer: *Waiting for an answer*, *Place accepted*, *Renounced*, *No answer* or *Withdrawn*.
 
 - Students accept or renounce on the portal before the deadline. Without an answer by then, EMS marks the place as renounced.
-- When a place becomes free, **EMS never offers it on its own**. On the call, the **Resolutions** tab shows the free places of each modality and the **Next reserve**. Click **Actions > Offer a free place**: check the proposed student, set a new **Answer before** deadline and click **Offer the place**. The student receives an email.
+- When a place becomes free and there is a reserve, everyone in the Erasmus team gets a task on the call (*Erasmus+: free place in ...*). It is marked done once the place is offered. **EMS never offers it on its own**. On the call, the **Resolutions** tab shows the free places of each modality and the **Next reserve**. Click **Actions > Offer a free place**: check the proposed student, set a new **Answer before** deadline and click **Offer the place**. The student receives an email.
 - To withdraw an offer still waiting (for example, made by mistake), click **Withdraw offer** on it.
 
 A rectification never undoes an offer already accepted or renounced: those students are told they keep the place they accepted (or that they had renounced). If a student with an offer still waiting is no longer selected after the rectification, EMS withdraws that offer and the place goes to whoever the rectification selects.
+
+Because an accepted place is never withdrawn, a rectification can leave more people with a place than places. EMS then shows a warning on the rectification and does not let you publish it until the Erasmus team decides what to do, for example adding a place to the modality on the call.
 
 ## 6. Export the participants
 

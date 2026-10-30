@@ -15,3 +15,4 @@ ems.mail_activity_absence_atri_overdue,Absence not confirmed in ATRI,default,hr.
 ems.mail_activity_absence_not_requested,Detected absence not requested,default,ems.absence_pending,fa-exclamation-triangle,False
 ems.mail_activity_absence_pending_review,Review detected absence,default,ems.absence_pending,fa-search,False
 ems.mail_activity_contact_data_review,Review contact data changes,default,ems.contact.data.request,fa-address-card-o,False
+ems.mail_activity_erasmus_free_place,Offer a free Erasmus+ place,default,ems.erasmus.call,fa-user-plus,False

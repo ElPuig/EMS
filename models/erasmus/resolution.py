@@ -58,6 +58,8 @@ class EmsErasmusResolution(models.Model):
                         help="Published with the list. A rectification must explain what it corrects.")
     publish_date = fields.Datetime(string="Published on", readonly=True, copy=False)
     published_by_id = fields.Many2one(string="Published by", comodel_name='res.users', readonly=True, copy=False)
+    places_warning = fields.Text(string="Places warning", compute='_compute_places_warning',
+                                 help="A rectification that would leave more people with a place than places.")
 
     @api.depends('kind', 'call_id.name')
     @api.depends_context('lang')
@@ -66,6 +68,15 @@ class EmsErasmusResolution(models.Model):
         kinds = self._ems_kind_labels()
         for resolution in self:
             resolution.name = f"{kinds.get(resolution.kind, '')} - {resolution.call_id.name or ''}"
+
+    @api.depends('kind', 'state', 'line_ids.result')
+    def _compute_places_warning(self):
+        for resolution in self:
+            warnings = []
+            for name, holding, places in resolution._ems_places_overflow():
+                warnings.append(_("%(name)s: %(holding)s people would have a place, and there are %(places)s "
+                                  "places.", name=name, holding=holding, places=places))
+            resolution.places_warning = "\n".join(warnings)
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -125,6 +136,37 @@ class EmsErasmusResolution(models.Model):
         call = self.call_id
         if self.kind in FINAL_KINDS and not (call.acceptance_deadline and call.acceptance_deadline > call._ems_now()):
             raise UserError(_("Set a future acceptance deadline on the call before publishing who goes."))
+        if self.places_warning:
+            raise UserError(_("This rectification would leave more people with a place than places, because a place "
+                              "already accepted is never withdrawn:\n%s\nDecide with the Erasmus team what to do "
+                              "(e.g. add a place to the modality) before publishing it.", self.places_warning))
+
+    def _ems_places_overflow(self):
+        """A draft rectification never withdraws a place already accepted: [(name, holding, places)]
+        for each modality (a staff call: the whole call) where publishing it would leave more people
+        holding a place than places. Holding one: who accepted, who it selects (and has not
+        renounced), and a reserve still waiting for the answer to a free place offered to them."""
+        self.ensure_one()
+        call = self.call_id.sudo()
+        if self.kind != 'rectification' or self.state != 'draft' or not call or not self.line_ids:
+            return []
+        results = {line.application_id: line.result for line in self.line_ids}
+
+        def holds(application):
+            if application.state in ('accepted', 'renounced'):
+                return application.state == 'accepted'
+            result = results.get(application)
+            return result == 'selected' or (result == 'reserve' and any(
+                offer.state == 'pending' and offer.from_reserve for offer in application.offer_ids))
+
+        holding = call.application_ids.filtered(holds)
+        if call.audience == 'staff':
+            groups = [(call.name, holding, sum(call.modality_ids.mapped('places')))]
+        else:
+            groups = [(modality.name, holding.filtered(lambda application: application.modality_id == modality),
+                       modality.places) for modality in call.modality_ids]
+        return [(name, len(applications), places) for name, applications, places in groups
+                if len(applications) > places]
 
     def _ems_after_publish(self):
         """A list of who goes sets the results and offers the places; every applicant gets their own
@@ -132,6 +174,7 @@ class EmsErasmusResolution(models.Model):
         self.ensure_one()
         if self.kind in FINAL_KINDS:
             self._ems_apply_results()
+            self.call_id._ems_sync_free_place_tasks()
         self.env['ems.erasmus.application']._ems_mail(self.line_ids, 'ems.email_template_erasmus_resolution_published')
 
     def _ems_stored_pdf(self):

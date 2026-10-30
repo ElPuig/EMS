@@ -13,6 +13,11 @@
 - Every signer signs from a personal link, without an EMS account (the host entity too); the portal shows Sign it here to the participant. Each signature ticks its line (it can't be unticked) and, once everybody has signed, the signed PDF is added to the document for the team to mark it valid.
 - The commitment letter keeps its acceptance on the portal and the sBID documents are still signed in sBID.
 
+## Erasmus+ free places and over-full rectifications (decided by the Erasmus coordinator):
+
+- When a renunciation, an offer left unanswered or a rectification frees a place that a reserve can take, every member of the Erasmus team gets a task on the call ("free place in GM: offer it to the next reserve"), marked done once the place is offered. EMS still never offers it on its own.
+- A rectification that would leave more people with a place than places (an accepted place is never withdrawn) shows a warning and cannot be published until the team decides what to do, e.g. adds a place to the modality.
+
 # Fixes
 
 ## Erasmus+ students' call: claims, ties and rectifications found in the end-to-end test of the selection:

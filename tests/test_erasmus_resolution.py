@@ -54,6 +54,10 @@ class ErasmusResolutionCase(ErasmusScoringCase):
             resolution = self._publish(kind)
         return resolution
 
+    def _free_place_tasks(self):
+        activity_type = self.env.ref('ems.mail_activity_erasmus_free_place')
+        return self.call.activity_ids.filtered(lambda activity: activity.activity_type_id == activity_type)
+
     def _mails(self, record):
         return self.env['mail.mail'].search([('model', '=', record._name), ('res_id', 'in', record.ids)])
 
@@ -215,6 +219,15 @@ class TestErasmusResolution(ErasmusResolutionCase):
             offer.action_accept()
         self.env['ems.erasmus.offer']._cron_expire_offers()
         self.assertEqual((offer.state, first.state), ('expired', 'renounced'))
+        self.assertTrue(self._free_place_tasks(), "The place is free for the reserve.")
+
+    def test_no_free_place_task_without_a_reserve(self):
+        first, second = self._scored_call()
+        self.call.modality_ids.places = 2
+        self._publish_up_to_definitive()
+        second.offer_ids.action_accept()
+        first.offer_ids.action_renounce()
+        self.assertFalse(self._free_place_tasks(), "No reserve left to offer it to.")
 
     def test_free_place_goes_to_the_next_reserve_only_when_confirmed(self):
         first, second = self._scored_call()
@@ -226,10 +239,15 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self.assertEqual(first.offer_ids.renounce_reason, 'Personal reasons')
         self.assertEqual((modality.free_places, modality.next_reserve_id), (1, second))
         self.assertFalse(second.offer_ids, "A free place is never offered on its own.")
+        tasks = self._free_place_tasks()
+        self.assertIn(self.erasmus_user, tasks.user_id, "The Erasmus team gets a task to offer the free place.")
+        self.assertEqual(len(tasks), len(tasks.user_id), "One task each.")
+        self.assertIn(modality.name, tasks[0].summary)
         wizard = self.env['ems.erasmus.offer.wizard'].with_user(self.erasmus_user).with_context(
             active_id=self.call.id).create({'deadline': fields.Datetime.now() + timedelta(days=3)})
         self.assertEqual(wizard.application_id, second)
         wizard.action_confirm()
+        self.assertFalse(self._free_place_tasks(), "Done once the place is offered.")
         self.assertTrue(second.offer_ids.from_reserve)
         self.assertEqual(self._mails(second.offer_ids).email_to, 'erasmus.second@example.com')
         self.assertEqual(modality.free_places, 0)
@@ -257,6 +275,12 @@ class TestErasmusResolution(ErasmusResolutionCase):
         with self.assertRaises(UserError):
             rectification.action_publish()
         rectification.with_user(self.erasmus_user).notes = 'Language certificate of a claimant accepted.'
+        # The first student keeps the place they accepted, and the second is selected: 2 people, 1 place.
+        self.assertIn('2', rectification.places_warning)
+        with self.assertRaises(UserError):
+            rectification.action_publish()
+        self.call.modality_ids.places = 2
+        self.assertFalse(rectification.places_warning)
         rectification.action_publish()
         results = {line.application_id: line.result for line in rectification.line_ids}
         self.assertEqual(results, {first: 'reserve', second: 'selected'})
@@ -317,6 +341,7 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self._publish_up_to_definitive()
         first.offer_ids.action_accept()
         second.write({'language_level': 'c2', 'fewer_opportunities_check': 'yes'})
+        self.call.modality_ids.places = 2  # The first keeps the place they accepted.
         rectification = self._publish('rectification', notes='Language certificate of a claimant accepted.')
         body = self._mails(rectification.line_ids.filtered(lambda line: line.application_id == first)).body_html
         self.assertIn('You keep the place you have already accepted.', body)

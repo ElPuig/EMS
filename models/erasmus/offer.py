@@ -54,6 +54,7 @@ class EmsErasmusOffer(models.Model):
 
     def action_renounce(self, reason=False):
         self._ems_answer('renounced', 'renounced', renounce_reason=reason)
+        self.call_id._ems_sync_free_place_tasks()
 
     def action_cancel(self):
         """The Erasmus team withdraws an offer still waiting for an answer (e.g. made by mistake)."""
@@ -82,6 +83,7 @@ class EmsErasmusOffer(models.Model):
         offers.application_id._ems_set_state('renounced')
         for offer in offers:
             offer.application_id.chatter(_("No answer to the place offer by the deadline: renounced."))
+        offers.call_id._ems_sync_free_place_tasks()
 
 
 class EmsErasmusOfferWizard(models.TransientModel):
@@ -135,4 +137,5 @@ class EmsErasmusOfferWizard(models.TransientModel):
         if self.deadline <= self.call_id._ems_now():
             raise UserError(_("The deadline must be in the future."))
         self.env['ems.erasmus.offer']._ems_offer(self.application_id, self.deadline, from_reserve=True)
+        self.call_id._ems_sync_free_place_tasks()
         return {'type': 'ir.actions.act_window_close'}

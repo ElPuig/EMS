@@ -405,6 +405,11 @@ Then:
   score; a reserve keeps an offer made for a free place. Whoever already accepted or renounced gets
   the list with "you keep the place you accepted" / "you renounced earlier" instead of the result
   line, since their state does not change.
+- Since an accepted place is never withdrawn, a rectification can leave more people with a place
+  than places (who accepted, plus whom it now selects). `_ems_places_overflow()` counts them per
+  modality (a staff call: the whole pool) on the draft; `places_warning` shows it on the form and
+  `_ems_check_can_publish` refuses to publish until the team decides (e.g. adds a place to the
+  modality).
 
 **Published lists never show names.** The portal list (`/my/erasmus/call/<id>/resolution/<id>`)
 and the PDF for the centre's website (`ems.action_report_erasmus_resolution`, same template
@@ -434,6 +439,12 @@ stateDiagram-v2
   without one). The team clicks **Actions > Offer a free place** on the call; the wizard shows that
   proposal and asks for a new deadline; confirming creates the offer (`from_reserve`) and emails it
   (`email_template_erasmus_offer`).
+- **The team is told when a place is free.** A renunciation, an offer without an answer (cron) or
+  a published definitive/rectification call `ems.erasmus.call._ems_sync_free_place_tasks()`: while
+  a modality (a staff call: the pool) has a free place and a reserve to offer it to, each member
+  of the Erasmus team has a to-do on the call (`ems.mail_activity_erasmus_free_place`, one each,
+  never duplicated). It is marked done once no such place is left, e.g. when the wizard offers it.
+  No reserve left means no task.
 - The team can withdraw an offer still waiting (*Withdraw offer*, e.g. made by mistake; state `cancelled`): the place becomes free again.
 
 ### Claims

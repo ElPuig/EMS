@@ -39687,3 +39687,56 @@ msgstr "Primer respon les reclamacions obertes: %s"
 #: code:addons/ems/models/erasmus/resolution.py:0
 msgid "Place offer withdrawn: the rectification no longer selects this application."
 msgstr "Oferta de plaça retirada: la rectificació ja no selecciona aquesta sol·licitud."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid ""
+"%(name)s: %(holding)s people would have a place, and there are %(places)s "
+"places."
+msgstr ""
+"%(name)s: %(holding)s persones tindrien plaça, i hi ha %(places)s places."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_resolution_form
+msgid ""
+"<strong>More people would have a place than places.</strong>\n"
+"                                A place already accepted is never withdrawn, so this rectification cannot be published\n"
+"                                as it is. Decide with the Erasmus team what to do (e.g. add a place to the modality)."
+msgstr ""
+"<strong>Hi hauria més persones amb plaça que places.</strong>\n"
+"                                Una plaça ja acceptada no es retira mai, així que aquesta rectificació no es pot publicar\n"
+"                                tal com està. Decideix amb l'equip Erasmus què cal fer (p. ex. afegir una plaça a la modalitat)."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_erasmus_resolution__places_warning
+msgid "A rectification that would leave more people with a place than places."
+msgstr "Una rectificació que deixaria més persones amb plaça que places."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/call.py:0
+msgid "Erasmus+: a place is free in %s: offer it to the next reserve"
+msgstr "Erasmus+: plaça lliure a %s: oferir-la a la següent reserva"
+
+#. module: ems
+#: model:mail.activity.type,name:ems.mail_activity_erasmus_free_place
+msgid "Offer a free Erasmus+ place"
+msgstr "Oferir una plaça Erasmus+ lliure"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution__places_warning
+msgid "Places warning"
+msgstr "Avís de places"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid ""
+"This rectification would leave more people with a place than places, because a place already accepted is never withdrawn:\n"
+"%s\n"
+"Decide with the Erasmus team what to do (e.g. add a place to the modality) before publishing it."
+msgstr ""
+"Aquesta rectificació deixaria més persones amb plaça que places, perquè una plaça ja acceptada no es retira mai:\n"
+"%s\n"
+"Decideix amb l'equip Erasmus què cal fer (p. ex. afegir una plaça a la modalitat) abans de publicar-la."

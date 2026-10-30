@@ -60,10 +60,12 @@ Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, e
 **Erasmus+ > Ofertas de plaza** muestra todas las ofertas y su respuesta: *Pendiente de respuesta*, *Plaza aceptada*, *Renuncia*, *Sin respuesta* o *Retirada*.
 
 - El alumnado acepta o renuncia en el portal antes del plazo. Si no responde a tiempo, EMS marca la renuncia.
-- Cuando queda una plaza libre, **EMS nunca la ofrece por su cuenta**. En la convocatoria, la pestaña **Resoluciones** muestra las plazas libres de cada modalidad y la **Siguiente reserva**. Haz clic en **Acciones > Ofrecer una plaza libre**: comprueba la persona propuesta, pon un nuevo plazo en **Responder antes de** y haz clic en **Ofrecer la plaza**. La persona recibe un correo.
+- Cuando queda una plaza libre y hay reservas, todo el equipo Erasmus recibe una tarea en la convocatoria (*Erasmus+: plaza libre en ...*). Se marca como hecha cuando se ofrece la plaza. **EMS nunca la ofrece por su cuenta**. En la convocatoria, la pestaña **Resoluciones** muestra las plazas libres de cada modalidad y la **Siguiente reserva**. Haz clic en **Acciones > Ofrecer una plaza libre**: comprueba la persona propuesta, pon un nuevo plazo en **Responder antes de** y haz clic en **Ofrecer la plaza**. La persona recibe un correo.
 - Para retirar una oferta pendiente (por ejemplo, hecha por error), haz clic en **Retirar la oferta**.
 
 Una rectificación nunca deshace una oferta ya aceptada o renunciada: a esas personas se les dice que mantienen la plaza aceptada (o que habían renunciado). Si alguien con una oferta aún pendiente deja de estar seleccionado con la rectificación, EMS retira esa oferta y la plaza pasa a quien selecciona la rectificación.
+
+Como una plaza aceptada no se retira nunca, una rectificación puede dejar más personas con plaza que plazas. Entonces EMS muestra un aviso en la rectificación y no deja publicarla hasta que el equipo Erasmus decide qué hacer, por ejemplo añadir una plaza a la modalidad de la convocatoria.
 
 ## 6. Exportar los participantes
 

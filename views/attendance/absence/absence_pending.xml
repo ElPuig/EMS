@@ -33,7 +33,8 @@
                         <div name="ems_actions" string="Actions">
                             <button name="action_request_justification" type="object" string="Request justification"
                                     invisible="not can_review"/>
-                            <button name="action_correct_check_in" type="object" string="Correct check-in"
+                            <!-- Asks for the hours (issue #731); the list's bulk action corrects whole entries. -->
+                            <button name="action_open_correct_check_in" type="object" string="Correct check-in"
                                     invisible="not can_correct_check_in"/>
                             <button name="action_create_absence" type="object" string="Create absence"
                                     invisible="not can_review"/>
@@ -172,6 +173,29 @@
                     </group>
                     <footer>
                         <button name="action_confirm" type="object" string="Create absence" class="btn-primary"/>
+                        <button string="Cancel" special="cancel" class="btn-secondary"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_absence_pending_check_in_wizard_form" model="ir.ui.view">
+            <field name="name">ems.absence_pending.check_in_wizard.form</field>
+            <field name="model">ems.absence_pending.check_in_wizard</field>
+            <field name="arch" type="xml">
+                <form string="Correct check-in">
+                    <p class="text-muted">
+                        The teacher's attendance is recorded for these hours, where none covers
+                        them. Narrow them to the time the teacher was at the centre: the rest of
+                        the absence stays to review.
+                    </p>
+                    <group>
+                        <field name="absence_id" invisible="1"/>
+                        <field name="date_from"/>
+                        <field name="date_to"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Correct check-in" class="btn-primary"/>
                         <button string="Cancel" special="cancel" class="btn-secondary"/>
                     </footer>
                 </form>

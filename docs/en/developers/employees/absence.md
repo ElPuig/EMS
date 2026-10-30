@@ -702,11 +702,11 @@ stateDiagram-v2
     pending --> absence_prepared: Create absence (wizard)
     pending --> discarded: Discard (archived)
     pending --> linked: the teacher files an overlapping absence
-    pending --> discarded: the check-in shows up (check_in only)
+    pending --> discarded: an attendance covers it (check_in only)
     justification_requested --> linked: the teacher files the absence
-    justification_requested --> discarded: the check-in shows up (check_in only)
+    justification_requested --> discarded: an attendance covers it (check_in only)
     absence_prepared --> linked: the teacher checks it, accepts the declaration and sends it
-    absence_prepared --> discarded: the check-in shows up (check_in only)
+    absence_prepared --> discarded: an attendance covers it (check_in only)
     linked --> [*]
     corrected --> [*]
     discarded --> [*]
@@ -790,6 +790,13 @@ review / still going on). Nothing eligible raises a `UserError` with the same re
    finds the entry and cannot discard it. Not an accepted `ems.attendance_correction`: that model
    is the teacher's own request about an existing attendance (it needs one, and messages its
    author on every decision); `ems_checked_in_by_id` plus the note already say who recorded what.
+   **Part of the entry** (issue #731): on the form the button opens
+   `ems.absence_pending.check_in_wizard` (`action_open_correct_check_in`), From/To prefilled with
+   the whole entry and constrained within it. The whole entry is the correction above; a part
+   (`_ems_correct_check_in`) splits the entry first (`_ems_split`: it keeps what lies before the
+   corrected hours, a copy takes what lies after, both still `pending`, the copy with its own review
+   task), then creates the attendances of the corrected hours only, which no longer overlap either
+   part. The list's bulk action keeps correcting whole entries.
 3. **Create absence** (`ems.absence_pending.leave_wizard`, one required absence type for the whole
    selection, the same ones a teacher can choose): prepares the request, never files it
    (`_ems_prepare_absences`). The entry becomes `absence_prepared` with `leave_type_id`, and from
@@ -874,9 +881,22 @@ about (the summer, a school holiday) and skipped; a public holiday too.
 
 **A check-in recorded afterwards** (from the guard duty board's "The teacher is in the
 classroom", entered by the Head of Studies, a correction) goes through
-`hr.attendance._ems_review_detected_absences()`, from `create()`/`write()`: that day's `check_in`
-entry of the teacher is computed again, and becomes `discarded` when nothing is missing any more,
-or ends earlier when the check-in came earlier.
+`hr.attendance._ems_review_detected_absences()`, from `create()`/`write()` (employee, check-in or
+check-out): every unresolved `check_in` entry of the teacher **the attendance overlaps** keeps only
+what is still missed (`_ems_keep_missed_spans`). Missed (`_ems_missed_spans`): the gaps no
+attendance covers (`_ems_uncovered_spans`, an open attendance covering up to the entry's end) that
+still hold a whole period of the teacher's schedule that day (`_ems_scheduled_periods`, shared with
+the detection), the same rule as the detection's late arrival; without a schedule that day, every
+gap. Nothing left: `discarded`, with a note. One gap: the entry is narrowed to it, at either end.
+Several (an attendance in its middle): `_ems_split`, the entry keeps the first and a copy takes
+each of the others, at the same stage of the review (state, type, `justification_date`,
+reminders), followed by the same people, with a note saying where it comes from; only a `pending`
+copy gets a review task. An entry the attendance does not overlap is never touched (issue #731):
+its hours may be the ones the reviewer narrowed it to before asking the teacher, and the
+attendance of the hours before them used to discard it. Migration 18.0.0.42.1 reopens the entries
+discarded that way (`_ems_reopen_wrongly_discarded`: still active, unlike a reviewer's discard;
+back at the stage `leave_type_id`/`justification_date` show, the reminders counting from the
+migration day).
 
 ### Reminders
 

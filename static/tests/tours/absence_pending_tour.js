@@ -165,5 +165,28 @@ registry.category("web_tour.tours").add("ems_absence_pending_review", {
             trigger: "body:not(:has(.modal)) .o_list_view .o_data_row:contains('Review Teacher D') td[name='state']:contains('Absence prepared')",
             content: "Prepared for the teacher to send: still listed, not resolved yet",
         },
+        // Issue #731: present for the first hour only, the rest stays to review.
+        {
+            trigger: ".o_list_view .o_data_row:contains('Review Teacher E') td[name='date_from']",
+            content: "Open the one of the teacher who forgot to check in",
+            run: "click",
+        },
+        ...clickAction("action_open_correct_check_in", "Correct check-in"),
+        {
+            trigger: ".modal .o_field_widget[name='date_to'] input",
+            content: "Narrow it to the first hour, when the teacher was at the centre",
+            async run(helpers) {
+                await helpers.edit(this.anchor.value.replace("11:00", "10:00"));
+            },
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Correct the check-in of that hour",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='date_from'] input:value(10:00)",
+            content: "The rest, from 10:00, is still a detected absence to review",
+        },
     ],
 });

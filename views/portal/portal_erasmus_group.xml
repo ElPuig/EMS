@@ -87,6 +87,15 @@
                                   t-esc="result_labels.get(registration.result)"/>
                     <t t-if="registration.result == 'reserve'"> - number <t t-esc="registration.reserve_position"/> on the reserve list</t>
                 </div>
+                <details t-if="registration and registration.state == 'enrolled' and registration.result == 'reserve' and group_mobility.state in ('preparation', 'stay')"
+                         class="mb-2 small o_ems_erasmus_group_reserve_renounce">
+                    <summary class="text-danger">I do not want a place: leave the reserve list</summary>
+                    <form t-attf-action="/my/erasmus/group/#{group_mobility.id}/reserve/renounce" method="post" class="mt-2">
+                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                        <textarea name="reason" class="form-control form-control-sm mb-2" rows="2" placeholder="Why (optional)"/>
+                        <button type="submit" class="btn btn-outline-danger btn-sm o_ems_erasmus_group_reserve_renounce_submit">Leave the reserve list</button>
+                    </form>
+                </details>
                 <div t-elif="registration" class="mb-2 o_ems_erasmus_group_registered">
                     Your enrolment: <span class="badge text-bg-primary">Enrolled</span>
                     <span class="small text-muted">on <t t-out="registration.enrol_date" t-options="{'widget': 'datetime', 'format': 'd MMMM yyyy, HH:mm', 'tz_name': request.env['ems.datetime_utils'].company_tz_name()}"/></span>

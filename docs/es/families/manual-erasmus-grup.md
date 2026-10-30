@@ -23,6 +23,8 @@ Primero la coordinación Erasmus publica una **lista provisional**: recibirás u
 
 Después la coordinación publica la **lista definitiva** y recibirás un correo con tu resultado (seleccionado, en lista de reserva con tu número, o sin los requisitos). También lo verás en la tarjeta del portal, con el enlace a las dos listas. Solo ves tu resultado.
 
+Si estás en la lista de reserva y no quieres ninguna plaza (por ejemplo, porque has encontrado trabajo), abre **No quiero ninguna plaza: salgo de la lista de reserva** en la tarjeta, escribe el motivo si quieres y haz clic en **Salir de la lista de reserva**. Así la plaza pasa a la siguiente reserva sin esperarte.
+
 ## Si te seleccionan
 
 Haz clic en **Ver mis documentos**: encontrarás los documentos que tienes que entregar (por ejemplo la tarjeta sanitaria europea, el convenio de subvención firmado o, si eres menor de edad, la autorización oficial de viaje al extranjero), quién los firma (y si el equipo Erasmus ya ha comprobado cada firma) y los plazos, y los documentos del grupo que pone el equipo Erasmus. Sube cada archivo y haz clic en **Subir**.

@@ -301,6 +301,8 @@ class TestErasmusGroupMobilityEndToEnd(TransactionCase):
         self.assertIn('***5050**', html)
         self.assertNotIn('E2E ana', html, "The published list never names anyone.")
         self.assertNotIn('conduct', html.lower(), "Nor why someone is excluded.")
+        self.assertIn('Average', html, "A group mobility ranks by the record average, not by a score.")
+        self.assertNotIn('>Score<', html)
         mail = self._mails_to('hugo@example.com').filtered(lambda mail: provisional.name in (mail.subject or ''))
         self.assertTrue(mail, "Each student gets their provisional result.")
         self.assertIn('claim by replying', mail.body_html)

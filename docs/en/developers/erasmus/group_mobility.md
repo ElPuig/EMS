@@ -113,7 +113,7 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   reason required, tracked).
 - **Provisional and definitive lists (SEPIE: lists of admitted, excluded and waiting list).** The
   calls' resolutions (`ems.erasmus.resolution`) as they are: frozen lines, only the masked identity
-  document published (`mask_document_id`), rank, record average and result, the exclusion reason
+  document published (`mask_document_id`), rank, record average (its column reads *Average*, not the calls' *Score*) and result, the exclusion reason
   only for the student, a PDF kept for the dossier. `action_publish_provisional` (state
   `validation`, a future `claims_deadline` required) creates, prepares and publishes the
   provisional list from the proposal with its exceptions (`_ems_list_result`); each student gets
@@ -133,7 +133,9 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   their behalf with the enrolment's **Renounce** button, `action_open_renounce` and the
   `ems.erasmus.group.renounce.wizard`, which asks for the reason); their file is withdrawn but every
   document is kept. A reserve who does not want a place renounces the same way (`action_renounce`
-  accepts `reserve`): they leave the reserve list and a substitution proposed to them is withdrawn,
+  accepts `reserve`), or by themselves from their portal card
+  (`POST /my/erasmus/group/<id>/reserve/renounce`, their own enrolment only): they leave the reserve
+  list and a substitution proposed to them is withdrawn,
   so `next_reserve` moves on to the following one (rejecting the substitution alone would propose
   the same reserve again). With a
   place free, `next_reserve` shows the first reserve; the leader proposes them

@@ -37754,6 +37754,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
 msgid "Why (optional)"
 msgstr "Per què (opcional)"
 
@@ -39783,3 +39784,18 @@ msgstr "Un alumne seleccionat deixa la plaça lliure per al següent reserva; un
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_renounce_wizard_form
 msgid "e.g. The family told the leader teacher they cannot travel"
 msgstr "p. ex. La família ha dit al professor líder que no pot viatjar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.erasmus_resolution_list
+msgid "Average"
+msgstr "Mitjana"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "I do not want a place: leave the reserve list"
+msgstr "No vull cap plaça: surto de la llista de reserva"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group_card
+msgid "Leave the reserve list"
+msgstr "Surt de la llista de reserva"

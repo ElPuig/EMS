@@ -23,6 +23,8 @@ First the Erasmus coordination publishes a **provisional list**: you receive an 
 
 Then the coordination publishes the **definitive list** and you receive an email with your result (selected, on the reserve list with your number, or not meeting the requirements). You also see it on the portal's card, with the link to both lists. You only see your own result.
 
+If you are on the reserve list and do not want a place (for example, because you found a job), open **I do not want a place: leave the reserve list** on the card, write why if you want and click **Leave the reserve list**. This way the place goes to the next reserve without waiting for you.
+
 ## If you are selected
 
 Click **See my documents**: you will find the documents you have to hand in (for example the European Health Insurance Card, the signed grant agreement or, if you are a minor, the official authorisation to travel abroad), who signs them (and whether the Erasmus team has already checked each signature) and their deadlines, and the group's documents the Erasmus team adds. Upload each file and click **Upload**.

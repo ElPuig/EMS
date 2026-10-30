@@ -78,6 +78,23 @@ class EmsPortalErasmusGroupController(EmsPortalErasmusController):
             return request.redirect(f'{self._redirect}?group_error=1')
         return request.redirect(self._redirect)
 
+    @http.route('/my/erasmus/group/<int:mobility_id>/reserve/renounce', type='http', auth='user', methods=['POST'],
+                website=True)
+    def portal_erasmus_group_reserve_renounce(self, mobility_id, **post):
+        """A reserve who does not want a place leaves the reserve list (their own enrolment only), so
+        the next reserve can be proposed."""
+        mobility = self._ems_group_mobility(mobility_id)
+        registration = mobility.registration_ids.filtered(
+            lambda registration: registration.partner_id == request.env.user.partner_id
+            and registration.result == 'reserve')
+        if not registration:
+            return request.redirect(self._redirect)
+        try:
+            registration.action_renounce((post.get('reason') or '').strip()[:2000] or False)
+        except UserError:
+            return request.redirect(f'{self._redirect}?group_error=1')
+        return request.redirect(self._redirect)
+
     @http.route('/my/erasmus/group/<int:mobility_id>', type='http', auth='user', website=True)
     def portal_erasmus_group(self, mobility_id, **kwargs):
         """The selected student's file: the mobility, their documents, and renouncing the place."""

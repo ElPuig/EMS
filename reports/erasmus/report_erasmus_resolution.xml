@@ -45,7 +45,7 @@
                         <tr>
                             <th t-if="ranked">Rank</th>
                             <th>Identity document</th>
-                            <th t-if="ranked" class="text-end">Score</th>
+                            <th t-if="ranked" class="text-end"><t t-if="resolution.group_mobility_id">Average</t><t t-else="">Score</t></th>
                             <th>Result</th>
                         </tr>
                     </thead>

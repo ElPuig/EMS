@@ -957,6 +957,24 @@ class TestPortalErasmusGroup(HttpCase, ErasmusGroupMobilityCase):
         response = self.url_open(f'/my/erasmus/group/{self.mobility.id}')
         self.assertFalse(response.url.endswith(f'/my/erasmus/group/{self.mobility.id}'))
 
+    def test_a_reserve_leaves_the_reserve_list_from_the_portal(self):
+        registrations = self._approved()
+        first, second = registrations.filtered(lambda registration: registration.result == 'reserve').sorted('rank')
+        user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': first.partner_id.name, 'login': 'test_group_portal_reserve', 'password': 'test_group_portal_reserve',
+            'partner_id': first.partner_id.id, 'lang': 'en_US',
+            'groups_id': [(6, 0, [self.env.ref('base.group_portal').id])]})
+        self.authenticate(self.student_user.login, self.student_user.login)
+        self.assertNotIn('o_ems_erasmus_group_reserve_renounce', self.url_open('/my/erasmus').text,
+                         "Only a reserve sees it.")
+        self._post(f'/my/erasmus/group/{self.mobility.id}/reserve/renounce', reason='Not mine')
+        self.assertEqual(registrations[0].result, 'selected', "Never a selected student's place from here.")
+        self.authenticate(user.login, user.login)
+        self.assertIn('o_ems_erasmus_group_reserve_renounce', self.url_open('/my/erasmus').text)
+        self._post(f'/my/erasmus/group/{self.mobility.id}/reserve/renounce', reason='I found a job')
+        self.assertEqual((first.result, first.renounce_reason), ('renounced', 'I found a job'))
+        self.assertEqual(second.reserve_position, 1)
+
     def test_student_and_family_accept_the_letter_on_the_portal(self):
         family = self._family()
         family_user = self.env['res.users'].with_context(no_reset_password=True).create({

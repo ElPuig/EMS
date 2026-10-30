@@ -23,6 +23,8 @@ Primer la coordinació Erasmus publica una **llista provisional**: rebràs un co
 
 Després la coordinació publica la **llista definitiva** i rebràs un correu amb el teu resultat (seleccionat, en llista de reserva amb el teu número, o sense els requisits). També el veuràs a la targeta del portal, amb l'enllaç a totes dues llistes. Només veus el teu resultat.
 
+Si ets a la llista de reserva i no vols cap plaça (per exemple, perquè has trobat feina), obre **No vull cap plaça: surto de la llista de reserva** a la targeta, escriu-ne el motiu si vols i fes clic a **Surt de la llista de reserva**. Així la plaça passa a la reserva següent sense esperar-te.
+
 ## Si et seleccionen
 
 Fes clic a **Veure els meus documents**: hi trobaràs els documents que has de lliurar (per exemple la targeta sanitària europea, el conveni de subvenció signat o, si ets menor d'edat, l'autorització oficial de viatge a l'estranger), qui els signa (i si l'equip Erasmus ja n'ha comprovat cada signatura) i els terminis, i els documents del grup que l'equip Erasmus hi posa. Puja cada fitxer i fes clic a **Pujar**.

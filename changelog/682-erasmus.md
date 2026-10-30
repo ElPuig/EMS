@@ -40,6 +40,8 @@
 
 - The coordinator could approve the selection (definitive list) right after publishing the provisional one, with the claims deadline still open. Approving now waits for that deadline, as the calls' definitive resolution does.
 - A reserve who did not want a free place blocked every reserve after them: rejecting the substitution only made EMS propose the same reserve again. The enrolments in the Selection tab now have a Renounce button (Erasmus team and leader teacher, with the reason) for a selected student who tells them they cannot go (before, only the student could, from the portal) and for a reserve who does not want the place: the reserve leaves the list and the next one is proposed.
+- A reserve who does not want a place can also leave the reserve list by themselves from their portal card, with an optional reason (decided by the Erasmus coordinator).
+- The published lists of a group mobility head the record average column as Average (it read Score, as in the calls, although a group mobility ranks by the average).
 - Any leader or accompanying teacher of any group mobility could read the draws of every group mobility, with the students tied and whether they had fewer opportunities accredited. The draws are now readable only by the leader of their own mobility, and that flag only by the Erasmus team, as on the enrolment.
 
 # Internal changes

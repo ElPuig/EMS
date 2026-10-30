@@ -343,6 +343,10 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(absence.state, 'linked')
         self.assertEqual(absence.leave_id, leave)
         self.assertFalse(absence.can_request)
+        # Issue #735: nor a check-in correction, once the absence is requested.
+        self.assertFalse(absence.can_request_correction)
+        with self.assertRaises(UserError):
+            absence.action_request_check_in_correction()
 
     # --- Reminders ------------------------------------------------------------------------------
 
@@ -845,6 +849,9 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual((correction.requested_check_in, correction.requested_check_out), (9.0, 13.0),
                          "the entry's own hours")
         self.assertFalse(absence.can_request_correction, 'one pending at a time')
+        self.assertFalse(absence.can_request, 'they said they were at the centre: no absence meanwhile')
+        with self.assertRaises(UserError):
+            absence.action_request_absence()
         self.assertTrue(absence.message_ids.filtered(lambda message: 'Check-in correction requested' in message.body))
 
         correction.with_user(self.head_of_studies).action_accept()
@@ -901,6 +908,7 @@ class TestAbsenceDetection(TransactionCase):
         self._run_cron_on(self.today)
         self.assertTrue(reminders(), 'rejected: asked again')
         self.assertTrue(absence.with_user(self.teacher_user).can_request_correction)
+        self.assertTrue(absence.with_user(self.teacher_user).can_request, 'or request the absence')
 
     def test_teacher_requests_the_red_attendance_of_a_day_without_check_in(self):
         """The technical attendance Odoo's absence detection leaves on a day without check-in (in

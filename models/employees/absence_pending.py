@@ -147,15 +147,16 @@ class EmsAbsencePending(models.Model):
     @api.depends('state', 'employee_id', 'date_to', 'correction_ids.state')
     @api.depends_context('uid')
     def _compute_can_request(self):
-        """Only the teacher themselves requests their absence, once asked to and while nobody has.
-        Or a correction of their check-in instead, once the absence is over and while none is
-        waiting for a decision (issue #735)."""
+        """Only the teacher themselves requests their absence, once asked to and while nobody has,
+        or a correction of their check-in instead, once the absence is over (issue #735). Neither
+        while a correction they requested waits for a decision: they already said they were at
+        the centre."""
         now = fields.Datetime.now()
         for absence in self:
-            absence.can_request = absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
             absence.has_pending_correction = bool(absence._ems_pending_corrections())
-            absence.can_request_correction = (absence.can_request and absence.date_to <= now
-                                              and not absence.has_pending_correction)
+            absence.can_request = (absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
+                                   and not absence.has_pending_correction)
+            absence.can_request_correction = absence.can_request and absence.date_to <= now
 
     @api.depends('employee_id')
     @api.depends_context('uid')
@@ -475,6 +476,10 @@ class EmsAbsencePending(models.Model):
         """Opens a new absence request of the teacher's own, filled in with this one's day and
         hours. Saving it links the two (_link_to_leaves)."""
         self.ensure_one()
+        if not self.can_request:
+            # Checked on the server whatever the screen offered (issue #735).
+            raise UserError(_("Only the teacher can request this absence, once asked to justify it and while no "
+                              "check-in correction of theirs is waiting for a decision."))
         context = {f'default_{field}': value for field, value in self._ems_leave_values().items()}
         if self.state == 'absence_prepared':
             context['default_holiday_status_id'] = self.leave_type_id.id

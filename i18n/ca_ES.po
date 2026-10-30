@@ -27490,3 +27490,9 @@ msgstr "Has sol·licitat la correcció del fitxatge. El teu cap d'estudis l'ha d
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_pending_correction
 msgid "Check-in correction pending"
 msgstr "Correcció del fitxatge pendent"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Only the teacher can request this absence, once asked to justify it and while no check-in correction of theirs is waiting for a decision."
+msgstr "Només el docent pot sol·licitar aquesta absència, un cop se li ha demanat que la justifiqui i mentre no tingui cap correcció del fitxatge pendent de decidir."

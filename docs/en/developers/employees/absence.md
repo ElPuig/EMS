@@ -864,7 +864,7 @@ and `create()` imposes it whatever the client sends:
   deletes the attendance instead.
 
 Either way the request goes to the teacher's usual approver (`_find_attendance_approvers`), and
-the cron leaves the entry's reminders alone while it is `pending`
+`can_request` (so **Request the absence**, re-checked in `action_request_absence()`) is off and the cron leaves the entry's reminders alone while it is `pending`; the other way round, a requested absence links the entry, which then offers no correction either
 (`('correction_ids', 'not any', [('state', '=', 'pending')])`). Accepting it writes the attendance
 with `ems_skip_absence_review_ids`, so `hr.attendance`'s review leaves this entry to
 `_ems_resolve_by_correction()`: `corrected` once nothing is missed (`_ems_missed_spans()` for a

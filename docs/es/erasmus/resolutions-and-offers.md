@@ -25,7 +25,7 @@ Cada solicitante debe tener su **documento de identidad** (DNI, NIE o pasaporte)
 |---|---|---|
 | Lista de admitidos | Después de cerrar la convocatoria y de admitir o excluir todas las solicitudes | Admitidas y excluidas |
 | Resolución provisional | Cuando todas las solicitudes admitidas tienen la puntuación completa y no queda ningún sorteo pendiente | Posición, puntuación y resultado provisional |
-| Resolución definitiva | Después de las reclamaciones | Posición, puntuación y resultado final: seleccionada, reserva o no seleccionada |
+| Resolución definitiva | Cuando ha pasado el plazo de reclamaciones y todas están respondidas | Posición, puntuación y resultado final: seleccionada, reserva o no seleccionada |
 | Rectificación | Cuando hay que corregir una resolución ya publicada | La clasificación corregida |
 
 Cada una necesita la anterior publicada. Una resolución publicada no se puede modificar ni borrar nunca: para corregirla, publica una rectificación.
@@ -53,7 +53,7 @@ Las reclamaciones llegan por correo (el alumnado puede responder al correo del r
 1. **Solicitud**, **Contra** (la resolución), **Tipo** (reclamación o recurso ante la dirección), **Recibida el**, **Qué se reclama** y los archivos.
 2. Escribe la **Respuesta** y haz clic en **Acciones > Resolver**.
 
-Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, el certificado de idiomas) antes de preparar la resolución definitiva. Después de la definitiva, publica una rectificación.
+Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, el certificado de idiomas) antes de preparar la resolución definitiva. EMS no deja preparar la resolución definitiva antes del **Plazo de reclamaciones** ni mientras quede alguna reclamación abierta. Después de la definitiva, publica una rectificación.
 
 ## 5. Ofertas de plaza
 
@@ -63,7 +63,7 @@ Si se estima una reclamación, corrige los datos de la solicitud (por ejemplo, e
 - Cuando queda una plaza libre, **EMS nunca la ofrece por su cuenta**. En la convocatoria, la pestaña **Resoluciones** muestra las plazas libres de cada modalidad y la **Siguiente reserva**. Haz clic en **Acciones > Ofrecer una plaza libre**: comprueba la persona propuesta, pon un nuevo plazo en **Responder antes de** y haz clic en **Ofrecer la plaza**. La persona recibe un correo.
 - Para retirar una oferta pendiente (por ejemplo, hecha por error), haz clic en **Retirar la oferta**.
 
-Una rectificación nunca deshace una oferta ya aceptada o renunciada.
+Una rectificación nunca deshace una oferta ya aceptada o renunciada: a esas personas se les dice que mantienen la plaza aceptada (o que habían renunciado). Si alguien con una oferta aún pendiente deja de estar seleccionado con la rectificación, EMS retira esa oferta y la plaza pasa a quien selecciona la rectificación.
 
 ## 6. Exportar los participantes
 

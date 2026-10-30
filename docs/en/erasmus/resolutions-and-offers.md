@@ -25,7 +25,7 @@ Every applicant needs their **identity document** (DNI, NIE or passport) on thei
 |---|---|---|
 | Admission list | After closing the call and admitting or excluding every application | Admitted and excluded |
 | Provisional resolution | When every admitted application has a complete score and no draw is pending | Rank, score and provisional result |
-| Definitive resolution | After the claims | Rank, score and final result: selected, reserve or not selected |
+| Definitive resolution | Once the claims deadline has passed and every claim is answered | Rank, score and final result: selected, reserve or not selected |
 | Rectification | Whenever a published resolution must be corrected | The corrected ranking |
 
 Each one needs the previous one published. A published resolution can never be changed or deleted: to correct it, publish a rectification.
@@ -53,7 +53,7 @@ Claims arrive by email (students can reply to the result email). Record each one
 1. **Application**, **Against** (the resolution), **Kind** (claim or appeal before the Director), **Received on**, **What is claimed** and the files.
 2. Write the **Response** and click **Actions > Resolve**.
 
-If a claim is upheld, correct the application's data (for example the language certificate) before preparing the definitive resolution. After the definitive one, publish a rectification.
+If a claim is upheld, correct the application's data (for example the language certificate) before preparing the definitive resolution. EMS does not let you prepare the definitive resolution before the **Claims deadline** or while a claim is still open. After the definitive one, publish a rectification.
 
 ## 5. Place offers
 
@@ -63,7 +63,7 @@ If a claim is upheld, correct the application's data (for example the language c
 - When a place becomes free, **EMS never offers it on its own**. On the call, the **Resolutions** tab shows the free places of each modality and the **Next reserve**. Click **Actions > Offer a free place**: check the proposed student, set a new **Answer before** deadline and click **Offer the place**. The student receives an email.
 - To withdraw an offer still waiting (for example, made by mistake), click **Withdraw offer** on it.
 
-A rectification never undoes an offer already accepted or renounced.
+A rectification never undoes an offer already accepted or renounced: those students are told they keep the place they accepted (or that they had renounced). If a student with an offer still waiting is no longer selected after the rectification, EMS withdraws that offer and the place goes to whoever the rectification selects.
 
 ## 6. Export the participants
 

@@ -424,7 +424,9 @@ class EmsErasmusApplication(models.Model):
     def _compute_rank(self):
         """Rank among the admitted applications (and their results) of the same modality, by total and art. 12's
         tie-breaks, then the draw. Only once every one of them has a complete score. A staff call ranks
-        everyone in one list (issue #686)."""
+        everyone in one list (issue #686). A tied set needs a draw until each of its applications has
+        its own drawn position: also when someone joins a set already drawn (a claim upheld), who would
+        otherwise go first with no draw at all."""
         self.rank = 0
         self.needs_draw = False
         for (call, modality), applications in self.grouped(lambda application: (
@@ -436,9 +438,11 @@ class EmsErasmusApplication(models.Model):
                 continue
             keys = {application: application._ems_rank_key() for application in ranked}
             ordered = sorted(keys.values())
+            tied = ranked.grouped(lambda application: keys[application][:-1])
             for application in applications & ranked:
                 application.rank = ordered.index(keys[application]) + 1
-                application.needs_draw = ordered.count(keys[application]) > 1
+                draws = tied[keys[application][:-1]].mapped('draw_order')
+                application.needs_draw = len(draws) > 1 and (0 in draws or len(set(draws)) < len(draws))
 
     def _ems_rank_key(self):
         """Total, then the call's tie-breaks (students: art. 12; staff: mobility plan, then seniority,

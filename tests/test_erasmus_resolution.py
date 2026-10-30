@@ -25,7 +25,8 @@ class ErasmusResolutionCase(ErasmusScoringCase):
         cls.student.document_id = '12345678Z'
         cls.second.document_id = 'X1234567L'
         cls.call.modality_ids.places = 1
-        cls.call.write({'claims_deadline': now + timedelta(days=15), 'acceptance_deadline': now + timedelta(days=20)})
+        # The claims period is over: the definitive resolution can be published (art. 14).
+        cls.call.write({'claims_deadline': now - timedelta(hours=1), 'acceptance_deadline': now + timedelta(days=20)})
 
     def _scored_call(self):
         """Two admitted applications with a complete score, the student's higher, and the call
@@ -277,6 +278,49 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self.assertTrue(claim.resolved_date)
         with self.assertRaises(AccessError):
             claim.with_user(self.hos_user).response = 'Changed'
+
+    def test_definitive_waits_for_the_claims(self):
+        """Art. 14: the definitive resolution answers the claims, so it waits for their deadline and
+        for every open claim to be answered."""
+        first, _second = self._scored_call()
+        self._publish('admission')
+        provisional = self._publish('provisional')
+        self.call.claims_deadline = fields.Datetime.now() + timedelta(days=1)
+        with self.assertRaises(UserError):
+            self._resolution('definitive').action_prepare()
+        self.call.claims_deadline = fields.Datetime.now() - timedelta(minutes=1)
+        claim = self.env['ems.erasmus.claim'].with_user(self.erasmus_user).create({
+            'application_id': first.id, 'resolution_id': provisional.id, 'description': 'My interview score'})
+        with self.assertRaises(UserError):
+            self._resolution('definitive').action_prepare()
+        claim.response = 'Reviewed: the score stands.'
+        claim.action_resolve()
+        self._publish('definitive')
+
+    def test_rectification_withdraws_the_offer_of_who_it_no_longer_selects(self):
+        first, second = self._scored_call()
+        self._publish_up_to_definitive()
+        self.assertEqual(first.offer_ids.state, 'pending')
+        second.write({'language_level': 'c2', 'fewer_opportunities_check': 'yes'})
+        rectification = self._resolution('rectification', notes='Language certificate of a claimant accepted.')
+        rectification.action_prepare()
+        rectification.action_publish()
+        self.assertEqual((first.state, first.offer_ids.state), ('reserve', 'cancelled'))
+        with self.assertRaises(UserError):
+            first.offer_ids.action_accept()
+        self.assertEqual((second.state, second.offer_ids.state), ('selected', 'pending'))
+        self.assertEqual(self.call.modality_ids.free_places, 0)
+
+    def test_rectification_email_of_who_already_accepted(self):
+        self.student.lang = 'en_US'
+        first, second = self._scored_call()
+        self._publish_up_to_definitive()
+        first.offer_ids.action_accept()
+        second.write({'language_level': 'c2', 'fewer_opportunities_check': 'yes'})
+        rectification = self._publish('rectification', notes='Language certificate of a claimant accepted.')
+        body = self._mails(rectification.line_ids.filtered(lambda line: line.application_id == first)).body_html
+        self.assertIn('You keep the place you have already accepted.', body)
+        self.assertNotIn('reserve list', body)
 
     def test_export_the_participants_who_accepted(self):
         first, second = self._scored_call()

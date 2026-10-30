@@ -25,7 +25,7 @@ Cada sol·licitant ha de tenir el **document d'identitat** (DNI, NIE o passaport
 |---|---|---|
 | Llista d'admesos | Després de tancar la convocatòria i d'admetre o excloure totes les sol·licituds | Admeses i excloses |
 | Resolució provisional | Quan totes les sol·licituds admeses tenen la puntuació completa i no queda cap sorteig pendent | Posició, puntuació i resultat provisional |
-| Resolució definitiva | Després de les reclamacions | Posició, puntuació i resultat final: seleccionada, reserva o no seleccionada |
+| Resolució definitiva | Quan ha passat el termini de reclamacions i totes estan respostes | Posició, puntuació i resultat final: seleccionada, reserva o no seleccionada |
 | Rectificació | Quan cal corregir una resolució ja publicada | La classificació corregida |
 
 Cadascuna necessita l'anterior publicada. Una resolució publicada no es pot modificar ni esborrar mai: per corregir-la, publica una rectificació.
@@ -53,7 +53,7 @@ Les reclamacions arriben per correu (l'alumnat pot respondre el correu del resul
 1. **Sol·licitud**, **Contra** (la resolució), **Tipus** (reclamació o recurs davant la direcció), **Rebuda el**, **Què es reclama** i els fitxers.
 2. Escriu la **Resposta** i fes clic a **Accions > Resoldre**.
 
-Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple, el certificat d'idiomes) abans de preparar la resolució definitiva. Després de la definitiva, publica una rectificació.
+Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple, el certificat d'idiomes) abans de preparar la resolució definitiva. EMS no deixa preparar la resolució definitiva abans del **Termini de reclamacions** ni mentre quedi alguna reclamació oberta. Després de la definitiva, publica una rectificació.
 
 ## 5. Ofertes de plaça
 
@@ -63,7 +63,7 @@ Si s'estima una reclamació, corregeix les dades de la sol·licitud (per exemple
 - Quan queda una plaça lliure, **EMS no l'ofereix mai pel seu compte**. A la convocatòria, la pestanya **Resolucions** mostra les places lliures de cada modalitat i la **Següent reserva**. Fes clic a **Accions > Ofereix una plaça lliure**: comprova la persona proposada, posa un nou termini a **Resposta abans de** i fes clic a **Ofereix la plaça**. La persona rep un correu.
 - Per retirar una oferta pendent (per exemple, feta per error), fes-hi clic a **Retira l'oferta**.
 
-Una rectificació no desfà mai una oferta ja acceptada o renunciada.
+Una rectificació no desfà mai una oferta ja acceptada o renunciada: a aquestes persones se'ls diu que mantenen la plaça acceptada (o que hi havien renunciat). Si algú amb una oferta encara pendent deixa d'estar seleccionat amb la rectificació, EMS retira aquesta oferta i la plaça passa a qui selecciona la rectificació.
 
 ## 6. Exportar els participants
 

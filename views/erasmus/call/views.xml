@@ -39,7 +39,7 @@
                                     help="Asks every panel member to rate the mobility plan of every admitted application."/>
                             <!-- Audit D-13: the ties left after every tie-break, drawn by EMS and kept. -->
                             <button name="action_draw_ties" type="object" string="Draw the ties"
-                                    invisible="not needs_draw or has_final_resolution"
+                                    invisible="not needs_draw"
                                     groups="ems.group_erasmus_coordinator,ems.group_academic_admin"
                                     confirm="EMS orders each tied set at random and keeps the draw: it cannot be undone. Continue?"
                                     help="Resolves the ties left in the ranking after every tie-break, as the call says."/>

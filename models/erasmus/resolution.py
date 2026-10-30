@@ -171,6 +171,15 @@ class EmsErasmusResolution(models.Model):
             if pending:
                 raise UserError(_("Complete the score and resolve the draws of: %s",
                                   ", ".join(pending.partner_id.mapped('name'))))
+        if self.kind == 'definitive':
+            # Art. 14: the definitive list answers the claims against the provisional one.
+            if call.claims_deadline and call.claims_deadline > call._ems_now():
+                raise UserError(_("The claims deadline (%s) has not passed yet: the applicants can still claim "
+                                  "against the provisional resolution.", call._ems_local_format(call.claims_deadline)))
+            open_claims = call.claim_ids.filtered(lambda claim: claim.state == 'open')
+            if open_claims:
+                raise UserError(_("Answer the open claims first: %s",
+                                  ", ".join(open_claims.partner_id.mapped('name'))))
         missing = self._ems_applications().filtered(
             lambda application: not mask_document_id(application._ems_identity_document()))
         if missing:
@@ -222,12 +231,21 @@ class EmsErasmusResolution(models.Model):
 
     def _ems_apply_results(self):
         """Set each application's result, except those that already answered a place offer, and
-        offer the place to the selected without one."""
+        offer the place to the selected without one. A rectification withdraws the offers still
+        waiting for an answer of whom it no longer selects: the place they were offered as selected,
+        or any offer once below the minimum score (a reserve keeps one made for a free place)."""
         self.ensure_one()
         lines = self.line_ids.filtered(lambda line: line.result in ('selected', 'reserve', 'not_selected')
                                        and line.application_id.state not in ('accepted', 'renounced'))
         for result, result_lines in lines.grouped('result').items():
             result_lines.application_id._ems_set_state(result)
+        withdrawn = lines.filtered(lambda line: line.result != 'selected').application_id.offer_ids.filtered(
+            lambda offer: offer.state == 'pending' and (
+                not offer.from_reserve or offer.application_id.state == 'not_selected'))
+        withdrawn.sudo().write({'state': 'cancelled'})
+        for offer in withdrawn:
+            offer.application_id.sudo().chatter(_("Place offer withdrawn: the rectification no longer selects "
+                                                  "this application."))
         selected = lines.filtered(lambda line: line.result == 'selected').application_id.filtered(
             lambda application: not application.offer_ids.filtered(
                 lambda offer: offer.state in ('pending', 'accepted')))

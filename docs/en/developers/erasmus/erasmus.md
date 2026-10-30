@@ -255,11 +255,16 @@ application in it has a complete score; until then every rank in it is 0. Order:
 tie-breaks of art. 12 - fewer opportunities, first mobility, English part of the interview,
 record average - and finally the draw (`draw_order`, lower first). Applications still
 tied after all of it share the rank and get `needs_draw` (the call's `needs_draw` says some has it).
+A tied set keeps needing a draw until each of its applications has its own drawn position: when a
+correction (a claim upheld) ties someone with a set already drawn, the newcomer's `draw_order` 0
+would otherwise put them first with no draw, so the whole set is flagged again.
 `is_eligible`: complete and total at least `min_score`.
 
 **Draw** (audit D-13): `draw_order` is read only; the Erasmus coordinator (or the administrator)
-runs *Actions > Draw the ties* on the call (`action_draw_ties`) before the definitive resolution.
-EMS orders each tied set (per modality; a staff call's, of the whole list) at random with
+runs *Actions > Draw the ties* on the call (`action_draw_ties`): before the provisional resolution,
+which needs every tie drawn, and again whenever a correction ties someone (also after the definitive
+resolution, before a rectification; otherwise a tie created by a correction could never be
+published). EMS orders each tied set (per modality; a staff call's, of the whole list; every member, those drawn before included) at random with
 `secrets.SystemRandom`, writes `draw_order` and keeps the draw as an immutable
 `ems.erasmus.group.draw` (the same model as the group mobilities', with `call_id` instead of
 `group_mobility_id` and `score_total` as what they were tied on; its lines point at the
@@ -366,7 +371,9 @@ application admitted or excluded, and - except for the admission list - every ad
 complete score and no pending draw (*A missing value blocks*, never zero). It also needs every
 applicant's identity document (`document_id`, or `passport_id`). The lines copy, for the admission
 list, the admitted and the excluded; for the others, also every result (`RANKED_STATES`), with the
-rank, the criteria and the result:
+rank, the criteria and the result. The definitive resolution also waits for the claims (art. 14):
+it is refused while the call's `claims_deadline` has not passed or any claim of the call is still
+open.
 
 | Result | Rule (`_ems_ranking_result`) |
 |---|---|
@@ -393,7 +400,11 @@ Then:
   those that already answered an offer (`accepted`, `renounced`), which a rectification never
   undoes - and creates an offer for every selected one without an offer waiting or accepted, with
   the call's `acceptance_deadline`. No separate offer email: the result email already asks them to
-  answer.
+  answer. A rectification withdraws (`cancelled`, noted in the chatter) the offers still waiting of
+  whom it no longer selects: the offer they got as selected, or any offer once below the minimum
+  score; a reserve keeps an offer made for a free place. Whoever already accepted or renounced gets
+  the list with "you keep the place you accepted" / "you renounced earlier" instead of the result
+  line, since their state does not change.
 
 **Published lists never show names.** The portal list (`/my/erasmus/call/<id>/resolution/<id>`)
 and the PDF for the centre's website (`ems.action_report_erasmus_resolution`, same template

@@ -280,6 +280,7 @@ from . import test_title_registration_tour
 from . import test_erasmus
 from . import test_erasmus_scoring
 from . import test_erasmus_resolution
+from . import test_erasmus_student_call_e2e
 from . import test_erasmus_staff
 from . import test_erasmus_mobility
 from . import test_portal_erasmus

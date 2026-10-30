@@ -55,7 +55,7 @@ Click **Ranking** on the call (or **Erasmus+ > Ranking**): the admitted applicat
 
 - A modality is only ranked when **every** admitted application in it has a complete score. Until then the rank is 0.
 - Ties are broken, in this order, by fewer opportunities, first mobility, the English part of the interview and the record average.
-- If two applications are still tied, they are marked **Needs a draw**. The Erasmus coordinator clicks **Actions > Draw the ties** on the call (Resolutions tab): EMS orders each tied set at random and keeps the draw (who, when, the applications tied and the order drawn), which nobody can change. The order is in **Draw** (the lowest number goes first). It can be done until the definitive resolution is published.
+- If two applications are still tied, they are marked **Needs a draw**. The Erasmus coordinator clicks **Actions > Draw the ties** on the call (Resolutions tab): EMS orders each tied set at random and keeps the draw (who, when, the applications tied and the order drawn), which nobody can change. The order is in **Draw** (the lowest number goes first). If a correction (for example, a claim upheld) ties someone with applications already drawn, they are marked **Needs a draw** again and the whole tie is drawn anew; both draws are kept.
 - Applications below the call's **Minimum score** (50 by default) are shown in red: they are not eligible.
 
 ---

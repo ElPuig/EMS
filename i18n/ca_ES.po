@@ -30586,7 +30586,13 @@ msgid ""
 "                                </p>\n"
 "                            </t>\n"
 "                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.result == 'selected'\">\n"
+"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
+"                                    You keep the place you have already accepted.\n"
+"                                </p>\n"
+"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
+"                                    You renounced the place earlier: this list does not change it.\n"
+"                                </p>\n"
+"                                <p t-elif=\"object.result == 'selected'\">\n"
 "                                    You have been <strong>selected</strong>. Accept or renounce the place on the school portal\n"
 "                                    before <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
 "                                    without an answer by then, the place is considered renounced.\n"
@@ -30648,7 +30654,13 @@ msgstr ""
 "                                </p>\n"
 "                            </t>\n"
 "                            <t t-else=\"\">\n"
-"                                <p t-if=\"object.result == 'selected'\">\n"
+"                                <p t-if=\"object.application_id.state == 'accepted'\">\n"
+"                                    Mantens la plaça que ja has acceptat.\n"
+"                                </p>\n"
+"                                <p t-elif=\"object.application_id.state == 'renounced'\">\n"
+"                                    Ja havies renunciat a la plaça: aquesta llista no ho canvia.\n"
+"                                </p>\n"
+"                                <p t-elif=\"object.result == 'selected'\">\n"
 "                                    Has estat <strong>seleccionat o seleccionada</strong>. Accepta la plaça o renuncia-hi al portal del centre\n"
 "                                    abans del <strong t-out=\"call._ems_local_format(call.acceptance_deadline)\"/>:\n"
 "                                    si no respons dins del termini, es considera que hi renuncies.\n"
@@ -39657,3 +39669,21 @@ msgstr "signat"
 #: code:addons/ems/models/erasmus/electronic_signature.py:0
 msgid "the template has no place for the signature of %s"
 msgstr "la plantilla no té lloc per a la signatura de %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "The claims deadline (%s) has not passed yet: the applicants can still claim against the provisional resolution."
+msgstr "El termini de reclamacions (%s) encara no ha acabat: els sol·licitants encara poden reclamar contra la resolució provisional."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Answer the open claims first: %s"
+msgstr "Primer respon les reclamacions obertes: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/resolution.py:0
+msgid "Place offer withdrawn: the rectification no longer selects this application."
+msgstr "Oferta de plaça retirada: la rectificació ja no selecciona aquesta sol·licitud."

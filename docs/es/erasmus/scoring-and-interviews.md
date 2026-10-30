@@ -55,7 +55,7 @@ Haz clic en **Clasificación** en la convocatoria (o en **Erasmus+ > Clasificaci
 
 - Una modalidad solo se clasifica cuando **todas** sus solicitudes admitidas tienen la puntuación completa. Hasta entonces la posición es 0.
 - Los empates se deshacen, por este orden, con menos oportunidades, primera movilidad, la parte en inglés de la entrevista y la nota media del expediente.
-- Si dos solicitudes siguen empatadas, quedan marcadas con **Requiere sorteo**. La coordinación Erasmus hace clic en **Acciones > Sortear los empates** en la convocatoria (pestaña Resoluciones): EMS ordena al azar cada grupo empatado y guarda el sorteo (quién, cuándo, las solicitudes empatadas y el orden que ha salido), que nadie puede cambiar. El orden queda en **Sorteo** (el número más bajo va primero). Se puede hacer hasta que se publica la resolución definitiva.
+- Si dos solicitudes siguen empatadas, quedan marcadas con **Requiere sorteo**. La coordinación Erasmus hace clic en **Acciones > Sortear los empates** en la convocatoria (pestaña Resoluciones): EMS ordena al azar cada grupo empatado y guarda el sorteo (quién, cuándo, las solicitudes empatadas y el orden que ha salido), que nadie puede cambiar. El orden queda en **Sorteo** (el número más bajo va primero). Si una corrección (por ejemplo, una reclamación aceptada) hace que alguien empate con solicitudes ya sorteadas, vuelven a quedar marcadas con **Requiere sorteo** y se vuelve a sortear todo el empate; se conservan los dos sorteos.
 - Las solicitudes por debajo de la **Puntuación mínima** de la convocatoria (50 por defecto) salen en rojo: no son elegibles.
 
 ---

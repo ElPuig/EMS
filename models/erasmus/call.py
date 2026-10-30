@@ -611,13 +611,12 @@ class EmsErasmusCall(models.Model):
         """Audit D-13: the Erasmus coordinator resolves the ties left in the ranking after every
         tie-break by a draw EMS runs and keeps (ems.erasmus.group.draw), as in a group mobility: each
         tied set of a modality (a staff call's, of the whole list) in a random order nobody chooses.
-        Only before the definitive resolution, which publishes the order."""
+        Usually before the provisional resolution, which needs every tie drawn; again when a correction
+        (a claim upheld, before a rectification) ties someone with others, the whole set is drawn anew.
+        A set already drawn is never drawn again otherwise."""
         self.env['ems.erasmus.group.mobility']._ems_check_coordinator()
         Draw = self.env['ems.erasmus.group.draw']
         for call in self.sudo():
-            if call.has_final_resolution:
-                raise UserError(_("The definitive resolution of %s is published: the ranking cannot change.",
-                                  call.name))
             tied = call.application_ids.filtered('needs_draw')
             if not tied:
                 raise UserError(_("There is no tie to draw in %s.", call.name))
@@ -625,7 +624,7 @@ class EmsErasmusCall(models.Model):
                 (applications, {'score_total': applications[0].score_total})
                 for applications in tied.grouped(lambda application: (
                     application.audience == 'student' and application.modality_id,
-                    application._ems_rank_key())).values()])
+                    application._ems_rank_key()[:-1])).values()])
 
     def _ems_check_manager(self):
         """The actions write the call's workflow fields as superuser: only once this is checked."""

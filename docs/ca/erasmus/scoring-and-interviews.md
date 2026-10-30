@@ -55,7 +55,7 @@ Fes clic a **Classificació** a la convocatòria (o a **Erasmus+ > Classificaci�
 
 - Una modalitat només es classifica quan **totes** les seves sol·licituds admeses tenen la puntuació completa. Fins llavors la posició és 0.
 - Els empats es desfan, per aquest ordre, amb menys oportunitats, primera mobilitat, la part en anglès de l'entrevista i la mitjana de l'expedient.
-- Si dues sol·licituds continuen empatades, queden marcades amb **Cal un sorteig**. La coordinació Erasmus fa clic a **Accions > Sorteja els empats** a la convocatòria (pestanya Resolucions): l'EMS ordena a l'atzar cada grup empatat i en guarda el sorteig (qui, quan, les sol·licituds empatades i l'ordre sortit), que ningú no pot canviar. L'ordre queda a **Sorteig** (el número més baix va primer). Es pot fer fins que es publica la resolució definitiva.
+- Si dues sol·licituds continuen empatades, queden marcades amb **Cal un sorteig**. La coordinació Erasmus fa clic a **Accions > Sorteja els empats** a la convocatòria (pestanya Resolucions): l'EMS ordena a l'atzar cada grup empatat i en guarda el sorteig (qui, quan, les sol·licituds empatades i l'ordre sortit), que ningú no pot canviar. L'ordre queda a **Sorteig** (el número més baix va primer). Si una correcció (per exemple, una reclamació acceptada) fa que algú empati amb sol·licituds ja sortejades, tornen a quedar marcades amb **Cal un sorteig** i es torna a sortejar tot l'empat; es conserven tots dos sortejos.
 - Les sol·licituds per sota de la **Puntuació mínima** de la convocatòria (50 per defecte) surten en vermell: no són elegibles.
 
 ---

@@ -54,7 +54,13 @@
                                 </p>
                             </t>
                             <t t-else="">
-                                <p t-if="object.result == 'selected'">
+                                <p t-if="object.application_id.state == 'accepted'">
+                                    You keep the place you have already accepted.
+                                </p>
+                                <p t-elif="object.application_id.state == 'renounced'">
+                                    You renounced the place earlier: this list does not change it.
+                                </p>
+                                <p t-elif="object.result == 'selected'">
                                     You have been <strong>selected</strong>. Accept or renounce the place on the school portal
                                     before <strong t-out="call._ems_local_format(call.acceptance_deadline)"/>:
                                     without an answer by then, the place is considered renounced.

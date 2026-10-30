@@ -385,8 +385,9 @@ class ems_working_schedule(models.Model):
 		- a class goes to its group's level's declaration_code (a group without a level, e.g. a
 		  split or optative, takes its main groups' level); no code: 'other' (Altres);
 		- tutoring goes to the row of the tutored level (T-ESO, T-BAT, PFI, else T-FP): a tutorship
-		  subject (is_tutorship), by its group's level; a non-teaching type coded 'tutoring', by the
-		  level of the teacher's tutorship;
+		  subject (is_tutorship), by its group's level; a non-teaching type coded 'tutoring' (TT,
+		  ATAL), by the level of the teacher's tutorship or, for a teacher who tutors no group, the
+		  level where they teach the most hours (developer, 2026-10-30);
 		- any other non-teaching block goes to its type's declaration_code; no code: left out;
 		- the teaching-hour reductions are only given as their total hours ('reduction'), and are
 		  counted in the lective total, as on the Schedule tab (developer, 2026-10-29)."""
@@ -394,7 +395,10 @@ class ems_working_schedule(models.Model):
 		employee = self.get_employee()
 		tutored_level_code = employee.tutorship_ids.sorted('id')[:1].level_id.declaration_code
 		columns = {'lective': {}, 'fixed': {}}
+		class_hours_by_level = {}
+		tutoring_hours = {'lective': 0, 'fixed': 0}
 		for attendance, duration, is_fixed in self._iter_summary_entries():
+			column_key = 'fixed' if is_fixed else 'lective'
 			if attendance.subject_id:
 				group = attendance.group_ids[:1]
 				level_code = (group.level_id or group.parent_group_ids.sorted('id')[:1].level_id).declaration_code
@@ -402,14 +406,25 @@ class ems_working_schedule(models.Model):
 					code = self._declaration_tutoring_code(level_code)
 				else:
 					code = level_code or 'other'
+					if level_code:
+						class_hours_by_level[level_code] = class_hours_by_level.get(level_code, 0) + duration
 			else:
 				code = attendance.non_teaching.declaration_code
 				if code == 'tutoring':
-					code = self._declaration_tutoring_code(tutored_level_code)
-				elif not code:
+					# Its row needs the whole week's classes when the teacher tutors no group: added below.
+					tutoring_hours[column_key] += duration
 					continue
-			column = columns['fixed' if is_fixed else 'lective']
+				if not code:
+					continue
+			column = columns[column_key]
 			column[code] = column.get(code, 0) + duration
+		if any(tutoring_hours.values()):
+			level_code = tutored_level_code or max(
+				sorted(class_hours_by_level), key=class_hours_by_level.get, default=False)
+			code = self._declaration_tutoring_code(level_code)
+			for column_key, hours in tutoring_hours.items():
+				if hours:
+					columns[column_key][code] = columns[column_key].get(code, 0) + hours
 		reduction = sum(employee.teaching_reduction_ids.mapped('reduction_hours'))
 		return {
 			'lective': columns['lective'],

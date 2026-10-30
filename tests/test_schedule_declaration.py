@@ -102,6 +102,19 @@ class TestScheduleDeclaration(TransactionCase):
 
                 self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {row: 1})
 
+    def test_tutoring_without_tutorship_goes_to_the_level_with_most_classes(self):
+        """A teacher who tutors no group (e.g. ATAL hours): the level where they teach the most."""
+        self.env.ref('ems.non_teaching_tt').declaration_code = 'tutoring'
+        _level, _study, bat_group = create_level_study_group(self, 'TSDB', level={'declaration_code': 'bat'})
+        self._apply(self.group, (bat_group, '1', 3), ('ems.non_teaching_tt', '2'))
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'eso': 1, 'bat': 3, 't_bat': 1})
+
+        # No classes at all: T-FP, the default row.
+        self._apply('ems.non_teaching_tt')
+
+        self.assertEqual(self.calendar.get_schedule_declaration_summary()['lective'], {'t_fp': 1})
+
     def test_tutorship_subject_goes_to_its_groups_tutoring_row(self):
         self.subject.is_tutorship = True
         self._apply(self.group)
@@ -123,6 +136,9 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertEqual(summary['lective_total'], 4)
 
     def test_seed_sets_the_official_codes(self):
+        # ATAL is the centre's own type (not EMS data): seeded by its code when it exists.
+        NonTeaching = self.env['ems.non_teaching_type'].with_context(active_test=False)
+        atal = NonTeaching.search([('code', '=', 'ATAL')]) or NonTeaching.create({'code': 'ATAL', 'name': "Atenció a l'alumnat"})
         self.env['ems.level']._ems_seed_declaration_codes()
         self.env['ems.non_teaching_type']._ems_seed_declaration_codes()
 
@@ -130,6 +146,7 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertEqual(self.env.ref('ems.level_efps').declaration_code, 'cefp')
         self.assertEqual(self.env.ref('ems.non_teaching_wic').declaration_code, 'cc')
         self.assertEqual(self.env.ref('ems.non_teaching_tt').declaration_code, 'tutoring')
+        self.assertEqual(atal.declaration_code, 'tutoring')
         self.assertFalse(self.env.ref('ems.non_teaching_br').declaration_code)
         self.assertFalse(self.env.ref('ems.non_teaching_r').declaration_code)
         self.assertTrue(self.env.ref('ems.non_teaching_gb').adds_up_periods)

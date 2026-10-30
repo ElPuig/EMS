@@ -71,8 +71,7 @@
                         .sd-header { width: 100%; margin-bottom: 8px; }
                         .sd-header td { vertical-align: top; }
                         .sd-header, .sd-header *, .sd-signatures, .sd-signatures * { border: none !important; }
-                        .sd-entity { font-size: 13px; line-height: 1.2; }
-                        .sd-entity b { font-size: 14px; }
+                        .sd-entity img { height: 14mm; }
                         .sd-annual { text-align: right; font-size: 11px; }
                         .sd-box { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
                         .sd-box td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; empty-cells: show; }
@@ -92,7 +91,8 @@
 
                     <table class="sd-header">
                         <tr>
-                            <td class="sd-entity">Generalitat de Catalunya<br/><b>Departament d’Educació<br/>i Formació Professional</b></td>
+                            <!-- The Departament's logo, taken from the official form itself. -->
+                            <td class="sd-entity"><img src="/ems/static/src/img/departament_educacio_fp.png" alt="Generalitat de Catalunya - Departament d’Educació i Formació Professional"/></td>
                             <td class="sd-annual">DADES ANUALS DEL CENTRE<br/>CURS <span t-esc="company.current_course_id.name"/></td>
                         </tr>
                     </table>

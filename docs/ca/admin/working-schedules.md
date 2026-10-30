@@ -287,7 +287,7 @@ Cada pàgina té el codi, el nom i el municipi del centre (de la configuració d
 **La fila on va cada hora** és configuració, que la instal·lació deixa preparada i que pots canviar després:
 
 - Una classe compta a la fila del **nivell** del seu grup: es tria al **Codi a la declaració horària** del nivell (**Comunitat Educativa → Configuració → Currículum → Nivells**). Un desdoblament o una optativa sense nivell propi pren el nivell dels seus grups principals. Un nivell sense codi va a *Altres*.
-- Una tutoria (una assignatura de tutoria, o el tipus no lectiu *Tutoria*) compta a T-ESO, T-BAT o T-FP (o PFI) segons el nivell del grup tutoritzat.
+- Una tutoria (una assignatura de tutoria, o un tipus no lectiu amb el codi de tutoria: per defecte *Tutoria* i *Atenció a l'alumnat*) compta a T-ESO, T-BAT o T-FP (o PFI) segons el nivell del grup tutoritzat. Si el docent no és tutor de cap grup, segons el nivell on fa més hores de classe.
 - Qualsevol altra hora no lectiva compta a la fila triada al **Codi a la declaració horària** del seu tipus (**Configuració → Professorat → Tipus d'hora no lectiva**); buit vol dir que no es declara.
 - Les reduccions lectives només hi surten com a hores, a "Si disposeu de reducció de jornada", i se sumen al TOTAL de lectives.
 

@@ -287,7 +287,7 @@ Each page has the centre's code, name and municipality (from the company setting
 **Which row each hour goes to** is configuration, set up for you on installation and editable afterwards:
 
 - A class counts in the row of its group's **level**: set it in the level's **Schedule declaration code** (**Educational Community → Configuration → Curriculum → Levels**). A split or optative group with no level of its own takes the level of its main groups. A level with no code goes to *Altres*.
-- A tutorship (a tutorship subject, or the *Tutorship Time* non-teaching type) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level.
+- A tutorship (a tutorship subject, or a non-teaching type coded as tutoring: *Tutorship Time* and *Student support* by default) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level. A teacher who tutors no group: by the level where they teach the most hours.
 - Any other non-teaching hour counts in the row set in its type's **Schedule declaration code** (**Configuration → Teachers → Non-teaching types**); empty means not declared.
 - Teaching-hour reductions appear only as their hours, in "Si disposeu de reducció de jornada", and are added to the lective TOTAL.
 

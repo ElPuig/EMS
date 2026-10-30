@@ -45,8 +45,8 @@ TUTORING_DEFAULT_CODE = 't_fp'
 # False: not declared at all (the break, a reduction of working hours).
 NON_TEACHING_DECLARATION_SEED = {
     'MT': 'cd', 'CT': 'cc', 'AC': 'cc', 'WIC': 'cc', 'CM': 'rd_rc', 'MM': 'rd_rc',
-    'G': 'g', 'GB': 'g', 'GWC': 'g', 'TT': 'tutoring',
-    'AA': 'other', 'ATAL': 'other', 'S': 'other', 'SC': 'other',
+    'G': 'g', 'GB': 'g', 'GWC': 'g', 'TT': 'tutoring', 'ATAL': 'tutoring',
+    'AA': 'other', 'S': 'other', 'SC': 'other',
     'BR': False, 'R': False,
 }
 # The break guard duty's periods (20-25 minutes) are added up before rounding (developer, 2026-10-29).

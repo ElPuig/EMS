@@ -43,6 +43,9 @@
                                     confirm="Discard this detected absence? Nobody is told and it is archived."/>
                             <button name="action_request_absence" type="object" string="Request the absence"
                                     invisible="not can_request"/>
+                            <!-- Issue #735: or the teacher was at the centre. -->
+                            <button name="action_request_check_in_correction" type="object" string="Request check-in correction"
+                                    invisible="not can_request_correction"/>
                         </div>
                         <field name="state" widget="statusbar" statusbar_visible="pending,justification_requested,linked"
                                invisible="is_own"/>
@@ -62,6 +65,7 @@
                                 <field name="leave_type_id" invisible="not leave_type_id" options="{'no_open': True}"/>
                                 <field name="justification_date" invisible="not justification_date"/>
                                 <field name="can_request" invisible="1"/>
+                                <field name="can_request_correction" invisible="1"/>
                                 <field name="can_review" invisible="1"/>
                                 <field name="is_own" invisible="1"/>
                                 <field name="can_correct_check_in" invisible="1"/>
@@ -191,8 +195,10 @@
                     </p>
                     <group>
                         <field name="absence_id" invisible="1"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
+                        <!-- Any minute, as the entry's own hours may be (issue #735): the picker
+                             offers multiples of five by default. -->
+                        <field name="date_from" options="{'rounding': 1, 'show_seconds': false}"/>
+                        <field name="date_to" options="{'rounding': 1, 'show_seconds': false}"/>
                     </group>
                     <footer>
                         <button name="action_confirm" type="object" string="Correct check-in" class="btn-primary"/>

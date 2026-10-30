@@ -19555,6 +19555,7 @@ msgstr "Absència sol·licitada"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__absence_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__absence_pending_id
 msgid "Detected absence"
 msgstr "Absència detectada"
 
@@ -27375,3 +27376,78 @@ msgstr "fitxatge corregit per %(user)s de %(when)s."
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "the teacher's attendance covers part of it."
 msgstr "l'assistència del docent en cobreix una part."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Check-in correction requested by %(employee)s."
+msgstr "Correcció del fitxatge sol·licitada per %(employee)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "The requested times must be times of the day, between 00:00 and 24:00."
+msgstr "Les hores sol·licitades han de ser hores del dia, entre les 00:00 i les 24:00."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "A correction request must be about an attendance or a detected absence."
+msgstr "Una sol·licitud de correcció ha de ser d'un fitxatge o d'una absència detectada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "The attendance must be the detected absence teacher's own."
+msgstr "El fitxatge ha de ser del mateix docent de l'absència detectada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Without an attendance to correct, give both the check-in and a later check-out time."
+msgstr "Sense cap fitxatge per corregir, indica l'hora d'entrada i una hora de sortida posterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "This request recorded a new attendance when it was accepted: correct or delete that attendance instead of rejecting it."
+msgstr "Aquesta sol·licitud va registrar un fitxatge nou quan es va acceptar: corregeix o elimina aquest fitxatge en lloc de rebutjar-la."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Check-in corrected: %(user)s accepted the teacher's correction request."
+msgstr "Fitxatge corregit: %(user)s ha acceptat la sol·licitud de correcció del docent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "A check-in correction can only be requested by the teacher, for a detected absence they were asked to justify, once it is over and while no other one is pending."
+msgstr "Només el docent pot sol·licitar una correcció del fitxatge, d'una absència detectada que se li ha demanat justificar, un cop acabada i mentre no n'hi hagi cap altra de pendent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Request check-in correction"
+msgstr "Sol·licita la correcció del fitxatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "None: record an attendance for that day"
+msgstr "Cap: registra un fitxatge per a aquell dia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__allowed_attendance_ids
+msgid "Attendances of that day"
+msgstr "Fitxatges d'aquell dia"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_request_correction
+msgid "Can request a check-in correction"
+msgstr "Pot sol·licitar la correcció del fitxatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__correction_ids
+msgid "Check-in correction requests"
+msgstr "Sol·licituds de correcció del fitxatge"

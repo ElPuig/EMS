@@ -821,3 +821,84 @@ class TestAbsenceDetection(TransactionCase):
             absence.with_context(active_test=False).with_user(self.head_of_studies).with_context(
                 lang='ca_ES').action_request_justification()
 
+
+    # --- Check-in correction requested by the teacher (issue #735) --------------------------------
+
+    def _request_correction(self, absence, **values):
+        """What the teacher's button opens, saved with `values`."""
+        action = absence.with_user(self.teacher_user).action_request_check_in_correction()
+        return self.env['ems.attendance_correction'].with_user(self.teacher_user).with_context(
+            action['context']).create({'reason': 'I was at the centre.', **values})
+
+    def test_teacher_requests_a_check_in_without_any_attendance(self):
+        """Both answers are offered; a day without attendance gets one when accepted, and the
+        entry is corrected, not discarded."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected()).with_user(self.teacher_user)
+        self.assertTrue(absence.can_request)
+        self.assertTrue(absence.can_request_correction)
+        self.assertNotIn('default_attendance_id', absence.action_request_check_in_correction()['context'])
+
+        correction = self._request_correction(absence)
+        self.assertFalse(correction.attendance_id)
+        self.assertEqual(correction.employee_id, self.teacher)
+        self.assertEqual((correction.requested_check_in, correction.requested_check_out), (9.0, 13.0),
+                         "the entry's own hours")
+        self.assertFalse(absence.can_request_correction, 'one pending at a time')
+        self.assertTrue(absence.message_ids.filtered(lambda message: 'Check-in correction requested' in message.body))
+
+        correction.with_user(self.head_of_studies).action_accept()
+        self.assertEqual(correction.state, 'accepted')
+        self.assertEqual((correction.attendance_id.check_in, correction.attendance_id.check_out),
+                         (self._utc(self.yesterday, 9.0), self._utc(self.yesterday, 13.0)))
+        self.assertEqual(absence.state, 'corrected')
+        with self.assertRaises(UserError, msg='the attendance it recorded is corrected by hand instead'):
+            correction.with_user(self.head_of_studies).action_reject()
+
+    def test_teacher_requests_a_correction_of_a_late_check_in(self):
+        """The teacher's attendance of that day is the one corrected; a part still missed stays
+        asked."""
+        attendance = self._check_in(self.teacher, self.yesterday, 12.5)
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        self.assertEqual(self._hours(absence), (9.0, 12.5))
+        action = absence.with_user(self.teacher_user).action_request_check_in_correction()
+        self.assertEqual(action['context']['default_attendance_id'], attendance.id)
+
+        correction = self._request_correction(absence, requested_check_in=10.0)
+        self.assertEqual(correction.attendance_id, attendance)
+        correction.with_user(self.head_of_studies).action_accept()
+
+        self.assertEqual(attendance.check_in, self._utc(self.yesterday, 10.0))
+        self.assertEqual(absence.state, 'justification_requested', '9:00 to 10:00 still missed')
+        self.assertEqual(self._hours(absence), (9.0, 10.0))
+
+    def test_correction_request_checks(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        with self.assertRaises(UserError, msg='not asked yet'):
+            absence.with_user(self.teacher_user).action_request_check_in_correction()
+        self._asked(absence)
+        with self.assertRaises(UserError, msg="only the teacher themselves"):
+            absence.with_user(self.head_of_studies).action_request_check_in_correction()
+        with self.assertRaises(ValidationError, msg='a time of the day'):
+            self._request_correction(absence, requested_check_in=1400.0)
+        with self.assertRaises(ValidationError, msg='without attendance, a check-out after the check-in'):
+            self._request_correction(absence, requested_check_in=12.0, requested_check_out=11.0)
+        other = self.env['hr.attendance'].search([('employee_id', '=', self.present.id)], limit=1)
+        # Refused by the constraint or, before it, by the teacher's own-data rule.
+        with self.assertRaises(Exception, msg="another teacher's attendance"):
+            self._request_correction(absence, attendance_id=other.id)
+
+    def test_no_reminder_while_the_correction_is_pending(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        correction = self._request_correction(absence)
+        reminders = lambda: self._messages_to(absence, self.teacher_user, 'No check-in')
+        self._run_cron_on(self.today)
+        self.assertFalse(reminders(), 'waiting for the decision')
+
+        correction.with_user(self.head_of_studies).action_reject()
+        self._run_cron_on(self.today)
+        self.assertTrue(reminders(), 'rejected: asked again')
+        self.assertTrue(absence.with_user(self.teacher_user).can_request_correction)

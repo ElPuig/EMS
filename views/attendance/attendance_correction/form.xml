@@ -7,7 +7,7 @@
                 <form string="Attendance correction">
                     <header>
                         <button string="Accept" name="action_accept" type="object" class="btn-primary" invisible="not is_approver or state == 'accepted'"/>
-                        <button string="Reject" name="action_reject" type="object" class="btn-secondary" invisible="not is_approver or state == 'rejected'"/>
+                        <button string="Reject" name="action_reject" type="object" class="btn-secondary" invisible="not is_approver or state == 'rejected' or (state == 'accepted' and not original_check_in)"/>
                         <field name="state" widget="statusbar" statusbar_visible="pending,accepted,rejected"/>
                     </header>
                     <sheet>
@@ -17,13 +17,21 @@
                         <group>
                             <group string="Employee">
                                 <field name="employee_id" widget="many2one_avatar_employee" readonly="1"/>
-                                <field name="attendance_id" readonly="1"/>
+                                <!-- Issue #735: from a detected absence the teacher picks one of that
+                                     day's attendances, or none to have one recorded. -->
+                                <field name="absence_pending_id" invisible="not absence_pending_id" options="{'no_open': True}"/>
+                                <field name="allowed_attendance_ids" invisible="1"/>
+                                <field name="attendance_id" readonly="id or not absence_pending_id"
+                                       domain="[('id', 'in', allowed_attendance_ids)]"
+                                       placeholder="None: record an attendance for that day"
+                                       options="{'no_create': True, 'no_open': True}"/>
                             </group>
                             <group string="Requested correction">
-                                <field name="original_check_in" readonly="1"/>
-                                <field name="requested_check_in" widget="float_time"/>
-                                <field name="original_check_out" readonly="1"/>
-                                <field name="requested_check_out" widget="float_time" invisible="not is_check_out_requestable"/>
+                                <field name="original_check_in" readonly="1" invisible="not original_check_in"/>
+                                <field name="requested_check_in" widget="ems_time_of_day" placeholder="HH:MM"/>
+                                <field name="original_check_out" readonly="1" invisible="not original_check_in"/>
+                                <field name="requested_check_out" widget="ems_time_of_day" placeholder="HH:MM"
+                                       invisible="not is_check_out_requestable"/>
                             </group>
                         </group>
                         <group string="Reason">

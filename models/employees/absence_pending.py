@@ -101,6 +101,11 @@ class EmsAbsencePending(models.Model):
         string="Reported", readonly=True, copy=False,
         help="Already reported to the teacher's Head of Studies, who got an activity to follow it up.")
     can_request = fields.Boolean(compute="_compute_can_request")
+    # Issue #735: the teacher, asked to justify it, may answer that they were at the centre.
+    can_request_correction = fields.Boolean(string="Can request a check-in correction", compute="_compute_can_request")
+    correction_ids = fields.One2many(
+        string="Check-in correction requests", comodel_name="ems.attendance_correction",
+        inverse_name="absence_pending_id", readonly=True)
     is_own = fields.Boolean(string="Is own", compute="_compute_is_own")
     can_review = fields.Boolean(string="Can review", compute="_compute_can_review")
     can_correct_check_in = fields.Boolean(string="Can correct check-in", compute="_compute_can_review")
@@ -138,12 +143,17 @@ class EmsAbsencePending(models.Model):
                 "%(teacher)s (%(start)s - %(stop)s)", teacher=absence.employee_id.name,
                 start=start.strftime('%d/%m/%Y %H:%M'), stop=stop.strftime('%d/%m/%Y %H:%M'))
 
-    @api.depends('state', 'employee_id')
+    @api.depends('state', 'employee_id', 'date_to', 'correction_ids.state')
     @api.depends_context('uid')
     def _compute_can_request(self):
-        """Only the teacher themselves requests their absence, once asked to and while nobody has."""
+        """Only the teacher themselves requests their absence, once asked to and while nobody has.
+        Or a correction of their check-in instead, once the absence is over and while none is
+        waiting for a decision (issue #735)."""
+        now = fields.Datetime.now()
         for absence in self:
             absence.can_request = absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
+            absence.can_request_correction = (absence.can_request and absence.date_to <= now
+                                              and not absence._ems_pending_corrections())
 
     @api.depends('employee_id')
     @api.depends_context('uid')
@@ -399,6 +409,61 @@ class EmsAbsencePending(models.Model):
             })
         return values
 
+    def _ems_pending_corrections(self):
+        return self.sudo().correction_ids.filtered(lambda correction: correction.state == 'pending')
+
+    def _ems_day_attendances(self):
+        """The teacher's attendances on the day this entry starts, in the company's timezone,
+        leaving out the technical ones Odoo's own absence detection creates (issue #735)."""
+        if not self:
+            return self.env['hr.attendance']
+        self.ensure_one()
+        start, stop = self._utc_bounds(self._to_local(self.date_from).date(), 0.0, 24.0)
+        return self.env['hr.attendance'].sudo().search([
+            ('employee_id', '=', self.employee_id.id), ('check_in', '>=', start), ('check_in', '<', stop),
+            ('in_mode', '!=', 'technical')], order='check_in')
+
+    def _ems_check_correction_requestable(self):
+        """Checked on the server whatever the screen offered (issue #735)."""
+        self.ensure_one()
+        if not self.can_request_correction:
+            raise UserError(_("A check-in correction can only be requested by the teacher, for a detected absence "
+                              "they were asked to justify, once it is over and while no other one is pending."))
+
+    def action_request_check_in_correction(self):
+        """Issue #735: the teacher was at the centre. Opens a correction request of the attendance
+        they have that day, the first one by default, or of the day itself when they have none:
+        the approver accepting it records the attendance, and its review closes this entry."""
+        self.ensure_one()
+        self._ems_check_correction_requestable()
+        context = {'default_absence_pending_id': self.id}
+        attendance = self._ems_day_attendances()[:1]
+        if attendance:
+            context['default_attendance_id'] = attendance.id
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Request check-in correction"),
+            'res_model': 'ems.attendance_correction',
+            'views': [(False, 'form')],
+            'target': 'new',
+            'context': context,
+        }
+
+    def _ems_resolve_by_correction(self):
+        """The teacher's correction request was accepted (issue #735): corrected once their
+        attendance covers it (a detected one, what still holds a whole period, as its review reads
+        it), otherwise it keeps what is still missed."""
+        absence = self.sudo()
+        if absence.state not in UNRESOLVED_STATES:
+            return
+        missed = absence._ems_missed_spans() if absence.origin == 'check_in' else absence._ems_uncovered_spans()
+        if not missed:
+            absence.state = 'corrected'
+            absence._ems_post_review_note(_("Check-in corrected: %(user)s accepted the teacher's correction request.",
+                                            user=self.env.user.name))
+        elif absence.origin == 'check_in':
+            absence._ems_keep_missed_spans()
+
     def action_request_absence(self):
         """Opens a new absence request of the teacher's own, filled in with this one's day and
         hours. Saving it links the two (_link_to_leaves)."""
@@ -621,6 +686,8 @@ class EmsAbsencePending(models.Model):
         # Only what is due today, so an entry leaves the search once it has been dealt with.
         absences = self.sudo().search([
             ('state', 'in', ASKED_STATES), ('employee_id', 'any', domain), ('date_to', '<=', today_start),
+            # Not while the teacher's correction request waits for a decision (issue #735).
+            ('correction_ids', 'not any', [('state', '=', 'pending')]),
             '|', '|', ('reminder_date', '=', False), ('reminder_date', '<=', today - timedelta(days=interval)),
             '&', ('escalated', '=', False), ('justification_date', '<=', report_bound),
         ])
@@ -795,6 +862,8 @@ class EmsAbsencePendingAttendance(models.Model):
         if not attendances:
             return
         domain = [('origin', '=', 'check_in'), ('state', 'in', UNRESOLVED_STATES),
+                  # The one an accepted correction request resolves itself (issue #735).
+                  ('id', 'not in', self.env.context.get('ems_skip_absence_review_ids', [])),
                   ('employee_id', 'in', attendances.employee_id.ids),
                   ('date_to', '>', min(attendances.mapped('check_in')))]
         if all(attendances.mapped('check_out')):

@@ -745,6 +745,8 @@ erDiagram
 | `justification_date` | *Teacher notified on*: the day the reviewer asked for a justification or prepared the absence. The reminder and report delays count from it |
 | `reminder_date`, `escalated` | The reminder markers, as on `hr.leave` (see *Reminders* above) |
 | `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry is in `ASKED_STATES`. Shows **Request the absence** |
+| `can_request_correction` | Same, and the entry is over and has no `pending` correction request: shows **Request check-in correction** (issue #735) |
+| `correction_ids` | The teacher's correction requests (`ems.attendance_correction.absence_pending_id`) |
 | `can_review`, `can_correct_check_in` | Non-stored, `@api.depends_context('uid')`: the entry is `pending` and the user may review it (below); the second also needs the entry to be over (no check-in can be recorded for a time still to come). Drive the four actions' `invisible=` |
 
 ### Reviewing
@@ -835,6 +837,37 @@ once a justification was requested or the absence prepared) calls `action_reques
 `hr.leave` form with the employee, the day and, for a one-day entry, the hours as defaults, plus the
 type for a prepared one. Saving it links the entry
 through the mechanism above.
+
+**Or asking for a check-in correction (issue #735).** **Request check-in correction** (same
+place, same teacher, once the entry is over and while none of theirs is pending) calls
+`action_request_check_in_correction()`: an `ems.attendance_correction` form in a dialog, with
+`default_absence_pending_id` and, when the teacher has an attendance that day
+(`_ems_day_attendances()`, technical ones left out), the first one as `default_attendance_id`.
+The teacher may pick another attendance of that day or none (`allowed_attendance_ids`):
+
+- **With an attendance**, it is the usual correction request of that attendance.
+- **Without**, both times are required, in order; they default to the entry's own hours, and
+  accepting the request creates the attendance on the entry's day (`_accept_new_attendance()`),
+  which the request is about from then on. Such a request cannot be rejected once accepted
+  (the attendance it created may already have resolved the entry): the approver corrects or
+  deletes the attendance instead.
+
+Either way the request goes to the teacher's usual approver (`_find_attendance_approvers`), and
+the cron leaves the entry's reminders alone while it is `pending`
+(`('correction_ids', 'not any', [('state', '=', 'pending')])`). Accepting it writes the attendance
+with `ems_skip_absence_review_ids`, so `hr.attendance`'s review leaves this entry to
+`_ems_resolve_by_correction()`: `corrected` once nothing is missed (`_ems_missed_spans()` for a
+detected entry, `_ems_uncovered_spans()` for an informed one), otherwise a detected entry keeps
+what is still missed, as its review would. Rejecting it puts the entry back in the reminders.
+`create()` re-checks `can_request_correction` on the server (`_ems_check_correction_requestable()`).
+
+Both requested times use the `ems_time_of_day` widget (`static/src/js/backend/time_of_day_field.js`):
+`float_time` reads anything without `:` as decimal hours, made for durations ("13,04", the keypad's
+decimal key in Catalan and Spanish, became 13:00; "1304" became 1304 hours), so here `.`, `,`, `h`
+or no separator mean hours and minutes too, and `_check_at_least_one_requested` refuses anything
+outside 0-24 on the server. The **Correct check-in** dialog's datetimes take any minute
+(`rounding: 1`, no seconds): the picker offers multiples of five by default, which an entry's own
+hours (e.g. 16:06) seldom are.
 
 **On the guard duty board**, `ems.course._get_guard_duty_absence_intervals()` adds every
 unresolved entry touching the requested day as a `pending` interval,
@@ -981,6 +1014,7 @@ those same three groups.
 | Delete an entry | no | no | no | yes | no |
 | Request justification, Correct check-in, Create absence, Discard | no | yes | yes | yes | no |
 | Request the absence | no | no | no | no | own, once asked |
+| Request check-in correction | no | no | no | no | own, once asked and over |
 
 Technical and academic administrators (`base.group_system`, e.g. `admin`, and
 `ems.group_academic_admin`) usually have no place in the org chart, so the hierarchy rule alone

@@ -36,6 +36,11 @@ class TestAbsencePendingTour(HttpCase):
         absence.with_user(self.head_of_studies).action_request_justification()
         self.start_tour(f"/odoo/ems.absence_pending/{absence.id}", "ems_absence_pending_teacher",
                         login=self.teacher_user.login)
+        # Issue #735: no attendance that day, none picked; the times typed with a comma and
+        # without a separator.
+        self.assertFalse(absence.correction_ids.attendance_id)
+        self.assertEqual(absence.correction_ids.mapped(lambda correction: (
+            correction.requested_check_in, round(correction.requested_check_out, 4))), [(9.25, round(11 + 4 / 60, 4))])
 
     def test_head_of_studies_reviews_detected_absences_tour(self):
         """Issue #707: the reviewer, the teacher's Head of Studies (the least-privileged role that

@@ -19556,6 +19556,7 @@ msgstr "Ausencia solicitada"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__absence_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__absence_pending_id
 msgid "Detected absence"
 msgstr "Ausencia detectada"
 
@@ -27378,3 +27379,78 @@ msgstr "fichaje corregido por %(user)s de %(when)s."
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "the teacher's attendance covers part of it."
 msgstr "la asistencia del docente cubre una parte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Check-in correction requested by %(employee)s."
+msgstr "Corrección del fichaje solicitada por %(employee)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "The requested times must be times of the day, between 00:00 and 24:00."
+msgstr "Las horas solicitadas deben ser horas del día, entre las 00:00 y las 24:00."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "A correction request must be about an attendance or a detected absence."
+msgstr "Una solicitud de corrección debe ser de un fichaje o de una ausencia detectada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "The attendance must be the detected absence teacher's own."
+msgstr "El fichaje debe ser del mismo docente de la ausencia detectada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Without an attendance to correct, give both the check-in and a later check-out time."
+msgstr "Sin ningún fichaje que corregir, indica la hora de entrada y una hora de salida posterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "This request recorded a new attendance when it was accepted: correct or delete that attendance instead of rejecting it."
+msgstr "Esta solicitud registró un fichaje nuevo cuando se aceptó: corrige o elimina ese fichaje en lugar de rechazarla."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Check-in corrected: %(user)s accepted the teacher's correction request."
+msgstr "Fichaje corregido: %(user)s ha aceptado la solicitud de corrección del docente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "A check-in correction can only be requested by the teacher, for a detected absence they were asked to justify, once it is over and while no other one is pending."
+msgstr "Solo el docente puede solicitar una corrección del fichaje, de una ausencia detectada que se le ha pedido justificar, una vez terminada y mientras no haya otra pendiente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Request check-in correction"
+msgstr "Solicitar la corrección del fichaje"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
+msgid "None: record an attendance for that day"
+msgstr "Ninguno: registra un fichaje para ese día"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__allowed_attendance_ids
+msgid "Attendances of that day"
+msgstr "Fichajes de ese día"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_request_correction
+msgid "Can request a check-in correction"
+msgstr "Puede solicitar la corrección del fichaje"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__correction_ids
+msgid "Check-in correction requests"
+msgstr "Solicitudes de corrección del fichaje"

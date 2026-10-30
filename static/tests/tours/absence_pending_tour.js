@@ -93,6 +93,41 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             trigger: ".o_form_view .o_field_widget[name='origin']",
             content: "The detected absence is shown again",
         },
+        // Issue #735: or the teacher was at the centre. No attendance that day: none is picked.
+        ...clickAction("action_request_check_in_correction", "Request check-in correction"),
+        {
+            trigger: ".modal .o_field_widget[name='absence_pending_id']",
+            content: "A correction request about the detected absence opens",
+        },
+        {
+            // The numeric keypad's decimal key writes a comma: minutes, not a fraction of an hour.
+            trigger: ".modal .o_field_widget[name='requested_check_in'] input",
+            content: "Arrived at 9:15",
+            run: "edit 9,15",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='requested_check_out'] input",
+            content: "Left at 11:04",
+            run: "edit 1104",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Why",
+            run: "edit I forgot to check in",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='requested_check_in'] input:value('09:15')",
+            content: "Read as 09:15",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Send the request",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='origin']",
+            content: "Back on the detected absence",
+        },
     ],
 });
 

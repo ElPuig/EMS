@@ -14,12 +14,14 @@
 
 | Field | Type | Required | Stored | Description |
 |-------|------|----------|--------|-------------|
-| `attendance_id` | `Many2one → hr.attendance` | Yes | Yes | The attendance record being corrected |
-| `employee_id` | `Many2one → hr.employee` (related) | — | Yes | From `attendance_id.employee_id` |
+| `attendance_id` | `Many2one → hr.attendance` | Yes, unless `absence_pending_id` | Yes | The attendance record being corrected. Empty for a teacher's request about a detected absence's day with no attendance: accepting it creates one and sets it here |
+| `absence_pending_id` | `Many2one → ems.absence_pending` | No | Yes | The detected absence the teacher answers with this request (issue #735, see [absence.md](../employees/absence.md)) |
+| `allowed_attendance_ids` | `Many2many → hr.attendance` (computed) | — | No | The teacher's attendances on that detected absence's day, the choices for `attendance_id` |
+| `employee_id` | `Many2one → hr.employee` (computed) | — | Yes | `attendance_id.employee_id`, or the detected absence's teacher |
 | `original_check_in` | `Datetime` (snapshotted at `create()`) | — | Yes | `attendance_id.check_in` at the time the request was made — not related, so it survives `action_accept()` overwriting the attendance |
 | `original_check_out` | `Datetime` (snapshotted at `create()`) | — | Yes | `attendance_id.check_out` at the time the request was made, same reasoning |
-| `requested_check_in` | `Float` (`float_time` widget) | No | Yes | Desired new check-in **time of day** (optional) — the date is not editable, see below |
-| `requested_check_out` | `Float` (`float_time` widget) | No | Yes | Desired new check-out **time of day** (optional) — the date is not editable, see below |
+| `requested_check_in` | `Float` (`ems_time_of_day` widget) | No | Yes | Desired new check-in **time of day** (optional) — the date is not editable, see below |
+| `requested_check_out` | `Float` (`ems_time_of_day` widget) | No | Yes | Desired new check-out **time of day** (optional) — the date is not editable, see below |
 | `reason` | `Text` | Yes | Yes | Why the correction is needed |
 | `state` | `Selection` | Yes | Yes | `pending` / `accepted` / `rejected` |
 | `approver_id` | `Many2one → res.users` | No | Yes | Stamped on decision |
@@ -27,7 +29,7 @@
 | `decision_note` | `Text` | No | Yes | Optional note left by the approver |
 | `is_check_out_requestable` | `Boolean` (computed) | — | No | `False` while the attendance is still open (no `check_out` yet) *and* the employee is still within their expected working hours for that day; drives whether `requested_check_out` is shown in the form |
 
-At least one of `requested_check_in` / `requested_check_out` is enforced both at the Python level (`@api.constrains`) and at the DB level (`_sql_constraints`).
+At least one of `requested_check_in` / `requested_check_out` is enforced both at the Python level (`@api.constrains`) and at the DB level (`_sql_constraints`), and both must be times of the day (0-24). `ems_time_of_day` reads `9.15`, `9,15`, `9h15` and `915` as 9:15, where `float_time` would read decimal hours (issue #735). A request about a detected absence's day without attendance needs both times, in order (`_check_attendance_or_absence`), and once accepted cannot be rejected: correct or delete the attendance it created instead.
 
 **Time-only correction:** a teacher can only request a different *time of day*, not a different date — the date is always taken from the original `hr.attendance` record. `_combine_date_and_time()` converts the original `check_in`/`check_out` (UTC) to the company's local timezone via `ems.datetime_utils.utc_datetime_to_local()`, keeps its `.date()`, and combines it with the requested float time via `time_float_to_utc_datetime()` (same mixin, reused rather than re-implemented — see the `ems.attendance_template`/`attendance_schedule` cron code for the other consumer of this helper). If `check_out` isn't set yet (still clocked in) and a check-out time is requested, `check_in`'s date is used instead since there is no original check-out to anchor to.
 

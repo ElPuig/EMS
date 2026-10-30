@@ -268,6 +268,8 @@
                                                                 <span t-if="cell['substitutes']" class="gdb-cell-teacher">⇄ <t t-esc="', '.join(cell['substitutes'].mapped('name'))"/></span>
                                                                 <!-- Issue #660: the other half of a split group taught together with it then. -->
                                                                 <span t-if="cell.get('joined')" class="gdb-cell-teacher">Together with <t t-esc="', '.join(cell['joined'].mapped('name'))"/></span>
+                                                                <!-- Issue #725: the guards sent to support its teacher then. -->
+                                                                <span t-if="cell.get('supports')" class="gdb-cell-teacher">Support: <t t-esc="', '.join(cell['supports'].mapped('name'))"/></span>
                                                                 <span t-if="cell['entries'][:1].space_id" class="gdb-cell-room" t-esc="cell['entries'][:1].space_id.display_name"/>
                                                             </td>
                                                         </t>

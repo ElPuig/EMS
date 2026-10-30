@@ -27373,3 +27373,151 @@ msgstr "Suma les seves franges"
 #: model:ir.model.fields,help:ems.field_ems_non_teaching_type__adds_up_periods
 msgid "Its periods of the week are added up before rounding up to whole hours in the hours summaries, instead of each one counting at least one hour (e.g. break guard duties: three of 25 minutes count 2 hours)."
 msgstr "Als resums d'hores, les seves franges de la setmana se sumen abans d'arrodonir a hores senceres, en lloc de comptar cadascuna com a mínim una hora (p. ex. les guàrdies de pati: tres de 25 minuts compten 2 hores)."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_cover__cover_type__support
+msgid "Support for the teacher"
+msgstr "Suport al docent"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Support for %s"
+msgstr "Suport a %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Support cancelled: %(group)s, %(date)s %(time)s"
+msgstr "Suport anul·lat: %(group)s, %(date)s %(time)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You no longer need to support %s in this class:"
+msgstr "Ja no cal que donis suport a %s en aquesta classe:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%s will no longer come to support you in this class:"
+msgstr "%s ja no vindrà a donar-te suport en aquesta classe:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "Support: %(group)s, %(date)s %(time)s"
+msgstr "Suport: %(group)s, %(date)s %(time)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "You have been sent to support %s in this class:"
+msgstr "T'han enviat a donar suport a %s en aquesta classe:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%s, on guard duty, has been sent to support you in this class:"
+msgstr "%s, que és de guàrdia, vindrà a donar-te suport en aquesta classe:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(group)s - %(teacher)s"
+msgstr "%(group)s - %(teacher)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/absence_coverage.py:0
+msgid "%(guard)s cannot be sent to support this class now: they are no longer free, or the class or its teacher has changed. Reload the board."
+msgstr "Ara %(guard)s no pot anar a donar suport a aquesta classe: ja no està lliure, o la classe o el seu docent han canviat. Torna a carregar el quadrant."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "Send %(guard)s as support (%(time)s)"
+msgstr "Enviar %(guard)s de suport (%(time)s)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "Currently supporting"
+msgstr "Ara dona suport a"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "Class to support"
+msgstr "Classe a la qual donar suport"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "There is no class you manage in this period whose teacher is in."
+msgstr "En aquesta franja no hi ha cap classe que gestionis amb el docent present."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "Message for the guard and the teacher"
+msgstr "Missatge per al docent de guàrdia i el docent"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "What the support is needed for..."
+msgstr "Per a què cal el suport..."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "Send and notify"
+msgstr "Enviar i avisar"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "Remove support"
+msgstr "Treure el suport"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_support_dialog.js:0
+msgid "%(group)s - %(teacher)s (%(details)s)"
+msgstr "%(group)s - %(teacher)s (%(details)s)"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Send as support to a teacher in class"
+msgstr "Enviar de suport a un docent que és a classe"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Support:"
+msgstr "Suport:"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_unchecked_dialog.js:0
+msgid "%(teacher)s has not checked in yet. If they are in the centre, their check-in is registered now in your name and they are told."
+msgstr "%(teacher)s encara no ha fitxat. Si és al centre, se li registra ara l'entrada en nom teu i se li comunica."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_unchecked_dialog.js:0
+msgid "They are in the centre"
+msgstr "És al centre"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Not checked in: say they are in the centre"
+msgstr "Sense fitxar: indica que és al centre"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Available: assign them from the row of an absence"
+msgstr "Disponible: s'assigna des de la fila d'una absència"

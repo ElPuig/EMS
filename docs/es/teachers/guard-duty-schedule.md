@@ -79,6 +79,8 @@ La tabla usa los mismos tramos de tiempo que el horario, con una columna por ár
 - **Una columna por área** — una línea por cada clase que se queda sin docente en esa área: quién falta, y el grupo, la asignatura y el aula que hay que cubrir, dentro de un bloque con la hora de la clase. El patio del área aparece como un bloque "Patio".
 - **Guardia** — los docentes de guardia, agrupados por la franja de su guardia, los mismos que muestra el horario.
 
+En la columna **Guardia**, la casilla de un docente de guardia se ve como siempre mientras está libre para cubrir una clase; la indicación recuerda que se asigna desde la línea de una ausencia. Aparece en gris cuando no puede cubrir nada: falta, aún no ha fichado (también lleva un icono de reloj) o ya está con un grupo (su nombre aparece tachado y la indicación dice con cuál). Quien organiza las ausencias también puede hacer clic en la casilla de un docente de guardia libre para enviarlo a apoyar a un docente que está en clase (consulta [Enviar un docente de guardia de apoyo](../department_chiefs/absences.md#enviar-un-docente-de-guardia-de-apoyo)).
+
 Así ves de un vistazo qué guardias coinciden con cada clase que hay que cubrir, aunque las dos áreas tengan las clases a horas distintas. Un tramo donde no falta nadie tiene las columnas de área vacías.
 
 En una clase con codocencia (dos docentes en la misma aula) en la que solo falta uno, su línea aparece **tachada**: sigue ahí para que sepas quién falta, pero no hace falta guardia porque el otro docente se hace cargo de la clase. Pasa el ratón por encima de la línea o haz clic en ella para ver el motivo; el icono **ⓘ** de su izquierda indica que hay una explicación.
@@ -129,6 +131,8 @@ A veces el docente está en el aula y solo se ha olvidado de fichar. Si estás d
 Se registra la entrada del docente a la hora actual, la clase sale de la tabla y el docente recibe un mensaje que dice quién la ha registrado. En la ficha del fichaje, **Entrada registrada por** muestra tu nombre. Si la hora no es correcta, el docente puede solicitar una corrección como con cualquier otro fichaje.
 
 El mismo diálogo también ofrece lo que podrías hacer con la línea: **Cubrirla yo** si estás de guardia (la clase queda cubierta con tu nombre enseguida, sin ninguna otra confirmación, igual que con **Está en el aula**), o **Enviar un docente de guardia** si organizas la ausencia. Una clase que ya ha terminado no se puede resolver así: registrar ahora la entrada del docente no la cambiaría.
+
+Un docente de guardia que no ha fichado se resuelve de la misma manera, desde su casilla en la columna **Guardia** (la indicación dice **Sin fichar: indica que está en el centro**): otro docente de guardia de esa franja, o quien organiza sus ausencias, hace clic en ella y después en **Está en el centro**. Una vez ha fichado, ya se le puede enviar a cubrir una clase.
 
 ### El horario se actualiza solo
 

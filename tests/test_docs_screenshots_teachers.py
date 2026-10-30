@@ -693,6 +693,81 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             wait_after=['.o_form_view .alert-info'], max_height=760,
         )
 
+    def test_capture_guard_duty_support(self):
+        """Sending a guard on duty as support to a teacher who is in class (issue #725), as their
+        Department Chief, on next Monday: the dialog opened from the guard's badge, and the absences
+        table once sent (the guard busy, struck out). Every name and group is invented."""
+        if not self.env.company.current_course_id:
+            self.env.company.current_course_id = self.env['ems.course'].create({'start': 1998, 'end': 1999})
+        mock_outgoing_email(self)
+        level, study, group_a = create_level_study_group(self, 'DOCSUP', level={
+            'name': 'Formació professional',
+        }, study={
+            'code': 'DOCSUP01', 'acronym': 'DAM', 'name': "Desenvolupament d'aplicacions multiplataforma",
+        }, group={'acronym': 'A', 'course': 1})
+        group_b = self.env['ems.group'].create({'course': 1, 'acronym': 'B', 'level_id': level.id, 'study_id': study.id})
+        subject = self.env['ems.subject'].create({
+            'code': 'DOCSUPSUB', 'acronym': 'BD', 'name': 'Bases de dades', 'study_ids': [(6, 0, [study.id])]})
+        chief_user = create_role_user(self, 'department_chief', 'doc_shot_chief725', lang='ca_ES', name='Cap Exemple')
+        chief = create_role_employee(self, chief_user)
+        area = self.env['hr.department'].create({'name': 'FP (exemple)', 'is_top_level': True, 'top_level_area': 'academic'})
+        department = self.env['hr.department'].create({
+            'name': 'Departament Exemple', 'manager_id': chief.id, 'parent_id': area.id})
+        study.managing_department_id = department
+        guard_type = self.env.ref('ems.non_teaching_g')
+
+        def teacher(name, group=None):
+            employee = self.env['hr.employee'].create({
+                'name': name, 'employee_type': 'teacher', 'department_id': department.id})
+            employee.parent_id = chief
+            calendar = self.env['resource.calendar'].create({
+                'name': f'{name} Calendar', 'employee_id': employee.id, 'attendance_ids': [(5, 0, 0)]})
+            employee.resource_calendar_id = calendar
+            calendar.apply_schedule_changes([{
+                'dayofweek': '0', 'hour_from': hour, 'hour_to': hour + 1, 'day_period': 'morning',
+                **({'subject_id': subject.id, 'group_ids': [group.id], 'name': 'DOCSUP: BD'} if group else
+                   {'non_teaching': guard_type.id, 'name': 'Guàrdia'}),
+            } for hour in (8, 9)])
+            return employee
+
+        jordi = teacher('0000 Jordi Mostra', group_a)
+        teacher('0000 Anna Fictícia', group_b)
+        marti = teacher('0000 Martí Mostra')
+        teacher('0000 Clara Prova')
+        day = self.env['ems.datetime_utils'].get_local_today() + timedelta(days=1)
+        while day.weekday() != 0:
+            day += timedelta(days=1)
+
+        fixture_ids = department.member_ids.ids
+        course_model = type(self.env['ems.course'])
+        original = course_model._get_guard_duty_board_attendance_ids
+        patcher = patch.object(course_model, '_get_guard_duty_board_attendance_ids', lambda course, domain=(): original(course, domain).filtered(
+            lambda attendance: attendance.calendar_id.employee_id.id in fixture_ids))
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+        url = f'/odoo/action-ems.action_guard_duty_board?date={day}&shift=morning&view=table'
+        badge = """[...document.querySelectorAll('.o_guard_board_guard_cell')]
+            .find((cell) => cell.querySelector('.o_guard_board_block_time').textContent.includes('08:00'))
+            .querySelector('.o_guard_board_guard_supportable')"""
+        self._capture(
+            url, '.modal-content', 'guard-duty-17-suport.png', login='doc_shot_chief725',
+            wait_for='.o_guard_board_guard_supportable',
+            run=[f"""[...{badge.replace(".querySelector('.o_guard_board_guard_supportable')", ".querySelectorAll('.o_guard_board_guard_supportable')")}]
+                     .find((element) => element.textContent.includes('Martí')).click();""",
+                 "document.querySelector('.o_guard_support_option input').click();",
+                 """(function () {
+                    var area = document.querySelector('.o_guard_support_message');
+                    area.value = 'El grup està molt mogut: ajuda amb la pràctica.';
+                    area.dispatchEvent(new Event('input'));
+                 })();"""],
+            wait_after=['.o_guard_support_option', '.o_guard_support_message', '.o_guard_support_send:enabled'],
+        )
+        self.env['ems.absence_cover'].with_user(chief_user).board_support(
+            str(day), 8, 9, marti.id, jordi.id, group_a.id, 'El grup està molt mogut: ajuda amb la pràctica.')
+        self._capture(url, '.o_guard_board_duty_table', 'guard-duty-18-suport-enviat.png', login='doc_shot_chief725',
+                      wait_for='.o_guard_board_guard_busy')
+
     def test_capture_guard_duty_chained_arrangement(self):
         """Issue #645, as the Department Chief: the proposals box and a class's dialog for two
         groups whose teacher, away all day, teaches them together at 8:00 and 12:00. The best

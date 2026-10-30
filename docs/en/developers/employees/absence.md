@@ -707,6 +707,12 @@ stateDiagram-v2
     justification_requested --> discarded: an attendance covers it (check_in only)
     absence_prepared --> linked: the teacher checks it, accepts the declaration and sends it
     absence_prepared --> discarded: an attendance covers it (check_in only)
+    pending --> justification_requested: the teacher asks for a check-in correction (any way)
+    justification_requested --> corrected: their correction accepted
+    absence_prepared --> corrected: their correction accepted
+    justification_requested --> pending: their correction rejected
+    linked --> pending: its absence refused, cancelled, deleted or moved away (reopened)
+    corrected --> pending: the accepted correction rejected afterwards (reopened)
     linked --> [*]
     corrected --> [*]
     discarded --> [*]
@@ -715,7 +721,7 @@ stateDiagram-v2
 ```mermaid
 erDiagram
     HR_EMPLOYEE ||--o{ EMS_ABSENCE_PENDING : "employee_id (teachers only)"
-    HR_LEAVE |o--o{ EMS_ABSENCE_PENDING : "leave_id (set once, for good)"
+    HR_LEAVE |o--o{ EMS_ABSENCE_PENDING : "leave_id (while the absence covers it)"
     RES_COMPANY }o--o{ HR_DEPARTMENT : "ems_absence_circuit_area_ids (areas)"
     EMS_ABSENCE_PENDING {
         datetime date_from
@@ -821,18 +827,32 @@ teacher filing an overlapping absence links every unresolved entry (`_link_to_le
 check-in recorded afterwards reviews unresolved `check_in` entries
 (`_ems_review_detected_absences`). Both close the review activity.
 
-**Linking is automatic and final.** `hr.leave.create()` and, when its dates, hours, employee or
-state change, `hr.leave.write()` call `ems.absence_pending._link_to_leaves()`: every unresolved
-entry of the same employee that overlaps the absence becomes `linked` to it. The absence's range
+**Linking is automatic, and lasts while the absence holds (issue #735).** An entry is there to
+claim one of the teacher's two duties, requesting the absence or a correction of their check-in;
+whichever way that request comes, it resolves the entry, and if it falls through the entry claims
+again. `hr.leave.create()` and, when its dates, hours, employee or state change, `hr.leave.write()`
+call `ems.absence_pending._ems_relink()` (which calls `_link_to_leaves()`): every unresolved
+entry of the same employee that overlaps the absence has the part it covers `linked` to it
+(`_ems_carve()`: that part stays the entry, what still holds a schedule period is split off at its
+stage, as an attendance's review would). The absence's range
 is read by `hr.leave._ems_utc_range()` exactly as the guard duty board reads it (the requested
 hours of a partial one-day absence, whole days in the company's timezone otherwise), not from
 Odoo's own `date_from`/`date_to`, which clip a whole day to the employee's working hours. It runs
 under `sudo()`, since the teacher filing the absence can only read their own entries.
 
-Only absences in a state the board plans around (`confirm`, `validate1`, `validate`) link. Once
-linked, the entry has done its job and stays as history: refusing, cancelling, moving or deleting
-the teacher's absence never sends it back, and its employee and dates can no longer be edited
-(`write()` raises, for `corrected` and `discarded` too). From then on only the real absence counts.
+Only absences in a state the board plans around (`confirm`, `validate1`, `validate`) link. A
+linked entry's employee and dates can no longer be edited (`write()` raises, for `corrected` and
+`discarded` too). When its absence is refused, cancelled, moved to days or a teacher it no longer
+covers (`_ems_relink`) or deleted (`hr.leave.unlink()`), the entry is **reopened**
+(`_ems_reopen()`): back to `pending`, its link, type, notification date and reminder markers
+cleared, a note saying why, and a new review task; the teacher hears nothing until asked again.
+Undoing the refusal links it again. The days the absence covered are then detected again for that
+teacher (`_ems_detect_dropped()` → `_ems_detect_missing_check_ins(day, employees)`): a request
+filed beforehand kept them out of the detection, so a refused one would otherwise never be
+claimed. Only the days the detection has already been through (from the first detected absence to
+`ems.missing_check_in_last_day`); later ones it reaches on its own. Migration 18.0.0.42.1 reopens
+the entries linked to absences refused, cancelled or deleted before
+(`_ems_reopen_dropped_requests()`).
 
 **Requesting it.** **Request the absence** (in the form's Actions dropdown, for the teacher only,
 once a justification was requested or the absence prepared) calls `action_request_absence()`: a new
@@ -854,23 +874,31 @@ place, same teacher, once the entry is over and while none of theirs is pending)
 `default_absence_pending_id` and the attendance it is about as `default_attendance_id`. That
 attendance is never the teacher's choice: `_ems_attendance_to_correct()` takes, on the entry's
 day, the first one from the entry's start on (a late arrival: the one the entry ends at),
-otherwise the last one before it, otherwise none (technical ones left out). The form hides it,
-and `create()` imposes it whatever the client sends:
+otherwise the last one before it; with no real one, the technical attendance Odoo's absence
+detection leaves on a day without check-in (shown in red, the one teachers have always asked to
+correct); otherwise none. The form hides it, and `create()` imposes it whatever the client sends.
+A correction asked for **from the attendance itself** (the classic Request Correction) is linked
+the same way to the teacher's unresolved entry of that day (`_ems_entry_for_correction()`), and
+an entry still `pending` then moves to `justification_requested`: off the review, the teacher
+already answering it.
 
 - **With an attendance**, it is the usual correction request of that attendance.
 - **Without**, both times are required, in order; they default to the entry's own hours, and
   accepting the request creates the attendance on the entry's day (`_accept_new_attendance()`),
-  which the request is about from then on. Such a request cannot be rejected once accepted
-  (the attendance it created may already have resolved the entry): the approver corrects or
-  deletes the attendance instead.
+  which the request is about from then on. Rejecting it afterwards deletes that attendance
+  (`_undo()`).
+- **The red one**, both times are required too, defaulting to the entry's hours; accepting turns
+  it into a real attendance (Odoo switches a technical one to manual when its times are written),
+  rejecting afterwards restores it as it was, technical again.
 
 Either way the request goes to the teacher's usual approver (`_find_attendance_approvers`), and
 `can_request` (so **Request the absence**, re-checked in `action_request_absence()`) is off and the cron leaves the entry's reminders alone while it is `pending`; the other way round, a requested absence links the entry, which then offers no correction either. An absence filed from My Time Off while the correction waits still links the entry, and `_link_to_leaves()` withdraws the correction (`ems.attendance_correction._withdraw()`: rejected, no approver, its task closed)
 (`('correction_ids', 'not any', [('state', '=', 'pending')])`). Accepting it writes the attendance
 with `ems_skip_absence_review_ids`, so `hr.attendance`'s review leaves this entry to
-`_ems_resolve_by_correction()`: `corrected` once nothing is missed (`_ems_missed_spans()` for a
-detected entry, `_ems_uncovered_spans()` for an informed one), otherwise a detected entry keeps
-what is still missed, as its review would. Rejecting it puts the entry back in the reminders.
+`_ems_resolve_by_correction()`: the part the attendance now covers becomes `corrected`
+(`_ems_carve()`, `_ems_missed_spans()` for a detected entry, `_ems_uncovered_spans()` for an
+informed one), what is still missed is split off at its stage. Rejecting the request, pending or
+already accepted (`_undo()` restores the attendance first), reopens the entry it answered.
 `create()` re-checks `can_request_correction` on the server (`_ems_check_correction_requestable()`).
 
 Both requested times use the `ems_time_of_day` widget (`static/src/js/backend/time_of_day_field.js`):

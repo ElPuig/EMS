@@ -3,7 +3,7 @@
 ## Teacher can answer a detected absence with a check-in correction request:
 
 - A teacher asked to justify a detected absence (or with the absence prepared for them) now gets both options in the form's Actions dropdown: **Request the absence** and, once the absence is over, **Request check-in correction**. Before, the only way to say "I was at the centre" was to ask the Head of Studies by other means.
-- It reuses the usual attendance correction request (`ems.attendance_correction`), now linked to the detected absence (`absence_pending_id`). Two scenarios: the teacher has an attendance that day (the first one is preselected, another can be picked) and it is corrected as usual; or they have none, then both times are required (prefilled with the absence's hours) and accepting the request creates the attendance (such a request can't be rejected once accepted: the approver corrects or deletes the attendance).
+- It reuses the usual attendance correction request (`ems.attendance_correction`), now linked to the detected absence (`absence_pending_id`).
 - The attendance the request is about is never the teacher's choice (hidden in the dialog, imposed by the server): a real check-in of that day if there is one (e.g. a late arrival), otherwise the red technical attendance Odoo leaves on a day without check-in (the one teachers have always asked to correct), otherwise a new one recorded on acceptance. For a red one, the requested times default to the absence's (also from the classic "Request Correction" on a red attendance, which now proposes the schedule's times instead of 00:00); accepting turns it into a real attendance and rejecting restores it as a red one (rejecting a pending request no longer turns it into a manual attendance either).
 - The detected absence's form shows the teacher a blue notice with what is expected of them: request the absence or a check-in correction, send the absence prepared for them, or wait for their correction to be reviewed.
 - The two answers exclude each other: while a correction request is pending the teacher can't request the absence (button hidden, refused on the server), and once the absence is requested no correction is offered.
@@ -13,6 +13,15 @@
 - Chiefs, Heads of Studies and the Director only read and regularize their own detected absences, like any teacher (they could edit their dates before): hierarchy rule split into read and change, the teacher's own rule made read-only. "Absences to regularize" offers no New button.
 - The teacher's correction dialog hides the status bar and the Decision section while the request is being written.
 - Accepting resolves the detected absence as **Check-in corrected** once nothing is missed (a detected one keeps the part still missed, as its review would). The teacher's reminders pause while the request is pending and resume if it is rejected.
+
+## A detected absence is claimed again whenever what resolved it falls through:
+
+- A detected absence exists to claim one of the teacher's two duties: requesting the absence or a check-in correction. Whichever way that request comes, it resolves the entry; if it falls through, the entry goes back to the Head of Studies' review ("To review", with a new task and a note saying why; the teacher hears nothing until asked again).
+- Reopened when its absence request is refused, cancelled, deleted or moved to other days (undoing the refusal links it again), and when its check-in correction is rejected, also after having been accepted (the attendance is restored, or deleted if the correction recorded it: such a correction can now be rejected).
+- An absence request filed beforehand kept its days out of the detection; refused or cancelled, those past days are detected then for that teacher (only days the detection had already gone through).
+- A correction asked for from the attendance itself (the classic "Request Correction", e.g. on the red one) now answers the detected absence of that day like the button does: reminders paused, off the review, resolved on acceptance.
+- Partial coverage: an absence request or a correction covering only part of a detected absence resolves that part (it keeps the entry, so a later refusal or rejection reopens only it); what still holds a schedule period stays claimed.
+- Migration 18.0.0.42.1 reopens the detected absences whose absence request was refused, cancelled or deleted before this version.
 
 ## Times typed by hand are read as hours and minutes:
 

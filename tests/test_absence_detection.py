@@ -859,8 +859,11 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual((correction.attendance_id.check_in, correction.attendance_id.check_out),
                          (self._utc(self.yesterday, 9.0), self._utc(self.yesterday, 13.0)))
         self.assertEqual(absence.state, 'corrected')
-        with self.assertRaises(UserError, msg='the attendance it recorded is corrected by hand instead'):
-            correction.with_user(self.head_of_studies).action_reject()
+        # The approver corrects their decision: the attendance it recorded goes, the entry is back.
+        attendance = correction.attendance_id
+        correction.with_user(self.head_of_studies).action_reject()
+        self.assertFalse(attendance.exists())
+        self.assertEqual(absence.sudo().state, 'pending', 'back to the review, which the teacher does not see')
 
     def test_teacher_requests_a_correction_of_a_late_check_in(self):
         """The teacher's attendance of that day is the one corrected; a part still missed stays
@@ -877,8 +880,10 @@ class TestAbsenceDetection(TransactionCase):
         correction.with_user(self.head_of_studies).action_accept()
 
         self.assertEqual(attendance.check_in, self._utc(self.yesterday, 10.0))
-        self.assertEqual(absence.state, 'justification_requested', '9:00 to 10:00 still missed')
-        self.assertEqual(self._hours(absence), (9.0, 10.0))
+        # Issue #735: the part corrected stays the entry the correction answered; the rest is asked.
+        rest = self._detected() - absence
+        self.assertEqual((absence.state, self._hours(absence)), ('corrected', (10.0, 12.5)))
+        self.assertEqual((rest.state, self._hours(rest)), ('justification_requested', (9.0, 10.0)), '9:00 to 10:00 still missed')
 
     def test_correction_request_checks(self):
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
@@ -905,10 +910,10 @@ class TestAbsenceDetection(TransactionCase):
         self.assertFalse(reminders(), 'waiting for the decision')
 
         correction.with_user(self.head_of_studies).action_reject()
+        self.assertEqual(absence.state, 'pending', 'rejected: back to the review')
+        self.assertIn(self.env.ref('ems.mail_activity_absence_pending_review'), absence.activity_ids.activity_type_id)
         self._run_cron_on(self.today)
-        self.assertTrue(reminders(), 'rejected: asked again')
-        self.assertTrue(absence.with_user(self.teacher_user).can_request_correction)
-        self.assertTrue(absence.with_user(self.teacher_user).can_request, 'or request the absence')
+        self.assertFalse(reminders(), 'the teacher hears nothing until asked again')
 
     def test_teacher_requests_the_red_attendance_of_a_day_without_check_in(self):
         """The technical attendance Odoo's absence detection leaves on a day without check-in (in
@@ -937,6 +942,7 @@ class TestAbsenceDetection(TransactionCase):
         correction.with_user(self.head_of_studies).action_reject()
         self.assertEqual((red.check_in, red.in_mode, red.out_mode), (self._utc(self.yesterday, 0.0), 'technical', 'technical'),
                          'a day without check-in again')
+        self.assertEqual(absence.state, 'pending', 'claimed again')
 
     def test_the_status_bar_follows_each_circuit(self):
         """Issue #735: the steps each entry went through, ending in its state; the teacher never
@@ -996,3 +1002,90 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(correction.state, 'rejected')
         self.assertFalse(correction.approver_id, "nobody's decision")
         self.assertFalse(correction.activity_ids, 'off the approver task list')
+
+    # --- The whole circuit (issue #735) ----------------------------------------------------------
+
+    def _leave(self, day, hour_from=None, hour_to=None, employee=None):
+        values = {'employee_id': (employee or self.teacher).id, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+                  'request_date_from': day, 'request_date_to': day,
+                  'ems_submitted': True, 'ems_responsible_declaration': True}
+        if hour_from is None:
+            values['ems_full_day'] = True
+        else:
+            values.update({'ems_full_day': False, 'request_hour_from': hour_from, 'request_hour_to': hour_to})
+        return self.env['hr.leave'].create(values)
+
+    def test_a_correction_asked_from_the_attendance_answers_the_entry(self):
+        """The classic Request Correction, on the red attendance: same effect as the button."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        self.assertEqual(absence.state, 'pending')
+        red = self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': self._utc(self.yesterday, 0.0),
+            'check_out': self._utc(self.yesterday, 0.0) + timedelta(seconds=1),
+            'in_mode': 'technical', 'out_mode': 'technical'})
+        correction = self.env['ems.attendance_correction'].with_user(self.teacher_user).with_context(
+            default_attendance_id=red.id).create({'reason': 'Forgot to check in.', 'requested_check_in': 9.0,
+                                                  'requested_check_out': 13.0})
+        self.assertEqual(correction.absence_pending_id, absence)
+        self.assertEqual(absence.state, 'justification_requested', 'the teacher is already answering it')
+        self.assertFalse(self._review_activities(absence), 'off the review')
+        self.assertTrue(absence.with_user(self.teacher_user).has_pending_correction)
+        self._run_cron_on(self.today)
+        self.assertFalse(self._messages_to(absence, self.teacher_user, 'No check-in'), 'no reminder meanwhile')
+
+        correction.with_user(self.head_of_studies).action_accept()
+        self.assertEqual(absence.state, 'corrected')
+
+    def test_a_refused_request_of_a_past_day_is_detected_after_all(self):
+        """Filed beforehand, the request kept the day out of the detection; refused, it is
+        detected then, to the review."""
+        leave = self._leave(self.yesterday)
+        self._teacher('TAD Absent Teacher')
+        self._run_cron_on(self.today)
+        self.assertFalse(self._detected(), 'covered by the request')
+
+        leave.action_refuse()
+        absence = self._detected()
+        self.assertEqual(absence.state, 'pending')
+        self.assertEqual(self._hours(absence), (9.0, 13.0))
+        self.assertTrue(self._review_activities(absence))
+
+    def test_a_request_covering_part_resolves_that_part(self):
+        """The part the request covers is linked to it; what still holds a period is claimed. If
+        the request falls through, only its part is back to the review."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        leave = self._leave(self.yesterday, 9.0, 11.0)
+
+        rest = self._detected() - absence
+        self.assertEqual((absence.state, absence.leave_id, self._hours(absence)), ('linked', leave, (9.0, 11.0)))
+        self.assertEqual((rest.state, self._hours(rest)), ('justification_requested', (11.0, 13.0)))
+
+        leave.action_refuse()
+        self.assertEqual((absence.state, self._hours(absence)), ('pending', (9.0, 11.0)))
+        self.assertEqual(rest.state, 'justification_requested', 'untouched')
+
+    def test_a_correction_covering_part_and_its_rectification(self):
+        """Corrected only for the hours requested; rejecting it afterwards reopens just those."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        correction = self._request_correction(absence, requested_check_in=9.0, requested_check_out=11.0)
+        correction.with_user(self.head_of_studies).action_accept()
+
+        rest = self._detected() - absence
+        self.assertEqual((absence.state, self._hours(absence)), ('corrected', (9.0, 11.0)))
+        self.assertEqual((rest.state, self._hours(rest)), ('justification_requested', (11.0, 13.0)))
+
+        correction.with_user(self.head_of_studies).action_reject()
+        self.assertEqual((absence.state, self._hours(absence)), ('pending', (9.0, 11.0)))
+        self.assertEqual(rest.state, 'justification_requested')
+
+    def test_the_migration_reopens_the_entries_of_dropped_requests(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        absence.sudo().write({'state': 'linked'})
+
+        self.Pending._ems_reopen_dropped_requests()
+        self.assertEqual(absence.state, 'pending')
+

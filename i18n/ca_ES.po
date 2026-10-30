@@ -27404,12 +27404,6 @@ msgstr "Per a un dia sense fitxatge, indica l'hora d'entrada i una hora de sorti
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "This request recorded a new attendance when it was accepted: correct or delete that attendance instead of rejecting it."
-msgstr "Aquesta sol·licitud va registrar un fitxatge nou quan es va acceptar: corregeix o elimina aquest fitxatge en lloc de rebutjar-la."
-
-#. module: ems
-#. odoo-python
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "Check-in corrected: %(user)s accepted the teacher's correction request."
 msgstr "Fitxatge corregit: %(user)s ha acceptat la sol·licitud de correcció del docent."
@@ -27507,3 +27501,39 @@ msgstr "Passos de l'estat"
 #: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "Rejected on its own: the teacher requested the absence instead."
 msgstr "Rebutjada automàticament: el docent ha sol·licitat l'absència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request %(leave)s no longer covers it."
+msgstr "Reoberta: la sol·licitud d'absència %(leave)s ja no la cobreix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was deleted."
+msgstr "Reoberta: s'ha eliminat la sol·licitud d'absència que la resolia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was refused, cancelled or deleted."
+msgstr "Reoberta: la sol·licitud d'absència que la resolia s'ha rebutjat, cancel·lat o eliminat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Reopened: %(user)s rejected the teacher's check-in correction request."
+msgstr "Reoberta: %(user)s ha rebutjat la sol·licitud de correcció del fitxatge del docent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "the absence request %(leave)s covers part of it."
+msgstr "la sol·licitud d'absència %(leave)s en cobreix una part."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "its check-in was corrected for part of it."
+msgstr "se n'ha corregit el fitxatge d'una part."

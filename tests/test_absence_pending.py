@@ -286,19 +286,36 @@ class TestAbsencePending(TransactionCase):
 
         self.assertEqual(pending.leave_id, leave)
 
-    def test_the_link_is_final(self):
-        """Once the teacher has filed it, the entry has done its job: whatever becomes of the
-        real request afterwards, it never goes back to pending."""
-        tuesday = self.monday + timedelta(days=1)
-        refused, deleted = self._pending(), self._pending(day=tuesday)
-        refused_leave, deleted_leave = self._leave(), self._leave(day=tuesday)
+    def test_a_dropped_request_reopens_the_entry(self):
+        """Issue #735: the entry is there to claim the request; when the request falls through
+        (refused, deleted, moved away), it is back to the review, with its task."""
+        tuesday, wednesday = self.monday + timedelta(days=1), self.monday + timedelta(days=2)
+        refused, deleted, moved = self._pending(), self._pending(day=tuesday), self._pending(day=wednesday)
+        refused_leave, deleted_leave, moved_leave = self._leave(), self._leave(day=tuesday), self._leave(day=wednesday)
+        self.assertEqual((refused | deleted | moved).mapped('state'), ['linked'] * 3)
 
         refused_leave.action_refuse()
         deleted_leave.unlink()
+        moved_leave.write({'request_date_from': wednesday + timedelta(days=1),
+                           'request_date_to': wednesday + timedelta(days=1)})
 
-        self.assertEqual(refused.state, 'linked')
-        self.assertEqual(deleted.state, 'linked')
-        self.assertFalse(deleted.leave_id)
+        review = self.env.ref('ems.mail_activity_absence_pending_review')
+        for entry in (refused, deleted, moved):
+            self.assertEqual(entry.state, 'pending')
+            self.assertFalse(entry.leave_id)
+            self.assertIn(review, entry.activity_ids.activity_type_id)
+            self.assertTrue(entry.message_ids.filtered(lambda message: 'Reopened' in message.body))
+
+    def test_an_undone_refusal_links_the_entry_again(self):
+        """Issue #735: the refusal taken back, the request resolves the entry again, off the review."""
+        pending = self._pending()
+        leave = self._leave()
+        leave.action_refuse()
+        self.assertEqual(pending.state, 'pending')
+
+        leave.action_ems_undo()
+        self.assertEqual((pending.state, pending.leave_id), ('linked', leave))
+        self.assertNotIn(self.env.ref('ems.mail_activity_absence_pending_review'), pending.activity_ids.activity_type_id)
 
     def test_a_linked_entry_can_no_longer_be_edited(self):
         pending = self._pending()
@@ -335,13 +352,17 @@ class TestAbsencePending(TransactionCase):
         self.assertEqual(course._get_guard_duty_absence_intervals(self.monday, self.teacher),
                          {self.teacher.id: [(9.0, 11.0, 'pending')]})
 
+        # Issue #735: the request covers 10:00 to 11:00 of it, which it takes over; 9:00 to 10:00
+        # is still expected.
         leave = self._leave(hour_from=10.0, hour_to=12.0)
         self.assertEqual(pending.leave_id, leave)
-        self.assertEqual(course._get_guard_duty_absence_intervals(self.monday, self.teacher),
-                         {self.teacher.id: [(10.0, 12.0, 'pending')]})
+        self.assertEqual(sorted(course._get_guard_duty_absence_intervals(self.monday, self.teacher)[self.teacher.id]),
+                         [(9.0, 10.0, 'pending'), (10.0, 12.0, 'pending')])
 
+        # Refused, its part is expected again.
         leave.action_refuse()
-        self.assertEqual(dict(course._get_guard_duty_absence_intervals(self.monday, self.teacher)), {})
+        self.assertEqual(sorted(course._get_guard_duty_absence_intervals(self.monday, self.teacher)[self.teacher.id]),
+                         [(9.0, 10.0, 'pending'), (10.0, 11.0, 'pending')])
 
     def test_teacher_picker_only_offers_the_own_branch(self):
         Pending = self.Pending.with_user(self.head_of_studies)

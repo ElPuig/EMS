@@ -27407,12 +27407,6 @@ msgstr "Para un día sin fichaje, indica la hora de entrada y una hora de salida
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "This request recorded a new attendance when it was accepted: correct or delete that attendance instead of rejecting it."
-msgstr "Esta solicitud registró un fichaje nuevo cuando se aceptó: corrige o elimina ese fichaje en lugar de rechazarla."
-
-#. module: ems
-#. odoo-python
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "Check-in corrected: %(user)s accepted the teacher's correction request."
 msgstr "Fichaje corregido: %(user)s ha aceptado la solicitud de corrección del docente."
@@ -27510,3 +27504,39 @@ msgstr "Pasos del estado"
 #: code:addons/ems/models/attendance/attendance_correction.py:0
 msgid "Rejected on its own: the teacher requested the absence instead."
 msgstr "Rechazada automáticamente: el docente ha solicitado la ausencia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request %(leave)s no longer covers it."
+msgstr "Reabierta: la solicitud de ausencia %(leave)s ya no la cubre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was deleted."
+msgstr "Reabierta: se ha eliminado la solicitud de ausencia que la resolvía."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was refused, cancelled or deleted."
+msgstr "Reabierta: la solicitud de ausencia que la resolvía se ha rechazado, cancelado o eliminado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Reopened: %(user)s rejected the teacher's check-in correction request."
+msgstr "Reabierta: %(user)s ha rechazado la solicitud de corrección del fichaje del docente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "the absence request %(leave)s covers part of it."
+msgstr "la solicitud de ausencia %(leave)s cubre una parte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "its check-in was corrected for part of it."
+msgstr "se ha corregido el fichaje de una parte."

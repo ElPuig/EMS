@@ -282,3 +282,36 @@ registry.category("web_tour.tours").add("ems_absence_pending_corrected", {
         },
     ],
 });
+
+// Issue #735: the Head of Studies refuses the absence the teacher sent from the one prepared for
+// them; the detected absence is claimed again. Fixtures: test_absence_pending_tour.py.
+registry.category("web_tour.tours").add("ems_absence_pending_refuse_request", {
+    test: true,
+    steps: () => [
+        ...clickAction("action_refuse", "Refuse the teacher's absence request"),
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Say why",
+            run: "edit Tour it does not justify it",
+        },
+        {
+            trigger: ".modal-footer button[name='action_confirm'], .modal-footer .btn-primary",
+            content: "Confirm the refusal",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .alert-danger .o_field_widget[name='ems_refusal_reason']",
+            content: "Refused, with its reason",
+        },
+    ],
+});
+
+registry.category("web_tour.tours").add("ems_absence_pending_reopened", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Pending Teacher') .o_field_widget[name='state'] .badge",
+            content: "The detected absence is back on the Head of Studies' list, to review",
+        },
+    ],
+});

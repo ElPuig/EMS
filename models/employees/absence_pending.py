@@ -397,20 +397,23 @@ class EmsAbsencePending(models.Model):
             {'state': 'absence_prepared', 'leave_type_id': leave_type.id},
             _("Absence prepared by %(user)s.", user=self.env.user.name)))
 
-    def _ems_uncovered_spans(self):
-        """[(start, stop)] of this entry's span that none of the teacher's attendances covers."""
+    def _ems_uncovered_spans(self, covered=()):
+        """[(start, stop)] of this entry's span that none of the teacher's attendances covers, nor
+        any of `covered` [(start, stop)] (an absence request's span, issue #735)."""
         self.ensure_one()
         attendances = self.env['hr.attendance'].sudo().search([
             ('employee_id', '=', self.employee_id.id), ('check_in', '<', self.date_to),
             '|', ('check_out', '=', False), ('check_out', '>', self.date_from)], order='check_in')
+        busy = sorted([(attendance.check_in, attendance.check_out or self.date_to) for attendance in attendances]
+                      + list(covered))
         spans, cursor = [], self.date_from
-        for attendance in attendances:
-            if attendance.check_in > cursor:
-                spans.append((cursor, attendance.check_in))
-            cursor = max(cursor, attendance.check_out or self.date_to)
+        for start, stop in busy:
+            if start > cursor:
+                spans.append((cursor, min(start, self.date_to)))
+            cursor = max(cursor, stop)
         if cursor < self.date_to:
             spans.append((cursor, self.date_to))
-        return spans
+        return [(start, stop) for start, stop in spans if start < stop]
 
     def _ems_leave_values(self):
         """The absence request matching this entry: its day and, within one day, its hours."""
@@ -482,13 +485,59 @@ class EmsAbsencePending(models.Model):
         absence = self.sudo()
         if absence.state not in UNRESOLVED_STATES:
             return
-        missed = absence._ems_missed_spans() if absence.origin == 'check_in' else absence._ems_uncovered_spans()
-        if not missed:
-            absence.state = 'corrected'
+        if absence._ems_carve([], {'state': 'corrected'}, _("its check-in was corrected for part of it.")):
             absence._ems_post_review_note(_("Check-in corrected: %(user)s accepted the teacher's correction request.",
                                             user=self.env.user.name))
-        elif absence.origin == 'check_in':
-            absence._ems_keep_missed_spans()
+
+    def _ems_left_spans(self, covered=()):
+        """What of this entry is still to regularize besides `covered` and the teacher's
+        attendances: for a detected one, what still holds a whole period of their schedule
+        (_ems_missed_spans); for an informed one, whatever is left uncovered."""
+        self.ensure_one()
+        return self._ems_missed_spans(covered) if self.origin == 'check_in' else self._ems_uncovered_spans(covered)
+
+    def _ems_carve(self, covered, values, note):
+        """Issue #735: the part of this entry `covered` and the teacher's attendances resolve gets
+        `values` (linked to an absence request, corrected); what is still left keeps its stage,
+        as copies (_ems_split, `note` on them). The resolved part stays this very entry, so
+        whatever points at it (its request, its correction) still does, and dropping that later
+        reopens only what it resolved. Returns whether anything was resolved."""
+        self.ensure_one()
+        left = self._ems_left_spans(covered)
+        if left == [(self.date_from, self.date_to)]:
+            return False
+        resolved, cursor = [], self.date_from
+        for start, stop in left:
+            if start > cursor:
+                resolved.append((cursor, start))
+            cursor = stop
+        if cursor < self.date_to:
+            resolved.append((cursor, self.date_to))
+        self._ems_split([(start, stop, values) for start, stop in resolved] + left, note)
+        return True
+
+    def _ems_reopen(self, reason):
+        """Issue #735: what resolved these entries fell through (an absence request refused,
+        cancelled, deleted or moved away; a check-in correction rejected): they go back to the
+        review, as new, `reason` in their chatter. The teacher hears nothing until asked again."""
+        entries = self.sudo().with_context(active_test=False).filtered(lambda absence: absence.state != 'pending')
+        if not entries:
+            return
+        entries.write({'state': 'pending', 'active': True, 'leave_id': False, 'leave_type_id': False,
+                       'justification_date': False, 'reminder_date': False, 'escalated': False})
+        entries._ems_post_review_note(reason)
+        entries._ems_schedule_review()
+
+    @api.model
+    def _ems_entry_for_correction(self, attendance):
+        """Issue #735: the teacher's entry still unresolved on the day of `attendance` (company's
+        timezone), which a correction of it answers whatever way it was asked for."""
+        if not attendance.check_in:
+            return self.browse()
+        start, stop = self._utc_bounds(self._to_local(attendance.check_in).date(), 0.0, 24.0)
+        return self.sudo().search([
+            ('employee_id', '=', attendance.employee_id.id), ('state', 'in', UNRESOLVED_STATES),
+            ('date_from', '<', stop), ('date_to', '>', start)], order='date_from', limit=1)
 
     def action_request_absence(self):
         """Opens a new absence request of the teacher's own, filled in with this one's day and
@@ -540,7 +589,42 @@ class EmsAbsencePending(models.Model):
             ])
             # Issue #735: the absence answers it; a check-in correction still waiting is withdrawn.
             entries._ems_pending_corrections()._withdraw()
-            entries.write({'state': 'linked', 'leave_id': leave.id})
+            # Only the part it covers: the rest is still to regularize.
+            for entry in entries:
+                entry._ems_carve([(start, stop)], {'state': 'linked', 'leave_id': leave.id},
+                                 _("the absence request %(leave)s covers part of it.", leave=leave.display_name))
+
+    @api.model
+    def _ems_relink(self, leaves):
+        """Issue #735: `leaves` changed. The entries one of them resolved and no longer covers
+        (refused, cancelled, moved to another day or teacher) go back to the review; then the
+        active ones link what they cover."""
+        for entry in self.sudo().search([('leave_id', 'in', leaves.ids), ('state', '=', 'linked')]):
+            leave = entry.leave_id
+            start, stop = leave._ems_utc_range()
+            if (leave.state not in ACTIVE_LEAVE_STATES or leave.employee_id != entry.employee_id
+                    or not (entry.date_from < stop and entry.date_to > start)):
+                entry._ems_reopen(_("Reopened: the absence request %(leave)s no longer covers it.",
+                                    leave=leave.display_name))
+        self._link_to_leaves(leaves)
+
+    @api.model
+    def _ems_detect_dropped(self, spans):
+        """Issue #735: the days an absence request covered and no longer does [(employee, first
+        day, last day)] are detected again for that teacher, as the end of the day would have: a
+        request filed beforehand kept them out of the detection, so a refused one would never be
+        claimed otherwise. Only the days the detection has already been through (from the first
+        detected absence to its last detected day): the later ones it reaches on its own."""
+        last = fields.Date.to_date(self.env['ir.config_parameter'].sudo().get_param(DETECTION_MARKER) or False)
+        first = self.sudo().search([('origin', '=', 'check_in')], order='date_from', limit=1)
+        if not last or not first:
+            return
+        first_day = self._to_local(first.date_from).date()
+        for employee, day_from, day_to in spans:
+            day = max(day_from, first_day)
+            while day <= min(day_to, last):
+                self._ems_detect_missing_check_ins(day, employee)
+                day += timedelta(days=1)
 
     def _utc_bounds(self, day, hour_from, hour_to):
         """Naive UTC datetimes for `hour_from` on `day` and `hour_to` on `day` (24.0 meaning the
@@ -570,7 +654,7 @@ class EmsAbsencePending(models.Model):
                 periods[slot.calendar_id.employee_id.id].append((slot.hour_from, slot.hour_to))
         return periods
 
-    def _ems_missed_spans(self):
+    def _ems_missed_spans(self, covered=()):
         """[(start, stop)] of this entry no attendance covers and that still hold a whole period
         of the teacher's schedule: being there for part of a period is no absence, the same rule
         the detection follows for a late arrival (issue #731). Without a schedule that day, every
@@ -579,7 +663,7 @@ class EmsAbsencePending(models.Model):
         day = self._to_local(self.date_from).date()
         periods = [self._utc_bounds(day, *hours)
                    for hours in self._ems_scheduled_periods(day, self.employee_id).get(self.employee_id.id, [])]
-        spans = self._ems_uncovered_spans()
+        spans = self._ems_uncovered_spans(covered)
         if not periods:
             return spans
         return [(start, stop) for start, stop in spans
@@ -603,18 +687,23 @@ class EmsAbsencePending(models.Model):
         """This entry keeps the first of `spans` and a copy of it (same teacher, origin and stage
         of the review) takes each of the others; `note` on the copies, which tells where they come
         from. Whoever followed the entry follows its copies too. Only an entry still to review
-        gets its review task (create)."""
+        gets its review task (create). A span may carry values of its own as a third item (issue
+        #735: the part an absence request or a correction resolves)."""
         self.ensure_one()
         source = self.display_name
-        self.sudo().write({'date_from': spans[0][0], 'date_to': spans[0][1]})
-        if len(spans) == 1:
-            return self.browse()
-        copies = self.sudo().with_context(mail_create_nolog=True).create([{
-            'employee_id': self.employee_id.id, 'date_from': start, 'date_to': stop, 'origin': self.origin,
-            'state': self.state, 'leave_type_id': self.leave_type_id.id, 'note': self.sudo().note,
+        base = {
+            'employee_id': self.employee_id.id, 'origin': self.origin, 'state': self.state,
+            'leave_type_id': self.leave_type_id.id, 'note': self.sudo().note,
             'justification_date': self.justification_date, 'reminder_date': self.reminder_date,
             'escalated': self.escalated,
-        } for start, stop in spans[1:]])
+        }
+        parts = [(span[0], span[1], span[2] if len(span) > 2 else {}) for span in spans]
+        start, stop, values = parts[0]
+        self.sudo().write({'date_from': start, 'date_to': stop, **values})
+        if len(parts) == 1:
+            return self.browse()
+        copies = self.sudo().with_context(mail_create_nolog=True).create([
+            {**base, 'date_from': start, 'date_to': stop, **values} for start, stop, values in parts[1:]])
         for copy in copies:
             copy.message_subscribe(partner_ids=self.sudo().message_partner_ids.ids)
             copy.message_post(body=_("Split from %(entry)s: %(reason)s", entry=source, reason=note),
@@ -649,11 +738,13 @@ class EmsAbsencePending(models.Model):
         return missing
 
     @api.model
-    def _ems_detect_missing_check_ins(self, day):
+    def _ems_detect_missing_check_ins(self, day, employees=None):
         """Turns `day`'s missing check-ins of the teachers in the circuit (the areas chosen in the
         settings) into detected absences. Nothing on a public holiday, nor on a day nobody in the
         circuit checked in (a school holiday the calendar does not know about, the summer), nor
-        where the teacher already has an absence or a detected absence overlapping it."""
+        where the teacher already has an absence or a detected absence overlapping it. Only those
+        of `employees` when given (issue #735), the rest of the circuit still telling whether it
+        was a school day."""
         domain = self.env.company._ems_absence_circuit_domain()
         if domain is None:
             return self.browse()
@@ -665,6 +756,8 @@ class EmsAbsencePending(models.Model):
         arrivals = self.env['hr.attendance']._ems_first_check_in_hours(day, teachers)
         if not arrivals:
             return self.browse()
+        if employees is not None:
+            teachers &= employees.sudo()
         candidates = {employee_id: self._utc_bounds(day, *hours)
                       for employee_id, hours in self._ems_missing_check_ins(day, teachers, arrivals).items()}
         if not candidates:
@@ -775,6 +868,14 @@ class EmsAbsencePending(models.Model):
         Pending.search([('state', '=', 'pending')])._ems_schedule_review()
 
     @api.model
+    def _ems_reopen_dropped_requests(self):
+        """Issue #735, for the entries linked before it: those whose absence request was refused,
+        cancelled or deleted since go back to the review."""
+        self.sudo().search([('state', '=', 'linked'), '|', ('leave_id', '=', False),
+                            ('leave_id.state', 'not in', ACTIVE_LEAVE_STATES)])._ems_reopen(
+            _("Reopened: the absence request that resolved it was refused, cancelled or deleted."))
+
+    @api.model
     def _ems_reopen_wrongly_discarded(self):
         """Issue #731, for the entries discarded before it: a check-in recorded afterwards
         discarded them as soon as it fell on their day, even outside their hours. Those a check-in
@@ -843,10 +944,26 @@ class EmsAbsencePendingLeave(models.Model):
         return leaves
 
     def write(self, vals):
+        watched = vals.keys() & {'employee_id', 'state', 'request_date_from', 'request_date_to',
+                                 'request_hour_from', 'request_hour_to', 'ems_full_day'}
+        # Issue #735: the days it covered, detected again if it no longer covers them.
+        dropped = [(leave.employee_id, leave.request_date_from, leave.request_date_to) for leave in self
+                   ] if watched - {'state'} or vals.get('state', 'confirm') not in ACTIVE_LEAVE_STATES else []
         result = super().write(vals)
-        if vals.keys() & {'employee_id', 'state', 'request_date_from', 'request_date_to',
-                          'request_hour_from', 'request_hour_to', 'ems_full_day'}:
-            self.env['ems.absence_pending']._link_to_leaves(self)
+        if watched:
+            Pending = self.env['ems.absence_pending']
+            Pending._ems_relink(self)
+            Pending._ems_detect_dropped(dropped)
+        return result
+
+    def unlink(self):
+        """Issue #735: what it resolved goes back to the review, and its days are detected again."""
+        Pending = self.env['ems.absence_pending'].sudo()
+        entries = Pending.search([('leave_id', 'in', self.ids), ('state', '=', 'linked')])
+        dropped = [(leave.employee_id, leave.request_date_from, leave.request_date_to) for leave in self]
+        result = super().unlink()
+        entries._ems_reopen(_("Reopened: the absence request that resolved it was deleted."))
+        Pending._ems_detect_dropped(dropped)
         return result
 
     def _guard_board_spans(self):

@@ -254,6 +254,16 @@ class EmsAbsencePending(models.Model):
             },
         }
 
+    @api.model
+    def _ems_close_dialog(self, result):
+        """What a review dialog returns: closing it reloads whatever opened it, showing on the
+        way the notice of what _ems_review skipped, if any."""
+        close = {'type': 'ir.actions.act_window_close'}
+        if result.get('tag') != 'display_notification':
+            return close
+        result['params']['next'] = close
+        return result
+
     def _ems_post_review_note(self, message):
         for absence in self.sudo():
             absence.message_post(body=message, subtype_xmlid='mail.mt_note')

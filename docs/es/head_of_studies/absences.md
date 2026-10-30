@@ -214,7 +214,9 @@ La lista se abre con las ausencias en estado **Por revisar** y **Justificación 
 - **Crear ausencia**: preparas la solicitud de ausencia para el docente, para el día y las horas detectados, con el tipo de ausencia que eliges en el diálogo. No se envía: se avisa al docente, que la abre ya rellenada, la revisa, acepta la declaración responsable y la envía, y a partir de ahí sigue los pasos habituales (aprobación, justificante, ATRI, Dirección). Mientras no la envíe se le recuerda, y al cabo de unos días se te avisa, igual que con **Pedir justificación**.
 - **Descartar**: no era nada. La ausencia detectada se cierra y se archiva, y no se avisa a nadie. Puedes encontrarla igualmente con el filtro **Archivado**. Solo los administradores pueden borrar del todo una ausencia detectada.
 
-Para resolver varias a la vez, selecciónalas en la lista y elige la acción en el menú **Acciones** (el engranaje) de arriba. Cada acción solo se aplica a las ausencias que todavía esperan revisión y que puedes revisar; el EMS te indica cuántas ha dejado y por qué.
+![Diálogo de Corregir fichaje, con las horas de toda la ausencia detectada ya rellenadas](../../assets/head_of_studies/hos-detected-absence-correct-check-in.png)
+
+Para resolver varias a la vez, selecciónalas en la lista y elige la acción en el menú **Acciones** (el engranaje) de arriba (desde la lista, **Corregir fichaje** registra siempre toda la ausencia). Cada acción solo se aplica a las ausencias que todavía esperan revisión y que puedes revisar; el EMS te indica cuántas ha dejado y por qué.
 
 Solo el jefe de estudios o el jefe de estudios adjunto del docente, la Dirección y los administradores pueden hacer estas acciones. Los jefes de departamento y de seminario pueden introducir y ver las ausencias detectadas de su departamento, pero no revisarlas.
 

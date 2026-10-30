@@ -10,4 +10,9 @@
 
 ## Correct the check-in of part of a detected absence (issue #731):
 - "Correct check-in" on the detected absence's form now opens a dialog with From/To, prefilled with the whole absence. Narrowing it records the attendance of those hours only, and the rest stays as a detected absence to review (split in two if the corrected hours fall in the middle), so the reviewer can then ask the teacher to justify the rest. The list's bulk action still corrects whole entries.
-- Head of Studies manual (ca/es/en) and developer doc updated.
+- Head of Studies manual (ca/es/en, with a screenshot of the new dialog) and developer doc updated.
+
+# Internal changes
+
+## Detected absence dialogs share their closing logic (issue #731):
+- The "Create absence" and "Correct check-in" dialogs close through one shared helper (reload plus the notice of what was skipped), and the schedule periods read by the detection and by the new review come from one shared method.

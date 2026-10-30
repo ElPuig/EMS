@@ -276,6 +276,25 @@ class TestAbsenceDetection(TransactionCase):
         self.assertFalse(self._review_activities(rest), 'already reviewed')
         self.assertTrue(rest.message_ids.filtered(lambda message: 'Split from' in message.body))
 
+    def test_an_open_check_in_covers_it_to_the_end(self):
+        """Checked in from the guard duty board and not out yet: present from then on."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+
+        self.env['hr.attendance'].create({'employee_id': self.teacher.id, 'check_in': self._utc(self.yesterday, 10.5)})
+
+        self.assertEqual(self._hours(absence), (9.0, 10.5))
+
+    def test_a_later_check_out_reviews_it_too(self):
+        """A check-out corrected afterwards counts as much as a check-in."""
+        attendance = self._attendance(self.yesterday, 8.9, 9.5)
+        absence = self.Pending.create({'employee_id': self.teacher.id, 'origin': 'check_in',
+                                       'date_from': self._utc(self.yesterday, 9.5), 'date_to': self._utc(self.yesterday, 13.0)})
+
+        attendance.check_out = self._utc(self.yesterday, 11.5)
+
+        self.assertEqual(self._hours(absence), (11.5, 13.0))
+
     def test_a_part_shorter_than_a_period_is_no_absence(self):
         """The rule of the detection: arriving during a period is no absence."""
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
@@ -610,6 +629,20 @@ class TestAbsenceDetection(TransactionCase):
         self.assertTrue(wrong.message_ids.filtered(lambda message: 'Reopened' in message.body))
         self.assertEqual(covered.state, 'discarded')
         self.assertEqual(by_reviewer.state, 'discarded')
+
+    def test_a_wrongly_discarded_entry_to_review_gets_its_task_back(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        absence.date_from = self._utc(self.yesterday, 10.0)
+        self._attendance(self.yesterday, 9.0, 10.0)
+        absence.state = 'discarded'
+        self.assertFalse(self._review_activities(absence))
+
+        self.Pending._ems_reopen_wrongly_discarded()
+
+        self.assertEqual(absence.state, 'pending')
+        self.assertFalse(absence.justification_date, 'nobody was asked yet')
+        self.assertEqual(self._review_activities(absence).user_id, self.head_of_studies)
 
     def _create_absence(self, absences, user):
         wizard = self.env['ems.absence_pending.leave_wizard'].with_user(user).with_context(

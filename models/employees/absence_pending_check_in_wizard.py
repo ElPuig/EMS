@@ -25,9 +25,4 @@ class EmsAbsencePendingCheckInWizard(models.TransientModel):
     def action_confirm(self):
         """Closing the dialog reloads the form; a notice of why nothing was done, if so."""
         self.ensure_one()
-        result = self.absence_id._ems_correct_check_in(self.date_from, self.date_to)
-        close = {'type': 'ir.actions.act_window_close'}
-        if result.get('tag') != 'display_notification':
-            return close
-        result['params']['next'] = close
-        return result
+        return self.absence_id._ems_close_dialog(self.absence_id._ems_correct_check_in(self.date_from, self.date_to))

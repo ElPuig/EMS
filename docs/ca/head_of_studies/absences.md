@@ -214,7 +214,9 @@ La llista s'obre amb les absències en estat **Per revisar** i **Justificació s
 - **Crea l'absència**: prepares la sol·licitud d'absència per al docent, per al dia i les hores detectats, amb el tipus d'absència que tries al diàleg. No s'envia: s'avisa el docent, que l'obre ja emplenada, la revisa, accepta la declaració responsable i l'envia, i a partir d'aquí segueix els passos habituals (aprovació, justificant, ATRI, Direcció). Mentre no l'enviï se li recorda, i al cap d'uns dies se t'avisa, igual que amb **Demana justificació**.
 - **Descarta**: no era res. L'absència detectada es tanca i s'arxiva, i no s'avisa ningú. La pots trobar igualment amb el filtre **Arxivat**. Només els administradors poden esborrar del tot una absència detectada.
 
-Per resoldre'n diverses alhora, selecciona-les a la llista i tria l'acció al menú **Accions** (l'engranatge) de dalt. Cada acció només s'aplica a les absències que encara esperen revisió i que pots revisar; l'EMS t'indica quantes n'ha deixat i per què.
+![Diàleg de Corregeix el fitxatge, amb les hores de tota l'absència detectada ja emplenades](../../assets/head_of_studies/hos-detected-absence-correct-check-in.png)
+
+Per resoldre'n diverses alhora, selecciona-les a la llista i tria l'acció al menú **Accions** (l'engranatge) de dalt (des de la llista, **Corregeix el fitxatge** registra sempre tota l'absència). Cada acció només s'aplica a les absències que encara esperen revisió i que pots revisar; l'EMS t'indica quantes n'ha deixat i per què.
 
 Només el cap d'estudis o el cap d'estudis adjunt del docent, la Direcció i els administradors poden fer aquestes accions. Els caps de departament i de seminari poden introduir i veure les absències detectades del seu departament, però no revisar-les.
 

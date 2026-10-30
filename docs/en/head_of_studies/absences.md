@@ -216,7 +216,9 @@ The list opens with the absences in **To review** and **Justification requested*
 - **Create absence**: you prepare the absence request for the teacher, for the day and hours detected, with the absence type you choose in the dialog. It is not sent: the teacher is told, opens it already filled in, checks it, accepts the responsible declaration and sends it, and from then on it follows the usual steps (approval, supporting document, ATRI, Direction). Until they send it they are reminded, and you are told after a few days, as with **Request justification**.
 - **Discard**: it was nothing. The detected absence is closed and archived, and nobody is told. You can still find it with the **Archived** filter. Only the administrators can delete a detected absence altogether.
 
-To deal with several at once, select them in the list and choose the action from the **Actions** menu (the gear) at the top. Each action is only applied to the absences still waiting for review that you may review; EMS tells you how many it skipped and why.
+![Correct check-in dialog, with the hours of the whole detected absence prefilled](../../assets/head_of_studies/hos-detected-absence-correct-check-in.png)
+
+To deal with several at once, select them in the list and choose the action from the **Actions** menu (the gear) at the top (from the list, **Correct check-in** always records the whole absence). Each action is only applied to the absences still waiting for review that you may review; EMS tells you how many it skipped and why.
 
 Only the teacher's own Head of Studies or Deputy, Direction and the administrators can take these actions. Department and Seminar Chiefs can enter and see detected absences of their department, but not review them.
 

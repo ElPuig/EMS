@@ -176,12 +176,12 @@ You don't need to wait for the message: as soon as you are asked, the absence sh
 
 ![The Absences menu of a teacher, with My Time Off and Absences to regularize](../../assets/teachers/teachers-absences-to-regularize-menu.png)
 
-What to do:
+The absence itself tells you, in a blue notice at the top, what is expected of you (or that your check-in correction is being reviewed). What to do:
 
 - **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in (and the type, if your Head of Studies prepared it): choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop.
-- **If you were at the centre and forgot to check in** (or checked in later than you arrived), open the link and use **Request check-in correction** (at the top of the form, once the absence is over). If you checked in that day, your first check-in is the one corrected, and you can pick another one; if you have none, leave the **Attendance** field empty and a check-in is recorded for that day. Type the times you arrived and left (`9:15`, `9.15`, `9,15` and `915` all mean 9:15), say why and save. While your Head of Studies decides, the reminders stop. If they accept it, your check-in is recorded and the detected absence is corrected; if they reject it, you are reminded again and can request the absence instead.
+- **If you were at the centre and forgot to check in** (or checked in later than you arrived), open the link and use **Request check-in correction** (at the top of the form, once the absence is over). If you checked in that day (late, for instance), that check-in is the one corrected; if you have none, a check-in is recorded for that day. Type the times you arrived and left (`9:15`, `9.15`, `9,15` and `915` all mean 9:15), say why and save. While your Head of Studies decides, the reminders stop. If they accept it, your check-in is recorded and the detected absence is corrected; if they reject it, you are reminded again and can request the absence instead.
 
-![A detected absence as the teacher sees it, with its two options in the Actions dropdown](../../assets/teachers/teachers-detected-absence.png)
+![A detected absence as the teacher sees it, with the notice telling them what to do](../../assets/teachers/teachers-detected-absence.png)
 
 ![The check-in correction request opened from a detected absence, for a day without any check-in](../../assets/teachers/teachers-detected-absence-correction.png)
 

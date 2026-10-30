@@ -16,7 +16,6 @@
 |-------|------|----------|--------|-------------|
 | `attendance_id` | `Many2one → hr.attendance` | Yes, unless `absence_pending_id` | Yes | The attendance record being corrected. Empty for a teacher's request about a detected absence's day with no attendance: accepting it creates one and sets it here |
 | `absence_pending_id` | `Many2one → ems.absence_pending` | No | Yes | The detected absence the teacher answers with this request (issue #735, see [absence.md](../employees/absence.md)) |
-| `allowed_attendance_ids` | `Many2many → hr.attendance` (computed) | — | No | The teacher's attendances on that detected absence's day, the choices for `attendance_id` |
 | `employee_id` | `Many2one → hr.employee` (computed) | — | Yes | `attendance_id.employee_id`, or the detected absence's teacher |
 | `original_check_in` | `Datetime` (snapshotted at `create()`) | — | Yes | `attendance_id.check_in` at the time the request was made — not related, so it survives `action_accept()` overwriting the attendance |
 | `original_check_out` | `Datetime` (snapshotted at `create()`) | — | Yes | `attendance_id.check_out` at the time the request was made, same reasoning |

@@ -27399,14 +27399,8 @@ msgstr "Una sol·licitud de correcció ha de ser d'un fitxatge o d'una absència
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "The attendance must be the detected absence teacher's own."
-msgstr "El fitxatge ha de ser del mateix docent de l'absència detectada."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "Without an attendance to correct, give both the check-in and a later check-out time."
-msgstr "Sense cap fitxatge per corregir, indica l'hora d'entrada i una hora de sortida posterior."
+msgid "For a day without check-in, give both the check-in and a later check-out time."
+msgstr "Per a un dia sense fitxatge, indica l'hora d'entrada i una hora de sortida posterior."
 
 #. module: ems
 #. odoo-python
@@ -27432,16 +27426,6 @@ msgstr "Només el docent pot sol·licitar una correcció del fitxatge, d'una abs
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
 msgid "Request check-in correction"
 msgstr "Sol·licita la correcció del fitxatge"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
-msgid "None: record an attendance for that day"
-msgstr "Cap: registra un fitxatge per a aquell dia"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__allowed_attendance_ids
-msgid "Attendances of that day"
-msgstr "Fitxatges d'aquell dia"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_request_correction
@@ -27476,3 +27460,33 @@ msgid ""
 "                    an absence they were told about, it shows here: request the absence, or a\n"
 "                    check-in correction if you were at the centre."
 msgstr "Quan el teu cap d'estudis et demana que justifiquis un dia que no vas fitxar, o una absència que li van comunicar, surt aquí: sol·licita l'absència o, si eres al centre, la correcció del fitxatge."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__original_technical
+msgid "Day without check-in"
+msgstr "Dia sense fitxatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have to regularize this absence. If you were absent, use <b>Actions → Request the absence</b>."
+msgstr "Has de regularitzar aquesta absència. Si vas faltar, fes servir <b>Accions → Sol·licita l'absència</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "If you were at the centre and did not check in, use <b>Actions → Request check-in correction</b>."
+msgstr "Si eres al centre i no vas fitxar, fes servir <b>Accions → Sol·licita la correcció del fitxatge</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Your Head of Studies has prepared the absence request for you: open it with <b>Actions → Request the absence</b>, check it, accept the responsible declaration and send it."
+msgstr "El teu cap d'estudis t'ha preparat la sol·licitud d'absència: obre-la amb <b>Accions → Sol·licita l'absència</b>, revisa-la, accepta la declaració responsable i envia-la."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have requested a check-in correction. Your Head of Studies has to review it: if they accept it, this absence will be regularized; if they reject it, you will have to regularize it another way."
+msgstr "Has sol·licitat la correcció del fitxatge. El teu cap d'estudis l'ha de revisar: si l'accepta, aquesta absència quedarà regularitzada; si la rebutja, l'hauràs de regularitzar d'una altra manera."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_pending_correction
+msgid "Check-in correction pending"
+msgstr "Correcció del fitxatge pendent"

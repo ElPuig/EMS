@@ -886,9 +886,8 @@ class TestAbsenceDetection(TransactionCase):
         with self.assertRaises(ValidationError, msg='without attendance, a check-out after the check-in'):
             self._request_correction(absence, requested_check_in=12.0, requested_check_out=11.0)
         other = self.env['hr.attendance'].search([('employee_id', '=', self.present.id)], limit=1)
-        # Refused by the constraint or, before it, by the teacher's own-data rule.
-        with self.assertRaises(Exception, msg="another teacher's attendance"):
-            self._request_correction(absence, attendance_id=other.id)
+        # Never the teacher's choice, whatever the client sends: they have none that day.
+        self.assertFalse(self._request_correction(absence, attendance_id=other.id).attendance_id)
 
     def test_no_reminder_while_the_correction_is_pending(self):
         self.Pending._ems_detect_missing_check_ins(self.yesterday)
@@ -902,3 +901,31 @@ class TestAbsenceDetection(TransactionCase):
         self._run_cron_on(self.today)
         self.assertTrue(reminders(), 'rejected: asked again')
         self.assertTrue(absence.with_user(self.teacher_user).can_request_correction)
+
+    def test_teacher_requests_the_red_attendance_of_a_day_without_check_in(self):
+        """The technical attendance Odoo's absence detection leaves on a day without check-in (in
+        red) is the one corrected, as teachers have always done; rejecting restores it."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        red = self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': self._utc(self.yesterday, 0.0),
+            'check_out': self._utc(self.yesterday, 0.0) + timedelta(seconds=1),
+            'in_mode': 'technical', 'out_mode': 'technical',
+        })
+        self.assertEqual(absence.with_user(self.teacher_user).action_request_check_in_correction()['context'][
+            'default_attendance_id'], red.id)
+
+        correction = self._request_correction(absence)
+        self.assertEqual(correction.attendance_id, red)
+        self.assertTrue(correction.original_technical)
+        self.assertEqual((correction.requested_check_in, correction.requested_check_out), (9.0, 13.0),
+                         "the entry's own hours, not the red one's midnight")
+
+        correction.with_user(self.head_of_studies).action_accept()
+        self.assertEqual((red.check_in, red.check_out, red.in_mode),
+                         (self._utc(self.yesterday, 9.0), self._utc(self.yesterday, 13.0), 'manual'))
+        self.assertEqual(absence.state, 'corrected')
+
+        correction.with_user(self.head_of_studies).action_reject()
+        self.assertEqual((red.check_in, red.in_mode, red.out_mode), (self._utc(self.yesterday, 0.0), 'technical', 'technical'),
+                         'a day without check-in again')

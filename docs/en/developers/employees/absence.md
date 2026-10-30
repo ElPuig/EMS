@@ -747,6 +747,7 @@ erDiagram
 | `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry is in `ASKED_STATES`. Shows **Request the absence** |
 | `can_request_correction` | Same, and the entry is over and has no `pending` correction request: shows **Request check-in correction** (issue #735) |
 | `correction_ids` | The teacher's correction requests (`ems.attendance_correction.absence_pending_id`) |
+| `has_pending_correction` | One of them is `pending`. With `can_request`, `can_request_correction` and `state` it picks the blue notice the teacher reads at the top of the form: asked to justify, absence prepared, or correction under review (issue #735) |
 | `can_review`, `can_correct_check_in` | Non-stored, `@api.depends_context('uid')`: the entry is `pending` and the user may review it (below); the second also needs the entry to be over (no check-in can be recorded for a time still to come). Drive the four actions' `invisible=` |
 
 ### Reviewing
@@ -849,9 +850,11 @@ teachers keep the plain link.
 **Or asking for a check-in correction (issue #735).** **Request check-in correction** (same
 place, same teacher, once the entry is over and while none of theirs is pending) calls
 `action_request_check_in_correction()`: an `ems.attendance_correction` form in a dialog, with
-`default_absence_pending_id` and, when the teacher has an attendance that day
-(`_ems_day_attendances()`, technical ones left out), the first one as `default_attendance_id`.
-The teacher may pick another attendance of that day or none (`allowed_attendance_ids`):
+`default_absence_pending_id` and the attendance it is about as `default_attendance_id`. That
+attendance is never the teacher's choice: `_ems_attendance_to_correct()` takes, on the entry's
+day, the first one from the entry's start on (a late arrival: the one the entry ends at),
+otherwise the last one before it, otherwise none (technical ones left out). The form hides it,
+and `create()` imposes it whatever the client sends:
 
 - **With an attendance**, it is the usual correction request of that attendance.
 - **Without**, both times are required, in order; they default to the entry's own hours, and

@@ -65,9 +65,9 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_detected_absence(self):
         """The teacher's own detected absence, from a missing check-in, as the reminder's link
-        opens it once a justification was requested: Request the absence or Request check-in
-        correction, in the Actions dropdown (issues #696, #707, #735); then the correction
-        request it opens. A past day: the correction is only offered once the absence is over."""
+        opens it once a justification was requested: the notice with what to do, Request the
+        absence or Request check-in correction from the Actions dropdown (issues #696, #707,
+        #735); then the correction request it opens, and the menu that lists them. A past day: the correction is only offered once the absence is over."""
         mock_outgoing_email(self)
         Pending = self.env['ems.absence_pending']
         day = datetime(2026, 4, 13).date()
@@ -85,9 +85,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         self._capture(
             '/odoo/ems.absence_pending/%d' % absence.id,
             '.o_content', 'teachers-detected-absence.png',
-            login='doc_shot_teacher', wait_for=toggle, click=toggle, wait_after=correction,
-            # The dropdown closes when Chrome resizes the page to shoot beyond the viewport.
-            max_height=360, beyond_viewport=False,
+            # The notice telling the teacher what to do; the dropdown would cover it.
+            login='doc_shot_teacher', wait_for=".o_form_view .alert-info p:nth-of-type(2)", max_height=360,
         )
         # Issue #735: Absences to regularize, from the Absences menu.
         absences_menu = ".o_menu_sections button[data-menu-xmlid='hr_holidays.menu_hr_holidays_root']"

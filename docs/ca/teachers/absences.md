@@ -177,12 +177,12 @@ No cal que esperis el missatge: tan bon punt te la demanen, l'absència surt a *
 
 ![El menú Absències d'un docent, amb Les meves absències i Absències per regularitzar](../../assets/teachers/teachers-absences-to-regularize-menu.png)
 
-Què has de fer:
+La mateixa absència t'indica, en un avís blau a dalt, què s'espera que facis (o que la teva correcció del fitxatge s'està revisant). Què has de fer:
 
 - **Si vas faltar**, obre l'enllaç i fes servir **Sol·licita l'absència** (a dalt del formulari). S'obre una sol·licitud d'absència nova amb el dia i les hores ja posats (i el tipus, si te l'ha preparat el teu cap d'estudis): tria el tipus, completa el que falti i envia-la com sempre (consulta [Enviar la sol·licitud](#enviar-la-sollicitud)). Un cop enviada, l'absència detectada queda vinculada a la teva sol·licitud i s'acaben els recordatoris.
-- **Si eres al centre i et vas oblidar de fitxar** (o vas fitxar més tard del que vas arribar), obre l'enllaç i fes servir **Sol·licita la correcció del fitxatge** (a dalt del formulari, un cop acabada l'absència). Si aquell dia vas fitxar, es corregeix el teu primer fitxatge, i en pots triar un altre; si no en tens cap, deixa el camp **Assistència** buit i es registra un fitxatge per a aquell dia. Escriu les hores d'arribada i de sortida (`9:15`, `9.15`, `9,15` i `915` volen dir les 9:15), explica el motiu i desa. Mentre el teu cap d'estudis decideix, s'aturen els recordatoris. Si l'accepta, es registra el teu fitxatge i l'absència detectada queda corregida; si la rebutja, se't torna a recordar i pots sol·licitar l'absència.
+- **Si eres al centre i et vas oblidar de fitxar** (o vas fitxar més tard del que vas arribar), obre l'enllaç i fes servir **Sol·licita la correcció del fitxatge** (a dalt del formulari, un cop acabada l'absència). Si aquell dia vas fitxar (tard, per exemple), es corregeix aquest fitxatge; si no en tens cap, es registra un fitxatge per a aquell dia. Escriu les hores d'arribada i de sortida (`9:15`, `9.15`, `9,15` i `915` volen dir les 9:15), explica el motiu i desa. Mentre el teu cap d'estudis decideix, s'aturen els recordatoris. Si l'accepta, es registra el teu fitxatge i l'absència detectada queda corregida; si la rebutja, se't torna a recordar i pots sol·licitar l'absència.
 
-![Una absència detectada tal com la veu el docent, amb les dues opcions al desplegable Accions](../../assets/teachers/teachers-detected-absence.png)
+![Una absència detectada tal com la veu el docent, amb l'avís que li diu què ha de fer](../../assets/teachers/teachers-detected-absence.png)
 
 ![La sol·licitud de correcció del fitxatge oberta des d'una absència detectada, per a un dia sense cap fitxatge](../../assets/teachers/teachers-detected-absence-correction.png)
 

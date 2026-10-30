@@ -79,6 +79,11 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             trigger: ".o_form_statusbar .o_field_widget[name='state']:not(:has([data-value='pending']))",
             content: "Without the 'To review' step, a stage the teacher never sees (issue #707)",
         },
+        {
+            // Issue #735: both ways out, one sentence each.
+            trigger: ".o_form_view .alert-info p:nth-of-type(2)",
+            content: "A notice tells the teacher what to do",
+        },
         ...clickAction("action_request_absence", "Request the absence"),
         {
             trigger: ".o_form_view .o_field_widget[name='request_date_from'] input",
@@ -125,8 +130,8 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             run: "click",
         },
         {
-            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='origin']",
-            content: "Back on the detected absence",
+            trigger: "body:not(:has(.modal)) .o_form_view .alert-info:not(:has(p))",
+            content: "Back on the detected absence, which now says the correction is being reviewed",
         },
     ],
 });

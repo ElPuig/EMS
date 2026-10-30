@@ -27402,14 +27402,8 @@ msgstr "Una solicitud de corrección debe ser de un fichaje o de una ausencia de
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "The attendance must be the detected absence teacher's own."
-msgstr "El fichaje debe ser del mismo docente de la ausencia detectada."
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/attendance/attendance_correction.py:0
-msgid "Without an attendance to correct, give both the check-in and a later check-out time."
-msgstr "Sin ningún fichaje que corregir, indica la hora de entrada y una hora de salida posterior."
+msgid "For a day without check-in, give both the check-in and a later check-out time."
+msgstr "Para un día sin fichaje, indica la hora de entrada y una hora de salida posterior."
 
 #. module: ems
 #. odoo-python
@@ -27435,16 +27429,6 @@ msgstr "Solo el docente puede solicitar una corrección del fichaje, de una ause
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
 msgid "Request check-in correction"
 msgstr "Solicitar la corrección del fichaje"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
-msgid "None: record an attendance for that day"
-msgstr "Ninguno: registra un fichaje para ese día"
-
-#. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__allowed_attendance_ids
-msgid "Attendances of that day"
-msgstr "Fichajes de ese día"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_request_correction
@@ -27479,3 +27463,33 @@ msgid ""
 "                    an absence they were told about, it shows here: request the absence, or a\n"
 "                    check-in correction if you were at the centre."
 msgstr "Cuando tu jefe de estudios te pide que justifiques un día que no fichaste, o una ausencia que le comunicaron, aparece aquí: solicita la ausencia o, si estabas en el centro, la corrección del fichaje."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__original_technical
+msgid "Day without check-in"
+msgstr "Día sin fichaje"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have to regularize this absence. If you were absent, use <b>Actions → Request the absence</b>."
+msgstr "Tienes que regularizar esta ausencia. Si faltaste, usa <b>Acciones → Solicitar la ausencia</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "If you were at the centre and did not check in, use <b>Actions → Request check-in correction</b>."
+msgstr "Si estabas en el centro y no fichaste, usa <b>Acciones → Solicitar la corrección del fichaje</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Your Head of Studies has prepared the absence request for you: open it with <b>Actions → Request the absence</b>, check it, accept the responsible declaration and send it."
+msgstr "Tu jefe de estudios te ha preparado la solicitud de ausencia: ábrela con <b>Acciones → Solicitar la ausencia</b>, revísala, acepta la declaración responsable y envíala."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have requested a check-in correction. Your Head of Studies has to review it: if they accept it, this absence will be regularized; if they reject it, you will have to regularize it another way."
+msgstr "Has solicitado la corrección del fichaje. Tu jefe de estudios tiene que revisarla: si la acepta, esta ausencia quedará regularizada; si la rechaza, tendrás que regularizarla de otra manera."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_pending_correction
+msgid "Check-in correction pending"
+msgstr "Corrección del fichaje pendiente"

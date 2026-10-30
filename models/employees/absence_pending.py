@@ -103,6 +103,7 @@ class EmsAbsencePending(models.Model):
     can_request = fields.Boolean(compute="_compute_can_request")
     # Issue #735: the teacher, asked to justify it, may answer that they were at the centre.
     can_request_correction = fields.Boolean(string="Can request a check-in correction", compute="_compute_can_request")
+    has_pending_correction = fields.Boolean(string="Check-in correction pending", compute="_compute_can_request")
     correction_ids = fields.One2many(
         string="Check-in correction requests", comodel_name="ems.attendance_correction",
         inverse_name="absence_pending_id", readonly=True)
@@ -152,8 +153,9 @@ class EmsAbsencePending(models.Model):
         now = fields.Datetime.now()
         for absence in self:
             absence.can_request = absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
+            absence.has_pending_correction = bool(absence._ems_pending_corrections())
             absence.can_request_correction = (absence.can_request and absence.date_to <= now
-                                              and not absence._ems_pending_corrections())
+                                              and not absence.has_pending_correction)
 
     @api.depends('employee_id')
     @api.depends_context('uid')
@@ -412,16 +414,21 @@ class EmsAbsencePending(models.Model):
     def _ems_pending_corrections(self):
         return self.sudo().correction_ids.filtered(lambda correction: correction.state == 'pending')
 
-    def _ems_day_attendances(self):
-        """The teacher's attendances on the day this entry starts, in the company's timezone,
-        leaving out the technical ones Odoo's own absence detection creates (issue #735)."""
-        if not self:
-            return self.env['hr.attendance']
+    def _ems_attendance_to_correct(self):
+        """The teacher's attendance a correction request of this entry is about, never chosen by
+        the teacher (issue #735), on the day it starts in the company's timezone: the first one
+        from the entry's start on (a late arrival: the one the entry ends at), otherwise the last
+        one before it; with none, the technical one Odoo's absence detection leaves on a day
+        without check-in (the one shown in red, which teachers have always asked to correct);
+        otherwise none, and accepting the request records one."""
         self.ensure_one()
         start, stop = self._utc_bounds(self._to_local(self.date_from).date(), 0.0, 24.0)
-        return self.env['hr.attendance'].sudo().search([
-            ('employee_id', '=', self.employee_id.id), ('check_in', '>=', start), ('check_in', '<', stop),
-            ('in_mode', '!=', 'technical')], order='check_in')
+        attendances = self.env['hr.attendance'].sudo().search([
+            ('employee_id', '=', self.employee_id.id), ('check_in', '>=', start), ('check_in', '<', stop)],
+            order='check_in')
+        real = attendances.filtered(lambda attendance: attendance.in_mode != 'technical')
+        after = real.filtered(lambda attendance: attendance.check_in >= self.date_from)
+        return after[:1] or real[-1:] or attendances[:1]
 
     def _ems_check_correction_requestable(self):
         """Checked on the server whatever the screen offered (issue #735)."""
@@ -431,13 +438,13 @@ class EmsAbsencePending(models.Model):
                               "they were asked to justify, once it is over and while no other one is pending."))
 
     def action_request_check_in_correction(self):
-        """Issue #735: the teacher was at the centre. Opens a correction request of the attendance
-        they have that day, the first one by default, or of the day itself when they have none:
-        the approver accepting it records the attendance, and its review closes this entry."""
+        """Issue #735: the teacher was at the centre. Opens a correction request of their attendance
+        that day (_ems_attendance_to_correct), or of the day itself when they have none: the
+        approver accepting it records the attendance, and that resolves this entry."""
         self.ensure_one()
         self._ems_check_correction_requestable()
         context = {'default_absence_pending_id': self.id}
-        attendance = self._ems_day_attendances()[:1]
+        attendance = self._ems_attendance_to_correct()
         if attendance:
             context['default_attendance_id'] = attendance.id
         return {

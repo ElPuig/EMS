@@ -42,12 +42,12 @@ class TestAbsencePendingTour(HttpCase):
 
     def test_head_of_studies_reviews_detected_absences_tour(self):
         """Issue #707: the reviewer, the teacher's Head of Studies (the least-privileged role that
-        reviews). Four teachers of their branch, each with a detected absence of yesterday."""
+        reviews). Five teachers of their branch, each with a detected absence of yesterday."""
         # Approving the absence it creates posts as them: like any real user, they have an email.
         self.head_of_studies.email = 'review.hos@example.com'
         Pending = self.env['ems.absence_pending']
         day = Pending.get_local_today() - timedelta(days=1)
-        for letter in 'ABCD':
+        for letter in 'ABCDE':
             teacher = self.env['hr.employee'].create({
                 'name': f'Review Teacher {letter}', 'employee_type': 'teacher',
                 'parent_id': self.teacher.parent_id.id})

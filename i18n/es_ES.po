@@ -2444,6 +2444,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_check_in_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -3001,6 +3002,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -3069,6 +3071,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3423,6 +3426,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_student_history_line__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4223,6 +4227,7 @@ msgstr "Viernes"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__from_date model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_from
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_from
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__date_from
 msgid "From"
 msgstr "De"
 
@@ -4729,6 +4734,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_student_history_line__id
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__id
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -5242,6 +5248,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5310,6 +5317,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record_line__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -8630,6 +8638,7 @@ msgstr "Hoy"
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_report_wizard__to_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__date_to
 #: model:ir.model.fields,field_description:ems.field_ems_absence_cover__hour_to
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__date_to
 msgid "To"
 msgstr "A"
 
@@ -19551,6 +19560,7 @@ msgstr "Ausencia solicitada"
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__absence_id
 msgid "Detected absence"
 msgstr "Ausencia detectada"
 
@@ -26538,12 +26548,6 @@ msgstr ""
 
 #. module: ems
 #. odoo-python
-#: code:addons/ems/models/employees/absence_pending.py:0
-msgid "Discarded: the teacher's check-in of that day has been recorded."
-msgstr "Descartada: se ha registrado el fichaje del docente de ese día."
-
-#. module: ems
-#. odoo-python
 #: code:addons/ems/models/contacts/contact_data_request.py:0
 #, python-format
 msgid "%s: no longer a contact"
@@ -26957,7 +26961,10 @@ msgid "Request justification"
 msgstr "Pedir justificación"
 
 #. module: ems
+#. odoo-python
 #: model:ir.actions.server,name:ems.action_absence_pending_correct_check_in model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+#: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_check_in_wizard_form
 msgid "Correct check-in"
 msgstr "Corregir fichaje"
 
@@ -27524,3 +27531,55 @@ msgstr "Sin fichar: indica que está en el centro"
 #: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
 msgid "Available: assign them from the row of an absence"
 msgstr "Disponible: se asigna desde la fila de una ausencia"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Check-in corrected by %(user)s from %(when)s. The rest is still to review."
+msgstr "Fichaje corregido por %(user)s de %(when)s. El resto sigue por revisar."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_absence_pending_check_in_wizard
+msgid "Correct check-in of a detected absence"
+msgstr "Corrección del fichaje de una ausencia detectada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Discarded: the teacher's attendance covers it."
+msgstr "Descartada: la asistencia del docente la cubre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: it had been discarded by a check-in outside its hours."
+msgstr "Reabierta: la había descartado un fichaje fuera de sus horas."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Split from %(entry)s: %(reason)s"
+msgstr "Separada de %(entry)s: %(reason)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending_check_in_wizard.py:0
+msgid "The hours to correct must fall within the detected absence."
+msgstr "Las horas que corriges deben estar dentro de la ausencia detectada."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_check_in_wizard_form
+msgid "The teacher's attendance is recorded for these hours, where none covers\n                        them. Narrow them to the time the teacher was at the centre: the rest of\n                        the absence stays to review."
+msgstr "Se registra la asistencia del docente durante estas horas, donde ninguna las cubre. Acótalas al tiempo en que el docente estaba en el centro: el resto de la ausencia sigue por revisar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "check-in corrected by %(user)s from %(when)s."
+msgstr "fichaje corregido por %(user)s de %(when)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "the teacher's attendance covers part of it."
+msgstr "la asistencia del docente cubre una parte."

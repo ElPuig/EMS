@@ -231,6 +231,80 @@ class TestAbsenceDetection(TransactionCase):
 
         self.assertEqual(self._detected().state, 'pending')
 
+    def _attendance(self, day, hour_from, hour_to):
+        return self.env['hr.attendance'].create({
+            'employee_id': self.teacher.id, 'check_in': self._utc(day, hour_from),
+            'check_out': self._utc(day, hour_to), 'in_mode': 'manual'})
+
+    def test_a_check_in_outside_its_hours_leaves_it_alone(self):
+        """Issue #731: the reviewer narrowed it to the hours the teacher really missed and asked
+        them for it; recording the attendance of the hours before must not discard it."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        absence.with_user(self.head_of_studies).date_from = self._utc(self.yesterday, 10.0)
+        self._create_absence(absence, self.head_of_studies)
+
+        self._attendance(self.yesterday, 9.0, 10.0)
+
+        self.assertEqual(absence.state, 'absence_prepared')
+        self.assertEqual(self._hours(absence), (10.0, 13.0))
+
+    def test_a_check_out_cuts_it_from_the_start(self):
+        """Present until 10:30: only the rest, a whole period still missed, stays."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+
+        self._attendance(self.yesterday, 8.9, 10.5)
+
+        self.assertEqual(absence.state, 'justification_requested')
+        self.assertEqual(self._hours(absence), (10.5, 13.0))
+
+    def test_an_attendance_in_the_middle_splits_it(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        justification_date = absence.justification_date
+
+        self._attendance(self.yesterday, 10.0, 11.0)
+
+        parts = self._detected()
+        self.assertEqual(len(parts), 2)
+        self.assertEqual(sorted(self._hours(part) for part in parts), [(9.0, 10.0), (11.0, 13.0)])
+        self.assertEqual(self._hours(absence), (9.0, 10.0), 'the entry keeps the first part')
+        rest = parts - absence
+        self.assertEqual((rest.state, rest.origin, rest.justification_date),
+                         ('justification_requested', 'check_in', justification_date))
+        self.assertFalse(self._review_activities(rest), 'already reviewed')
+        self.assertTrue(rest.message_ids.filtered(lambda message: 'Split from' in message.body))
+
+    def test_an_open_check_in_covers_it_to_the_end(self):
+        """Checked in from the guard duty board and not out yet: present from then on."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+
+        self.env['hr.attendance'].create({'employee_id': self.teacher.id, 'check_in': self._utc(self.yesterday, 10.5)})
+
+        self.assertEqual(self._hours(absence), (9.0, 10.5))
+
+    def test_a_later_check_out_reviews_it_too(self):
+        """A check-out corrected afterwards counts as much as a check-in."""
+        attendance = self._attendance(self.yesterday, 8.9, 9.5)
+        absence = self.Pending.create({'employee_id': self.teacher.id, 'origin': 'check_in',
+                                       'date_from': self._utc(self.yesterday, 9.5), 'date_to': self._utc(self.yesterday, 13.0)})
+
+        attendance.check_out = self._utc(self.yesterday, 11.5)
+
+        self.assertEqual(self._hours(absence), (11.5, 13.0))
+
+    def test_a_part_shorter_than_a_period_is_no_absence(self):
+        """The rule of the detection: arriving during a period is no absence."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+
+        self._attendance(self.yesterday, 9.25, 10.75)
+        self._attendance(self.yesterday, 11.0, 13.0)
+
+        self.assertEqual(absence.state, 'discarded')
+
     # --- The teacher ----------------------------------------------------------------------------
 
     def test_the_teacher_reads_their_own_but_not_the_note(self):
@@ -469,6 +543,106 @@ class TestAbsenceDetection(TransactionCase):
         self.assertFalse(reviewer.can_correct_check_in)
         with self.assertRaises(UserError):
             reviewer.action_correct_check_in()
+
+    def _correct_check_in(self, absence, hour_from, hour_to, user=None):
+        """The reviewer corrects the check-in of part of the entry (issue #731)."""
+        day = self.Pending._to_local(absence.date_from).date()
+        action = absence.with_user(user or self.head_of_studies).action_open_correct_check_in()
+        wizard = self.env[action['res_model']].with_user(user or self.head_of_studies).with_context(
+            action['context']).create({'date_from': self._utc(day, hour_from), 'date_to': self._utc(day, hour_to)})
+        return wizard.action_confirm()
+
+    def test_correct_check_in_of_a_part_leaves_the_rest_to_review(self):
+        """Issue #731: present from 9:00 to 10:00, absent afterwards."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+
+        self._correct_check_in(absence, 9.0, 10.0)
+
+        attendance = self.env['hr.attendance'].search([('employee_id', '=', self.teacher.id)])
+        self.assertEqual((attendance.check_in, attendance.check_out),
+                         (self._utc(self.yesterday, 9.0), self._utc(self.yesterday, 10.0)))
+        self.assertEqual(absence.state, 'pending', 'the rest is still to review')
+        self.assertEqual(self._hours(absence), (10.0, 13.0))
+        self.assertEqual(self._review_activities(absence).user_id, self.head_of_studies)
+        self.assertTrue(absence.message_ids.filtered(lambda message: 'Check-in corrected by' in message.body))
+
+        self._asked(absence)
+        self.assertEqual(absence.state, 'justification_requested')
+
+    def test_correct_check_in_of_the_middle_splits_it(self):
+        informed = self.Pending.create({'employee_id': self.teacher.id, 'date_from': self._utc(self.yesterday, 9.0),
+                                        'date_to': self._utc(self.yesterday, 13.0)})
+
+        self._correct_check_in(informed, 10.0, 11.5)
+
+        parts = self.Pending.search([('employee_id', '=', self.teacher.id)])
+        self.assertEqual(sorted(self._hours(part) for part in parts), [(9.0, 10.0), (11.5, 13.0)])
+        self.assertEqual(set(parts.mapped('state')), {'pending'})
+        self.assertEqual(set(parts.mapped('origin')), {'informed'})
+        self.assertEqual(len(self._review_activities(parts - informed)), 1, 'the new part is reviewed too')
+
+    def test_correct_check_in_of_the_whole_entry_from_the_dialog(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+
+        self._correct_check_in(absence, 9.0, 13.0)
+
+        self.assertEqual(absence.state, 'corrected')
+        self.assertEqual(len(self._detected()), 1)
+
+    def test_correct_check_in_only_within_the_entry(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        with self.assertRaises(ValidationError):
+            self._correct_check_in(absence, 8.0, 10.0)
+        with self.assertRaises(UserError):
+            self._correct_check_in(absence, 9.0, 10.0, user=self.other_head_of_studies)
+
+    def test_wrongly_discarded_entries_are_reopened(self):
+        """Migration 18.0.0.42.1 (issue #731): the entries a check-in outside their hours
+        discarded come back as they were, the reminders counting from today; those still covered
+        and those a reviewer discarded stay as they are."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        wrong = self._detected()
+        wrong.date_from = self._utc(self.yesterday, 10.0)
+        self._create_absence(wrong, self.head_of_studies)
+        wrong.justification_date = self.yesterday
+        self._attendance(self.yesterday, 9.0, 10.0)
+        wrong.state = 'discarded'  # what the check-in did before #731
+        other_user = create_role_user(self, 'teacher', 'test_covered_tad', name='TAD Covered Teacher')
+        covered_teacher = self._teacher('TAD Covered Teacher', user=other_user)
+        covered = self.Pending.create({'employee_id': covered_teacher.id, 'origin': 'check_in',
+                                       'date_from': self._utc(self.yesterday, 9.0), 'date_to': self._utc(self.yesterday, 13.0)})
+        self._check_in(covered_teacher, self.yesterday, 8.9)
+        self.assertEqual(covered.state, 'discarded')
+        by_reviewer = self.Pending.create({'employee_id': self.teacher.id, 'origin': 'check_in',
+                                           'date_from': self._utc(self.today - timedelta(days=2), 9.0),
+                                           'date_to': self._utc(self.today - timedelta(days=2), 13.0)})
+        by_reviewer.with_user(self.head_of_studies).action_discard()
+
+        self.Pending._ems_reopen_wrongly_discarded()
+
+        self.assertEqual(wrong.state, 'absence_prepared')
+        self.assertEqual(self._hours(wrong), (10.0, 13.0))
+        self.assertEqual(wrong.justification_date, self.today, 'reminded afresh, not reported at once')
+        self.assertTrue(wrong.message_ids.filtered(lambda message: 'Reopened' in message.body))
+        self.assertEqual(covered.state, 'discarded')
+        self.assertEqual(by_reviewer.state, 'discarded')
+
+    def test_a_wrongly_discarded_entry_to_review_gets_its_task_back(self):
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        absence.date_from = self._utc(self.yesterday, 10.0)
+        self._attendance(self.yesterday, 9.0, 10.0)
+        absence.state = 'discarded'
+        self.assertFalse(self._review_activities(absence))
+
+        self.Pending._ems_reopen_wrongly_discarded()
+
+        self.assertEqual(absence.state, 'pending')
+        self.assertFalse(absence.justification_date, 'nobody was asked yet')
+        self.assertEqual(self._review_activities(absence).user_id, self.head_of_studies)
 
     def _create_absence(self, absences, user):
         wizard = self.env['ems.absence_pending.leave_wizard'].with_user(user).with_context(

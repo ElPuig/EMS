@@ -172,7 +172,8 @@ class EmsAbsencePending(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         absences = super().create(vals_list)
-        absences._ems_schedule_review()
+        # A part split from an entry already reviewed is not reviewed again (_ems_split).
+        absences.filtered(lambda absence: absence.state == 'pending')._ems_schedule_review()
         return absences
 
     def write(self, vals):
@@ -255,6 +256,16 @@ class EmsAbsencePending(models.Model):
             },
         }
 
+    @api.model
+    def _ems_close_dialog(self, result):
+        """What a review dialog returns: closing it reloads whatever opened it, showing on the
+        way the notice of what _ems_review skipped, if any."""
+        close = {'type': 'ir.actions.act_window_close'}
+        if result.get('tag') != 'display_notification':
+            return close
+        result['params']['next'] = close
+        return result
+
     def _ems_post_review_note(self, message):
         for absence in self.sudo():
             absence.message_post(body=message, subtype_xmlid='mail.mt_note')
@@ -292,23 +303,63 @@ class EmsAbsencePending(models.Model):
             {'state': 'justification_requested'},
             _("Justification requested by %(user)s.", user=self.env.user.name)))
 
+    def _ems_check_correctable(self, absence):
+        return absence.date_to > fields.Datetime.now() and _("still going on")
+
+    def _ems_fill_attendances(self, spans, start, stop):
+        """Completes the teacher's attendance in the part of `spans` (_ems_uncovered_spans, read
+        beforehand) between `start` and `stop`, leaving their own attendances as they are."""
+        self.ensure_one()
+        self.env['hr.attendance'].sudo().create([{
+            'employee_id': self.employee_id.id, 'check_in': max(span_start, start), 'check_out': min(span_stop, stop),
+            'in_mode': 'manual', 'out_mode': 'manual', 'ems_checked_in_by_id': self.env.uid,
+        } for span_start, span_stop in spans if span_start < stop and span_stop > start])
+
     def action_correct_check_in(self):
         """The teacher was at the centre: their attendance is completed for the hours detected,
-        without telling anyone. Their own attendances are left as they are."""
-        now = fields.Datetime.now()
-
+        without telling anyone."""
         def apply(absences):
-            Attendance = self.env['hr.attendance'].sudo()
             for absence in absences:
                 spans = absence._ems_uncovered_spans()
                 # Before the attendances: the check-in review they cause must not discard it.
                 absence.sudo().state = 'corrected'
-                Attendance.create([{
-                    'employee_id': absence.employee_id.id, 'check_in': start, 'check_out': stop,
-                    'in_mode': 'manual', 'out_mode': 'manual', 'ems_checked_in_by_id': self.env.uid,
-                } for start, stop in spans])
+                absence._ems_fill_attendances(spans, absence.date_from, absence.date_to)
             absences._ems_post_review_note(_("Check-in corrected by %(user)s.", user=self.env.user.name))
-        return self._ems_review(apply, lambda absence: absence.date_to > now and _("still going on"))
+        return self._ems_review(apply, self._ems_check_correctable)
+
+    def action_open_correct_check_in(self):
+        """The form's "Correct check-in" (issue #731): asks for the hours the teacher was at the
+        centre, the whole entry by default (ems.absence_pending.check_in_wizard)."""
+        self.ensure_one()
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Correct check-in"),
+            'res_model': 'ems.absence_pending.check_in_wizard',
+            'views': [(False, 'form')],
+            'target': 'new',
+            'context': {'default_absence_id': self.id, 'default_date_from': self.date_from,
+                        'default_date_to': self.date_to},
+        }
+
+    def _ems_correct_check_in(self, start, stop):
+        """Corrects the check-in between `start` and `stop` only: the rest of the entry, before
+        and after, is still to review, as one entry or two (issue #731). The whole entry is the
+        usual correction."""
+        self.ensure_one()
+        if start <= self.date_from and stop >= self.date_to:
+            return self.action_correct_check_in()
+
+        def apply(absence):
+            when = _("%(start)s to %(stop)s", start=self._to_local(start).strftime('%H:%M'),
+                     stop=self._to_local(stop).strftime('%H:%M'))
+            spans = absence._ems_uncovered_spans()
+            rest = [span for span in ((absence.date_from, start), (stop, absence.date_to)) if span[0] < span[1]]
+            # Before the attendances: the check-in review they cause must not touch what is left.
+            absence._ems_split(rest, _("check-in corrected by %(user)s from %(when)s.", user=self.env.user.name, when=when))
+            absence._ems_fill_attendances(spans, start, stop)
+            absence._ems_post_review_note(_("Check-in corrected by %(user)s from %(when)s. The rest is still to review.",
+                                            user=self.env.user.name, when=when))
+        return self._ems_review(apply, self._ems_check_correctable)
 
     def action_create_absence(self):
         """Asks for the absence type, then prepares the request for the teacher to send (see the
@@ -429,6 +480,72 @@ class EmsAbsencePending(models.Model):
     # --- Missing check-ins (issue #696) -----------------------------------------------------------
 
     @api.model
+    def _ems_scheduled_periods(self, day, employees):
+        """`{employee.id: [(hour_from, hour_to)]}`: each of `employees`' own schedule periods on
+        `day`, in the company's hours, read as the guard duty board reads them (no lunch, the
+        right week of a two-week schedule). sudo: only hours leave this method."""
+        week_type = str(self.env['resource.calendar.attendance'].get_week_type(day))
+        slots = self.env['ems.course'].sudo()._get_guard_duty_board_attendance_ids([
+            ('dayofweek', '=', str(day.weekday())), ('calendar_id.employee_id', 'in', employees.ids),
+            ('display_type', '=', False), ('day_period', '!=', 'lunch')])
+        periods = defaultdict(list)
+        for slot in slots:
+            if not (slot.two_weeks_calendar and slot.week_type != week_type):
+                periods[slot.calendar_id.employee_id.id].append((slot.hour_from, slot.hour_to))
+        return periods
+
+    def _ems_missed_spans(self):
+        """[(start, stop)] of this entry no attendance covers and that still hold a whole period
+        of the teacher's schedule: being there for part of a period is no absence, the same rule
+        the detection follows for a late arrival (issue #731). Without a schedule that day, every
+        span left uncovered."""
+        self.ensure_one()
+        day = self._to_local(self.date_from).date()
+        periods = [self._utc_bounds(day, *hours)
+                   for hours in self._ems_scheduled_periods(day, self.employee_id).get(self.employee_id.id, [])]
+        spans = self._ems_uncovered_spans()
+        if not periods:
+            return spans
+        return [(start, stop) for start, stop in spans
+                if any(start <= period_start and period_stop <= stop for period_start, period_stop in periods)]
+
+    def _ems_keep_missed_spans(self):
+        """Keeps only what the teacher's attendances leave missed (_ems_missed_spans): shortened,
+        split, or discarded when nothing is left. Returns whether something is left."""
+        self.ensure_one()
+        spans = self._ems_missed_spans()
+        if not spans:
+            self.sudo().state = 'discarded'
+            self.sudo().message_post(body=_("Discarded: the teacher's attendance covers it."),
+                                     subtype_xmlid='mail.mt_note')
+            return False
+        if spans != [(self.date_from, self.date_to)]:
+            self._ems_split(spans, _("the teacher's attendance covers part of it."))
+        return True
+
+    def _ems_split(self, spans, note):
+        """This entry keeps the first of `spans` and a copy of it (same teacher, origin and stage
+        of the review) takes each of the others; `note` on the copies, which tells where they come
+        from. Whoever followed the entry follows its copies too. Only an entry still to review
+        gets its review task (create)."""
+        self.ensure_one()
+        source = self.display_name
+        self.sudo().write({'date_from': spans[0][0], 'date_to': spans[0][1]})
+        if len(spans) == 1:
+            return self.browse()
+        copies = self.sudo().with_context(mail_create_nolog=True).create([{
+            'employee_id': self.employee_id.id, 'date_from': start, 'date_to': stop, 'origin': self.origin,
+            'state': self.state, 'leave_type_id': self.leave_type_id.id, 'note': self.sudo().note,
+            'justification_date': self.justification_date, 'reminder_date': self.reminder_date,
+            'escalated': self.escalated,
+        } for start, stop in spans[1:]])
+        for copy in copies:
+            copy.message_subscribe(partner_ids=self.sudo().message_partner_ids.ids)
+            copy.message_post(body=_("Split from %(entry)s: %(reason)s", entry=source, reason=note),
+                              subtype_xmlid='mail.mt_note')
+        return copies
+
+    @api.model
     def _ems_missing_check_ins(self, day, employees, arrivals=None):
         """`{employee.id: (hour_from, hour_to)}`: the part of `day` each of `employees` was
         expected and did not check in, in the company's hours. Expected: their own schedule's
@@ -440,14 +557,7 @@ class EmsAbsencePending(models.Model):
         hours leave this method."""
         if not employees:
             return {}
-        week_type = str(self.env['resource.calendar.attendance'].get_week_type(day))
-        slots = self.env['ems.course'].sudo()._get_guard_duty_board_attendance_ids([
-            ('dayofweek', '=', str(day.weekday())), ('calendar_id.employee_id', 'in', employees.ids),
-            ('display_type', '=', False), ('day_period', '!=', 'lunch')])
-        periods = defaultdict(list)
-        for slot in slots:
-            if not (slot.two_weeks_calendar and slot.week_type != week_type):
-                periods[slot.calendar_id.employee_id.id].append((slot.hour_from, slot.hour_to))
+        periods = self._ems_scheduled_periods(day, employees)
         if arrivals is None:
             arrivals = self.env['hr.attendance']._ems_first_check_in_hours(day, employees)
         missing = {}
@@ -586,6 +696,33 @@ class EmsAbsencePending(models.Model):
                 absence._to_local(absence.date_to) - timedelta(microseconds=1)).date()})
         Pending.search([('state', '=', 'pending')])._ems_schedule_review()
 
+    @api.model
+    def _ems_reopen_wrongly_discarded(self):
+        """Issue #731, for the entries discarded before it: a check-in recorded afterwards
+        discarded them as soon as it fell on their day, even outside their hours. Those a check-in
+        discarded (still active: a reviewer's discard archives) come back at the stage of the
+        review they had reached, keeping only what is still missed (_ems_keep_missed_spans); the
+        teacher's reminders, if they had been asked, count from today. Nobody is told."""
+        today = self.get_local_today()
+        for absence in self.sudo().search([('origin', '=', 'check_in'), ('state', '=', 'discarded')]):
+            spans = absence._ems_missed_spans()
+            if not spans:
+                continue
+            # The stage they had reached: Create absence sets the type, both requests the date.
+            state = ('absence_prepared' if absence.leave_type_id
+                     else 'justification_requested' if absence.justification_date else 'pending')
+            # Written without write(): it would mark the entry's tasks done again.
+            absence.env.cr.execute("UPDATE ems_absence_pending SET state = %s WHERE id = %s", (state, absence.id))
+            absence.invalidate_recordset(['state'])
+            if state != 'pending':
+                absence.write({'justification_date': today, 'reminder_date': False, 'escalated': False})
+            # Its copies, if split, get their own review task when created.
+            absence._ems_split(spans, _("the teacher's attendance covers part of it."))
+            if state == 'pending':
+                absence._ems_schedule_review()
+            absence.message_post(body=_("Reopened: it had been discarded by a check-in outside its hours."),
+                                 subtype_xmlid='mail.mt_note')
+
     def _ems_report_message(self):
         """What the teacher's Head of Studies is told once it has gone on for too long."""
         self.ensure_one()
@@ -649,7 +786,7 @@ class EmsAbsencePendingAttendance(models.Model):
 
     def write(self, vals):
         result = super().write(vals)
-        if vals.keys() & {'employee_id', 'check_in'}:
+        if vals.keys() & {'employee_id', 'check_in', 'check_out'}:
             self._ems_review_detected_absences()
         return result
 
@@ -671,31 +808,21 @@ class EmsAbsencePendingAttendance(models.Model):
                 for employee, first in check_ins}
 
     def _ems_review_detected_absences(self):
-        """A check-in recorded afterwards (checked in from the guard duty board, by their Head of
-        Studies, a correction) reviews that day's detected absence of the teacher (issue #696):
-        discarded when nothing is missing any more, shortened when they arrived earlier than it
-        said."""
+        """An attendance recorded afterwards (checked in from the guard duty board, by their Head
+        of Studies, a correction) reviews the teacher's detected absences it overlaps (issue #696):
+        each keeps only what is still missed (_ems_missed_spans), shortened at either end, split
+        when the attendance falls in its middle, discarded when nothing is left. Never one it
+        does not overlap: its hours may be the ones the reviewer narrowed it to (issue #731)."""
         attendances = self.filtered(lambda attendance: attendance.check_in and attendance.in_mode != 'technical')
         if not attendances:
             return
-        Pending = self.env['ems.absence_pending'].sudo()
-        days = {(attendance.employee_id.id, Pending._to_local(attendance.check_in).date()) for attendance in attendances}
-        absences = Pending.search([
-            ('origin', '=', 'check_in'), ('state', 'in', UNRESOLVED_STATES),
-            ('employee_id', 'in', attendances.employee_id.ids),
-            ('date_from', '<', max(attendances.mapped('check_in')) + timedelta(days=1)),
-            ('date_to', '>', min(attendances.mapped('check_in')) - timedelta(days=1)),
-        ])
-        for absence in absences:
-            day = Pending._to_local(absence.date_from).date()
-            if (absence.employee_id.id, day) not in days:
-                continue
-            missing = Pending._ems_missing_check_ins(day, absence.employee_id).get(absence.employee_id.id)
-            if not missing:
-                absence.state = 'discarded'
-                absence.message_post(body=_("Discarded: the teacher's check-in of that day has been recorded."),
-                                     subtype_xmlid='mail.mt_note')
-            else:
-                date_to = Pending._utc_bounds(day, *missing)[1]
-                if date_to < absence.date_to:
-                    absence.date_to = date_to
+        domain = [('origin', '=', 'check_in'), ('state', 'in', UNRESOLVED_STATES),
+                  ('employee_id', 'in', attendances.employee_id.ids),
+                  ('date_to', '>', min(attendances.mapped('check_in')))]
+        if all(attendances.mapped('check_out')):
+            domain.append(('date_from', '<', max(attendances.mapped('check_out'))))
+        for absence in self.env['ems.absence_pending'].sudo().search(domain):
+            if any(attendance.employee_id == absence.employee_id and attendance.check_in < absence.date_to
+                   and (not attendance.check_out or attendance.check_out > absence.date_from)
+                   for attendance in attendances):
+                absence._ems_keep_missed_spans()

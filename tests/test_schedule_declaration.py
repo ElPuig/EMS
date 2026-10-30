@@ -161,6 +161,8 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertIn('QUADRE RESUM D’HORES'.encode(), content)
         self.assertIn(b'Dilluns', content)
         self.assertIn(b'TSDE-NIF-1', content)
+        # The Departament's logo, as on the official form.
+        self.assertIn(b'/ems/static/src/img/departament_educacio_fp.png', content)
 
     def test_head_of_studies_prints_it_with_the_nif(self):
         user = create_role_user(self, 'head_of_studies', 'tsde_hos')

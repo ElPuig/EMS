@@ -29,11 +29,11 @@ Teachers go through no staff call: once saved, they see the mobility in **Erasmu
 - The leader teacher reviews the ranking and sends the proposal. You get a task: publish the lists or, in **Actions**, **Send the proposal back** with the reason.
 - **Provisional list:** in the **Selection** tab, set the *Claims deadline*. Then, in **Actions**, **Publish the provisional list**: each student receives their provisional result by email and can claim by replying to it until that deadline. The list shows each student only by four digits of their identity document, with their rank, record average and result (selected, reserve or excluded); EMS refuses to publish it while a student has no identity document recorded.
 - To make an exception to the ranking (for example, after accepting a claim), set the *Exception* and its *Reason for the exception* in the **Selection** tab before approving.
-- **Definitive list:** in **Actions**, **Approve and publish the selection** publishes the definitive list, emails each student their own result and opens the files. It is not available until the provisional list is published. Both lists stay in the **Selection** tab (*Published lists*), on the portal of the students who enrolled, as a PDF, and in the documents export.
+- **Definitive list:** in **Actions**, **Approve and publish the selection** publishes the definitive list, emails each student their own result and opens the files. It is not available until the provisional list is published and its claims deadline has passed. Both lists stay in the **Selection** tab (*Published lists*), on the portal of the students who enrolled, as a PDF, and in the documents export.
 
 ## Withdrawals and substitutions
 
-If a selected student renounces (from the portal or through the leader teacher), the place becomes free and the mobility shows the next reserve. The leader teacher proposes them and you approve or reject it in the **Selection** tab. The frozen ranking does not change and the documents already handed in are kept.
+If a selected student renounces (from the portal, or telling the leader teacher or you, who record it with the **Renounce** button of their enrolment in the **Selection** tab, with the reason), the place becomes free and the mobility shows the next reserve. The leader teacher proposes them and you approve or reject it in the **Selection** tab. If that reserve does not want the place, record it the same way, with **Renounce** on their enrolment: they leave the reserve list and the mobility shows the next one. The frozen ranking does not change and the documents already handed in are kept.
 
 ## Files and documents
 

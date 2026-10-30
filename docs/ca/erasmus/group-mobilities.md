@@ -29,11 +29,11 @@ Els docents no passen per cap convocatòria de personal: en desar-los, ja veuen 
 - El docent responsable revisa la classificació i envia la proposta. Rebràs una tasca: publicar les llistes o, a **Accions**, **Retorna la proposta** amb el motiu.
 - **Llista provisional:** a la pestanya **Selecció**, posa el *Termini de reclamacions*. Després, a **Accions**, **Publica la llista provisional**: cada alumne rep el seu resultat provisional per correu i pot reclamar responent-hi fins a aquest termini. La llista només mostra quatre xifres del document d'identitat de cada alumne, amb la posició, la mitjana de l'expedient i el resultat (seleccionat, reserva o exclòs). L'EMS no la publica mentre algun alumne no tingui el document d'identitat registrat.
 - Per fer una excepció a la classificació (per exemple, després d'acceptar una reclamació), a la pestanya **Selecció** posa l'*Excepció* i el *Motiu de l'excepció* abans d'aprovar.
-- **Llista definitiva:** a **Accions**, **Aprova i publica la selecció** publica la llista definitiva, envia a cada alumne el seu resultat per correu i obre els expedients. No es pot fer fins que la llista provisional està publicada. Totes dues llistes queden a la pestanya **Selecció** (*Llistes publicades*), al portal de l'alumnat que s'hi va inscriure, en PDF i a l'exportació dels documents.
+- **Llista definitiva:** a **Accions**, **Aprova i publica la selecció** publica la llista definitiva, envia a cada alumne el seu resultat per correu i obre els expedients. No es pot fer fins que la llista provisional està publicada i el seu termini de reclamacions ha acabat. Totes dues llistes queden a la pestanya **Selecció** (*Llistes publicades*), al portal de l'alumnat que s'hi va inscriure, en PDF i a l'exportació dels documents.
 
 ## Renúncies i substitucions
 
-Si un alumne seleccionat renuncia (des del portal o a través del docent responsable), la plaça queda lliure i la mobilitat mostra la reserva següent. El docent responsable la proposa i tu l'aproves o la rebutges a la pestanya **Selecció**. La classificació congelada no canvia i els documents ja lliurats es conserven.
+Si un alumne seleccionat renuncia (des del portal, o dient-ho al docent responsable o a tu, que ho registreu amb el botó **Renuncia** de la seva inscripció a la pestanya **Selecció**, amb el motiu), la plaça queda lliure i la mobilitat mostra la reserva següent. El docent responsable la proposa i tu l'aproves o la rebutges a la pestanya **Selecció**. Si aquesta reserva no vol la plaça, registra-ho de la mateixa manera, amb **Renuncia** a la seva inscripció: surt de la llista de reserva i la mobilitat mostra la següent. La classificació congelada no canvia i els documents ja lliurats es conserven.
 
 ## Expedients i documents
 

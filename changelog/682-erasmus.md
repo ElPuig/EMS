@@ -36,6 +36,12 @@
 - Printing a published list as PDF (students' and staff calls) failed with "Report template 'Published list' has an issue": the report keeps each published list's PDF for the project's records, and its template did not name the record on each page. The project's records export, which includes those PDFs, failed for the same reason.
 - Staff call: a tie after the mobility plan score is now broken by who has been at the centre longer, by the month and year of joining declared in the form (art. 11), not by the points of criterion 5. Two people with 25 and 6 years at the centre both get 2 points and used to go to a draw.
 
+## Erasmus+ group mobilities, found in the end-to-end test of a group mobility:
+
+- The coordinator could approve the selection (definitive list) right after publishing the provisional one, with the claims deadline still open. Approving now waits for that deadline, as the calls' definitive resolution does.
+- A reserve who did not want a free place blocked every reserve after them: rejecting the substitution only made EMS propose the same reserve again. The enrolments in the Selection tab now have a Renounce button (Erasmus team and leader teacher, with the reason) for a selected student who tells them they cannot go (before, only the student could, from the portal) and for a reserve who does not want the place: the reserve leaves the list and the next one is proposed.
+- Any leader or accompanying teacher of any group mobility could read the draws of every group mobility, with the students tied and whether they had fewer opportunities accredited. The draws are now readable only by the leader of their own mobility, and that flag only by the Erasmus team, as on the enrolment.
+
 # Internal changes
 
 ## sign_oca integration details:
@@ -50,3 +56,7 @@
 ## End-to-end test of the staff call:
 
 - `tests/test_erasmus_staff_call_e2e.py` runs a staff call (2 VET + 1 HED places as one pool) from publishing to a rectification, with the real roles (technician, coordinator, a four-member panel with a candidate who abstains, Head of Studies): who can apply (FP teachers and Direction, not ESO teachers nor administration), the mobility plan required, a corrections round trip and an exclusion, the panel seeing only its own ratings, merits, both tie-breaks and a draw, places needed for the provisional list, a claim upheld, the claims deadline, accepting, renouncing, a reserve offer expiring, assigning the project, and a rectification blocked until a place is added.
+
+## End-to-end test of a group mobility:
+
+- `tests/test_erasmus_group_mobility_e2e.py` runs a KA121-VET group mobility (4 students, leader and accompanying teacher) from its creation to its closure with the real roles (technician, coordinator, leader, accompanying teacher, Head of Studies, students and a family on the portal): enrolling only from the eligible groups, the conduct-warning block before and after enrolling, a withdrawal, the frozen ranking with real grades, fewer opportunities accredited or not, two students with no grades (average entered with its source, and excluded by the coordinator), a tie drawn, the proposal sent back and sent again, the provisional list (masked DNIs, no names, emails), a claim upheld, the claims deadline, the definitive list, the commitment letter accepted provisionally and again after the destination is confirmed (student and family of a minor), renouncing, substitutions and a reserve who does not want the place, documents and who reviews them, insurance (own or collective), the optional documents, the participants' spreadsheet and the documents' ZIP, the stay, the programme question, the EU Survey and the closure; and what each role reads (read and search_read).

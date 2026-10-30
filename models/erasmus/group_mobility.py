@@ -568,15 +568,20 @@ class EmsErasmusGroupMobility(models.Model):
             mobility.sudo().chatter(_("Provisional list published."))
 
     def action_approve_selection(self):
-        """The coordinator approves the selection once the provisional list is published: the
-        results are frozen, the definitive list is published, each student gets their own result,
-        and every participant's file opens."""
+        """The coordinator approves the selection once the provisional list is published and its
+        claims deadline has passed (as the calls' definitive resolution): the results are frozen, the
+        definitive list is published, each student gets their own result, and every participant's
+        file opens."""
         self._ems_check_coordinator()
         self._ems_check_state('validation')
         self._ems_check_selection_ready()
+        Call = self.env['ems.erasmus.call']
         for mobility in self:
             if not mobility.sudo()._ems_published_list('provisional'):
                 raise UserError(_("Publish the provisional list of %s first.", mobility.name))
+            if mobility.claims_deadline and mobility.claims_deadline > Call._ems_now():
+                raise UserError(_("The claims deadline (%s) has not passed yet: the students can still claim "
+                                  "against the provisional list.", Call._ems_local_format(mobility.claims_deadline)))
         self._ems_activities_done()
         today = self.env['ems.datetime_utils'].get_local_today()
         for mobility in self.sudo():
@@ -1110,21 +1115,35 @@ class EmsErasmusGroupRegistration(models.Model):
     def action_renounce(self, reason=False):
         """A selected student renounces (from the portal, or the team or the leader on their
         behalf, with the reason): the place is free for the next reserve. The file and its
-        documents are kept, closed."""
+        documents are kept, closed. A reserve who does not want a place renounces the same way
+        (the team or the leader on their behalf): they leave the reserve list, and a substitution
+        proposed to them is withdrawn, so the next reserve can be proposed."""
         for registration in self:
             if not self.env.su:
                 registration.group_mobility_id._ems_check_role('team', 'leader')
-            if registration.result != 'selected' or registration.group_mobility_id.state not in ('preparation',
-                                                                                                  'stay'):
-                raise UserError(_("Only a selected student renounces, before the mobility ends."))
+            if registration.result not in ('selected', 'reserve') or registration.state != 'enrolled' \
+                    or registration.group_mobility_id.state not in ('preparation', 'stay'):
+                raise UserError(_("Only a selected student or a reserve renounces, before the mobility ends."))
         for registration in self:
+            frees_place = registration.result == 'selected' or registration.substitution_state == 'proposed'
             registration._ems_write({'result': 'renounced', 'renounce_date': fields.Datetime.now(),
-                                     'renounce_reason': reason or _("Renounced by the student.")})
+                                     'renounce_reason': reason or _("Renounced by the student."),
+                                     'substitution_state': False, 'substitute_for_id': False})
             registration.participant_id.sudo().write({'state': 'withdrawn'})
             mobility = registration.group_mobility_id
             mobility.sudo().chatter(_("%s renounced the place.", registration.partner_id.name))
-            leader = mobility.sudo().leader_id.user_id or mobility._ems_team_users()
-            mobility._ems_schedule(leader, _("Erasmus+: propose a substitute in %s", mobility.name))
+            if frees_place:
+                leader = mobility.sudo().leader_id.user_id or mobility._ems_team_users()
+                mobility._ems_schedule(leader, _("Erasmus+: propose a substitute in %s", mobility.name))
+
+    def action_open_renounce(self):
+        """The team or the leader records the renouncement a student told them about, with the reason."""
+        self.ensure_one()
+        self.group_mobility_id._ems_check_role('team', 'leader')
+        return {
+            'type': 'ir.actions.act_window', 'res_model': 'ems.erasmus.group.renounce.wizard', 'view_mode': 'form',
+            'target': 'new', 'name': _("Renounce the place"), 'context': {'default_registration_id': self.id},
+        }
 
     def action_approve_substitution(self):
         self.group_mobility_id._ems_check_coordinator()
@@ -1393,6 +1412,24 @@ class EmsErasmusGroupParticipant(models.Model):
                 lines[document_id]._ems_add_files(files)
 
 
+class EmsErasmusGroupRenounceWizard(models.TransientModel):
+    """A selected student or a reserve renounces and tells the leader or the Erasmus team, who record
+    it with the reason (the student can also renounce a place from the portal)."""
+    _name = 'ems.erasmus.group.renounce.wizard'
+    _description = 'Erasmus+ group mobility renouncement'
+
+    registration_id = fields.Many2one(string="Enrolment", comodel_name='ems.erasmus.group.registration',
+                                      required=True, ondelete='cascade')
+    reason = fields.Text(string="Reason", required=True)
+
+    def action_confirm(self):
+        self.ensure_one()
+        if not (self.reason or '').strip():
+            raise UserError(_("Write the reason for renouncing first."))
+        self.registration_id.action_renounce(self.reason.strip())
+        return {'type': 'ir.actions.act_window_close'}
+
+
 class EmsErasmusGroupDraw(models.Model):
     """Issue #702 - a draw the Erasmus coordinator ran to resolve one tie: who, when, what the
     students were tied on, the exact set tied and the order drawn. Created by EMS only, never
@@ -1415,7 +1452,9 @@ class EmsErasmusGroupDraw(models.Model):
                               ondelete='restrict')
     date = fields.Datetime(string="Run on", required=True, readonly=True)
     grade_average = fields.Float(string="Tied on the average", digits=(4, 2), readonly=True)
-    fewer_opportunities = fields.Boolean(string="Fewer opportunities accredited", readonly=True)
+    # Who has fewer opportunities is the Erasmus team's, as on the enrolment.
+    fewer_opportunities = fields.Boolean(string="Fewer opportunities accredited", readonly=True,
+                                         groups='ems.group_erasmus,ems.group_academic_admin')
     line_ids = fields.One2many(string="Order drawn", comodel_name='ems.erasmus.group.draw.line',
                                inverse_name='draw_id', readonly=True)
     tied_count = fields.Integer(string="Students tied", compute='_compute_tied_count')

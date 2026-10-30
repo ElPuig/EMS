@@ -118,7 +118,8 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   `validation`, a future `claims_deadline` required) creates, prepares and publishes the
   provisional list from the proposal with its exceptions (`_ems_list_result`); each student gets
   `email_template_erasmus_resolution_published` (the calls' template, with a group branch) and
-  claims by replying. `action_approve_selection` refuses until the provisional list is published;
+  claims by replying. `action_approve_selection` refuses until the provisional list is published
+  and its `claims_deadline` has passed (as the calls' definitive resolution);
   it freezes `result`, publishes the definitive list, opens the files and emails each student
   **their own** result (`email_template_erasmus_group_result`, so the definitive list sends no
   second email). The resolution's call-specific parts are hooks the group overrides
@@ -129,7 +130,12 @@ States of the mobility: `draft` → `enrolment` → `selection` → `validation`
   list (`/my/erasmus/group/<id>/resolution/<id>[/pdf]`, only for students who enrolled) and shows
   the student's provisional result while the claims are open.
 - Withdrawal and substitution: a selected student renounces (portal, or the leader or the team on
-  their behalf, with the reason); their file is withdrawn but every document is kept. With a
+  their behalf with the enrolment's **Renounce** button, `action_open_renounce` and the
+  `ems.erasmus.group.renounce.wizard`, which asks for the reason); their file is withdrawn but every
+  document is kept. A reserve who does not want a place renounces the same way (`action_renounce`
+  accepts `reserve`): they leave the reserve list and a substitution proposed to them is withdrawn,
+  so `next_reserve` moves on to the following one (rejecting the substitution alone would propose
+  the same reserve again). With a
   place free, `next_reserve` shows the first reserve; the leader proposes them
   (`action_propose_substitution`), the coordinator approves or rejects. The frozen ranking is
   never rewritten; the history is in the enrolments (`substitute_for_id`, who proposed and
@@ -285,6 +291,8 @@ what each role may change is checked again in the models (`EmsErasmusGroupMobili
 | Published lists | all | all | no | no | all, read | lists of the mobilities they enrolled in, own result |
 | Send the proposal | yes | yes | yes | no | no | - |
 | Approve, send back, exceptions, substitutions | yes | no | request only | no | no | - |
+| Record a renouncement (selected or reserve) | yes | yes | yes | no | no | own place (portal) |
+| Draws | all | all | own mobility, without the fewer-opportunities flag | no | all, without that flag | no |
 | Participants' files | all | all | own mobility, not confidential | own mobility (read), own documents | all, not confidential | own file |
 | Review documents | yes | yes | own mobility | no | no | - |
 | Follow-up | all | all | own mobility | own mobility | read | no |

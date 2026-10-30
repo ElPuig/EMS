@@ -307,6 +307,9 @@
                                         <button name="action_request_exception" type="object" string="Request the exception" icon="fa-flag"
                                                 title="Ask the coordinator for the exception written in Exception requested"
                                                 invisible="not exception_request or parent.state != 'selection'"/>
+                                        <button name="action_open_renounce" type="object" string="Renounce" icon="fa-sign-out"
+                                                title="Record that the student renounces the place or the reserve place, with the reason"
+                                                invisible="state != 'enrolled' or result not in ('selected', 'reserve') or parent.state not in ('preparation', 'stay')"/>
                                         <button name="action_approve_substitution" type="object" string="Approve" icon="fa-check"
                                                 invisible="substitution_state != 'proposed'"
                                                 groups="ems.group_erasmus_coordinator,ems.group_academic_admin"/>
@@ -321,7 +324,7 @@
                                             <field name="date"/>
                                             <field name="user_id"/>
                                             <field name="grade_average"/>
-                                            <field name="fewer_opportunities"/>
+                                            <field name="fewer_opportunities" groups="ems.group_erasmus,ems.group_academic_admin"/>
                                             <field name="tied_count"/>
                                             <field name="line_ids" widget="many2many_tags" string="Order drawn"/>
                                         </list>
@@ -656,6 +659,24 @@
                         </notebook>
                     </sheet>
                     <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_erasmus_group_renounce_wizard_form" model="ir.ui.view">
+            <field name="name">ems.erasmus.group.renounce.wizard.form</field>
+            <field name="model">ems.erasmus.group.renounce.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Renounce the place">
+                    <p class="text-muted">A selected student frees their place for the next reserve; a reserve leaves the reserve list, so the next one can be proposed. The enrolment and the file are kept.</p>
+                    <group>
+                        <field name="registration_id" readonly="1"/>
+                        <field name="reason" placeholder="e.g. The family told the leader teacher they cannot travel"/>
+                    </group>
+                    <footer>
+                        <button name="action_confirm" type="object" string="Renounce" class="btn-primary"/>
+                        <button string="Cancel" special="cancel"/>
+                    </footer>
                 </form>
             </field>
         </record>

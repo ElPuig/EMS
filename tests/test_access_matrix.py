@@ -73,6 +73,8 @@ ACCESS_MATRIX = {
     'ems.erasmus.document.signature': {'teacher': '', 'secretary': '', 'head_of_studies': '', 'erasmus': 'rw'},
     'ems.erasmus.undo.transfer.wizard': {'teacher': '', 'erasmus': '', 'secretary': 'rwcu', 'academic_admin': 'rwcu'},
     'ems.erasmus.file.removal.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu'},
+    # The leader records a renouncement too; what each one may do is checked by the model (test_erasmus_group_mobility.py).
+    'ems.erasmus.group.renounce.wizard': {'teacher': '', 'secretary': '', 'erasmus': 'rwcu'},
     'ems.erasmus.project.document': {'teacher': '', 'secretary': 'rwc', 'head_of_studies': 'r', 'erasmus': 'rwcu'},
     # Exports are a log: created (as oneself) and read, never changed nor deleted (test_erasmus_records.py).
     # Earlier commitment letters: created by EMS only, never changed (test_erasmus_integration.py).

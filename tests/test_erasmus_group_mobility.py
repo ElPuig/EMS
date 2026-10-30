@@ -95,8 +95,13 @@ class ErasmusGroupMobilityCase(TransactionCase):
         self.mobility.claims_deadline = fields.Datetime.now() + timedelta(days=7)
         self.mobility.with_user(self.coordinator_user).action_publish_provisional()
 
+    def _claims_over(self):
+        """The claims deadline has passed."""
+        self.mobility.claims_deadline = fields.Datetime.now() - timedelta(minutes=1)
+
     def _approve(self):
         self._publish_provisional()
+        self._claims_over()
         self.mobility.with_user(self.coordinator_user).action_approve_selection()
 
     def _approved(self):
@@ -512,6 +517,25 @@ class TestErasmusGroupSelection(ErasmusGroupMobilityCase):
         self.assertEqual(selected.rank, 1, "The frozen ranking is never rewritten.")
         self.assertFalse(self.mobility.next_reserve)
 
+    def test_a_reserve_who_does_not_want_the_place_leaves_the_queue(self):
+        """The coordinator rejecting the substitution kept proposing the same reserve: whoever does
+        not want the place renounces it (the leader or the team record it) and the next is proposed."""
+        registrations = self._approved()
+        registrations[0].sudo().action_renounce("Cannot travel")
+        first, second = registrations.filtered(lambda registration: registration.result == 'reserve').sorted('rank')
+        self.mobility.with_user(self.leader_user).action_propose_substitution()
+        action = first.with_user(self.leader_user).action_open_renounce()
+        wizard = self.env[action['res_model']].with_user(self.leader_user).with_context(action['context']).create(
+            {'reason': "Told the leader they do not want it"})
+        wizard.action_confirm()
+        self.assertEqual((first.result, first.substitution_state, first.renounce_reason),
+                         ('renounced', False, "Told the leader they do not want it"))
+        self.assertEqual(self.mobility.next_reserve, second.partner_id.name)
+        with self.assertRaises(AccessError):
+            second.with_user(self.companion_user).action_open_renounce()
+        with self.assertRaises(UserError, msg="Excluded or already renounced: nothing to renounce."):
+            first.sudo().action_renounce()
+
     def test_student_renounces_from_the_portal(self):
         registrations = self._approved()
         registrations[1].sudo().action_renounce()
@@ -659,6 +683,9 @@ class TestErasmusGroupSepieDocuments(ErasmusGroupMobilityCase):
             self.mobility.with_user(self.coordinator_user).action_publish_provisional()
         registrations[9].with_user(self.coordinator_user).write(
             {'result_override': 'excluded', 'override_reason': 'Claim accepted: not enrolled in the cycle'})
+        with self.assertRaises(UserError, msg="The students can still claim against the provisional list."):
+            self.mobility.with_user(self.coordinator_user).action_approve_selection()
+        self._claims_over()
         self.mobility.with_user(self.coordinator_user).action_approve_selection()
         definitive = self.mobility.resolution_ids - provisional
         self.assertEqual((definitive.kind, definitive.state), ('definitive', 'published'))
@@ -758,6 +785,25 @@ class TestErasmusGroupSecurity(ErasmusGroupMobilityCase):
             self.other.with_user(self.leader_user).read(['name'])
         with self.assertRaises(AccessError):
             self.other.with_user(self.leader_user).action_start_stay()
+
+    def test_draws_only_of_their_own_mobility_and_never_the_fewer_opportunities(self):
+        """A draw lists the students tied and whether they had fewer opportunities accredited: the
+        leader reads their own mobility's draws (the order), never another mobility's nor that flag;
+        an accompanying teacher reads none."""
+        registrations = self._enrol(self.students[:3])
+        self._close({self.students[0]: 9.0, self.students[1]: 8.0, self.students[2]: 8.0})
+        self.mobility.with_user(self.coordinator_user).action_draw_ties()
+        Draw, Line = self.env['ems.erasmus.group.draw'], self.env['ems.erasmus.group.draw.line']
+        self.assertEqual(Draw.with_user(self.leader_user).search([]), self.mobility.draw_ids)
+        self.assertEqual(len(Line.with_user(self.leader_user).search([])), 2)
+        for user in (self.other_teacher_user, self.companion_user):
+            self.assertFalse(Draw.with_user(user).search([]), user.name)
+            self.assertFalse(Line.with_user(user).search([]), user.name)
+        with self.assertRaises(AccessError):
+            Draw.with_user(self.leader_user).search_read([], ['fewer_opportunities'])
+        with self.assertRaises(AccessError):
+            self.mobility.draw_ids.with_user(self.leader_user).read(['fewer_opportunities'])
+        self.assertTrue(registrations[1].needs_draw or registrations[1].draw_order)
 
     def test_accompanying_teacher_never_sees_the_enrolments(self):
         self._ranked()

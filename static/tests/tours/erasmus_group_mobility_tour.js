@@ -140,6 +140,23 @@ registry.category("web_tour.tours").add("ems_erasmus_group_coordinator", {
             trigger: ".o_form_view .o_field_widget[name='resolution_ids'] .o_data_row",
             content: "The provisional list is published",
         },
+        {
+            trigger: ".o_form_view .o_statusbar_status button.o_arrow_button_current[data-value='validation']",
+            content: "The selection waits for the claims deadline",
+        },
+    ],
+});
+
+// Once the claims deadline has passed, the coordinator approves the selection.
+registry.category("web_tour.tours").add("ems_erasmus_group_coordinator_approve", {
+    test: true,
+    url: "/odoo/action-ems.action_erasmus_group_mobility",
+    steps: () => [
+        {
+            trigger: `.o_kanban_view .o_kanban_record:contains('${MOBILITY}')`,
+            content: "Open the mobility from its card",
+            run: "click",
+        },
         ...clickAction("action_approve_selection", "Approve and publish the selection"),
         {
             trigger: ".modal-footer .btn-primary",

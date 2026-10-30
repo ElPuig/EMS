@@ -295,6 +295,7 @@ from . import test_erasmus_grant_tour
 from . import test_erasmus_staff_tour
 from . import test_erasmus_group_mobility
 from . import test_erasmus_group_mobility_tour
+from . import test_erasmus_group_mobility_e2e
 from . import test_erasmus_integration
 from . import test_erasmus_integrity
 from . import test_erasmus_decisions

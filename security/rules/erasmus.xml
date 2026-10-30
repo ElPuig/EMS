@@ -276,16 +276,16 @@
             <field name="domain_force">[(1, '=', 1)]</field>
         </record>
         <record id="rule_erasmus_draw_group_teacher" model="ir.rule">
-            <field name="name">Erasmus draw: group mobilities only (leader, accompanying teacher)</field>
+            <field name="name">Erasmus draw: own group mobilities (leader)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_draw"/>
             <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
-            <field name="domain_force">[('group_mobility_id', '!=', False)]</field>
+            <field name="domain_force">[('group_mobility_id.leader_id.user_id', '=', user.id)]</field>
         </record>
         <record id="rule_erasmus_draw_line_group_teacher" model="ir.rule">
-            <field name="name">Erasmus draw position: group mobilities only (leader, accompanying teacher)</field>
+            <field name="name">Erasmus draw position: own group mobilities (leader)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_group_draw_line"/>
             <field name="groups" eval="[(4, ref('ems.group_erasmus_group_teacher'))]"/>
-            <field name="domain_force">[('draw_id.group_mobility_id', '!=', False)]</field>
+            <field name="domain_force">[('draw_id.group_mobility_id.leader_id.user_id', '=', user.id)]</field>
         </record>
 
         <!-- Audit D-1: the signatures of a document, as its document (the team, admin: every one; a group

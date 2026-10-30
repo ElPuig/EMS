@@ -2597,6 +2597,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_attendance_justification_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_renounce_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -11411,6 +11412,7 @@ msgstr "Salida original"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_file_removal_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_undo_transfer_wizard__reason
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__reason
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_renounce_wizard__reason
 msgid "Reason"
 msgstr "Motivo"
 
@@ -36877,6 +36879,7 @@ msgstr "Inscrito el"
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_draw_line__registration_id
 #: code:addons/ems/models/erasmus/export.py:0
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_resolution_line__group_registration_id
+#: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_renounce_wizard__registration_id
 msgid "Enrolment"
 msgstr "Inscripción"
 
@@ -37222,9 +37225,8 @@ msgstr "No es del grupo que puede inscribirse"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/group_mobility.py:0
-msgid "Only a selected student renounces, before the mobility ends."
-msgstr ""
-"Solo renuncia un alumno seleccionado, antes de que acabe la movilidad."
+msgid "Only a selected student or a reserve renounces, before the mobility ends."
+msgstr "Solo renuncia un alumno seleccionado o un reserva, antes de que acabe la movilidad."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_erasmus_group_registration__result_override
@@ -37369,7 +37371,10 @@ msgid "Reason not eligible"
 msgstr "Motivo por el que no cumple"
 
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_group
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_renounce_wizard_form
 msgid "Renounce the place"
 msgstr "Renunciar a la plaza"
 
@@ -39763,3 +39768,41 @@ msgstr ""
 "Esta rectificación dejaría más personas con plaza que plazas, porque una plaza ya aceptada no se retira nunca:\n"
 "%s\n"
 "Decide con el equipo Erasmus qué hacer (p. ej. añadir una plaza a la modalidad) antes de publicarla."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "The claims deadline (%s) has not passed yet: the students can still claim against the provisional list."
+msgstr "El plazo de reclamaciones (%s) aún no ha terminado: el alumnado todavía puede reclamar contra la lista provisional."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/group_mobility.py:0
+msgid "Write the reason for renouncing first."
+msgstr "Primero escribe el motivo de la renuncia."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_erasmus_group_renounce_wizard
+msgid "Erasmus+ group mobility renouncement"
+msgstr "Renuncia a una movilidad de grupo de Erasmus+"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_renounce_wizard_form
+msgid "Renounce"
+msgstr "Renunciar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_mobility_form
+msgid "Record that the student renounces the place or the reserve place, with the reason"
+msgstr "Registrar que el alumno renuncia a la plaza o al puesto de reserva, con el motivo"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_renounce_wizard_form
+msgid "A selected student frees their place for the next reserve; a reserve leaves the reserve list, so the next one can be proposed. The enrolment and the file are kept."
+msgstr "Un alumno seleccionado deja la plaza libre para el siguiente reserva; un reserva sale de la lista de reserva, de modo que se puede proponer al siguiente. La inscripción y el expediente se conservan."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_group_renounce_wizard_form
+msgid "e.g. The family told the leader teacher they cannot travel"
+msgstr "p. ej. La familia ha dicho al profesor líder que no puede viajar"

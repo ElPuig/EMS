@@ -30,5 +30,9 @@ class TestErasmusGroupMobilityTour(HttpCase, ErasmusGroupMobilityCase):
         self.mobility.claims_deadline = fields.Datetime.now() + timedelta(days=7)
         self.start_tour('/odoo/action-ems.action_erasmus_group_mobility', 'ems_erasmus_group_coordinator',
                         login=self.coordinator_user.login)
+        self.assertEqual(self.mobility.state, 'validation', "The claims are open.")
+        self._claims_over()
+        self.start_tour('/odoo/action-ems.action_erasmus_group_mobility', 'ems_erasmus_group_coordinator_approve',
+                        login=self.coordinator_user.login)
         self.assertEqual(self.mobility.state, 'preparation')
         self.assertEqual(set(self.mobility.resolution_ids.mapped('kind')), {'provisional', 'definitive'})

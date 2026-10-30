@@ -16808,29 +16808,6 @@ msgstr ""
 " expedient núm. 1234». Es mostra a l'alumne amb la resolució."
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/convalidation.py:0
-msgid ""
-"%(student)s no longer takes %(subject)s: it has been convalidated with a "
-"%(grade)s (registration %(number)s). They are no longer in its attendance "
-"lists or grades."
-msgstr ""
-"%(student)s ja no cursa %(subject)s: s'ha convalidat amb un %(grade)s "
-"(registre %(number)s). Ja no surt a les seves llistes d'assistència ni a les"
-" notes."
-
-#. module: ems
-#: model:mail.activity.type,name:ems.mail_activity_convalidation_notice
-msgid "Convalidated subject"
-msgstr "Assignatura convalidada"
-
-#. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/convalidation.py:0
-msgid "Convalidated: %s"
-msgstr "Convalidada: %s"
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__convalidation_number
 msgid "Convalidation file"
 msgstr "Expedient de convalidació"
@@ -22143,12 +22120,6 @@ msgid "Convalidate %s"
 msgstr "Convalida %s"
 
 #. module: ems
-#. odoo-python
-#: code:addons/ems/models/grades/convalidation.py:0
-msgid "%(student)s no longer takes %(subject)s: it has been convalidated without a grade (registration %(number)s). They are no longer in its attendance lists or grades."
-msgstr "%(student)s ja no cursa %(subject)s: s'ha convalidat sense nota (registre %(number)s). Ja no surt a les seves llistes d'assistència ni a les notes."
-
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__rejection_reason_id
 msgid "Reason for refusal"
 msgstr "Motiu de la denegació"
@@ -27316,3 +27287,27 @@ msgstr "Escriu el motiu de l'anul·lació de la sol·licitud."
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__archived_with_calendar
 msgid "Archived with its calendar"
 msgstr "Arxivada amb el seu calendari"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "%(subject)s, without a grade"
+msgstr "%(subject)s, sense nota"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "%(subject)s, with a %(grade)s"
+msgstr "%(subject)s, amb un %(grade)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "%(student)s no longer takes these subjects, convalidated by request %(number)s. They are no longer in their attendance lists or grades:"
+msgstr "%(student)s ja no cursa aquests mòduls, convalidats per la sol·licitud %(number)s. Ja no surt a les seves llistes d'assistència ni a les notes:"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidated subjects: %s"
+msgstr "Mòduls convalidats: %s"

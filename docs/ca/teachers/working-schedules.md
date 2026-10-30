@@ -42,6 +42,16 @@ Si una classe la imparteixen realment dos docents alhora (mateixa assignatura, m
 
 ---
 
+## La teva declaració horària
+
+Cada curs signes la declaració horària oficial del Departament d'Educació i FP ("Horari professor/a"). El cap d'estudis la imprimeix des de l'EMS, ja omplerta amb les dades del centre, el teu nom, NIF i càrrecs, el teu horari setmanal i el quadre resum d'hores, i te la dona perquè completis a mà el que l'EMS no sap (lloc de treball/especialitat, situació administrativa, anys a l'ensenyament, acreditació de català, lloc i data) i la signis.
+
+![Una declaració horària impresa per l'EMS: les dades del centre i del docent, l'horari setmanal i el quadre resum, amb les cel·les que no s'apliquen en gris](../../assets/teachers/declaracio-horaria-mostra.png)
+
+Si una hora surt a la fila equivocada del quadre resum, digues-ho al cap d'estudis: la fila on va cada activitat es configura al centre.
+
+---
+
 ## Exportar el teu horari a PDF
 
 Fes clic a **PDF** a la barra d'eines de la pestanya Horari per descarregar una versió imprimible del teu horari setmanal.

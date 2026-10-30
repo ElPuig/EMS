@@ -120,6 +120,7 @@ from . import test_strike
 from . import test_strike_tour
 from . import test_strike_issue_standalone_tour
 from . import test_working_schedule
+from . import test_schedule_declaration
 from . import test_ems_teaching_sync
 from . import test_employee_schedule_lifecycle
 from . import test_working_schedules_import_wizard
@@ -277,3 +278,4 @@ from . import test_quality_minute_rules
 from . import test_quality_minute_guest
 from . import test_title_registration
 from . import test_title_registration_tour
+from . import test_docs_screenshots_schedule_declaration

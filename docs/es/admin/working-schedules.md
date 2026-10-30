@@ -71,6 +71,8 @@ La lista de motivos no lectivos (Patio, Guardia, Reunión de coordinación...) q
 2. Haz clic en **Nuevo**, establece un **Código** corto (debe coincidir exactamente con el que usa el planificador externo para esa actividad) y un **Nombre** (lo que verán los docentes y los informes).
 3. Opcionalmente, márcalo como **Es un descanso** (se descarta por completo del resumen de horas semanales, igual que el patio) o **Siempre es un compromiso de horario fijo** (siempre se cuenta en la columna "Otras horas en horario fijo", como una guardia).
    Si es una guardia, marca **Es una guardia** (aparece en el cuadrante de guardias) y, si quien la hace puede ir a cubrir clases y otras guardias, también **Guardia ordinaria**. Déjala desmarcada en una guardia que es un puesto fijo, como la de WC o la de patio: a quien la hace no se le envía a cubrir nada, y cuando falta, su guardia es la que hay que cubrir.
+   Marca **Suma sus franjas** para franjas cortas que no deben contar una hora entera cada una, como la guardia de patio: las franjas de la semana se suman y después se redondea a horas enteras (tres guardias de patio de 25 minutos cuentan 2 horas, no 3).
+   Elige su **Código en la declaración horaria**: la fila del cuadro resumen de la [declaración horaria oficial](#imprimir-la-declaración-horaria-oficial) donde se suman sus horas (déjalo vacío para algo que no se declara, como el patio).
 4. Guarda. El nuevo tipo queda disponible de inmediato en el desplegable "no lectiva" al editar un horario, y se reconoce la próxima vez que importes un fichero del planificador que use su código.
 
 ---
@@ -268,6 +270,34 @@ Un grupo de refuerzo es un **grupo** de alumnos (el mismo registro de "Grupos" q
 5. Guarda.
 
 Una vez creado, un grupo de refuerzo se utiliza en el horario de un docente exactamente igual que cualquier otro grupo — asígnalo manualmente en la pestaña Horario, o deja que el importador de ficheros lo localice por el nombre.
+
+---
+
+## Imprimir la declaración horaria oficial
+
+EMS imprime la declaración horaria del Departament d'Educació i FP ("Horari professor/a", de los *Annexos Dades anuals*) lista para firmar, siempre en catalán, una página por docente. La pueden imprimir los jefes de estudios y los jefes de estudios adjuntos, la dirección y los administradores:
+
+- Para varios docentes: en **Comunidad Educativa → Profesores**, pasa a la vista de lista, selecciónalos y elige **Imprimir → Declaración horaria**.
+- Para un docente: abre su ficha y elige **Acciones → Imprimir la declaración horaria**.
+
+![Una declaración horaria impresa por EMS: los datos del centro y del docente, el horario semanal y el cuadro resumen, con las celdas que no se aplican en gris](../../assets/teachers/declaracio-horaria-mostra.png)
+
+Cada página tiene el código, el nombre y el municipio del centro (de la configuración de la empresa), el nombre, el NIF y los cargos del docente, su horario semanal (sin aulas, para ahorrar espacio) y el cuadro resumen de horas. Lo que EMS no guarda (lugar de trabajo/especialidad, situación administrativa, años en la enseñanza, acreditación de catalán, lugar, fecha y firmas) queda en blanco para rellenar a mano.
+
+**La fila a la que va cada hora** es configuración, que la instalación deja preparada y que puedes cambiar después:
+
+- Una clase cuenta en la fila del **nivel** de su grupo: se elige en el **Código en la declaración horaria** del nivel (**Comunidad Educativa → Configuración → Currículum → Niveles**). Un desdoble o una optativa sin nivel propio toma el nivel de sus grupos principales. Un nivel sin código va a *Altres*.
+- Una tutoría (una asignatura de tutoría, o un tipo no lectivo con el código de tutoría: por defecto *Tutoría* y *Atención al alumnado*) cuenta en T-ESO, T-BAT o T-FP (o PFI) según el nivel del grupo tutorizado. Si el docente no es tutor de ningún grupo, según el nivel donde da más horas de clase.
+- Cualquier otra hora no lectiva cuenta en la fila elegida en el **Código en la declaración horaria** de su tipo (**Configuración → Profesorado → Tipos de hora no lectiva**); vacío significa que no se declara.
+- Las reducciones lectivas solo aparecen como horas, en "Si disposeu de reducció de jornada", y se suman al TOTAL de lectivas.
+
+![El código en la declaración horaria en el formulario de un nivel](../../assets/admin/admin-declaracio-horaria-nivell.png)
+
+![El formulario de la guardia de patio: Suma sus franjas marcado y su código en la declaración horaria, G](../../assets/admin/admin-declaracio-horaria-tipus-no-lectiu.png)
+
+Como en el formulario, las celdas del cuadro resumen que no se aplican son grises (p. ej. horas de horario fijo de ESO, horas lectivas de guardias). Si sale un número en una celda gris, hay que revisar el código de ese nivel o tipo no lectivo.
+
+Si una hora es lectiva o de horario fijo sigue la misma regla que el resumen de la pestaña Horario (las guardias, y la reunión de coordinación del miércoles, son de horario fijo).
 
 ---
 

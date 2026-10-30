@@ -36,7 +36,8 @@ ACCESS_MATRIX = {
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r'},
-    'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},
+    # The administrator configures them too: they are above Direction (issue #723).
+    'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu', 'settings_admin': 'rwcu'},
     'ems.outcome': {'teacher': 'r', 'secretary': 'r'},
     # Issue #720: whoever handles convalidation requests in the backend cancels them saying why.
     'ems.convalidation.cancel_wizard': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},

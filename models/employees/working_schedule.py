@@ -11,6 +11,8 @@ import json
 import math
 import re
 
+from .non_teaching_type import DECLARATION_ROWS, TUTORING_CODE_BY_LEVEL_CODE, TUTORING_DEFAULT_CODE
+from ..shared.schedule_report_mixin import HOUR_EPSILON
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC, EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
 
@@ -29,6 +31,16 @@ def _m2m_command_ids(commands):
 		elif command[0] == 6:
 			ids.extend(command[2])
 	return ids
+
+def subject_block_name(subject, groups, topic=False):
+	"""The stored 'name' of a class block: 'MP 0485: Programació (DAM1A)', plus ' - <topic>' when it
+	has one (developer, 2026-10-29). The one format written by the import, the Schedule tab (its JS
+	twin in schedule_grid_field.js) and migrations/18.0.0.43.0, and the label the PDFs print."""
+	name = subject.display_name
+	if groups:
+		name = "%s (%s)" % (name, ", ".join(groups.mapped('name')))
+	return "%s - %s" % (name, topic) if topic else name
+
 
 class ems_working_schedule(models.Model):
 	# NOTE: 'ems.schedule_report_mixin' is only mixed in alongside 'resource.calendar' — a 2-item
@@ -180,6 +192,14 @@ class ems_working_schedule(models.Model):
 		employees = self.env['hr.employee'].search([('resource_calendar_id', '=', self.id)])
 		return employees if len(employees) == 1 else self.env['hr.employee']
 
+	@staticmethod
+	def _report_slot_key(attendance):
+		"""(weekday, start, end) in whole minutes: two blocks of the same period can store hours that
+		differ in the last decimal (10.416666666666666 and ...668 for 10:25, e.g. a break derived from
+		the framework and a guard saved from the Schedule tab), which must share one row of the
+		grid (issue #723)."""
+		return attendance.dayofweek, round(attendance.hour_from * 60), round(attendance.hour_to * 60)
+
 	def get_schedule_report_lines(self):
 		"""Weekly schedule rows (one per distinct Mon-Fri period, one column per weekday) for the
 		working schedule PDF report. Unassigned slots are never stored (see apply_schedule_changes),
@@ -193,33 +213,36 @@ class ems_working_schedule(models.Model):
 		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
 		employee = self.get_employee()
 		if employee:
-			occupied = {(attendance.dayofweek, attendance.hour_from, attendance.hour_to) for attendance in weekday_entries}
+			occupied = {self._report_slot_key(attendance) for attendance in weekday_entries}
 			derived_breaks = employee._get_derived_break_entries().filtered(
-				lambda attendance: (attendance.dayofweek, attendance.hour_from, attendance.hour_to) not in occupied)
+				lambda attendance: self._report_slot_key(attendance) not in occupied)
 			weekday_entries = weekday_entries | derived_breaks
-		periods = sorted({(attendance.hour_from, attendance.hour_to) for attendance in weekday_entries})
 
 		color_by_key = {}
+		entries_by_slot = {}
 		for attendance in weekday_entries.sorted(key=lambda attendance: (attendance.dayofweek, attendance.hour_from)):
 			key = self._report_color_key(attendance)
 			if key not in color_by_key:
 				color_by_key[key] = self.REPORT_COLOR_PALETTE[len(color_by_key) % len(self.REPORT_COLOR_PALETTE)]
+			slot = self._report_slot_key(attendance)
+			entries_by_slot[slot] = entries_by_slot.get(slot, attendance.browse()) | attendance
+		periods = sorted({(minute_from, minute_to) for _dayofweek, minute_from, minute_to in entries_by_slot})
 
 		lines = []
-		for hour_from, hour_to in periods:
+		for minute_from, minute_to in periods:
 			cells = []
 			for dayofweek in ('0', '1', '2', '3', '4'):
-				entry = weekday_entries.filtered(
-					lambda attendance, dayofweek=dayofweek, hour_from=hour_from, hour_to=hour_to:
-						attendance.dayofweek == dayofweek and attendance.hour_from == hour_from and attendance.hour_to == hour_to
-				)
+				entry = entries_by_slot.get((dayofweek, minute_from, minute_to), weekday_entries.browse())
 				cells.append({
 					'entry': entry,
 					'color': color_by_key.get(self._report_color_key(entry)) if entry else False,
 				})
+			entries = [cell['entry'] for cell in cells if cell['entry']]
 			lines.append({
-				'time_label': "%s-%s" % (self._format_report_time(hour_from), self._format_report_time(hour_to)),
+				'time_label': "%s-%s" % (self._format_report_time(minute_from / 60), self._format_report_time(minute_to / 60)),
 				'cells': cells,
+				# Only breaks in this period (issue #723: one line high on the schedule declaration).
+				'is_break': bool(entries) and all(entry.non_teaching.is_break for entry in entries),
 			})
 		return lines
 
@@ -260,6 +283,41 @@ class ems_working_schedule(models.Model):
 				kept |= max(cluster, key=lambda a: a.hour_to - a.hour_from)
 		return kept
 
+	def _iter_summary_entries(self):
+		"""The weekly blocks counted in the hours summaries, as (block, hours, is_fixed): Monday to
+		Friday, a date-split slot only once (_dedupe_date_split_blocks), each block rounded UP to
+		whole hours, breaks and unassigned blocks left out. 'is_fixed' is the "other fixed-schedule
+		hours" column: guard duties (is_fixed) and the coordination meeting on Wednesday. Shared by
+		get_schedule_hours_summary() and get_schedule_declaration_summary() (issue #723).
+
+		A non-teaching type that adds up its periods (adds_up_periods, e.g. the break guard duty) is
+		rounded once over the week's total instead: one (first block, hours) per type and column, so
+		three break guards of 25 minutes count 2 hours, not 3 (developer, 2026-10-29)."""
+		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
+		added_up = {}
+		for attendance in self._dedupe_date_split_blocks(weekday_entries).sorted(lambda block: (block.dayofweek, block.hour_from)):
+			if attendance.subject_id:
+				is_fixed = False
+			elif attendance.non_teaching and not attendance.non_teaching.is_break:
+				non_teaching = attendance.non_teaching
+				is_fixed = non_teaching.is_fixed or (non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
+			else:
+				continue
+			duration = attendance.hour_to - attendance.hour_from
+			if attendance.non_teaching.adds_up_periods:
+				first, total = added_up.get((attendance.non_teaching, is_fixed), (attendance, 0))
+				added_up[(attendance.non_teaching, is_fixed)] = (first, total + duration)
+				continue
+			yield attendance, self._summary_hours(duration), is_fixed
+		for (_non_teaching, is_fixed), (first, total) in added_up.items():
+			yield first, self._summary_hours(total), is_fixed
+
+	@staticmethod
+	def _summary_hours(duration):
+		"""'duration' rounded UP to whole hours. HOUR_EPSILON: a period stored as 15.666...-16.666...
+		is 1.0000000000000018 h, which a bare ceil() counted as 2 (found on issue #723)."""
+		return math.ceil(duration - HOUR_EPSILON)
+
 	def get_schedule_hours_summary(self):
 		"""Weekly hours totals for the Schedule tab's summary table, split into two columns exactly
 		like the real external schedules this data is modelled on:
@@ -273,37 +331,27 @@ class ems_working_schedule(models.Model):
 		- 'fixed': guard duties (any day) and coordination meetings ('CM') specifically on Wednesday —
 		  the centre's fixed non-teaching commitments.
 		Each period's duration is rounded UP to the nearest whole hour (a period that only partially
-		overlaps an hour still counts as one full hour), then summed. Not stored — cheap to compute
+		overlaps an hour still counts as one full hour), then summed; a type that adds up its periods
+		(the break guard duty) is rounded once over the week's total (see _iter_summary_entries). Not stored — cheap to compute
 		from the calendar's own attendance_ids, and reused as-is by the PDF report's own summary table
 		later. For a full-time teacher with no reduction, 'total' should equal 24 (full_time_required_
 		hours)."""
 		self.ensure_one()
-		weekday_entries = self.attendance_ids.filtered(lambda attendance: attendance.dayofweek in ('0', '1', '2', '3', '4'))
-		weekday_entries = self._dedupe_date_split_blocks(weekday_entries)
-
 		teaching_rows = {}
 		fixed_rows = {}
-		for attendance in weekday_entries:
-			duration = math.ceil(attendance.hour_to - attendance.hour_from)
+		for attendance, duration, is_fixed in self._iter_summary_entries():
 			if attendance.subject_id:
 				group = attendance.group_ids[:1]
-				bucket = teaching_rows
 				if group.group_type == 'reinforcement':
 					key = ('reinforcement', group.id)
 					label = group.display_name
 				else:
 					key = ('level', group.level_id.id)
 					label = group.level_id.display_name
-			elif attendance.non_teaching.is_break:
-				continue
-			elif attendance.non_teaching:
-				is_fixed = attendance.non_teaching.is_fixed or (attendance.non_teaching.code == 'CM' and attendance.dayofweek == self.FIXED_HOURS_WEDNESDAY)
-				bucket = fixed_rows if is_fixed else teaching_rows
+			else:
 				key = ('activity', attendance.non_teaching.id)
 				label = attendance.get_report_label()
-			else:
-				continue
-
+			bucket = fixed_rows if is_fixed else teaching_rows
 			if key not in bucket:
 				bucket[key] = {'label': label, 'hours': 0}
 			bucket[key]['hours'] += duration
@@ -320,6 +368,70 @@ class ems_working_schedule(models.Model):
 			'teaching': {'rows': teaching, 'total': teaching_total},
 			'fixed': {'rows': fixed, 'total': fixed_total},
 			'total': teaching_total + fixed_total,
+		}
+
+	# The summary table's rows, for the declaration's template (report_schedule_declaration.xml).
+	DECLARATION_ROWS = DECLARATION_ROWS
+
+	@staticmethod
+	def _declaration_tutoring_code(level_code):
+		return TUTORING_CODE_BY_LEVEL_CODE.get(level_code, TUTORING_DEFAULT_CODE)
+
+	def get_schedule_declaration_summary(self):
+		"""Issue #723: the "Quadre resum d'hores" of the Departament's official schedule declaration,
+		{'lective': {code: hours}, 'fixed': {code: hours}, 'reduction': hours, 'lective_total',
+		'fixed_total'}, codes from DECLARATION_CODES. Same blocks and columns as
+		get_schedule_hours_summary(); only the rows differ:
+		- a class goes to its group's level's declaration_code (a group without a level, e.g. a
+		  split or optative, takes its main groups' level); no code: 'other' (Altres);
+		- tutoring goes to the row of the tutored level (T-ESO, T-BAT, PFI, else T-FP): a tutorship
+		  subject (is_tutorship), by its group's level; a non-teaching type coded 'tutoring' (TT,
+		  ATAL), by the level of the teacher's tutorship or, for a teacher who tutors no group, the
+		  level where they teach the most hours (developer, 2026-10-30);
+		- any other non-teaching block goes to its type's declaration_code; no code: left out;
+		- the teaching-hour reductions are only given as their total hours ('reduction'), and are
+		  counted in the lective total, as on the Schedule tab (developer, 2026-10-29)."""
+		self.ensure_one()
+		employee = self.get_employee()
+		tutored_level_code = employee.tutorship_ids.sorted('id')[:1].level_id.declaration_code
+		columns = {'lective': {}, 'fixed': {}}
+		class_hours_by_level = {}
+		tutoring_hours = {'lective': 0, 'fixed': 0}
+		for attendance, duration, is_fixed in self._iter_summary_entries():
+			column_key = 'fixed' if is_fixed else 'lective'
+			if attendance.subject_id:
+				group = attendance.group_ids[:1]
+				level_code = (group.level_id or group.parent_group_ids.sorted('id')[:1].level_id).declaration_code
+				if attendance.subject_id.is_tutorship:
+					code = self._declaration_tutoring_code(level_code)
+				else:
+					code = level_code or 'other'
+					if level_code:
+						class_hours_by_level[level_code] = class_hours_by_level.get(level_code, 0) + duration
+			else:
+				code = attendance.non_teaching.declaration_code
+				if code == 'tutoring':
+					# Its row needs the whole week's classes when the teacher tutors no group: added below.
+					tutoring_hours[column_key] += duration
+					continue
+				if not code:
+					continue
+			column = columns[column_key]
+			column[code] = column.get(code, 0) + duration
+		if any(tutoring_hours.values()):
+			level_code = tutored_level_code or max(
+				sorted(class_hours_by_level), key=class_hours_by_level.get, default=False)
+			code = self._declaration_tutoring_code(level_code)
+			for column_key, hours in tutoring_hours.items():
+				if hours:
+					columns[column_key][code] = columns[column_key].get(code, 0) + hours
+		reduction = sum(employee.teaching_reduction_ids.mapped('reduction_hours'))
+		return {
+			'lective': columns['lective'],
+			'fixed': columns['fixed'],
+			'reduction': reduction,
+			'lective_total': sum(columns['lective'].values()) + reduction,
+			'fixed_total': sum(columns['fixed'].values()),
 		}
 
 class ems_working_schedule_assignation(models.Model):
@@ -511,12 +623,12 @@ class ems_working_schedule_assignation(models.Model):
 		see 'non_teaching_items' in this file and 'catalog.nonTeaching' in schedule_grid_field.js), so a
 		non-teaching row would otherwise always show "Guard" even when printing in Catalan/Spanish.
 		'non_teaching.name' is translatable, so it resolves to the report's current language for free.
-		'topic' (issue #428) is appended as-is when set - it's free text typed directly by the
-		teacher, not a translatable label, so there's nothing to resolve there."""
+		A class is composed from its subject, groups and topic (subject_block_name), not read from
+		'name', so every block reads the same whichever way it was saved (issue #723)."""
 		self.ensure_one()
 		if self.non_teaching:
 			return self.non_teaching.name
-		return "%s - %s" % (self.name, self.topic) if self.topic else self.name
+		return subject_block_name(self.subject_id, self.group_ids, self.topic)
 
 	def get_subject_display_label(self):
 		"""Translatable 'subject [- topic]' label (issue #428) for the group/student schedule PDF
@@ -2067,7 +2179,10 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			set(existing_ids) | {name_to_group[name].id for name in pending_names}
 		))
 		entry['group_ids'] = [(6, 0, groups.ids)] if is_command_form else groups.ids
-		entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
+		if entry.get('subject_id'):
+			entry['name'] = subject_block_name(self.env['ems.subject'].browse(entry['subject_id']), groups, entry.get('topic'))
+		else:
+			entry['name'] += " (%s)" % ", ".join(groups.mapped('name'))
 
 	def _finalize_subject_correction(self, entry, corrections):
 		"""Substitutes 'entry's own 'group_ids'/'subject_id' with whatever was actually picked on
@@ -2099,9 +2214,7 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 			return
 		entry['subject_id'] = corrected_subject.id
 		entry['group_ids'] = [(6, 0, corrected_groups.ids)] if is_command_form else corrected_groups.ids
-		entry['name'] = "%s: %s (%s)" % (
-			corrected_subject.acronym, corrected_subject.name, ", ".join(corrected_groups.mapped('name'))
-		)
+		entry['name'] = subject_block_name(corrected_subject, corrected_groups, entry.get('topic'))
 
 	def _parse_schedule_entries(self, xml_node):
 		"""Parse a <Teacher> XML node into (entries, attendance_ids) — the flattened list of real
@@ -2210,6 +2323,8 @@ class ems_working_schedules_import_wizard(models.TransientModel):
 						# '(group names)' suffix below is skipped while any name is still pending -
 						# rebuilt from the FULL final group set once resolution completes.
 						new_entry["pending_group_names"] = pending_names
+					elif new_entry.get("subject_id"):
+						new_entry["name"] = subject_block_name(subject, groups, topic)
 					else:
 						new_entry["name"] += " (%s)" % (", ".join(g.name for g in groups))
 				dwe.append(new_entry)

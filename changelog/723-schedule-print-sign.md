@@ -9,7 +9,7 @@
 - The official codes are configuration: new "Schedule declaration code" on levels and on non-teaching types, seeded once (post_init_hook for clean installs, migrations/18.0.0.43.0 post-migrate for upgrades) with the mapping agreed with the developer, and editable by the centre afterwards. Manifest 18.0.0.43.0.
 - Grid on the declaration: hours vertically centred, every block two lines high except breaks (one line); the legal sentence is the page footer, so the signatures get more room.
 
-- Docs: developer doc (working schedules, levels, non-teaching types), user manuals for teachers, administrators and Heads of Studies in ca/es/en; ca/es translations.
+- Docs: developer doc (working schedules, levels, non-teaching types), user manuals for teachers, administrators and Heads of Studies in ca/es/en with screenshots (fictitious data, tests/test_docs_screenshots_schedule_declaration.py); ca/es translations.
 
 # Fixes
 

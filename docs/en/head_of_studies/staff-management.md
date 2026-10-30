@@ -98,6 +98,10 @@ When the account is created, or its password is reset, the credentials travel tw
 
 The Departament's official schedule declaration of each teacher ("Horari professor/a"), ready to sign: in **Educational Community → Teachers**, switch to the list view, select the teachers and choose **Print → Schedule declaration** (one page each), or open one teacher and choose **Actions → Print schedule declaration**. See [Print the Official Schedule Declaration](../admin/working-schedules.md#print-the-official-schedule-declaration) for what each page contains and how its summary table is filled in.
 
+![The Print menu of the teachers' list, with two teachers selected and Schedule declaration in it](../../assets/head_of_studies/hos-declaracio-horaria-llista.png)
+
+![A teacher's form with its Actions dropdown open: Print schedule declaration](../../assets/head_of_studies/hos-declaracio-horaria-accions.png)
+
 ## What you cannot do
 
 Two limits are deliberate, and Odoo will refuse the operation if you try:

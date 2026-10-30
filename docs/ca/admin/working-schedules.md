@@ -280,6 +280,8 @@ L'EMS imprimeix la declaració horària del Departament d'Educació i FP ("Horar
 - Per a diversos docents: a **Comunitat Educativa → Professors**, passa a la vista de llista, selecciona'ls i tria **Imprimeix → Declaració horària**.
 - Per a un docent: obre la seva fitxa i tria **Accions → Imprimeix la declaració horària**.
 
+![Una declaració horària impresa per l'EMS: les dades del centre i del docent, l'horari setmanal i el quadre resum, amb les cel·les que no s'apliquen en gris](../../assets/teachers/declaracio-horaria-mostra.png)
+
 Cada pàgina té el codi, el nom i el municipi del centre (de la configuració de l'empresa), el nom, el NIF i els càrrecs del docent, el seu horari setmanal (sense aules, per estalviar espai) i el quadre resum d'hores. El que l'EMS no desa (lloc de treball/especialitat, situació administrativa, anys a l'ensenyament, acreditació de català, lloc, data i signatures) queda en blanc per omplir a mà.
 
 **La fila on va cada hora** és configuració, que la instal·lació deixa preparada i que pots canviar després:
@@ -288,6 +290,10 @@ Cada pàgina té el codi, el nom i el municipi del centre (de la configuració d
 - Una tutoria (una assignatura de tutoria, o el tipus no lectiu *Tutoria*) compta a T-ESO, T-BAT o T-FP (o PFI) segons el nivell del grup tutoritzat.
 - Qualsevol altra hora no lectiva compta a la fila triada al **Codi a la declaració horària** del seu tipus (**Configuració → Professorat → Tipus d'hora no lectiva**); buit vol dir que no es declara.
 - Les reduccions lectives només hi surten com a hores, a "Si disposeu de reducció de jornada", i se sumen al TOTAL de lectives.
+
+![El codi a la declaració horària al formulari d'un nivell](../../assets/admin/admin-declaracio-horaria-nivell.png)
+
+![El formulari de la guàrdia de pati: Suma les seves franges marcat i el seu codi a la declaració horària, G](../../assets/admin/admin-declaracio-horaria-tipus-no-lectiu.png)
 
 Com al formulari, les cel·les del quadre resum que no s'hi apliquen són grises (p. ex. hores d'horari fix d'ESO, hores lectives de guàrdies). Si surt un número en una cel·la grisa, cal revisar el codi d'aquell nivell o tipus no lectiu.
 

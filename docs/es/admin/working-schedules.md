@@ -280,6 +280,8 @@ EMS imprime la declaración horaria del Departament d'Educació i FP ("Horari pr
 - Para varios docentes: en **Comunidad Educativa → Profesores**, pasa a la vista de lista, selecciónalos y elige **Imprimir → Declaración horaria**.
 - Para un docente: abre su ficha y elige **Acciones → Imprimir la declaración horaria**.
 
+![Una declaración horaria impresa por EMS: los datos del centro y del docente, el horario semanal y el cuadro resumen, con las celdas que no se aplican en gris](../../assets/teachers/declaracio-horaria-mostra.png)
+
 Cada página tiene el código, el nombre y el municipio del centro (de la configuración de la empresa), el nombre, el NIF y los cargos del docente, su horario semanal (sin aulas, para ahorrar espacio) y el cuadro resumen de horas. Lo que EMS no guarda (lugar de trabajo/especialidad, situación administrativa, años en la enseñanza, acreditación de catalán, lugar, fecha y firmas) queda en blanco para rellenar a mano.
 
 **La fila a la que va cada hora** es configuración, que la instalación deja preparada y que puedes cambiar después:
@@ -288,6 +290,10 @@ Cada página tiene el código, el nombre y el municipio del centro (de la config
 - Una tutoría (una asignatura de tutoría, o el tipo no lectivo *Tutoría*) cuenta en T-ESO, T-BAT o T-FP (o PFI) según el nivel del grupo tutorizado.
 - Cualquier otra hora no lectiva cuenta en la fila elegida en el **Código en la declaración horaria** de su tipo (**Configuración → Profesorado → Tipos de hora no lectiva**); vacío significa que no se declara.
 - Las reducciones lectivas solo aparecen como horas, en "Si disposeu de reducció de jornada", y se suman al TOTAL de lectivas.
+
+![El código en la declaración horaria en el formulario de un nivel](../../assets/admin/admin-declaracio-horaria-nivell.png)
+
+![El formulario de la guardia de patio: Suma sus franjas marcado y su código en la declaración horaria, G](../../assets/admin/admin-declaracio-horaria-tipus-no-lectiu.png)
 
 Como en el formulario, las celdas del cuadro resumen que no se aplican son grises (p. ej. horas de horario fijo de ESO, horas lectivas de guardias). Si sale un número en una celda gris, hay que revisar el código de ese nivel o tipo no lectivo.
 

@@ -46,6 +46,8 @@ Si una clase la imparten realmente dos docentes a la vez (misma asignatura, mism
 
 Cada curso firmas la declaración horaria oficial del Departament d'Educació i FP ("Horari professor/a"). El jefe de estudios la imprime desde EMS, ya rellenada con los datos del centro, tu nombre, NIF y cargos, tu horario semanal y el cuadro resumen de horas, y te la da para que completes a mano lo que EMS no sabe (lugar de trabajo/especialidad, situación administrativa, años en la enseñanza, acreditación de catalán, lugar y fecha) y la firmes.
 
+![Una declaración horaria impresa por EMS: los datos del centro y del docente, el horario semanal y el cuadro resumen, con las celdas que no se aplican en gris](../../assets/teachers/declaracio-horaria-mostra.png)
+
 Si una hora sale en la fila equivocada del cuadro resumen, díselo al jefe de estudios: la fila a la que va cada actividad se configura en el centro.
 
 ---

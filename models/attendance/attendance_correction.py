@@ -348,11 +348,18 @@ class ems_attendance_correction(models.Model):
         if not self._check_is_approver():
             raise UserError(_("Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."))
 
-    def _close(self, state):
+    def _withdraw(self):
+        """Issue #735: the teacher requested the absence of that day after all, so their pending
+        request is rejected on its own, nobody's decision. It never changed the attendance."""
+        for correction in self.sudo():
+            correction._close("rejected", approver=self.env["res.users"])
+            correction.chatter(_("Rejected on its own: the teacher requested the absence instead."))
+
+    def _close(self, state, approver=None):
         self.ensure_one()
         self.write({
             "state": state,
-            "approver_id": self.env.user.id,
+            "approver_id": (self.env.user if approver is None else approver).id,
             "decision_date": fields.Datetime.now(),
         })
         activity_type = self.env.ref("ems.mail_activity_attendance_correction")

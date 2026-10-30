@@ -532,12 +532,15 @@ class EmsAbsencePending(models.Model):
         Pending = self.sudo()
         for leave in leaves.filtered(lambda leave: leave.state in ACTIVE_LEAVE_STATES):
             start, stop = leave._ems_utc_range()
-            Pending.search([
+            entries = Pending.search([
                 ('state', 'in', UNRESOLVED_STATES),
                 ('employee_id', '=', leave.employee_id.id),
                 ('date_from', '<', stop),
                 ('date_to', '>', start),
-            ]).write({'state': 'linked', 'leave_id': leave.id})
+            ])
+            # Issue #735: the absence answers it; a check-in correction still waiting is withdrawn.
+            entries._ems_pending_corrections()._withdraw()
+            entries.write({'state': 'linked', 'leave_id': leave.id})
 
     def _utc_bounds(self, day, hour_from, hour_to):
         """Naive UTC datetimes for `hour_from` on `day` and `hour_to` on `day` (24.0 meaning the

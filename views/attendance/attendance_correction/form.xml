@@ -8,7 +8,8 @@
                     <header>
                         <button string="Accept" name="action_accept" type="object" class="btn-primary" invisible="not is_approver or state == 'accepted'"/>
                         <button string="Reject" name="action_reject" type="object" class="btn-secondary" invisible="not is_approver or state == 'rejected' or (state == 'accepted' and not original_check_in)"/>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,rejected"/>
+                        <!-- Issue #735: not while the request is being written: it has no state yet. -->
+                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,rejected" invisible="not id"/>
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
@@ -36,7 +37,7 @@
                         <group string="Reason">
                             <field name="reason" nolabel="1" readonly="id"/>
                         </group>
-                        <group string="Decision">
+                        <group string="Decision" invisible="not id">
                             <field name="approver_id" readonly="1" invisible="state == 'pending'"/>
                             <field name="decision_date" readonly="1" invisible="state == 'pending'"/>
                             <field name="decision_note" placeholder="Optional note for the requester..."/>

@@ -9,6 +9,9 @@
 - The two answers exclude each other: while a correction request is pending the teacher can't request the absence (button hidden, refused on the server), and once the absence is requested no correction is offered.
 - The detected absence's status bar shows the steps each entry really went through, ending in its state (e.g. To review → Justification requested → Check-in corrected, or To review → Absence prepared → Requested), with the review step hidden from the teacher. A fixed list of steps showed "Requested" after **Check-in corrected** as if it were the next step, and "Justification requested" on prepared absences. New `ems_statusbar_path` widget (the native status bar fed by a computed `status_path`).
 - Rejecting a still pending correction request of a red attendance no longer turns it into a manual one (Odoo switches a technical attendance to manual whenever its times are written).
+- An absence the teacher files from My Time Off while their correction waits withdraws it (rejected on its own, no approver, task closed) and links the detected absence as usual.
+- Chiefs, Heads of Studies and the Director only read and regularize their own detected absences, like any teacher (they could edit their dates before): hierarchy rule split into read and change, the teacher's own rule made read-only. "Absences to regularize" offers no New button.
+- The teacher's correction dialog hides the status bar and the Decision section while the request is being written.
 - Accepting resolves the detected absence as **Check-in corrected** once nothing is missed (a detected one keeps the part still missed, as its review would). The teacher's reminders pause while the request is pending and resume if it is rejected.
 
 ## Times typed by hand are read as hours and minutes:

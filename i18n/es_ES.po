@@ -27504,3 +27504,9 @@ msgstr "Solo el docente puede solicitar esta ausencia, una vez se le ha pedido q
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__status_path
 msgid "Status steps"
 msgstr "Pasos del estado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Rejected on its own: the teacher requested the absence instead."
+msgstr "Rechazada automáticamente: el docente ha solicitado la ausencia."

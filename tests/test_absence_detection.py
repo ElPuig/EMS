@@ -966,3 +966,33 @@ class TestAbsenceDetection(TransactionCase):
         correction = self._request_correction(informed)
         correction.with_user(self.head_of_studies).action_accept()
         self.assertEqual(informed.state, 'corrected')
+
+    def test_a_chief_only_reads_their_own_detected_absence(self):
+        """Issue #735: a Head of Studies is a teacher too; their own entry they read and
+        regularize, never edit, while they still edit their teachers'."""
+        own = self.Pending.create({'employee_id': self.head.id, 'date_from': self._utc(self.yesterday, 9.0),
+                                   'date_to': self._utc(self.yesterday, 11.0)})
+        own.sudo().write({'state': 'justification_requested', 'justification_date': self.yesterday})
+        mine = own.with_user(self.head_of_studies)
+        self.assertTrue(mine.can_request)
+        with self.assertRaises(AccessError):
+            mine.write({'date_to': self._utc(self.yesterday, 10.0)})
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        self._detected().with_user(self.head_of_studies).write({'date_to': self._utc(self.yesterday, 12.0)})
+
+    def test_requesting_the_absence_withdraws_a_pending_correction(self):
+        """Issue #735: filed from My Time Off while the correction waits, the absence answers the
+        entry and the correction is rejected on its own."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._asked(self._detected())
+        correction = self._request_correction(absence)
+        context = absence.sudo()._ems_leave_values()
+        leave = self.env['hr.leave'].create({
+            **context, 'holiday_status_id': self.env.ref('ems.leave_type_justified').id,
+            'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        self.assertEqual(absence.state, 'linked')
+        self.assertEqual(absence.leave_id, leave)
+        self.assertEqual(correction.state, 'rejected')
+        self.assertFalse(correction.approver_id, "nobody's decision")
+        self.assertFalse(correction.activity_ids, 'off the approver task list')

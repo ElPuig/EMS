@@ -865,7 +865,7 @@ and `create()` imposes it whatever the client sends:
   deletes the attendance instead.
 
 Either way the request goes to the teacher's usual approver (`_find_attendance_approvers`), and
-`can_request` (so **Request the absence**, re-checked in `action_request_absence()`) is off and the cron leaves the entry's reminders alone while it is `pending`; the other way round, a requested absence links the entry, which then offers no correction either
+`can_request` (so **Request the absence**, re-checked in `action_request_absence()`) is off and the cron leaves the entry's reminders alone while it is `pending`; the other way round, a requested absence links the entry, which then offers no correction either. An absence filed from My Time Off while the correction waits still links the entry, and `_link_to_leaves()` withdraws the correction (`ems.attendance_correction._withdraw()`: rejected, no approver, its task closed)
 (`('correction_ids', 'not any', [('state', '=', 'pending')])`). Accepting it writes the attendance
 with `ems_skip_absence_review_ids`, so `hr.attendance`'s review leaves this entry to
 `_ems_resolve_by_correction()`: `corrected` once nothing is missed (`_ems_missed_spans()` for a
@@ -1027,6 +1027,8 @@ those same three groups.
 | Request justification, Correct check-in, Create absence, Discard | no | yes | yes | yes | no |
 | Request the absence | no | no | no | no | own, once asked |
 | Request check-in correction | no | no | no | no | own, once asked and over |
+
+Their **own** entries (a chief, a Head of Studies or the Director is also a teacher) everybody only reads and regularizes, like any teacher (issue #735): `rule_absence_pending_hierarchy` grants reading, `rule_absence_pending_hierarchy_manage` the same reach minus the user's own entries for changing them, and `rule_absence_pending_own` is read-only (group rules are OR-ed). Administrators keep `rule_absence_pending_system`. **Absences to regularize** offers no New (`'create': False` in its context): nobody enters an entry for themselves.
 
 Technical and academic administrators (`base.group_system`, e.g. `admin`, and
 `ems.group_academic_admin`) usually have no place in the org chart, so the hierarchy rule alone

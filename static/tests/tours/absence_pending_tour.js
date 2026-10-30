@@ -267,3 +267,18 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher_menu", {
         },
     ],
 });
+
+// Issue #735: a corrected entry shows that end on its own, nothing after it.
+registry.category("web_tour.tours").add("ems_absence_pending_corrected", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_statusbar .o_field_widget[name='state'] [data-value='corrected']",
+            content: "The entry shows it was corrected",
+        },
+        {
+            trigger: ".o_form_statusbar:not(:has([data-value='linked'])):not(:has([data-value='justification_requested']))",
+            content: "With no step after it, nor one it may not have gone through",
+        },
+    ],
+});

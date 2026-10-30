@@ -48,10 +48,16 @@
                                     invisible="not can_request_correction"/>
                         </div>
                         <field name="state" widget="statusbar" statusbar_visible="pending,justification_requested,linked"
-                               invisible="is_own"/>
+                               invisible="is_own or state in ('corrected', 'discarded')"/>
                         <!-- The teacher never sees an entry still to review: no such step for them. -->
                         <field name="state" widget="statusbar" statusbar_visible="justification_requested,linked"
-                               invisible="not is_own"/>
+                               invisible="not is_own or state in ('corrected', 'discarded')"/>
+                        <!-- Issue #735: the other two ends, on their own. "Requested" after them read as
+                             the next step, and whether a justification was asked first is not known. -->
+                        <field name="state" widget="statusbar" statusbar_visible="corrected"
+                               invisible="state != 'corrected'"/>
+                        <field name="state" widget="statusbar" statusbar_visible="discarded"
+                               invisible="state != 'discarded'"/>
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>

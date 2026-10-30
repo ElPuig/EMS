@@ -55,6 +55,19 @@ class TestAbsencePendingTour(HttpCase):
         self.start_tour("/odoo/action-hr_holidays.hr_leave_action_my", "ems_absence_pending_teacher_menu",
                         login=self.teacher_user.login)
 
+    def test_teacher_sees_a_corrected_absence_tour(self):
+        """Issue #735: a final state other than Requested is shown alone."""
+        Pending = self.env['ems.absence_pending']
+        day = Pending.get_local_today() - timedelta(days=1)
+        absence = Pending.create({
+            'employee_id': self.teacher.id, 'origin': 'check_in',
+            'date_from': Pending._utc_bounds(day, 0.0, 9.0)[1], 'date_to': Pending._utc_bounds(day, 0.0, 10.0)[1],
+        })
+        absence.with_user(self.head_of_studies).action_request_justification()
+        absence.sudo().state = 'corrected'
+        self.start_tour(f"/odoo/ems.absence_pending/{absence.id}", "ems_absence_pending_corrected",
+                        login=self.teacher_user.login)
+
     def test_head_of_studies_reviews_detected_absences_tour(self):
         """Issue #707: the reviewer, the teacher's Head of Studies (the least-privileged role that
         reviews). Five teachers of their branch, each with a detected absence of yesterday."""

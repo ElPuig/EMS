@@ -1036,7 +1036,7 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(correction.absence_pending_id, absence)
         self.assertEqual(absence.state, 'correction_requested', 'the teacher is already answering it')
         self.assertFalse(self._review_activities(absence), 'off the review')
-        self.assertTrue(absence.with_user(self.teacher_user).has_pending_correction)
+        self.assertFalse(absence.with_user(self.teacher_user).can_request, 'nothing more to do but wait')
         self._run_cron_on(self.today)
         self.assertFalse(self._messages_to(absence, self.teacher_user, 'No check-in'), 'no reminder meanwhile')
 

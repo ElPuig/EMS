@@ -110,7 +110,6 @@ class EmsAbsencePending(models.Model):
     can_request = fields.Boolean(compute="_compute_can_request")
     # Issue #735: the teacher, asked to justify it, may answer that they were at the centre.
     can_request_correction = fields.Boolean(string="Can request a check-in correction", compute="_compute_can_request")
-    has_pending_correction = fields.Boolean(string="Check-in correction pending", compute="_compute_can_request")
     status_path = fields.Char(string="Status steps", compute="_compute_status_path")
     correction_ids = fields.One2many(
         string="Check-in correction requests", comodel_name="ems.attendance_correction",
@@ -152,7 +151,7 @@ class EmsAbsencePending(models.Model):
                 "%(teacher)s (%(start)s - %(stop)s)", teacher=absence.employee_id.name,
                 start=start.strftime('%d/%m/%Y %H:%M'), stop=stop.strftime('%d/%m/%Y %H:%M'))
 
-    @api.depends('state', 'employee_id', 'date_to', 'correction_ids.state')
+    @api.depends('state', 'employee_id', 'date_to')
     @api.depends_context('uid')
     def _compute_can_request(self):
         """Only the teacher themselves requests their absence, once asked to and while nobody has,
@@ -161,7 +160,6 @@ class EmsAbsencePending(models.Model):
         the centre."""
         now = fields.Datetime.now()
         for absence in self:
-            absence.has_pending_correction = absence.state == 'correction_requested'
             absence.can_request = absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
             absence.can_request_correction = absence.can_request and absence.date_to <= now
 
@@ -448,9 +446,6 @@ class EmsAbsencePending(models.Model):
             })
         return values
 
-    def _ems_pending_corrections(self):
-        return self.sudo().correction_ids.filtered(lambda correction: correction.state == 'pending')
-
     def _ems_attendance_to_correct(self):
         """The teacher's attendance a correction request of this entry is about, never chosen by
         the teacher (issue #735), on the day it starts in the company's timezone: the first one
@@ -615,7 +610,7 @@ class EmsAbsencePending(models.Model):
                 ('date_to', '>', start),
             ])
             # Issue #735: the absence answers it; a check-in correction still waiting is withdrawn.
-            entries._ems_pending_corrections()._withdraw()
+            entries.correction_ids.filtered(lambda correction: correction.state == 'pending')._withdraw()
             # Only the part it covers: the rest is still to regularize.
             state = 'justified' if leave.state == APPROVED_LEAVE_STATE else 'linked'
             for entry in entries:

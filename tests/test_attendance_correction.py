@@ -501,12 +501,15 @@ class TestAttendanceCorrection(TransactionCase):
             default_attendance_id=red.id).with_user(self.teacher_user).new({})
         self.assertEqual((correction.requested_check_in, correction.requested_check_out), (8.0, 15.0))
 
-    def test_red_attendance_stays_red_when_its_request_is_rejected(self):
-        """Issue #735: Odoo turns a technical attendance into a manual one on any change of its
-        times, rejecting included; the request puts it back as it was."""
+    def test_red_attendance_is_red_again_when_its_accepted_request_is_rejected(self):
+        """Issue #735: accepting turns the technical attendance into a real one (Odoo does so
+        whenever its times are written); rejecting it afterwards puts it back as it was."""
         red = self._red_attendance()
+        midnight = red.check_in
         correction = self._create_correction(self.teacher_user, attendance_id=red.id,
                                              requested_check_in=8.0, requested_check_out=15.0)
         self.assertTrue(correction.original_technical)
+        correction.with_user(self.hos_user).action_accept()
+        self.assertEqual(red.in_mode, 'manual')
         correction.with_user(self.hos_user).action_reject()
-        self.assertEqual((red.in_mode, red.out_mode), ('technical', 'technical'))
+        self.assertEqual((red.check_in, red.in_mode, red.out_mode), (midnight, 'technical', 'technical'))

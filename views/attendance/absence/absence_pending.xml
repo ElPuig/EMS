@@ -54,7 +54,6 @@
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="1"/>
-                        <field name="has_pending_correction" invisible="1"/>
                         <!-- Issue #735: what the teacher is expected to do, while they have something to do. -->
                         <div class="alert alert-info" role="status"
                              invisible="not can_request or state != 'justification_requested'">
@@ -66,7 +65,7 @@
                             <p class="mb-0">Your Head of Studies has prepared the absence request for you: open it with <b>Actions → Request the absence</b>, check it, accept the responsible declaration and send it.</p>
                             <p class="mb-0" invisible="not can_request_correction">If you were at the centre and did not check in, use <b>Actions → Request check-in correction</b>.</p>
                         </div>
-                        <div class="alert alert-info" role="status" invisible="not is_own or not has_pending_correction">
+                        <div class="alert alert-info" role="status" invisible="not is_own or state != 'correction_requested'">
                             You have requested a check-in correction. Your Head of Studies has to review it: if they accept it, this absence will be regularized; if they reject it, you will have to regularize it another way.
                         </div>
                         <group>

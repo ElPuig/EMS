@@ -27484,11 +27484,6 @@ msgid "You have requested a check-in correction. Your Head of Studies has to rev
 msgstr "Has solicitado la corrección del fichaje. Tu jefe de estudios tiene que revisarla: si la acepta, esta ausencia quedará regularizada; si la rechaza, tendrás que regularizarla de otra manera."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__has_pending_correction
-msgid "Check-in correction pending"
-msgstr "Corrección del fichaje pendiente"
-
-#. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "Only the teacher can request this absence, once asked to justify it and while no check-in correction of theirs is waiting for a decision."

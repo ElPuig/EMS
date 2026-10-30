@@ -492,11 +492,12 @@ class EmsErasmusApplication(models.Model):
             self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
         return result
 
-    def read(self, fields=None, load='_classic_read'):
+    def _read_format(self, fnames, load='_classic_read'):
         """The staff's points read as 0 outside the Erasmus team while the panel is rating
-        (PANEL_PENDING_HIDDEN). Their rank is 0 until then anyway (_compute_rank)."""
-        result = super().read(fields, load=load)
-        hidden = set(fields or self._fields) & set(PANEL_PENDING_HIDDEN)
+        (PANEL_PENDING_HIDDEN), whatever reads them (read, search_read, the web client). Their rank
+        is 0 until then anyway (_compute_rank)."""
+        result = super()._read_format(fnames, load=load)
+        hidden = set(fnames) & set(PANEL_PENDING_HIDDEN)
         if not hidden or self.env.su or self._ems_can_manage():
             return result
         pending = self.sudo().filtered(lambda application: application.audience == 'staff' and not all(

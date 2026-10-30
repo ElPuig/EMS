@@ -348,6 +348,9 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.assertEqual(applications[0].with_user(self.erasmus_user).read(points)[0]['plan_score'], 2.0)
         hidden = applications[0].with_user(self.hos_user).read(points)[0]
         self.assertEqual([hidden[name] for name in points], [0.0] * 4, "Two plans still to rate.")
+        searched = self.env['ems.erasmus.application'].with_user(self.hos_user).search_read(
+            [('id', '=', applications[0].id)], points)[0]
+        self.assertEqual([searched[name] for name in points], [0.0] * 4)
         for application in applications[1:]:
             self._rate(application, '1', '0.5')
         shown = applications[0].with_user(self.hos_user).read(points)[0]

@@ -194,7 +194,7 @@ Menu *Erasmus+*: *Applications* (team, Head of Studies, Director) and *Calls* (t
   mobility, conduct warnings) are still visible, so D could still be worked out by hand from them.
   The Director inherits the Head of Studies' rights and sees the same.
 - **The Direction sees no staff points while the panel rates** (decided with the coordinator
-  2026-10-30): outside the Erasmus team, `read()` returns 0 for `plan_score`, `score_total` and the
+  2026-10-30): outside the Erasmus team, `_read_format()` (every read: `read`, `search_read`, the web client) returns 0 for `plan_score`, `score_total` and the
   six staff criteria (`PANEL_PENDING_HIDDEN`) of a staff application whose call still has a ranked
   application without `plan_complete`. The Head of Studies and the Director sit in the panel, and
   would otherwise see the other members' running mean before rating. The rank is 0 until then

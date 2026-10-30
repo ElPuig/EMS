@@ -415,12 +415,13 @@ class EmsErasmusApplication(models.Model):
 
     @api.depends('state', 'modality_id', 'score_total', 'score_complete', 'score_d', 'score_e',
                  'interview_english', 'grade_average', 'draw_order', 'score_plan', 'score_seniority',
+                 'declared_centre_start_date',
                  'call_id.application_ids.state', 'call_id.application_ids.modality_id',
                  'call_id.application_ids.score_total', 'call_id.application_ids.score_complete',
                  'call_id.application_ids.score_d', 'call_id.application_ids.score_e',
                  'call_id.application_ids.interview_english', 'call_id.application_ids.grade_average',
                  'call_id.application_ids.draw_order', 'call_id.application_ids.score_plan',
-                 'call_id.application_ids.score_seniority')
+                 'call_id.application_ids.score_seniority', 'call_id.application_ids.declared_centre_start_date')
     def _compute_rank(self):
         """Rank among the admitted applications (and their results) of the same modality, by total and art. 12's
         tie-breaks, then the draw. Only once every one of them has a complete score. A staff call ranks
@@ -445,11 +446,14 @@ class EmsErasmusApplication(models.Model):
                 application.needs_draw = len(draws) > 1 and (0 in draws or len(set(draws)) < len(draws))
 
     def _ems_rank_key(self):
-        """Total, then the call's tie-breaks (students: art. 12; staff: mobility plan, then seniority,
-        decided with the coordinator 2026-10-22), then the draw."""
+        """Total, then the call's tie-breaks (students: art. 12; staff, art. 11: mobility plan, then
+        more seniority at the centre, by the month and year declared in the form, not by the band of
+        criterion 5), then the draw."""
         self.ensure_one()
         if self.audience == 'staff':
-            return (-self.score_total, -self.score_plan, -self.score_seniority, self.draw_order)
+            start = self.declared_centre_start_date
+            return (-self.score_total, -self.score_plan, -self.score_seniority,
+                    start.year * 12 + start.month if start else float('inf'), self.draw_order)
         return (-self.score_total, -self.score_d, -self.score_e, -self.interview_english, -self.grade_average,
                 self.draw_order)
 

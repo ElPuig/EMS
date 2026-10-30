@@ -20,6 +20,8 @@
         <template id="report_erasmus_resolution">
             <t t-call="web.html_container">
                 <t t-foreach="docs" t-as="resolution">
+                    <!-- The layout names the record on each page (`o`): Odoo needs it to keep each list's PDF. -->
+                    <t t-set="o" t-value="resolution"/>
                     <t t-call="web.external_layout">
                         <div class="page">
                             <t t-call="ems.erasmus_resolution_list"/>

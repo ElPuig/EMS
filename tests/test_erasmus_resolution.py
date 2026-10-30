@@ -75,6 +75,18 @@ class TestErasmusResolution(ErasmusResolutionCase):
         self.assertTrue(bodies)
         self.assertFalse([body for body in bodies if 'ems.erasmus.resolution.line,' in body])
 
+    def test_the_published_list_pdf_can_be_kept(self):
+        """The PDF of a published list is kept for the project's records (attachment_use): Odoo can
+        only do it when each list's page names its record. Tests render HTML, so check that page."""
+        self._admitted()
+        self.call.action_close()
+        resolution = self._publish('admission')
+        Report = self.env['ir.actions.report']
+        report = Report._get_report('ems.action_report_erasmus_resolution')
+        html = Report._render_qweb_html(report.id, resolution.ids)[0]
+        _bodies, html_ids, *_rest = report._prepare_html(html, report_model=report.model)
+        self.assertEqual(html_ids, resolution.ids)
+
     def test_published_lists_show_only_four_digits_of_the_identity_document(self):
         self.assertEqual(mask_document_id('12345678Z'), '***4567**')
         self.assertEqual(mask_document_id(' 12.345.678-z '), '***4567**')

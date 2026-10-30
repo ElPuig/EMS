@@ -612,8 +612,9 @@ and is compared with the call's course; seniority counts whole months up to the 
 Criterion 4 never blocks: no declared certificate counts as none (`_ems_staff_language_level`).
 
 **Ranking** (`_compute_rank`, `_ems_rank_key`): one list per call, once every admitted application
-is complete. Tie-breaks (decided with the coordinator 2026-10-22): plan score, seniority, then the
-recorded draw. Result
+is complete. Tie-breaks (art. 11 of the staff call): plan score, then more seniority at the centre by
+the month and year declared in the form (`declared_centre_start_date`, earlier first; within the same
+criterion-5 band too), then the draw the coordinator runs (`action_draw_ties`). Result
 (`_ems_ranking_result`): selected within the sum of every modality's places, reserve after them.
 
 ### Resolutions, offers and export

@@ -63,7 +63,7 @@ Registra cada mèrit amb la seva justificació, a partir del que la persona ha e
 
 Una convocatòria del personal nova té dues **modalitats**, una per projecte: *Personal d'FP (KA121-VET)* i *Personal d'educació superior (KA131-HED)*, sense període (cada persona proposa les seves dates). Abans de preparar la resolució provisional, omple les places que tinguis finalment a cadascuna. El professorat no les veu.
 
-El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Els empats es desfan per la puntuació del pla de mobilitat, després per l'antiguitat i, finalment, pel sorteig que registris.
+El personal es classifica **en una sola llista** per a tota la convocatòria (botó **Classificació** de la convocatòria). Els empats es desfan per la puntuació del pla de mobilitat, després per qui fa més temps que és al centre (el mes i l'any d'incorporació declarats al formulari, no els punts del criteri 5: qui s'hi va incorporar el 2000 va abans que qui s'hi va incorporar fa sis anys, encara que tots dos tinguin 2 punts) i, finalment, pel sorteig que fa la coordinació Erasmus des de la convocatòria (**Sorteja els empats**).
 
 Les resolucions es publiquen com a la convocatòria de l'alumnat: les llistes només mostren quatre xifres del document d'identitat, mai noms. Per al personal es treu de la seva **fitxa d'empleat** (DNI o NIE; si no, el passaport); si algú no en té, demana a la secretaria que l'afegeixi.
 

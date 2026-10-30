@@ -27,6 +27,11 @@
 - A rectification now withdraws the offers still waiting of whom it no longer selects (they could still accept a place the list gave to someone else), with a note in the application's chatter; a reserve keeps an offer made for a free place unless they fall below the minimum score.
 - The result email of a rectification tells who already accepted that they keep their place (it said they were on the reserve list), and who renounced that the list does not change it.
 
+## Erasmus+ staff call and published lists, found in the end-to-end test of the staff selection:
+
+- Printing a published list as PDF (students' and staff calls) failed with "Report template 'Published list' has an issue": the report keeps each published list's PDF for the project's records, and its template did not name the record on each page. The project's records export, which includes those PDFs, failed for the same reason.
+- Staff call: a tie after the mobility plan score is now broken by who has been at the centre longer, by the month and year of joining declared in the form (art. 11), not by the points of criterion 5. Two people with 25 and 6 years at the centre both get 2 points and used to go to a draw.
+
 # Internal changes
 
 ## sign_oca integration details:
@@ -38,3 +43,6 @@
 
 - `tests/test_erasmus_student_call_e2e.py` runs a call with a GM (KA121-VET) and a GS (KA131-HED) modality, 2 places each, from publishing to the accepted places, with the real roles (technician, evaluators, coordinator, Head of Studies): conduct-warning block, missing document, corrections round trip, an exclusion for not correcting and one for not attending the interview, single interview with a reason, below the minimum score, an exact tie drawn, a claim upheld, the claims deadline, renouncing, a reserve offer expiring and the next reserve accepting.
 
+## End-to-end test of the staff call:
+
+- `tests/test_erasmus_staff_call_e2e.py` runs a staff call (2 VET + 1 HED places as one pool) from publishing to a rectification, with the real roles (technician, coordinator, a four-member panel with a candidate who abstains, Head of Studies): who can apply (FP teachers and Direction, not ESO teachers nor administration), the mobility plan required, a corrections round trip and an exclusion, the panel seeing only its own ratings, merits, both tie-breaks and a draw, places needed for the provisional list, a claim upheld, the claims deadline, accepting, renouncing, a reserve offer expiring, assigning the project, and a rectification blocked until a place is added.

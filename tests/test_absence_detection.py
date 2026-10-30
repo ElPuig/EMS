@@ -955,3 +955,14 @@ class TestAbsenceDetection(TransactionCase):
         absence.sudo().write({'state': 'discarded', 'justification_date': False, 'leave_type_id': False})
         self.assertEqual(paths(), ('pending,discarded', 'discarded'), 'discarded straight from the review')
 
+
+    def test_an_informed_absence_is_corrected_by_the_teacher_request(self):
+        """Issue #735: an informed entry is left alone by the attendance review; the accepted
+        request corrects it once the attendance covers it."""
+        informed = self.Pending.with_user(self.head_of_studies).create({
+            'employee_id': self.teacher.id, 'date_from': self._utc(self.yesterday, 9.0),
+            'date_to': self._utc(self.yesterday, 11.0)})
+        self._asked(informed)
+        correction = self._request_correction(informed)
+        correction.with_user(self.head_of_studies).action_accept()
+        self.assertEqual(informed.state, 'corrected')

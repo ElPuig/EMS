@@ -311,12 +311,13 @@ class ems_attendance_correction(models.Model):
                 values["check_in"] = correction.original_check_in
             if correction.requested_check_out:
                 values["check_out"] = correction.original_check_out
-            if values and correction.original_technical:
-                # Back to the day without check-in it was: Odoo turns it into a manual one on
-                # any change of its times (issue #735).
-                values.update({"in_mode": "technical", "out_mode": "technical"})
             if values:
                 correction.attendance_id.sudo().write(values)
+            if values and correction.original_technical:
+                # Back to the day without check-in it was (issue #735). A write of its own: Odoo
+                # turns a technical attendance into a manual one whenever its times are written,
+                # overriding a mode given in the same write.
+                correction.attendance_id.sudo().write({"in_mode": "technical", "out_mode": "technical"})
             correction._close("rejected")
             correction.message_post(
                 body=_("Your correction request has been rejected."),

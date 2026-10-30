@@ -49,11 +49,11 @@
             <t t-set="company" t-value="employee.company_id"/>
             <t t-set="calendar" t-value="employee.resource_calendar_id"/>
             <t t-set="summary" t-value="calendar.get_schedule_declaration_summary() if calendar else {'lective': {}, 'fixed': {}, 'reduction': 0, 'lective_total': 0, 'fixed_total': 0}"/>
-            <!-- The summary table's rows as on the form: (label, code, key, lective applies, fixed
-                 applies). A cell that doesn't apply is grey, as on the form, and still shows any
-                 hours that land there, so a misconfigured code stands out. -->
-            <t t-set="left_rows" t-value="[('ESO', 'ESO', 'eso', True, False), ('BATXILLERAT', 'BAT', 'bat', True, False), ('C. FORM. G. BÀSIC', 'CFGB', 'cfgb', True, False), ('C. FORM. G. MITJÀ', 'CFGM', 'cfgm', True, False), ('C. FORM. G. SUPERIOR', 'CFGS', 'cfgs', True, False), ('TUTORIA ESO', 'T-ESO', 't_eso', True, True), ('TUTORIA Batxillerat', 'T-BAT', 't_bat', True, True), ('TUTORIA FP', 'T-FP', 't_fp', True, True), ('FCT - FP', 'FCT', 'fct', True, True), ('Suport tècnic profes. (PSI)', 'PSI', 'psi', True, True), ('Suport inten. Ed inclusiva', 'SIEI', 'siei', True, True)]"/>
-            <t t-set="right_rows" t-value="[('Prog. de formació i inserció', 'PFI', 'pfi', True, True), ('Curs accés CFGM', 'CAM', 'cam', True, False), ('Curs preparació inc. CFGS', 'CPIGS', 'cpigs', True, False), ('Preparació proves accés', 'PPAS', 'ppas', True, False), ('IOC – suport', 'IOC', 'ioc', True, False), ('Curs d’especialització', 'CEFP', 'cefp', True, False), ('Càrrec directiu', 'CD', 'cd', True, True), ('Càrrec coordinació', 'CC', 'cc', True, True), ('Reunions (depart., coord.)', 'RD/RC', 'rd_rc', False, True), ('Guàrdies', 'G', 'g', False, True), ('Altres:', '', 'other', False, True)]"/>
+            <!-- The summary table's rows, left column then right (DECLARATION_ROWS). A cell that
+                 doesn't apply is grey, as on the form, and still shows any hours that land there,
+                 so a misconfigured code stands out. -->
+            <t t-set="rows" t-value="calendar.DECLARATION_ROWS"/>
+            <t t-set="half" t-value="len(rows) // 2"/>
             <t t-call="web.basic_layout">
                 <div class="page sd-page">
                     <style>
@@ -114,7 +114,7 @@
                         <colgroup><col style="width: 15%;"/><col style="width: 10%;"/><col style="width: 43%;"/><col style="width: 10%;"/><col style="width: 22%;"/></colgroup>
                         <tr>
                             <td class="sd-label">Cognoms i nom</td><td colspan="2"><t t-esc="employee.name"/></td>
-                            <td class="sd-label">NIF</td><td><t t-esc="employee.scoped_identification_id"/></td>
+                            <td class="sd-label">NIF</td><td><t t-esc="employee.identification_id"/></td>
                         </tr>
                         <tr>
                             <td class="sd-label" colspan="2">Càrrec que desenvolupa</td>
@@ -167,14 +167,15 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <t t-foreach="range(len(left_rows))" t-as="i">
+                            <t t-foreach="range(half)" t-as="i">
                                 <tr>
-                                    <t t-foreach="(left_rows[i], right_rows[i])" t-as="row">
-                                        <td t-if="row[1]" t-esc="row[0]"/>
+                                    <t t-foreach="(rows[i], rows[half + i])" t-as="row">
+                                        <!-- row: (key, code, label, lective applies, fixed applies) -->
+                                        <td t-if="row[1]" t-esc="row[2]"/>
                                         <td t-if="row[1]" class="sd-code" t-esc="row[1]"/>
-                                        <td t-else="" colspan="2" t-esc="row[0]"/>
-                                        <td t-att-class="'sd-hours' if row[3] else 'sd-hours sd-na'" t-esc="summary['lective'].get(row[2]) or ''"/>
-                                        <td t-att-class="'sd-hours' if row[4] else 'sd-hours sd-na'" t-esc="summary['fixed'].get(row[2]) or ''"/>
+                                        <td t-else="" colspan="2" t-esc="row[2]"/>
+                                        <td t-att-class="'sd-hours' if row[3] else 'sd-hours sd-na'" t-esc="summary['lective'].get(row[0]) or ''"/>
+                                        <td t-att-class="'sd-hours' if row[4] else 'sd-hours sd-na'" t-esc="summary['fixed'].get(row[0]) or ''"/>
                                     </t>
                                 </tr>
                             </t>

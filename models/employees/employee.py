@@ -820,11 +820,17 @@ class ems_employee(models.AbstractModel):
 
     def action_print_schedule_declaration(self):
         """Issue #723: from the form's Actions dropdown, for this teacher only (a type="action"
-        button would print every record of the form's pager). Heads and Deputy Heads of Studies
-        and above only, like the report's own groups."""
+        button would print every record of the form's pager)."""
+        self._check_can_print_schedule_declaration()
+        return self.env.ref('ems.action_report_schedule_declaration').report_action(self)
+
+    @api.model
+    def _check_can_print_schedule_declaration(self):
+        """Heads and Deputy Heads of Studies, the Director and the administrators only (issue #723),
+        checked by the form's button and by the report itself (report.ems.report_schedule_declaration),
+        since /report/pdf renders without looking at the report's groups."""
         if not any(self.env.user.has_group(group) for group in SCHEDULE_DECLARATION_GROUPS):
             raise AccessError(_("Only the Heads and Deputy Heads of Studies, the Director and the administrators can print the schedule declaration."))
-        return self.env.ref('ems.action_report_schedule_declaration').report_action(self)
 
     def action_open_classroom_change_wizard(self):
         """Opens 'ems.group_classroom_change_wizard' for this teacher's own pending classroom

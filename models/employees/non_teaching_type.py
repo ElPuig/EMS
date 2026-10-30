@@ -3,14 +3,35 @@
 from odoo import api, fields, models
 
 # Issue #723: the rows of the "Quadre resum d'hores" of the Departament's official schedule
-# declaration ("Annexos Dades anuals"), as (key, code printed on the form).
-DECLARATION_CODES = [
-    ('eso', 'ESO'), ('bat', 'BAT'), ('cfgb', 'CFGB'), ('cfgm', 'CFGM'), ('cfgs', 'CFGS'),
-    ('t_eso', 'T-ESO'), ('t_bat', 'T-BAT'), ('t_fp', 'T-FP'), ('fct', 'FCT'), ('psi', 'PSI'),
-    ('siei', 'SIEI'), ('pfi', 'PFI'), ('cam', 'CAM'), ('cpigs', 'CPIGS'), ('ppas', 'PPAS'),
-    ('ioc', 'IOC'), ('cefp', 'CEFP'), ('cd', 'CD'), ('cc', 'CC'), ('rd_rc', 'RD/RC'), ('g', 'G'),
-    ('other', 'Others'),
+# declaration ("Annexos Dades anuals"), as on the form: its left column, then its right one. Each
+# row: (key, code printed, label printed, lective hours apply, fixed hours apply); a cell that
+# doesn't apply is grey on the form. The form is always printed in Catalan, so are its labels.
+DECLARATION_ROWS = [
+    ('eso', 'ESO', 'ESO', True, False),
+    ('bat', 'BAT', 'BATXILLERAT', True, False),
+    ('cfgb', 'CFGB', 'C. FORM. G. BÀSIC', True, False),
+    ('cfgm', 'CFGM', 'C. FORM. G. MITJÀ', True, False),
+    ('cfgs', 'CFGS', 'C. FORM. G. SUPERIOR', True, False),
+    ('t_eso', 'T-ESO', 'TUTORIA ESO', True, True),
+    ('t_bat', 'T-BAT', 'TUTORIA Batxillerat', True, True),
+    ('t_fp', 'T-FP', 'TUTORIA FP', True, True),
+    ('fct', 'FCT', 'FCT - FP', True, True),
+    ('psi', 'PSI', 'Suport tècnic profes. (PSI)', True, True),
+    ('siei', 'SIEI', 'Suport inten. Ed inclusiva', True, True),
+    ('pfi', 'PFI', 'Prog. de formació i inserció', True, True),
+    ('cam', 'CAM', 'Curs accés CFGM', True, False),
+    ('cpigs', 'CPIGS', 'Curs preparació inc. CFGS', True, False),
+    ('ppas', 'PPAS', 'Preparació proves accés', True, False),
+    ('ioc', 'IOC', 'IOC – suport', True, False),
+    ('cefp', 'CEFP', 'Curs d’especialització', True, False),
+    ('cd', 'CD', 'Càrrec directiu', True, True),
+    ('cc', 'CC', 'Càrrec coordinació', True, True),
+    ('rd_rc', 'RD/RC', 'Reunions (depart., coord.)', False, True),
+    ('g', 'G', 'Guàrdies', False, True),
+    ('other', '', 'Altres:', False, True),
 ]
+# The same rows as a selection: their code, or 'Others' for Altres, which has none on the form.
+DECLARATION_CODES = [(key, code or 'Others') for key, code, _label, _lective, _fixed in DECLARATION_ROWS]
 # The rows a level's teaching hours can go to.
 LEVEL_DECLARATION_CODES = [
     code for code in DECLARATION_CODES

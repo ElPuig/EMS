@@ -11,7 +11,7 @@ import json
 import math
 import re
 
-from .non_teaching_type import TUTORING_CODE_BY_LEVEL_CODE, TUTORING_DEFAULT_CODE
+from .non_teaching_type import DECLARATION_ROWS, TUTORING_CODE_BY_LEVEL_CODE, TUTORING_DEFAULT_CODE
 from ..shared.schedule_report_mixin import HOUR_EPSILON
 from ..shared.attendance_mixin import EMS_SKIP_AUTO_SCHEDULE_SYNC, EMS_SKIP_GROUP_CLASSROOM_CASCADE
 
@@ -331,7 +331,8 @@ class ems_working_schedule(models.Model):
 		- 'fixed': guard duties (any day) and coordination meetings ('CM') specifically on Wednesday —
 		  the centre's fixed non-teaching commitments.
 		Each period's duration is rounded UP to the nearest whole hour (a period that only partially
-		overlaps an hour still counts as one full hour), then summed. Not stored — cheap to compute
+		overlaps an hour still counts as one full hour), then summed; a type that adds up its periods
+		(the break guard duty) is rounded once over the week's total (see _iter_summary_entries). Not stored — cheap to compute
 		from the calendar's own attendance_ids, and reused as-is by the PDF report's own summary table
 		later. For a full-time teacher with no reduction, 'total' should equal 24 (full_time_required_
 		hours)."""
@@ -368,6 +369,9 @@ class ems_working_schedule(models.Model):
 			'fixed': {'rows': fixed, 'total': fixed_total},
 			'total': teaching_total + fixed_total,
 		}
+
+	# The summary table's rows, for the declaration's template (report_schedule_declaration.xml).
+	DECLARATION_ROWS = DECLARATION_ROWS
 
 	@staticmethod
 	def _declaration_tutoring_code(level_code):

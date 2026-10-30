@@ -6,6 +6,8 @@ from odoo import fields
 from odoo.exceptions import ValidationError
 from odoo.tests.common import TransactionCase
 
+from odoo.addons.ems.models.employees.working_schedule import subject_block_name
+
 from .common import create_level_study
 
 
@@ -1247,6 +1249,8 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
 
         attendance = self.teacher.resource_calendar_id.attendance_ids
         self.assertEqual(attendance.group_ids, self.group)
+        # Named once the pending group is resolved, in the one format (issue #723).
+        self.assertEqual(attendance.name, subject_block_name(self.subject, self.group))
 
     def test_continue_from_groups_builds_subject_line_for_mismatched_subject(self):
         # Real error this screen was built for (2026-08-10): 'self.wrong_subject' isn't taught in
@@ -1305,7 +1309,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         node_cache = json.loads(wizard.parsed_entries_json)
         self.assertEqual(node_cache[0]['entries'][0]['group_ids'], [self.group.id])
         self.assertEqual(node_cache[0]['entries'][0]['subject_id'], self.subject.id)
-        self.assertIn(self.group.name, node_cache[0]['entries'][0]['name'])
+        self.assertEqual(node_cache[0]['entries'][0]['name'], subject_block_name(self.subject, self.group))
 
     def test_continue_from_groups_no_subject_line_when_subject_is_valid(self):
         wizard = self.env['ems.working_schedules_import_wizard'].create({
@@ -1411,8 +1415,7 @@ class TestWorkingSchedulesImportWizard(TransactionCase):
         self.assertEqual(wizard.state, 'teachers')
         node_cache = json.loads(wizard.parsed_entries_json)
         self.assertEqual(node_cache[0]['entries'][0]['subject_id'], self.other_subject.id)
-        self.assertIn(self.other_subject.acronym, node_cache[0]['entries'][0]['name'])
-        self.assertIn(self.group.name, node_cache[0]['entries'][0]['name'])
+        self.assertEqual(node_cache[0]['entries'][0]['name'], subject_block_name(self.other_subject, self.group))
 
         while wizard.state != 'summary':
             wizard.action_continue()

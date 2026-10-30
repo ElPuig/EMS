@@ -1,3 +1,6 @@
+import importlib.util
+import os
+
 from odoo.exceptions import AccessError
 from odoo.tests.common import TransactionCase
 
@@ -132,12 +135,6 @@ class TestScheduleDeclaration(TransactionCase):
         self.assertTrue(self.env.ref('ems.non_teaching_gb').adds_up_periods)
         self.assertFalse(self.env.ref('ems.non_teaching_g').adds_up_periods)
 
-    def test_print_from_the_form_prints_only_this_teacher(self):
-        action = self.teacher.action_print_schedule_declaration()
-
-        self.assertEqual(action['report_name'], 'ems.report_schedule_declaration')
-        self.assertEqual(action['context']['active_ids'], self.teacher.ids)
-
     def test_report_is_in_catalan_with_the_summary(self):
         self._apply((self.group, '0', 2))
 
@@ -156,7 +153,28 @@ class TestScheduleDeclaration(TransactionCase):
         content, _content_type = self.env['ir.actions.report'].with_user(user)._render_qweb_pdf(
             action['report_name'], self.teacher.ids)
 
+        # From the form's Actions dropdown: this teacher only.
+        self.assertEqual(action['report_name'], 'ems.report_schedule_declaration')
+        self.assertEqual(action['context']['active_ids'], self.teacher.ids)
         self.assertIn(b'TSDE-NIF-1', content)
+
+    def test_administrator_prints_it_with_the_nif(self):
+        # The administrator is above Direction, though outside the hr hierarchy (CLAUDE.md).
+        user = create_role_user(self, 'settings_admin', 'tsde_admin')
+        self._apply(self.group)
+
+        content, _content_type = self.env['ir.actions.report'].with_user(user)._render_qweb_pdf(
+            'ems.report_schedule_declaration', self.teacher.ids)
+
+        self.assertIn(b'TSDE-NIF-1', content)
+
+    def test_teacher_cannot_render_it_from_the_report_url(self):
+        # /report/pdf/... renders without checking the report's groups.
+        user = create_role_user(self, 'teacher', 'tsde_teacher_url')
+
+        with self.assertRaises(AccessError):
+            self.env['ir.actions.report'].with_user(user)._render_qweb_pdf(
+                'ems.report_schedule_declaration', self.teacher.ids)
 
     def test_teacher_cannot_print_it(self):
         user = create_role_user(self, 'teacher', 'tsde_teacher')
@@ -195,6 +213,20 @@ class TestScheduleDeclaration(TransactionCase):
         block.name = 'TSDE: an old free-form name'
 
         self.assertEqual(block.get_report_label(), f"{self.subject.display_name} ({self.group.name})")
+
+    def test_migration_rewrites_old_block_names(self):
+        path = os.path.join(os.path.dirname(__file__), '..', 'migrations', '18.0.0.43.0', 'post-migrate.py')
+        spec = importlib.util.spec_from_file_location('ems_migration_18_0_0_43_0', path)
+        migration = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(migration)
+        self._apply(self.group)
+        block = self.calendar.attendance_ids.filtered('subject_id')
+        block.name = f"{self.subject.display_name}: {self.group.name}"
+        block.flush_recordset()
+
+        migration._unify_class_block_names(self.env)
+
+        self.assertEqual(block.name, f"{self.subject.display_name} ({self.group.name})")
 
     def test_grid_has_no_rooms(self):
         space = self.env['ems.space'].create({

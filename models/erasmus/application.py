@@ -34,6 +34,10 @@ SCORE_FIELDS = ('score_a', 'score_b', 'score_c', 'score_d', 'score_e', 'score_f'
 # Issue #686: the staff call's criteria (art. 11), frozen too.
 STAFF_SCORE_FIELDS = ('score_plan', 'score_last_mobility', 'score_projects', 'score_staff_language',
                       'score_seniority', 'score_internationalisation')
+# Who is not in the Erasmus team (the Head of Studies, the Director) reads none of these on a staff
+# application until the panel has rated every plan of the call (decided with the coordinator
+# 2026-10-30): a panel member still to rate would otherwise see the others' mean.
+PANEL_PENDING_HIDDEN = ('plan_score', 'score_total') + STAFF_SCORE_FIELDS
 # Criterion 4 of the staff call: from B2, the highest certificate.
 STAFF_LANGUAGE_SCORES = {'b2': 1.0, 'c1': 1.5, 'c2': 2.0}
 # Criterion 2: the last staff mobility. Criterion 5: continuous seniority at the closing date.
@@ -486,6 +490,21 @@ class EmsErasmusApplication(models.Model):
         if 'modality_id' in vals:
             # Issue #687: a staff member's modality, assigned after selection, brings its documents.
             self.mobility_ids.filtered(lambda mobility: mobility.state in ('choosing', 'preparing'))._ems_sync_requirements()
+        return result
+
+    def read(self, fields=None, load='_classic_read'):
+        """The staff's points read as 0 outside the Erasmus team while the panel is rating
+        (PANEL_PENDING_HIDDEN). Their rank is 0 until then anyway (_compute_rank)."""
+        result = super().read(fields, load=load)
+        hidden = set(fields or self._fields) & set(PANEL_PENDING_HIDDEN)
+        if not hidden or self.env.su or self._ems_can_manage():
+            return result
+        pending = self.sudo().filtered(lambda application: application.audience == 'staff' and not all(
+            application.call_id.application_ids.filtered(
+                lambda other: other.state in RANKED_STATES).mapped('plan_complete')))
+        for vals in result:
+            if vals['id'] in pending.ids:
+                vals.update(dict.fromkeys(hidden, 0.0))
         return result
 
     def unlink(self):

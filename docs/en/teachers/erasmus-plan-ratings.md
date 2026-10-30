@@ -33,6 +33,8 @@ Click **Actions > Submit**. Until the call's **score correction deadline** you c
 
 **If you are a candidate in the call, or you have a conflict of interest with a candidate**, you don't rate: tell the Erasmus team, who will record the abstention. The plan's score is the mean of the other members.
 
+**Your rating is independent:** as a member of the Direction you can open the staff applications, but you see their points at 0 until every plan of the call is rated, so you never see the other members' mean before giving yours.
+
 ---
 
 [← Back to teachers' manuals](index.md)

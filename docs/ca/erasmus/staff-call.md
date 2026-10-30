@@ -44,6 +44,8 @@ Omple la pestanya **Tribunal** de la convocatòria: les persones que valoren els
 
 **Abstencions:** un membre del tribunal que es presenta a la convocatòria no valora (art. 10): les seves valoracions es creen com a abstencions, amb el motiu *Candidat en aquesta convocatòria*. Per a un altre conflicte d'interessos, obre la valoració a **Erasmus+ > Valoracions de plans** i escriu el **Motiu de l'abstenció**. No hi ha persones substitutes: la puntuació del pla (criteri 1) és la mitjana dels membres que el valoren. **Una valoració pendent la bloqueja** fins que s'envia.
 
+**La direcció no veu els punts mentre el tribunal valora:** el cap d'estudis i la directora poden obrir les sol·licituds del personal, però fins que no s'han valorat tots els plans de la convocatòria en veuen la puntuació del pla, els criteris i el total a 0, també si són al tribunal. Així cap membre no veu la mitjana dels altres abans de valorar. Quan s'envia l'última valoració, ho veuen tot.
+
 ## 4. Revisar la resta de criteris
 
 A la pestanya **Baremació** de la sol·licitud, l'EMS mostra el que ha declarat la persona i els punts que li corresponen. Només ho corregeixes si no és correcte:

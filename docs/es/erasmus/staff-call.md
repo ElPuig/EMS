@@ -44,6 +44,8 @@ Rellena la pestaña **Tribunal** de la convocatoria: las personas que valoran lo
 
 **Abstenciones:** un miembro del tribunal que se presenta a la convocatoria no valora (art. 10): sus valoraciones se crean como abstenciones, con el motivo *Candidato en esta convocatoria*. Para otro conflicto de intereses, abre la valoración en **Erasmus+ > Valoraciones de planes** y escribe el **Motivo de la abstención**. No hay personas sustitutas: la puntuación del plan (criterio 1) es la media de los miembros que lo valoran. **Una valoración pendiente la bloquea** hasta que se envía.
 
+**La dirección no ve los puntos mientras el tribunal valora:** el jefe de estudios y la directora pueden abrir las solicitudes del personal, pero hasta que no se han valorado todos los planes de la convocatoria ven la puntuación del plan, los criterios y el total a 0, también si están en el tribunal. Así ningún miembro ve la media de los demás antes de valorar. Cuando se envía la última valoración, lo ven todo.
+
 ## 4. Revisar el resto de criterios
 
 En la pestaña **Baremación** de la solicitud, EMS muestra lo que ha declarado la persona y los puntos que le corresponden. Solo lo corriges si no es correcto:

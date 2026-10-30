@@ -18,6 +18,10 @@
 - When a renunciation, an offer left unanswered or a rectification frees a place that a reserve can take, every member of the Erasmus team gets a task on the call ("free place in GM: offer it to the next reserve"), marked done once the place is offered. EMS still never offers it on its own.
 - A rectification that would leave more people with a place than places (an accepted place is never withdrawn) shows a warning and cannot be published until the team decides what to do, e.g. adds a place to the modality.
 
+## Erasmus+ staff call: the Direction sees no points while the panel rates:
+
+- The Head of Studies and the Director sit in the staff call's panel and could open any staff application and see the running mean of the plan ratings already submitted before giving theirs. Outside the Erasmus team, the plan score, the six criteria and the total of a staff application now read as 0 until every plan of the call is rated.
+
 # Fixes
 
 ## Erasmus+ students' call: claims, ties and rectifications found in the end-to-end test of the selection:

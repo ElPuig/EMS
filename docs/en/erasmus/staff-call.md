@@ -44,6 +44,8 @@ Fill in the **Panel** tab of the call: the people who rate the mobility plans (t
 
 **Abstentions:** a panel member who is a candidate in the call does not rate (art. 10): their ratings are created as abstentions, with the reason *Candidate in this call*. For another conflict of interest, open the rating in **Erasmus+ > Plan ratings** and write the **Abstention reason**. There are no substitutes: the plan score (criterion 1) is the mean of the members who rate it. **A pending rating blocks it** until it is submitted.
 
+**The Direction sees no points while the panel rates:** the Head of Studies and the Director can open the staff applications, but until every plan of the call is rated they see the plan score, the criteria and the total at 0, also when they are in the panel. This way no member sees the others' mean before rating. Once the last rating is submitted, they see everything.
+
 ## 4. Review the other criteria
 
 On the application's **Scoring** tab EMS shows what the applicant declared and the points it gives. You only correct it when it is wrong:

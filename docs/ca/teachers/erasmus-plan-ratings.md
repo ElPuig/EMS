@@ -33,6 +33,8 @@ Fes clic a **Accions > Enviar**. Fins al **termini per corregir puntuacions** de
 
 **Si et presentes a la convocatòria, o tens un conflicte d'interessos amb una persona candidata**, no valores: avisa l'equip Erasmus, que registrarà l'abstenció. La puntuació del pla és la mitjana de la resta de membres.
 
+**La teva valoració és independent:** com a membre de la direcció pots obrir les sol·licituds del personal, però en veus els punts a 0 fins que no s'han valorat tots els plans de la convocatòria, de manera que mai no veus la mitjana dels altres membres abans de donar la teva.
+
 ---
 
 [← Tornar als manuals del professorat](index.md)

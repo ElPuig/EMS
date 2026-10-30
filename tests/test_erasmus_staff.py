@@ -336,6 +336,23 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         rating.action_submit()
         rating.action_reopen()
 
+    def test_the_direction_sees_no_points_until_the_panel_has_rated_every_plan(self):
+        """Who is not in the Erasmus team (the Head of Studies, the Director), panel member or not,
+        reads the staff's points only once every plan of the call is rated: until then a member
+        still to rate would see the others' mean (decided with the coordinator 2026-10-30)."""
+        applications = self._sent_to_panel()
+        for application in applications:
+            self._complete(application)
+        points = ['plan_score', 'score_plan', 'score_seniority', 'score_total']
+        self._rate(applications[0], '1', '1')
+        self.assertEqual(applications[0].with_user(self.erasmus_user).read(points)[0]['plan_score'], 2.0)
+        hidden = applications[0].with_user(self.hos_user).read(points)[0]
+        self.assertEqual([hidden[name] for name in points], [0.0] * 4, "Two plans still to rate.")
+        for application in applications[1:]:
+            self._rate(application, '1', '0.5')
+        shown = applications[0].with_user(self.hos_user).read(points)[0]
+        self.assertEqual([shown[name] for name in points], [2.0, 2.0, 2.0, 5.5])
+
     def test_staff_criteria_and_their_maximums(self):
         first = self._sent_to_panel()[0]
         self._rate(first, '1', '1')

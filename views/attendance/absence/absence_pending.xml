@@ -88,6 +88,9 @@
             <field name="arch" type="xml">
                 <search string="Detected absences">
                     <field name="employee_id"/>
+                    <filter name="to_regularize" string="To regularize"
+                            domain="[('state', 'in', ('justification_requested', 'absence_prepared'))]"/>
+                    <separator/>
                     <filter name="pending" string="To review" domain="[('state', '=', 'pending')]"/>
                     <filter name="justification_requested" string="Justification requested"
                             domain="[('state', '=', 'justification_requested')]"/>
@@ -127,6 +130,33 @@
                 </p>
             </field>
         </record>
+
+        <!-- Issue #735: the teacher's own detected absences still to regularize (request the
+             absence, or a check-in correction), without waiting for the reminder's link. Only their
+             own, also for a chief or a Head of Studies, who reach everybody else's through
+             menu_absence_pending. Removing the filter shows the ones already resolved. -->
+        <record id="action_absence_pending_mine" model="ir.actions.act_window">
+            <field name="name">Absences to regularize</field>
+            <field name="res_model">ems.absence_pending</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <field name="context">{'search_default_to_regularize': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No absence to regularize
+                </p>
+                <p>
+                    When your Head of Studies asks you to justify a day you did not check in, or
+                    an absence they were told about, it shows here: request the absence, or a
+                    check-in correction if you were at the centre.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_absence_pending_mine" name="Absences to regularize" sequence="2"
+                  parent="hr_holidays.menu_hr_holidays_root"
+                  action="action_absence_pending_mine"
+                  groups="ems.group_teacher"/>
 
         <!-- Issue #707: the reviewer's actions on several entries at once. List only: the form
              has them in its Actions dropdown. -->

@@ -838,6 +838,14 @@ once a justification was requested or the absence prepared) calls `action_reques
 type for a prepared one. Saving it links the entry
 through the mechanism above.
 
+**Where the teacher finds it (issue #735).** Besides the reminder's link, **Absences → Absences to
+regularize** (`menu_absence_pending_mine`, `ems.group_teacher`) lists the teacher's own entries
+(`action_absence_pending_mine`, domain `employee_id.user_id = uid`, also for a chief or a Head of
+Studies, who reach everybody else's through Detected absences) with the *To regularize* filter
+(`ASKED_STATES`) on by default. It turns "Absences" into a dropdown for teachers, so My Time Off
+(`hr_holidays.hr_leave_menu_my`) is opened to `ems.group_teacher` too; staff who are not
+teachers keep the plain link.
+
 **Or asking for a check-in correction (issue #735).** **Request check-in correction** (same
 place, same teacher, once the entry is over and while none of theirs is pending) calls
 `action_request_check_in_correction()`: an `ems.attendance_correction` form in a dialog, with

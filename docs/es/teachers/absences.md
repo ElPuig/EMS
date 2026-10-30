@@ -173,6 +173,10 @@ En los dos casos, primero la revisa tu jefe de estudios, y solo te enteras si te
 
 Si te pide que la justifiques, al inicio de tu siguiente jornada recibes un mensaje con el día y las horas, y un enlace para abrirla. Mientras no la resuelvas, te lo recuerda cada día (si el centro no lo ha cambiado), y unos días después también se avisa a tu jefe de estudios. Estos mensajes no te llegan nunca fuera de tu horario.
 
+No hace falta que esperes el mensaje: en cuanto te la piden, la ausencia aparece en **Ausencias → Ausencias por regularizar**, con todas las demás que aún tienes pendientes. Una vez la resuelves, desaparece de la lista (quita el filtro **Por regularizar** para ver las que ya están resueltas).
+
+![El menú Ausencias de un docente, con Mis ausencias y Ausencias por regularizar](../../assets/teachers/teachers-absences-to-regularize-menu.png)
+
 Qué tienes que hacer:
 
 - **Si faltaste**, abre el enlace y usa **Solicitar la ausencia** (arriba del formulario). Se abre una solicitud de ausencia nueva con el día y las horas ya puestos (y el tipo, si te la ha preparado tu jefe de estudios): elige el tipo, completa lo que falte y envíala como siempre (consulta [Enviar la solicitud](#enviar-la-solicitud)). Una vez enviada, la ausencia detectada queda vinculada a tu solicitud y se acaban los recordatorios.

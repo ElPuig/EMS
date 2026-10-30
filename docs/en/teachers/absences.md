@@ -172,6 +172,10 @@ Either way, your Head of Studies reviews it first, and you are only told if they
 
 If they ask you to justify it, at the start of your next working day you receive a message with the day and the hours, and a link to it. Until you deal with it, you are reminded every day (unless the centre has set otherwise), and a few days later your Head of Studies is told too. You never get these messages outside your working hours.
 
+You don't need to wait for the message: as soon as you are asked, the absence shows under **Absences → Absences to regularize**, with every other one still waiting for you. Once you deal with it, it leaves the list (remove the **To regularize** filter to see the ones already resolved).
+
+![The Absences menu of a teacher, with My Time Off and Absences to regularize](../../assets/teachers/teachers-absences-to-regularize-menu.png)
+
 What to do:
 
 - **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in (and the type, if your Head of Studies prepared it): choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop.

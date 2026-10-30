@@ -27455,3 +27455,27 @@ msgstr "Puede solicitar la corrección del fichaje"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__correction_ids
 msgid "Check-in correction requests"
 msgstr "Solicitudes de corrección del fichaje"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_pending_mine
+#: model:ir.ui.menu,name:ems.menu_absence_pending_mine
+msgid "Absences to regularize"
+msgstr "Ausencias por regularizar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "To regularize"
+msgstr "Por regularizar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid "No absence to regularize"
+msgstr "No tienes ninguna ausencia por regularizar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid ""
+"When your Head of Studies asks you to justify a day you did not check in, or\n"
+"                    an absence they were told about, it shows here: request the absence, or a\n"
+"                    check-in correction if you were at the centre."
+msgstr "Cuando tu jefe de estudios te pide que justifiques un día que no fichaste, o una ausencia que le comunicaron, aparece aquí: solicita la ausencia o, si estabas en el centro, la corrección del fichaje."

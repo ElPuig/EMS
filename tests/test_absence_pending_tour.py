@@ -42,6 +42,19 @@ class TestAbsencePendingTour(HttpCase):
         self.assertEqual(absence.correction_ids.mapped(lambda correction: (
             correction.requested_check_in, round(correction.requested_check_out, 4))), [(9.25, round(11 + 4 / 60, 4))])
 
+    def test_teacher_finds_their_absences_to_regularize_tour(self):
+        """Issue #735: from the Absences menu, the teacher's own entries still asked by default."""
+        Pending = self.env['ems.absence_pending']
+        day = Pending.get_local_today() - timedelta(days=1)
+        asked, resolved = Pending.create([{
+            'employee_id': self.teacher.id, 'origin': 'check_in',
+            'date_from': Pending._utc_bounds(day, 0.0, start)[1], 'date_to': Pending._utc_bounds(day, 0.0, stop)[1],
+        } for start, stop in ((9.0, 10.0), (11.0, 12.0))])
+        (asked | resolved).with_user(self.head_of_studies).action_request_justification()
+        resolved.sudo().state = 'corrected'
+        self.start_tour("/odoo/action-hr_holidays.hr_leave_action_my", "ems_absence_pending_teacher_menu",
+                        login=self.teacher_user.login)
+
     def test_head_of_studies_reviews_detected_absences_tour(self):
         """Issue #707: the reviewer, the teacher's Head of Studies (the least-privileged role that
         reviews). Five teachers of their branch, each with a detected absence of yesterday."""

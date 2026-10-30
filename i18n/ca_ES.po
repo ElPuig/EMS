@@ -27452,3 +27452,27 @@ msgstr "Pot sol·licitar la correcció del fitxatge"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending__correction_ids
 msgid "Check-in correction requests"
 msgstr "Sol·licituds de correcció del fitxatge"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_pending_mine
+#: model:ir.ui.menu,name:ems.menu_absence_pending_mine
+msgid "Absences to regularize"
+msgstr "Absències per regularitzar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "To regularize"
+msgstr "Per regularitzar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid "No absence to regularize"
+msgstr "No tens cap absència per regularitzar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid ""
+"When your Head of Studies asks you to justify a day you did not check in, or\n"
+"                    an absence they were told about, it shows here: request the absence, or a\n"
+"                    check-in correction if you were at the centre."
+msgstr "Quan el teu cap d'estudis et demana que justifiquis un dia que no vas fitxar, o una absència que li van comunicar, surt aquí: sol·licita l'absència o, si eres al centre, la correcció del fitxatge."

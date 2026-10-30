@@ -173,6 +173,10 @@ En tots dos casos, primer la revisa el teu cap d'estudis, i només te n'assabent
 
 Si et demana que la justifiquis, a l'inici de la teva jornada següent reps un missatge amb el dia i les hores, i un enllaç per obrir-la. Mentre no la resolguis, t'ho recorda cada dia (si el centre no ho ha canviat), i uns dies després també s'avisa el teu cap d'estudis. Aquests missatges no t'arriben mai fora del teu horari.
 
+No cal que esperis el missatge: tan bon punt te la demanen, l'absència surt a **Absències → Absències per regularitzar**, amb totes les altres que encara tens pendents. Un cop la resols, desapareix de la llista (treu el filtre **Per regularitzar** per veure les que ja estan resoltes).
+
+![El menú Absències d'un docent, amb Les meves absències i Absències per regularitzar](../../assets/teachers/teachers-absences-to-regularize-menu.png)
+
 Què has de fer:
 
 - **Si vas faltar**, obre l'enllaç i fes servir **Sol·licita l'absència** (a dalt del formulari). S'obre una sol·licitud d'absència nova amb el dia i les hores ja posats (i el tipus, si te l'ha preparat el teu cap d'estudis): tria el tipus, completa el que falti i envia-la com sempre (consulta [Enviar la sol·licitud](#enviar-la-sollicitud)). Un cop enviada, l'absència detectada queda vinculada a la teva sol·licitud i s'acaben els recordatoris.

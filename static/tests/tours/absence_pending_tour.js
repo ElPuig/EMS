@@ -225,3 +225,40 @@ registry.category("web_tour.tours").add("ems_absence_pending_review", {
         },
     ],
 });
+
+// Issue #735: the teacher reaches their detected absences to regularize from the Absences menu,
+// without waiting for the reminder's link. Only the ones still asked by default: one already
+// resolved is left out. Fixtures: test_absence_pending_tour.py.
+registry.category("web_tour.tours").add("ems_absence_pending_teacher_menu", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_menu_sections button[data-menu-xmlid='hr_holidays.menu_hr_holidays_root']",
+            content: "Absences is a dropdown for a teacher",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu .dropdown-item[data-menu-xmlid='hr_holidays.hr_leave_menu_my']",
+            content: "With My Time Off in it",
+        },
+        {
+            trigger: ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_absence_pending_mine']",
+            content: "Absences to regularize",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:only-child",
+            content: "Only the one still to regularize",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell[name='state']",
+            content: "Open it",
+            run: "click",
+        },
+        ...clickAction("action_request_check_in_correction", "Its options are offered"),
+        {
+            trigger: ".modal .o_field_widget[name='absence_pending_id']",
+            content: "The correction request opens",
+        },
+    ],
+});

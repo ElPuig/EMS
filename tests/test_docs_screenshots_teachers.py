@@ -89,6 +89,16 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             # The dropdown closes when Chrome resizes the page to shoot beyond the viewport.
             max_height=360, beyond_viewport=False,
         )
+        # Issue #735: Absences to regularize, from the Absences menu.
+        absences_menu = ".o_menu_sections button[data-menu-xmlid='hr_holidays.menu_hr_holidays_root']"
+        mine = ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_absence_pending_mine']"
+        self._capture(
+            '/odoo/action-hr_holidays.hr_leave_action_my', '#ems-clip', 'teachers-absences-to-regularize-menu.png',
+            login='doc_shot_teacher', wait_for=absences_menu,
+            run=["document.querySelector(%s).click()" % json.dumps(absences_menu),
+                 self._union_clip_js([absences_menu, '.o-dropdown--menu'])],
+            wait_after=[mine, '#ems-clip'], beyond_viewport=False, padding=12,
+        )
         self._capture(
             '/odoo/ems.absence_pending/%d' % absence.id,
             '.modal-content', 'teachers-detected-absence-correction.png',

@@ -47,7 +47,7 @@ When you register it:
 - The request becomes **Completed** if any module is convalidated, or **Rejected** if none is.
 - The student receives an email with the resolution and the PDF attached. So does the family if the student is a minor or has authorized sharing information with it.
 - The student stops taking each convalidated module: their module enrollment is deleted, so they leave its attendance lists and its open grade session, even if the teacher had already graded them.
-- The module's teachers and the group's tutor get a **Convalidated subject** activity in their tray (🕒).
+- The module's teachers and the group's tutor get a notice (in Odoo's inbox or by email, as each one's preferences say) listing the convalidated modules. Nothing for them to do: it is not a task.
 - The academic history records the module as passed, with the grade, the **CV** mark and the registration number.
 
 ---

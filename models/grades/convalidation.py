@@ -777,49 +777,47 @@ class EmsConvalidation(models.Model):
         - which drops them from the attendance lists and from the open grade sessions, the same
         cascade as any other deleted enrollment. The history keeps the subject all the same
         (ems.student.year_record adds it from the convalidation), and whoever teaches it, plus
-        the group's tutor, is told with an activity on the student.
+        the group's tutor, is told with a notice.
 
         Resolved before deleting: the enrollment is what says which group the subject was taught
         in. A request completed before the student is placed has nothing to delete yet; the
         placement itself skips convalidated subjects (sale.order._ems_apply_destination_placement)."""
         Enrollment = self.env['ems.enrollment'].sudo().with_context(ems_bypass_grade_guard=True)
-        for line in self.line_ids.filtered(lambda line: line.state == 'granted'):
-            student = line.student_id.sudo()
-            enrollments = Enrollment.search([('student_id', '=', student.id), ('subject_id', '=', line.subject_id.id)])
-            groups = enrollments.group_id or student.main_group_id
-            teachings = self.env['ems.teaching'].sudo().search([
-                ('group_id', 'in', groups.ids), ('subject_id', '=', line.subject_id.id), ('active', '=', True)])
-            staff = (teachings.teacher_id | groups.tutor_id).user_id
-            enrollments.unlink()
-            line.convalidation_id._ems_notify_teaching_staff(line, staff)
+        for convalidation in self:
+            notices = {}
+            for line in convalidation.line_ids.filtered(lambda line: line.state == 'granted'):
+                student = line.student_id.sudo()
+                enrollments = Enrollment.search([('student_id', '=', student.id), ('subject_id', '=', line.subject_id.id)])
+                groups = enrollments.group_id or student.main_group_id
+                teachings = self.env['ems.teaching'].sudo().search([
+                    ('group_id', 'in', groups.ids), ('subject_id', '=', line.subject_id.id), ('active', '=', True)])
+                enrollments.unlink()
+                for user in (teachings.teacher_id | groups.tutor_id).user_id:
+                    notices[user] = notices.get(user, line.browse()) | line
+            convalidation._ems_notify_teaching_staff(notices)
 
-    def _ems_notify_teaching_staff(self, line, users):
-        """A to-do on the student for each teacher of the convalidated subject and the group's
-        tutor, the only notice they get: teachers cannot open convalidation requests, but they
-        can open the student. Nobody is left following the student because of it."""
+    def _ems_notify_teaching_staff(self, notices):
+        """Tells each teacher of a convalidated subject and the group's tutor ({user: lines})
+        which of their subjects the student no longer takes, once per request. Nothing for them
+        to do, so a notice (to their inbox or by email, as their own preference says) and not a
+        to-do. It is sent on the student, whom teachers can open (not the request, which they
+        cannot), and does not make them followers."""
         self.ensure_one()
-        users = users.filtered(lambda user: user.active and user.id != SUPERUSER_ID)
-        if not users:
-            return
-        student = line.student_id.sudo().with_context(mail_activity_quick_update=True)
-        followers = student.message_partner_ids
-        values = {'student': student.name, 'subject': line.subject_id.display_name,
-                  'grade': line.grade, 'number': self.name}
-        if line.without_grade:
-            text = _("%(student)s no longer takes %(subject)s: it has been convalidated without a grade "
-                     "(registration %(number)s). They are no longer in its attendance lists or grades.") % values
-        else:
-            text = _("%(student)s no longer takes %(subject)s: it has been convalidated with a %(grade)s "
-                     "(registration %(number)s). They are no longer in its attendance lists or grades.") % values
-        note = Markup("<p>{}</p>").format(text)
-        for user in users:
-            student.activity_schedule(
-                act_type_xmlid='ems.mail_activity_convalidation_notice',
-                summary=_("Convalidated: %s") % line.subject_id.display_name,
-                note=note, user_id=user.id)
-        newcomers = users.partner_id - followers
-        if newcomers:
-            student.message_unsubscribe(partner_ids=newcomers.ids)
+        for user, lines in notices.items():
+            if not user.active or user.id == SUPERUSER_ID:
+                continue
+            student = self.student_id.sudo().with_context(lang=user.lang or self.env.lang)
+            env = student.env
+            items = [env._("%(subject)s, without a grade", subject=line.subject_id.with_env(env).display_name)
+                     if line.without_grade else
+                     env._("%(subject)s, with a %(grade)s", subject=line.subject_id.with_env(env).display_name, grade=line.grade)
+                     for line in lines]
+            body = Markup("<p>{}</p>{}").format(
+                env._("%(student)s no longer takes these subjects, convalidated by request %(number)s. They "
+                      "are no longer in their attendance lists or grades:", student=student.name, number=self.name),
+                self.env['ems.base'].build_html_list(items))
+            student.message_notify(partner_ids=user.partner_id.ids, body=body,
+                                   subject=env._("Convalidated subjects: %s", student.name))
 
     def action_request_info(self):
         """Ask the student (or the family) for more documentation, by email and on the portal."""

@@ -47,7 +47,7 @@ En registrar-la:
 - La sol·licitud queda **Completada** si hi ha algun mòdul convalidat, o **Rebutjada** si no n'hi ha cap.
 - L'alumne rep un correu amb la resolució i el PDF adjunt. També el rep la família si l'alumne és menor d'edat o si ha autoritzat compartir la informació amb ella.
 - L'alumne deixa de cursar cada mòdul convalidat: se li esborra la matrícula del mòdul, de manera que surt de les llistes d'assistència i de la sessió de notes oberta, encara que el professor ja li hagués posat alguna nota.
-- El professorat del mòdul i el tutor del grup reben una activitat **Assignatura convalidada** a la safata (🕒).
+- El professorat del mòdul i el tutor del grup reben un avís (a la bústia de l'Odoo o per correu, segons les preferències de cadascú) amb els mòduls convalidats. No han de fer res: no és cap tasca.
 - L'històric acadèmic recull el mòdul com a aprovat, amb la nota, la marca **CV** i el número de registre.
 
 ---

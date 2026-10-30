@@ -150,7 +150,7 @@ El estado lo cambia la administración. Si la sesión está en junta o finalizad
 
 ## Alumnos con un módulo convalidado
 
-Cuando secretaría completa la convalidación de un módulo que impartes, recibes una actividad **Asignatura convalidada** en la bandeja (🕒), sobre la ficha del alumno, con la nota y el número de registro de la convalidación. Desde ese momento el alumno ya no cursa el módulo: sale de tus listas de asistencia y de la sesión de notas abierta, aunque ya le hubieras puesto alguna nota. En las rondas ya cerradas se mantiene, con la nota seguida de **CV**.
+Cuando secretaría completa la convalidación de un módulo que impartes, recibes un aviso (en el buzón de Odoo o por correo, según tus preferencias) sobre el alumno, con la nota y el número de registro de la convalidación. Es solo informativo: no tienes que marcar nada como hecho. Desde ese momento el alumno ya no cursa el módulo: sale de tus listas de asistencia y de la sesión de notas abierta, aunque ya le hubieras puesto alguna nota. En las rondas ya cerradas se mantiene, con la nota seguida de **CV**.
 
 ---
 

@@ -306,6 +306,31 @@ class TestAbsencePending(TransactionCase):
             self.assertIn(review, entry.activity_ids.activity_type_id)
             self.assertTrue(entry.message_ids.filtered(lambda message: 'Reopened' in message.body))
 
+    def test_an_approved_request_justifies_the_entry(self):
+        """Issue #735: Requested while the request is dealt with, Justified once approved for good;
+        undoing the approval brings it back to Requested, refusing it then reopens it."""
+        pending = self._pending()
+        leave = self._leave()
+        self.assertEqual(pending.state, 'linked')
+
+        leave.sudo().write({'state': 'validate'})
+        self.assertEqual(pending.state, 'justified')
+        leave.sudo().write({'state': 'validate1'})
+        self.assertEqual(pending.state, 'linked')
+        leave.sudo().write({'state': 'validate'})
+        leave.action_refuse()
+        self.assertEqual(pending.state, 'pending')
+
+    def test_the_migration_justifies_the_entries_of_approved_requests(self):
+        """Linked before Justified existed: those whose request is approved are justified."""
+        pending = self._pending()
+        leave = self._leave()
+        leave.sudo().write({'state': 'validate'})
+        pending.sudo().write({'state': 'linked'})
+
+        self.Pending._ems_reopen_dropped_requests()
+        self.assertEqual(pending.state, 'justified')
+
     def test_an_undone_refusal_links_the_entry_again(self):
         """Issue #735: the refusal taken back, the request resolves the entry again, off the review."""
         pending = self._pending()

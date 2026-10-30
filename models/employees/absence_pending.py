@@ -26,9 +26,13 @@ NOT_REQUESTED_ACTIVITY_XMLID = 'ems.mail_activity_absence_not_requested'
 REVIEW_ACTIVITY_XMLID = 'ems.mail_activity_absence_pending_review'
 # Not resolved yet: the guard duty board plans around them, a check-in or the teacher's own
 # absence still resolves them.
-UNRESOLVED_STATES = ('pending', 'justification_requested', 'absence_prepared')
+UNRESOLVED_STATES = ('pending', 'justification_requested', 'absence_prepared', 'correction_requested')
 # The teacher has been asked to act: reminded until they do.
 ASKED_STATES = ('justification_requested', 'absence_prepared')
+# Linked to an absence request of the teacher's (issue #735): in progress, or approved for good.
+REQUESTED_STATES = ('linked', 'justified')
+# An absence request approved for good: the detected absence is justified.
+APPROVED_LEAVE_STATE = 'validate'
 
 
 class EmsAbsencePending(models.Model):
@@ -70,15 +74,18 @@ class EmsAbsencePending(models.Model):
     state = fields.Selection(
         string="Status",
         selection=[('pending', 'To review'), ('justification_requested', 'Justification requested'),
-                   ('absence_prepared', 'Absence prepared'), ('corrected', 'Check-in corrected'),
-                   ('linked', 'Requested'), ('discarded', 'Discarded')],
+                   ('absence_prepared', 'Absence prepared'), ('correction_requested', 'Correction requested'),
+                   ('corrected', 'Check-in corrected'), ('linked', 'Requested'), ('justified', 'Justified'),
+                   ('discarded', 'Discarded')],
         default='pending', required=True, readonly=True, copy=False, tracking=True,
         help="To review: the Head of Studies decides what to do with it; the teacher is not told. "
-             "Justification requested: the teacher is reminded to request the absence. Absence prepared: "
-             "the same, with the absence type already chosen for them. Check-in "
-             "corrected: the teacher was at the centre. Requested: linked for good to an absence "
-             "request, whatever becomes of it. Discarded: by the reviewer, or because the "
-             "teacher's check-in of that day showed up after all.")
+             "Justification requested: the teacher is reminded to request the absence or a check-in "
+             "correction. Absence prepared: the same, with the absence type already chosen for them. "
+             "Correction requested: the teacher's check-in correction waits for a decision. Check-in "
+             "corrected: the teacher was at the centre. Requested: the teacher's absence request is "
+             "being dealt with. Justified: it was approved. Discarded: by the reviewer, or because "
+             "the teacher's check-in of that day showed up after all. A refused absence request or a "
+             "rejected correction sends it back to review.")
     # Readonly so that Odoo offers no Archive/Unarchive of its own: Discard is the only way, with
     # its checks and its note (issue #707).
     active = fields.Boolean(default=True, readonly=True, help="Archived when the reviewer discards it.")
@@ -154,9 +161,8 @@ class EmsAbsencePending(models.Model):
         the centre."""
         now = fields.Datetime.now()
         for absence in self:
-            absence.has_pending_correction = bool(absence._ems_pending_corrections())
-            absence.can_request = (absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
-                                   and not absence.has_pending_correction)
+            absence.has_pending_correction = absence.state == 'correction_requested'
+            absence.can_request = absence.state in ASKED_STATES and absence.employee_id.user_id == self.env.user
             absence.can_request_correction = absence.can_request and absence.date_to <= now
 
     @api.depends('employee_id')
@@ -167,22 +173,31 @@ class EmsAbsencePending(models.Model):
         for absence in self:
             absence.is_own = bool(absence.employee_id.user_id) and absence.employee_id.user_id == self.env.user
 
-    @api.depends('state', 'justification_date', 'leave_type_id', 'employee_id')
+    @api.depends('state', 'justification_date', 'leave_type_id', 'employee_id', 'correction_ids.state')
     @api.depends_context('uid')
     def _compute_status_path(self):
         """The steps the status bar shows (issue #735): those this entry went through, ending in
-        its state, and while unresolved the ones still ahead. The review first, which the teacher
-        never sees; then, if the teacher was asked to act, how (justification_date says it was
-        asked, leave_type_id that the absence was prepared); then its end. Comma-separated, for
-        the ems_statusbar_path widget."""
+        its state, then the ones still ahead. The review first, which the teacher never sees;
+        then, if the teacher was asked to act, how (justification_date says it was asked,
+        leave_type_id that the absence was prepared); then the way they answered, a check-in
+        correction (requested, corrected) or an absence request (requested, justified once
+        approved). Comma-separated, for the ems_statusbar_path widget."""
+        ahead = {'pending': ['justification_requested', 'linked', 'justified'],
+                 'justification_requested': ['linked', 'justified'], 'absence_prepared': ['linked', 'justified'],
+                 'correction_requested': ['corrected'], 'linked': ['justified']}
         for absence in self:
+            state = absence.state
             steps = [] if absence.is_own else ['pending']
-            if absence.justification_date or absence.state in ASKED_STATES:
+            if absence.justification_date or state in ASKED_STATES:
                 steps.append('absence_prepared' if absence.leave_type_id else 'justification_requested')
-            elif absence.state == 'pending':
-                steps.append('justification_requested')
-            steps.append(absence.state if absence.state not in UNRESOLVED_STATES else 'linked')
-            absence.status_path = ','.join(steps)
+            if state == 'correction_requested' or (
+                    state == 'corrected' and 'accepted' in absence.sudo().correction_ids.mapped('state')):
+                steps.append('correction_requested')
+            if state == 'justified':
+                steps.append('linked')
+            steps.append(state)
+            steps += [step for step in ahead.get(state, []) if step not in steps]
+            absence.status_path = ','.join(dict.fromkeys(steps))
 
     @api.depends('state', 'employee_id', 'date_to')
     @api.depends_context('uid')
@@ -208,7 +223,7 @@ class EmsAbsencePending(models.Model):
     def write(self, vals):
         if vals.keys() & {'employee_id', 'date_from', 'date_to'}:
             states = set(self.mapped('state'))
-            if 'linked' in states:
+            if states & set(REQUESTED_STATES):
                 raise ValidationError(_("This absence has already been requested: only the request "
                                         "counts now."))
             if 'corrected' in states:
@@ -513,8 +528,20 @@ class EmsAbsencePending(models.Model):
             cursor = stop
         if cursor < self.date_to:
             resolved.append((cursor, self.date_to))
-        self._ems_split([(start, stop, values) for start, stop in resolved] + left, note)
+        stage = {'state': self._ems_stage()}
+        self._ems_split([(start, stop, values) for start, stop in resolved]
+                        + [(start, stop, stage) for start, stop in left], note)
         return True
+
+    def _ems_stage(self):
+        """The stage of the review this entry is at, leaving aside a correction of the teacher's
+        waiting for a decision (issue #735): a part split off it is not what that correction is
+        about, so it goes back to where the entry stood before it."""
+        self.ensure_one()
+        if self.state != 'correction_requested':
+            return self.state
+        return ('absence_prepared' if self.leave_type_id
+                else 'justification_requested' if self.justification_date else 'pending')
 
     def _ems_reopen(self, reason):
         """Issue #735: what resolved these entries fell through (an absence request refused,
@@ -590,8 +617,9 @@ class EmsAbsencePending(models.Model):
             # Issue #735: the absence answers it; a check-in correction still waiting is withdrawn.
             entries._ems_pending_corrections()._withdraw()
             # Only the part it covers: the rest is still to regularize.
+            state = 'justified' if leave.state == APPROVED_LEAVE_STATE else 'linked'
             for entry in entries:
-                entry._ems_carve([(start, stop)], {'state': 'linked', 'leave_id': leave.id},
+                entry._ems_carve([(start, stop)], {'state': state, 'leave_id': leave.id},
                                  _("the absence request %(leave)s covers part of it.", leave=leave.display_name))
 
     @api.model
@@ -599,13 +627,18 @@ class EmsAbsencePending(models.Model):
         """Issue #735: `leaves` changed. The entries one of them resolved and no longer covers
         (refused, cancelled, moved to another day or teacher) go back to the review; then the
         active ones link what they cover."""
-        for entry in self.sudo().search([('leave_id', 'in', leaves.ids), ('state', '=', 'linked')]):
+        for entry in self.sudo().search([('leave_id', 'in', leaves.ids), ('state', 'in', REQUESTED_STATES)]):
             leave = entry.leave_id
             start, stop = leave._ems_utc_range()
             if (leave.state not in ACTIVE_LEAVE_STATES or leave.employee_id != entry.employee_id
                     or not (entry.date_from < stop and entry.date_to > start)):
                 entry._ems_reopen(_("Reopened: the absence request %(leave)s no longer covers it.",
                                     leave=leave.display_name))
+                continue
+            # Justified once the request is approved for good, back to Requested if that is undone.
+            state = 'justified' if leave.state == APPROVED_LEAVE_STATE else 'linked'
+            if entry.state != state:
+                entry.state = state
         self._link_to_leaves(leaves)
 
     @api.model
@@ -692,7 +725,7 @@ class EmsAbsencePending(models.Model):
         self.ensure_one()
         source = self.display_name
         base = {
-            'employee_id': self.employee_id.id, 'origin': self.origin, 'state': self.state,
+            'employee_id': self.employee_id.id, 'origin': self.origin, 'state': self._ems_stage(),
             'leave_type_id': self.leave_type_id.id, 'note': self.sudo().note,
             'justification_date': self.justification_date, 'reminder_date': self.reminder_date,
             'escalated': self.escalated,
@@ -812,8 +845,6 @@ class EmsAbsencePending(models.Model):
         # Only what is due today, so an entry leaves the search once it has been dealt with.
         absences = self.sudo().search([
             ('state', 'in', ASKED_STATES), ('employee_id', 'any', domain), ('date_to', '<=', today_start),
-            # Not while the teacher's correction request waits for a decision (issue #735).
-            ('correction_ids', 'not any', [('state', '=', 'pending')]),
             '|', '|', ('reminder_date', '=', False), ('reminder_date', '<=', today - timedelta(days=interval)),
             '&', ('escalated', '=', False), ('justification_date', '<=', report_bound),
         ])
@@ -871,9 +902,12 @@ class EmsAbsencePending(models.Model):
     def _ems_reopen_dropped_requests(self):
         """Issue #735, for the entries linked before it: those whose absence request was refused,
         cancelled or deleted since go back to the review."""
-        self.sudo().search([('state', '=', 'linked'), '|', ('leave_id', '=', False),
-                            ('leave_id.state', 'not in', ACTIVE_LEAVE_STATES)])._ems_reopen(
+        Pending = self.sudo()
+        Pending.search([('state', '=', 'linked'), '|', ('leave_id', '=', False),
+                        ('leave_id.state', 'not in', ACTIVE_LEAVE_STATES)])._ems_reopen(
             _("Reopened: the absence request that resolved it was refused, cancelled or deleted."))
+        Pending.search([('state', '=', 'linked'), ('leave_id.state', '=', APPROVED_LEAVE_STATE)]).write(
+            {'state': 'justified'})
 
     @api.model
     def _ems_reopen_wrongly_discarded(self):
@@ -959,7 +993,7 @@ class EmsAbsencePendingLeave(models.Model):
     def unlink(self):
         """Issue #735: what it resolved goes back to the review, and its days are detected again."""
         Pending = self.env['ems.absence_pending'].sudo()
-        entries = Pending.search([('leave_id', 'in', self.ids), ('state', '=', 'linked')])
+        entries = Pending.search([('leave_id', 'in', self.ids), ('state', 'in', REQUESTED_STATES)])
         dropped = [(leave.employee_id, leave.request_date_from, leave.request_date_to) for leave in self]
         result = super().unlink()
         entries._ems_reopen(_("Reopened: the absence request that resolved it was deleted."))

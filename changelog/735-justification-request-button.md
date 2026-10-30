@@ -21,7 +21,9 @@
 - An absence request filed beforehand kept its days out of the detection; refused or cancelled, those past days are detected then for that teacher (only days the detection had already gone through).
 - A correction asked for from the attendance itself (the classic "Request Correction", e.g. on the red one) now answers the detected absence of that day like the button does: reminders paused, off the review, resolved on acceptance.
 - Partial coverage: an absence request or a correction covering only part of a detected absence resolves that part (it keeps the entry, so a later refusal or rejection reopens only it); what still holds a schedule period stays claimed.
-- Migration 18.0.0.42.1 reopens the detected absences whose absence request was refused, cancelled or deleted before this version.
+- Two new statuses close each way out: **Justified** once the absence request is approved for good (back to Requested if the approval is undone; Requested now means "being dealt with"), and **Correction requested** while the teacher's check-in correction waits for a decision (instead of Justification requested plus a hidden flag). Both are in the status bar, the list, the filters and the default views.
+- Migration 18.0.0.42.1 reopens the detected absences whose absence request was refused, cancelled or deleted before this version, and marks as Justified those whose request is already approved.
+- The technical documentation has the whole circuit as a flowchart.
 
 ## Times typed by hand are read as hours and minutes:
 

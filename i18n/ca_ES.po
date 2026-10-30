@@ -26911,8 +26911,8 @@ msgstr "Fitxatge corregit"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__state
-msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence. Absence prepared: the same, with the absence type already chosen for them. Check-in corrected: the teacher was at the centre. Requested: linked for good to an absence request, whatever becomes of it. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all."
-msgstr "Per revisar: el cap d'estudis decideix què en fa; no s'avisa el docent. Justificació sol·licitada: es recorda al docent que sol·liciti l'absència. Absència preparada: el mateix, amb el tipus d'absència ja triat. Fitxatge corregit: el docent era al centre. Sol·licitada: vinculada per sempre a una sol·licitud d'absència, en passi el que en passi. Descartada: per qui la revisa, o perquè al final ha aparegut el fitxatge del docent d'aquell dia."
+msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence or a check-in correction. Absence prepared: the same, with the absence type already chosen for them. Correction requested: the teacher's check-in correction waits for a decision. Check-in corrected: the teacher was at the centre. Requested: the teacher's absence request is being dealt with. Justified: it was approved. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all. A refused absence request or a rejected correction sends it back to review."
+msgstr "Per revisar: el cap d'estudis decideix què en fa; no s'avisa el docent. Justificació sol·licitada: es recorda al docent que sol·liciti l'absència o la correcció del fitxatge. Absència preparada: el mateix, amb el tipus d'absència ja triat. Correcció sol·licitada: la correcció del fitxatge del docent espera una decisió. Fitxatge corregit: el docent era al centre. Sol·licitada: la sol·licitud d'absència del docent s'està tramitant. Justificada: s'ha aprovat. Descartada: per qui la revisa, o perquè al final ha aparegut el fitxatge del docent d'aquell dia. Una sol·licitud d'absència rebutjada o una correcció rebutjada la tornen a la revisió."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__active
@@ -27537,3 +27537,15 @@ msgstr "la sol·licitud d'absència %(leave)s en cobreix una part."
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "its check-in was corrected for part of it."
 msgstr "se n'ha corregit el fitxatge d'una part."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__correction_requested
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Correction requested"
+msgstr "Correcció sol·licitada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Justified"
+msgstr "Justificada"

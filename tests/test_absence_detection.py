@@ -951,13 +951,19 @@ class TestAbsenceDetection(TransactionCase):
         absence = self._detected()
         paths = lambda: (absence.with_user(self.head_of_studies).status_path,
                          absence.with_user(self.teacher_user).status_path)
-        self.assertEqual(absence.with_user(self.head_of_studies).status_path, 'pending,justification_requested,linked')
+        self.assertEqual(absence.with_user(self.head_of_studies).status_path,
+                         'pending,justification_requested,linked,justified')
         self._asked(absence)
-        self.assertEqual(paths(), ('pending,justification_requested,linked', 'justification_requested,linked'))
-        absence.sudo().state = 'corrected'
-        self.assertEqual(paths(), ('pending,justification_requested,corrected', 'justification_requested,corrected'))
-        absence.sudo().write({'state': 'absence_prepared', 'leave_type_id': self.env.ref('ems.leave_type_justified').id})
-        self.assertEqual(paths(), ('pending,absence_prepared,linked', 'absence_prepared,linked'))
+        self.assertEqual(paths(), ('pending,justification_requested,linked,justified',
+                                   'justification_requested,linked,justified'))
+        correction = self._request_correction(absence)
+        self.assertEqual(paths(), ('pending,justification_requested,correction_requested,corrected',
+                                   'justification_requested,correction_requested,corrected'))
+        correction.with_user(self.head_of_studies).action_accept()
+        self.assertEqual(paths(), ('pending,justification_requested,correction_requested,corrected',
+                                   'justification_requested,correction_requested,corrected'))
+        absence.sudo().write({'state': 'justified', 'leave_type_id': self.env.ref('ems.leave_type_justified').id})
+        self.assertEqual(paths(), ('pending,absence_prepared,linked,justified', 'absence_prepared,linked,justified'))
         absence.sudo().write({'state': 'discarded', 'justification_date': False, 'leave_type_id': False})
         self.assertEqual(paths(), ('pending,discarded', 'discarded'), 'discarded straight from the review')
 
@@ -1028,7 +1034,7 @@ class TestAbsenceDetection(TransactionCase):
             default_attendance_id=red.id).create({'reason': 'Forgot to check in.', 'requested_check_in': 9.0,
                                                   'requested_check_out': 13.0})
         self.assertEqual(correction.absence_pending_id, absence)
-        self.assertEqual(absence.state, 'justification_requested', 'the teacher is already answering it')
+        self.assertEqual(absence.state, 'correction_requested', 'the teacher is already answering it')
         self.assertFalse(self._review_activities(absence), 'off the review')
         self.assertTrue(absence.with_user(self.teacher_user).has_pending_correction)
         self._run_cron_on(self.today)

@@ -7,6 +7,8 @@ from pytz import UTC
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from ..employees.absence_pending import UNRESOLVED_STATES
+
 # How much time the approver is given before the "Review attendance correction
 # request" activity is flagged overdue. Set explicitly (activity_schedule()
 # otherwise defaults the deadline to today, which reads as "due immediately").
@@ -254,11 +256,10 @@ class ems_attendance_correction(models.Model):
                 entry.message_post(
                     body=_("Check-in correction requested by %(employee)s.", employee=correction.employee_id.display_name),
                     subtype_xmlid="mail.mt_note")
-                if entry.state == "pending":
-                    # Issue #735: the teacher is already answering it: off the review, and their
-                    # reminders wait for the decision like for any correction of theirs.
-                    entry.write({"state": "justification_requested", "justification_date": entry.get_local_today(),
-                                 "reminder_date": False, "escalated": False})
+                if entry.state in UNRESOLVED_STATES:
+                    # Issue #735: the teacher answers it: off the review and the reminders until
+                    # the decision.
+                    entry.state = "correction_requested"
         return corrections
 
     def action_accept(self):
@@ -315,7 +316,7 @@ class ems_attendance_correction(models.Model):
             correction._close("rejected")
             # Issue #735: the detected absence it answered, or had resolved, is claimed again.
             entry = correction.absence_pending_id
-            if entry.state in ("pending", "justification_requested", "absence_prepared", "corrected"):
+            if entry.state in UNRESOLVED_STATES + ("corrected",):
                 entry._ems_reopen(_("Reopened: %(user)s rejected the teacher's check-in correction request.",
                                     user=self.env.user.name))
             correction.message_post(

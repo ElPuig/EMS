@@ -3722,6 +3722,7 @@ msgstr "Emergencia"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 msgid "Employee"
 msgstr "Empleado"
 
@@ -26506,13 +26507,13 @@ msgstr "%(start)s a %(stop)s"
 msgid ""
 "No check-in of yours was recorded on %(when)s, and no absence is requested "
 "for it. If you were absent, please request the absence from this page. If "
-"you were at the centre and forgot to check in, ask your Head of Studies to "
-"record your check-in."
+"you were at the centre and forgot to check in, request a check-in correction "
+"from this page."
 msgstr ""
 "No consta ningún fichaje tuyo el %(when)s, y no hay ninguna ausencia "
 "solicitada. Si faltaste, solicita la ausencia desde esta página. Si estabas "
-"en el centro y olvidaste fichar, pide a tu jefe de estudios que registre el "
-"fichaje."
+"en el centro y olvidaste fichar, solicita la corrección del fichaje desde "
+"esta página."
 
 #. module: ems
 #. odoo-python

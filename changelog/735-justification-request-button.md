@@ -10,3 +10,4 @@
 
 - The requested check-in/out times use a new `ems_time_of_day` widget: `9.15`, `9,15` (the numeric keypad's decimal key in Catalan/Spanish), `9h15` and `915` all mean 9:15. Odoo's `float_time` read them as decimal hours (`13,04` → 13:00, `1304` → 1304 hours, a value found saved in the dev DB). The server now refuses times outside 0-24.
 - The **Correct check-in** dialog of a detected absence offers every minute (Odoo's picker only offered multiples of five, so an entry's own hours such as 16:06 got changed) and no seconds.
+- The teacher's reminder for a missing check-in now tells them to request a check-in correction from the page, instead of asking their Head of Studies to record it. The teacher manual's screenshots show both options and the correction request dialog; the dialog's "Employee" heading was untranslated and is now translated.

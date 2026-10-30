@@ -723,8 +723,8 @@ class EmsAbsencePending(models.Model):
         if self.origin == 'check_in':
             return _("No check-in of yours was recorded on %(when)s, and no absence is requested for "
                      "it. If you were absent, please request the absence from this page. If you were "
-                     "at the centre and forgot to check in, ask your Head of Studies to record your "
-                     "check-in.", when=self._ems_when())
+                     "at the centre and forgot to check in, request a check-in correction from this "
+                     "page.", when=self._ems_when())
         return _("Your absence on %(when)s was announced, but you have not requested it yet. "
                  "Please request it from this page so it can be validated.", when=self._ems_when())
 

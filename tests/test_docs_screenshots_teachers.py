@@ -65,10 +65,12 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_detected_absence(self):
         """The teacher's own detected absence, from a missing check-in, as the reminder's link
-        opens it once a justification was requested: with Request the absence (issues #696, #707)."""
+        opens it once a justification was requested: Request the absence or Request check-in
+        correction, in the Actions dropdown (issues #696, #707, #735); then the correction
+        request it opens. A past day: the correction is only offered once the absence is over."""
         mock_outgoing_email(self)
         Pending = self.env['ems.absence_pending']
-        day = datetime(2027, 4, 12).date()
+        day = datetime(2026, 4, 13).date()
         # As the detection creates it, with the reminder the teacher received.
         absence = Pending.with_context(mail_create_nolog=True).create({
             'employee_id': self.teacher_employee.id, 'origin': 'check_in',
@@ -78,11 +80,20 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         absence.write({'state': 'justification_requested', 'justification_date': day})
         absence._ems_notify(self.teacher_user.partner_id,
                             absence.with_context(lang=self.teacher_user.lang)._ems_reminder_message())
+        toggle = ".o_form_view .o_ems_actions_toggle"
+        correction = ".o_ems_actions_menu button[name='action_request_check_in_correction']"
         self._capture(
             '/odoo/ems.absence_pending/%d' % absence.id,
             '.o_content', 'teachers-detected-absence.png',
-            login='doc_shot_teacher', wait_for=".o_form_view button[name='action_request_absence']",
-            max_height=360,
+            login='doc_shot_teacher', wait_for=toggle, click=toggle, wait_after=correction,
+            # The dropdown closes when Chrome resizes the page to shoot beyond the viewport.
+            max_height=360, beyond_viewport=False,
+        )
+        self._capture(
+            '/odoo/ems.absence_pending/%d' % absence.id,
+            '.modal-content', 'teachers-detected-absence-correction.png',
+            login='doc_shot_teacher', wait_for=toggle, click=[toggle, correction],
+            wait_after=[correction, ".modal .o_field_widget[name='requested_check_in'] input"],
         )
 
     def test_capture_attendance_corrections(self):

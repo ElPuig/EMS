@@ -178,7 +178,9 @@ Qué tienes que hacer:
 - **Si faltaste**, abre el enlace y usa **Solicitar la ausencia** (arriba del formulario). Se abre una solicitud de ausencia nueva con el día y las horas ya puestos (y el tipo, si te la ha preparado tu jefe de estudios): elige el tipo, completa lo que falte y envíala como siempre (consulta [Enviar la solicitud](#enviar-la-solicitud)). Una vez enviada, la ausencia detectada queda vinculada a tu solicitud y se acaban los recordatorios.
 - **Si estabas en el centro y olvidaste fichar** (o fichaste más tarde de cuando llegaste), abre el enlace y usa **Solicitar la corrección del fichaje** (arriba del formulario, una vez terminada la ausencia). Si ese día fichaste, se corrige tu primer fichaje, y puedes elegir otro; si no tienes ninguno, deja el campo **Asistencia** vacío y se registra un fichaje para ese día. Escribe las horas de llegada y de salida (`9:15`, `9.15`, `9,15` y `915` significan las 9:15), explica el motivo y guarda. Mientras tu jefe de estudios decide, se detienen los recordatorios. Si la acepta, se registra tu fichaje y la ausencia detectada queda corregida; si la rechaza, se te vuelve a recordar y puedes solicitar la ausencia.
 
-![Una ausencia detectada tal como la ve el docente, con el botón Solicitar la ausencia](../../assets/teachers/teachers-detected-absence.png)
+![Una ausencia detectada tal como la ve el docente, con las dos opciones en el desplegable Acciones](../../assets/teachers/teachers-detected-absence.png)
+
+![La solicitud de corrección del fichaje abierta desde una ausencia detectada, para un día sin ningún fichaje](../../assets/teachers/teachers-detected-absence-correction.png)
 
 ---
 

@@ -218,6 +218,8 @@ Para resolver varias a la vez, selecciónalas en la lista y elige la acción en 
 
 Solo el jefe de estudios o el jefe de estudios adjunto del docente, la Dirección y los administradores pueden hacer estas acciones. Los jefes de departamento y de seminario pueden introducir y ver las ausencias detectadas de su departamento, pero no revisarlas.
 
+**Hablar con el docente.** Una vez has pedido la justificación o has preparado la ausencia, el docente sigue la ausencia detectada: escríbele con **Enviar mensaje**, en el historial de mensajes de la parte inferior del formulario, y su respuesta vuelve ahí y te llega por correo, a ti y a quien la introdujo. Mientras está **Por revisar** el docente no sabe nada de ella, así que un mensaje tampoco le llegaría.
+
 ![Lista de ausencias detectadas, una por etapa: una por revisar, una con la justificación solicitada, una con el fichaje corregido y una ya solicitada](../../assets/head_of_studies/hos-detected-absences-list.png)
 
 ### Qué pasa después

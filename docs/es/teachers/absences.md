@@ -178,6 +178,8 @@ Qué tienes que hacer:
 - **Si faltaste**, abre el enlace y usa **Solicitar la ausencia** (arriba del formulario). Se abre una solicitud de ausencia nueva con el día y las horas ya puestos (y el tipo, si te la ha preparado tu jefe de estudios): elige el tipo, completa lo que falte y envíala como siempre (consulta [Enviar la solicitud](#enviar-la-solicitud)). Una vez enviada, la ausencia detectada queda vinculada a tu solicitud y se acaban los recordatorios.
 - **Si estabas en el centro y olvidaste fichar**, pide a tu jefe de estudios que registre tu fichaje de ese día. En cuanto lo registra, la ausencia detectada se descarta sola y se acaban los recordatorios.
 
+Para explicar algo o hacer una pregunta, escribe en el historial de mensajes de la parte inferior de la ausencia detectada (**Enviar mensaje**): tu jefe de estudios lo recibe, y sus mensajes te llegan ahí mismo y por correo.
+
 ![Una ausencia detectada tal como la ve el docente, con el botón Solicitar la ausencia](../../assets/teachers/teachers-detected-absence.png)
 
 ---

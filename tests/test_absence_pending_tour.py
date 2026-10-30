@@ -5,7 +5,7 @@ from datetime import timedelta
 from odoo.tests import tagged
 from odoo.tests.common import HttpCase
 
-from .common import create_head_of_studies_branch, create_role_employee, create_role_user
+from .common import create_head_of_studies_branch, create_role_employee, create_role_user, mock_outgoing_email
 
 
 @tagged('post_install', '-at_install')
@@ -14,6 +14,7 @@ class TestAbsencePendingTour(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        mock_outgoing_email(cls)
         cls.teacher_user = create_role_user(cls, 'teacher', 'absence_pending_tour_teacher')
         cls.teacher = teacher = create_role_employee(cls, cls.teacher_user, name='Tour Pending Teacher')
         # The least-privileged role with access: the teacher's own Department Chief (issue #604),
@@ -25,7 +26,7 @@ class TestAbsencePendingTour(HttpCase):
 
     def test_teacher_requests_their_detected_absence_tour(self):
         """Issue #696: the least-privileged reader, the teacher themselves, from the reminder's
-        link (the record's own URL)."""
+        link (the record's own URL). Issue #698: they answer on it from the chatter."""
         Pending = self.env['ems.absence_pending']
         day = Pending.get_local_today() - timedelta(days=1)
         absence = Pending.create({
@@ -34,6 +35,8 @@ class TestAbsencePendingTour(HttpCase):
         })
         # Issue #707: only once their Head of Studies asks them to justify it.
         absence.with_user(self.head_of_studies).action_request_justification()
+        # Issue #698: they answer on it, as any real user, with an email.
+        self.teacher_user.email = 'pending.tour.teacher@example.com'
         self.start_tour(f"/odoo/ems.absence_pending/{absence.id}", "ems_absence_pending_teacher",
                         login=self.teacher_user.login)
 

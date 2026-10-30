@@ -47,6 +47,8 @@ class EmsAbsencePending(models.Model):
     # Activities: a detected absence still not requested goes on its Head of Studies' list (issue #696).
     _inherit = ["mail.thread", "mail.activity.mixin", "ems.datetime_utils", "ems.guard_board_notifier"]
     _guard_board_fields = ("employee_id", "date_from", "date_to", "state")
+    # Issue #698: the teacher only reads their own entries, and answers on them.
+    _mail_post_access = 'read'
     _order = "date_from desc, id desc"
 
     employee_id = fields.Many2one(
@@ -262,7 +264,27 @@ class EmsAbsencePending(models.Model):
         counted from today."""
         self.sudo().write({**values, 'justification_date': self.get_local_today(),
                            'reminder_date': False, 'escalated': False})
+        self._ems_follow_teacher()
         self._ems_post_review_note(note)
+
+    def _ems_follow_teacher(self):
+        """Issue #698: the teacher follows the entries they have been asked to act on, so a
+        message written on one reaches them and their answer reaches its other followers (the
+        reviewers, whoever entered it). Never before: an entry still to review is not theirs to
+        know about (issue #707). One subscription per teacher."""
+        by_partner = defaultdict(self.sudo().browse)
+        for absence in self.sudo():
+            employee = absence.employee_id
+            partner = employee.user_id.partner_id or employee.work_contact_id
+            if partner:
+                by_partner[partner] |= absence
+        for partner, absences in by_partner.items():
+            absences.message_subscribe(partner_ids=partner.ids)
+
+    @api.model
+    def _ems_follow_asked_teachers(self):
+        """Migration of issue #698: the entries whose teacher was asked before it."""
+        self.sudo().with_context(active_test=False).search([('state', 'in', ASKED_STATES)])._ems_follow_teacher()
 
     def action_request_justification(self):
         """The teacher is asked to justify it."""

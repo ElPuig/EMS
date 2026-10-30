@@ -218,6 +218,8 @@ Per resoldre'n diverses alhora, selecciona-les a la llista i tria l'acció al me
 
 Només el cap d'estudis o el cap d'estudis adjunt del docent, la Direcció i els administradors poden fer aquestes accions. Els caps de departament i de seminari poden introduir i veure les absències detectades del seu departament, però no revisar-les.
 
+**Parlar amb el docent.** Un cop has demanat la justificació o has preparat l'absència, el docent segueix l'absència detectada: escriu-li amb **Enviar missatge**, a l'historial de missatges de la part inferior del formulari, i la seva resposta hi torna i t'arriba per correu, a tu i a qui la va introduir. Mentre està **Per revisar** el docent no en sap res, així que un missatge tampoc no li arribaria.
+
 ![Llista d'absències detectades, una per etapa: una per revisar, una amb la justificació sol·licitada, una amb el fitxatge corregit i una ja sol·licitada](../../assets/head_of_studies/hos-detected-absences-list.png)
 
 ### Què passa després

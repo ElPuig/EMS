@@ -220,6 +220,8 @@ To deal with several at once, select them in the list and choose the action from
 
 Only the teacher's own Head of Studies or Deputy, Direction and the administrators can take these actions. Department and Seminar Chiefs can enter and see detected absences of their department, but not review them.
 
+**Talking with the teacher.** Once you have requested a justification or prepared the absence, the teacher follows the detected absence: write to them with **Send message**, in the message history at the bottom of its form, and their answer comes back there and by email, to you and to whoever entered it. While it is **To review** the teacher knows nothing about it, so a message would not reach them either.
+
 ![Detected absences list, one per stage: one to review, one whose justification was requested, one whose check-in was corrected and one already requested](../../assets/head_of_studies/hos-detected-absences-list.png)
 
 ### What happens next

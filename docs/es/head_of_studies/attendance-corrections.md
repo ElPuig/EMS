@@ -60,6 +60,9 @@ Si te han enviado una solicitud (la verás como una actividad pendiente, y tambi
 >
 > *Decidir solo las solicitudes de tu rama se introdujo en la versión 18.0.0.36.0; hasta entonces, cualquier Jefatura de Estudios podía decidir cualquier solicitud.*
 
+
+> **Solicitudes que responden a una ausencia detectada.** Una solicitud de corrección de un día con una ausencia detectada la responde, tanto si el docente la ha pedido desde la propia ausencia como desde el fichaje (el campo **Ausencia detectada** dice cuál). Si ese día no tenía ningún fichaje, es del fichaje en rojo o, si no lo hay, de ninguno: al aceptarla se registran las horas solicitadas y la ausencia detectada queda como **Fichaje corregido** (solo las horas que cubre; el resto se sigue reclamando). Mientras decides, el docente no recibe recordatorios. Si la rechazas, ahora o después de haberla aceptado (el fichaje vuelve a estar como estaba), la ausencia detectada vuelve a tu revisión. Si el docente solicita la ausencia de ese día, la solicitud se rechaza automáticamente y desaparece de tus tareas.
+
 ---
 
 [← Volver a los manuales de Jefatura de Estudios](index.md)

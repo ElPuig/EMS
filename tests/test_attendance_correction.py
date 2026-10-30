@@ -521,3 +521,38 @@ class TestAttendanceCorrection(TransactionCase):
         action = self.attendance.action_view_corrections()
         self.assertEqual(action['domain'], [('attendance_id', '=', self.attendance.id)])
         self.assertIn(correction.id, self.env['ems.attendance_correction'].search(action['domain']).ids)
+
+    def _red_attendance(self):
+        """The technical attendance Odoo's absence detection leaves on a day without check-in
+        (shown in red): a Monday's midnight, in the company's timezone, lasting one second."""
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Test Schedule (Attendance Correction)',
+            'attendance_ids': [(0, 0, {'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 8.0, 'hour_to': 15.0})],
+        })
+        self.teacher_employee.resource_calendar_id = calendar.id
+        midnight = self.env['ems.datetime_utils'].datetime_to_odoo(
+            self.env['ems.datetime_utils'].time_float_to_utc_datetime(datetime(2026, 1, 12).date(), 0.0))
+        return self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id, 'check_in': midnight,
+            'check_out': midnight + timedelta(seconds=1), 'in_mode': 'technical', 'out_mode': 'technical',
+        })
+
+    def test_red_attendance_defaults_to_the_schedule(self):
+        """Issue #735: its midnight times mean nothing; the day's schedule is proposed instead."""
+        red = self._red_attendance()
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=red.id).with_user(self.teacher_user).new({})
+        self.assertEqual((correction.requested_check_in, correction.requested_check_out), (8.0, 15.0))
+
+    def test_red_attendance_is_red_again_when_its_accepted_request_is_rejected(self):
+        """Issue #735: accepting turns the technical attendance into a real one (Odoo does so
+        whenever its times are written); rejecting it afterwards puts it back as it was."""
+        red = self._red_attendance()
+        midnight = red.check_in
+        correction = self._create_correction(self.teacher_user, attendance_id=red.id,
+                                             requested_check_in=8.0, requested_check_out=15.0)
+        self.assertTrue(correction.original_technical)
+        correction.with_user(self.hos_user).action_accept()
+        self.assertEqual(red.in_mode, 'manual')
+        correction.with_user(self.hos_user).action_reject()
+        self.assertEqual((red.check_in, red.in_mode, red.out_mode), (midnight, 'technical', 'technical'))

@@ -3722,6 +3722,7 @@ msgstr "Emergencia"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 msgid "Employee"
 msgstr "Empleado"
 
@@ -19538,6 +19539,7 @@ msgstr "Ausencia solicitada"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__absence_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__absence_pending_id
 msgid "Detected absence"
 msgstr "Ausencia detectada"
 
@@ -26481,13 +26483,13 @@ msgstr "%(start)s a %(stop)s"
 msgid ""
 "No check-in of yours was recorded on %(when)s, and no absence is requested "
 "for it. If you were absent, please request the absence from this page. If "
-"you were at the centre and forgot to check in, ask your Head of Studies to "
-"record your check-in."
+"you were at the centre and forgot to check in, request a check-in correction "
+"from this page."
 msgstr ""
 "No consta ningún fichaje tuyo el %(when)s, y no hay ninguna ausencia "
 "solicitada. Si faltaste, solicita la ausencia desde esta página. Si estabas "
-"en el centro y olvidaste fichar, pide a tu jefe de estudios que registre el "
-"fichaje."
+"en el centro y olvidaste fichar, solicita la corrección del fichaje desde "
+"esta página."
 
 #. module: ems
 #. odoo-python
@@ -26884,8 +26886,8 @@ msgstr "Fichaje corregido"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__state
-msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence. Absence prepared: the same, with the absence type already chosen for them. Check-in corrected: the teacher was at the centre. Requested: linked for good to an absence request, whatever becomes of it. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all."
-msgstr "Por revisar: el jefe de estudios decide qué hacer con ella; no se avisa al docente. Justificación solicitada: se recuerda al docente que solicite la ausencia. Ausencia preparada: lo mismo, con el tipo de ausencia ya elegido. Fichaje corregido: el docente estaba en el centro. Solicitada: vinculada para siempre a una solicitud de ausencia, pase lo que pase con ella. Descartada: por quien la revisa, o porque al final ha aparecido el fichaje del docente de ese día."
+msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence or a check-in correction. Absence prepared: the same, with the absence type already chosen for them. Correction requested: the teacher's check-in correction waits for a decision. Check-in corrected: the teacher was at the centre. Requested: the teacher's absence request is being dealt with. Justified: it was approved. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all. A refused absence request or a rejected correction sends it back to review."
+msgstr "Por revisar: el jefe de estudios decide qué hacer con ella; no se avisa al docente. Justificación solicitada: se recuerda al docente que solicite la ausencia o la corrección del fichaje. Ausencia preparada: lo mismo, con el tipo de ausencia ya elegido. Corrección solicitada: la corrección del fichaje del docente espera una decisión. Fichaje corregido: el docente estaba en el centro. Solicitada: la solicitud de ausencia del docente se está tramitando. Justificada: se ha aprobado. Descartada: por quien la revisa, o porque al final ha aparecido el fichaje del docente de ese día. Una solicitud de ausencia rechazada o una corrección rechazada la devuelven a la revisión."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__active
@@ -27585,3 +27587,170 @@ msgstr "%(student)s ya no cursa estos módulos, convalidados por la solicitud %(
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "Convalidated subjects: %s"
 msgstr "Módulos convalidados: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Check-in correction requested by %(employee)s."
+msgstr "Corrección del fichaje solicitada por %(employee)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "The requested times must be times of the day, between 00:00 and 24:00."
+msgstr "Las horas solicitadas deben ser horas del día, entre las 00:00 y las 24:00."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "A correction request must be about an attendance or a detected absence."
+msgstr "Una solicitud de corrección debe ser de un fichaje o de una ausencia detectada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "For a day without check-in, give both the check-in and a later check-out time."
+msgstr "Para un día sin fichaje, indica la hora de entrada y una hora de salida posterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Check-in corrected: %(user)s accepted the teacher's correction request."
+msgstr "Fichaje corregido: %(user)s ha aceptado la solicitud de corrección del docente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "A check-in correction can only be requested by the teacher, for a detected absence they were asked to justify, once it is over and while no other one is pending."
+msgstr "Solo el docente puede solicitar una corrección del fichaje, de una ausencia detectada que se le ha pedido justificar, una vez terminada y mientras no haya otra pendiente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Request check-in correction"
+msgstr "Solicitar la corrección del fichaje"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_request_correction
+msgid "Can request a check-in correction"
+msgstr "Puede solicitar la corrección del fichaje"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__correction_ids
+msgid "Check-in correction requests"
+msgstr "Solicitudes de corrección del fichaje"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_pending_mine
+#: model:ir.ui.menu,name:ems.menu_absence_pending_mine
+msgid "Absences to regularize"
+msgstr "Ausencias por regularizar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "To regularize"
+msgstr "Por regularizar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid "No absence to regularize"
+msgstr "No tienes ninguna ausencia por regularizar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid ""
+"When your Head of Studies asks you to justify a day you did not check in, or\n"
+"                    an absence they were told about, it shows here: request the absence, or a\n"
+"                    check-in correction if you were at the centre."
+msgstr "Cuando tu jefe de estudios te pide que justifiques un día que no fichaste, o una ausencia que le comunicaron, aparece aquí: solicita la ausencia o, si estabas en el centro, la corrección del fichaje."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__original_technical
+msgid "Day without check-in"
+msgstr "Día sin fichaje"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have to regularize this absence. If you were absent, use <b>Actions → Request the absence</b>."
+msgstr "Tienes que regularizar esta ausencia. Si faltaste, usa <b>Acciones → Solicitar la ausencia</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "If you were at the centre and did not check in, use <b>Actions → Request check-in correction</b>."
+msgstr "Si estabas en el centro y no fichaste, usa <b>Acciones → Solicitar la corrección del fichaje</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Your Head of Studies has prepared the absence request for you: open it with <b>Actions → Request the absence</b>, check it, accept the responsible declaration and send it."
+msgstr "Tu jefe de estudios te ha preparado la solicitud de ausencia: ábrela con <b>Acciones → Solicitar la ausencia</b>, revísala, acepta la declaración responsable y envíala."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have requested a check-in correction. Your Head of Studies has to review it: if they accept it, this absence will be regularized; if they reject it, you will have to regularize it another way."
+msgstr "Has solicitado la corrección del fichaje. Tu jefe de estudios tiene que revisarla: si la acepta, esta ausencia quedará regularizada; si la rechaza, tendrás que regularizarla de otra manera."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Only the teacher can request this absence, once asked to justify it and while no check-in correction of theirs is waiting for a decision."
+msgstr "Solo el docente puede solicitar esta ausencia, una vez se le ha pedido que la justifique y mientras no tenga ninguna corrección del fichaje pendiente de decidir."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__status_path
+msgid "Status steps"
+msgstr "Pasos del estado"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Rejected on its own: the teacher requested the absence instead."
+msgstr "Rechazada automáticamente: el docente ha solicitado la ausencia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request %(leave)s no longer covers it."
+msgstr "Reabierta: la solicitud de ausencia %(leave)s ya no la cubre."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was deleted."
+msgstr "Reabierta: se ha eliminado la solicitud de ausencia que la resolvía."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was refused, cancelled or deleted."
+msgstr "Reabierta: la solicitud de ausencia que la resolvía se ha rechazado, cancelado o eliminado."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Reopened: %(user)s rejected the teacher's check-in correction request."
+msgstr "Reabierta: %(user)s ha rechazado la solicitud de corrección del fichaje del docente."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "the absence request %(leave)s covers part of it."
+msgstr "la solicitud de ausencia %(leave)s cubre una parte."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "its check-in was corrected for part of it."
+msgstr "se ha corregido el fichaje de una parte."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__correction_requested
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Correction requested"
+msgstr "Corrección solicitada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Justified"
+msgstr "Justificada"

@@ -3722,6 +3722,7 @@ msgstr "Emergència"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_document_return_wizard__employee_id
 #: model_terms:ir.ui.view,arch_db:ems.view_hr_attendance_filter_inherit_ems
 #: model:ir.model.fields,field_description:ems.field_ems_absence_change_notice_wizard__employee_id
+#: model_terms:ir.ui.view,arch_db:ems.view_attendance_correction_form
 msgid "Employee"
 msgstr "Empleat"
 
@@ -19537,6 +19538,7 @@ msgstr "Absència sol·licitada"
 #. module: ems
 #: model:ir.model,name:ems.model_ems_absence_pending
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_check_in_wizard__absence_id
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__absence_pending_id
 msgid "Detected absence"
 msgstr "Absència detectada"
 
@@ -26480,13 +26482,13 @@ msgstr "%(start)s a %(stop)s"
 msgid ""
 "No check-in of yours was recorded on %(when)s, and no absence is requested "
 "for it. If you were absent, please request the absence from this page. If "
-"you were at the centre and forgot to check in, ask your Head of Studies to "
-"record your check-in."
+"you were at the centre and forgot to check in, request a check-in correction "
+"from this page."
 msgstr ""
 "No consta cap fitxatge teu el %(when)s, i no hi ha cap absència "
 "sol·licitada. Si vas faltar, sol·licita l'absència des d'aquesta pàgina. Si "
-"eres al centre i et vas oblidar de fitxar, demana al teu cap d'estudis que "
-"registri el fitxatge."
+"eres al centre i et vas oblidar de fitxar, sol·licita la correcció del "
+"fitxatge des d'aquesta pàgina."
 
 #. module: ems
 #. odoo-python
@@ -26884,8 +26886,8 @@ msgstr "Fitxatge corregit"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__state
-msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence. Absence prepared: the same, with the absence type already chosen for them. Check-in corrected: the teacher was at the centre. Requested: linked for good to an absence request, whatever becomes of it. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all."
-msgstr "Per revisar: el cap d'estudis decideix què en fa; no s'avisa el docent. Justificació sol·licitada: es recorda al docent que sol·liciti l'absència. Absència preparada: el mateix, amb el tipus d'absència ja triat. Fitxatge corregit: el docent era al centre. Sol·licitada: vinculada per sempre a una sol·licitud d'absència, en passi el que en passi. Descartada: per qui la revisa, o perquè al final ha aparegut el fitxatge del docent d'aquell dia."
+msgid "To review: the Head of Studies decides what to do with it; the teacher is not told. Justification requested: the teacher is reminded to request the absence or a check-in correction. Absence prepared: the same, with the absence type already chosen for them. Correction requested: the teacher's check-in correction waits for a decision. Check-in corrected: the teacher was at the centre. Requested: the teacher's absence request is being dealt with. Justified: it was approved. Discarded: by the reviewer, or because the teacher's check-in of that day showed up after all. A refused absence request or a rejected correction sends it back to review."
+msgstr "Per revisar: el cap d'estudis decideix què en fa; no s'avisa el docent. Justificació sol·licitada: es recorda al docent que sol·liciti l'absència o la correcció del fitxatge. Absència preparada: el mateix, amb el tipus d'absència ja triat. Correcció sol·licitada: la correcció del fitxatge del docent espera una decisió. Fitxatge corregit: el docent era al centre. Sol·licitada: la sol·licitud d'absència del docent s'està tramitant. Justificada: s'ha aprovat. Descartada: per qui la revisa, o perquè al final ha aparegut el fitxatge del docent d'aquell dia. Una sol·licitud d'absència rebutjada o una correcció rebutjada la tornen a la revisió."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_absence_pending__active
@@ -27585,3 +27587,170 @@ msgstr "%(student)s ja no cursa aquests mòduls, convalidats per la sol·licitud
 #: code:addons/ems/models/grades/convalidation.py:0
 msgid "Convalidated subjects: %s"
 msgstr "Mòduls convalidats: %s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Check-in correction requested by %(employee)s."
+msgstr "Correcció del fitxatge sol·licitada per %(employee)s."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "The requested times must be times of the day, between 00:00 and 24:00."
+msgstr "Les hores sol·licitades han de ser hores del dia, entre les 00:00 i les 24:00."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "A correction request must be about an attendance or a detected absence."
+msgstr "Una sol·licitud de correcció ha de ser d'un fitxatge o d'una absència detectada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "For a day without check-in, give both the check-in and a later check-out time."
+msgstr "Per a un dia sense fitxatge, indica l'hora d'entrada i una hora de sortida posterior."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Check-in corrected: %(user)s accepted the teacher's correction request."
+msgstr "Fitxatge corregit: %(user)s ha acceptat la sol·licitud de correcció del docent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "A check-in correction can only be requested by the teacher, for a detected absence they were asked to justify, once it is over and while no other one is pending."
+msgstr "Només el docent pot sol·licitar una correcció del fitxatge, d'una absència detectada que se li ha demanat justificar, un cop acabada i mentre no n'hi hagi cap altra de pendent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Request check-in correction"
+msgstr "Sol·licita la correcció del fitxatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__can_request_correction
+msgid "Can request a check-in correction"
+msgstr "Pot sol·licitar la correcció del fitxatge"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__correction_ids
+msgid "Check-in correction requests"
+msgstr "Sol·licituds de correcció del fitxatge"
+
+#. module: ems
+#: model:ir.actions.act_window,name:ems.action_absence_pending_mine
+#: model:ir.ui.menu,name:ems.menu_absence_pending_mine
+msgid "Absences to regularize"
+msgstr "Absències per regularitzar"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "To regularize"
+msgstr "Per regularitzar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid "No absence to regularize"
+msgstr "No tens cap absència per regularitzar"
+
+#. module: ems
+#: model_terms:ir.actions.act_window,help:ems.action_absence_pending_mine
+msgid ""
+"When your Head of Studies asks you to justify a day you did not check in, or\n"
+"                    an absence they were told about, it shows here: request the absence, or a\n"
+"                    check-in correction if you were at the centre."
+msgstr "Quan el teu cap d'estudis et demana que justifiquis un dia que no vas fitxar, o una absència que li van comunicar, surt aquí: sol·licita l'absència o, si eres al centre, la correcció del fitxatge."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_correction__original_technical
+msgid "Day without check-in"
+msgstr "Dia sense fitxatge"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have to regularize this absence. If you were absent, use <b>Actions → Request the absence</b>."
+msgstr "Has de regularitzar aquesta absència. Si vas faltar, fes servir <b>Accions → Sol·licita l'absència</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "If you were at the centre and did not check in, use <b>Actions → Request check-in correction</b>."
+msgstr "Si eres al centre i no vas fitxar, fes servir <b>Accions → Sol·licita la correcció del fitxatge</b>."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "Your Head of Studies has prepared the absence request for you: open it with <b>Actions → Request the absence</b>, check it, accept the responsible declaration and send it."
+msgstr "El teu cap d'estudis t'ha preparat la sol·licitud d'absència: obre-la amb <b>Accions → Sol·licita l'absència</b>, revisa-la, accepta la declaració responsable i envia-la."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_form
+msgid "You have requested a check-in correction. Your Head of Studies has to review it: if they accept it, this absence will be regularized; if they reject it, you will have to regularize it another way."
+msgstr "Has sol·licitat la correcció del fitxatge. El teu cap d'estudis l'ha de revisar: si l'accepta, aquesta absència quedarà regularitzada; si la rebutja, l'hauràs de regularitzar d'una altra manera."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Only the teacher can request this absence, once asked to justify it and while no check-in correction of theirs is waiting for a decision."
+msgstr "Només el docent pot sol·licitar aquesta absència, un cop se li ha demanat que la justifiqui i mentre no tingui cap correcció del fitxatge pendent de decidir."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__status_path
+msgid "Status steps"
+msgstr "Passos de l'estat"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Rejected on its own: the teacher requested the absence instead."
+msgstr "Rebutjada automàticament: el docent ha sol·licitat l'absència."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request %(leave)s no longer covers it."
+msgstr "Reoberta: la sol·licitud d'absència %(leave)s ja no la cobreix."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was deleted."
+msgstr "Reoberta: s'ha eliminat la sol·licitud d'absència que la resolia."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "Reopened: the absence request that resolved it was refused, cancelled or deleted."
+msgstr "Reoberta: la sol·licitud d'absència que la resolia s'ha rebutjat, cancel·lat o eliminat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_correction.py:0
+msgid "Reopened: %(user)s rejected the teacher's check-in correction request."
+msgstr "Reoberta: %(user)s ha rebutjat la sol·licitud de correcció del fitxatge del docent."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "the absence request %(leave)s covers part of it."
+msgstr "la sol·licitud d'absència %(leave)s en cobreix una part."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/employees/absence_pending.py:0
+msgid "its check-in was corrected for part of it."
+msgstr "se n'ha corregit el fitxatge d'una part."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__correction_requested
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Correction requested"
+msgstr "Correcció sol·licitada"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_absence_pending__state__justified
+#: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
+msgid "Justified"
+msgstr "Justificada"

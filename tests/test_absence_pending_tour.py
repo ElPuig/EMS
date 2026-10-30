@@ -39,6 +39,62 @@ class TestAbsencePendingTour(HttpCase):
         self.teacher_user.email = 'pending.tour.teacher@example.com'
         self.start_tour(f"/odoo/ems.absence_pending/{absence.id}", "ems_absence_pending_teacher",
                         login=self.teacher_user.login)
+        # Issue #735: no attendance that day, none picked; the times typed with a comma and
+        # without a separator.
+        self.assertFalse(absence.correction_ids.attendance_id)
+        self.assertEqual(absence.correction_ids.mapped(lambda correction: (
+            correction.requested_check_in, round(correction.requested_check_out, 4))), [(9.25, round(11 + 4 / 60, 4))])
+
+    def test_teacher_finds_their_absences_to_regularize_tour(self):
+        """Issue #735: from the Absences menu, the teacher's own entries still asked by default."""
+        Pending = self.env['ems.absence_pending']
+        day = Pending.get_local_today() - timedelta(days=1)
+        asked, resolved = Pending.create([{
+            'employee_id': self.teacher.id, 'origin': 'check_in',
+            'date_from': Pending._utc_bounds(day, 0.0, start)[1], 'date_to': Pending._utc_bounds(day, 0.0, stop)[1],
+        } for start, stop in ((9.0, 10.0), (11.0, 12.0))])
+        (asked | resolved).with_user(self.head_of_studies).action_request_justification()
+        resolved.sudo().state = 'corrected'
+        self.start_tour("/odoo/action-hr_holidays.hr_leave_action_my", "ems_absence_pending_teacher_menu",
+                        login=self.teacher_user.login)
+
+    def test_teacher_sees_a_corrected_absence_tour(self):
+        """Issue #735: a final state other than Requested is shown alone."""
+        Pending = self.env['ems.absence_pending']
+        day = Pending.get_local_today() - timedelta(days=1)
+        absence = Pending.create({
+            'employee_id': self.teacher.id, 'origin': 'check_in',
+            'date_from': Pending._utc_bounds(day, 0.0, 9.0)[1], 'date_to': Pending._utc_bounds(day, 0.0, 10.0)[1],
+        })
+        absence.with_user(self.head_of_studies).action_request_justification()
+        absence.sudo().state = 'corrected'
+        self.start_tour(f"/odoo/ems.absence_pending/{absence.id}", "ems_absence_pending_corrected",
+                        login=self.teacher_user.login)
+
+    def test_refused_request_reopens_the_detected_absence_tour(self):
+        """Issue #735: the absence prepared for the teacher, sent by them, then refused by their
+        Head of Studies: the detected absence is back to the review."""
+        # Refusing posts the reason to the teacher as them: like any real user, they have an email.
+        self.head_of_studies.email = 'refuse.hos@example.com'
+        Pending = self.env['ems.absence_pending']
+        day = Pending.get_local_today() - timedelta(days=1)
+        absence = Pending.create({
+            'employee_id': self.teacher.id, 'origin': 'check_in',
+            'date_from': Pending._utc_bounds(day, 0.0, 9.0)[1], 'date_to': Pending._utc_bounds(day, 0.0, 11.0)[1],
+        })
+        absence.with_user(self.head_of_studies)._ems_prepare_absences(self.env.ref('ems.leave_type_justified'))
+        context = absence.with_user(self.teacher_user).action_request_absence()['context']
+        leave = self.env['hr.leave'].with_user(self.teacher_user).create({
+            **{key.removeprefix('default_'): value for key, value in context.items()},
+            'ems_submitted': True, 'ems_responsible_declaration': True,
+        })
+        self.assertEqual(absence.state, 'linked')
+
+        self.start_tour(f"/odoo/hr.leave/{leave.id}", "ems_absence_pending_refuse_request",
+                        login=self.head_of_studies.login)
+        self.assertEqual(absence.state, 'pending')
+        self.start_tour("/odoo/action-ems.action_absence_pending", "ems_absence_pending_reopened",
+                        login=self.head_of_studies.login)
 
     def test_head_of_studies_reviews_detected_absences_tour(self):
         """Issue #707: the reviewer, the teacher's Head of Studies (the least-privileged role that

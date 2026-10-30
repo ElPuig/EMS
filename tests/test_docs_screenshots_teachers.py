@@ -65,10 +65,12 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
 
     def test_capture_detected_absence(self):
         """The teacher's own detected absence, from a missing check-in, as the reminder's link
-        opens it once a justification was requested: with Request the absence (issues #696, #707)."""
+        opens it once a justification was requested: the notice with what to do, Request the
+        absence or Request check-in correction from the Actions dropdown (issues #696, #707,
+        #735); then the correction request it opens, and the menu that lists them. A past day: the correction is only offered once the absence is over."""
         mock_outgoing_email(self)
         Pending = self.env['ems.absence_pending']
-        day = datetime(2027, 4, 12).date()
+        day = datetime(2026, 4, 13).date()
         # As the detection creates it, with the reminder the teacher received.
         absence = Pending.with_context(mail_create_nolog=True).create({
             'employee_id': self.teacher_employee.id, 'origin': 'check_in',
@@ -78,11 +80,29 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         absence.write({'state': 'justification_requested', 'justification_date': day})
         absence._ems_notify(self.teacher_user.partner_id,
                             absence.with_context(lang=self.teacher_user.lang)._ems_reminder_message())
+        toggle = ".o_form_view .o_ems_actions_toggle"
+        correction = ".o_ems_actions_menu button[name='action_request_check_in_correction']"
         self._capture(
             '/odoo/ems.absence_pending/%d' % absence.id,
             '.o_content', 'teachers-detected-absence.png',
-            login='doc_shot_teacher', wait_for=".o_form_view button[name='action_request_absence']",
-            max_height=360,
+            # The notice telling the teacher what to do; the dropdown would cover it.
+            login='doc_shot_teacher', wait_for=".o_form_view .alert-info p:nth-of-type(2)", max_height=360,
+        )
+        # Issue #735: Absences to regularize, from the Absences menu.
+        absences_menu = ".o_menu_sections button[data-menu-xmlid='hr_holidays.menu_hr_holidays_root']"
+        mine = ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_absence_pending_mine']"
+        self._capture(
+            '/odoo/action-hr_holidays.hr_leave_action_my', '#ems-clip', 'teachers-absences-to-regularize-menu.png',
+            login='doc_shot_teacher', wait_for=absences_menu,
+            run=["document.querySelector(%s).click()" % json.dumps(absences_menu),
+                 self._union_clip_js([absences_menu, '.o-dropdown--menu'])],
+            wait_after=[mine, '#ems-clip'], beyond_viewport=False, padding=12,
+        )
+        self._capture(
+            '/odoo/ems.absence_pending/%d' % absence.id,
+            '.modal-content', 'teachers-detected-absence-correction.png',
+            login='doc_shot_teacher', wait_for=toggle, click=[toggle, correction],
+            wait_after=[correction, ".modal .o_field_widget[name='requested_check_in'] input"],
         )
 
     def test_capture_attendance_corrections(self):

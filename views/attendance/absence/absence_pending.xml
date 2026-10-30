@@ -15,8 +15,8 @@
                     <field name="leave_id" optional="show"/>
                     <field name="state" widget="badge"
                            decoration-warning="state == 'pending'"
-                           decoration-info="state in ('justification_requested', 'absence_prepared')"
-                           decoration-success="state in ('linked', 'corrected')"
+                           decoration-info="state in ('justification_requested', 'absence_prepared', 'correction_requested', 'linked')"
+                           decoration-success="state in ('justified', 'corrected')"
                            decoration-muted="state == 'discarded'"/>
                 </list>
             </field>
@@ -43,32 +43,48 @@
                                     confirm="Discard this detected absence? Nobody is told and it is archived."/>
                             <button name="action_request_absence" type="object" string="Request the absence"
                                     invisible="not can_request"/>
+                            <!-- Issue #735: or the teacher was at the centre. -->
+                            <button name="action_request_check_in_correction" type="object" string="Request check-in correction"
+                                    invisible="not can_request_correction"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,justification_requested,linked"
-                               invisible="is_own"/>
-                        <!-- The teacher never sees an entry still to review: no such step for them. -->
-                        <field name="state" widget="statusbar" statusbar_visible="justification_requested,linked"
-                               invisible="not is_own"/>
+                        <!-- Issue #735: the steps this entry went through, ending in its state, and the
+                             ones still ahead (status_path). The teacher never sees the review step. -->
+                        <field name="state" widget="ems_statusbar_path" options="{'path_field': 'status_path'}"/>
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
                         <field name="active" invisible="1"/>
+                        <!-- Issue #735: what the teacher is expected to do, while they have something to do. -->
+                        <div class="alert alert-info" role="status"
+                             invisible="not can_request or state != 'justification_requested'">
+                            <p class="mb-0">You have to regularize this absence. If you were absent, use <b>Actions → Request the absence</b>.</p>
+                            <p class="mb-0" invisible="not can_request_correction">If you were at the centre and did not check in, use <b>Actions → Request check-in correction</b>.</p>
+                        </div>
+                        <div class="alert alert-info" role="status"
+                             invisible="not can_request or state != 'absence_prepared'">
+                            <p class="mb-0">Your Head of Studies has prepared the absence request for you: open it with <b>Actions → Request the absence</b>, check it, accept the responsible declaration and send it.</p>
+                            <p class="mb-0" invisible="not can_request_correction">If you were at the centre and did not check in, use <b>Actions → Request check-in correction</b>.</p>
+                        </div>
+                        <div class="alert alert-info" role="status" invisible="not is_own or state != 'correction_requested'">
+                            You have requested a check-in correction. Your Head of Studies has to review it: if they accept it, this absence will be regularized; if they reject it, you will have to regularize it another way.
+                        </div>
                         <group>
                             <group>
-                                <field name="employee_id" readonly="state not in ('pending', 'justification_requested', 'absence_prepared')"
+                                <field name="employee_id" readonly="is_own or state not in ('pending', 'justification_requested', 'absence_prepared')"
                                        options="{'no_create': True, 'no_open': True}"/>
                                 <field name="origin"/>
                                 <field name="leave_id" invisible="not leave_id"/>
                                 <field name="leave_type_id" invisible="not leave_type_id" options="{'no_open': True}"/>
                                 <field name="justification_date" invisible="not justification_date"/>
                                 <field name="can_request" invisible="1"/>
+                                <field name="can_request_correction" invisible="1"/>
                                 <field name="can_review" invisible="1"/>
                                 <field name="is_own" invisible="1"/>
                                 <field name="can_correct_check_in" invisible="1"/>
                             </group>
                             <group>
-                                <field name="date_from" readonly="state not in ('pending', 'justification_requested', 'absence_prepared')"/>
-                                <field name="date_to" readonly="state not in ('pending', 'justification_requested', 'absence_prepared')"/>
+                                <field name="date_from" readonly="is_own or state not in ('pending', 'justification_requested', 'absence_prepared')"/>
+                                <field name="date_to" readonly="is_own or state not in ('pending', 'justification_requested', 'absence_prepared')"/>
                             </group>
                         </group>
                         <field name="note" placeholder="Why the teacher will be absent, for your own reference"/>
@@ -84,12 +100,17 @@
             <field name="arch" type="xml">
                 <search string="Detected absences">
                     <field name="employee_id"/>
+                    <filter name="to_regularize" string="To regularize"
+                            domain="[('state', 'in', ('justification_requested', 'absence_prepared', 'correction_requested'))]"/>
+                    <separator/>
                     <filter name="pending" string="To review" domain="[('state', '=', 'pending')]"/>
                     <filter name="justification_requested" string="Justification requested"
                             domain="[('state', '=', 'justification_requested')]"/>
                     <filter name="absence_prepared" string="Absence prepared" domain="[('state', '=', 'absence_prepared')]"/>
+                    <filter name="correction_requested" string="Correction requested" domain="[('state', '=', 'correction_requested')]"/>
                     <filter name="corrected" string="Check-in corrected" domain="[('state', '=', 'corrected')]"/>
                     <filter name="linked" string="Requested" domain="[('state', '=', 'linked')]"/>
+                    <filter name="justified" string="Justified" domain="[('state', '=', 'justified')]"/>
                     <filter name="discarded" string="Discarded" domain="[('state', '=', 'discarded')]"/>
                     <separator/>
                     <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
@@ -110,7 +131,7 @@
             <field name="name">Detected absences</field>
             <field name="res_model">ems.absence_pending</field>
             <field name="view_mode">list,form</field>
-            <field name="context">{'search_default_pending': 1, 'search_default_justification_requested': 1, 'search_default_absence_prepared': 1}</field>
+            <field name="context">{'search_default_pending': 1, 'search_default_justification_requested': 1, 'search_default_absence_prepared': 1, 'search_default_correction_requested': 1}</field>
             <field name="help" type="html">
                 <p class="o_view_nocontent_smiling_face">
                     Announce an absence a teacher has not requested yet
@@ -123,6 +144,34 @@
                 </p>
             </field>
         </record>
+
+        <!-- Issue #735: the teacher's own detected absences still to regularize (request the
+             absence, or a check-in correction), without waiting for the reminder's link. Only their
+             own, also for a chief or a Head of Studies, who reach everybody else's through
+             menu_absence_pending. Removing the filter shows the ones already resolved. -->
+        <record id="action_absence_pending_mine" model="ir.actions.act_window">
+            <field name="name">Absences to regularize</field>
+            <field name="res_model">ems.absence_pending</field>
+            <field name="view_mode">list,form</field>
+            <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+            <!-- No New: only the user's own entries are listed, and nobody enters one for themselves. -->
+            <field name="context">{'search_default_to_regularize': 1, 'create': False}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    No absence to regularize
+                </p>
+                <p>
+                    When your Head of Studies asks you to justify a day you did not check in, or
+                    an absence they were told about, it shows here: request the absence, or a
+                    check-in correction if you were at the centre.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_absence_pending_mine" name="Absences to regularize" sequence="2"
+                  parent="hr_holidays.menu_hr_holidays_root"
+                  action="action_absence_pending_mine"
+                  groups="ems.group_teacher"/>
 
         <!-- Issue #707: the reviewer's actions on several entries at once. List only: the form
              has them in its Actions dropdown. -->
@@ -191,8 +240,10 @@
                     </p>
                     <group>
                         <field name="absence_id" invisible="1"/>
-                        <field name="date_from"/>
-                        <field name="date_to"/>
+                        <!-- Any minute, as the entry's own hours may be (issue #735): the picker
+                             offers multiples of five by default. -->
+                        <field name="date_from" options="{'rounding': 1, 'show_seconds': false}"/>
+                        <field name="date_to" options="{'rounding': 1, 'show_seconds': false}"/>
                     </group>
                     <footer>
                         <button name="action_confirm" type="object" string="Correct check-in" class="btn-primary"/>

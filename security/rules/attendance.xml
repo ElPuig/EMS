@@ -447,6 +447,25 @@
         <field name="model_id" ref="ems.model_ems_absence_pending"/>
         <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
         <field name="domain_force">['|', '|', '|', '|', ('employee_id.managing_department_ids', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.parent_group_ids.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.employee_type', '=', 'teacher'), '|', ('employee_id.user_id', '!=', user.id), ('state', '!=', 'pending')]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <!-- Issue #735: the same reach to change entries, but never the user's own. A chief or a Head
+         of Studies is also a teacher: their own detected absence they read and regularize like any
+         teacher (rule_absence_pending_own), they do not edit it. Group rules are OR-ed for each
+         operation, so reading is the rule above's and changing this one's. -->
+    <record id="rule_absence_pending_hierarchy_manage" model="ir.rule">
+        <field name="name">Detected absence: teachers in the user's own hierarchy, not their own (change)</field>
+        <field name="model_id" ref="ems.model_ems_absence_pending"/>
+        <field name="groups" eval="[(6, 0, [ref('ems.group_department_chief')])]"/>
+        <field name="domain_force">[('employee_id.user_id', '!=', user.id)] + ['|', '|', '|', '|', ('employee_id.managing_department_ids', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id', 'child_of', user.employee_ids.ids), ('employee_id.department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.teaching_ids.group_id.parent_group_ids.study_id.managing_department_id', 'child_of', user.employee_ids.headed_department_ids.ids + user.employee_ids.seminar_department_ids.ids), ('employee_id.employee_type', '=', 'teacher'), '|', ('employee_id.user_id', '!=', user.id), ('state', '!=', 'pending')]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
     </record>
 
     <!-- A technical or academic administrator usually has no place in the org chart, so the
@@ -470,5 +489,11 @@
         <field name="model_id" ref="ems.model_ems_absence_pending"/>
         <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
         <field name="domain_force">[('employee_id.user_id', '=', user.id), ('state', '!=', 'pending')]</field>
+        <!-- Read only (issue #735): a chief's or a Head of Studies' write access must not reach
+             their own entries through this rule, OR-ed with the hierarchy ones. -->
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
     </record>
 </odoo>

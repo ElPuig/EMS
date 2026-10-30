@@ -7,8 +7,9 @@
                 <form string="Attendance correction">
                     <header>
                         <button string="Accept" name="action_accept" type="object" class="btn-primary" invisible="not is_approver or state == 'accepted'"/>
-                        <button string="Reject" name="action_reject" type="object" class="btn-secondary" invisible="not is_approver or state == 'rejected'"/>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,rejected"/>
+                        <button string="Reject" name="action_reject" type="object" class="btn-secondary" invisible="not is_approver or state == 'rejected' or (state == 'accepted' and not original_check_in)"/>
+                        <!-- Issue #735: not while the request is being written: it has no state yet. -->
+                        <field name="state" widget="statusbar" statusbar_visible="pending,accepted,rejected" invisible="not id"/>
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
@@ -17,19 +18,26 @@
                         <group>
                             <group string="Employee">
                                 <field name="employee_id" widget="many2one_avatar_employee" readonly="1"/>
-                                <field name="attendance_id" readonly="1"/>
+                                <field name="absence_pending_id" invisible="not absence_pending_id" options="{'no_open': True}"/>
+                                <!-- Issue #735: from a detected absence it is chosen on its own
+                                     (ems.absence_pending._ems_attendance_to_correct), never by the
+                                     teacher, and may be none until the request is accepted. -->
+                                <field name="attendance_id" readonly="1" invisible="absence_pending_id and (not id or not attendance_id)"/>
                             </group>
                             <group string="Requested correction">
-                                <field name="original_check_in" readonly="1"/>
-                                <field name="requested_check_in" widget="float_time"/>
-                                <field name="original_check_out" readonly="1"/>
-                                <field name="requested_check_out" widget="float_time" invisible="not is_check_out_requestable"/>
+                                <!-- A day without check-in's technical attendance: its midnight times mean nothing (issue #735). -->
+                                <field name="original_technical" invisible="1"/>
+                                <field name="original_check_in" readonly="1" invisible="not original_check_in or original_technical"/>
+                                <field name="requested_check_in" widget="ems_time_of_day" placeholder="HH:MM"/>
+                                <field name="original_check_out" readonly="1" invisible="not original_check_in or original_technical"/>
+                                <field name="requested_check_out" widget="ems_time_of_day" placeholder="HH:MM"
+                                       invisible="not is_check_out_requestable"/>
                             </group>
                         </group>
                         <group string="Reason">
                             <field name="reason" nolabel="1" readonly="id"/>
                         </group>
-                        <group string="Decision">
+                        <group string="Decision" invisible="not id">
                             <field name="approver_id" readonly="1" invisible="state == 'pending'"/>
                             <field name="decision_date" readonly="1" invisible="state == 'pending'"/>
                             <field name="decision_note" placeholder="Optional note for the requester..."/>

@@ -104,6 +104,7 @@ class EmsAbsencePending(models.Model):
     # Issue #735: the teacher, asked to justify it, may answer that they were at the centre.
     can_request_correction = fields.Boolean(string="Can request a check-in correction", compute="_compute_can_request")
     has_pending_correction = fields.Boolean(string="Check-in correction pending", compute="_compute_can_request")
+    status_path = fields.Char(string="Status steps", compute="_compute_status_path")
     correction_ids = fields.One2many(
         string="Check-in correction requests", comodel_name="ems.attendance_correction",
         inverse_name="absence_pending_id", readonly=True)
@@ -165,6 +166,23 @@ class EmsAbsencePending(models.Model):
         they never see (issue #707)."""
         for absence in self:
             absence.is_own = bool(absence.employee_id.user_id) and absence.employee_id.user_id == self.env.user
+
+    @api.depends('state', 'justification_date', 'leave_type_id', 'employee_id')
+    @api.depends_context('uid')
+    def _compute_status_path(self):
+        """The steps the status bar shows (issue #735): those this entry went through, ending in
+        its state, and while unresolved the ones still ahead. The review first, which the teacher
+        never sees; then, if the teacher was asked to act, how (justification_date says it was
+        asked, leave_type_id that the absence was prepared); then its end. Comma-separated, for
+        the ems_statusbar_path widget."""
+        for absence in self:
+            steps = [] if absence.is_own else ['pending']
+            if absence.justification_date or absence.state in ASKED_STATES:
+                steps.append('absence_prepared' if absence.leave_type_id else 'justification_requested')
+            elif absence.state == 'pending':
+                steps.append('justification_requested')
+            steps.append(absence.state if absence.state not in UNRESOLVED_STATES else 'linked')
+            absence.status_path = ','.join(steps)
 
     @api.depends('state', 'employee_id', 'date_to')
     @api.depends_context('uid')

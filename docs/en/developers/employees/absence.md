@@ -747,6 +747,7 @@ erDiagram
 | `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry is in `ASKED_STATES`. Shows **Request the absence** |
 | `can_request_correction` | Same, and the entry is over and has no `pending` correction request: shows **Request check-in correction** (issue #735) |
 | `correction_ids` | The teacher's correction requests (`ems.attendance_correction.absence_pending_id`) |
+| `status_path` | Non-stored, `@api.depends_context('uid')`: the steps the status bar shows (`ems_statusbar_path` widget, `static/src/js/backend/statusbar_path_field.js`), comma-separated: *To review* (not for the teacher), then *Justification requested* or *Absence prepared* if the teacher was asked (`justification_date`, `leave_type_id`), then the state; while unresolved, the steps still ahead (issue #735) |
 | `has_pending_correction` | One of them is `pending`. With `can_request`, `can_request_correction` and `state` it picks the blue notice the teacher reads at the top of the form: asked to justify, absence prepared, or correction under review (issue #735) |
 | `can_review`, `can_correct_check_in` | Non-stored, `@api.depends_context('uid')`: the entry is `pending` and the user may review it (below); the second also needs the entry to be over (no check-in can be recorded for a time still to come). Drive the four actions' `invisible=` |
 

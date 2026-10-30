@@ -27499,3 +27499,8 @@ msgstr "Corrección del fichaje pendiente"
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "Only the teacher can request this absence, once asked to justify it and while no check-in correction of theirs is waiting for a decision."
 msgstr "Solo el docente puede solicitar esta ausencia, una vez se le ha pedido que la justifique y mientras no tenga ninguna corrección del fichaje pendiente de decidir."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_absence_pending__status_path
+msgid "Status steps"
+msgstr "Pasos del estado"

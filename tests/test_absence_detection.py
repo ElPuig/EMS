@@ -937,3 +937,21 @@ class TestAbsenceDetection(TransactionCase):
         correction.with_user(self.head_of_studies).action_reject()
         self.assertEqual((red.check_in, red.in_mode, red.out_mode), (self._utc(self.yesterday, 0.0), 'technical', 'technical'),
                          'a day without check-in again')
+
+    def test_the_status_bar_follows_each_circuit(self):
+        """Issue #735: the steps each entry went through, ending in its state; the teacher never
+        sees the review."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        paths = lambda: (absence.with_user(self.head_of_studies).status_path,
+                         absence.with_user(self.teacher_user).status_path)
+        self.assertEqual(absence.with_user(self.head_of_studies).status_path, 'pending,justification_requested,linked')
+        self._asked(absence)
+        self.assertEqual(paths(), ('pending,justification_requested,linked', 'justification_requested,linked'))
+        absence.sudo().state = 'corrected'
+        self.assertEqual(paths(), ('pending,justification_requested,corrected', 'justification_requested,corrected'))
+        absence.sudo().write({'state': 'absence_prepared', 'leave_type_id': self.env.ref('ems.leave_type_justified').id})
+        self.assertEqual(paths(), ('pending,absence_prepared,linked', 'absence_prepared,linked'))
+        absence.sudo().write({'state': 'discarded', 'justification_date': False, 'leave_type_id': False})
+        self.assertEqual(paths(), ('pending,discarded', 'discarded'), 'discarded straight from the review')
+

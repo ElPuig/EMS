@@ -47,17 +47,9 @@
                             <button name="action_request_check_in_correction" type="object" string="Request check-in correction"
                                     invisible="not can_request_correction"/>
                         </div>
-                        <field name="state" widget="statusbar" statusbar_visible="pending,justification_requested,linked"
-                               invisible="is_own or state in ('corrected', 'discarded')"/>
-                        <!-- The teacher never sees an entry still to review: no such step for them. -->
-                        <field name="state" widget="statusbar" statusbar_visible="justification_requested,linked"
-                               invisible="not is_own or state in ('corrected', 'discarded')"/>
-                        <!-- Issue #735: the other two ends, on their own. "Requested" after them read as
-                             the next step, and whether a justification was asked first is not known. -->
-                        <field name="state" widget="statusbar" statusbar_visible="corrected"
-                               invisible="state != 'corrected'"/>
-                        <field name="state" widget="statusbar" statusbar_visible="discarded"
-                               invisible="state != 'discarded'"/>
+                        <!-- Issue #735: the steps this entry went through, ending in its state, and the
+                             ones still ahead (status_path). The teacher never sees the review step. -->
+                        <field name="state" widget="ems_statusbar_path" options="{'path_field': 'status_path'}"/>
                     </header>
                     <sheet>
                         <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>

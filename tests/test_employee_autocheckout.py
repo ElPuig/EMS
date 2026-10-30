@@ -166,31 +166,6 @@ class TestEmployeeAutocheckout(TransactionCase):
             (attendance.check_out - check_in).total_seconds(), 3600, delta=5,
         )
 
-    def test_auto_close_attendance_fallback_notification_uses_employee_local_time(self):
-        # Regression test (found 2026-09-17): the fallback notification must show the
-        # employee's own local time, not the naive-UTC value Odoo stores internally -
-        # a forced check-out email showed times 2h behind what the same record's
-        # backend view showed the same reader, since message_post()'s plain-text body
-        # gets no client-side tz conversion the way list/form views do.
-        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
-        self._add_slot(0.0, 0.02, dayofweek=str(check_in.weekday()))
-        attendance = self.env['hr.attendance'].create({
-            'employee_id': self.teacher.id, 'check_in': check_in,
-        })
-
-        attendance._auto_close_attendance()
-
-        message = attendance.message_ids.sorted('id')[-1]
-        employee_tz = pytz.timezone(self.teacher._get_tz())
-        expected_check_in = pytz.utc.localize(check_in).astimezone(employee_tz)
-        expected_check_out = pytz.utc.localize(attendance.check_out).astimezone(employee_tz)
-        self.assertIn(expected_check_in.strftime('%Y-%m-%d %H:%M:%S'), message.body)
-        self.assertIn(expected_check_out.strftime('%Y-%m-%d %H:%M:%S'), message.body)
-        if employee_tz.utcoffset(check_in) != timedelta(0):
-            # Only a meaningful guard when the employee's own tz actually differs from
-            # UTC - otherwise the naive-UTC and localized strings coincide by chance.
-            self.assertNotIn(check_in.strftime('%Y-%m-%d %H:%M:%S'), message.body)
-
     def _close_through_fallback(self):
         """Closes an attendance through the check_in + 1h fallback (the only auto-checkout that
         asks for a correction) and returns its notice. The slot and the working day are taken
@@ -224,13 +199,22 @@ class TestEmployeeAutocheckout(TransactionCase):
 
         self.assertEqual(message.partner_ids, teacher_user.partner_id)
 
-    def test_fallback_notice_explains_how_to_request_a_correction(self):
-        self._give_teacher_a_user()
-
+    def test_fallback_notice_explains_it_in_the_teachers_local_time(self):
+        # The notice tells the teacher when they checked in, the last hour their schedule
+        # expected that day (the 00:00-00:01 slot) and the check-out it set, and how to fix it.
+        # Every time in the teacher's own timezone, not the naive UTC Odoo stores: the body is
+        # plain text, so no client-side conversion applies (found 2026-09-17, times 2h behind).
         message = self._close_through_fallback()
 
-        # The last hour the schedule expected that day (the 00:00-00:01 slot), in the
-        # teacher's own time, and the way to fix it.
+        attendance = self.env['hr.attendance'].browse(message.res_id)
+        employee_tz = pytz.timezone(self.teacher._get_tz())
+        for moment in (attendance.check_in, attendance.check_out):
+            local = pytz.utc.localize(moment).astimezone(employee_tz)
+            self.assertIn(local.strftime('%Y-%m-%d %H:%M:%S'), message.body)
+        # Only the check-in's UTC string: with UTC+1 the check-out's (check-in + 1h) is exactly
+        # the local check-in. Only meaningful when the teacher's tz differs from UTC.
+        if employee_tz.utcoffset(attendance.check_in) != timedelta(0):
+            self.assertNotIn(attendance.check_in.strftime('%Y-%m-%d %H:%M:%S'), message.body)
         self.assertIn('00:01', message.body)
         self.assertIn('Request Correction', message.body)
 

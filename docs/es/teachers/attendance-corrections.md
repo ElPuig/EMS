@@ -6,7 +6,7 @@
 
 Cada entrada y salida que haces queda registrada automáticamente. Esta página explica cómo revisar tus propios fichajes y, si alguno tiene la hora incorrecta, cómo solicitar una corrección.
 
-**Rol necesario:** Profesor/a
+**Rol necesario:** Profesor/a (el personal de administración y servicios también puede solicitar correcciones de sus fichajes de la misma forma).
 
 ---
 
@@ -43,7 +43,7 @@ Si una entrada o salida se ha registrado con una hora incorrecta (has olvidado f
 
 > Una vez guardado, el motivo ya no se puede editar — si necesitas añadir más contexto después, usa el chat de la parte inferior de la solicitud para dejar un comentario.
 
-> **¿Has recibido un mensaje sobre tu salida?** Si fichas la entrada después de la última hora que tu horario preveía ese día y olvidas fichar la salida, la salida automática no puede usar tu horario para cerrar el fichaje: lo cierra una hora después de la entrada y te envía un mensaje (correo electrónico y chat del fichaje) que lo explica. Si esa hora no es la de tu salida, solicita una corrección como se explica más arriba. Ese mensaje solo lo recibes tú: tu jefe de estudios o jefe de estudios adjunto solo se entera si solicitas la corrección.
+> **¿Has recibido un mensaje sobre tu salida?** Si fichas la entrada después de la última hora que tu horario preveía ese día y olvidas fichar la salida, la salida automática no puede usar tu horario para cerrar el fichaje: lo cierra una hora después de la entrada y te envía un mensaje (correo electrónico y chat del fichaje) que lo explica. Si esa hora no es la de tu salida, solicita una corrección como se explica más arriba. Ese mensaje solo lo recibes tú: quien revisa tus correcciones solo se entera si solicitas una.
 
 ---
 

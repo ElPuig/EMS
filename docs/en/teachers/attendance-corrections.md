@@ -6,7 +6,7 @@
 
 Every check-in and check-out you make is recorded automatically. This page explains how to review your own records and, if one has the wrong time, how to request a correction.
 
-**Required role:** Teacher
+**Required role:** Teacher (the non-teaching staff can request corrections of their own check-ins the same way).
 
 ---
 
@@ -43,7 +43,7 @@ If a check-in or check-out was recorded with the wrong time (you forgot to clock
 
 > Once saved, the reason can no longer be edited — if you need to add more context afterward, use the chatter at the bottom of the request to leave a comment.
 
-> **A message about your check-out?** If you check in after the last hour your schedule expected that day and forget to check out, the automatic check-out can't use your schedule to close the attendance: it closes it one hour after your check-in and sends you a message (email and chatter of the attendance) explaining it. If that hour isn't when you left, request a correction as described above. Only you receive that message: your Head of Studies or Deputy only hears about it if you request the correction.
+> **A message about your check-out?** If you check in after the last hour your schedule expected that day and forget to check out, the automatic check-out can't use your schedule to close the attendance: it closes it one hour after your check-in and sends you a message (email and chatter of the attendance) explaining it. If that hour isn't when you left, request a correction as described above. Only you receive that message: whoever validates your corrections only hears about it if you request one.
 
 ---
 

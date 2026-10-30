@@ -36,9 +36,7 @@ class EmsPortalContactData(CustomerPortal):
         return request.env.user.partner_id._ems_portal_siblings(student).sudo()
 
     def _ems_contact_data_request(self, student):
-        course = request.env['res.partner'].sudo()._ems_running_course()
-        return request.env['ems.contact.data.request'].sudo().search([
-            ('student_id', '=', student.id), ('course_id', '=', course.id)], limit=1), course
+        return student._ems_contact_data_running_request(), student._ems_running_course()
 
     @http.route('/my/dades-contacte', type='http', auth='user', methods=['GET', 'POST'], website=True)
     @ems_portal_manage_required

@@ -28,3 +28,7 @@
 ## Same period shown as two rows in the teacher's schedule PDFs:
 
 - Two blocks of the same period could store hours differing in the last decimal (e.g. a break guard saved from the Schedule tab and the break derived from the level's framework, both 10:00-10:25), and the grid of the Working Schedule PDF and the schedule declaration showed them as two rows with the same time. The grid now groups periods by minute (and looks cells up from an index instead of filtering per cell).
+
+## Administrators can manage non-teaching types:
+
+- An administrator with only the system administrator group had no access at all to the non-teaching types (only Department Chiefs could edit them), although the administrator is above Direction. They now have full access.

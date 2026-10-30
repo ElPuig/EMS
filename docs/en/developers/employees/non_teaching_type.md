@@ -39,8 +39,9 @@ Defined in `security/ir.model.access.csv` (lines 95–97).
 | Department Chief | ✓ | ✓ | ✓ | ✓ | `ems.group_department_chief` |
 | Teacher | — | ✓ | — | — | `ems.group_teacher` |
 | Secretary | — | ✓ | — | — | `ems.group_secretary` |
+| Administrator | ✓ | ✓ | ✓ | ✓ | `base.group_system` |
 
-Note the admin group here is `group_department_chief`, not `group_academic_admin` like most other configuration models in this cluster — intentional, since non-teaching types are a scheduling concept department chiefs manage directly.
+Note the admin group here is `group_department_chief`, not `group_academic_admin` like most other configuration models in this cluster — intentional, since non-teaching types are a scheduling concept department chiefs manage directly. The administrator (`base.group_system`) has full access too, being above Direction (issue #723: a system administrator outside the EMS groups could not even open them).
 
 ---
 

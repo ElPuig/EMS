@@ -513,9 +513,10 @@ class TestAbsenceCoverage(AbsenceCoverageCase):
         })
         self._assign()
 
-        self._absence(self.teacher_a, self.day)
+        leave = self._absence(self.teacher_a, self.day)
 
-        self.assertEqual(expected.state, 'linked')
+        # Approved for good: the expected absence is Justified by it (issue #735).
+        self.assertEqual((expected.state, expected.leave_id), ('justified', leave))
         self.assertEqual(self._row(8, 9)['covers'].guard_employee_id, self.teacher_guard)
         self.assertFalse(self._row(10, 11)['covers'], "the hour the request adds is new, to be decided")
         self.assertNotIn('obsolete_cover', [action['type'] for action in self._actions()])

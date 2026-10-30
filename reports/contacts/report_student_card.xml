@@ -42,7 +42,9 @@
                         /* The report layout borders every cell (and frames every table, opted out of with
                            o_ignore_layout_styling, as in ems.report_validation_stamp). */
                         .o_ems_cards td { padding: 0; vertical-align: top; border: none !important; }
-                        table.o_ems_card_row { page-break-inside: avoid; margin-bottom: 2.5mm; }
+                        /* Centred on the sheet: flipped on the long edge, the backs land behind their fronts
+                           only if both margins are equal (left-aligned, they were 6.7 mm off). */
+                        table.o_ems_card_row { page-break-inside: avoid; margin: 0 auto 2.5mm auto; }
                         td.o_ems_card_gap { width: 4mm; }
                         /* border-box: five rows of 54 mm cards fill the sheet to the millimetre. The dashed
                            border is the cutting guide. */

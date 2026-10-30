@@ -6,8 +6,9 @@ The academic history of a student under a **previous curriculum** (issue #672): 
 earlier law (LOE, organised in units, *unitats formatives* or UF, instead of learning outcomes) that
 the Departament d'Educació managed in SAGA before Esfera. Its modules do not map onto the current
 curriculum (different numbering, hours and modules, units instead of RAs, no course per module), so
-it is **not** an `ems.student.year_record`: it is kept apart, as printed on its *Historial acadèmic*
-document, and only looked up, typically to decide a convalidation request.
+it is **not** an `ems.student.year_record`: it is kept apart, as printed on its *Historial acadèmic* or its
+*Certificat de qualificacions de mòduls i unitats formatives* (issue #732), and only looked up,
+typically to decide a convalidation request.
 
 Students still studying a previous curriculum are not managed in EMS: only their documents are
 imported, for consultation.
@@ -72,19 +73,29 @@ classDiagram
 
 ## Reading the document (`models/grades/previous_curriculum_pdf.py`)
 
-The *Historial acadèmic* PDF is read with `pdftotext -layout` (same reason as the Esfera reader,
+Two documents are read, both with `pdftotext -layout` (same reason as the Esfera reader,
 [`year_record.md`](year_record.md#previous-records-issue-585)), reusing its `pdf_to_text()` and
-`_value_below()`.
+`_value_below()`. The heading tells them apart (`Certificat de qualificacions`, else
+`unitats formatives`), and `is_certificate` says which one was read.
 
-- **Header:** IDALU and name (`Cognoms i nom` row), centre (`Municipi` row), curriculum
-  (`Nom del cicle formatiu` row), years (`Anys acadèmics`, "De 2020 a 2022"), and the
+- **Academic history header:** IDALU and name (`Cognoms i nom` row), centre (`Municipi` row),
+  curriculum (`Nom del cicle formatiu` row), years (`Anys acadèmics`, "De 2020 a 2022"), and the
   `Observacions` box as notes.
-- **Grades table:** module and units side by side, both names wrapped. The table starts at the
-  `Mòdul ... Unitat Formativa` header of each page and stops at the signatures or the closing
-  sections. Each line is split where its unit code (five digits) starts, searched from near the
-  header's `Unitat Formativa` column, since the module's sitting (`Ext.`) reaches under that title
-  and a page may shift its rows; a line without a unit code is split just right of it. Each half is
-  read on its own: a code opens a row, anything else continues the name above (a word cut at its
+- **Grades certificate header:** no IDALU and no years. The student is named by their DNI/NIE
+  (`student_document_id`, the last word printed from the `DNI` column of the `Nom i cognoms de
+  l'alumne/a` row, since the number is not aligned with its title), the centre and the curriculum
+  by the `Codi`/`Nom` rows after `Dades del centre` and `Matriculat al cicle formatiu`.
+- **Grades table (both):** module and units side by side, both names wrapped. The table starts at
+  the `Mòdul ... Unitat formativa` header of each page (either case) and stops at the signatures,
+  the closing sections (`Observacions`, `Diligència de validesa`, `I, perquè consti`) or the page's
+  footer (the form code, `Y508-002/06-10`), as a certificate's page has no signatures. Codes are
+  digits (`001`, `00101`) or, for a module of the issuing centre's own, letters (`AOC`, `AOCOA`),
+  only taken as a code when `MP<n>`/`UF<n>` follows. Each line is split where its unit code starts,
+  searched from near the header's `Unitat formativa` column, since the module's sitting (`Ext.`)
+  reaches under that title and a page may shift its rows. A line without a unit code (a wrapped
+  name) is split where text starts in the units' column (from 1 left to 8 right of the title: the
+  codes' own column, where wrapped unit names also start), else just right of the title. Each half
+  is read on its own: a code opens a row, anything else continues the name above (a word cut at its
   hyphen is joined without a space).
 - A file that is not this document raises `AcademicRecordPdfError`, shown as a message in the
   wizard.
@@ -99,13 +110,13 @@ sequenceDiagram
     participant R as Previous curriculum record
     S->>P: Actions > Add a previous curriculum record
     P->>W: open (default_student_id)
-    S->>W: upload the Historial acadèmic PDF
+    S->>W: upload the Historial acadèmic or Certificat de qualificacions PDF
     W->>W: read it: header + review grid (modules and units)
-    W->>W: propose Title obtained if every module listed is passed
-    W-->>S: warning if the IDALU does not match
+    W->>W: propose Title obtained if every module listed is passed (not on a certificate)
+    W-->>S: warning if the IDALU (or the certificate's DNI/NIE) does not match
     S->>W: correct grades / sittings, confirm the title and its date
     S->>W: Create record
-    W->>W: check role, document read, IDALU, not imported yet
+    W->>W: check role, document read, IDALU or DNI/NIE, not imported yet
     W->>R: create (sudo) with every line and the PDF
     W->>P: audit note in the chatter
 ```
@@ -114,9 +125,13 @@ sequenceDiagram
   secretariat, academic administration, Head of Studies, Deputy, Director). The record is created
   with `sudo()` after that check, as the Head of Studies has no create right on it.
 - The IDALU check is `ems.base.get_certificate_student_problem()`, shared with the Esfera reader:
-  identifier not read, student without IDALU, or a different one, all block creation.
-- **Title:** the document never states it. `all_modules_passed` proposes it when the PDF is read;
-  the user confirms or corrects it and may give its date.
+  identifier not read, student without IDALU, or a different one, all block creation. A grades
+  certificate, which carries no IDALU, is checked the same way against the student's
+  `document_id` (DNI/NIE), compared without spaces, dots or hyphens and in uppercase: a student
+  without one, or a different one, blocks creation.
+- **Title:** the document never states it. `all_modules_passed` proposes it when an academic
+  history is read; the user confirms or corrects it and may give its date. A grades certificate
+  never proposes it, as it may list only some of the cycle's modules.
 - The button shows for students, alumni and withdrawals.
 
 ## Where it is shown

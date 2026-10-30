@@ -26658,19 +26658,18 @@ msgstr "%(student)s ja té un expedient de %(curriculum)s."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_file
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__certificate_file
-msgid "Academic history document"
-msgstr "Document de l'historial acadèmic"
+msgid "Academic document"
+msgstr "Document acadèmic"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 msgid ""
 "Adds to the academic history a cycle the student studied under a\n"
 "                            previous curriculum (organised in units, UF), kept as printed on its\n"
-"                            document. Upload the academic history (Historial acadèmic, PDF)."
+"                            document. Upload the academic history (Historial acadèmic) or the\n"
+"                            grades certificate (Certificat de qualificacions), in PDF."
 msgstr ""
-"Afegeix a l'històric acadèmic un cicle que l'alumne/a va cursar amb un "
-"currículum anterior (organitzat en unitats formatives, UF), tal com figura "
-"al document. Pugeu l'historial acadèmic (Historial acadèmic, PDF)."
+"Afegeix a l'històric acadèmic un cicle que l'alumne/a va cursar amb un currículum anterior (organitzat en unitats formatives, UF), tal com figura al document. Pugeu l'historial acadèmic o el certificat de qualificacions, en PDF."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__all_modules_passed
@@ -26683,12 +26682,10 @@ msgid ""
 "Check what was read from the document before creating the record:\n"
 "                            correct any grade, and confirm whether the student obtained the title,\n"
 "                            which the document does not state. It is proposed when every module\n"
-"                            listed is passed."
+"                            listed is passed, except on a grades certificate, which may list only\n"
+"                            some of them."
 msgstr ""
-"Comproveu el que s'ha llegit del document abans de crear l'expedient: "
-"corregiu qualsevol nota i confirmeu si l'alumne/a va obtenir el títol, que "
-"el document no indica. Es proposa quan tots els mòduls de la llista estan "
-"superats."
+"Comproveu el que s'ha llegit del document abans de crear l'expedient: corregiu qualsevol nota i confirmeu si l'alumne/a va obtenir el títol, que el document no indica. Es proposa quan tots els mòduls de la llista estan superats, excepte en un certificat de qualificacions, que pot recollir-ne només una part."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__study_id
@@ -26829,9 +26826,9 @@ msgstr "Aplicació d'origen"
 #. odoo-python
 #: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
 msgid ""
-"The file is not the academic history (Historial acadèmic) of a previous "
-"curriculum."
-msgstr "El fitxer no és l'historial acadèmic d'un currículum anterior."
+"The file is neither the academic history (Historial acadèmic) nor the grades certificate (Certificat de qualificacions) of a previous curriculum."
+msgstr ""
+"El fitxer no és ni l'historial acadèmic ni el certificat de qualificacions d'un currículum anterior."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_student_previous_curriculum_record_unique_student_curriculum
@@ -26859,8 +26856,10 @@ msgstr "Unitat formativa (UF)"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
-msgid "Upload the academic history document of the previous curriculum."
-msgstr "Pugeu el document de l'historial acadèmic del currículum anterior."
+msgid ""
+"Upload the academic history or the grades certificate of the previous curriculum."
+msgstr ""
+"Pugeu l'historial acadèmic o el certificat de qualificacions del currículum anterior."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_history_line
@@ -27316,3 +27315,14 @@ msgstr "Escriu el motiu de l'anul·lació de la sol·licitud."
 #: model:ir.model.fields,field_description:ems.field_resource_calendar_attendance__archived_with_calendar
 msgid "Archived with its calendar"
 msgstr "Arxivada amb el seu calendari"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_student_document_id
+msgid "Document DNI/NIE"
+msgstr "DNI/NIE del document"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/base.py:0
+msgid "%(student)s has no Document ID (DNI/NIE) to check the certificate's (%(document)s) against: fill it in first."
+msgstr "%(student)s no té document d'identitat (DNI/NIE) per comprovar el del certificat (%(document)s): empleneu-lo primer."

@@ -24,7 +24,7 @@ flowchart TD
     I -- yes --> J[Family block: name, relation, mobile, email]
 ```
 
-- **School details** (`student`): the student the account looks at, `get_portal_student()`, i.e. the account itself for a student or applicant and the selected child for a family (also an adult child who authorized sharing). The group, study and tutor rows only appear when the student has a main group. Nothing here can be changed from the portal.
+- **School details** (`student`): the student the account looks at, `get_portal_student()`, i.e. the account itself for a student or applicant and the selected child for a family (also an adult child who authorized sharing). The group, study and tutor rows only appear when the student has a main group. The photo on file sits in an ID photo frame (26x32 mm, `.o_ems_profile .o_ems_photo_frame`) with `object-fit: contain`: never stretched nor cropped, with transparent bands where it does not fill the frame. Nothing here can be changed from the portal.
 - **Own contact details** (`partner`): exactly what `/my/dades-contacte` lets the account send for itself: `STUDENT_FIELDS` on a student's account, `FAMILY_FIELDS` on a family contact's account (name, mobile, email, address, document, passport). Fields no portal page can change (VAT, street 2, state, country) are not shown.
 - **Review status**: shown only to whoever may send the review (`_ems_portal_contact_data_student()`), from the running year's request: `submitted` = waiting for the review; `pending` with a `rejection_reason` = returned, with the reason; `pending` without one = requested by the school; no request or `done` = nothing.
 - **Family**: on the student's own account only, the family contacts of `_ems_contact_data()`.

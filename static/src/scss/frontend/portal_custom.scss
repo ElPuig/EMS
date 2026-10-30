@@ -185,9 +185,8 @@ header nav.navbar .ems-custom-navbar .nav-link.active {
     font-weight: 500;
 }
 /* Issue #507 follow-up: the student's photo on /my/dades-contacte (contact_data_photo.js). The
-   frames keep the 3:4 portrait ratio the photo is cropped to. The profile (issue #736) shows the
-   photo on file in the same frame. */
-.o_ems_contact_data_photo, .o_ems_profile {
+   frames keep the 3:4 portrait ratio the photo is cropped to. */
+.o_ems_contact_data_photo {
     .o_ems_photo_frame {
         width: 96px;
         height: 128px;
@@ -214,4 +213,15 @@ header nav.navbar .ems-custom-navbar .nav-link.active {
     .o_ems_photo_zoom {
         max-width: 240px;
     }
+}
+
+/* Issue #736: the photo on file on the profile, in an ID photo frame (26x32 mm). The whole photo is
+   shown, never stretched nor cropped: whatever does not fill the frame is left as a transparent band.
+   align-self keeps the flex row from stretching the frame to the height of the data beside it. */
+.o_ems_profile .o_ems_photo_frame {
+    width: 104px;
+    height: 128px;
+    flex-shrink: 0;
+    align-self: flex-start;
+    object-fit: contain;
 }

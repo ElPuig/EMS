@@ -271,9 +271,13 @@
     </record>
 
     <record id="rule_attendance_correction_teacher_own" model="ir.rule">
+        <!-- Issue #734: every employee who reads their own attendance requests corrections of it,
+             not only teachers: the non-teaching staff clock in too, and the auto check-out asks
+             them to fix a check-out it had to guess. The ids keep "teacher" in their name (this
+             rule and its access_ems_attendance_correction_teacher ACL), as before. -->
         <field name="name">Attendance correction: own data</field>
         <field name="model_id" ref="ems.model_ems_attendance_correction"/>
-        <field name="groups" eval="[(4, ref('ems.group_teacher'))]"/>
+        <field name="groups" eval="[(6, 0, [ref('hr_attendance.group_hr_attendance_own_reader')])]"/>
         <field name="domain_force">[('employee_id.user_id.id', '=', user.id)]</field>
         <field name="perm_read" eval="True"/>
         <field name="perm_write" eval="False"/>

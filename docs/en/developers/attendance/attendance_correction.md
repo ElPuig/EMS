@@ -67,7 +67,7 @@ flowchart TD
     I --> E
 ```
 
-That resolves who the request is **routed to** (the task). When nobody above the employee is a Head of Studies, `_find_approver()` falls back to whoever manages their area's attendance (`hr.employee.attendance_manager_id`) and only then to the administrators. The whole resolution lives in `hr.employee._find_attendance_approvers()`, shared with the [auto check-out](../employees/attendance_autocheckout.md)'s fallback notice, which asks those same people to correct a check-out.
+That resolves who the request is **routed to** (the task). When nobody above the employee is a Head of Studies, `_find_approver()` falls back to whoever manages their area's attendance (`hr.employee.attendance_manager_id`) and only then to the administrators. The whole resolution lives in `hr.employee._find_attendance_approvers()`. The [auto check-out](../employees/attendance_autocheckout.md)'s fallback notice deliberately does not use it: it goes to the employee alone, who requests the correction that then reaches these approvers.
 
 **Who may decide** (`_check_is_approver()`, issue #543) is wider than the one person it is routed to, but scoped to the employee's own branch, never to every holder of the role centre-wide:
 
@@ -114,9 +114,9 @@ Only Academic Admin can delete correction requests (audit trail is otherwise kep
 | Administrator | ✓ (any employee) | ✓ | ✓ | ✓ | `ems.group_academic_admin` |
 | Head of Studies / Deputy | ✓ (own branch) | ✓ (own branch) | ✓ (own branch) | — | `ems.group_head_of_studies` |
 | Director | ✓ (any employee) | ✓ | ✓ | — | `ems.group_director` |
-| Teacher | ✓ (own only) | ✓ | — | — | `ems.group_teacher` |
+| Any employee (teachers and non-teaching staff) | ✓ (own only) | ✓ (own only) | — | — | `hr_attendance.group_hr_attendance_own_reader` (implied by `base.group_user`) |
 
-Record rules (`security/rules/attendance.xml`): Admin and Director unrestricted (`rule_attendance_correction_admin`, `rule_attendance_correction_director`); Head of Studies restricted to their own branch, including on create (`rule_attendance_correction_hos`: `employee_id.tutor_scope_user_ids` contains the user, or `employee_id.attendance_manager_id` is the user); Teacher restricted to `employee_id.user_id = user.id`, including on create — a plain Teacher cannot request a correction on another employee's behalf.
+Record rules (`security/rules/attendance.xml`): Admin and Director unrestricted (`rule_attendance_correction_admin`, `rule_attendance_correction_director`); Head of Studies restricted to their own branch, including on create (`rule_attendance_correction_hos`: `employee_id.tutor_scope_user_ids` contains the user, or `employee_id.attendance_manager_id` is the user); every other employee restricted to `employee_id.user_id = user.id`, including on create (`rule_attendance_correction_teacher_own`) — a plain teacher or a member of the non-teaching staff cannot request a correction on another employee's behalf. That ACL and rule belong to `hr_attendance.group_hr_attendance_own_reader` (whoever reads their own attendance), not only to teachers, since issue #734: the non-teaching staff clock in too, and the [auto check-out](../employees/attendance_autocheckout.md) asks them to correct a check-out it had to guess. Their requests are routed like a teacher's (`_find_attendance_approvers()`). The ids keep "teacher" in their name.
 
 ---
 
@@ -127,7 +127,7 @@ Record rules (`security/rules/attendance.xml`): Admin and Director unrestricted 
 | `hr.attendance` | `attendance_id` | Many2one (required) | The attendance record being corrected; header button added via inherited view |
 | `hr.attendance` | `correction_ids` / `correction_count` | One2many (inverse of `attendance_id`) / computed | Lets the attendance form show a "Corrections" smart button with a count, opening `action_view_corrections()` (domain-filtered reuse of `action_attendance_correction_tree`) |
 | `hr.employee` | `find_head_of_studies()` | method | Resolves the approver by walking `parent_id` |
-| `hr.employee` | `_find_attendance_approvers()` | method | Who corrects the employee's attendance (res.users): nearest Head of Studies, else `attendance_manager_id`, else the administrators; used by `_find_approver()` and the auto check-out fallback notice |
+| `hr.employee` | `_find_attendance_approvers()` | method | Who corrects the employee's attendance (res.users): nearest Head of Studies, else `attendance_manager_id`, else the administrators; used by `_find_approver()` and the review of detected absences (`ems.absence_pending`) |
 | `mail.activity.type` | `ems.mail_activity_attendance_correction` | data record | Dedicated activity type for the approval to-do |
 
 ---

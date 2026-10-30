@@ -1184,8 +1184,7 @@ class ems_employee(models.AbstractModel):
         of Studies above them in the chain of command; failing that, whoever manages their area's
         attendance (attendance_manager_id); failing that, the administrators. Shared by the
         routing of an attendance correction request (ems.attendance_correction._find_approver)
-        and by the auto-checkout notice asking for a check-out to be corrected (issue #648), so
-        both reach the same person. Never the Department or Seminar Chief ('parent_id'): they
+        and the review of detected absences. Never the Department or Seminar Chief ('parent_id'): they
         can only read their branch's attendance, not correct it. `skip_hierarchy`: the
         administrators alone."""
         self.ensure_one()

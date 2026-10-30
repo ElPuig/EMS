@@ -189,6 +189,49 @@ class TestAttendanceCorrection(TransactionCase):
         self.assertEqual(correction.state, 'pending')
         self.assertEqual(correction.employee_id, self.teacher_employee)
 
+    def _create_staff_attendance(self):
+        """A member of the administrative and services staff (PAS) with the Secretary role only,
+        no teaching group, below the Head of Studies, and an attendance of their own."""
+        staff_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Staff (Attendance Correction)',
+            'login': 'test_staff_attendance_correction',
+            'email': 'test_staff_attendance_correction@example.com',
+            'groups_id': [(4, self.env.ref('ems.group_secretary').id), (4, self.env.ref('base.group_user').id)],
+        })
+        staff_employee = self.env['hr.employee'].create({
+            'name': 'Test Staff Employee (Attendance Correction)',
+            'employee_type': 'asp',
+            'user_id': staff_user.id,
+            'parent_id': self.hos_employee.id,
+        })
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': staff_employee.id,
+            'check_in': datetime(2026, 1, 5, 8, 0),
+            'check_out': datetime(2026, 1, 5, 9, 0),
+        })
+        return staff_user, attendance
+
+    def test_staff_can_request_correction_of_own_attendance(self):
+        # Issue #734: the auto check-out asks whoever it closed one hour after check-in to
+        # request a correction, and non-teaching staff clock in too. It reaches their approver.
+        staff_user, attendance = self._create_staff_attendance()
+
+        correction = self._create_correction(staff_user, attendance_id=attendance.id)
+
+        self.assertEqual(correction.state, 'pending')
+        self.assertEqual(correction.activity_ids.user_id, self.hos_user)
+        self.assertTrue(
+            self.env['ems.attendance_correction'].with_user(staff_user).search([('id', '=', correction.id)]))
+
+    def test_staff_cannot_request_or_read_corrections_of_others(self):
+        staff_user, _attendance = self._create_staff_attendance()
+        teacher_correction = self._create_correction(self.teacher_user)
+
+        with self.assertRaises(AccessError):
+            self._create_correction(staff_user)
+        self.assertFalse(
+            self.env['ems.attendance_correction'].with_user(staff_user).search([('id', '=', teacher_correction.id)]))
+
     def test_approver_resolution_immediate_manager(self):
         # manager_employee's direct manager (hos_employee) is in group_head_of_studies.
         approver = self.manager_employee.find_head_of_studies()

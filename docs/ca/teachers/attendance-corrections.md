@@ -6,7 +6,7 @@
 
 Cada entrada i sortida que fas queda registrada automàticament. Aquesta pàgina explica com revisar els teus propis fitxatges i, si algun té l'hora incorrecta, com sol·licitar-ne una correcció.
 
-**Rol necessari:** Professor/a
+**Rol necessari:** Professor/a (el personal d'administració i serveis també pot sol·licitar correccions dels seus fitxatges de la mateixa manera).
 
 ---
 
@@ -42,6 +42,8 @@ Si una entrada o sortida s'ha registrat amb una hora incorrecta (has oblidat fit
 5. Fes clic a **Desar**. La sol·licitud queda **Pendent**.
 
 > Un cop desat, el motiu ja no es pot editar — si necessites afegir context més endavant, fes servir el xat de la part inferior de la sol·licitud per deixar un comentari.
+
+> **Has rebut un missatge sobre la teva sortida?** Si fitxes l'entrada després de l'última hora que el teu horari preveia aquell dia i oblides fitxar la sortida, la sortida automàtica no pot fer servir el teu horari per tancar el fitxatge: el tanca una hora després de l'entrada i t'envia un missatge (correu electrònic i xat del fitxatge) que ho explica. Si aquella hora no és la de la teva sortida, sol·licita una correcció com s'explica més amunt. Aquest missatge només el reps tu: qui valida les teves correccions només se n'assabenta si en sol·licites una.
 
 ---
 

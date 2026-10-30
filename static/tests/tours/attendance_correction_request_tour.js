@@ -117,3 +117,38 @@ registry.category("web_tour.tours").add("ems_attendance_correction_request_open_
         },
     ],
 });
+
+// Issue #734: the non-teaching staff request corrections of their own check-ins too (the auto
+// check-out asks them to when it had to guess a check-out). Logged in as a member of the staff
+// with the Secretary role only: their list is flat (no manager grouping) and holds only their
+// own attendance.
+registry.category("web_tour.tours").add("ems_attendance_correction_request_staff", {
+    test: true,
+    url: "/odoo/action-hr_attendance.hr_attendance_action",
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell",
+            content: "Open the staff member's own attendance",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_statusbar button:contains('Request Correction')",
+            content: "Open the correction request dialog",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Fill in the reason",
+            run: "edit Tour: the automatic check-out guessed it",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Save the correction request",
+            run: "click",
+        },
+        {
+            trigger: ".o_form_view .oe_stat_button:contains('Corrections')",
+            content: "Back on the attendance form - the 'Corrections' stat button shows the new request",
+        },
+    ],
+});

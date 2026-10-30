@@ -2245,8 +2245,8 @@ msgstr "Fichaje automático"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/employees/employee_autocheckout.py:0
-msgid "Automatic check-out could not use the scheduled working hours because the check-in time (%s) is after the last scheduled hour. The check-out has been set to one hour after check-in (%s). Please review and correct the actual check-out time."
-msgstr ""
+msgid "You checked in at %(check_in)s, after the last hour your schedule expected that day (%(scheduled_end)s), so the automatic check-out could not use your schedule to close this attendance. It has been closed one hour after your check-in, at %(check_out)s, which is probably not when you left. If it is not, please request a correction: open this attendance and click \"Request Correction\"."
+msgstr "Fichaste la entrada a las %(check_in)s, después de la última hora que tu horario preveía ese día (%(scheduled_end)s), así que la salida automática no ha podido usar tu horario para cerrar este fichaje. Se ha cerrado una hora después de la entrada, a las %(check_out)s, que probablemente no es la hora a la que te fuiste. Si no lo es, solicita una corrección: abre este fichaje y haz clic en \"Solicitar corrección\"."
 
 #. module: ems
 #. odoo-python

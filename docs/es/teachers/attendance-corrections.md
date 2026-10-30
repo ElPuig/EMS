@@ -43,6 +43,8 @@ Si una entrada o salida se ha registrado con una hora incorrecta (has olvidado f
 
 > Una vez guardado, el motivo ya no se puede editar — si necesitas añadir más contexto después, usa el chat de la parte inferior de la solicitud para dejar un comentario.
 
+> **¿Has recibido un mensaje sobre tu salida?** Si fichas la entrada después de la última hora que tu horario preveía ese día y olvidas fichar la salida, la salida automática no puede usar tu horario para cerrar el fichaje: lo cierra una hora después de la entrada y te envía un mensaje (correo electrónico y chat del fichaje) que lo explica. Si esa hora no es la de tu salida, solicita una corrección como se explica más arriba. Ese mensaje solo lo recibes tú: tu jefe de estudios o jefe de estudios adjunto solo se entera si solicitas la corrección.
+
 ---
 
 ## Qué pasa después

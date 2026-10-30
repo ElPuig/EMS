@@ -1543,6 +1543,7 @@ msgstr "Afegir contacte familiar i relació"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_relation_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Address"
 msgstr "Adreça"
 
@@ -2323,6 +2324,7 @@ msgstr "Data de naixement"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_birth_date
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Birth date"
 msgstr "Data de naixement"
 
@@ -2826,6 +2828,7 @@ msgstr "Credencials del compte corporatiu"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_contact_form_student_emails
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Corporate email"
 msgstr "Correu corporatiu"
 
@@ -4477,6 +4480,7 @@ msgstr "Atorgar accés"
 #: model:ir.model.fields,field_description:ems.field_ems_quality_action__group_id model_terms:ir.ui.view,arch_db:ems.view_group_search
 #: model:ir.model.fields,field_description:ems.field_ems_minute__group_id
 #: model:ir.model.fields,field_description:ems.field_ems_meeting_presence__group_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Group"
 msgstr "Grup"
 
@@ -4742,8 +4746,9 @@ msgstr "ID"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "IDALU"
-msgstr ""
+msgstr "IDALU"
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_attendance_issue_status__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_attendance_issue_student__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_attendance_justification__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_attendance_schedule__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_attendance_session_header__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_attendance_template__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_base__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_enrollment__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_grade_session__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_limesurvey_block__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_limesurvey_enrollment__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_limesurvey_header__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_limesurvey_recipient__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_notice__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_notice_line__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_student_document__activity_exception_icon model:ir.model.fields,field_description:ems.field_ems_teaching__activity_exception_icon model:ir.model.fields,field_description:ems.field_hr_employee__activity_exception_icon
@@ -6396,6 +6401,7 @@ msgstr "Contacte"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_contact_relation_wizard__passport_id model:ir.model.fields,field_description:ems.field_ems_student_update_wizard__col_passport_id model:ir.model.fields,field_description:ems.field_res_partner__passport_id model:ir.model.fields.selection,name:ems.selection__ems_student_document__doc_type__passport model_terms:ir.ui.view,arch_db:ems.portal_documentation
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Passport"
 msgstr "Passaport"
 
@@ -6493,6 +6499,7 @@ msgstr "Modificació de dades personals de l'alumne %s"
 #. odoo-python
 #: code:addons/ems/models/contacts/google_workspace_integration.py:0 model_terms:ir.ui.view,arch_db:ems.view_contact_form_student_emails
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Personal email"
 msgstr "Correu personal"
 
@@ -6506,6 +6513,7 @@ msgstr "Telèfon"
 #: code:addons/ems/models/contacts/contact_data_request.py:0
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 #: model_terms:ir.ui.view,arch_db:ems.view_users_form_simple_modif_photo_visibility
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Photo"
 msgstr "Foto"
 
@@ -7822,6 +7830,7 @@ msgstr "Carrer 2"
 #: model:ir.model.fields,field_description:ems.field_ems_student_history_line__student_id
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__student_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Student"
 msgstr "Estudiant"
 
@@ -7979,6 +7988,7 @@ msgstr "Estudis per a matrícula"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_review_wizard__study_name
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 #: model:ir.model.fields,field_description:ems.field_ems_external_record_wizard__study_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Study"
 msgstr "Estudi"
 
@@ -8690,6 +8700,7 @@ msgstr "Dimarts"
 #. module: ems
 #: model:ems.role,name:ems.role_tutor model:ir.model.fields,field_description:ems.field_ems_attendance_issue_tutor__tutor_id model:ir.model.fields,field_description:ems.field_ems_attendance_justification__tutor_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_group_wizard__tutor_id model:ir.model.fields,field_description:ems.field_ems_attendance_report_student_wizard__tutor_id model:ir.model.fields,field_description:ems.field_ems_group__tutor_id model:ir.model.fields,field_description:ems.field_res_partner__tutor_id model:ir.model.fields,field_description:ems.field_res_users__tutor_id model:res.groups,name:ems.group_tutor model:res.partner.relation.type,name:ems.relation_type_tutor model_terms:ir.ui.view,arch_db:ems.view_student_search_tutor model:ir.model.fields,field_description:ems.field_ems_student_year_record__tutor_id
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request__tutor_id
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Tutor"
 msgstr "Tutor/a"
 
@@ -9597,11 +9608,6 @@ msgstr "Has de respondre les autoritzacions abans de continuar amb el procés de
 #: model:mail.template,subject:ems.mail_template_google_welcome model:mail.template,subject:ems.mail_template_google_welcome_employee
 msgid "Your corporate account @{{ object.env.company.google_ws_domain }}"
 msgstr "El teu compte corporatiu @{{ object.env.company.google_ws_domain }}"
-
-#. module: ems
-#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
-msgid "Your personal data is read-only. To request a correction, please contact the secretariat."
-msgstr "Les teves dades personals són de només lectura. Per sol·licitar una correcció, contacta amb la secretaria."
 
 #. module: ems
 #. odoo-python
@@ -17315,6 +17321,7 @@ msgstr "<strong>Alumne/a</strong>"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "<strong>The school has returned your changes:</strong>"
 msgstr "<strong>El centre us ha retornat els canvis:</strong>"
 
@@ -17453,12 +17460,14 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Contact details"
 msgstr "Dades de contacte"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data_family_fields
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "DNI/NIE"
 msgstr "DNI/NIE"
 
@@ -17506,11 +17515,13 @@ msgstr "Dona accés al portal a qui no en tingui"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Health card (TIS)"
 msgstr "Targeta sanitària (TIS)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Landline"
 msgstr "Telèfon fix"
 
@@ -17763,6 +17774,7 @@ msgstr ""
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_contact_data
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
 msgid "Social Security number (NUSS)"
 msgstr "Número de la Seguretat Social (NUSS)"
 
@@ -27754,3 +27766,53 @@ msgstr "Correcció sol·licitada"
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_search
 msgid "Justified"
 msgstr "Justificada"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<i class=\"fa fa-lock me-1\"/><span>Only the secretary's office can correct these details.</span>"
+msgstr "<i class=\"fa fa-lock me-1\"/><span>Només la secretaria pot corregir aquestes dades.</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<i class=\"fa fa-lock me-1\"/><span>To correct these details, contact the secretary's office.</span>"
+msgstr "<i class=\"fa fa-lock me-1\"/><span>Per corregir aquestes dades, contacteu amb la secretaria.</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<i class=\"fa fa-lock me-1\"/><span>Your family can ask to change these details from their own account.</span>"
+msgstr "<i class=\"fa fa-lock me-1\"/><span>La vostra família pot sol·licitar canvis en aquestes dades des del seu compte.</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<span class=\"small text-muted\">You can ask to change these details: the school reviews the changes before applying them.</span>"
+msgstr "<span class=\"small text-muted\">Podeu sol·licitar canvis en aquestes dades: el centre els revisa abans d'aplicar-los.</span>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "<strong>Family</strong>"
+msgstr "<strong>Família</strong>"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "School details"
+msgstr "Dades acadèmiques"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "The school asks you to review and complete these details."
+msgstr "El centre us demana que reviseu i completeu aquestes dades."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "There is no family contact on file."
+msgstr "No hi ha cap contacte familiar registrat."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "Your changes are waiting for the school's review."
+msgstr "Els vostres canvis estan pendents de la revisió del centre."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+msgid "Your contact details"
+msgstr "Les vostres dades de contacte"

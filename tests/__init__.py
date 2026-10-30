@@ -254,6 +254,7 @@ from . import test_user_menu_documentation_tour
 from . import test_contact_data_request
 from . import test_contact_data_request_send_wizard
 from . import test_portal_contact_data
+from . import test_portal_profile
 from . import test_contact_data_request_tour
 from . import test_student_private_note
 from . import test_student_private_note_tour

@@ -2,12 +2,23 @@
 <odoo>
     <data>
 
+        <!-- One read-only value of the profile: `label` above `value`, a dash when empty. -->
+        <template id="portal_profile_value" name="Profile value">
+            <div t-attf-class="mb-3 #{col_class or 'col-md-6'}">
+                <div class="small text-muted" t-out="label"/>
+                <div t-if="value" t-out="value"/>
+                <div t-else="" class="text-muted">-</div>
+            </div>
+        </template>
+
         <!--
             Make the portal profile read-only for portal users (students/families).
-            The editable form is hidden and a read-only summary is shown instead,
-            with a button to review the contact details for whoever may answer for the
-            student (issue #507). The actual write protection lives in the controller
-            (controllers/portal_account.py); this template is presentation only.
+            The editable form is hidden and a read-only summary is shown instead (issue #736):
+            the school data of the student the account looks at, which only the secretary's office
+            corrects; the account's own contact details, exactly those the review page of issue
+            #507 lets it send, with the button to that page and the review's status; and, on the
+            student's own account, the family contacts on file. The actual write protection lives
+            in the controller (controllers/portal_account.py); this template is presentation only.
         -->
         <template id="portal_my_details_readonly" inherit_id="portal.portal_my_details" priority="99">
 
@@ -18,66 +29,153 @@
 
             <!-- Read-only variant -->
             <xpath expr="//form[@action='/my/account']" position="after">
-                <div t-if="ems_profile_readonly" class="o_portal_details">
-                    <div class="alert alert-info" role="alert">
-                        <i class="fa fa-lock me-1"/>
-                        <p class="d-inline mb-0">Your personal data is read-only. To request a correction, please contact the secretariat.</p>
+                <div t-if="ems_profile_readonly" class="o_portal_details o_ems_profile col-lg-8 mb-5">
+                    <t t-set="student" t-value="ems_profile_student"/>
+                    <t t-set="partner" t-value="ems_profile_partner"/>
+
+                    <!-- The student's school data: only the secretary's office corrects it. -->
+                    <div t-if="student" class="card mb-4 o_ems_profile_school">
+                        <div class="card-header">
+                            <strong t-if="ems_profile_own">School details</strong>
+                            <strong t-else="">Student</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex flex-column flex-sm-row gap-4">
+                                <img t-if="ems_profile_photo" t-att-src="ems_profile_photo" class="rounded border o_ems_photo_frame" alt="Photo"/>
+                                <div t-else="" class="rounded border d-flex align-items-center justify-content-center text-muted o_ems_photo_frame"><i class="fa fa-user fa-3x"/></div>
+                                <div class="flex-grow-1 o_ems_profile_school_data">
+                                    <h5 class="mb-3" t-out="student.name"/>
+                                    <div class="row">
+                                        <t t-call="ems.portal_profile_value">
+                                            <t t-set="label">IDALU</t><t t-set="value" t-value="student.student_id"/>
+                                        </t>
+                                        <div class="mb-3 col-md-6">
+                                            <div class="small text-muted">Birth date</div>
+                                            <div t-if="student.birth_date" t-out="student.birth_date" t-options="{'widget': 'date'}"/>
+                                            <div t-else="" class="text-muted">-</div>
+                                        </div>
+                                        <t t-if="student.main_group_id">
+                                            <t t-call="ems.portal_profile_value">
+                                                <t t-set="label">Group</t><t t-set="value" t-value="student.main_group_id.name"/>
+                                            </t>
+                                            <t t-call="ems.portal_profile_value">
+                                                <t t-set="label">Study</t><t t-set="value" t-value="student.main_group_id.study_id.name"/>
+                                            </t>
+                                            <div class="mb-3 col-md-6 o_ems_profile_tutor">
+                                                <div class="small text-muted">Tutor</div>
+                                                <div t-if="ems_profile_tutor">
+                                                    <t t-out="ems_profile_tutor.name"/>
+                                                    <div t-if="ems_profile_tutor.work_email">
+                                                        <a t-attf-href="mailto:#{ems_profile_tutor.work_email}" t-out="ems_profile_tutor.work_email"/>
+                                                    </div>
+                                                </div>
+                                                <div t-else="" class="text-muted">-</div>
+                                            </div>
+                                        </t>
+                                        <t t-call="ems.portal_profile_value">
+                                            <t t-set="label">Corporate email</t><t t-set="value" t-value="student.student_email"/>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="small text-muted"><i class="fa fa-lock me-1"/><span>Only the secretary's office can correct these details.</span></div>
+                        </div>
                     </div>
-                    <div class="row col-lg-8">
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Name</label>
-                            <div t-esc="partner.name"/>
+
+                    <!-- The account's own contact details: the same fields /my/dades-contacte sends
+                         (STUDENT_FIELDS for a student, FAMILY_FIELDS for a family contact). -->
+                    <div class="card mb-4 o_ems_profile_contact">
+                        <div class="card-header">
+                            <strong t-if="ems_profile_own">Contact details</strong>
+                            <strong t-else="">Your contact details</strong>
                         </div>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Email</label>
-                            <div t-esc="partner.email"/>
-                        </div>
-                        <div class="clearfix"/>
-                        <div t-if="partner.vat" class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">VAT Number</label>
-                            <div t-esc="partner.vat"/>
-                        </div>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Phone</label>
-                            <div t-esc="partner.phone"/>
-                        </div>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Mobile</label>
-                            <div t-esc="partner.mobile"/>
-                        </div>
-                        <div class="clearfix"/>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Street</label>
-                            <div t-esc="partner.street"/>
-                        </div>
-                        <div t-if="partner.street2" class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Street 2</label>
-                            <div t-esc="partner.street2"/>
-                        </div>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">City</label>
-                            <div t-esc="partner.city"/>
-                        </div>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Zip / Postal Code</label>
-                            <div t-esc="partner.zip"/>
-                        </div>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">State / Province</label>
-                            <div t-esc="partner.state_id.name"/>
-                        </div>
-                        <div class="mb-3 col-xl-6">
-                            <label class="col-form-label fw-bold">Country</label>
-                            <div t-esc="partner.country_id.name"/>
+                        <div class="card-body">
+                            <div class="row">
+                                <t t-if="not ems_profile_own">
+                                    <t t-call="ems.portal_profile_value">
+                                        <t t-set="label">Name</t><t t-set="value" t-value="partner.name"/>
+                                    </t>
+                                </t>
+                                <t t-call="ems.portal_profile_value">
+                                    <t t-set="label">Mobile</t><t t-set="value" t-value="partner.mobile"/>
+                                </t>
+                                <t t-if="ems_profile_own">
+                                    <t t-call="ems.portal_profile_value">
+                                        <t t-set="label">Landline</t><t t-set="value" t-value="partner.phone"/>
+                                    </t>
+                                    <t t-call="ems.portal_profile_value">
+                                        <t t-set="label">Personal email</t><t t-set="value" t-value="partner.email"/>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <t t-call="ems.portal_profile_value">
+                                        <t t-set="label">Email</t><t t-set="value" t-value="partner.email"/>
+                                    </t>
+                                </t>
+                                <t t-call="ems.portal_profile_value">
+                                    <t t-set="label">Address</t>
+                                    <t t-set="value" t-value="ems_profile_address"/>
+                                </t>
+                                <t t-call="ems.portal_profile_value">
+                                    <t t-set="label">DNI/NIE</t><t t-set="value" t-value="partner.document_id"/>
+                                </t>
+                                <t t-call="ems.portal_profile_value">
+                                    <t t-set="label">Passport</t><t t-set="value" t-value="partner.passport_id"/>
+                                </t>
+                                <t t-if="ems_profile_own">
+                                    <t t-call="ems.portal_profile_value">
+                                        <t t-set="label">Health card (TIS)</t><t t-set="value" t-value="partner.medical_id"/>
+                                    </t>
+                                    <t t-call="ems.portal_profile_value">
+                                        <t t-set="label">Social Security number (NUSS)</t><t t-set="value" t-value="partner.nuss"/>
+                                    </t>
+                                </t>
+                            </div>
+
+                            <!-- Issue #507: the contact details are reviewed on their own page, for whoever
+                                 may answer for the student (res.partner._ems_portal_contact_data_student). -->
+                            <t t-if="ems_profile_can_review">
+                                <t t-set="data_request" t-value="ems_profile_request"/>
+                                <div t-if="data_request.state == 'submitted'" class="alert alert-info o_ems_profile_pending_review">
+                                    Your changes are waiting for the school's review.
+                                </div>
+                                <div t-elif="data_request.state == 'pending' and data_request.rejection_reason" class="alert alert-warning o_ems_profile_returned">
+                                    <strong>The school has returned your changes:</strong>
+                                    <div t-out="data_request.rejection_reason"/>
+                                </div>
+                                <div t-elif="data_request.state == 'pending'" class="alert alert-warning o_ems_profile_requested">
+                                    The school asks you to review and complete these details.
+                                </div>
+                                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                    <span class="small text-muted">You can ask to change these details: the school reviews the changes before applying them.</span>
+                                    <a href="/my/dades-contacte" class="btn btn-primary">
+                                        <i class="fa fa-address-card me-1"/>Update contact details
+                                    </a>
+                                </div>
+                            </t>
+                            <div t-elif="ems_profile_own" class="small text-muted o_ems_profile_family_updates">
+                                <i class="fa fa-lock me-1"/><span>Your family can ask to change these details from their own account.</span>
+                            </div>
+                            <div t-else="" class="small text-muted">
+                                <i class="fa fa-lock me-1"/><span>To correct these details, contact the secretary's office.</span>
+                            </div>
                         </div>
                     </div>
-                    <!-- Issue #507: the contact details are reviewed on their own page, for whoever
-                         may answer for the student (res.partner._ems_portal_contact_data_student). -->
-                    <div t-if="request.env.user.partner_id._ems_portal_contact_data_student()"
-                         class="clearfix col-lg-8 mb-5">
-                        <a href="/my/dades-contacte" class="btn btn-primary float-end">
-                            <i class="fa fa-address-card me-1"/>Update contact details
-                        </a>
+
+                    <!-- The student's family contacts, on his own account. -->
+                    <div t-if="ems_profile_own" class="card mb-4 o_ems_profile_family">
+                        <div class="card-header"><strong>Family</strong></div>
+                        <ul t-if="ems_profile_family" class="list-group list-group-flush">
+                            <li t-foreach="ems_profile_family" t-as="entry" class="list-group-item">
+                                <strong t-out="entry['name']"/>
+                                <span class="text-muted">(<t t-out="entry['relation']"/>)</span>
+                                <div class="small">
+                                    <span t-if="entry['mobile']" class="me-3"><i class="fa fa-mobile me-1"/><t t-out="entry['mobile']"/></span>
+                                    <span t-if="entry['email']"><i class="fa fa-envelope-o me-1"/><t t-out="entry['email']"/></span>
+                                </div>
+                            </li>
+                        </ul>
+                        <div t-else="" class="card-body text-muted">There is no family contact on file.</div>
                     </div>
                 </div>
             </xpath>

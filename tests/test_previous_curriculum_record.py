@@ -7,7 +7,8 @@ from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
 from ..models.grades.previous_curriculum_pdf import grade_passes, parse_previous_curriculum_record
-from .common import build_previous_curriculum_pdf, create_level_study, create_role_user, next_student_id
+from .common import (build_previous_curriculum_certificate_pdf, build_previous_curriculum_pdf, create_level_study,
+                     create_role_user, next_student_id)
 
 
 class TestPreviousCurriculumRecord(TransactionCase):
@@ -20,6 +21,7 @@ class TestPreviousCurriculumRecord(TransactionCase):
         cls.env.company.center_code = '08000777'
         # The current study that took over the invented cycle ICX0.
         cls.level, cls.study = create_level_study(cls, 'PCR', study={'code': 'CFGS_ICX0'})
+        _level, cls.certificate_study = create_level_study(cls, 'PCC', study={'code': 'CFGS_AGX0'})
         cls.secretary = create_role_user(cls, 'secretary', 'test_secretary_previous_curriculum')
         cls.head_of_studies = create_role_user(cls, 'head_of_studies', 'test_hos_previous_curriculum')
 
@@ -27,7 +29,7 @@ class TestPreviousCurriculumRecord(TransactionCase):
         super().setUp()
         self.student = self.env['res.partner'].create({
             'name': 'Previous Curriculum Student', 'contact_type': 'student',
-            'student_id': next_student_id()})
+            'student_id': next_student_id(), 'document_id': '00000000-t'})
 
     def _document(self, identifier=None, failed=True, **kwargs):
         """Module 001 passed, with a unit name wrapped at a hyphen; module 002 not graded yet (a
@@ -44,6 +46,23 @@ class TestPreviousCurriculumRecord(TransactionCase):
                 ('01401', 'Formació en centres de treball', 317, 'Ap', '1'),
             ]),
         ], **kwargs)
+
+    def _certificate(self, document_id='00000000T'):
+        """Every module passed, one of the centre's own (letters for codes), and a page break right
+        after a unit name wrapped over two lines."""
+        return build_previous_curriculum_certificate_pdf(document_id, [
+            ('011', 'MP11. Formació i orientació|laboral', 66, '8', 'Ord.', [
+                ('01101', 'UF1. Incorporació al treball', 33, '8', '1'),
+                ('01102', 'UF2. Prevenció de riscos|laborals', 33, '8', '1'),
+            ]),
+            ('AGX', 'MP3. Mòdul propi|del centre', 99, '7', 'Ord.', [
+                ('AGXOA', 'UF1. Primera unitat|pròpia', 66, '7', '1'),
+                ('AGXOB', 'UF2. Segona unitat|pròpia', 33, '6', '1'),
+            ]),
+            ('106', 'MP6. Anglès', 132, '10', 'Ord.', [
+                ('10601', 'UF1. Anglès tècnic', 132, '10', '1'),
+            ]),
+        ], page_break=2)
 
     def _read(self, pdf, user=None):
         Wizard = self.env['ems.previous_curriculum_wizard'].with_user(user or self.secretary)
@@ -69,6 +88,52 @@ class TestPreviousCurriculumRecord(TransactionCase):
         self.assertEqual((second['hours'], second['grade'], second['sitting']), (0, '', ''))
         self.assertEqual(second['units'][0]['grade'], 'NP')
         self.assertEqual(placement['name'], 'MP14. Formació en centres de treball')
+
+    def test_the_grades_certificate_is_read_as_printed(self):
+        document = parse_previous_curriculum_record(self._certificate())
+        self.assertTrue(document['is_certificate'])
+        # Named by their DNI/NIE: no IDALU, and no years.
+        self.assertEqual((document['student_identifier'], document['student_document_id'], document['student_name']),
+                         ('', '00000000T', 'Alumna Inventada'))
+        self.assertEqual((document['centre_code'], document['centre_name']), ('08000888', 'Institut Inventat Dos'))
+        self.assertEqual((document['curriculum_code'], document['curriculum_name']),
+                         ('CFPS AGX0', 'CFPS Cicle Certificat (LOE)'))
+        self.assertEqual((document['start_year'], document['end_year']), (0, 0))
+        fol, own, english = document['modules']
+        self.assertEqual((fol['name'], fol['hours'], fol['grade'], fol['sitting']),
+                         ('MP11. Formació i orientació laboral', 66, '8', 'Ord.'))
+        self.assertEqual([unit['name'] for unit in fol['units']],
+                         ['UF1. Incorporació al treball', 'UF2. Prevenció de riscos laborals'])
+        # Letter codes of the centre's own module; the page's footer and the next page's header
+        # do not run into the name of the unit before them.
+        self.assertEqual((own['code'], own['name']), ('AGX', 'MP3. Mòdul propi del centre'))
+        self.assertEqual([(unit['code'], unit['name'], unit['grade']) for unit in own['units']],
+                         [('AGXOA', 'UF1. Primera unitat pròpia', '7'), ('AGXOB', 'UF2. Segona unitat pròpia', '6')])
+        self.assertEqual((english['code'], english['grade'], english['units'][0]['code']), ('106', '10', '10601'))
+
+    def test_import_from_the_grades_certificate(self):
+        form = self._read(self._certificate())
+        self.assertEqual(form.certificate_student_document_id, '00000000T')
+        self.assertEqual(form.study_id, self.certificate_study)
+        # Every module listed is passed, but a certificate may list only some: no title proposed.
+        self.assertFalse(form.title_obtained)
+        wizard = form.save()
+        self.assertTrue(wizard.all_modules_passed)
+        # Checked against the student's Document ID, written with a hyphen and a lowercase letter.
+        wizard.action_create()
+        record = self.student.previous_curriculum_record_ids
+        self.assertEqual((record.curriculum_code, record.centre_code, record.start_year), ('CFPS AGX0', '08000888', 0))
+        self.assertEqual((record.module_count, record.passed_module_count), (3, 3))
+        self.assertIn('Previous curriculum record of CFPS Cicle Certificat (LOE) added', self.student.message_ids[0].body)
+
+    def test_a_grades_certificate_of_another_document_id_is_refused(self):
+        wizard = self._read(self._certificate(document_id='11111111H')).save()
+        with self.assertRaises(UserError):
+            wizard.action_create()
+        self.student.document_id = False
+        with self.assertRaises(UserError):
+            self._read(self._certificate()).save().action_create()
+        self.assertFalse(self.student.previous_curriculum_record_ids)
 
     def test_passing_grades(self):
         for grade in ('5', '10', 'Ap', 'CV', 'EX'):

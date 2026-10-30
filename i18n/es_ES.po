@@ -26667,19 +26667,18 @@ msgstr "%(student)s ya tiene un expediente de %(curriculum)s."
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_file
 #: model:ir.model.fields,field_description:ems.field_ems_student_previous_curriculum_record__certificate_file
-msgid "Academic history document"
-msgstr "Documento del historial académico"
+msgid "Academic document"
+msgstr "Documento académico"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 msgid ""
 "Adds to the academic history a cycle the student studied under a\n"
 "                            previous curriculum (organised in units, UF), kept as printed on its\n"
-"                            document. Upload the academic history (Historial acadèmic, PDF)."
+"                            document. Upload the academic history (Historial acadèmic) or the\n"
+"                            grades certificate (Certificat de qualificacions), in PDF."
 msgstr ""
-"Añade al histórico académico un ciclo que el alumno/a cursó con un plan de "
-"estudios anterior (organizado en unidades formativas, UF), tal como figura "
-"en el documento. Subid el historial académico (Historial acadèmic, PDF)."
+"Añade al histórico académico un ciclo que el alumno/a cursó con un plan de estudios anterior (organizado en unidades formativas, UF), tal como figura en el documento. Subid el historial académico (Historial acadèmic) o el certificado de calificaciones (Certificat de qualificacions), en PDF."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__all_modules_passed
@@ -26692,12 +26691,10 @@ msgid ""
 "Check what was read from the document before creating the record:\n"
 "                            correct any grade, and confirm whether the student obtained the title,\n"
 "                            which the document does not state. It is proposed when every module\n"
-"                            listed is passed."
+"                            listed is passed, except on a grades certificate, which may list only\n"
+"                            some of them."
 msgstr ""
-"Comprobad lo que se ha leído del documento antes de crear el expediente: "
-"corregid cualquier nota y confirmad si el alumno/a obtuvo el título, que el "
-"documento no indica. Se propone cuando todos los módulos de la lista están "
-"superados."
+"Comprobad lo que se ha leído del documento antes de crear el expediente: corregid cualquier nota y confirmad si el alumno/a obtuvo el título, que el documento no indica. Se propone cuando todos los módulos de la lista están superados, excepto en un certificado de calificaciones, que puede recoger solo una parte."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__study_id
@@ -26838,11 +26835,9 @@ msgstr "Aplicación de origen"
 #. odoo-python
 #: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
 msgid ""
-"The file is not the academic history (Historial acadèmic) of a previous "
-"curriculum."
+"The file is neither the academic history (Historial acadèmic) nor the grades certificate (Certificat de qualificacions) of a previous curriculum."
 msgstr ""
-"El archivo no es el historial académico (Historial acadèmic) de un plan de "
-"estudios anterior."
+"El archivo no es ni el historial académico (Historial acadèmic) ni el certificado de calificaciones (Certificat de qualificacions) de un plan de estudios anterior."
 
 #. module: ems
 #: model:ir.model.constraint,message:ems.constraint_ems_student_previous_curriculum_record_unique_student_curriculum
@@ -26870,9 +26865,10 @@ msgstr "Unidad formativa (UF)"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/previous_curriculum_wizard.py:0
-msgid "Upload the academic history document of the previous curriculum."
+msgid ""
+"Upload the academic history or the grades certificate of the previous curriculum."
 msgstr ""
-"Subid el documento del historial académico del plan de estudios anterior."
+"Subid el historial académico o el certificado de calificaciones del plan de estudios anterior."
 
 #. module: ems
 #: model:ir.model,name:ems.model_ems_student_history_line
@@ -27583,3 +27579,14 @@ msgstr "fichaje corregido por %(user)s de %(when)s."
 #: code:addons/ems/models/employees/absence_pending.py:0
 msgid "the teacher's attendance covers part of it."
 msgstr "la asistencia del docente cubre una parte."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_previous_curriculum_wizard__certificate_student_document_id
+msgid "Document DNI/NIE"
+msgstr "DNI/NIE del documento"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/shared/base.py:0
+msgid "%(student)s has no Document ID (DNI/NIE) to check the certificate's (%(document)s) against: fill it in first."
+msgstr "%(student)s no tiene documento de identidad (DNI/NIE) para comprobar el del certificado (%(document)s): rellenadlo primero."

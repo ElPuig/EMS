@@ -118,13 +118,13 @@ The record shows with the **Previous record** ribbon, the origin centre and the 
 
 ## Adding a previous curriculum record
 
-A cycle the student studied under a **previous curriculum** (the LOE cycles organised in units, UF, which SAGA managed) does not fit the per-course history: it is kept apart, exactly as printed on its academic history document, so it can be looked up, for example to decide a convalidation request. Secretariat, administration, Head of Studies and Director can add it.
+A cycle the student studied under a **previous curriculum** (the LOE cycles organised in units, UF, which SAGA managed) does not fit the per-course history: it is kept apart, exactly as printed on its academic history or grades certificate, so it can be looked up, for example to decide a convalidation request. Secretariat, administration, Head of Studies and Director can add it.
 
 1. Open the student's form and, in the **Actions** dropdown, click **Add a previous curriculum record**.
-2. In **Academic history document**, upload the academic history (*Historial acadèmic*) PDF.
-3. The curriculum, the centre, the years and a grid with every module and, under it, its units are filled in, with their hours, grade and sitting. Correct any grade or sitting that was not read right.
-4. **Title obtained** is ticked when every module listed is passed, since the document does not say whether the student graduated. Confirm or correct it and, if you know it, fill in **Title date**.
-5. Check that **Document student** is the student: if the identifier does not match their IDALU, or cannot be checked, the record is not created.
+2. In **Academic document**, upload the PDF of the academic history (*Historial acadèmic*) or of the grades certificate (*Certificat de qualificacions de mòduls i unitats formatives*).
+3. The curriculum, the centre, the years (the certificate does not give them) and a grid with every module and, under it, its units are filled in, with their hours, grade and sitting. Correct any grade or sitting that was not read right.
+4. **Title obtained** is ticked when every module listed is passed, since the document does not say whether the student graduated. With a grades certificate it is never ticked, as it may list only some of the modules. Confirm or correct it and, if you know it, fill in **Title date**.
+5. Check that **Document student** is the student: the academic history is checked against their IDALU and the grades certificate, which carries no IDALU, against their **Document ID** (DNI/NIE). If they do not match, or cannot be checked, the record is not created.
 6. Click **Create record**.
 
 ![Previous curriculum record wizard with the review grid read from the PDF: modules, units, grades and sittings](../../assets/secretary/academic-history-previous-curriculum-review.png)

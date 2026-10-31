@@ -331,7 +331,7 @@ class TestPortalConvalidation(HttpCase):
         request.sudo().action_complete()
         self._login(self.student_user)
         page = self.url_open('/my/convalidaciones').text
-        self.assertIn('<strong>Convalidated</strong>', page)
+        self.assertIn('<strong>Convalidated (CV)</strong>', page)
         self.assertNotIn('<strong>7</strong>', page)
 
 
@@ -341,7 +341,7 @@ class TestPortalConvalidation(HttpCase):
         request.sudo().action_complete()
         self._login(self.student_user)
         page = self.url_open('/my/convalidaciones').text
-        self.assertIn('<strong>5 (fixed grade)</strong>', page)
+        self.assertIn('<strong>Convalidated (5)</strong>', page)
 
     def test_resolution_is_not_downloadable_before_it_is_registered(self):
         request = self._resolved_request()

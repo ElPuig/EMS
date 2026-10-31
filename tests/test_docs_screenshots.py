@@ -398,24 +398,27 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
                 'state': 'rejected',
                 'rejection_reason_id': self.env.ref('ems.convalidation_rejection_reason_contents').id})
 
+        def set_grade_types(request):
+            for line, grade_type in zip(request.line_ids[1:3], ('without_grade', 'fixed_five')):
+                line.sudo().write({'state': 'granted', 'grade_type': grade_type, 'rejection_reason_id': False})
+
         # Issue #657: the identity document, copied like the IDALU above it.
         self.students[0].document_id = '00000000T'
         # The Head of Studies' review: subjects decided, one refused with its reason.
-        review = new_request(self.students[0], subjects[1:], attachment_ids=[(0, 0, {
+        review = new_request(self.students[0], subjects, attachment_ids=[(0, 0, {
             'name': 'Certificat_academic_SMX.pdf', 'datas': base64.b64encode(b'%PDF-1.4 x')})],
             student_notes="Vaig cursar el CFGM de Sistemes microinformàtics i xarxes.")
         decide(review)
-        # Issue #580: a module convalidated without a grade.
-        review.line_ids[1].sudo().write({'state': 'granted', 'grade_type': 'without_grade', 'rejection_reason_id': False})
+        # Issues #580 and #738: every way of convalidating - a grade, without one (CV), a 5.
+        set_grade_types(review)
         at_ministry = new_request(self.students[1], subjects[1:2], basis='other')
         at_ministry.sudo().action_send_to_ministry()
         proposed = new_request(self.students[2], subjects[1:])
         decide(proposed)
         proposed.with_user(head_of_studies).action_propose()
-        resolved = new_request(self.portal_student, subjects[1:])
+        resolved = new_request(self.portal_student, subjects)
         decide(resolved)
-        # Issue #738: a module convalidated with a fixed 5, which the resolution states.
-        resolved.line_ids[1].sudo().write({'state': 'granted', 'grade_type': 'fixed_five', 'rejection_reason_id': False})
+        set_grade_types(resolved)
         resolved.with_user(head_of_studies).action_propose()
         resolved.with_user(director).action_resolve()
 

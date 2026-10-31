@@ -295,12 +295,12 @@
                         <field name="grade" invisible="mode != 'grade'" required="mode == 'grade'"/>
                     </group>
                     <div class="text-muted" invisible="mode != 'without_grade'">
-                        <i class="fa fa-info-circle me-1"/>Without a grade, the resolution and the student's grades
-                        show the subject as "Convalidated" (CV), and it does not count towards the average.
+                        <i class="fa fa-info-circle me-1"/>Without a grade, the resolution shows the subject as "Convalidated (CV)"
+                        and the student's grades as CV, and it does not count towards the average.
                     </div>
                     <div class="text-muted" invisible="mode != 'fixed_five'">
                         <i class="fa fa-info-circle me-1"/>The subject counts as a 5 whatever the previous studies
-                        hold, and the resolution states that the grade is fixed.
+                        hold, and the resolution shows it as "Convalidated (5)".
                     </div>
                     <footer>
                         <button name="action_grant" type="object" string="Convalidate" class="btn-primary"/>

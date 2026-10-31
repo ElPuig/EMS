@@ -23,9 +23,9 @@ GRADE_TYPES = [
     ('without_grade', 'Without grade'),
     ('fixed_five', 'With a fixed 5'),
 ]
-GRADE_TYPE_HELP = ("Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), "
-                   "and it does not count towards the average. With a fixed 5, it counts as a 5 whatever the "
-                   "previous studies hold, and the resolution states that the grade is fixed.")
+GRADE_TYPE_HELP = ("Without grade, the resolution shows the subject as \"Convalidated (CV)\" and the grades as "
+                   "CV, and it does not count towards the average. With a fixed 5, it counts as a 5 whatever the "
+                   "previous studies hold, and the resolution shows it as \"Convalidated (5)\".")
 
 # States a request can no longer move on from.
 CLOSED_STATES = ('completed', 'rejected', 'cancelled')
@@ -1058,9 +1058,9 @@ class EmsConvalidationLine(models.Model):
         self.ensure_one()
         subject = self.subject_id.display_name
         if self.grade_type == 'without_grade':
-            return self.env._("%(subject)s, without a grade", subject=subject)
+            return self.env._("%(subject)s, convalidated (CV)", subject=subject)
         if self.grade_type == 'fixed_five':
-            return self.env._("%(subject)s, with a fixed %(grade)s", subject=subject, grade=CONVALIDATED_GRADE)
+            return self.env._("%(subject)s, convalidated (5)", subject=subject)
         return self.env._("%(subject)s, with a %(grade)s", subject=subject, grade=self.grade)
 
     def _ems_rejection_text(self):

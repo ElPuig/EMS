@@ -375,28 +375,19 @@ class TestConvalidation(TransactionCase):
         self.assertIn("Different competences", html)
         self.assertIn("1085/2020", html)
 
-    def test_only_a_subject_without_grade_reads_convalidated(self):
-        """Issue #580: "Convalidated" is the subject convalidated without a grade, not a 5."""
+    def test_the_resolution_shows_how_each_subject_is_convalidated(self):
+        """Issues #580 and #738: the grade, "Convalidated (CV)" without one and "Convalidated (5)"
+        with a fixed 5, as the DOIGC record them."""
         request = self._request(self.subject | self.other_subject)
         self._line(request).with_user(self.head_of_studies).action_grant()
-        self._line(request, self.other_subject).with_user(self.head_of_studies).write(
-            {'state': 'granted', 'grade_type': 'without_grade'})
-        cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
-        self.assertTrue(any(cell.startswith('Convalidated') for cell in cells))
-        self.assertTrue(any(cell.startswith('5') for cell in cells))
-        self._line(request, self.other_subject).with_user(self.head_of_studies).write({'grade_type': 'grade'})
-        cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
-        self.assertFalse(any(cell.startswith('Convalidated') for cell in cells))
-
-
-    def test_a_fixed_five_is_stated_on_the_resolution(self):
-        """Issue #738: the secretariat registers it differently in Esfera, so it says so."""
-        request = self._request(self.subject | self.other_subject)
-        self._line(request).with_user(self.head_of_studies).write({'state': 'granted', 'grade_type': 'fixed_five'})
-        self._line(request, self.other_subject).with_user(self.head_of_studies).action_grant()
-        cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
-        self.assertEqual(sum(cell.startswith('5 (fixed grade)') for cell in cells), 1)
-        self.assertEqual(sum(cell.startswith('5') for cell in cells), 2)
+        other = self._line(request, self.other_subject).with_user(self.head_of_studies)
+        other.write({'state': 'granted', 'grade_type': 'without_grade'})
+        for grade_type, label in (('without_grade', 'Convalidated (CV)'), ('fixed_five', 'Convalidated (5)'),
+                                  ('grade', None)):
+            other.write({'grade_type': grade_type})
+            cells = [cell.split('<')[0].strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
+            self.assertIn('5', cells)
+            self.assertEqual([cell for cell in cells if cell.startswith('Convalidated')], [label] if label else [])
 
     def test_legal_grounds_and_appeal_are_configurable(self):
         request = self._request(basis='certificate')
@@ -716,7 +707,7 @@ class TestConvalidation(TransactionCase):
     def test_the_email_states_a_fixed_five(self):
         request = self._completed(grade_type='fixed_five')
         body = self._resolution_mails(request).body_html
-        self.assertTrue(any(text in body for text in ("fixed grade: 5", "nota fixada: 5", "nota fijada: 5")), body)
+        self.assertRegex(body, r"(?i)convalidat\w*</strong>\s*\(5\)")
 
     def _minor_with_family(self):
         minor = self.env['res.partner'].create({
@@ -1082,7 +1073,7 @@ class TestConvalidation(TransactionCase):
         self._teaching_staff()
         self._enroll_and_grade()
         self._completed(grade_type='without_grade')
-        self.assertIn(f"{self.subject.display_name}, without a grade", self._notices(self.teacher).body)
+        self.assertIn(f"{self.subject.display_name}, convalidated (CV)", self._notices(self.teacher).body)
 
     # --- registration number -------------------------------------------------
 
@@ -1091,7 +1082,7 @@ class TestConvalidation(TransactionCase):
         self._teaching_staff()
         self._enroll_and_grade()
         self._completed(grade_type='fixed_five')
-        self.assertIn(f"{self.subject.display_name}, with a fixed 5", self._notices(self.teacher).body)
+        self.assertIn(f"{self.subject.display_name}, convalidated (5)", self._notices(self.teacher).body)
 
     def test_requests_are_numbered_per_course(self):
         first, second = self._request(), self._request(self.other_subject)

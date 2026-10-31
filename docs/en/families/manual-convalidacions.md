@@ -82,7 +82,7 @@ Each request appears below the form, with its registration number (e.g. CONV-202
 | **Rejected** | Registered, with no module convalidated. |
 | **Cancelled** | The request was cancelled. If the centre cancelled it, its box shows why. |
 
-While the request is being processed, the table only lists the modules requested: the state tells you how far it has got. The decision on each module can still change until the secretariat registers it, so it is not shown before. Once the request is **Completed** or **Rejected**, the table shows each module's resolution (**Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones; on a **Completed** request the **Grade** column appears too: a module convalidated without a grade shows **Convalidated** there, and one convalidated with a fixed 5 (a 5 whatever grade the previous studies hold) shows **5 (fixed grade)**.
+While the request is being processed, the table only lists the modules requested: the state tells you how far it has got. The decision on each module can still change until the secretariat registers it, so it is not shown before. Once the request is **Completed** or **Rejected**, the table shows each module's resolution (**Convalidated** or **Rejected**) and, under **Remarks**, the reason for the rejected ones; on a **Completed** request the **Grade** column appears too: a module convalidated without a grade shows **Convalidated (CV)** there (it does not count towards the average), and one that counts as a 5 whatever grade the previous studies hold shows **Convalidated (5)**.
 
 When the request becomes **Completed** or **Rejected**, you get an email with the official resolution as a PDF. You can also download it from the portal with the **Official resolution** button.
 

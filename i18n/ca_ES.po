@@ -15716,8 +15716,6 @@ msgstr "Convalida"
 #: model:ir.model.fields,field_description:ems.field_ems_grade_subject_line__is_convalidated
 #: model:ir.model.fields,field_description:ems.field_ems_student_year_record_subject__is_convalidated
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__state__granted
-#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
-#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 msgid "Convalidated"
 msgstr "Convalidat"
 
@@ -22143,9 +22141,9 @@ msgstr "<i class=\"fa fa-info-circle me-1\"/>En convalidar un mòdul se'n demana
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 msgid ""
-"<i class=\"fa fa-info-circle me-1\"/>Without a grade, the resolution and the student's grades\n"
-"                        show the subject as \"Convalidated\" (CV), and it does not count towards the average."
-msgstr "<i class=\"fa fa-info-circle me-1\"/>Sense nota, la resolució i les notes de l'alumne mostren el mòdul com a «Convalidat» (CV), i no compta per a la mitjana."
+"<i class=\"fa fa-info-circle me-1\"/>Without a grade, the resolution shows the subject as \"Convalidated (CV)\"\n"
+"                        and the student's grades as CV, and it does not count towards the average."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>Sense nota, la resolució mostra el mòdul com a «Convalidat (CV)» i les notes de l'alumne com a CV, i no compta per a la mitjana."
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__without_grade
@@ -22199,8 +22197,8 @@ msgstr "Amb nota"
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__mode
 #: model:ir.model.fields,help:ems.field_ems_convalidation_line__grade_type
-msgid "Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), and it does not count towards the average. With a fixed 5, it counts as a 5 whatever the previous studies hold, and the resolution states that the grade is fixed."
-msgstr "Sense nota, la resolució i les notes mostren el mòdul com a «Convalidat» (CV), i no compta per a la mitjana. Amb un 5 fixat, compta com un 5 sigui quina sigui la nota dels estudis previs, i la resolució indica que la nota és fixada."
+msgid "Without grade, the resolution shows the subject as \"Convalidated (CV)\" and the grades as CV, and it does not count towards the average. With a fixed 5, it counts as a 5 whatever the previous studies hold, and the resolution shows it as \"Convalidated (5)\"."
+msgstr "Sense nota, la resolució mostra el mòdul com a «Convalidat (CV)» i les notes com a CV, i no compta per a la mitjana. Amb un 5 fixat, compta com un 5 sigui quina sigui la nota dels estudis previs, i la resolució el mostra com a «Convalidat (5)»."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_reject_wizard__details
@@ -27541,8 +27539,8 @@ msgstr "%(student)s no té document d'identitat (DNI/NIE) per comprovar el del c
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
-msgid "%(subject)s, without a grade"
-msgstr "%(subject)s, sense nota"
+msgid "%(subject)s, convalidated (CV)"
+msgstr "%(subject)s, convalidat (CV)"
 
 #. module: ems
 #. odoo-python
@@ -27928,18 +27926,24 @@ msgstr "Tipus de nota"
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
-msgid "5 (fixed grade)"
-msgstr "5 (nota fixada)"
+msgid "Convalidated (5)"
+msgstr "Convalidat (5)"
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
 msgid ""
 "<i class=\"fa fa-info-circle me-1\"/>The subject counts as a 5 whatever the previous studies\n"
-"                        hold, and the resolution states that the grade is fixed."
-msgstr "<i class=\"fa fa-info-circle me-1\"/>El mòdul compta com un 5 sigui quina sigui la nota dels estudis previs, i la resolució indica que la nota és fixada."
+"                        hold, and the resolution shows it as \"Convalidated (5)\"."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>El mòdul compta com un 5 sigui quina sigui la nota dels estudis previs, i la resolució el mostra com a «Convalidat (5)»."
 
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/grades/convalidation.py:0
-msgid "%(subject)s, with a fixed %(grade)s"
-msgstr "%(subject)s, amb un %(grade)s fixat"
+msgid "%(subject)s, convalidated (5)"
+msgstr "%(subject)s, convalidat (5)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "Convalidated (CV)"
+msgstr "Convalidat (CV)"

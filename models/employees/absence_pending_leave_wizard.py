@@ -4,10 +4,11 @@ from odoo import api, fields, models
 
 
 class EmsAbsencePendingLeaveWizard(models.TransientModel):
-    """"Create absence" on detected absences (issue #707): the absence type, chosen once for
-    every selected entry, of the requests prepared for the teachers to send."""
+    """"Prepare justification" on detected absences from their list (issue #707): the absence
+    type, chosen once for every selected entry, of the requests prepared for the teachers to send.
+    The form asks for it with the hours instead (ems.absence_pending.review_wizard)."""
     _name = "ems.absence_pending.leave_wizard"
-    _description = "Create absence from detected absences"
+    _description = "Prepare justification of detected absences"
 
     absence_ids = fields.Many2many(string="Detected absences", comodel_name="ems.absence_pending")
     holiday_status_id = fields.Many2one(
@@ -28,9 +29,4 @@ class EmsAbsencePendingLeaveWizard(models.TransientModel):
         """Closing the dialog reloads whatever opened it; a notice of what was skipped, if any,
         is shown on the way."""
         self.ensure_one()
-        result = self.absence_ids._ems_prepare_absences(self.holiday_status_id)
-        close = {'type': 'ir.actions.act_window_close'}
-        if result.get('tag') != 'display_notification':
-            return close
-        result['params']['next'] = close
-        return result
+        return self.absence_ids._ems_close_dialog(self.absence_ids._ems_prepare_absences(self.holiday_status_id))

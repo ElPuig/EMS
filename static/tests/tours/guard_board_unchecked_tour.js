@@ -25,6 +25,14 @@ const openAbsencesTable = [
         trigger: `${pastLesson} .o_guard_board_absence_row:contains('${teacher}'):has(.o_guard_board_unchecked_tag)`,
         content: "So is the one already over",
     },
+    {
+        trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge:contains('Tour Unchecked Late Guard'):has(.fa-clock-o)`,
+        content: "A guard who has not checked in carries the clock icon (issue #725)...",
+    },
+    {
+        trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge:contains('Tour Unchecked Guard'):not(:has(.fa-clock-o))`,
+        content: "...and one who has, not",
+    },
 ];
 
 const stillOnlyThePastLesson = [
@@ -119,6 +127,29 @@ registry.category("web_tour.tours").add("ems_guard_board_unchecked_cover", {
         {
             trigger: `body:not(:has(.modal)) ${currentLesson} .o_guard_board_absence_row:contains('${teacher}') .o_guard_board_cover_tag:contains('Tour Unchecked Guard')`,
             content: "Covered at once, with no confirmation dialog in between",
+        },
+    ],
+});
+
+// Issue #725: the guard on duty says the other guard, who has not checked in, is in the centre.
+registry.category("web_tour.tours").add("ems_guard_board_unchecked_guard", {
+    test: true,
+    url: "/odoo/action-ems.action_guard_duty_board",
+    steps: () => [
+        ...openAbsencesTable,
+        {
+            trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge.o_guard_board_guard_supportable:contains('Tour Unchecked Late Guard'):has(.fa-clock-o)`,
+            content: "The guard who has not checked in can be clicked",
+            run: "click",
+        },
+        {
+            trigger: ".modal .o_guard_unchecked_present",
+            content: "They are in the centre",
+            run: "click",
+        },
+        {
+            trigger: `${currentLesson}.o_guard_board_guard_cell .o_guard_board_guard_badge:contains('Tour Unchecked Late Guard'):not(:has(.fa-clock-o))`,
+            content: "Checked in: no clock any more",
         },
     ],
 });

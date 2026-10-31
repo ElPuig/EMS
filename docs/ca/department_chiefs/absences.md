@@ -69,6 +69,22 @@ Tots els docents que cobreixen la mateixa classe comparteixen el seu color. Una 
 
 Quan falta el docent d'una guàrdia de WC o de pati, la seva guàrdia apareix com una línia a la columna **Guàrdia** de la taula d'absències, sota els docents de guàrdia del seu bloc, amb el nom de la guàrdia en lloc d'un grup. Es cobreix exactament com una classe: fes-hi clic, tria un dels docents de guàrdia ordinària d'aquella franja i fes clic a **Assignar i avisar**. El missatge que rep indica que és una guàrdia el que ha de cobrir. Si després l'absència s'anul·la, se t'ofereix alliberar el docent de guàrdia com qualsevol altre.
 
+### Enviar un docent de guàrdia de suport
+
+Un docent de guàrdia també es pot enviar a una classe on el docent **sí** que hi és, per donar-li suport: un grup mogut, una pràctica que necessita dues persones.
+
+1. A la columna **Guàrdia** de la taula d'absències, fes clic a la casella d'un docent de guàrdia lliure (la indicació diu **Enviar de suport a un docent que és a classe**).
+2. A **Classe a la qual donar suport**, tria la classe: el diàleg mostra les classes d'aquella franja amb el docent present al centre i que organitzes tu (les mateixes que organitzaries si el docent faltés). Si la guàrdia només coincideix amb una part de la classe, l'hora mostra la part que cobriria.
+3. Escriu per a què cal el suport a **Missatge per al docent de guàrdia i el docent** i fes clic a **Enviar i avisar**.
+
+![Enviar un docent de guàrdia de suport: les classes d'aquella franja amb el docent present i un missatge per a tots dos](../../assets/teachers/guard-duty-17-suport.png)
+
+El docent de guàrdia i el docent a qui dona suport reben tots dos un missatge d'Odoo amb la classe i el teu missatge. Mentre dura el suport, el docent de guàrdia és amb aquell grup: la seva casella surt ratllada i en gris (la indicació diu amb quin grup), ja no se li ofereix cobrir cap absència i l'horari el mostra a la classe amb una icona d'encaixada de mans. Compta en el nombre de classes que ha cobert aquest curs.
+
+![Columna Guàrdia un cop enviat el suport: el docent de guàrdia ratllat de 08:00 a 09:00, ocupat amb el grup, i lliure de nou de 09:00 a 10:00](../../assets/teachers/guard-duty-18-suport-enviat.png)
+
+Per retirar-lo, torna a fer clic a la casella del docent de guàrdia i després a **Treure el suport**: tots dos en reben l'avís. Un suport no és una cobertura: si després el docent a qui dona suport es posa malalt, la seva classe s'ha de cobrir igualment. Només pots enviar un docent de guàrdia de la teva àrea (vegeu *Docents d'una altra àrea* més amunt), i un dia que ja ha passat no es pot canviar.
+
 ### Reorganitzar les classes en lloc d'enviar una guàrdia
 
 Sovint no cal cap guàrdia, perquè els docents poden reorganitzar les seves classes d'aquell dia. El quadrant ho calcula per a cada classe que encara no té ningú i ho proposa al quadre **Propostes per a les absències**, damunt la taula (només el veu qui pot organitzar l'absència); aquestes línies també mostren una etiqueta com ara **3 reorganitzacions possibles**.

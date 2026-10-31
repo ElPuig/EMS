@@ -150,7 +150,7 @@ The administration changes the state. If the session is in the board stage or fi
 
 ## Students with a convalidated subject
 
-When the secretariat completes the convalidation of a subject you teach, you get a **Convalidated subject** activity in your inbox (🕒), on the student's form, with the grade and the convalidation's registration number. From then on the student no longer takes the subject: they leave your attendance lists and the open grade session, even if you had already graded them. Rounds already closed keep them, with the grade followed by **CV**.
+When the secretariat completes the convalidation of a subject you teach, you get a notice (in Odoo's inbox or by email, as your preferences say) about the student, with the grade and the convalidation's registration number. It is only for your information: there is nothing to mark as done. From then on the student no longer takes the subject: they leave your attendance lists and the open grade session, even if you had already graded them. Rounds already closed keep them, with the grade followed by **CV**.
 
 ---
 

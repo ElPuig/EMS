@@ -69,6 +69,22 @@ Every guard covering the same class shares its colour. A dotted border (on the l
 
 When the teacher of a WC or break guard is away, their guard duty appears as a line in the **Guard duty** column of the Absences table, under the guards of its own block, with the guard duty's name instead of a group. It is covered exactly like a class: click it, choose one of the teachers on an ordinary guard duty in that time block, and click **Assign and notify**. The message they receive says it is a guard duty to cover. If the absence is cancelled afterwards, the guard is offered for release like any other.
 
+### Sending a guard as support
+
+A guard teacher on duty can also be sent to a class whose teacher **is** there, to support them: a restless group, a practical that needs two people.
+
+1. In the **Guard duty** column of the Absences table, click the box of a free guard teacher (its tooltip says **Send as support to a teacher in class**).
+2. Choose the class under **Class to support**: the dialog lists the classes of that time whose teacher is in the centre and that you organise (the same ones you would organise if their teacher were away). If the guard's duty only coincides with part of a class, the time shows the part they would cover.
+3. Write what the support is for in **Message for the guard and the teacher**, and click **Send and notify**.
+
+![Sending a guard teacher as support: the classes of that time whose teacher is in, and a message for both](../../assets/teachers/guard-duty-17-suport.png)
+
+The guard teacher and the teacher they support both receive an Odoo message with the class and your message. While the support lasts, the guard is with that group: their box is struck through and greyed out (its tooltip says with which group), they are no longer offered to cover any absence, and the timetable shows them in the class with a handshake icon. It counts in the number of classes they have covered this course.
+
+![Guard duty column once the support is sent: the guard struck through at 08:00-09:00, busy with the group, and free again at 09:00-10:00](../../assets/teachers/guard-duty-18-suport-enviat.png)
+
+To withdraw it, click the guard's box again and then **Remove support**: both are told. A support is not a cover: if the teacher supported falls ill afterwards, their class still has to be covered. Only a guard of your own area can be sent (see *Teachers of another area* above), and a day already over cannot be changed.
+
 ### Rearranging the lessons instead of sending a guard
 
 Often no guard is needed, because the teachers can rearrange their lessons that day. The board works this out for every class still left without anybody and proposes it in the **Proposals for the absences** box, above the table (only visible to whoever can organise the absence); those lines also show a tag such as **3 possible arrangements**.

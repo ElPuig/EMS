@@ -189,6 +189,49 @@ class TestAttendanceCorrection(TransactionCase):
         self.assertEqual(correction.state, 'pending')
         self.assertEqual(correction.employee_id, self.teacher_employee)
 
+    def _create_staff_attendance(self):
+        """A member of the administrative and services staff (PAS) with the Secretary role only,
+        no teaching group, below the Head of Studies, and an attendance of their own."""
+        staff_user = self.env['res.users'].with_context(no_reset_password=True).create({
+            'name': 'Test Staff (Attendance Correction)',
+            'login': 'test_staff_attendance_correction',
+            'email': 'test_staff_attendance_correction@example.com',
+            'groups_id': [(4, self.env.ref('ems.group_secretary').id), (4, self.env.ref('base.group_user').id)],
+        })
+        staff_employee = self.env['hr.employee'].create({
+            'name': 'Test Staff Employee (Attendance Correction)',
+            'employee_type': 'asp',
+            'user_id': staff_user.id,
+            'parent_id': self.hos_employee.id,
+        })
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': staff_employee.id,
+            'check_in': datetime(2026, 1, 5, 8, 0),
+            'check_out': datetime(2026, 1, 5, 9, 0),
+        })
+        return staff_user, attendance
+
+    def test_staff_can_request_correction_of_own_attendance(self):
+        # Issue #734: the auto check-out asks whoever it closed one hour after check-in to
+        # request a correction, and non-teaching staff clock in too. It reaches their approver.
+        staff_user, attendance = self._create_staff_attendance()
+
+        correction = self._create_correction(staff_user, attendance_id=attendance.id)
+
+        self.assertEqual(correction.state, 'pending')
+        self.assertEqual(correction.activity_ids.user_id, self.hos_user)
+        self.assertTrue(
+            self.env['ems.attendance_correction'].with_user(staff_user).search([('id', '=', correction.id)]))
+
+    def test_staff_cannot_request_or_read_corrections_of_others(self):
+        staff_user, _attendance = self._create_staff_attendance()
+        teacher_correction = self._create_correction(self.teacher_user)
+
+        with self.assertRaises(AccessError):
+            self._create_correction(staff_user)
+        self.assertFalse(
+            self.env['ems.attendance_correction'].with_user(staff_user).search([('id', '=', teacher_correction.id)]))
+
     def test_approver_resolution_immediate_manager(self):
         # manager_employee's direct manager (hos_employee) is in group_head_of_studies.
         approver = self.manager_employee.find_head_of_studies()
@@ -478,3 +521,38 @@ class TestAttendanceCorrection(TransactionCase):
         action = self.attendance.action_view_corrections()
         self.assertEqual(action['domain'], [('attendance_id', '=', self.attendance.id)])
         self.assertIn(correction.id, self.env['ems.attendance_correction'].search(action['domain']).ids)
+
+    def _red_attendance(self):
+        """The technical attendance Odoo's absence detection leaves on a day without check-in
+        (shown in red): a Monday's midnight, in the company's timezone, lasting one second."""
+        calendar = self.env['resource.calendar'].create({
+            'name': 'Test Schedule (Attendance Correction)',
+            'attendance_ids': [(0, 0, {'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 8.0, 'hour_to': 15.0})],
+        })
+        self.teacher_employee.resource_calendar_id = calendar.id
+        midnight = self.env['ems.datetime_utils'].datetime_to_odoo(
+            self.env['ems.datetime_utils'].time_float_to_utc_datetime(datetime(2026, 1, 12).date(), 0.0))
+        return self.env['hr.attendance'].create({
+            'employee_id': self.teacher_employee.id, 'check_in': midnight,
+            'check_out': midnight + timedelta(seconds=1), 'in_mode': 'technical', 'out_mode': 'technical',
+        })
+
+    def test_red_attendance_defaults_to_the_schedule(self):
+        """Issue #735: its midnight times mean nothing; the day's schedule is proposed instead."""
+        red = self._red_attendance()
+        correction = self.env['ems.attendance_correction'].with_context(
+            default_attendance_id=red.id).with_user(self.teacher_user).new({})
+        self.assertEqual((correction.requested_check_in, correction.requested_check_out), (8.0, 15.0))
+
+    def test_red_attendance_is_red_again_when_its_accepted_request_is_rejected(self):
+        """Issue #735: accepting turns the technical attendance into a real one (Odoo does so
+        whenever its times are written); rejecting it afterwards puts it back as it was."""
+        red = self._red_attendance()
+        midnight = red.check_in
+        correction = self._create_correction(self.teacher_user, attendance_id=red.id,
+                                             requested_check_in=8.0, requested_check_out=15.0)
+        self.assertTrue(correction.original_technical)
+        correction.with_user(self.hos_user).action_accept()
+        self.assertEqual(red.in_mode, 'manual')
+        correction.with_user(self.hos_user).action_reject()
+        self.assertEqual((red.check_in, red.in_mode, red.out_mode), (midnight, 'technical', 'technical'))

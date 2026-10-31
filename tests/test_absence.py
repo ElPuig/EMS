@@ -326,10 +326,12 @@ class TestAbsence(TransactionCase):
 
     def test_absences_menu_opens_directly_for_an_employee(self):
         """Odoo renders a menu entry as a link only when it has no children the reader can see
-        (web.NavBar.SectionsMenu), so an employee must see none of them for one click to land on
-        their own list."""
+        (web.NavBar.SectionsMenu), so staff who are not teachers must see none of them for one
+        click to land on their own list. A teacher gets a dropdown with My Time Off first and
+        their Absences to regularize (issue #735), and nothing of the managers'."""
         root = self.env.ref('hr_holidays.menu_hr_holidays_root')
-        employee = self._create_user('plain_for_menu', [self.env.ref('ems.group_teacher')])
+        employee = self._create_user('plain_for_menu', [self.env.ref('ems.group_secretary')])
+        teacher = self._create_user('teacher_for_menu', [self.env.ref('ems.group_teacher')])
         self.env['res.users']._ems_sync_time_off_groups()
 
         self.assertTrue(root.action, 'the parent menu carries the action itself')
@@ -340,6 +342,9 @@ class TestAbsence(TransactionCase):
             self.assertTrue(child.groups_id, f'"{child.name}" is visible to everyone')
             self.assertFalse(child.groups_id & employee.groups_id,
                              f'an employee sees "{child.name}", so the parent stays a dropdown')
+        teacher_children = children.filtered(lambda child: child.groups_id & teacher.groups_id)
+        self.assertEqual(teacher_children.sorted('sequence'),
+                         self.env.ref('hr_holidays.hr_leave_menu_my') | self.env.ref('ems.menu_absence_pending_mine'))
 
     def test_restricting_time_off_groups_is_idempotent(self):
         first = self.env['res.users']._ems_sync_time_off_groups()

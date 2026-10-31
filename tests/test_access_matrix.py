@@ -19,9 +19,12 @@ ACCESS_MATRIX = {
     # administrators delete one; everybody else discards it (Discard, for its reviewers).
     'ems.absence_pending': {
         'teacher': 'r', 'department_chief': 'rwc', 'head_of_studies': 'rwc', 'academic_admin': 'rwcu'},
-    # Issue #707: "Create absence", for whoever reviews detected absences; who may review each
-    # entry is checked when it runs (ems.absence_pending._ems_review).
+    # Issue #707: "Prepare justification" from the list, for whoever reviews detected absences; who
+    # may review each entry is checked when it runs (ems.absence_pending._ems_review).
     'ems.absence_pending.leave_wizard': {
+        'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwc'},
+    # Issues #731, #735: the form's review decisions on part of an entry, same reviewers.
+    'ems.absence_pending.review_wizard': {
         'teacher': '', 'department_chief': '', 'head_of_studies': 'rwc', 'academic_admin': 'rwc'},
     # Secretariat prints the attendance PDFs too, from the 'Reports' screen they see (issue #633).
     'ems.attendance_report_wizard': {'teacher': 'rwc', 'secretary': 'rwc'},
@@ -36,7 +39,8 @@ ACCESS_MATRIX = {
     'ems.criteria': {'teacher': 'r', 'secretary': 'r'},
     'ems.group': {'teacher': 'r', 'secretary': 'r', 'department_chief': 'rwcu', 'head_of_studies': 'rwcu'},
     'ems.level': {'teacher': 'r', 'secretary': 'r'},
-    'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu'},
+    # The administrator configures them too: they are above Direction (issue #723).
+    'ems.non_teaching_type': {'teacher': 'r', 'department_chief': 'rwcu', 'settings_admin': 'rwcu'},
     'ems.outcome': {'teacher': 'r', 'secretary': 'r'},
     # Issue #720: whoever handles convalidation requests in the backend cancels them saying why.
     'ems.convalidation.cancel_wizard': {'teacher': '', 'secretary': 'rwcu', 'head_of_studies': 'rwcu', 'academic_admin': 'rwcu'},

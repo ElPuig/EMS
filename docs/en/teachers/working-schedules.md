@@ -42,6 +42,16 @@ If a class is genuinely taught by more than one teacher at the same time (same s
 
 ---
 
+## Your Schedule Declaration
+
+Every course you sign the Departament d'Educació i FP's official schedule declaration ("Horari professor/a"). The Head of Studies prints it from EMS, already filled in with the centre's details, your name, NIF and roles, your weekly schedule and the summary table of hours, and gives it to you to complete by hand what EMS doesn't know (workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place and date) and sign it.
+
+![A schedule declaration printed by EMS: the centre's and teacher's details, the weekly schedule and the summary table, with the cells that don't apply in grey](../../assets/teachers/declaracio-horaria-mostra.png)
+
+If an hour is in the wrong row of the summary table, tell the Head of Studies: which row each activity goes to is set in the centre's configuration.
+
+---
+
 ## Exporting Your Schedule to PDF
 
 Click **PDF** in the Schedule tab's toolbar to download a printable version of your weekly timetable.

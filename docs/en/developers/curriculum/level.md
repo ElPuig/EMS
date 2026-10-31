@@ -18,6 +18,7 @@
 | `name` | `Char` | Yes | Yes | Full descriptive name |
 | `study_ids` | `One2many → ems.study` | No | No | Studies at this level (inverse of `study.level_id`) |
 | `allows_convalidation` | `Boolean` | No | Yes | Students of this level's studies can request subject convalidations. Set for `CFGM`/`CFGS` in `data/cat/ems.level.csv` |
+| `declaration_code` | `Selection` | No | Yes | Row of the [official schedule declaration](../employees/working_schedule.md#official-schedule-declaration-emsreport_schedule_declaration-issue-723)'s summary table this level's teaching hours go to (empty: Altres). Seeded once by `_ems_seed_declaration_codes()`, then configured by the centre |
 | `notes` | `Text` | No | Yes | Free-form administrative notes |
 | `display_name` | `Char` (computed) | — | No | Format: `ACRONYM: Name` |
 

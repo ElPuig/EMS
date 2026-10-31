@@ -118,13 +118,13 @@ El registro se muestra con la cinta **Expediente anterior**, el centro de proced
 
 ## Añadir un expediente de un plan de estudios anterior
 
-Un ciclo que el alumno/a cursó con un **plan de estudios anterior** (los ciclos LOE organizados en unidades formativas, UF, que gestionaba SAGA) no encaja en el histórico por cursos: se guarda aparte, tal como figura en el documento del historial académico, para poder consultarlo, por ejemplo para resolver una solicitud de convalidación. Lo pueden añadir secretaría, administración, jefatura de estudios y dirección.
+Un ciclo que el alumno/a cursó con un **plan de estudios anterior** (los ciclos LOE organizados en unidades formativas, UF, que gestionaba SAGA) no encaja en el histórico por cursos: se guarda aparte, tal como figura en el historial académico o en el certificado de calificaciones, para poder consultarlo, por ejemplo para resolver una solicitud de convalidación. Lo pueden añadir secretaría, administración, jefatura de estudios y dirección.
 
 1. Abrid la ficha del alumno/a y, en el desplegable **Acciones**, haced clic en **Añadir un expediente de un plan de estudios anterior**.
-2. En **Documento del historial académico**, subid el PDF del historial académico (*Historial acadèmic*).
-3. Se rellenan el plan de estudios, el centro, los años y una tabla con todos los módulos y, debajo de cada uno, sus unidades formativas, con las horas, la nota y la convocatoria. Corregid cualquier nota o convocatoria que no se haya leído bien.
-4. **Título obtenido** queda marcado cuando todos los módulos de la lista están superados, porque el documento no dice si el alumno/a se tituló. Confirmadlo o corregidlo y, si la sabéis, rellenad la **Fecha del título**.
-5. Comprobad que el **Alumno del documento** es el alumno/a: si el identificador no coincide con su IDALU, o no se puede comprobar, el expediente no se crea.
+2. En **Documento académico**, subid el PDF del historial académico (*Historial acadèmic*) o del certificado de calificaciones (*Certificat de qualificacions de mòduls i unitats formatives*).
+3. Se rellenan el plan de estudios, el centro, los años (el certificado no los indica) y una tabla con todos los módulos y, debajo de cada uno, sus unidades formativas, con las horas, la nota y la convocatoria. Corregid cualquier nota o convocatoria que no se haya leído bien.
+4. **Título obtenido** queda marcado cuando todos los módulos de la lista están superados, porque el documento no dice si el alumno/a se tituló. Con un certificado de calificaciones no se marca nunca, porque puede recoger solo una parte de los módulos. Confirmadlo o corregidlo y, si la sabéis, rellenad la **Fecha del título**.
+5. Comprobad que el **Alumno del documento** es el alumno/a: el historial académico se comprueba con su IDALU y el certificado de calificaciones, que no trae IDALU, con su **Documento de identidad (DNI/NIE)**. Si no coinciden, o no se pueden comprobar, el expediente no se crea.
 6. Haced clic en **Crear el expediente**.
 
 ![Asistente para añadir un expediente de un plan de estudios anterior con la tabla leída del PDF: módulos, unidades formativas, notas y convocatorias](../../assets/secretary/academic-history-previous-curriculum-review.png)

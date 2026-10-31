@@ -44,6 +44,9 @@ class TestGuardBoardUncheckedTour(HttpCase):
         self._calendar(self.teacher, weekday, ((8, 9), (10, 11)), subject_id=subject.id, group_ids=[group.id],
                        name='TGBUT: TGBUT')
         self._calendar(self.guard, weekday, ((10, 11),), non_teaching=self.env.ref('ems.non_teaching_g').id, name='Guard')
+        # A second guard who has not checked in either: their badge says so (issue #725).
+        late_guard = self.env['hr.employee'].create({'name': 'Tour Unchecked Late Guard', 'employee_type': 'teacher'})
+        self._calendar(late_guard, weekday, ((10, 11),), non_teaching=self.env.ref('ems.non_teaching_g').id, name='Guard')
         utils = self.env['ems.datetime_utils']
         self.env['hr.attendance'].create({
             'employee_id': self.guard.id,
@@ -71,6 +74,13 @@ class TestGuardBoardUncheckedTour(HttpCase):
         # The teacher sees who registered it, on the check-in's own form.
         self.start_tour(f"/odoo/hr.attendance/{attendance.id}", "ems_guard_board_unchecked_form",
                         login=self.teacher_user.login)
+
+    def test_the_guard_checks_in_a_guard_who_has_not(self):
+        """Issue #725: the guard on duty clicks the badge of the other guard, who has not checked in."""
+        self.start_tour("/odoo", "ems_guard_board_unchecked_guard", login=self.guard_user.login)
+
+        late = self.env['hr.employee'].search([('name', '=', 'Tour Unchecked Late Guard')])
+        self.assertEqual(self.env['hr.attendance'].search([('employee_id', '=', late.id)]).ems_checked_in_by_id, self.guard_user)
 
     def test_the_guard_covers_it_from_the_dialog(self):
         self.start_tour("/odoo", "ems_guard_board_unchecked_cover", login=self.guard_user.login)

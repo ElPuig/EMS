@@ -2,6 +2,13 @@
 
 from odoo import api, fields, models
 
+from ..employees.non_teaching_type import LEVEL_DECLARATION_CODES
+
+# Issue #723: seeded once (post_init_hook and migrations/18.0.0.43.0), then configured by the centre.
+LEVEL_DECLARATION_SEED = {
+	'ESO': 'eso', 'BTX': 'bat', 'CFGB': 'cfgb', 'CFGM': 'cfgm', 'CFGS': 'cfgs', 'EFPS': 'cefp', 'PFI': 'pfi',
+}
+
 # The student card's level colours: pastel, so the card is not garish, and never red or green, which
 # the card keeps for "may / may not leave the centre". A closed palette, so no level can pick them.
 CARD_PALETTE = {
@@ -43,6 +50,10 @@ class EmsLevel(models.Model):
 	allows_convalidation = fields.Boolean(string="Allows convalidations", default=False,
 		help="Students of this level's studies can request subject convalidations.")
 
+	declaration_code = fields.Selection(selection=LEVEL_DECLARATION_CODES, string="Schedule declaration code",
+		help="Row of the summary table of the official schedule declaration this level's teaching hours are "
+			"added to. Empty: they go to 'Altres'.")
+
 	# The level's colour on the student card (issue #524). Computed from the acronym only when the
 	# level is created, then the centre's to change: not in data/cat/ems.level.csv, so an upgrade
 	# never reverts it.
@@ -73,3 +84,9 @@ class EmsLevel(models.Model):
 			acronym = level.acronym or ''
 			name = level.name or ''
 			level.display_name = f"{acronym}: {name}".strip(': ')
+
+	@api.model
+	def _ems_seed_declaration_codes(self):
+		"""Issue #723: the official code of the catalog's levels, by their acronym."""
+		for level in self.search([('acronym', 'in', list(LEVEL_DECLARATION_SEED))]):
+			level.declaration_code = LEVEL_DECLARATION_SEED[level.acronym]

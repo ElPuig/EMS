@@ -150,7 +150,7 @@ L'estat el canvia l'administració. Si la sessió està en junta o finalitzada i
 
 ## Alumnes amb un mòdul convalidat
 
-Quan secretaria completa la convalidació d'un mòdul que imparteixes, reps una activitat **Assignatura convalidada** a la safata (🕒), sobre la fitxa de l'alumne, amb la nota i el número de registre de la convalidació. Des d'aquell moment l'alumne ja no cursa el mòdul: surt de les teves llistes d'assistència i de la sessió de notes oberta, encara que ja li haguessis posat alguna nota. A les rondes ja tancades es manté, amb la nota seguida de **CV**.
+Quan secretaria completa la convalidació d'un mòdul que imparteixes, reps un avís (a la bústia de l'Odoo o per correu, segons les teves preferències) sobre l'alumne, amb la nota i el número de registre de la convalidació. És només informatiu: no has de marcar res com a fet. Des d'aquell moment l'alumne ja no cursa el mòdul: surt de les teves llistes d'assistència i de la sessió de notes oberta, encara que ja li haguessis posat alguna nota. A les rondes ja tancades es manté, amb la nota seguida de **CV**.
 
 ---
 

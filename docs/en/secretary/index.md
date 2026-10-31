@@ -22,6 +22,7 @@ This section contains the manuals for **secretariat staff**.
 - [Authorizations: creating, sending and following up](authorizations.md) — Creating authorization forms, sending them to students during the course and following up the answers.
 - [Convalidations: registering resolutions](convalidations.md) — Registering resolved convalidations in Esfera and closing them so the student receives the resolution and sees the grade.
 - [Contact data requests: asking families to update their details](../tutors/contact-data-requests.md) — Ask students and families to review their contact details from the portal, follow up the answers and approve the changes (shared manual with the tutors).
+- [Your check-ins and correction requests](../teachers/attendance-corrections.md) — Reviewing your own check-ins and check-outs and requesting a correction when one has the wrong time, for example after an automatic check-out (shared manual with the teachers).
 - [Meeting attendance with the NFC tag](meeting-attendance.md) — Creating the session of a meeting (staff meeting, department, training), setting the kiosk at the door, marking who is present and printing the PDF.
 - [Reviewing student documents](student-documents.md) — Approving, rejecting or reopening ID/medical/IBAN/benefit submissions, and what each decision does behind the scenes.
 - [Marking a graduation and registering a withdrawal](graduation-withdrawal.md) — The difference between the deferred graduation mark and an immediate withdrawal, and the full withdrawal cascade step by step.

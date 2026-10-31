@@ -123,6 +123,7 @@ from . import test_strike
 from . import test_strike_tour
 from . import test_strike_issue_standalone_tour
 from . import test_working_schedule
+from . import test_schedule_declaration
 from . import test_ems_teaching_sync
 from . import test_employee_schedule_lifecycle
 from . import test_working_schedules_import_wizard
@@ -154,6 +155,7 @@ from . import test_portal_schedule
 from . import test_portal_schedule_tour
 from . import test_guard_duty_board
 from . import test_absence_coverage
+from . import test_guard_support
 from . import test_guard_board_unchecked
 from . import test_guard_board_unchecked_tour
 from . import test_absence_coverage_tour
@@ -255,6 +257,7 @@ from . import test_user_menu_documentation_tour
 from . import test_contact_data_request
 from . import test_contact_data_request_send_wizard
 from . import test_portal_contact_data
+from . import test_portal_profile
 from . import test_contact_data_request_tour
 from . import test_student_private_note
 from . import test_student_private_note_tour
@@ -281,3 +284,4 @@ from . import test_quality_minute_guest
 from . import test_title_registration
 from . import test_title_registration_tour
 from . import test_docs_screenshots_student_card
+from . import test_docs_screenshots_schedule_declaration

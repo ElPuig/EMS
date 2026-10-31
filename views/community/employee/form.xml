@@ -64,6 +64,11 @@
                                 string="Cancel scheduled deactivation"
                                 invisible="not google_ws_deactivation_date"
                                 groups="ems.group_academic_admin,hr.group_hr_user"/>
+                        <!-- Issue #723: the Departament's official schedule declaration. -->
+                        <button name="action_print_schedule_declaration" type="object"
+                                string="Print schedule declaration"
+                                invisible="employee_type != 'teacher'"
+                                groups="ems.group_head_of_studies,ems.group_academic_admin,base.group_system"/>
                     </div>
                 </xpath>
 

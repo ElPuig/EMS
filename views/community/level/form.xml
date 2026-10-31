@@ -12,6 +12,7 @@
                                 <field name="acronym"/>
                                 <field name="allows_convalidation"/>
                                 <field name="card_color"/>
+                                <field name="declaration_code"/>
                             </group>
                             <group colspan="3">
                                 <field name="name"/>    

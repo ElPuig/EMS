@@ -860,7 +860,7 @@ sums up the four decisions while the entry waits for the user's review (`can_rev
 
 **Talking with the teacher (issue #698).** The entry's followers are whoever entered it (the
 creator) and the reviewers (an activity subscribes its assignee). The teacher joins them when they
-are asked to act, never before: **Request justification** and **Create absence** both go through
+are asked to act, never before: **Request action** and **Prepare justification** both go through
 `_ems_ask_teacher()`, which calls `_ems_follow_teacher()` (the teacher's user partner, else their
 work contact; one `message_subscribe` per teacher). So a message the reviewer writes on the entry
 reaches the teacher, and a teacher's answer reaches the other followers. **Correct check-in** and

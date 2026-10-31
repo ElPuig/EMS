@@ -7,6 +7,8 @@ from pytz import UTC
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
 
+from ..employees.absence_pending import UNRESOLVED_STATES
+
 # How much time the approver is given before the "Review attendance correction
 # request" activity is flagged overdue. Set explicitly (activity_schedule()
 # otherwise defaults the deadline to today, which reads as "due immediately").
@@ -28,19 +30,33 @@ class ems_attendance_correction(models.Model):
 
     # NOTE: explicit default, matching requested_check_in/out below, instead of relying purely on
     # Odoo's generic default_<field> context lookup.
+    # Empty when the teacher asks for a check-in on a detected absence's day with no attendance
+    # at all (issue #735): accepting it records one.
     attendance_id = fields.Many2one(
         string="Attendance",
         comodel_name="hr.attendance",
-        required=True,
         ondelete="cascade",
         default=lambda self: self.env.context.get("default_attendance_id"),
     )
-    employee_id = fields.Many2one(string="Employee", comodel_name="hr.employee", related="attendance_id.employee_id", store=True, readonly=True)
+    # Issue #735: requested from a detected absence the teacher was asked to justify. Its
+    # reminders wait while the request is pending.
+    absence_pending_id = fields.Many2one(
+        string="Detected absence",
+        comodel_name="ems.absence_pending",
+        ondelete="set null",
+        readonly=True,
+        default=lambda self: self.env.context.get("default_absence_pending_id"),
+    )
+    employee_id = fields.Many2one(
+        string="Employee", comodel_name="hr.employee", compute="_compute_employee_id", store=True, readonly=True)
     # NOTE: snapshotted at create() time (not related to attendance_id.check_in/out) so the
     # true original value survives even after action_accept() overwrites the attendance, which
     # is what lets action_reject()/re-deciding restore it later.
     original_check_in = fields.Datetime(string="Original check-in", readonly=True)
     original_check_out = fields.Datetime(string="Original check-out", readonly=True)
+    # Issue #735: about the technical attendance Odoo's absence detection leaves on a day without
+    # check-in (shown in red): accepting it turns it into a real one, rejecting it restores it.
+    original_technical = fields.Boolean(string="Day without check-in", readonly=True)
     requested_check_in = fields.Float(string="Requested check-in time", default=lambda self: self._default_requested_time("check_in"))
     requested_check_out = fields.Float(string="Requested check-out time", default=lambda self: self._default_requested_time("check_out"))
     reason = fields.Text(string="Reason", required=True)
@@ -65,13 +81,19 @@ class ems_attendance_correction(models.Model):
         string="Check-out requestable", compute="_compute_is_check_out_requestable", store=False
     )
 
-    @api.depends("employee_id", "attendance_id.check_in")
+    @api.depends("attendance_id.employee_id", "absence_pending_id.employee_id")
+    def _compute_employee_id(self):
+        for correction in self:
+            correction.employee_id = correction.attendance_id.employee_id or correction.absence_pending_id.employee_id
+
+    @api.depends("employee_id", "attendance_id.check_in", "absence_pending_id.date_from")
     def _compute_display_name(self):
         for correction in self:
-            if correction.employee_id and correction.attendance_id.check_in:
+            when = correction.attendance_id.check_in or correction.absence_pending_id.date_from
+            if correction.employee_id and when:
                 correction.display_name = _("%(employee)s (%(date)s)") % {
                     "employee": correction.employee_id.display_name,
-                    "date": correction.attendance_id.check_in,
+                    "date": when,
                 }
             else:
                 correction.display_name = _("New correction request")
@@ -117,8 +139,14 @@ class ems_attendance_correction(models.Model):
     def _default_requested_time(self, kind):
         # NOTE: defaults to the original time so the requester only has to tweak what's wrong.
         attendance = self._get_correction_attendance()
-        if not attendance:
-            return False
+        absence = self.env["ems.absence_pending"].browse(self.env.context.get("default_absence_pending_id"))
+        if not attendance or attendance.in_mode == "technical":
+            # A day without check-in (issue #735): no time worth keeping, the technical
+            # attendance's are midnight. The detected absence's own hours, or the schedule's.
+            if absence:
+                moment = absence.date_from if kind == "check_in" else absence.date_to
+                return self.time_to_float(self.utc_datetime_to_local(moment).time())
+            return attendance and self._schedule_time_for(attendance, kind)
         original = attendance.check_in if kind == "check_in" else attendance.check_out
         if original:
             return self.time_to_float(self.utc_datetime_to_local(original).time())
@@ -146,6 +174,22 @@ class ems_attendance_correction(models.Model):
         for correction in self:
             if not correction.requested_check_in and not correction.requested_check_out:
                 raise ValidationError(_("You must request a correction for the check-in and/or the check-out time."))
+            # Issue #735: a time typed as "1400" was saved as 1400 hours.
+            if not all(0 <= hours <= 24 for hours in (correction.requested_check_in, correction.requested_check_out)):
+                raise ValidationError(_("The requested times must be times of the day, between 00:00 and 24:00."))
+
+    @api.constrains("attendance_id", "absence_pending_id", "requested_check_in", "requested_check_out")
+    def _check_attendance_or_absence(self):
+        """Issue #735: about an attendance, or about a detected absence's day; without an
+        attendance, or with the technical one of a day without check-in, both times are needed,
+        in order."""
+        for correction in self:
+            absence = correction.absence_pending_id
+            if not correction.attendance_id and not absence:
+                raise ValidationError(_("A correction request must be about an attendance or a detected absence."))
+            if (not correction.attendance_id or correction.original_technical) and not (
+                    correction.requested_check_in and correction.requested_check_in < correction.requested_check_out):
+                raise ValidationError(_("For a day without check-in, give both the check-in and a later check-out time."))
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -157,9 +201,20 @@ class ems_attendance_correction(models.Model):
             # override. Falling back to the context default here (instead of assuming vals
             # already has it) is what actually resolves the real attendance record.
             attendance_id = vals.get("attendance_id") or self.env.context.get("default_attendance_id")
+            absence_id = vals.get("absence_pending_id") or self.env.context.get("default_absence_pending_id")
+            if absence_id:
+                # Issue #735: the attendance is never the teacher's choice, whatever the client sent.
+                absence = self.env["ems.absence_pending"].browse(absence_id)
+                absence._ems_check_correction_requestable()
+                attendance_id = vals["attendance_id"] = absence._ems_attendance_to_correct().id
             attendance = self.env["hr.attendance"].browse(attendance_id)
+            if not absence_id:
+                # Issue #735: asked for from the attendance itself, it answers the teacher's
+                # detected absence of that day all the same.
+                vals["absence_pending_id"] = self.env["ems.absence_pending"]._ems_entry_for_correction(attendance).id
             vals.setdefault("original_check_in", attendance.check_in)
             vals.setdefault("original_check_out", attendance.check_out)
+            vals["original_technical"] = attendance.in_mode == "technical"
             # Defense-in-depth: the view hides requested_check_out via is_check_out_requestable,
             # but a stale/tampered client could still send a value - never trust it once the
             # server-side check says the check-out isn't requestable yet.
@@ -196,11 +251,23 @@ class ems_attendance_correction(models.Model):
             correction_sudo.chatter(
                 _("Correction requested by %(employee)s.") % {"employee": correction.employee_id.display_name}
             )
+            entry = correction.absence_pending_id.sudo()
+            if entry:
+                entry.message_post(
+                    body=_("Check-in correction requested by %(employee)s.", employee=correction.employee_id.display_name),
+                    subtype_xmlid="mail.mt_note")
+                if entry.state in UNRESOLVED_STATES:
+                    # Issue #735: the teacher answers it: off the review and the reminders until
+                    # the decision.
+                    entry.state = "correction_requested"
         return corrections
 
     def action_accept(self):
         for correction in self:
             correction._check_approver()
+            if not correction.attendance_id:
+                correction._accept_new_attendance()
+                continue
             values = {}
             if correction.requested_check_in:
                 values["check_in"] = correction._combine_date_and_time(correction.original_check_in, correction.requested_check_in)
@@ -209,30 +276,76 @@ class ems_attendance_correction(models.Model):
                 # there is no original check_out to anchor the corrected time's date to.
                 reference = correction.original_check_out or correction.original_check_in
                 values["check_out"] = correction._combine_date_and_time(reference, correction.requested_check_out)
-            correction.attendance_id.sudo().write(values)
-            correction._close("accepted")
-            correction.message_post(
-                body=_("Your correction request has been accepted."),
-                partner_ids=correction.create_uid.partner_id.ids,
-            )
+            correction._attendance_sudo().write(values)
+            correction._accepted()
+
+    def _accept_new_attendance(self):
+        """Issue #735: the teacher had no attendance on the detected absence's day; one is
+        recorded for the times requested, and the request is about it from then on."""
+        self.ensure_one()
+        reference = self.absence_pending_id.date_from
+        self.attendance_id = self._attendance_sudo().create({
+            "employee_id": self.employee_id.id,
+            "check_in": self._combine_date_and_time(reference, self.requested_check_in),
+            "check_out": self._combine_date_and_time(reference, self.requested_check_out),
+            "in_mode": "manual",
+            "out_mode": "manual",
+        })
+        self._accepted()
+
+    def _attendance_sudo(self):
+        """The attendances, leaving the detected absence this request comes from to
+        _accepted (issue #735): it is corrected, not discarded as covered."""
+        return self.env["hr.attendance"].sudo().with_context(
+            ems_skip_absence_review_ids=self.absence_pending_id.ids).browse(self.attendance_id.ids)
+
+    def _accepted(self):
+        self.ensure_one()
+        self._close("accepted")
+        self.absence_pending_id._ems_resolve_by_correction()
+        self.message_post(
+            body=_("Your correction request has been accepted."),
+            partner_ids=self.create_uid.partner_id.ids,
+        )
 
     def action_reject(self):
         for correction in self:
             correction._check_approver()
-            # NOTE: restores the original value for whichever field was requested, in case this
-            # reverses a previous accept() (the approver correcting their own earlier mistake).
-            values = {}
-            if correction.requested_check_in:
-                values["check_in"] = correction.original_check_in
-            if correction.requested_check_out:
-                values["check_out"] = correction.original_check_out
-            if values:
-                correction.attendance_id.sudo().write(values)
+            if correction.state == "accepted":
+                correction._undo()
             correction._close("rejected")
+            # Issue #735: the detected absence it answered, or had resolved, is claimed again.
+            entry = correction.absence_pending_id
+            if entry.state in UNRESOLVED_STATES + ("corrected",):
+                entry._ems_reopen(_("Reopened: %(user)s rejected the teacher's check-in correction request.",
+                                    user=self.env.user.name))
             correction.message_post(
                 body=_("Your correction request has been rejected."),
                 partner_ids=correction.create_uid.partner_id.ids,
             )
+
+    def _undo(self):
+        """Reverses an accepted request (the approver correcting their own earlier decision): the
+        attendance gets back its original values for whichever times were requested, or is
+        deleted when the request recorded it (issue #735). A pending request never touched it."""
+        self.ensure_one()
+        attendance = self._attendance_sudo()
+        if not self.original_check_in:
+            self.attendance_id = False
+            attendance.unlink()
+            return
+        values = {}
+        if self.requested_check_in:
+            values["check_in"] = self.original_check_in
+        if self.requested_check_out:
+            values["check_out"] = self.original_check_out
+        if values:
+            attendance.write(values)
+        if values and self.original_technical:
+            # Back to the day without check-in it was (issue #735). A write of its own: Odoo turns
+            # a technical attendance into a manual one whenever its times are written, overriding
+            # a mode given in the same write.
+            attendance.write({"in_mode": "technical", "out_mode": "technical"})
 
     def _combine_date_and_time(self, reference_datetime, time_float):
         local_date = self.utc_datetime_to_local(reference_datetime).date()
@@ -258,11 +371,18 @@ class ems_attendance_correction(models.Model):
         if not self._check_is_approver():
             raise UserError(_("Only a Head of Studies of the employee's own branch or an Academic Administrator can decide on this request."))
 
-    def _close(self, state):
+    def _withdraw(self):
+        """Issue #735: the teacher requested the absence of that day after all, so their pending
+        request is rejected on its own, nobody's decision. It never changed the attendance."""
+        for correction in self.sudo():
+            correction._close("rejected", approver=self.env["res.users"])
+            correction.chatter(_("Rejected on its own: the teacher requested the absence instead."))
+
+    def _close(self, state, approver=None):
         self.ensure_one()
         self.write({
             "state": state,
-            "approver_id": self.env.user.id,
+            "approver_id": (self.env.user if approver is None else approver).id,
             "decision_date": fields.Datetime.now(),
         })
         activity_type = self.env.ref("ems.mail_activity_attendance_correction")

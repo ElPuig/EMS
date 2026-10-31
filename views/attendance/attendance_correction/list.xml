@@ -7,8 +7,9 @@
                 <list create="false">
                     <field name="employee_id" widget="many2one_avatar_employee"/>
                     <field name="attendance_id"/>
-                    <field name="requested_check_in" widget="float_time"/>
-                    <field name="requested_check_out" widget="float_time"/>
+                    <field name="absence_pending_id" optional="hide"/>
+                    <field name="requested_check_in" widget="ems_time_of_day"/>
+                    <field name="requested_check_out" widget="ems_time_of_day"/>
                     <field name="state" widget="badge" decoration-success="state == 'accepted'" decoration-danger="state == 'rejected'" decoration-info="state == 'pending'"/>
                 </list>
             </field>

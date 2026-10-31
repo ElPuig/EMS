@@ -1,4 +1,4 @@
-import hashlib, traceback
+import hashlib, re, traceback
 from lxml import etree
 from markupsafe import Markup
 from odoo import models, fields, _
@@ -63,8 +63,12 @@ class EmsBase(models.AbstractModel):
 
     # Why an academic certificate read from a PDF cannot be told to be `student`'s, if it cannot:
     # its identifier (IDALU) was not read, the student has none to check it against, or they
-    # differ. Shared by every certificate reader (Esfera, issue #585; previous curricula, #672).
-    def get_certificate_student_problem(self, student, identifier, name):
+    # differ. Shared by every certificate reader (Esfera, issue #585; previous curricula, #672). A
+    # document that names the student by their DNI/NIE instead of the IDALU (the grades certificate
+    # of a previous curriculum, issue #732) is checked against their Document ID the same way.
+    def get_certificate_student_problem(self, student, identifier, name, document_id=False):
+        if document_id and not identifier:
+            return self._get_certificate_document_id_problem(student, document_id, name)
         own = student.student_id
         if not identifier:
             return _("The student identifier could not be read from the certificate, so it cannot "
@@ -75,6 +79,18 @@ class EmsBase(models.AbstractModel):
         if identifier != own:
             return _("The certificate belongs to %(name)s (%(identifier)s), not to this "
                      "student (%(own)s).", name=name, identifier=identifier, own=own)
+        return False
+
+    def _get_certificate_document_id_problem(self, student, document_id, name):
+        def normalized(value):
+            return re.sub(r'[\s.-]', '', value or '').upper()
+        own = student.document_id
+        if not own:
+            return _("%(student)s has no Document ID (DNI/NIE) to check the certificate's (%(document)s) "
+                     "against: fill it in first.", student=student.display_name, document=document_id)
+        if normalized(document_id) != normalized(own):
+            return _("The certificate belongs to %(name)s (%(identifier)s), not to this "
+                     "student (%(own)s).", name=name, identifier=document_id, own=own)
         return False
 
     # The current user works with every student (secretary's office, academic administration,

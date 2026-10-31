@@ -66,6 +66,13 @@ def post_init_hook(env):
     # groups' classes (the centre's schedules, data/custom); from then on it is set on its form.
     env['ems.study']._backfill_managing_department()
     _translate_area_names(env)
+    # Issue #723: the official schedule declaration's codes, configured by the centre from then on.
+    _seed_declaration_codes(env)
+
+
+def _seed_declaration_codes(env):
+    env['ems.level']._ems_seed_declaration_codes()
+    env['ems.non_teaching_type']._ems_seed_declaration_codes()
 
 
 def _ems_seed_current_course(env):

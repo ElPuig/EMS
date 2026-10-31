@@ -36,7 +36,7 @@ class EmsStudentPreviousCurriculumRecord(models.Model):
     end_year = fields.Integer(string="To year")
     title_obtained = fields.Boolean(string="Title obtained", default=False)
     title_date = fields.Date(string="Title date")
-    certificate_file = fields.Binary(string="Academic history document", attachment=True)
+    certificate_file = fields.Binary(string="Academic document", attachment=True)
     certificate_filename = fields.Char(string="Document file name")
     notes = fields.Text(string="Notes")
     line_ids = fields.One2many(string="Modules and units",

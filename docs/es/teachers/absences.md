@@ -173,12 +173,20 @@ En los dos casos, primero la revisa tu jefe de estudios, y solo te enteras si te
 
 Si te pide que la justifiques, al inicio de tu siguiente jornada recibes un mensaje con el día y las horas, y un enlace para abrirla. Mientras no la resuelvas, te lo recuerda cada día (si el centro no lo ha cambiado), y unos días después también se avisa a tu jefe de estudios. Estos mensajes no te llegan nunca fuera de tu horario.
 
-Qué tienes que hacer:
+No hace falta que esperes el mensaje: en cuanto te la piden, la ausencia aparece en **Ausencias → Ausencias por regularizar**, con todas las demás que aún tienes pendientes. Una vez la resuelves, desaparece de la lista (quita el filtro **Por regularizar** para ver las que ya están resueltas).
 
-- **Si faltaste**, abre el enlace y usa **Solicitar la ausencia** (arriba del formulario). Se abre una solicitud de ausencia nueva con el día y las horas ya puestos (y el tipo, si te la ha preparado tu jefe de estudios): elige el tipo, completa lo que falte y envíala como siempre (consulta [Enviar la solicitud](#enviar-la-solicitud)). Una vez enviada, la ausencia detectada queda vinculada a tu solicitud y se acaban los recordatorios.
-- **Si estabas en el centro y olvidaste fichar**, pide a tu jefe de estudios que registre tu fichaje de ese día. En cuanto lo registra, la ausencia detectada se descarta sola y se acaban los recordatorios.
+![El menú Ausencias de un docente, con Mis ausencias y Ausencias por regularizar](../../assets/teachers/teachers-absences-to-regularize-menu.png)
 
-![Una ausencia detectada tal como la ve el docente, con el botón Solicitar la ausencia](../../assets/teachers/teachers-detected-absence.png)
+La propia ausencia te indica, en un aviso azul arriba, qué se espera que hagas (o que tu corrección del fichaje se está revisando). Qué tienes que hacer:
+
+- **Si faltaste**, abre el enlace y usa **Solicitar la ausencia** (arriba del formulario). Se abre una solicitud de ausencia nueva con el día y las horas ya puestos (y el tipo, si te la ha preparado tu jefe de estudios): elige el tipo, completa lo que falte y envíala como siempre (consulta [Enviar la solicitud](#enviar-la-solicitud)). Una vez enviada, la ausencia detectada queda vinculada a tu solicitud y se acaban los recordatorios. Si después la solicitud se rechaza o se cancela, la ausencia detectada se vuelve a reclamar.
+- **Si estabas en el centro y olvidaste fichar** (o fichaste más tarde de cuando llegaste), abre el enlace y usa **Solicitar la corrección del fichaje** (arriba del formulario, una vez terminada la ausencia). Si ese día fichaste (tarde, por ejemplo), se corrige ese fichaje; si no, el fichaje en rojo de ese día, o uno nuevo. Escribe las horas de llegada y de salida (`9:15`, `9.15`, `9,15` y `915` significan las 9:15), explica el motivo y guarda. Mientras tu jefe de estudios decide, se detienen los recordatorios y no puedes solicitar la ausencia desde ella (si aun así solicitas la ausencia de ese día desde **Mis ausencias**, tu solicitud de corrección se retira). Una vez has solicitado la ausencia, ya no se ofrece la corrección. Si la acepta, se registra tu fichaje y la ausencia detectada queda corregida; si la rechaza, vuelve a tu jefe de estudios, que te dirá qué tienes que hacer. Una corrección que pidas directamente desde el fichaje (el **Solicitar corrección** de siempre, por ejemplo sobre el fichaje en rojo) cuenta igual.
+
+Para explicar algo o hacer una pregunta, escribe en el historial de mensajes de la parte inferior de la ausencia detectada (**Enviar mensaje**): tu jefe de estudios lo recibe, y sus mensajes te llegan ahí mismo y por correo.
+
+![Una ausencia detectada tal como la ve el docente, con el aviso que le dice qué tiene que hacer](../../assets/teachers/teachers-detected-absence.png)
+
+![La solicitud de corrección del fichaje abierta desde una ausencia detectada, para un día sin ningún fichaje](../../assets/teachers/teachers-detected-absence-correction.png)
 
 ---
 

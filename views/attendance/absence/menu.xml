@@ -54,12 +54,13 @@
         </record>
 
         <!-- Department and Seminar Chiefs see Management for its Detected absences entry (issue
-             #604), which turns "Absences" into a dropdown for them as well, so they need My Time
-             Off in it too. -->
+             #604), and every teacher sees Absences to regularize (issue #735, menu_absence_pending_mine),
+             which turns "Absences" into a dropdown for them as well, so they need My Time Off in it
+             too, first. Staff who are not teachers keep the plain link to My Time Off. -->
         <record model="ir.ui.menu" id="hr_holidays.hr_leave_menu_my">
             <field name="parent_id" ref="hr_holidays.menu_hr_holidays_root"/>
             <field name="sequence">1</field>
-            <field name="groups_id" eval="[(6, 0, [ref('hr_holidays.group_hr_holidays_responsible'), ref('ems.group_department_chief')])]"/>
+            <field name="groups_id" eval="[(6, 0, [ref('hr_holidays.group_hr_holidays_responsible'), ref('ems.group_department_chief'), ref('ems.group_teacher')])]"/>
         </record>
 
         <!-- Management holds two kinds of absence side by side: the requests teachers file

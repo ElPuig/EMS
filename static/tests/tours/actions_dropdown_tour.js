@@ -66,6 +66,8 @@ registry.category("web_tour.tours").add("ems_actions_dropdown_employee_no_archiv
             content: "The teacher's form is loaded",
         },
         ...noArchiveInCog("The tutor can't archive a colleague: no Archive in the cog menu"),
+        // Issue #723: only Heads and Deputy Heads of Studies and above print the schedule declaration.
+        noActions("The tutor has nothing to do on a colleague's form: no Actions dropdown"),
     ],
 });
 
@@ -102,7 +104,8 @@ registry.category("web_tour.tours").add("ems_actions_dropdown_employee", {
         {
             trigger: ".o-dropdown--menu.o_ems_actions_menu"
                 + ":has(button[name='action_create_google_account'])"
-                + ":has(button:contains('Deduct Extra Hours'))",
+                + ":has(button:contains('Deduct Extra Hours'))"
+                + ":has(button[name='action_print_schedule_declaration'])",
             content: "The native 'Deduct Extra Hours' sits in the dropdown next to EMS's own entries",
         },
         closeActions(),

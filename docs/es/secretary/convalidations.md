@@ -47,7 +47,7 @@ Al registrarla:
 - La solicitud queda **Completada** si hay algún módulo convalidado, o **Rechazada** si no hay ninguno.
 - El alumno recibe un correo con la resolución y el PDF adjunto. También lo recibe la familia si el alumno es menor de edad o si ha autorizado compartir la información con ella.
 - El alumno deja de cursar cada módulo convalidado: se le borra la matrícula del módulo, de modo que sale de las listas de asistencia y de la sesión de notas abierta, aunque el profesor ya le hubiera puesto alguna nota.
-- El profesorado del módulo y el tutor del grupo reciben una actividad **Asignatura convalidada** en la bandeja (🕒).
+- El profesorado del módulo y el tutor del grupo reciben un aviso (en el buzón de Odoo o por correo, según las preferencias de cada uno) con los módulos convalidados. No tienen que hacer nada: no es una tarea.
 - El historial académico recoge el módulo como aprobado, con la nota, la marca **CV** y el número de registro.
 
 ---

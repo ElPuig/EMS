@@ -133,7 +133,7 @@ class TestPortalContactData(PortalContactDataHelpers, HttpCase):
         # The sentence must stay a term of its own: next to the lock icon in a plain <span> Odoo
         # merges both into one term, which no .po entry matches, and the notice stays in English.
         arch = self.env.ref('ems.portal_my_details_readonly').with_context(lang='ca_ES').arch_db
-        self.assertIn('Les teves dades personals són de només lectura', arch)
+        self.assertIn('Només la secretaria pot corregir aquestes dades', arch)
 
     def test_profile_links_to_the_review_and_no_longer_offers_a_mailto(self):
         self.env.company.secretariat_email = 'secretariat.tpcd@example.com'

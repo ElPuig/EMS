@@ -257,6 +257,54 @@ class TestDocsScreenshotsHeadOfStudies(HttpCase, DocsScreenshotMixin):
             login='doc_shot_hos', wait_for='.o_list_renderer .o_data_row + .o_data_row + .o_data_row + .o_data_row',
         )
 
+    def test_capture_detected_absence_correct_check_in(self):
+        """The dialog of Correct check-in (issue #731), prefilled with the whole absence. A past day: the button only shows once the absence is over."""
+        teacher = self.env['hr.employee'].create({
+            'name': '0000 Marta Prova', 'employee_type': 'teacher', 'parent_id': self.hos_employee.id})
+        Pending = self.env['ems.absence_pending']
+        day = datetime(2026, 4, 14).date()
+        start, stop = Pending._utc_bounds(day, 14.0, 16.0)
+        absence = Pending.create({'employee_id': teacher.id, 'date_from': start, 'date_to': stop, 'origin': 'check_in'})
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències detectades', 'res_model': 'ems.absence_pending', 'view_mode': 'list,form',
+            'domain': [('id', '=', absence.id)],
+        })
+        self._capture(
+            '/odoo/action-%d/%d' % (action.id, absence.id),
+            '.modal-content', 'hos-detected-absence-correct-check-in.png',
+            login='doc_shot_hos', wait_for=".o_form_statusbar .o_ems_actions_toggle",
+            click=[".o_form_statusbar .o_ems_actions_toggle",
+                   ".o_ems_actions_menu button[name='action_open_correct_check_in']"],
+            wait_after=[".o_ems_actions_menu button[name='action_open_correct_check_in']",
+                        ".modal .o_field_widget[name='date_to'] input"],
+        )
+
+    def test_capture_detected_absence_review(self):
+        """Issue #735: a detected absence to review, with the notice of the four decisions, and the
+        Prepare justification dialog (hours prefilled, absence type to choose)."""
+        teacher = self.env['hr.employee'].create({
+            'name': '0000 Marta Prova', 'employee_type': 'teacher', 'parent_id': self.hos_employee.id})
+        Pending = self.env['ems.absence_pending']
+        start, stop = Pending._utc_bounds(datetime(2026, 4, 14).date(), 14.0, 16.0)
+        absence = Pending.create({'employee_id': teacher.id, 'date_from': start, 'date_to': stop, 'origin': 'check_in'})
+        action = self.env['ir.actions.act_window'].create({
+            'name': 'Absències detectades', 'res_model': 'ems.absence_pending', 'view_mode': 'list,form',
+            'domain': [('id', '=', absence.id)],
+        })
+        url = '/odoo/action-%d/%d' % (action.id, absence.id)
+        self._capture(
+            url, '.o_form_view .o_form_sheet', 'hos-detected-absence-review.png',
+            login='doc_shot_hos', wait_for=".o_form_view .alert-info li", max_height=420,
+        )
+        self._capture(
+            url, '.modal-content', 'hos-detected-absence-prepare-justification.png',
+            login='doc_shot_hos', wait_for=".o_form_statusbar .o_ems_actions_toggle",
+            click=[".o_form_statusbar .o_ems_actions_toggle",
+                   ".o_ems_actions_menu button[name='action_open_prepare_justification']"],
+            wait_after=[".o_ems_actions_menu button[name='action_open_prepare_justification']",
+                        ".modal .o_field_widget[name='holiday_status_id'] input"],
+        )
+
     def test_capture_staff_vacancy(self):
         # The top of the form: title, ribbon and the staffing type with the vacancy code (#584).
         url = '/odoo/action-ems.action_employee_kanban/%d' % self.vacancy.id

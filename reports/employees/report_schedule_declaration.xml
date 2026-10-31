@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Issue #723: the teacher's page ("Horari professor/a") of the Departament d'Educació i FP's
+             official form "Annexos Dades anuals". An official Catalan form: always printed in
+             Catalan (t-lang below), so its own text is written in Catalan, as on the form. -->
+        <!-- A4 with small margins and no letterhead: the form carries its own header, and the
+             whole declaration has to fit on one page. -->
+        <record id="paperformat_schedule_declaration" model="report.paperformat">
+            <field name="name">A4 (schedule declaration)</field>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">8</field>
+            <field name="margin_bottom">16</field>
+            <field name="margin_left">8</field>
+            <field name="margin_right">8</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <record id="action_report_schedule_declaration" model="ir.actions.report">
+            <field name="name">Schedule declaration</field>
+            <field name="model">hr.employee</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">ems.report_schedule_declaration</field>
+            <field name="report_file">ems.report_schedule_declaration</field>
+            <field name="print_report_name">'Declaracio horaria - %s - %s' % (object.name, object.company_id.current_course_id.name)</field>
+            <field name="binding_model_id" ref="model_hr_employee"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_schedule_declaration"/>
+            <!-- The form offers it from its Actions dropdown (action_print_schedule_declaration). -->
+            <field name="binding_view_types">list</field>
+            <!-- Heads and Deputy Heads of Studies and above (developer, 2026-10-29); same list as
+                 hr.employee.SCHEDULE_DECLARATION_GROUPS, checked again by the form's button. -->
+            <field name="groups_id" eval="[(6, 0, [ref('ems.group_head_of_studies'), ref('ems.group_academic_admin'), ref('base.group_system')])]"/>
+        </record>
+
+        <template id="report_schedule_declaration">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="employee">
+                    <t t-call="ems.report_schedule_declaration_document" t-lang="'ca_ES'"/>
+                </t>
+            </t>
+        </template>
+
+        <template id="report_schedule_declaration_document">
+            <t t-set="employee" t-value="employee.with_context(lang='ca_ES')"/>
+            <t t-set="company" t-value="employee.company_id"/>
+            <t t-set="calendar" t-value="employee.resource_calendar_id"/>
+            <t t-set="summary" t-value="calendar.get_schedule_declaration_summary() if calendar else {'lective': {}, 'fixed': {}, 'reduction': 0, 'lective_total': 0, 'fixed_total': 0}"/>
+            <!-- The summary table's rows, left column then right (DECLARATION_ROWS). A cell that
+                 doesn't apply is grey, as on the form, and still shows any hours that land there,
+                 so a misconfigured code stands out. -->
+            <t t-set="rows" t-value="calendar.DECLARATION_ROWS"/>
+            <t t-set="half" t-value="len(rows) // 2"/>
+            <t t-call="web.basic_layout">
+                <div class="page sd-page">
+                    <style>
+                        .sd-page { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #000; }
+                        .sd-page .ws-table { font-size: 10px; margin-bottom: 0; }
+                        .sd-page .ws-table { border-collapse: collapse; }
+                        .sd-page .ws-table th, .sd-page .ws-table td { padding: 1px 3px !important; border: 1px solid #000; }
+                        .sd-page .ws-table th { background: #dedede; text-align: center !important; font-weight: bold; }
+                        /* Every block two lines high, so the grid is even: a longer label is cut. */
+                        .sd-page .ws-cell-content { display: table; width: 100%; height: 26px; padding: 1px 2px; }
+                        .sd-page .ws-cell-label { display: table-cell; vertical-align: middle; }
+                        .sd-page .ws-cell-label-text { display: block; font-size: 9px; line-height: 12px; max-height: 24px; overflow: hidden; }
+                        .sd-page .ws-table td { vertical-align: middle !important; }
+                        .sd-page .ws-break-row .ws-cell-content { height: 14px; }
+                        .sd-header { width: 100%; margin-bottom: 8px; }
+                        .sd-header td { vertical-align: top; }
+                        .sd-header, .sd-header *, .sd-signatures, .sd-signatures * { border: none !important; }
+                        .sd-entity img { height: 14mm; }
+                        .sd-annual { text-align: right; font-size: 11px; }
+                        .sd-box { width: 100%; border-collapse: collapse; table-layout: fixed; margin-bottom: 6px; }
+                        .sd-box td { border: 1px solid #000; padding: 2px 4px; height: 20px; vertical-align: middle; empty-cells: show; }
+                        .sd-box td.sd-label { background: #dedede; }
+                        .sd-box td.sd-none { border: none; }
+                        .sd-title { font-size: 13px; font-weight: bold; margin: 4px 0 3px 0; }
+                        .sd-summary { width: 100%; border-collapse: collapse; table-layout: fixed; margin-top: 6px; }
+                        .sd-summary td, .sd-summary th { border: 1px solid #000; padding: 1px 3px; height: 17px; vertical-align: middle; }
+                        .sd-summary th { background: #dedede; font-weight: normal; text-align: center; }
+                        .sd-summary td.sd-code, .sd-summary td.sd-hours { text-align: center; }
+                        .sd-summary td.sd-na { background: #c4c4c4; }
+                        .sd-signatures { width: 100%; margin-top: 4px; }
+                        .sd-signatures td { width: 50%; vertical-align: top; padding: 0 20px 0 0; }
+                        .sd-signatures td.sd-place { padding-bottom: 8px; }
+                        .sd-blank { display: inline-block; border-bottom: 1px solid #000 !important; vertical-align: bottom; height: 12px; }
+                    </style>
+
+                    <table class="sd-header">
+                        <tr>
+                            <!-- The Departament's logo, taken from the official form itself. -->
+                            <td class="sd-entity"><img src="/ems/static/src/img/departament_educacio_fp.png" alt="Generalitat de Catalunya - Departament d’Educació i Formació Professional"/></td>
+                            <td class="sd-annual">DADES ANUALS DEL CENTRE<br/>CURS <span t-esc="company.current_course_id.name"/></td>
+                        </tr>
+                    </table>
+
+                    <table class="sd-box">
+                        <colgroup><col style="width: 10%;"/><col style="width: 25%;"/><col style="width: 10%;"/><col style="width: 55%;"/></colgroup>
+                        <tr>
+                            <td class="sd-label">Codi</td><td><t t-esc="company.center_code"/></td>
+                            <td class="sd-label">Centre</td><td><t t-esc="company.name"/></td>
+                        </tr>
+                        <tr>
+                            <td class="sd-label">Municipi</td><td colspan="3"><t t-esc="company.partner_id.city"/></td>
+                        </tr>
+                    </table>
+
+                    <p class="sd-title">Horari professor/a</p>
+
+                    <table class="sd-box">
+                        <colgroup><col style="width: 15%;"/><col style="width: 10%;"/><col style="width: 43%;"/><col style="width: 10%;"/><col style="width: 22%;"/></colgroup>
+                        <tr>
+                            <td class="sd-label">Cognoms i nom</td><td colspan="2"><t t-esc="employee.name"/></td>
+                            <td class="sd-label">NIF</td><td><t t-esc="employee.identification_id"/></td>
+                        </tr>
+                        <tr>
+                            <td class="sd-label" colspan="2">Càrrec que desenvolupa</td>
+                            <td colspan="3"><t t-esc="', '.join(employee.get_report_role_lines())"/></td>
+                        </tr>
+                    </table>
+
+                    <p class="sd-title">DECLARO QUE LES DADES SEGÜENTS I L’HORARI QUE TINC ASSIGNAT SÓN AUTÈNTICS I EXACTES. ME’N FAIG RESPONSABLE.</p>
+
+                    <table class="sd-box">
+                        <colgroup>
+                            <col style="width: 12%;"/><col style="width: 28%;"/>
+                            <col style="width: 14%;"/><col style="width: 4%;"/><col style="width: 16%;"/><col style="width: 4%;"/>
+                            <col style="width: 14%;"/><col style="width: 8%;"/>
+                        </colgroup>
+                        <tr>
+                            <td class="sd-none" colspan="2"/>
+                            <td class="sd-label" colspan="4">Situació administrativa</td>
+                            <td class="sd-none" colspan="2"/>
+                        </tr>
+                        <tr>
+                            <td class="sd-label" rowspan="2">Lloc de treball / Especialitat</td><td rowspan="2"/>
+                            <td class="sd-label">Definitiu</td><td/>
+                            <td class="sd-label">Comissió serveis</td><td/>
+                            <td class="sd-label" rowspan="2">Anys a l’ensenyament:</td><td rowspan="2"/>
+                        </tr>
+                        <tr>
+                            <td class="sd-label">Provisional</td><td/>
+                            <td class="sd-label">Interí</td><td/>
+                        </tr>
+                        <tr>
+                            <td class="sd-label" colspan="3">Acreditació per impartir l’ensenyament en català:</td><td colspan="5"/>
+                        </tr>
+                    </table>
+
+                    <t t-if="calendar" t-call="ems.report_working_schedule_grid">
+                        <t t-set="hide_rooms" t-value="True"/>
+                    </t>
+
+                    <table class="sd-summary">
+                        <colgroup>
+                            <col style="width: 22%;"/><col style="width: 7%;"/><col style="width: 10.5%;"/><col style="width: 10.5%;"/>
+                            <col style="width: 22%;"/><col style="width: 7%;"/><col style="width: 10.5%;"/><col style="width: 10.5%;"/>
+                        </colgroup>
+                        <thead>
+                            <tr><th colspan="8"><b>QUADRE RESUM D’HORES</b></th></tr>
+                            <tr>
+                                <th/><th>CODI</th><th>H. LECTIVES SETMANALS</th><th>Altres hores d’horari FIX</th>
+                                <th/><th>CODI</th><th>H. LECTIVES SETMANALS</th><th>Altres hores d’horari FIX</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="range(half)" t-as="i">
+                                <tr>
+                                    <t t-foreach="(rows[i], rows[half + i])" t-as="row">
+                                        <!-- row: (key, code, label, lective applies, fixed applies) -->
+                                        <td t-if="row[1]" t-esc="row[2]"/>
+                                        <td t-if="row[1]" class="sd-code" t-esc="row[1]"/>
+                                        <td t-else="" colspan="2" t-esc="row[2]"/>
+                                        <td t-att-class="'sd-hours' if row[3] else 'sd-hours sd-na'" t-esc="summary['lective'].get(row[0]) or ''"/>
+                                        <td t-att-class="'sd-hours' if row[4] else 'sd-hours sd-na'" t-esc="summary['fixed'].get(row[0]) or ''"/>
+                                    </t>
+                                </tr>
+                            </t>
+                            <tr>
+                                <td colspan="3">Si disposeu de reducció de jornada, indiqueu quina:</td>
+                                <td class="sd-hours"><t t-if="summary['reduction']"><t t-esc="summary['reduction']"/> h</t></td>
+                                <td colspan="2" class="sd-code">TOTAL</td>
+                                <td class="sd-hours" t-esc="summary['lective_total']"/>
+                                <td class="sd-hours" t-esc="summary['fixed_total']"/>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <table class="sd-signatures">
+                        <tr>
+                            <td class="sd-place" colspan="2">Lloc*: <span class="sd-blank" style="width: 75mm;"/> Data*: <span class="sd-blank" style="width: 35mm;"/><br/>(*en cas de signatura manual)</td>
+                        </tr>
+                        <tr>
+                            <td><b>El/la director/a</b> (signar digitalment o signar a mà i posar segell en cas que el/la docent no tingui signatura digital)</td>
+                            <td><b>El/la sotasignat/da declara que imparteix les matèries en la llengua que consta al Projecte Lingüístic de Centre</b> (signatura del/la docent)</td>
+                        </tr>
+                    </table>
+
+                </div>
+                <!-- Printed by wkhtmltopdf in the page's bottom margin (ir.actions.report moves every
+                     div.footer there), leaving the room above it for the signatures. -->
+                <div class="footer" style="font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #000;">
+                    Aquestes declaracions horàries restaran arxivades al centre a disposició de la Inspecció d’Educació, preferentment compartides per mitjans telemàtics, amb les possibles modificacions que calgui fer al llarg del curs.
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>

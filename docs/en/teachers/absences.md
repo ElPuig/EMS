@@ -172,12 +172,20 @@ Either way, your Head of Studies reviews it first, and you are only told if they
 
 If they ask you to justify it, at the start of your next working day you receive a message with the day and the hours, and a link to it. Until you deal with it, you are reminded every day (unless the centre has set otherwise), and a few days later your Head of Studies is told too. You never get these messages outside your working hours.
 
-What to do:
+You don't need to wait for the message: as soon as you are asked, the absence shows under **Absences → Absences to regularize**, with every other one still waiting for you. Once you deal with it, it leaves the list (remove the **To regularize** filter to see the ones already resolved).
 
-- **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in (and the type, if your Head of Studies prepared it): choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop.
-- **If you were at the centre and forgot to check in**, ask your Head of Studies to record your check-in for that day. As soon as it is recorded, the detected absence is discarded on its own and the reminders stop.
+![The Absences menu of a teacher, with My Time Off and Absences to regularize](../../assets/teachers/teachers-absences-to-regularize-menu.png)
 
-![A detected absence as the teacher sees it, with the Request the absence button](../../assets/teachers/teachers-detected-absence.png)
+The absence itself tells you, in a blue notice at the top, what is expected of you (or that your check-in correction is being reviewed). What to do:
+
+- **If you were absent**, open the link and use **Request the absence** (at the top of the form). It opens a new absence request with the day and the hours already filled in (and the type, if your Head of Studies prepared it): choose the type, add what is missing and send it as usual (see [Sending the request](#sending-the-request)). Once sent, the detected absence is linked to your request and the reminders stop. If the request is refused or cancelled later, the detected absence is claimed again.
+- **If you were at the centre and forgot to check in** (or checked in later than you arrived), open the link and use **Request check-in correction** (at the top of the form, once the absence is over). If you checked in that day (late, for instance), that check-in is the one corrected; if not, the day's check-in shown in red, or a new one. Type the times you arrived and left (`9:15`, `9.15`, `9,15` and `915` all mean 9:15), say why and save. While your Head of Studies decides, the reminders stop and you can't request the absence from it (if you file the absence of that day from **My Time Off** anyway, your correction request is withdrawn). Once you have requested the absence, no correction is offered. If they accept it, your check-in is recorded and the detected absence is corrected; if they reject it, it goes back to your Head of Studies, who will tell you what to do. A correction you request straight from the check-in (the usual **Request Correction**, on the red one for instance) counts just the same.
+
+To explain something or ask a question, write in the message history at the bottom of the detected absence (**Send message**): your Head of Studies receives it, and their messages reach you there and by email.
+
+![A detected absence as the teacher sees it, with the notice telling them what to do](../../assets/teachers/teachers-detected-absence.png)
+
+![The check-in correction request opened from a detected absence, for a day without any check-in](../../assets/teachers/teachers-detected-absence-correction.png)
 
 ---
 

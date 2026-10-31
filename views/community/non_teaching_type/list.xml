@@ -11,6 +11,8 @@
                     <field name="is_fixed" widget="boolean_toggle"/>
                     <field name="is_guard" widget="boolean_toggle"/>
                     <field name="is_regular_guard" widget="boolean_toggle"/>
+                    <field name="adds_up_periods" widget="boolean_toggle" optional="show"/>
+                    <field name="declaration_code" optional="show"/>
                 </list>
             </field>
         </record>

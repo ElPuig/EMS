@@ -118,13 +118,13 @@ El registre es mostra amb la cinta **Expedient anterior**, el centre de procedè
 
 ## Afegir un expedient de currículum anterior
 
-Un cicle que l'alumne/a va cursar amb un **currículum anterior** (els cicles LOE organitzats en unitats formatives, UF, que gestionava SAGA) no encaixa a l'històric per cursos: es guarda a part, tal com figura al document de l'historial acadèmic, per poder-lo consultar, per exemple per resoldre una sol·licitud de convalidació. El poden afegir secretaria, administració, cap d'estudis i direcció.
+Un cicle que l'alumne/a va cursar amb un **currículum anterior** (els cicles LOE organitzats en unitats formatives, UF, que gestionava SAGA) no encaixa a l'històric per cursos: es guarda a part, tal com figura a l'historial acadèmic o al certificat de qualificacions, per poder-lo consultar, per exemple per resoldre una sol·licitud de convalidació. El poden afegir secretaria, administració, cap d'estudis i direcció.
 
 1. Obriu la fitxa de l'alumne/a i, al desplegable **Accions**, feu clic a **Afegeix un expedient de currículum anterior**.
-2. A **Document de l'historial acadèmic**, pugeu el PDF de l'historial acadèmic.
-3. S'emplenen el currículum, el centre, els anys i una graella amb tots els mòduls i, a sota de cadascun, les seves unitats formatives, amb les hores, la nota i la convocatòria. Corregiu qualsevol nota o convocatòria que no s'hagi llegit bé.
-4. **Títol obtingut** queda marcat quan tots els mòduls de la llista estan superats, perquè el document no diu si l'alumne/a es va titular. Confirmeu-ho o corregiu-ho i, si la sabeu, ompliu la **Data del títol**.
-5. Comproveu que l'**Alumne del document** és l'alumne/a: si l'identificador no coincideix amb el seu IDALU, o no es pot comprovar, l'expedient no es crea.
+2. A **Document acadèmic**, pugeu el PDF de l'historial acadèmic o del certificat de qualificacions de mòduls i unitats formatives.
+3. S'emplenen el currículum, el centre, els anys (el certificat no els indica) i una graella amb tots els mòduls i, a sota de cadascun, les seves unitats formatives, amb les hores, la nota i la convocatòria. Corregiu qualsevol nota o convocatòria que no s'hagi llegit bé.
+4. **Títol obtingut** queda marcat quan tots els mòduls de la llista estan superats, perquè el document no diu si l'alumne/a es va titular. Amb un certificat de qualificacions no es marca mai, perquè pot recollir només una part dels mòduls. Confirmeu-ho o corregiu-ho i, si la sabeu, ompliu la **Data del títol**.
+5. Comproveu que l'**Alumne del document** és l'alumne/a: l'historial acadèmic es comprova amb el seu IDALU i el certificat de qualificacions, que no porta IDALU, amb el seu **Document d'identitat (DNI/NIE)**. Si no coincideixen, o no es poden comprovar, l'expedient no es crea.
 6. Feu clic a **Crea l'expedient**.
 
 ![Assistent per afegir un expedient de currículum anterior amb la graella llegida del PDF: mòduls, unitats formatives, notes i convocatòries](../../assets/secretary/academic-history-previous-curriculum-review.png)

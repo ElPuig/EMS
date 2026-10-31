@@ -8,6 +8,13 @@
 
 # What's new
 
+## Expected withdrawal (the student stops piling up absences while it is processed):
+
+- The tutor (or anyone above them, the secretary, JE/JEA or the administrator) marks it from the student's Actions dropdown, with a note. The student stays a student, but every roll-call from then on lists them greyed out as "not required to attend: expected withdrawal"; the teacher can still put them back if they come.
+- The student's form shows an "Expected withdrawal" ribbon and notice, and their schedule draws the classes dashed with a legend.
+- Reverting it turns those sessions into absences (justified ones stay justified) without emailing the family; the tutor sees them in their daily summary. Registering the withdrawal clears the mark.
+- The student's teachers and tutor are told in their daily summary when it is marked and when it is reverted.
+
 ## Informative notices to staff wait for the daily summary (ems.info_notice):
 
 - New queue of notices that need no action and aren't urgent (ems.info_notice._ems_queue): they are no longer sent on the spot but in the recipient's next daily summary, grouped by the record (usually a student) they are about. Rule recorded in CLAUDE.md for every new notification to staff.

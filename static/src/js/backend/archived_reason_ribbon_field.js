@@ -25,6 +25,12 @@ export class ArchivedReasonRibbonField extends Component {
         return this.props.record.data[this.props.name];
     }
 
+    // Same font sizes as web.Ribbon, so a longer reason ("Expected withdrawal") still fits.
+    get sizeClass() {
+        const length = (this.text || "").length;
+        return length > 15 ? "o_small" : length > 10 ? "o_medium" : "";
+    }
+
     get colorHex() {
         const colorField = this.props.colorField;
         return (colorField && this.props.record.data[colorField]) || DEFAULT_COLOR;

@@ -281,6 +281,40 @@
     z-index: 1;
 }
 
+/* Issue #644 - a class the student is not required to attend (an expected withdrawal...): dashed
+   outline, faded, crossed by light stripes, so it reads as "not for them" whatever its colour. */
+.o_schedule_grid_entry_not_expected {
+    opacity: 0.55;
+    outline: 2px dashed #5f6368;
+    outline-offset: -2px;
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.45),
+        rgba(255, 255, 255, 0.45) 4px,
+        transparent 4px,
+        transparent 10px
+    );
+}
+
+.o_schedule_grid_not_expected_legend {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    color: #5f6368;
+    font-size: 0.9em;
+}
+
+.o_schedule_grid_not_expected_sample {
+    display: inline-block;
+    width: 28px;
+    height: 16px;
+    background-color: #9aa0a6;
+    opacity: 0.55;
+    outline: 2px dashed #5f6368;
+    outline-offset: -2px;
+}
+
 .o_schedule_grid_new_panel {
     display: flex;
     align-items: center;

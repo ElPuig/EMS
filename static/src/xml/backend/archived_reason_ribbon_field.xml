@@ -7,7 +7,7 @@
          value (see archived_reason_ribbon_field.js) instead of a Bootstrap class name. -->
     <t t-name="ems.ArchivedReasonRibbonField">
         <div class="ribbon ribbon-top-right">
-            <span t-attf-style="background-color:{{colorHex}}" t-att-title="text">
+            <span t-att-class="sizeClass" t-attf-style="background-color:{{colorHex}}" t-att-title="text">
                 <t t-esc="text"/>
             </span>
         </div>

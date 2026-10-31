@@ -132,6 +132,7 @@
             
             'views/community/contact/list.xml',            
             'views/community/contact/form.xml',
+            'views/community/contact/withdrawal_expected_wizard.xml',
             'views/community/contact/relation_wizard.xml',
             'views/community/contact/kanban.xml',
             'views/community/contact/menu.xml',

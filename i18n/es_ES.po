@@ -2359,6 +2359,7 @@ msgstr "Puede editar"
 #: model_terms:ir.ui.view,arch_db:ems.view_previous_curriculum_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_leave_wizard_form
 #: model_terms:ir.ui.view,arch_db:ems.view_absence_pending_review_wizard_form
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2921,6 +2922,7 @@ msgstr "¡Crea tu primera plantilla de autorización!"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__create_uid
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__create_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__create_uid
 msgid "Created by"
 msgstr "Creado por"
 
@@ -2992,6 +2994,7 @@ msgstr "Creado por"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__create_date
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__create_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__create_date
 msgid "Created on"
 msgstr "Creado el"
 
@@ -3349,6 +3352,7 @@ msgstr "Desactivado"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__display_name
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__display_name
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__display_name
 msgid "Display Name"
 msgstr "Nombre para mostrar"
 
@@ -4658,6 +4662,7 @@ msgstr "Datos IBAN"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__id
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__id
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__id
 msgid "ID"
 msgstr "ID"
 
@@ -5177,6 +5182,7 @@ msgstr "Familia numerosa (Especial)"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__write_uid
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__write_uid
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__write_uid
 msgid "Last Updated by"
 msgstr "Última actualización por"
 
@@ -5248,6 +5254,7 @@ msgstr "Última actualización por"
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_review_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_absence_pending_leave_wizard__write_date
 #: model:ir.model.fields,field_description:ems.field_ems_info_notice__write_date
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__write_date
 msgid "Last Updated on"
 msgstr "Última actualización:"
 
@@ -5906,6 +5913,7 @@ msgstr "No encolado"
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_authorization_send_wizard_line__note model:ir.model.fields,field_description:ems.field_ems_portal_access_wizard_line__note model_terms:ir.ui.view,arch_db:ems.view_authorization_send_wizard_form model_terms:ir.ui.view,arch_db:ems.view_portal_access_wizard_form model:ir.model.fields,field_description:ems.field_ems_withdrawal_wizard_line__note
 #: model:ir.model.fields,field_description:ems.field_ems_contact_data_request_send_wizard_line__note
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__note
 msgid "Note"
 msgstr "Nota"
 
@@ -7765,6 +7773,7 @@ msgstr "Calle 2"
 #: model_terms:ir.ui.view,arch_db:ems.view_student_document_form
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_cancel_wizard__student_id
 #: model_terms:ir.ui.view,arch_db:ems.portal_my_details_readonly
+#: model:ir.model.fields,field_description:ems.field_ems_withdrawal_expected_wizard__student_id
 msgid "Student"
 msgstr "Alumno"
 
@@ -27041,6 +27050,7 @@ msgstr "Pase de lista"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_session.py:0
+#: model:ir.model.fields,field_description:ems.field_res_partner__not_expected_legend model:ir.model.fields,field_description:ems.field_res_users__not_expected_legend
 msgid "Not required to attend"
 msgstr "No tiene que asistir"
 
@@ -27984,3 +27994,165 @@ msgstr "tareas pendientes: %(count)s"
 #: model_terms:ir.ui.view,arch_db:ems.daily_summary_body
 msgid "| from"
 msgstr "| de"
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/attendance_session.py:0
+msgid "%(label)s: %(reason)s"
+msgstr "%(label)s: %(reason)s"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid ""
+"%(tutor)s has asked for the withdrawal of %(student)s. While it is "
+"processed, they no longer appear in your roll-calls as expected (they show "
+"greyed out, \"not required to attend\")."
+msgstr ""
+"%(tutor)s ha solicitado la baja de %(student)s. Mientras se tramita, ya no "
+"aparece como esperado en tus pases de lista (sale en gris, «no tiene que "
+"asistir»)."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+",\n"
+"                        marked by"
+msgstr ", marcada por"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+".\n"
+"                        The student is not required to attend any class while the withdrawal is processed."
+msgstr ""
+". El alumno no tiene que asistir a ninguna clase mientras se tramita la "
+"baja."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__can_mark_withdrawal_expected
+#: model:ir.model.fields,field_description:ems.field_res_users__can_mark_withdrawal_expected
+msgid "Can mark an expected withdrawal"
+msgstr "Puede marcar una baja prevista"
+
+#. module: ems
+#. odoo-python
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__withdrawal
+msgid "Expected withdrawal"
+msgstr "Baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected_by_id
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected_by_id
+msgid "Expected withdrawal marked by"
+msgstr "Baja prevista marcada por"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected_note
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected_note
+msgid "Expected withdrawal note"
+msgstr "Nota de la baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected_date
+#: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected_date
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Expected withdrawal since"
+msgstr "Baja prevista desde el"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid "Expected withdrawal: not required to attend while it is processed."
+msgstr "Baja prevista: no tiene que asistir mientras se tramita."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid ""
+"From now on the student appears in every roll-call as not required to attend, so they\n"
+"                        stop piling up absences while the withdrawal is processed. They stay a student until the\n"
+"                        withdrawal is registered. Their teachers are told in their daily summary."
+msgstr ""
+"A partir de ahora el alumno sale en todos los pases de lista como «no tiene "
+"que asistir», de modo que deja de acumular faltas mientras se tramita la "
+"baja. Sigue siendo alumno hasta que se registre la baja. Sus profesores lo "
+"sabrán por el resumen diario."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid ""
+"If it is reverted, every session they were not required to attend becomes an"
+" absence."
+msgstr ""
+"Si se revierte, todas las sesiones a las que no tenía que asistir pasan a "
+"ser faltas."
+
+#. module: ems
+#: model:ir.model,name:ems.model_ems_withdrawal_expected_wizard
+msgid "Mark an expected withdrawal"
+msgstr "Marcar una baja prevista"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid "Mark expected withdrawal"
+msgstr "Marcar baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__not_expected_reason
+msgid "Not required to attend because"
+msgstr "No tiene que asistir por"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid ""
+"Only the student's tutor, the secretary, the head of studies or an "
+"administrator can mark or revert an expected withdrawal."
+msgstr ""
+"Solo el tutor del alumno, la secretaría, el jefe de estudios o un "
+"administrador pueden marcar o revertir una baja prevista."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid "Revert expected withdrawal"
+msgstr "Revertir la baja prevista"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_partner__not_expected_subject_ids
+#: model:ir.model.fields,field_description:ems.field_res_users__not_expected_subject_ids
+msgid "Subjects not required to attend"
+msgstr "Módulos a los que no tiene que asistir"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/contacts/withdrawal_expected.py:0
+msgid ""
+"The expected withdrawal of %(student)s has been reverted: they appear in "
+"your roll-calls again, and the sessions they were not required to attend "
+"count as absences."
+msgstr ""
+"Se ha revertido la baja prevista de %(student)s: vuelve a aparecer en tus "
+"pases de lista, y las sesiones a las que no tenía que asistir cuentan como "
+"faltas."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_contact_form
+msgid ""
+"The student will appear in the roll-calls again, and every session they were"
+" not required to attend since the expected withdrawal was marked becomes an "
+"absence (their family is not notified). Continue?"
+msgstr ""
+"El alumno volverá a salir en los pases de lista, y todas las sesiones a las "
+"que no tenía que asistir desde que se marcó la baja prevista pasarán a ser "
+"faltas (no se avisa a la familia). ¿Quieres continuar?"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
+msgid "e.g. The family has told us they are moving abroad."
+msgstr "p. ej. La familia nos ha dicho que se van a vivir al extranjero."

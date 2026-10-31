@@ -213,7 +213,7 @@ class AttendanceSessionView extends Component {
         const lines = await this.orm.searchRead(
             "ems.attendance_session_line",
             [["attendance_session_id", "=", sessionId]],
-            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active"],
+            ["id", "student_id", "status_id", "notes", "attendance_justification_id", "attendance_prevision_id", "strike_ids", "active", "not_expected_reason", "roll_call_label"],
             // Removed (archived) lines are still listed, greyed out, so they can be restored.
             { context: { active_test: false } },
         );
@@ -481,7 +481,10 @@ class AttendanceSessionView extends Component {
         try {
             await this._writeSessionLine(lineId, { active });
             const line = this.state.lines.find(l => l.id === lineId);
-            if (line) line.active = active;
+            if (line) {
+                line.active = active;
+                if (active) line.not_expected_reason = false;
+            }
             this.state.lines = this._sortedLines(this.state.lines);
         } finally {
             this.state.saving[lineId] = false;

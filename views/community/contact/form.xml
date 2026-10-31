@@ -27,9 +27,11 @@
                     plain Char like this one; without this every ribbon silently fell back to
                     the widget's default red regardless of the intended color. -->
                     <field name="archived_reason_color" invisible="1"/>
+                    <!-- Issue #644: also on an active student whose withdrawal is expected. -->
+                    <field name="withdrawal_expected" invisible="1"/>
                     <field name="archived_reason_label" widget="ems_archived_reason_ribbon"
                            options="{'color_field': 'archived_reason_color'}"
-                           invisible="active or not archived_reason_label"/>
+                           invisible="not archived_reason_label or (active and not withdrawal_expected)"/>
                 </xpath>
 
                 <xpath expr="//div[@name='button_box']" position="inside">
@@ -68,6 +70,17 @@
                              Each entry keeps its own invisible/groups/confirm, and the dropdown
                              isn't shown when none applies. -->
                         <div name="ems_actions" string="Actions">
+                            <!-- Issue #644: the student's tutor (and everyone above them), the
+                                 secretary, the Head of Studies or an administrator; re-checked
+                                 server-side. -->
+                            <field name="can_mark_withdrawal_expected" invisible="1"/>
+                            <button name="action_withdrawal_expected_wizard" type="object"
+                                    string="Mark expected withdrawal"
+                                    invisible="withdrawal_expected or not can_mark_withdrawal_expected"/>
+                            <button name="action_revert_withdrawal_expected" type="object"
+                                    string="Revert expected withdrawal"
+                                    invisible="not withdrawal_expected or not can_mark_withdrawal_expected"
+                                    confirm="The student will appear in the roll-calls again, and every session they were not required to attend since the expected withdrawal was marked becomes an absence (their family is not notified). Continue?"/>
                             <!-- Issue #592: a withdrawal registered by mistake. Same roles as the
                                  withdrawal wizard; can_undo_withdrawal also checks it is a withdrawal
                                  of the current course with a confirmed enrollment to go back to. -->
@@ -164,6 +177,17 @@
                         The Google account is scheduled to be deactivated on
                         <field name="google_ws_deactivation_date" readonly="1" nolabel="1"
                                class="oe_inline"/>.
+                    </div>
+                    <!-- Issue #644: the student is still a student, but off every roll-call. -->
+                    <div class="alert alert-warning" role="alert" invisible="not withdrawal_expected">
+                        Expected withdrawal since
+                        <field name="withdrawal_expected_date" options="{'show_time': false}" readonly="1" nolabel="1" class="oe_inline"/>,
+                        marked by <field name="withdrawal_expected_by_id" readonly="1" nolabel="1" class="oe_inline"
+                                         options="{'no_open': True}"/>.
+                        The student is not required to attend any class while the withdrawal is processed.
+                        <div invisible="not withdrawal_expected_note">
+                            <field name="withdrawal_expected_note" readonly="1" nolabel="1"/>
+                        </div>
                     </div>
                     <!-- Issue #640: an existing student without a birth date, whom EMS takes for a minor. -->
                     <div class="alert alert-warning" role="alert"
@@ -483,6 +507,9 @@
                 <xpath expr="//page[@name='contact_addresses']" position="before">
                     <page name="schedule" string="Schedule" invisible="contact_type != 'student'">
                         <field name="shift" invisible="1"/>
+                        <!-- Issue #644: classes the student is not required to attend, drawn dashed. -->
+                        <field name="not_expected_subject_ids" invisible="1"/>
+                        <field name="not_expected_legend" invisible="1"/>
                         <field name="schedule_attendance_ids" widget="readonly_schedule_grid" nolabel="1">
                             <list limit="200">
                                 <field name="dayofweek"/>

@@ -228,6 +228,40 @@ export class ReadonlyScheduleGridField extends Component {
         return !!block.entries[0].data.non_teaching_is_break;
     }
 
+    // Issue #644: on a student's schedule, the classes they are not required to attend (an expected
+    // withdrawal...) - helper fields smuggled in invisible on the form, like 'shift'; absent on
+    // every other model using this widget.
+    get notExpectedSubjectIds() {
+        const subjects = this.props.record.data.not_expected_subject_ids;
+        return subjects ? subjects.currentIds : [];
+    }
+
+    get notExpectedLegend() {
+        return this.props.record.data.not_expected_legend || "";
+    }
+
+    blockIsNotExpected(block) {
+        if (this.blockIsBreak(block) || block.parallelBlocks) {
+            return false;
+        }
+        const subject = block.entries[0].data.subject_id;
+        return !!subject && this.notExpectedSubjectIds.includes(subject[0]);
+    }
+
+    blockClass(block) {
+        if (this.blockIsBreak(block)) {
+            return "o_schedule_grid_entry_break";
+        }
+        const classes = [];
+        if (block.parallelBlocks) {
+            classes.push("o_schedule_grid_entry_parallel");
+        }
+        if (this.blockIsNotExpected(block)) {
+            classes.push("o_schedule_grid_entry_not_expected");
+        }
+        return classes.join(" ");
+    }
+
     // A subject gets its own colour, distinct from every other subject in this schedule — but not
     // a break, which already has its own fixed, distinctive look (see the equivalent note in
     // schedule_grid_field.js's own _colorKey).

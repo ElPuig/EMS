@@ -400,6 +400,9 @@ class EmsAttendanceSessionHeader(models.Model):
         # (removed) - the roster is this specific weekly slot's own, not shared across every
         # slot of the template.
         roster = schedule.student_ids
+        # Issue #644: students not expected at this class (an expected withdrawal...) start off the
+        # roll-call, with the reason, as if the teacher had removed them.
+        not_expected = self.env['res.partner']._ems_not_expected_reasons(roster, template.subject_id, self.start_date)
         if previous and previous.end_time <= self.start_time:
             # active_test=False: a student removed from the previous period's roll-call (e.g. not
             # sitting an exam spanning both periods) stays removed, and restorable, in this one.
@@ -415,7 +418,10 @@ class EmsAttendanceSessionHeader(models.Model):
                         line = p.perform_justification(self._setup_new_line_data(prev.student_id), True)
                 if line is None:
                     line = self._setup_next_session_line_data(prev)
-                line["active"] = prev.active
+                # A removal by hand carries over; one the system made for a reason only while
+                # the reason still applies (not_expected below decides).
+                line["active"] = prev.active or bool(prev.not_expected_reason)
+                line.update(not_expected.get(prev.student_id.id, {}))
                 lines.append(line)
             roster -= carried_lines.student_id
         for student in roster:
@@ -425,6 +431,7 @@ class EmsAttendanceSessionHeader(models.Model):
                     line = p.perform_justification(self._setup_new_line_data(student), True)
             if line is None:
                 line = self._setup_new_line_data(student)
+            line.update(not_expected.get(student.id, {}))
             lines.append(line)
 
         if lines:
@@ -495,6 +502,10 @@ class EmsAttendanceSessionHeader(models.Model):
             # notifications for the tutors: one pending report per tutor, at the moment they chose (_schedule_tutor_report); notifications for the family (status): after a timeout (default 15 minutes).
 
             notification_tutor._schedule_tutor_report()
+            # Absences restored in bulk (a reverted expected withdrawal, issue #644) only reach
+            # the tutor: a burst of past-dated emails would only confuse the family.
+            if self.env.context.get('ems_skip_family_notification'):
+                continue
             for issue_student in notification_tutor.attendance_issue_student_ids:
                 for issue_status in issue_student.attendance_issue_status_ids:
                     self._schedule_family_assistance_notification(issue_status, notification_status_eta, rectification)
@@ -672,6 +683,11 @@ class EmsAttendanceSessionLine(models.Model):
     # Archived = removed from this roll-call (issue #537): neither attended nor missed, so it's
     # left out of reports and notifications, but can be restored from the roll-call widget.
     active = fields.Boolean(default=True)
+    # Issue #644: why the system took the student off the roll-call (empty when the teacher did,
+    # or when they are on it), so undoing the reason only restores what it removed.
+    not_expected_reason = fields.Selection(string="Not required to attend because", copy=False, selection=[
+        ('withdrawal', 'Expected withdrawal'),
+    ])
     status_id = fields.Many2one(
         string="Status", comodel_name="ems.attendance_status", required=True,
         default=lambda self: self.env.ref("ems.attendance_status_attended", raise_if_not_found=False),
@@ -779,6 +795,10 @@ class EmsAttendanceSessionLine(models.Model):
     def write(self, vals):
         if vals.get("active") is False and self.filtered("strike_ids"):
             raise UserError(_("A student with strikes in this session can't be removed from the roll-call."))
+        if vals.get("active") is True and "not_expected_reason" not in vals:
+            # The teacher puts the student back (they came after all): the reason no longer applies
+            # to this line, and undoing it later must not touch it.
+            vals = dict(vals, not_expected_reason=False)
         super().write(vals)
         self._update_notification()
 
@@ -884,11 +904,17 @@ class EmsAttendanceSessionLine(models.Model):
         for line in self:
             line.absence_rate = 100.0 if line.status_id.category == 'absence' else 0.0
 
-    @api.depends('active')
+    @api.depends('active', 'not_expected_reason')
     def _compute_roll_call_label(self):
         label = _("Not required to attend")
+        reasons = dict(self._fields['not_expected_reason']._description_selection(self.env))
         for line in self:
-            line.roll_call_label = False if line.active else label
+            if line.active:
+                line.roll_call_label = False
+            elif line.not_expected_reason:
+                line.roll_call_label = _("%(label)s: %(reason)s", label=label, reason=reasons[line.not_expected_reason].lower())
+            else:
+                line.roll_call_label = label
 
     def action_view_strikes(self):
         self.ensure_one()

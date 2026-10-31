@@ -39,8 +39,8 @@ class EmsWithdrawalExpectedPartner(models.Model):
     def _compute_can_mark_withdrawal_expected(self):
         """The student's tutor and everyone above them (tutor scope: Department/Seminar Chief,
         JE/JEA, the Director), plus whoever registers withdrawals (secretary, Head of Studies, the
-        administrator)."""
-        registers_exits = self._ems_user_can_register_exits()
+        academic administrator) and the administrator (base.group_system), always at the top."""
+        registers_exits = self._ems_user_can_register_exits() or self.env.user.has_group('base.group_system')
         base = self.env['ems.base']
         for partner in self:
             partner.can_mark_withdrawal_expected = (
@@ -165,12 +165,7 @@ class EmsWithdrawalExpectedPartner(models.Model):
         notifying the family - the tutor sees them in their daily summary."""
         self._ems_check_can_mark_withdrawal_expected()
         for student in self.sudo().filtered('withdrawal_expected'):
-            student.write({
-                'withdrawal_expected': False,
-                'withdrawal_expected_date': False,
-                'withdrawal_expected_by_id': False,
-                'withdrawal_expected_note': False,
-            })
+            student._ems_clear_withdrawal_expected()
             student._ems_restore_not_expected_lines([('not_expected_reason', '=', 'withdrawal')])
             student._ems_queue_staff_notice(lambda student, subjects: Markup("<p>{}</p>").format(student.env._(
                 "The expected withdrawal of %(student)s has been reverted: they appear in your roll-calls again, "

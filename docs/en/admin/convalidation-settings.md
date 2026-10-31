@@ -41,6 +41,14 @@ The settings accept neither a day that does not exist in its month (not even 29 
 
 ---
 
+## Attendance notice
+
+When students or families request a convalidation from the portal, they must read and accept an attendance notice and choose, for each module, whether they will attend it until the resolution. If they don't attend and the module is not convalidated, those classes count as absences (see [Convalidations on the portal](../families/manual-convalidacions.md#attendance-while-it-is-resolved)).
+
+The notice is set in **Request: attendance notice**. Explain what the centre's organisation and operation rules (NOFC) say about absences if a module is refused. Write it in each language families read: it is saved per language, like any translatable field (switch your user's language to write it in another one). Left empty, a standard text reminds them that attendance is compulsory until the resolution and that the right to continuous assessment may be lost.
+
+---
+
 ## Resolution texts
 
 The resolution the Director issues is always generated in Catalan. Three settings adjust its content:

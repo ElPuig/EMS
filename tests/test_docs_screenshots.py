@@ -500,11 +500,16 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             'convalidation_id': pending.id,
             'message': "Adjunta el certificat de notes del CFGM, segellat pel centre on el vas cursar.",
         }).action_send()
+        # Issue #644: one module marked, not attended until the resolution; the attendance notice below.
         self._capture(
             '/my/convalidaciones?new=1', '.o_ems_convalidation_new',
             'convalidations-portal-new.png',
             login='doc_shot_portal',
             wait_for='#convalidation_new_body.show',
+            run=["(() => { document.querySelector('input[name=subject_ids]').click();"
+                 " const choice = document.querySelector('select.o_ems_convalidation_attendance:not(.d-none)');"
+                 " choice.value = 'not_attend'; })()"],
+            wait_after=['select.o_ems_convalidation_attendance:not(.d-none)'],
         )
         self._capture(
             '/my/convalidaciones', '.o_ems_convalidation_request:has(.o_ems_convalidation_info_request)',

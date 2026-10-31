@@ -46,6 +46,7 @@ msgstr "%d creadas, %d omitidas (ya tenían matrícula)."
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "%s access(es) granted"
 msgstr "%s acceso(s) concedido(s)"
 
@@ -5042,6 +5043,7 @@ msgstr "Retraso de notificación de incidencia"
 #. odoo-python
 #: code:addons/ems/models/contacts/portal_access_wizard.py:0 code:addons/ems/models/enrollment/authorization_send_wizard.py:0
 #: code:addons/ems/models/grades/title_import_wizard.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "Issues:"
 msgstr "Incidencias:"
 
@@ -10627,6 +10629,7 @@ msgstr "Bajas tramitadas: %(done)s"
 #. odoo-python
 #: code:addons/ems/models/contacts/graduation_wizard.py:0
 #: code:addons/ems/models/enrollment/enrollment_close_wizard.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "%(student)s: portal access could not be revoked, kept active"
 msgstr "%(student)s: no se ha podido revocar el acceso al portal, se mantiene activo"
 
@@ -20216,6 +20219,7 @@ msgstr "el mismo docente"
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/attendance/attendance_template.py:0
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "(none)"
 msgstr "(ninguno)"
 
@@ -28041,6 +28045,7 @@ msgstr "Puede marcar una baja prevista"
 #: model:ir.model.fields,field_description:ems.field_res_partner__withdrawal_expected
 #: model:ir.model.fields,field_description:ems.field_res_users__withdrawal_expected
 #: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__withdrawal
+#: code:addons/ems/models/contacts/contact.py:0
 msgid "Expected withdrawal"
 msgstr "Baja prevista"
 

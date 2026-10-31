@@ -104,9 +104,10 @@ the grid. Absent on every other model using the widget.
 | Who | Mark / revert |
 |-----|---------------|
 | The student's tutor and everyone above them (tutor scope: Department/Seminar Chief, JE/JEA, Director) | Yes (`ems.base.user_acts_as_tutor`) |
-| Secretary, JE/JEA and the Director (`ems.group_head_of_studies`), the administrator (`_ems_user_can_register_exits`) | Yes |
+| Secretary, JE/JEA and the Director (`ems.group_head_of_studies`), the academic administrator (`_ems_user_can_register_exits`) | Yes |
+| The administrator (`base.group_system`), always at the top of the permission pyramid | Yes |
 | Any other teacher, a Department Chief of another branch | No (button hidden, `UserError` server-side) |
 
 The writes are done with `sudo()` once the check passes. `ems.withdrawal_expected_wizard` has ACL
-rows for `ems.group_tutor` (implied by every role above the tutor), `ems.group_secretary` and
-`ems.group_academic_admin`.
+rows for `ems.group_tutor` (implied by every role above the tutor), `ems.group_secretary`,
+`ems.group_academic_admin` and `base.group_system`.

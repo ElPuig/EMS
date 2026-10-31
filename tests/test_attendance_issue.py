@@ -196,6 +196,17 @@ class TestAttendanceIssue(TransactionCase):
         self.assertIn(self.student2.display_name, body)
         self.assertNotIn(self.student1.display_name, body)
 
+    def test_failed_delivery_shows_on_daily_issues(self):
+        """The summary's notification bounced: "Daily issues" says Failed, with the reason."""
+        self._mark_miss(self.student1)
+        message = self._send_summary()
+        message.notification_ids.sudo().write({'notification_status': 'exception', 'failure_reason': 'Mailbox full'})
+        issue_tutor = self._issue_tutor()
+        issue_tutor.invalidate_recordset(['status', 'exception'])
+        self.assertEqual(issue_tutor.status, 'failed')
+        self.assertIn('Mailbox full', issue_tutor.exception)
+        self.assertFalse(issue_tutor.schedule_date)
+
     def test_removing_every_issue_leaves_nothing_to_send(self):
         self._mark_miss(self.student1)
         earlier = self._last_week_session()

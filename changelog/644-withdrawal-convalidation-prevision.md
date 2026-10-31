@@ -13,6 +13,7 @@
 - The tutor (or anyone above them, the secretary, JE/JEA or the administrator) marks it from the student's Actions dropdown, with a note. The student stays a student, but every roll-call from then on lists them greyed out as "not required to attend: expected withdrawal"; the teacher can still put them back if they come.
 - The student's form shows an "Expected withdrawal" ribbon and notice, and their schedule draws the classes dashed with a legend.
 - Reverting it turns those sessions into absences (justified ones stay justified) without emailing the family; the tutor sees them in their daily summary. Registering the withdrawal clears the mark.
+- The system administrator can mark and revert it too.
 - The student's teachers and tutor are told in their daily summary when it is marked and when it is reverted.
 
 ## Convalidation requests: attending the subjects meanwhile or not:
@@ -33,3 +34,7 @@
 - res.users.ems_digest_next records when each person's summary is due; a 15-minute cron sends the due ones and keeps the old rules: an end-of-day moment reports that day's issues, an issue recorded after the moment waits for the next one (never one email per roll-call click, #588), a tutor's issues fall back to the end of the centre's day when the tutor doesn't work, and tasks are never sent on a day off or during an absence.
 - The "Daily issues" screen computes Pending/Sent/Failed and the scheduled date from the summary instead of a queue job.
 - The two mail templates (pending-tasks digest, tutor report) are replaced by one QWeb body translated through the .po files; tests merged into tests/test_daily_summary.py.
+
+## Translation coverage test now requires a code reference:
+
+- TestI18nCoverage also fails when a translated Python message's .po block has no "code:" reference: Odoo only loads code translations through it, so such a message stayed in English at runtime (found on the new "Expected withdrawal" ribbon; four older messages had the same gap and are fixed).

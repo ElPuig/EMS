@@ -47,7 +47,8 @@ En registrar-la:
 - La sol·licitud queda **Completada** si hi ha algun mòdul convalidat, o **Rebutjada** si no n'hi ha cap.
 - L'alumne rep un correu amb la resolució i el PDF adjunt. També el rep la família si l'alumne és menor d'edat o si ha autoritzat compartir la informació amb ella.
 - L'alumne deixa de cursar cada mòdul convalidat: se li esborra la matrícula del mòdul, de manera que surt de les llistes d'assistència i de la sessió de notes oberta, encara que el professor ja li hagués posat alguna nota.
-- El professorat del mòdul i el tutor del grup reben un avís (a la bústia de l'Odoo o per correu, segons les preferències de cadascú) amb els mòduls convalidats. No han de fer res: no és cap tasca.
+- El professorat del mòdul i el tutor del grup reben un avís al seu [resum diari](../teachers/daily-summary.md) amb els mòduls convalidats. No han de fer res: no és cap tasca.
+- Si l'alumne havia triat **no assistir** a un mòdul mentre es resolia i el mòdul s'ha denegat, les classes a què no havia d'anar passen a ser faltes (sense avisar la família), i el professorat del mòdul i el tutor en reben l'avís.
 - L'històric acadèmic recull el mòdul com a aprovat, amb la nota, la marca **CV** i el número de registre.
 
 ---
@@ -56,7 +57,7 @@ En registrar-la:
 
 1. Fes clic a **Nou**.
 2. Tria l'**Estudiant**, l'**Estudi**, el **Curs** i el **Motiu** (per a estudis previs, també **Estudis superats**: en aquest centre o en un altre), i escriu-hi les observacions del sol·licitant si n'hi ha. A diferència del portal, una sol·licitud registrada aquí es pot desar sense documentació justificativa, per demanar-la després.
-3. A la pestanya **Assignatures**, afegeix una línia per cada mòdul sol·licitat.
+3. A la pestanya **Assignatures**, afegeix una línia per cada mòdul sol·licitat i, a **Assistència mentrestant**, indica el que hagi triat l'alumne per a la resta del procés (per defecte, **Hi assistiré**). No es pot canviar un cop desada la línia.
 4. A la pestanya **Documentació justificativa**, puja els documents.
 5. Fes clic a **Desa**.
 
@@ -68,7 +69,7 @@ Pots registrar una sol·licitud, i tramitar-ne qualsevol, en qualsevol moment: e
 
 ## Anul·lar una sol·licitud
 
-Mentre una sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri, la pots anul·lar des d'**Accions > Anul·la la sol·licitud**. Un diàleg et demana el **Motiu**, que és obligatori: l'alumne o la família el veuen al portal i a les seves comunicacions.
+Mentre una sol·licitud és **Pendent**, o **Pendent de documentació** si no s'ha tramitat amb el Ministeri, la pots anul·lar des d'**Accions > Anul·la la sol·licitud**. Un diàleg et demana el **Motiu**, que és obligatori: l'alumne o la família el veuen al portal i a les seves comunicacions. Les classes dels mòduls a què l'alumne havia triat no assistir passen a ser faltes.
 
 ---
 

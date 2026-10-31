@@ -50,6 +50,10 @@ muestra una fila por tema.
 Esta pestaña es de solo lectura: para cambiar cualquier cosa hay que editarlo desde la
 pestaña Horario del profesor correspondiente, o desde las matrículas del propio alumno.
 
+### Clases rayadas
+
+Una clase rayada, con una leyenda bajo la cuadrícula, es una clase a la que el alumno **no tiene que asistir** por ahora: porque tiene una [baja prevista](../tutors/withdrawal-expected.md) (todas las clases), o porque ha solicitado convalidar el módulo y ha elegido no asistir mientras se resuelve. En los pases de lista de esas clases, el alumno sale en gris.
+
 ---
 
 ## Exportar el horario a PDF

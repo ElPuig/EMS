@@ -150,6 +150,10 @@ attendance status. Fixed in `mails/attendance/attendance_issue_rectification.xml
 
 ## The same crash again, on the tutor template (2026-09-09)
 
+> Since issue #644 that template no longer exists: the tutor's issues are a section of the
+> [daily summary](../shared/daily_summary.md), a QWeb view translated term by term, so a renamed
+> field can no longer hide behind a stale translated copy of the whole body.
+
 The "lesson for future field renames" above was written on 2026-07-28 and did not prevent a
 recurrence: `18.0.0.22.0` renamed `ems.attendance_issue_status.attendance_status` (Selection)
 to `attendance_status_id` (Many2one), updated `mails/attendance/attendance_issue_tutor.xml`,

@@ -47,7 +47,8 @@ Al registrarla:
 - La solicitud queda **Completada** si hay algún módulo convalidado, o **Rechazada** si no hay ninguno.
 - El alumno recibe un correo con la resolución y el PDF adjunto. También lo recibe la familia si el alumno es menor de edad o si ha autorizado compartir la información con ella.
 - El alumno deja de cursar cada módulo convalidado: se le borra la matrícula del módulo, de modo que sale de las listas de asistencia y de la sesión de notas abierta, aunque el profesor ya le hubiera puesto alguna nota.
-- El profesorado del módulo y el tutor del grupo reciben un aviso (en el buzón de Odoo o por correo, según las preferencias de cada uno) con los módulos convalidados. No tienen que hacer nada: no es una tarea.
+- El profesorado del módulo y el tutor del grupo reciben un aviso en su [resumen diario](../teachers/daily-summary.md) con los módulos convalidados. No tienen que hacer nada: no es una tarea.
+- Si el alumno había elegido **no asistir** a un módulo mientras se resolvía y el módulo se ha denegado, las clases a las que no tenía que ir pasan a ser faltas (sin avisar a la familia), y el profesorado del módulo y el tutor reciben el aviso.
 - El historial académico recoge el módulo como aprobado, con la nota, la marca **CV** y el número de registro.
 
 ---
@@ -56,7 +57,7 @@ Al registrarla:
 
 1. Haz clic en **Nuevo**.
 2. Elige el **Estudiante**, el **Estudio**, el **Curso** y el **Motivo** (para estudios previos, también **Estudios superados**: en este centro o en otro), y escribe las observaciones del solicitante si las hay. A diferencia del portal, una solicitud registrada aquí se puede guardar sin documentación justificativa, para pedirla después.
-3. En la pestaña **Asignaturas**, añade una línea por cada módulo solicitado.
+3. En la pestaña **Asignaturas**, añade una línea por cada módulo solicitado y, en **Asistencia mientras tanto**, indica lo que haya elegido el alumno para el resto del proceso (por defecto, **Asistiré**). No se puede cambiar una vez guardada la línea.
 4. En la pestaña **Documentación justificativa**, sube los documentos.
 5. Haz clic en **Guardar**.
 
@@ -68,7 +69,7 @@ Puedes registrar una solicitud, y tramitar cualquiera, en cualquier momento: el 
 
 ## Anular una solicitud
 
-Mientras una solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio, puedes anularla desde **Acciones > Anular la solicitud**. Un diálogo te pide el **Motivo**, que es obligatorio: el alumno o la familia lo ven en el portal y en sus comunicaciones.
+Mientras una solicitud está **Pendiente**, o **Pendiente de documentación** si no se ha tramitado con el Ministerio, puedes anularla desde **Acciones > Anular la solicitud**. Un diálogo te pide el **Motivo**, que es obligatorio: el alumno o la familia lo ven en el portal y en sus comunicaciones. Las clases de los módulos a los que el alumno había elegido no asistir pasan a ser faltas.
 
 ---
 

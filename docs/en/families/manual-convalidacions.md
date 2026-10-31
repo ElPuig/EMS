@@ -44,11 +44,12 @@ Requests already submitted are not affected: you can keep checking them, answeri
 
 ## Making a request
 
-1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate.
+1. Click **New convalidation request** to open the form, and tick the modules you want to convalidate. For each module ticked, choose whether you **will attend** it or **won't attend** it until the resolution (see [Attendance while it is resolved](#attendance-while-it-is-resolved)).
 2. Choose the **Grounds**. For prior studies, also say **where you passed them**: at this centre, or at another centre or university.
 3. Under **Supporting documents**, attach the documents needed. You can select several files at once. They are mandatory, except for studies passed at this centre: the request can't be submitted without them. Right above the file field, the form tells you which documents to attach for the grounds you chose (and, for prior studies, where you passed them).
 4. If you want, write some comments.
-5. Click **Submit request**.
+5. Read the attendance notice and tick **I have read this notice and I accept it**: the request can't be sent without it.
+6. Click **Submit request**.
 
 ![New convalidation request form](../../assets/families/convalidations-portal-new.png)
 
@@ -64,6 +65,19 @@ Requests already submitted are not affected: you can keep checking them, answeri
 If anything else is needed, the centre will ask you for it and you can attach it from this same page.
 
 A message confirms the request has been submitted. Modules already requested no longer appear on the form, unless their rejection has already been registered.
+
+---
+
+## Attendance while it is resolved
+
+**Attendance is compulsory until the request is resolved.** For each module you ask to convalidate you can choose:
+
+- **I will attend until the resolution** (the default): you keep going to class as usual.
+- **I won't attend until the resolution**: while the request is processed, you are not expected in that module's classes and get no absences.
+
+Bear in mind that if the module **is not convalidated** (or the request is cancelled), the classes you missed **count as absences**, and you could lose the right to continuous assessment. The notice, which you can read on the form, explains what the centre's rules (NOFC) and the module's planning say.
+
+The choice can't be changed once the request is submitted. On the submitted request, the modules you chose not to attend show **Not attending until the resolution**.
 
 ---
 

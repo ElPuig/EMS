@@ -39,7 +39,7 @@ The request goes through the same review process as any other — including, if 
 
 ## Deciding on a Request
 
-A new request sends you no email right away: it is not urgent. You'll find it in your activities tray (🕒) and in the daily email with all your pending tasks (see [Daily Summary of Pending Tasks](../teachers/task-digest.md)).
+A new request sends you no email right away: it is not urgent. You'll find it in your activities tray (🕒) and in your daily summary (see [Daily Summary](../teachers/daily-summary.md)).
 
 If a request has been routed to you (you'll see it as an **Activity** to-do, and it will appear in **Employee Attendances → Attendance → Correction Requests**):
 

@@ -123,6 +123,16 @@ class TestAttendanceNotExpected(TransactionCase):
         self.assertEqual(len(self._notices(self.tutor_user)), 1)
         self.assertIn('Not Expected Student', self._notices(self.teacher_user).body)
 
+    def test_notices_only_reach_teachers_of_the_student(self):
+        other_teacher = create_role_user(self, 'teacher', 'not_expected_other_teacher', name='Not Expected Other Teacher')
+        other_subject = self.env['ems.subject'].create({
+            'code': 'TANE002', 'acronym': 'TAN2', 'name': 'Other Subject (Not Expected)',
+            'study_ids': [(6, 0, [self.study.id])]})
+        self.env['ems.teaching'].create({'teacher_id': create_role_employee(self, other_teacher).id,
+                                         'group_id': self.group.id, 'subject_id': other_subject.id})
+        self._mark()
+        self.assertFalse(self._notices(other_teacher), "Teaches the group, not this student")
+
     def test_ribbon_and_schedule(self):
         self._mark()
         self.assertEqual(self.student.archived_reason_label, 'Expected withdrawal')
@@ -216,7 +226,7 @@ class TestAttendanceNotExpected(TransactionCase):
         self.assertFalse(self.student.with_user(self.teacher_user).can_mark_withdrawal_expected)
         with self.assertRaises(UserError):
             self._mark(self.teacher_user)
-        for role in ('secretary', 'academic_admin'):
+        for role in ('secretary', 'academic_admin', 'settings_admin'):
             user = create_role_user(self, role, f'not_expected_{role}')
             self.assertTrue(self.student.with_user(user).can_mark_withdrawal_expected, role)
         other_chief = create_role_user(self, 'department_chief', 'not_expected_other_chief')

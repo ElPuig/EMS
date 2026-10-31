@@ -109,13 +109,12 @@ class EmsDailySummaryUsers(models.Model):
             if not company._ems_default_framework_intervals(day):
                 return None
             return datetime_utils.datetime_to_odoo(datetime_utils.time_float_to_utc_datetime(day, self.ems_digest_time))
-        employee = self.employee_id
         if moment == 'students_end':
-            hour_to = employee._ems_students_day_end(day)
+            hour_to = self.employee_id._ems_students_day_end(day)
             if hour_to is None:
                 return None
             return datetime_utils.datetime_to_odoo(datetime_utils.time_float_to_utc_datetime(day, hour_to))
-        intervals = employee._ems_workday_intervals(day) if employee else company._ems_default_framework_intervals(day)
+        intervals = self._ems_workday_intervals(day)
         if not intervals:
             return None
         edge = max(end for _start, end in intervals) if moment == 'teacher_end' else min(start for start, _end in intervals)
@@ -173,18 +172,22 @@ class EmsDailySummaryUsers(models.Model):
             if not user.ems_digest_next or due < user.ems_digest_next:
                 user.ems_digest_next = due
 
-    def _ems_workday_start(self, work_date, empty_schedule_as_framework=False):
-        """Naive UTC start of the user's working day on work_date, or None when it is not a
-        working day for them: their employee's working day (hr.employee._ems_workday_intervals)
-        or, without an employee, the company's default schedule framework.
+    def _ems_workday_intervals(self, work_date, empty_schedule_as_framework=False):
+        """(start, end) pairs, tz-aware, of the user's working day on work_date: their employee's
+        (hr.employee._ems_workday_intervals: own schedule, absences and public holidays
+        subtracted) or, without an employee, the company's default schedule framework.
         `empty_schedule_as_framework`: an employee whose schedule has no period at all (a teacher
         not scheduled yet) also gets the framework, rather than no working day ever."""
         self.ensure_one()
         employee = self.employee_id
         if employee and not (empty_schedule_as_framework and not employee.resource_calendar_id.attendance_ids):
-            intervals = employee._ems_workday_intervals(work_date)
-        else:
-            intervals = self.company_id._ems_default_framework_intervals(work_date)
+            return employee._ems_workday_intervals(work_date)
+        return self.company_id._ems_default_framework_intervals(work_date)
+
+    def _ems_workday_start(self, work_date, empty_schedule_as_framework=False):
+        """Naive UTC start of the user's working day on work_date (_ems_workday_intervals), or
+        None when it is not a working day for them."""
+        intervals = self._ems_workday_intervals(work_date, empty_schedule_as_framework)
         if not intervals:
             return None
         return min(start for start, _end in intervals).astimezone(pytz.utc).replace(tzinfo=None)

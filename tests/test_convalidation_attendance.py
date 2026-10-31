@@ -153,6 +153,13 @@ class TestConvalidationAttendance(TransactionCase):
         self.assertTrue(self._line(session).active)
         self.assertEqual(self._line(session).status_id, self.miss)
 
+    def test_changing_the_subject_puts_the_old_one_back(self):
+        request = self._request(not_attend=self.other_subject)
+        session = self._session(self.other_subject)
+        request.line_ids.with_user(self.head_of_studies).write({'subject_id': self.subject.id})
+        self.assertTrue(self._line(session).active)
+        self.assertEqual(self._line(session).status_id, self.miss)
+
     def test_reopened_request_takes_the_student_off_again(self):
         request = self._request(not_attend=self.subject)
         request.with_user(self.head_of_studies)._ems_cancel()

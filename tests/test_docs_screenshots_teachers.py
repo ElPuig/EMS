@@ -12,6 +12,8 @@ import json
 from datetime import datetime, timedelta
 from unittest.mock import patch
 
+from markupsafe import Markup
+
 from odoo.tests.common import HttpCase, tagged
 
 from .common import (
@@ -270,6 +272,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         student_b = self._student(group, 'Pau Mostra')
         student_c = self._student(group, 'Nerea Prova')
         student_d = self._student(group, 'Iker Model')
+        student_e = self._student(group, 'Laia Exemple')
 
         # The clock is set to 10:00 (shift_ems_clock), inside this whole-day slot: the schedule
         # is the current one whatever time this capture actually runs at.
@@ -282,7 +285,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         schedule = self.env['ems.attendance_schedule'].create({
             'attendance_template_id': template.id, 'weekday': weekday,
             'start_time': 0.0, 'end_time': 23.0, 'space_id': space.id,
-            'student_ids': [(6, 0, (student_a + student_b + student_c + student_d).ids)],
+            'student_ids': [(6, 0, (student_a + student_b + student_c + student_d + student_e).ids)],
         })
         session = self.env['ems.attendance_session_header'].create({
             'attendance_schedule_id': schedule.id, 'date': today,
@@ -309,17 +312,21 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         line_c.write({'status_id': status_miss.id, 'attendance_justification_id': justification.id})
         # Removed from the roll-call (issue #537): greyed out, last in the list, restore button.
         lines.filtered(lambda line: line.student_id == student_d).active = False
+        # Issue #644: taken off by EMS itself, with the reason under the name (a module she won't
+        # attend while her convalidation is resolved).
+        lines.filtered(lambda line: line.student_id == student_e).write(
+            {'active': False, 'not_expected_reason': 'convalidation'})
 
         self._capture(
             '/odoo/action-ems.action_attendance_passlist',
             '.ems-av-root', 'passlist-01-assistencia-actual.png',
-            login='doc_shot_teacher', wait_for='.ems-av-line',
+            login='doc_shot_teacher', wait_for='.ems-av-removed-reason',
             # .ems-av-root stretches to fill the remaining viewport height (an empty-state
             # placeholder needs the room), so _trim's background-diff crop can't tell the real
             # content apart from that empty tail (same class of issue as the flex-stretch gotcha
             # documented in the plan file) - max_height caps the capture well above the real
             # content (header + a handful of rows) instead.
-            max_height=400,
+            max_height=480,
         )
 
         # Guard mode: a colleague's slot for today, not started yet (still "planned") - the
@@ -1054,13 +1061,14 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             login='doc_shot_teacher', tour='ems_doc_shot_photo_visibility',
         )
 
-    def test_capture_task_digest(self):
-        # 1. Where to choose when it arrives: the same Preferences tab as test_capture_photo_visibility,
-        # with the "Notifications" option marked.
+    def test_capture_daily_summary(self):
+        # 1. Where to choose when and how it arrives: the same Preferences tab as
+        # test_capture_photo_visibility, with the moment (1) and the channel (2) marked.
         self._capture(
-            '/odoo', '.o_notebook_content', 'resum-tasques-01-preferencies.png',
+            '/odoo', '.o_notebook_content', 'resum-diari-01-preferencies.png',
             login='doc_shot_teacher', tour='ems_doc_shot_photo_visibility',
-            marks=[(".o_field_widget[name='ems_digest_moment']", '1', 'right')],
+            marks=[(".o_field_widget[name='ems_digest_moment']", '1', 'right'),
+                   (".o_field_widget[name='notification_type']", '2', 'right')],
         )
         # 2. The email itself. A few pending tasks of different kinds on invented records, the
         # summary rendered exactly as the cron would send it (models/shared/daily_summary.py), then
@@ -1081,7 +1089,13 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             for partner in partners:
                 partner.activity_schedule(activity_type, user_id=self.teacher_user.id, summary=summary,
                                           date_deadline=today + timedelta(days=offset - 1))
-        content = self.teacher_user.with_context(lang='ca_ES')._ems_daily_summary_content()
+        # And a notice for their information (issue #644), about an invented student.
+        student = self.env['res.partner'].create({'name': 'Pol Exemple Riera', 'contact_type': 'student',
+                                                  'student_id': next_student_id()})
+        self.env['ems.info_notice']._ems_queue(self.teacher_user, student, lambda _user: Markup("<p>{}</p>").format(
+            "La tutora ha demanat la baixa de Pol Exemple Riera. Mentre es tramita, ja no apareix com a esperat "
+            "als teus passis de llista (surt en gris, «no ha d'assistir»)."))
+        content = self.teacher_user._ems_daily_summary_content()
         subject, body = content['subject'], content['body']
         page = (
             '<div id="ems-digest" style="background:#fff;padding:24px;max-width:760px;">'
@@ -1089,7 +1103,7 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             'padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #dadce0;">%s</div>%s</div>'
         ) % (subject, body)
         self._capture(
-            '/odoo', '#ems-digest', 'resum-tasques-02-correu.png',
+            '/odoo', '#ems-digest', 'resum-diari-02-correu.png',
             login='doc_shot_teacher', wait_for='.o_main_navbar',
             run='document.body.innerHTML = %s;' % json.dumps(page), wait_after='#ems-digest',
         )

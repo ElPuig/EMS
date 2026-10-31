@@ -1037,6 +1037,14 @@ class TestConvalidation(TransactionCase):
         self.student.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
         self.assertFalse((self.teacher | tutor).partner_id & self.student.message_partner_ids)
 
+    def test_notice_without_enrollment_goes_to_the_main_group_teacher(self):
+        """Completed before the student was placed in the subject: whoever teaches it in their
+        main group is told (issue #644 kept this when moving the notice to the daily summary)."""
+        tutor = self._teaching_staff()
+        self._completed()
+        self.assertEqual(len(self._notices(self.teacher)), 1)
+        self.assertEqual(len(self._notices(tutor)), 1)
+
     def test_notice_of_a_subject_convalidated_without_a_grade(self):
         self._teaching_staff()
         self._enroll_and_grade()

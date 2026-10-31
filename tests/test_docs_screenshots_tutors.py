@@ -132,6 +132,35 @@ class TestDocsScreenshotsTutors(DocsScreenshotMixin, HttpCase):
             max_height=420,
         )
 
+    def test_capture_withdrawal_expected(self):
+        """Issue #644: marking an expected withdrawal from the student's Actions dropdown, the note
+        dialog, the ribbon and notice on the form, and the schedule drawn dashed."""
+        subject = self.env['ems.subject'].create({
+            'code': 'DOCTUTWE', 'acronym': 'PRG', 'name': 'Programació', 'study_ids': [(6, 0, self.study.ids)],
+        })
+        self.env['ems.enrollment'].create({'student_id': self.student.id, 'group_id': self.group.id, 'subject_id': subject.id})
+        # Monday and Wednesday: the Schedule tab shows Monday to Friday whatever day this runs.
+        self.teacher.resource_calendar_id.apply_schedule_changes([{
+            'dayofweek': dayofweek, 'hour_from': 9.0, 'hour_to': 11.0, 'day_period': 'morning',
+            'subject_id': subject.id, 'group_ids': [self.group.id], 'name': 'Programació',
+        } for dayofweek in ('0', '2')])
+        url = self._student_url(self.student)
+        toggle = '.o_form_view .o_form_statusbar .o_ems_actions_toggle'
+        entry = ".o_ems_actions_menu button[name='action_withdrawal_expected_wizard']"
+        self._capture(url, '.o_content', 'baixa-prevista-01-accions.png', login='doc_shot_tutor',
+                      wait_for=toggle, click=toggle, wait_after=entry, max_height=330,
+                      # Capturing beyond the viewport resizes the page, and Odoo closes the dropdown on it.
+                      beyond_viewport=False)
+        self._capture(url, '.modal-content', 'baixa-prevista-02-dialeg.png', login='doc_shot_tutor',
+                      wait_for=toggle, click=[toggle, entry],
+                      wait_after=[entry, ".modal .o_field_widget[name='note']"])
+        self.student.with_user(self.tutor_user)._ems_mark_withdrawal_expected(
+            "La família ens ha dit que se'n van a viure a l'estranger.")
+        self._capture(url, '.o_form_view .o_form_sheet_bg', 'baixa-prevista-03-fitxa.png', login='doc_shot_tutor',
+                      wait_for='.o_form_view .ribbon', max_height=330)
+        self._capture(url, '.o_form_view .o_notebook', 'baixa-prevista-04-horari.png', login='doc_shot_tutor',
+                      wait_for='.o_schedule_grid_not_expected_legend', max_height=560)
+
     def test_capture_change_student_group(self):
         # Two subjects enrolled through the current group: the ones the warning says will move.
         self.env['ems.enrollment'].create([{

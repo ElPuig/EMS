@@ -548,13 +548,17 @@ class TestAbsenceDetection(TransactionCase):
         with self.assertRaises(UserError):
             reviewer.action_correct_check_in()
 
-    def _correct_check_in(self, absence, hour_from, hour_to, user=None):
-        """The reviewer corrects the check-in of part of the entry (issue #731)."""
+    def _review_part(self, absence, method, hour_from, hour_to, user=None, **values):
+        """The reviewer's decision on part of the entry, from its form's dialog (issues #731, #735)."""
+        user = user or self.head_of_studies
         day = self.Pending._to_local(absence.date_from).date()
-        action = absence.with_user(user or self.head_of_studies).action_open_correct_check_in()
-        wizard = self.env[action['res_model']].with_user(user or self.head_of_studies).with_context(
-            action['context']).create({'date_from': self._utc(day, hour_from), 'date_to': self._utc(day, hour_to)})
+        action = getattr(absence.with_user(user), method)()
+        wizard = self.env[action['res_model']].with_user(user).with_context(action['context']).create(
+            {'date_from': self._utc(day, hour_from), 'date_to': self._utc(day, hour_to), **values})
         return wizard.action_confirm()
+
+    def _correct_check_in(self, absence, hour_from, hour_to, user=None):
+        return self._review_part(absence, 'action_open_correct_check_in', hour_from, hour_to, user)
 
     def test_correct_check_in_of_a_part_leaves_the_rest_to_review(self):
         """Issue #731: present from 9:00 to 10:00, absent afterwards."""
@@ -585,14 +589,6 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(set(parts.mapped('state')), {'pending'})
         self.assertEqual(set(parts.mapped('origin')), {'informed'})
         self.assertEqual(len(self._review_activities(parts - informed)), 1, 'the new part is reviewed too')
-
-    def _review_part(self, absence, method, hour_from, hour_to, **values):
-        """The reviewer's decision on part of the entry, from its form's dialog (issue #735)."""
-        day = self.Pending._to_local(absence.date_from).date()
-        action = getattr(absence.with_user(self.head_of_studies), method)()
-        wizard = self.env[action['res_model']].with_user(self.head_of_studies).with_context(
-            action['context']).create({'date_from': self._utc(day, hour_from), 'date_to': self._utc(day, hour_to), **values})
-        return wizard.action_confirm()
 
     def test_request_action_on_part_leaves_the_rest_to_review(self):
         """Issue #735: the teacher is asked about 11:00 to 13:00 only; 9:00 to 11:00 waits for the

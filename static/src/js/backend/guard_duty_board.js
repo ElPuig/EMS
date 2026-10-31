@@ -11,6 +11,7 @@ import { serverNow, syncServerClock } from "./server_clock";
 import { ConfirmationDialog } from "@web/core/confirmation_dialog/confirmation_dialog";
 import { GuardChangeProposalDialog } from "./guard_change_proposal_dialog";
 import { GuardCoverDialog } from "./guard_cover_dialog";
+import { GuardSupportDialog } from "./guard_support_dialog";
 import { GuardUncheckedDialog } from "./guard_unchecked_dialog";
 import { GuardArrangementPlan, fullPlanSelection, selectedPlanSteps, toggledPlanSelection } from "./guard_arrangement_plan";
 
@@ -365,6 +366,18 @@ export class GuardDutyBoard extends Component {
 
     get wcSuffix() {
         return _t("(WC)");
+    }
+
+    get markPresentTooltip() {
+        return _t("Not checked in: say they are in the centre");
+    }
+
+    get supportTooltip() {
+        return _t("Send as support to a teacher in class");
+    }
+
+    get availableTooltip() {
+        return _t("Available: assign them from the row of an absence");
     }
 
     get coverCountTitle() {
@@ -963,6 +976,50 @@ export class GuardDutyBoard extends Component {
                 await this.loadBoard();
             },
         }, onClose);
+    }
+
+    // A guard's badge on the absences table: says a guard who has not checked in is in the centre
+    // (issue #692), or sends a guard as support (issue #725).
+    onGuardClick(line, guard) {
+        if (guard.can_mark_present) {
+            this.openUncheckedGuardDialog(line, guard);
+        } else if (guard.can_support) {
+            this.openSupportDialog(line, guard);
+        }
+    }
+
+    openUncheckedGuardDialog(line, guard) {
+        this.addDialog(GuardUncheckedDialog, {
+            row: { teacher: guard.name, group: _t("Guard duty") },
+            line,
+            guard: true,
+            onMarkPresent: async () => {
+                await this.orm.call("ems.absence_cover", "board_mark_present", [
+                    this.activeDate, line.hour_from, line.hour_to, guard.id,
+                ]);
+                this.notification.add(_t("%s is now checked in.", guard.name), { type: "success" });
+                await this.loadBoard();
+            },
+        });
+    }
+
+    // Issue #725: sends a guard of the period to support a teacher who is in class, or withdraws
+    // the support they already give.
+    openSupportDialog(line, guard) {
+        const period = [this.activeDate, line.hour_from, line.hour_to, guard.id];
+        this.addDialog(GuardSupportDialog, {
+            guard,
+            line,
+            loadOptions: () => this.orm.call("ems.absence_cover", "get_support_options", period),
+            onSend: async (option, message) => {
+                await this.orm.call("ems.absence_cover", "board_support", [...period, option.teacher_id, option.group_id, message]);
+                await this.loadBoard();
+            },
+            onRelease: async (coverId) => {
+                await this.orm.call("ems.absence_cover", "board_release", [coverId]);
+                await this.loadBoard();
+            },
+        });
     }
 
     // Issue #692: the teacher of a class in progress has not checked in. The dialog offers to say

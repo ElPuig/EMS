@@ -105,6 +105,17 @@ class TestAbsenceCoverageTour(HttpCase):
         notice = self.env['ems.notice'].search([('absence_group_id', '=', group.id)])
         self.assertEqual((notice._absence_change_tuples(), notice.state), ([('late_entry', 9.0)], 'draft'))
 
+    def test_guard_support_tour(self):
+        """Issue #725: the teacher is in at 8:00 (away 10-11 only), and the guard is sent to
+        support them, then the support is removed."""
+        teacher, guard, group = self._board_fixture(away=(10, 11))
+
+        self.start_tour("/odoo", "ems_guard_support", login=self.department_chief.login)
+
+        cover = self.env['ems.absence_cover'].search([('cover_type', '=', 'support')])
+        self.assertEqual((cover.absent_employee_id, cover.guard_employee_id, cover.group_id), (teacher, guard, group))
+        self.assertEqual((cover.hour_from, cover.hour_to, cover.message, cover.state), (8, 9, 'Help with the practical', 'released'))
+
     def test_absence_long_break_tour(self):
         """Issue #679: the students were told about a longer break, but the ones under 18 stay in
         the centre, so the lesson it took in keeps needing a guard - tagged, not struck out."""

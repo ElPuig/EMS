@@ -123,16 +123,18 @@ class ResPartner(models.Model):
                             'children': linked.mapped('name'), 'linked_ids': linked.ids}
         return False
 
+    def _ems_contact_data_running_request(self):
+        """This student's contact data request of the running academic year, if any. sudo: read
+        on behalf of a portal user, who has no rights on the requests."""
+        self.ensure_one()
+        return self.env['ems.contact.data.request'].sudo().search([
+            ('student_id', '=', self.id), ('course_id', '=', self._ems_running_course().id)], limit=1)
+
     def _ems_contact_data_requested(self):
         """Whether this student has a contact data request still waiting for an answer this
-        academic year - the portal home shows a banner for it. sudo: asked on behalf of a portal
-        user, who has no rights on the requests."""
+        academic year - the portal home shows a banner for it."""
         self.ensure_one()
-        return bool(self.env['ems.contact.data.request'].sudo().search_count([
-            ('student_id', '=', self.id),
-            ('course_id', '=', self._ems_running_course().id),
-            ('state', '=', 'pending'),
-        ]))
+        return self._ems_contact_data_running_request().state == 'pending'
 
     def _ems_contact_data(self):
         """This student's reviewable data, in the shape the portal form posts it back:

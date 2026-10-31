@@ -106,13 +106,15 @@
                         <div class="alert alert-info" role="alert" invisible="line_ids">
                             Adds to the academic history a cycle the student studied under a
                             previous curriculum (organised in units, UF), kept as printed on its
-                            document. Upload the academic history (Historial acadèmic, PDF).
+                            document. Upload the academic history (Historial acadèmic) or the
+                            grades certificate (Certificat de qualificacions), in PDF.
                         </div>
                         <div class="alert alert-info" role="alert" invisible="not line_ids">
                             Check what was read from the document before creating the record:
                             correct any grade, and confirm whether the student obtained the title,
                             which the document does not state. It is proposed when every module
-                            listed is passed.
+                            listed is passed, except on a grades certificate, which may list only
+                            some of them.
                         </div>
                         <div class="alert alert-warning" role="alert" invisible="not certificate_message">
                             <field name="certificate_message" nolabel="1" force_save="1"/>
@@ -123,9 +125,11 @@
                                 <field name="certificate_file" filename="certificate_filename"/>
                                 <field name="certificate_filename" invisible="1"/>
                                 <field name="certificate_student_name" force_save="1"
-                                       invisible="not certificate_student_identifier"/>
+                                       invisible="not certificate_student_identifier and not certificate_student_document_id"/>
                                 <field name="certificate_student_identifier" force_save="1"
                                        invisible="not certificate_student_identifier"/>
+                                <field name="certificate_student_document_id" force_save="1"
+                                       invisible="not certificate_student_document_id"/>
                             </group>
                             <group invisible="not line_ids">
                                 <field name="curriculum_name" required="line_ids"/>

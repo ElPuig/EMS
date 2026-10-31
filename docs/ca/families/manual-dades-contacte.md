@@ -8,6 +8,14 @@ Com revisar i completar les dades de contacte de l'alumne i de la família des d
 
 ---
 
+## La pàgina Perfil
+
+La pestanya **Perfil** mostra les dades que consten al centre, en un màxim de tres blocs:
+
+- **Dades acadèmiques** (**Estudiant** al compte d'una família): foto, nom, IDALU, data de naixement, grup, estudi, tutor o tutora amb el seu correu, i el correu corporatiu de l'alumne. Només la secretaria les pot corregir.
+- **Dades de contacte** de qui ha iniciat la sessió: per a un alumne, mòbil, telèfon fix, correu personal, adreça, DNI/NIE, passaport, targeta sanitària (TIS) i número de la Seguretat Social (NUSS); per a un familiar, nom, mòbil, correu, adreça, DNI/NIE i passaport. Són les dades que podeu sol·licitar canviar amb **Actualitza les dades de contacte**. A sota hi veureu si el centre us ha demanat que les reviseu, si els vostres canvis estan pendents de la revisió del centre o si el centre us els ha retornat, i per què.
+- **Família**, al compte del mateix alumne: els familiars registrats, amb el mòbil i el correu.
+
 ## Obrir les dades de contacte
 
 Obriu el portal, feu clic a **Perfil** i després a **Actualitza les dades de contacte** (1). Quan el centre us les ha demanat, l'avís de dalt de tot de la pàgina d'inici també té un botó **Revisa**, i el correu del centre porta un enllaç a la mateixa pàgina.

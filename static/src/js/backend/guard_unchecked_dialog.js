@@ -7,7 +7,8 @@ import { _t } from "@web/core/l10n/translation";
 // Issue #692: a class on the guard duty board only because its teacher has not checked in. Whoever
 // is on guard then, or manages the absence, says either that the teacher is in the classroom after
 // all (which checks them in now, see ems.absence_cover.board_mark_present) or goes on to cover the
-// class the usual way ('onCover', when they can).
+// class the usual way ('onCover', when they can). Issue #725: the same for a guard on duty who has
+// not checked in ('guard': the row is the guard, there is no class to cover).
 export class GuardUncheckedDialog extends Component {
     static template = "ems.GuardUncheckedDialog";
     static components = { Dialog };
@@ -17,6 +18,7 @@ export class GuardUncheckedDialog extends Component {
         onMarkPresent: Function,
         onCover: { type: Function, optional: true },
         coverLabel: { type: String, optional: true },
+        guard: { type: Boolean, optional: true },
         close: Function,
     };
 
@@ -29,9 +31,18 @@ export class GuardUncheckedDialog extends Component {
     }
 
     get body() {
+        if (this.props.guard) {
+            return _t("%(teacher)s has not checked in yet. If they are in the centre, their check-in is registered now in your name and they are told.", {
+                teacher: this.props.row.teacher,
+            });
+        }
         return _t("%(teacher)s has not checked in yet. If they are in the classroom, their check-in is registered now in your name and they are told.", {
             teacher: this.props.row.teacher,
         });
+    }
+
+    get presentLabel() {
+        return this.props.guard ? _t("They are in the centre") : _t("They are in the classroom");
     }
 
     async markPresent() {

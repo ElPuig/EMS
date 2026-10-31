@@ -71,6 +71,8 @@ The list of non-teaching reasons (Break, Guard, Coordination Meeting...) shown w
 2. Click **New**, set a short **Code** (must match exactly what the external planner uses for that activity) and a **Name** (what teachers and reports will show).
 3. Optionally mark it **Is a break** (dropped from the weekly hours summary entirely, like the patio break) or **Always a fixed-schedule commitment** (always counted in the "Other fixed-schedule hours" column, like a guard duty).
    If it is a guard duty, tick **Is guard duty** (it shows on the guard duty schedule) and, if whoever does it can be sent to cover classes and other guard duties, **Regular guard** too. Leave it unticked for a guard duty that is a fixed post, like the WC or break guard: whoever does it is never sent to cover anything, and when they are away, their guard duty is what needs covering.
+   Tick **Add up its periods** for short periods that shouldn't count a whole hour each, like the break guard duty: the week's periods are added up and then rounded up to whole hours (three break guards of 25 minutes count 2 hours, not 3).
+   Choose its **Schedule declaration code**: the row of the [official schedule declaration](#print-the-official-schedule-declaration)'s summary table its hours go to (leave it empty for something not declared, like the break).
 4. Save. The new type is immediately available in the "non-teaching" dropdown when editing a schedule, and recognised the next time you import a planner file that uses its code.
 
 ---
@@ -268,6 +270,34 @@ A reinforcement group is a class **group** (the same "Groups" record a regular c
 5. Save.
 
 Once created, a reinforcement group is used in a teacher's schedule exactly like any other group — assign it manually in the Schedule tab, or let the file importer resolve it by name.
+
+---
+
+## Print the Official Schedule Declaration
+
+The Departament d'Educació i FP's schedule declaration ("Horari professor/a", from the *Annexos Dades anuals*) is printed by EMS ready to sign, always in Catalan, one page per teacher. Heads and Deputy Heads of Studies, the Director and the administrators can print it:
+
+- For several teachers: in **Educational Community → Teachers**, switch to the list view, select them and choose **Print → Schedule declaration**.
+- For one teacher: open their record and choose **Actions → Print schedule declaration**.
+
+![A schedule declaration printed by EMS: the centre's and teacher's details, the weekly schedule and the summary table, with the cells that don't apply in grey](../../assets/teachers/declaracio-horaria-mostra.png)
+
+Each page has the centre's code, name and municipality (from the company settings), the teacher's name, NIF and roles, their weekly schedule (without classrooms, to save space) and the summary table of hours. What EMS doesn't store (workplace/speciality, administrative situation, years of teaching, Catalan accreditation, place, date and signatures) is left blank, to be filled in by hand.
+
+**Which row each hour goes to** is configuration, set up for you on installation and editable afterwards:
+
+- A class counts in the row of its group's **level**: set it in the level's **Schedule declaration code** (**Educational Community → Configuration → Curriculum → Levels**). A split or optative group with no level of its own takes the level of its main groups. A level with no code goes to *Altres*.
+- A tutorship (a tutorship subject, or a non-teaching type coded as tutoring: *Tutorship Time* and *Student support* by default) counts in T-ESO, T-BAT or T-FP (or PFI) by the tutored group's level. A teacher who tutors no group: by the level where they teach the most hours.
+- Any other non-teaching hour counts in the row set in its type's **Schedule declaration code** (**Configuration → Teachers → Non-teaching types**); empty means not declared.
+- Teaching-hour reductions appear only as their hours, in "Si disposeu de reducció de jornada", and are added to the lective TOTAL.
+
+![The schedule declaration code on a level's form](../../assets/admin/admin-declaracio-horaria-nivell.png)
+
+![The break guard duty's form: Add up its periods ticked and its schedule declaration code, G](../../assets/admin/admin-declaracio-horaria-tipus-no-lectiu.png)
+
+As on the form, the cells of the summary table that don't apply are grey (e.g. fixed-schedule hours of ESO, lective hours of guard duties). If a number appears in a grey cell, the code of that level or non-teaching type needs reviewing.
+
+Whether an hour is lective or fixed-schedule follows the same rule as the Schedule tab's summary (guard duties, and the coordination meeting on Wednesday, are fixed-schedule).
 
 ---
 

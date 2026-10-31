@@ -8,6 +8,14 @@ Cómo revisar y completar los datos de contacto del alumno y de la familia desde
 
 ---
 
+## La página Perfil
+
+La pestaña **Perfil** muestra los datos que constan en el centro, en un máximo de tres bloques:
+
+- **Datos académicos** (**Alumno** en la cuenta de una familia): foto, nombre, IDALU, fecha de nacimiento, grupo, estudio, tutor o tutora con su correo, y el correo corporativo del alumno. Solo la secretaría puede corregirlos.
+- **Datos de contacto** de quien ha iniciado la sesión: para un alumno, móvil, teléfono fijo, correo personal, dirección, DNI/NIE, pasaporte, tarjeta sanitaria (TIS) y número de la Seguridad Social (NUSS); para un familiar, nombre, móvil, correo, dirección, DNI/NIE y pasaporte. Son los datos que podéis solicitar cambiar con **Actualizar los datos de contacto**. Debajo veréis si el centro os ha pedido que los reviséis, si vuestros cambios están pendientes de la revisión del centro o si el centro os los ha devuelto, y por qué.
+- **Familia**, en la cuenta del propio alumno: los familiares registrados, con su móvil y su correo.
+
 ## Abrir los datos de contacto
 
 Abrid el portal, haced clic en **Perfil** y después en **Actualizar los datos de contacto** (1). Cuando el centro os los ha pedido, el aviso de arriba del todo de la página de inicio también tiene un botón **Revisar**, y el correo del centro lleva un enlace a la misma página.

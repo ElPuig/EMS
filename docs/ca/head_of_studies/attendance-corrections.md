@@ -60,6 +60,9 @@ Si t'han enviat una sol·licitud (la veuràs com a activitat pendent, i també a
 >
 > *Decidir només les sol·licituds de la teva branca es va introduir a la versió 18.0.0.36.0; fins aleshores, qualsevol Cap d'Estudis podia decidir qualsevol sol·licitud.*
 
+
+> **Sol·licituds que responen una absència detectada.** Una sol·licitud de correcció d'un dia amb una absència detectada la respon, tant si el docent l'ha demanada des de la mateixa absència com des del fitxatge (el camp **Absència detectada** diu quina). Si aquell dia no tenia cap fitxatge, és del fitxatge en vermell o, si no n'hi ha, de cap: en acceptar-la es registren les hores sol·licitades i l'absència detectada queda com a **Fitxatge corregit** (només les hores que cobreix; la resta es continua reclamant). Mentre decideixes, el docent no rep recordatoris. Si la rebutges, ara o després d'haver-la acceptat (el fitxatge torna a quedar com era), l'absència detectada torna a la teva revisió. Si el docent sol·licita l'absència d'aquell dia, la sol·licitud es rebutja automàticament i desapareix de les teves tasques.
+
 ---
 
 [← Tornar als manuals de Cap d'Estudis](index.md)

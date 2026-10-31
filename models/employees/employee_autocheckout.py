@@ -113,6 +113,7 @@ class ems_attendance(models.Model):
         if check_out > now:
             return False
 
+        scheduled_end = check_out
         fallback = check_out <= self.check_in
         if fallback:
             check_out = self.check_in + timedelta(hours=1)
@@ -130,24 +131,24 @@ class ems_attendance(models.Model):
         })
 
         if fallback:
-            # Issue #648: the employee and whoever can correct their attendance - the same
-            # people a correction request is routed to -, never the Department or Seminar Chief
-            # ('parent_id'), who can only read it.
-            partners = (
-                self.employee_id.user_id
-                | self.employee_id._find_attendance_approvers()
-            ).partner_id
+            # Issue #734: only the employee, who knows when they really left and can request a
+            # correction. Whoever decides on it (Head or Deputy Head of Studies, area manager,
+            # administrators) only hears about it if they do.
+            employee = self.employee_id
             self.message_post(
                 body=_(
-                    'Automatic check-out could not use the scheduled working hours '
-                    'because the check-in time (%s) is after the last scheduled hour. '
-                    'The check-out has been set to one hour after check-in (%s). '
-                    'Please review and correct the actual check-out time.'
-                ) % (
-                    self._format_local_for_employee(self.employee_id, self.check_in),
-                    self._format_local_for_employee(self.employee_id, check_out),
-                ),
-                partner_ids=partners.ids,
+                    'You checked in at %(check_in)s, after the last hour your schedule expected '
+                    'that day (%(scheduled_end)s), so the automatic check-out could not use your '
+                    'schedule to close this attendance. It has been closed one hour after your '
+                    'check-in, at %(check_out)s, which is probably not when you left. If it is '
+                    'not, please request a correction: open this attendance and click '
+                    '"Request Correction".'
+                ) % {
+                    'check_in': self._format_local_for_employee(employee, self.check_in),
+                    'scheduled_end': self._format_local_for_employee(employee, scheduled_end),
+                    'check_out': self._format_local_for_employee(employee, check_out),
+                },
+                partner_ids=employee.user_id.partner_id.ids,
             )
         elif framework:
             self.message_post(

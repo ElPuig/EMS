@@ -79,6 +79,11 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             trigger: ".o_form_statusbar .o_field_widget[name='state']:not(:has([data-value='pending']))",
             content: "Without the 'To review' step, a stage the teacher never sees (issue #707)",
         },
+        {
+            // Issue #735: both ways out, one sentence each.
+            trigger: ".o_form_view .alert-info p:nth-of-type(2)",
+            content: "A notice tells the teacher what to do",
+        },
         ...clickAction("action_request_absence", "Request the absence"),
         {
             trigger: ".o_form_view .o_field_widget[name='request_date_from'] input",
@@ -93,12 +98,68 @@ registry.category("web_tour.tours").add("ems_absence_pending_teacher", {
             trigger: ".o_form_view .o_field_widget[name='origin']",
             content: "The detected absence is shown again",
         },
+        // Issue #698: the teacher answers on it, with read access only.
+        {
+            trigger: ".o-mail-Chatter-topbar button.o-mail-Chatter-sendMessage",
+            content: "Send a message to whoever follows it",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Composer-input",
+            content: "Write the answer",
+            run: "edit Tour answer of the teacher",
+        },
+        {
+            trigger: ".o-mail-Composer-send:enabled",
+            content: "Send it",
+            run: "click",
+        },
+        {
+            trigger: ".o-mail-Message-body:contains('Tour answer of the teacher')",
+            content: "The answer is posted on the detected absence",
+        },
+        // Issue #735: or the teacher was at the centre. No attendance that day: none is picked.
+        ...clickAction("action_request_check_in_correction", "Request check-in correction"),
+        {
+            trigger: ".modal .o_field_widget[name='absence_pending_id']",
+            content: "A correction request about the detected absence opens",
+        },
+        {
+            // The numeric keypad's decimal key writes a comma: minutes, not a fraction of an hour.
+            trigger: ".modal .o_field_widget[name='requested_check_in'] input",
+            content: "Arrived at 9:15",
+            run: "edit 9,15",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='requested_check_out'] input",
+            content: "Left at 11:04",
+            run: "edit 1104",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='reason'] textarea",
+            content: "Why",
+            run: "edit I forgot to check in",
+        },
+        {
+            trigger: ".modal .o_field_widget[name='requested_check_in'] input:value('09:15')",
+            content: "Read as 09:15",
+        },
+        {
+            trigger: ".modal .o_form_button_save",
+            content: "Send the request",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .alert-info:not(:has(p))",
+            content: "Back on the detected absence, which now says the correction is being reviewed",
+        },
     ],
 });
 
 // Issue #707: the Head of Studies reviews detected absences. One from its form's Actions
-// dropdown (Request justification), two at once from the list's action menu (Discard), and one
-// through the Create absence wizard, also from the list, which prepares it for the teacher. Fixtures: test_absence_pending_tour.py.
+// dropdown (Request action, through its dialog, issue #735), two at once from the list's action
+// menu (Discard), and one through the Prepare justification wizard, also from the list, which
+// prepares it for the teacher. Fixtures: test_absence_pending_tour.py.
 function selectRow(name) {
     return {
         trigger: `.o_list_view .o_data_row:contains('${name}') .o_list_record_selector input`,
@@ -123,10 +184,24 @@ registry.category("web_tour.tours").add("ems_absence_pending_review", {
             content: "The detected absences to review are listed: open one",
             run: "click",
         },
-        ...clickAction("action_request_justification", "Request justification"),
         {
-            trigger: ".o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='justification_requested']",
-            content: "The teacher has been asked to justify it",
+            // Issue #735: the reviewer's choices, explained above the form.
+            trigger: ".o_form_view .alert-info li:has(b) ~ li:has(b)",
+            content: "A notice explains the reviewer's decisions",
+        },
+        ...clickAction("action_open_request_action", "Request action"),
+        {
+            trigger: ".modal .o_field_widget[name='date_from'] input",
+            content: "A dialog asks for the hours, the whole absence by default",
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Ask the teacher about all of it",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='state'] .o_arrow_button_current[data-value='justification_requested']",
+            content: "The teacher has been asked to act on it",
         },
         {
             trigger: ".o_breadcrumb .o_back_button a, .o_breadcrumb .breadcrumb-item a",
@@ -145,7 +220,7 @@ registry.category("web_tour.tours").add("ems_absence_pending_review", {
             content: "Both discarded and out of the list",
         },
         selectRow("Review Teacher D"),
-        ...listAction("Create absence"),
+        ...listAction("Prepare justification"),
         {
             trigger: ".modal .o_field_widget[name='holiday_status_id'] input",
             content: "Pick the absence type",
@@ -158,12 +233,120 @@ registry.category("web_tour.tours").add("ems_absence_pending_review", {
         },
         {
             trigger: ".modal button[name='action_confirm']",
-            content: "Create the absence",
+            content: "Prepare it",
             run: "click",
         },
         {
-            trigger: "body:not(:has(.modal)) .o_list_view .o_data_row:contains('Review Teacher D') td[name='state']:contains('Absence prepared')",
+            trigger: "body:not(:has(.modal)) .o_list_view .o_data_row:contains('Review Teacher D') td[name='state']:contains('Justification prepared')",
             content: "Prepared for the teacher to send: still listed, not resolved yet",
+        },
+        // Issue #731: present for the first hour only, the rest stays to review.
+        {
+            trigger: ".o_list_view .o_data_row:contains('Review Teacher E') td[name='date_from']",
+            content: "Open the one of the teacher who forgot to check in",
+            run: "click",
+        },
+        ...clickAction("action_open_correct_check_in", "Correct check-in"),
+        {
+            trigger: ".modal .o_field_widget[name='date_to'] input",
+            content: "Narrow it to the first hour, when the teacher was at the centre",
+            async run(helpers) {
+                await helpers.edit(this.anchor.value.replace("11:00", "10:00"));
+            },
+        },
+        {
+            trigger: ".modal button[name='action_confirm']",
+            content: "Correct the check-in of that hour",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .o_field_widget[name='date_from'] input:value(10:00)",
+            content: "The rest, from 10:00, is still a detected absence to review",
+        },
+    ],
+});
+
+// Issue #735: the teacher reaches their detected absences to regularize from the Absences menu,
+// without waiting for the reminder's link. Only the ones still asked by default: one already
+// resolved is left out. Fixtures: test_absence_pending_tour.py.
+registry.category("web_tour.tours").add("ems_absence_pending_teacher_menu", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_menu_sections button[data-menu-xmlid='hr_holidays.menu_hr_holidays_root']",
+            content: "Absences is a dropdown for a teacher",
+            run: "click",
+        },
+        {
+            trigger: ".o-dropdown--menu .dropdown-item[data-menu-xmlid='hr_holidays.hr_leave_menu_my']",
+            content: "With My Time Off in it",
+        },
+        {
+            trigger: ".o-dropdown--menu .dropdown-item[data-menu-xmlid='ems.menu_absence_pending_mine']",
+            content: "Absences to regularize",
+            run: "click",
+        },
+        {
+            trigger: ".o_list_view .o_data_row:only-child",
+            content: "Only the one still to regularize",
+        },
+        {
+            trigger: ".o_list_view .o_data_row .o_data_cell[name='state']",
+            content: "Open it",
+            run: "click",
+        },
+        ...clickAction("action_request_check_in_correction", "Its options are offered"),
+        {
+            trigger: ".modal .o_field_widget[name='absence_pending_id']",
+            content: "The correction request opens",
+        },
+    ],
+});
+
+// Issue #735: a corrected entry shows the steps it went through, ending in Check-in corrected.
+registry.category("web_tour.tours").add("ems_absence_pending_corrected", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_form_statusbar .o_field_widget[name='state']:has([data-value='justification_requested']) [data-value='corrected'].o_arrow_button_current",
+            content: "Action requested, then corrected, the current one",
+        },
+        {
+            trigger: ".o_form_statusbar:not(:has([data-value='linked'])):not(:has([data-value='pending']))",
+            content: "Nothing after it, and no review step for the teacher",
+        },
+    ],
+});
+
+// Issue #735: the Head of Studies refuses the absence the teacher sent from the one prepared for
+// them; the detected absence is claimed again. Fixtures: test_absence_pending_tour.py.
+registry.category("web_tour.tours").add("ems_absence_pending_refuse_request", {
+    test: true,
+    steps: () => [
+        ...clickAction("action_refuse", "Refuse the teacher's absence request"),
+        {
+            trigger: ".modal div[name='message'] textarea",
+            content: "Say why",
+            run: "edit Tour it does not justify it",
+        },
+        {
+            trigger: ".modal-footer button[name='action_confirm'], .modal-footer .btn-primary",
+            content: "Confirm the refusal",
+            run: "click",
+        },
+        {
+            trigger: "body:not(:has(.modal)) .o_form_view .alert-danger .o_field_widget[name='ems_refusal_reason']",
+            content: "Refused, with its reason",
+        },
+    ],
+});
+
+registry.category("web_tour.tours").add("ems_absence_pending_reopened", {
+    test: true,
+    steps: () => [
+        {
+            trigger: ".o_list_view .o_data_row:contains('Tour Pending Teacher') .o_field_widget[name='state'] .badge",
+            content: "The detected absence is back on the Head of Studies' list, to review",
         },
     ],
 });

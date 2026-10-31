@@ -1004,24 +1004,44 @@ class TestConvalidation(TransactionCase):
         enrolled = self.env['ems.enrollment'].search([('student_id', '=', self.student.id)]).subject_id
         self.assertEqual(enrolled, self.other_subject)
 
-    def test_teaching_staff_get_a_notice_on_the_student(self):
-        teacher_employee = self.teacher.employee_ids[:1]
+    def _teaching_staff(self):
+        """The subject's teacher and the group's tutor, who are told when it is convalidated."""
         tutor = create_role_user(self, 'teacher', 'test_convalidation_tutor', name='Convalidation Tutor')
         self.group.tutor_id = create_role_employee(self, tutor)
         self.env['ems.teaching'].create({
-            'teacher_id': teacher_employee.id, 'group_id': self.group.id, 'subject_id': self.subject.id})
+            'teacher_id': self.teacher.employee_ids[:1].id, 'group_id': self.group.id, 'subject_id': self.subject.id})
+        return tutor
+
+    def _notices(self, user):
+        return self.env['mail.message'].sudo().search([
+            ('model', '=', 'res.partner'), ('res_id', '=', self.student.id),
+            ('message_type', '=', 'user_notification'), ('partner_ids', 'in', user.partner_id.ids)])
+
+    def test_teaching_staff_get_one_notice_per_request(self):
+        tutor = self._teaching_staff()
         self._enroll_and_grade()
-        request = self._completed(grade=8)
-        notices = self.env['mail.activity'].sudo().search([
+        self._enroll_and_grade(self.other_subject)
+        request = self._completed(self.subject | self.other_subject, grade=8)
+        # The tutor hears about both subjects at once; the teacher, only about the one they teach.
+        tutor_notice, teacher_notice = self._notices(tutor), self._notices(self.teacher)
+        self.assertEqual(len(tutor_notice), 1)
+        self.assertEqual(len(teacher_notice), 1)
+        self.assertIn(request.name, tutor_notice.body)
+        self.assertIn(f"{self.subject.display_name}, with a 8", tutor_notice.body)
+        self.assertIn(f"{self.other_subject.display_name}, with a 8", tutor_notice.body)
+        self.assertNotIn(self.other_subject.display_name, teacher_notice.body)
+        # A notice, not a to-do, nor a subscription to the student's messages.
+        self.assertFalse(self.env['mail.activity'].sudo().search([
             ('res_model', '=', 'res.partner'), ('res_id', '=', self.student.id),
-            ('activity_type_id', '=', self.env.ref('ems.mail_activity_convalidation_notice').id)])
-        self.assertEqual(notices.user_id, self.teacher | tutor)
-        self.assertIn(request.name, notices[0].note)
-        self.assertIn(self.subject.display_name, notices[0].summary)
-        self.assertIn("with a 8", notices[0].note)
-        # The notice is their to-do, not a subscription to the student's messages.
+            ('user_id', 'in', (self.teacher | tutor).ids)]))
         self.student.invalidate_recordset(['message_follower_ids', 'message_partner_ids'])
         self.assertFalse((self.teacher | tutor).partner_id & self.student.message_partner_ids)
+
+    def test_notice_of_a_subject_convalidated_without_a_grade(self):
+        self._teaching_staff()
+        self._enroll_and_grade()
+        self._completed(without_grade=True)
+        self.assertIn(f"{self.subject.display_name}, without a grade", self._notices(self.teacher).body)
 
     # --- registration number -------------------------------------------------
 

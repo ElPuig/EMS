@@ -6,7 +6,7 @@ import pytz
 from odoo.tests.common import TransactionCase
 
 from .common import (
-    create_head_of_studies_branch, create_role_employee, create_role_user, make_working_day,
+    create_head_of_studies_branch, create_role_user, make_working_day,
     mock_outgoing_email,
 )
 
@@ -166,36 +166,11 @@ class TestEmployeeAutocheckout(TransactionCase):
             (attendance.check_out - check_in).total_seconds(), 3600, delta=5,
         )
 
-    def test_auto_close_attendance_fallback_notification_uses_employee_local_time(self):
-        # Regression test (found 2026-09-17): the fallback notification must show the
-        # employee's own local time, not the naive-UTC value Odoo stores internally -
-        # a forced check-out email showed times 2h behind what the same record's
-        # backend view showed the same reader, since message_post()'s plain-text body
-        # gets no client-side tz conversion the way list/form views do.
-        check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
-        self._add_slot(0.0, 0.02, dayofweek=str(check_in.weekday()))
-        attendance = self.env['hr.attendance'].create({
-            'employee_id': self.teacher.id, 'check_in': check_in,
-        })
-
-        attendance._auto_close_attendance()
-
-        message = attendance.message_ids.sorted('id')[-1]
-        employee_tz = pytz.timezone(self.teacher._get_tz())
-        expected_check_in = pytz.utc.localize(check_in).astimezone(employee_tz)
-        expected_check_out = pytz.utc.localize(attendance.check_out).astimezone(employee_tz)
-        self.assertIn(expected_check_in.strftime('%Y-%m-%d %H:%M:%S'), message.body)
-        self.assertIn(expected_check_out.strftime('%Y-%m-%d %H:%M:%S'), message.body)
-        if employee_tz.utcoffset(check_in) != timedelta(0):
-            # Only a meaningful guard when the employee's own tz actually differs from
-            # UTC - otherwise the naive-UTC and localized strings coincide by chance.
-            self.assertNotIn(check_in.strftime('%Y-%m-%d %H:%M:%S'), message.body)
-
-    def _fallback_notice_recipients(self):
+    def _close_through_fallback(self):
         """Closes an attendance through the check_in + 1h fallback (the only auto-checkout that
-        asks for a correction) and returns the partners its notice was addressed to. The slot
-        and the working day are taken from check_in's own date: that is the day the close reads
-        (see test_auto_close_attendance_closes_after_scheduled_hour's NOTE)."""
+        asks for a correction) and returns its notice. The slot and the working day are taken
+        from check_in's own date: that is the day the close reads (see
+        test_auto_close_attendance_closes_after_scheduled_hour's NOTE)."""
         check_in = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=3)
         make_working_day(self, check_in.date())
         self._add_slot(0.0, 0.02, dayofweek=str(check_in.weekday()))
@@ -203,52 +178,52 @@ class TestEmployeeAutocheckout(TransactionCase):
             'employee_id': self.teacher.id, 'check_in': check_in,
         })
         self.assertTrue(attendance._auto_close_attendance())
-        return attendance.message_ids.sorted('id')[-1].partner_ids
+        return attendance.message_ids.sorted('id')[-1]
 
     def _give_teacher_a_user(self):
-        self.teacher.user_id = create_role_user(self, 'teacher', 'test_autocheckout_648_teacher')
+        self.teacher.user_id = create_role_user(self, 'teacher', 'test_autocheckout_734_teacher')
         return self.teacher.user_id
 
-    def test_fallback_notice_goes_to_the_head_of_studies_not_the_department_chief(self):
-        # Issue #648: the notice asks for the check-out to be corrected, so it goes to whoever
-        # can correct it (the Head of Studies of the employee's branch), never to the
-        # Department/Seminar Chief above them ('parent_id'), who can only read it.
+    def test_fallback_notice_goes_only_to_the_teacher(self):
+        # Issue #734: the notice explains to the teacher what happened so they can request a
+        # correction themselves. Nobody who could correct it is disturbed (the Head or Deputy
+        # Head of Studies of their branch, their area's attendance manager, the administrators):
+        # they are only involved if the teacher does request one. Issue #648 had already left
+        # out the Department/Seminar Chief.
         teacher_user = self._give_teacher_a_user()
-        create_head_of_studies_branch(self, 'AC648', self.teacher)
-
-        recipients = self._fallback_notice_recipients()
-
-        self.assertIn(teacher_user.partner_id, recipients)
-        self.assertIn(self.head_of_studies.partner_id, recipients)
-        self.assertNotIn(self.department_chief.partner_id, recipients)
-        self.assertNotIn(self.other_head_of_studies.partner_id, recipients)
-
-    def test_fallback_notice_goes_to_the_area_manager_without_a_head_of_studies_above(self):
-        teacher_user = self._give_teacher_a_user()
-        chief = create_role_user(self, 'department_chief', 'test_autocheckout_648_chief')
-        self.teacher.parent_id = create_role_employee(self, chief)
-        area_manager = create_role_user(self, 'head_of_studies', 'test_autocheckout_648_area')
+        create_head_of_studies_branch(self, 'AC734', self.teacher)
+        area_manager = create_role_user(self, 'head_of_studies', 'test_autocheckout_734_area')
         self.teacher.sudo().write({'attendance_manager_id': area_manager.id})
 
-        recipients = self._fallback_notice_recipients()
+        message = self._close_through_fallback()
 
-        self.assertEqual(recipients, teacher_user.partner_id | area_manager.partner_id)
+        self.assertEqual(message.partner_ids, teacher_user.partner_id)
 
-    def test_fallback_notice_goes_to_the_administrators_when_nobody_else_can_correct_it(self):
-        teacher_user = self._give_teacher_a_user()
-        chief = create_role_user(self, 'department_chief', 'test_autocheckout_648_chief')
-        self.teacher.parent_id = create_role_employee(self, chief)
-        self.teacher.sudo().write({'attendance_manager_id': False})
-        admins = self.env['res.users'].search([
-            ('groups_id', '=', self.env.ref('ems.group_academic_admin').id),
-        ])
+    def test_fallback_notice_explains_it_in_the_teachers_local_time(self):
+        # The notice tells the teacher when they checked in, the last hour their schedule
+        # expected that day (the 00:00-00:01 slot) and the check-out it set, and how to fix it.
+        # Every time in the teacher's own timezone, not the naive UTC Odoo stores: the body is
+        # plain text, so no client-side conversion applies (found 2026-09-17, times 2h behind).
+        message = self._close_through_fallback()
 
-        recipients = self._fallback_notice_recipients()
+        attendance = self.env['hr.attendance'].browse(message.res_id)
+        employee_tz = pytz.timezone(self.teacher._get_tz())
+        for moment in (attendance.check_in, attendance.check_out):
+            local = pytz.utc.localize(moment).astimezone(employee_tz)
+            self.assertIn(local.strftime('%Y-%m-%d %H:%M:%S'), message.body)
+        # Only the check-in's UTC string: with UTC+1 the check-out's (check-in + 1h) is exactly
+        # the local check-in. Only meaningful when the teacher's tz differs from UTC.
+        if employee_tz.utcoffset(attendance.check_in) != timedelta(0):
+            self.assertNotIn(attendance.check_in.strftime('%Y-%m-%d %H:%M:%S'), message.body)
+        self.assertIn('00:01', message.body)
+        self.assertIn('Request Correction', message.body)
 
-        self.assertTrue(admins)
-        self.assertIn(teacher_user.partner_id, recipients)
-        self.assertTrue(admins.partner_id <= recipients)
-        self.assertNotIn(chief.partner_id, recipients)
+    def test_fallback_notice_without_a_user_still_closes_and_notifies_nobody(self):
+        self.teacher.user_id = False
+
+        message = self._close_through_fallback()
+
+        self.assertFalse(message.partner_ids)
 
     def test_create_auto_closes_stale_open_attendance(self):
         self.env.company.auto_check_out = True

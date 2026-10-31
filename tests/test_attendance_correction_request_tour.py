@@ -4,7 +4,7 @@ from unittest.mock import patch
 from odoo import fields
 from odoo.tests.common import HttpCase, tagged
 
-from .common import force_user_language_to_english
+from .common import create_role_user, force_user_language_to_english
 
 
 @tagged('post_install', '-at_install')
@@ -39,6 +39,25 @@ class TestAttendanceCorrectionRequestTour(HttpCase):
         self.assertEqual(correction.attendance_id, self.attendance)
         self.assertEqual(correction.original_check_in, self.attendance.check_in)
         self.assertEqual(correction.original_check_out, self.attendance.check_out)
+
+    def test_attendance_correction_request_staff_tour(self):
+        # Issue #734: a member of the non-teaching staff (Secretary role only) requests a
+        # correction of their own check-in from the attendance form.
+        staff_user = create_role_user(self, 'secretary', 'test_correction_request_staff')
+        staff_employee = self.env['hr.employee'].create({
+            'name': 'Attendance Correction Request Tour Staff', 'employee_type': 'asp',
+            'user_id': staff_user.id,
+        })
+        attendance = self.env['hr.attendance'].create({
+            'employee_id': staff_employee.id,
+            'check_in': datetime(2026, 1, 5, 8, 0),
+            'check_out': datetime(2026, 1, 5, 9, 0),
+        })
+
+        self.start_tour("/odoo", "ems_attendance_correction_request_staff", login=staff_user.login)
+
+        self.assertEqual(attendance.correction_ids.reason, 'Tour: the automatic check-out guessed it')
+        self.assertEqual(attendance.correction_ids.state, 'pending')
 
     def test_attendance_correction_request_open_within_schedule_tour(self):
         # Issue #479: the requested_check_out field must not even render while the employee

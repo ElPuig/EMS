@@ -15,3 +15,7 @@ ATRI
 AIX1A
 AIX1B
 desarchiva
+T-ESO
+T-BAT
+T-FP
+PFI

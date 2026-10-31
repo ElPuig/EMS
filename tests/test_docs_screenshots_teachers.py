@@ -1055,15 +1055,15 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
         )
 
     def test_capture_task_digest(self):
-        # 1. Where to turn it off: the same Preferences tab as test_capture_photo_visibility,
+        # 1. Where to choose when it arrives: the same Preferences tab as test_capture_photo_visibility,
         # with the "Notifications" option marked.
         self._capture(
             '/odoo', '.o_notebook_content', 'resum-tasques-01-preferencies.png',
             login='doc_shot_teacher', tour='ems_doc_shot_photo_visibility',
-            marks=[(".o_field_widget[name='ems_task_digest']", '1', 'right')],
+            marks=[(".o_field_widget[name='ems_digest_moment']", '1', 'right')],
         )
         # 2. The email itself. A few pending tasks of different kinds on invented records, the
-        # digest rendered exactly as the cron would send it (models/shared/task_digest.py), then
+        # summary rendered exactly as the cron would send it (models/shared/daily_summary.py), then
         # shown in the browser in place of the backend, under its subject line, to capture it.
         def records(names):
             return self.env['res.partner'].create([{'name': name} for name in names])
@@ -1081,9 +1081,8 @@ class TestDocsScreenshotsTeachers(DocsScreenshotMixin, HttpCase):
             for partner in partners:
                 partner.activity_schedule(activity_type, user_id=self.teacher_user.id, summary=summary,
                                           date_deadline=today + timedelta(days=offset - 1))
-        template = self.env.ref('ems.email_template_task_digest').with_context(lang='ca_ES')
-        subject = template._render_field('subject', self.teacher_user.ids)[self.teacher_user.id]
-        body = template._render_field('body_html', self.teacher_user.ids)[self.teacher_user.id]
+        content = self.teacher_user.with_context(lang='ca_ES')._ems_daily_summary_content()
+        subject, body = content['subject'], content['body']
         page = (
             '<div id="ems-digest" style="background:#fff;padding:24px;max-width:760px;">'
             '<div style="font-family:Arial,sans-serif;font-size:16px;font-weight:bold;'

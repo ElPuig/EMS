@@ -796,7 +796,7 @@ erDiagram
 same people an attendance correction request goes to, never the teacher themselves (a Head of
 Studies' own entry goes to the administrators). No email of its own
 (`mail_activity_quick_update`): it reaches them through their activities and the daily
-pending-tasks digest ([task_digest.md](../shared/task_digest.md)). It is marked done as soon as the
+summary ([daily_summary.md](../shared/daily_summary.md)). It is marked done as soon as the
 entry leaves `pending`, whichever way.
 
 **Who may review**, checked on the server for every record (`_ems_can_review()`), not only by the

@@ -18,7 +18,7 @@
     # Check https://github.com/odoo/odoo/blob/16.0/odoo/addons/base/data/ir_module_category_data.xml
     # for the full list
     'category': 'Educational',
-    'version': '18.0.0.43.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
+    'version': '18.0.0.44.0',    #18.0 means the Odoo version; x.y.z means 'breaking.feature.fix'. The '0.y.z' is for alpha/beta pre-release.
 
     # any module necessary for this one to work correctly
     # only 'base_setup', 'hr', 'auth_oauth' are needed. The rest are installed sometimes (and sometimes nor) and I don't know why, so I decided to install all manyally in order to avoid errors.
@@ -405,14 +405,13 @@
         'mails/communications/communication.xml',        
         'mails/attendance/attendance_issue_status.xml',
         'mails/attendance/attendance_issue_rectification.xml',
-        'mails/attendance/attendance_issue_tutor.xml',
         'mails/coexistence/strike_notification.xml',
         'mails/coexistence/strike_escalation.xml',
         'mails/enrollment/enrollment_send.xml',
         'mails/enrollment/authorization_send.xml',
         'mails/grades/convalidation_resolved.xml',
         'mails/grades/convalidation_info_request.xml',
-        'mails/shared/task_digest.xml',
+        'mails/shared/daily_summary.xml',
         'mails/contacts/contact_data_request.xml',
 
         ### Reports templates ###
@@ -441,7 +440,7 @@
         'data/main/ir.cron-coming_of_age.csv',
         'data/main/ir.cron-group_public_schedule.csv',
         'data/main/ir.cron-absence.csv',
-        'data/main/ir.cron-task_digest.csv',
+        'data/main/ir.cron-daily_summary.csv',
         'data/main/ir.cron-preenrollment_period.csv',
         'data/main/product.category.csv',
         'data/main/ems.strike.reason.csv',

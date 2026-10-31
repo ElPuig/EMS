@@ -2,7 +2,7 @@ from datetime import date, timedelta
 
 from odoo.tests.common import TransactionCase
 
-from .common import create_level_study, shift_ems_clock, mock_outgoing_email, next_student_id
+from .common import create_level_study, create_role_user, shift_ems_clock, mock_outgoing_email, next_student_id
 
 
 class TestAttendanceIssue(TransactionCase):
@@ -36,9 +36,10 @@ class TestAttendanceIssue(TransactionCase):
         })
         cls.teacher = cls.env['hr.employee'].create({
             'name': 'Test Teacher (Attendance Issue)', 'employee_type': 'teacher'})
+        cls.tutor_user = create_role_user(cls, 'tutor', 'issue_tutor', email='issue.tutor@example.com')
         cls.tutor_employee = cls.env['hr.employee'].create({
             'name': 'Test Tutor (Attendance Issue)', 'employee_type': 'teacher',
-            'work_email': 'issue.tutor@example.com'})
+            'work_email': 'issue.tutor@example.com', 'user_id': cls.tutor_user.id})
         cls.group = cls.env['ems.group'].create({
             'course': 1, 'acronym': 'TAI', 'level_id': cls.level.id, 'study_id': cls.study.id,
             'tutor_id': cls.tutor_employee.id,
@@ -147,73 +148,65 @@ class TestAttendanceIssue(TransactionCase):
         status.unlink()
         self.assertIn(job.state, ('cancelled', 'done'))
 
-    # --- one report per tutor, with everything not reported yet --------------------------
+    # --- the tutor's daily summary, with everything not reported yet ----------------------
 
-    def test_several_days_share_the_tutor_pending_report(self):
+    def _send_summary(self):
+        return self.tutor_user._ems_send_daily_summary()
+
+    def test_issues_schedule_the_tutor_summary(self):
+        self.assertFalse(self.tutor_user.ems_digest_next)
         self._mark_miss(self.student1)
-        earlier = self._last_week_session()
-        self._mark_miss_on(earlier, self.student2)
-        job = self._issue_tutor().notification_id
-        self.assertTrue(job)
-        self.assertEqual(self._issue_tutor(earlier).notification_id, job)
-        self.assertEqual(self.env['queue.job'].search_count([
-            ('model_name', '=', 'ems.attendance_issue_tutor'), ('state', '=', 'pending'),
-            ('id', 'in', (self._issue_tutor() | self._issue_tutor(earlier)).notification_id.ids),
-        ]), 1)
+        self.assertTrue(self.tutor_user.ems_digest_next)
+        self.assertEqual(self._issue_tutor().status, 'pending')
+        self.assertEqual(self._issue_tutor().schedule_date, self.tutor_user.ems_digest_next)
 
-    def test_report_lists_every_pending_day_once(self):
+    def test_summary_lists_every_pending_day_once(self):
         self.mail_transport.reset_mock()
         self._mark_miss(self.student1)
         earlier = self._last_week_session()
         self._mark_miss_on(earlier, self.student2)
-        self._issue_tutor().send_notification()
+        message = self._send_summary()
 
         reports = self._tutor_reports()
         self.assertEqual(len(reports), 1)
         self.assertIn(self.student1.display_name, reports[0])
         self.assertIn(self.student2.display_name, reports[0])
-        statuses = (self._issue_tutor() | self._issue_tutor(earlier)).attendance_issue_student_ids.attendance_issue_status_ids
-        self.assertTrue(all(statuses.mapped('tutor_notified')))
+        issue_tutors = self._issue_tutor() | self._issue_tutor(earlier)
+        self.assertTrue(all(issue_tutors.attendance_issue_student_ids.attendance_issue_status_ids.mapped('tutor_notified')))
+        self.assertEqual(issue_tutors.summary_message_id, message)
+        self.assertEqual(set(issue_tutors.mapped('status')), {'sent'})
 
-        self._issue_tutor().send_notification()
-        self.assertEqual(len(self._tutor_reports()), 1, "Nothing left to report: no second email")
+        self.assertFalse(self._send_summary(), "Nothing left to report: no second summary")
+        self.assertEqual(len(self._tutor_reports()), 1)
 
-    def test_issue_recorded_after_the_report_goes_in_the_next_one(self):
-        """Used to be lost: the day's job was already done, so nothing was scheduled again."""
+    def test_issue_recorded_after_the_summary_goes_in_the_next_one(self):
         self._mark_miss(self.student1)
         issue_tutor = self._issue_tutor()
-        issue_tutor.send_notification()
-        issue_tutor.notification_id.state = 'done'
+        self._send_summary()
+        self.assertFalse(self.tutor_user.ems_digest_next)
 
         self._mark_miss(self.student2)
-        self.assertEqual(issue_tutor.notification_id.state, 'pending', "No new report scheduled")
+        self.assertTrue(self.tutor_user.ems_digest_next, "No new summary scheduled")
+        self.assertEqual(issue_tutor.status, 'pending')
         status1 = issue_tutor.attendance_issue_student_ids.filtered(lambda s: s.student_id == self.student1).attendance_issue_status_ids
         status2 = issue_tutor.attendance_issue_student_ids.filtered(lambda s: s.student_id == self.student2).attendance_issue_status_ids
-        self.assertEqual(issue_tutor._tutor_report_days()[0]['students'][0]['statuses'], status2)
         self.assertTrue(status1.tutor_notified)
         self.assertFalse(status2.tutor_notified)
+        body = self._send_summary().body
+        self.assertIn(self.student2.display_name, body)
+        self.assertNotIn(self.student1.display_name, body)
 
-    def test_removing_a_day_keeps_the_report_of_the_others(self):
+    def test_removing_every_issue_leaves_nothing_to_send(self):
         self._mark_miss(self.student1)
         earlier = self._last_week_session()
         self._mark_miss_on(earlier, self.student2)
-        job = self._issue_tutor().notification_id
-
-        line = earlier.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student2)
-        line.status_id = self.env.ref('ems.attendance_status_attended')
-        self.assertFalse(self._issue_tutor(earlier))
-        self.assertEqual(job.state, 'pending')
-
-        line = self.session.attendance_session_line_ids.filtered(lambda l: l.student_id == self.student1)
-        line.status_id = self.env.ref('ems.attendance_status_attended')
-        self.assertEqual(job.state, 'cancelled', "No day left to report: the job goes")
+        for session, student in ((earlier, self.student2), (self.session, self.student1)):
+            line = session.attendance_session_line_ids.filtered(lambda l, student=student: l.student_id == student)
+            line.status_id = self.env.ref('ems.attendance_status_attended')
+        self.assertFalse(self._issue_tutor(earlier) | self._issue_tutor())
+        self.assertFalse(self._send_summary())
 
     # --- send_notification (mail mocked) --------------------------------------------------
-
-    def test_tutor_send_notification_does_not_raise(self):
-        self._mark_miss(self.student1)
-        issue_tutor = self._issue_tutor()
-        self.assertTrue(issue_tutor.send_notification())
 
     def test_status_send_notification_rectification_does_not_raise(self):
         """Regression test: mail_attendance_issue_rectification's 'Status:' row

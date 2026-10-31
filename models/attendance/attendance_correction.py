@@ -239,7 +239,7 @@ class ems_attendance_correction(models.Model):
                 continue
             # Not urgent: no "X has assigned you the following activity" email
             # (mail_activity_quick_update). The approver learns of it from the task itself and
-            # from the daily pending-tasks digest (models/shared/task_digest.py).
+            # from the daily summary (models/shared/daily_summary.py).
             for user in approvers:
                 correction_sudo.with_context(mail_activity_quick_update=True).activity_schedule(
                     activity_type_id=activity_type.id,

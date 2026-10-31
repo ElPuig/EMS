@@ -113,7 +113,7 @@ class ems_student_schedule(models.Model):
         a subject they are enrolled in, in the group they are enrolled through - so a student
         taking a subject in another group (e.g. a 2nd-year one repeating a 1st-year subject)
         gets that group's period, not their main group's. Also used by the tutor's attendance
-        report to know when their students' day ends (attendance_report_schedule.py). A custom
+        daily summary to know when their students' day ends (hr.employee._ems_students_day_end). A custom
         enrollment (issue #534) only contributes its own slots, possibly from other groups -
         'ems.enrollment._ems_attends' decides, the same rule the attendance rosters follow."""
         self.ensure_one()

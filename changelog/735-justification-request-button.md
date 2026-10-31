@@ -34,3 +34,11 @@
 ## Teachers find their absences to regularize from the Absences menu:
 
 - A new **Absences → Absences to regularize** entry lists the teacher's own detected absences they have been asked to justify (or that were prepared for them), so they don't have to wait for the next morning's reminder to act. Resolved ones leave the list (the default filter can be removed to see them). "Absences" becomes a dropdown for teachers, with My Time Off first; non-teaching staff keep the plain link.
+
+## The reviewer's decisions ask for the hours, with clearer names:
+
+- On a detected absence's form, **Request action** (formerly Request justification) and **Prepare justification** (formerly Create absence) now open a dialog with From/To, like **Correct check-in** already did: narrowing it applies the decision to those hours only, and the rest stays To review (split in two if the hours fall in the middle), with its own review task; the teacher only hears about the hours chosen. From the list, every decision still applies to whole entries.
+- The states follow the new names: **Action requested** (formerly Justification requested) and **Justification prepared** (formerly Absence prepared). Only the labels change, not the stored values, so no migration is needed.
+- A blue notice at the top of a detected absence still to review sums up the four decisions for the reviewer.
+- The Correct check-in dialog of #731 became the shared `ems.absence_pending.review_wizard` (never released, renamed without migration); `_ems_review_range` applies any of the three decisions to part of an entry. Tests for partial requests and preparations, tour through the new dialog, Head of Studies manual (ca/es/en) with two new screenshots, developer doc and translations.
+

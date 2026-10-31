@@ -22148,15 +22148,10 @@ msgid ""
 msgstr "<i class=\"fa fa-info-circle me-1\"/>Sense nota, la resolució i les notes de l'alumne mostren el mòdul com a «Convalidat» (CV), i no compta per a la mitjana."
 
 #. module: ems
-#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__without_grade
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__without_grade
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__grade_type__without_grade
 msgid "Without grade"
 msgstr "Sense nota"
-
-#. module: ems
-#: model:ir.model.fields,help:ems.field_ems_convalidation_line__without_grade
-msgid "Convalidated with no grade: the resolution and the grades show it as \"Convalidated\" (CV), and it does not count towards the average."
-msgstr "Convalidat sense nota: la resolució i les notes el mostren com a «Convalidat» (CV), i no compta per a la mitjana."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_grade_subject_line__convalidation_grade
@@ -22197,13 +22192,15 @@ msgstr "Detalls opcionals després del motiu de la denegació, que la resolució
 
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__grade
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__grade_type__grade
 msgid "With grade"
 msgstr "Amb nota"
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_grant_wizard__mode
-msgid "Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), and it does not count towards the average."
-msgstr "Sense nota, la resolució i les notes el mostren com a «Convalidat» (CV), i no compta per a la mitjana."
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__grade_type
+msgid "Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), and it does not count towards the average. With a fixed 5, it counts as a 5 whatever the previous studies hold, and the resolution states that the grade is fixed."
+msgstr "Sense nota, la resolució i les notes mostren el mòdul com a «Convalidat» (CV), i no compta per a la mitjana. Amb un 5 fixat, compta com un 5 sigui quina sigui la nota dels estudis previs, i la resolució indica que la nota és fixada."
 
 #. module: ems
 #: model:ir.model.fields,help:ems.field_ems_convalidation_reject_wizard__details
@@ -27916,3 +27913,33 @@ msgid ""
 "                    The Head of Studies reviews each one first: the teacher only hears about it\n"
 "                    when asked to regularize it."
 msgstr "Surt a l'horari de guàrdies com a absència pendent fins que es resol. Els dies que un docent no fitxa s'hi afegeixen sols. El cap d'estudis les revisa primer: el docent només se n'assabenta quan se li demana que la regularitzi."
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_grant_wizard__mode__fixed_five
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__grade_type__fixed_five
+msgid "With a fixed 5"
+msgstr "Amb un 5 fixat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__grade_type
+msgid "Grade type"
+msgstr "Tipus de nota"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+#: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
+msgid "5 (fixed grade)"
+msgstr "5 (nota fixada)"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.view_convalidation_grant_wizard_form
+msgid ""
+"<i class=\"fa fa-info-circle me-1\"/>The subject counts as a 5 whatever the previous studies\n"
+"                        hold, and the resolution states that the grade is fixed."
+msgstr "<i class=\"fa fa-info-circle me-1\"/>El mòdul compta com un 5 sigui quina sigui la nota dels estudis previs, i la resolució indica que la nota és fixada."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "%(subject)s, with a fixed %(grade)s"
+msgstr "%(subject)s, amb un %(grade)s fixat"

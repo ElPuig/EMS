@@ -82,6 +82,16 @@ registry.category("web_tour.tours").add("ems_convalidation_resolve", {
             content: "...which hides the grade",
         },
         {
+            // Issue #738: or with a fixed 5, which needs no grade either.
+            trigger: ".modal .o_field_widget[name='mode'] select",
+            content: "...or with a fixed 5...",
+            run: 'select "fixed_five"',
+        },
+        {
+            trigger: ".modal .o_form_view:not(:has(.o_field_widget[name='grade']))",
+            content: "...which hides the grade too",
+        },
+        {
             trigger: ".modal .o_field_widget[name='mode'] select",
             content: "...or rather with the grade the previous studies hold",
             run: 'select "grade"',

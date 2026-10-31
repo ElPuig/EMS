@@ -209,7 +209,8 @@
                                                 </td>
                                                 <td t-if="convalidation.state == 'completed'">
                                                     <t t-if="line.state == 'granted'">
-                                                        <strong t-if="line.without_grade">Convalidated</strong>
+                                                        <strong t-if="line.grade_type == 'without_grade'">Convalidated</strong>
+                                                        <strong t-elif="line.grade_type == 'fixed_five'">5 (fixed grade)</strong>
                                                         <strong t-else="" t-esc="line.grade"/>
                                                     </t>
                                                 </td>

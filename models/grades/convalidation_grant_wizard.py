@@ -2,7 +2,7 @@
 
 from odoo import fields, models
 
-from .convalidation import CONVALIDATED_GRADE
+from .convalidation import CONVALIDATED_GRADE, GRADE_TYPE_HELP, GRADE_TYPES
 
 
 class EmsConvalidationGrantWizard(models.TransientModel):
@@ -13,19 +13,14 @@ class EmsConvalidationGrantWizard(models.TransientModel):
                               ondelete='cascade')
     grade = fields.Integer(string="Grade", default=CONVALIDATED_GRADE,
                            help="The grade the previous studies hold, from 5 to 10.")
-    # A selection rather than a checkbox: other ways of convalidating may come.
-    mode = fields.Selection(string="Mode", required=True, default='grade', selection=[
-        ('grade', 'With grade'),
-        ('without_grade', 'Without grade'),
-    ], help="Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), "
-            "and it does not count towards the average.")
+    mode = fields.Selection(string="Mode", required=True, default='grade', selection=GRADE_TYPES,
+                            help=GRADE_TYPE_HELP)
 
     def action_grant(self):
         """A grade out of range is refused by the line itself, leaving the dialog open."""
         self.ensure_one()
-        without_grade = self.mode == 'without_grade'
-        vals = {'state': 'granted', 'without_grade': without_grade}
-        if not without_grade:
-            vals['grade'] = self.grade
+        vals = {'state': 'granted', 'grade_type': self.mode}
+        if self.mode != 'without_grade':
+            vals['grade'] = self.grade if self.mode == 'grade' else CONVALIDATED_GRADE
         self.line_id.write(vals)
         return {'type': 'ir.actions.act_window_close'}

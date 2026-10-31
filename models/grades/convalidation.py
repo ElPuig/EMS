@@ -11,8 +11,21 @@ _logger = logging.getLogger(__name__)
 
 # Grade a convalidated subject gets when nobody says otherwise. The Head of Studies (or the
 # secretariat afterwards) can replace it with the one the previous studies actually hold, or
-# convalidate it without any grade at all (see ems.convalidation.line.without_grade).
+# convalidate it another way (see GRADE_TYPES).
 CONVALIDATED_GRADE = 5
+
+# How a subject is convalidated. Without grade, it reads as a plain "Convalidated" (CV) and does
+# not count towards the average. With a fixed 5 (issue #738), it counts as a 5 whatever the
+# previous studies hold, and the resolution says so: the secretariat registers it differently
+# in Esfera.
+GRADE_TYPES = [
+    ('grade', 'With grade'),
+    ('without_grade', 'Without grade'),
+    ('fixed_five', 'With a fixed 5'),
+]
+GRADE_TYPE_HELP = ("Without grade, the resolution and the grades show the subject as \"Convalidated\" (CV), "
+                   "and it does not count towards the average. With a fixed 5, it counts as a 5 whatever the "
+                   "previous studies hold, and the resolution states that the grade is fixed.")
 
 # States a request can no longer move on from.
 CLOSED_STATES = ('completed', 'rejected', 'cancelled')
@@ -808,10 +821,7 @@ class EmsConvalidation(models.Model):
                 continue
             student = self.student_id.sudo().with_context(lang=user.lang or self.env.lang)
             env = student.env
-            items = [env._("%(subject)s, without a grade", subject=line.subject_id.with_env(env).display_name)
-                     if line.without_grade else
-                     env._("%(subject)s, with a %(grade)s", subject=line.subject_id.with_env(env).display_name, grade=line.grade)
-                     for line in lines]
+            items = [line.with_env(env)._ems_notice_item() for line in lines]
             body = Markup("<p>{}</p>{}").format(
                 env._("%(student)s no longer takes these subjects, convalidated by request %(number)s. They "
                       "are no longer in their attendance lists or grades:", student=student.name, number=self.name),
@@ -920,9 +930,8 @@ class EmsConvalidationLine(models.Model):
     grade = fields.Integer(string="Grade", default=CONVALIDATED_GRADE,
                            help="Grade the convalidated subject is recorded with. It only reaches the "
                                 "student's grades once the secretariat completes the request.")
-    without_grade = fields.Boolean(string="Without grade",
-                                   help="Convalidated with no grade: the resolution and the grades show it "
-                                        "as \"Convalidated\" (CV), and it does not count towards the average.")
+    grade_type = fields.Selection(string="Grade type", selection=GRADE_TYPES, required=True, default='grade',
+                                  help=GRADE_TYPE_HELP)
     resolution_notes = fields.Char(string="Remarks",
                                    help="Where the resolution comes from, e.g. \"Granted by the Department, "
                                         "file no. 1234\". Shown to the student with the resolution.")
@@ -948,9 +957,9 @@ class EmsConvalidationLine(models.Model):
                     'study': line.convalidation_id.study_id.display_name,
                 })
 
-    @api.constrains('grade', 'without_grade')
+    @api.constrains('grade', 'grade_type')
     def _check_grade(self):
-        for line in self.filtered(lambda line: not line.without_grade):
+        for line in self.filtered(lambda line: line.grade_type == 'grade'):
             if not CONVALIDATED_GRADE <= line.grade <= 10:
                 raise ValidationError(_("A convalidated subject's grade must be between %(min)s and 10.")
                                       % {'min': CONVALIDATED_GRADE})
@@ -970,7 +979,7 @@ class EmsConvalidationLine(models.Model):
     def write(self, vals):
         # The grade and the reason for refusing belong to the decision itself: nobody touches
         # them once the resolution exists.
-        if not {'state', 'subject_id', 'grade', 'without_grade', 'rejection_reason_id',
+        if not {'state', 'subject_id', 'grade', 'grade_type', 'rejection_reason_id',
                 'rejection_reason'} & set(vals):
             return super().write(vals)
         self._ems_check_can_decide()
@@ -1016,7 +1025,7 @@ class EmsConvalidationLine(models.Model):
             'target': 'new',
             'context': {'default_line_id': self.id,
                         'default_grade': self.grade,
-                        'default_mode': 'without_grade' if self.without_grade else 'grade'},
+                        'default_mode': self.grade_type},
         }
 
     def action_open_reject(self):
@@ -1044,6 +1053,16 @@ class EmsConvalidationLine(models.Model):
     def action_reset(self):
         self.write({'state': 'pending'})
 
+    def _ems_notice_item(self):
+        """The subject as the teachers' notice lists it, with how it was convalidated."""
+        self.ensure_one()
+        subject = self.subject_id.display_name
+        if self.grade_type == 'without_grade':
+            return self.env._("%(subject)s, without a grade", subject=subject)
+        if self.grade_type == 'fixed_five':
+            return self.env._("%(subject)s, with a fixed %(grade)s", subject=subject, grade=CONVALIDATED_GRADE)
+        return self.env._("%(subject)s, with a %(grade)s", subject=subject, grade=self.grade)
+
     def _ems_rejection_text(self):
         """Why the subject is refused, in the current language: the reason followed by the
         details. Empty when nothing explains it."""
@@ -1056,9 +1075,9 @@ class EmsConvalidationLine(models.Model):
 
     def _ems_resolved_grade(self):
         """The grade the subject reaches the student's grades with: 0 when convalidated without
-        a grade, which the grades read as a plain CV."""
+        a grade, which the grades read as a plain CV, and 5 when the 5 is fixed."""
         self.ensure_one()
-        return 0 if self.without_grade else self.grade
+        return {'without_grade': 0, 'fixed_five': CONVALIDATED_GRADE}.get(self.grade_type, self.grade)
 
     # --- grades sync ---------------------------------------------------------
 

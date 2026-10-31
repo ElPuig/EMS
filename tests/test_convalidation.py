@@ -114,7 +114,7 @@ class TestConvalidation(TransactionCase):
         lines.write({'rejection_reason': reason})
         lines.action_reject()
 
-    def _proposed(self, subjects=None, grade=None, without_grade=False, **kwargs):
+    def _proposed(self, subjects=None, grade=None, grade_type='grade', **kwargs):
         """A request whose subjects are all granted by the Head of Studies and proposed to the
         Director."""
         request = self._request(subjects, **kwargs)
@@ -122,8 +122,8 @@ class TestConvalidation(TransactionCase):
         lines.action_grant()
         if grade is not None:
             lines.write({'grade': grade})
-        if without_grade:
-            lines.write({'without_grade': True})
+        if grade_type != 'grade':
+            lines.write({'grade_type': grade_type})
         request.with_user(self.head_of_studies).action_propose()
         return request
 
@@ -296,9 +296,14 @@ class TestConvalidation(TransactionCase):
                 line.with_user(user).action_reject()
             with self.assertRaises(UserError):
                 line.with_user(user).write({'grade': 9})
+            # Issue #738: how it is convalidated is part of the decision too.
+            with self.assertRaises(UserError):
+                line.with_user(user).write({'grade_type': 'fixed_five'})
         request.with_user(self.director).action_resolve()
         with self.assertRaises(UserError):
             line.with_user(self.secretary).write({'grade': 9})
+        with self.assertRaises(UserError):
+            line.with_user(self.secretary).write({'grade_type': 'fixed_five'})
 
     # --- resolved by the Ministry ----------------------------------------------
 
@@ -375,13 +380,23 @@ class TestConvalidation(TransactionCase):
         request = self._request(self.subject | self.other_subject)
         self._line(request).with_user(self.head_of_studies).action_grant()
         self._line(request, self.other_subject).with_user(self.head_of_studies).write(
-            {'state': 'granted', 'without_grade': True})
+            {'state': 'granted', 'grade_type': 'without_grade'})
         cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
         self.assertTrue(any(cell.startswith('Convalidated') for cell in cells))
         self.assertTrue(any(cell.startswith('5') for cell in cells))
-        self._line(request, self.other_subject).with_user(self.head_of_studies).write({'without_grade': False})
+        self._line(request, self.other_subject).with_user(self.head_of_studies).write({'grade_type': 'grade'})
         cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
         self.assertFalse(any(cell.startswith('Convalidated') for cell in cells))
+
+
+    def test_a_fixed_five_is_stated_on_the_resolution(self):
+        """Issue #738: the secretariat registers it differently in Esfera, so it says so."""
+        request = self._request(self.subject | self.other_subject)
+        self._line(request).with_user(self.head_of_studies).write({'state': 'granted', 'grade_type': 'fixed_five'})
+        self._line(request, self.other_subject).with_user(self.head_of_studies).action_grant()
+        cells = [cell.strip() for cell in self._resolution_html(request, 'en_US').split('<td>')[1:]]
+        self.assertEqual(sum(cell.startswith('5 (fixed grade)') for cell in cells), 1)
+        self.assertEqual(sum(cell.startswith('5') for cell in cells), 2)
 
     def test_legal_grounds_and_appeal_are_configurable(self):
         request = self._request(basis='certificate')
@@ -579,7 +594,7 @@ class TestConvalidation(TransactionCase):
         wizard.action_grant()
         self.assertEqual(line.state, 'granted')
         self.assertEqual(line.grade, 5)
-        self.assertFalse(line.without_grade)
+        self.assertEqual(line.grade_type, 'grade')
 
     def test_convalidating_with_the_previous_studies_grade(self):
         line = self._line(self._request())
@@ -590,7 +605,17 @@ class TestConvalidation(TransactionCase):
         line = self._line(self._request())
         self._grant_dialog(line, mode='without_grade').action_grant()
         self.assertEqual(line.state, 'granted')
-        self.assertTrue(line.without_grade)
+        self.assertEqual(line.grade_type, 'without_grade')
+
+
+    def test_convalidating_with_a_fixed_five(self):
+        """Issue #738: a 5 whatever the previous studies hold, which the dialog keeps next time."""
+        line = self._line(self._request())
+        self._grant_dialog(line, grade=8).action_grant()
+        self._grant_dialog(line, mode='fixed_five', grade=8).action_grant()
+        self.assertEqual((line.state, line.grade_type, line.grade), ('granted', 'fixed_five', 5))
+        line.with_user(self.head_of_studies).action_reset()
+        self.assertEqual(self._grant_dialog(line).mode, 'fixed_five')
 
     def test_the_dialog_refuses_a_failing_grade(self):
         line = self._line(self._request())
@@ -686,6 +711,12 @@ class TestConvalidation(TransactionCase):
         request.with_user(self.secretary).write({'attachment_ids': [(0, 0, {
             'name': 'esfera.pdf', 'datas': base64.b64encode(b'%PDF-1.4 esfera')})]})
         self.assertEqual(len(self._resolution_mails(request)), 1)
+
+
+    def test_the_email_states_a_fixed_five(self):
+        request = self._completed(grade_type='fixed_five')
+        body = self._resolution_mails(request).body_html
+        self.assertTrue(any(text in body for text in ("fixed grade: 5", "nota fixada: 5", "nota fijada: 5")), body)
 
     def _minor_with_family(self):
         minor = self.env['res.partner'].create({
@@ -952,7 +983,7 @@ class TestConvalidation(TransactionCase):
     def test_without_grade_reaches_the_grades_as_a_plain_cv(self):
         """Issue #580: passed and complete, with no grade to count towards the average."""
         grade_line = self._enroll_and_grade(state='final')
-        self._completed(without_grade=True)
+        self._completed(grade_type='without_grade')
         self.assertTrue(grade_line.is_convalidated)
         self.assertTrue(grade_line.has_final)
         self.assertEqual(grade_line.convalidation_grade, 0)
@@ -963,6 +994,16 @@ class TestConvalidation(TransactionCase):
         self.assertEqual((subject_record.convalidation_grade, subject_record.final_grade), (0, 0))
 
     # --- the student stops taking the subject --------------------------------
+
+
+    def test_fixed_five_reaches_the_grades_as_a_five(self):
+        """Issue #738: it counts as a 5, whatever grade the line was given before."""
+        grade_line = self._enroll_and_grade(state='final')
+        self._completed(grade=9, grade_type='fixed_five')
+        self.assertTrue(grade_line.is_convalidated)
+        self.assertEqual((grade_line.convalidation_grade, grade_line.final_score), (5, 5))
+        subject_record = self._history().subject_record_ids
+        self.assertEqual((subject_record.convalidation_grade, subject_record.final_grade), (5, 5))
 
     def test_completion_withdraws_the_student_from_the_subject(self):
         """Even with grades already written: the convalidation replaces them."""
@@ -1040,10 +1081,17 @@ class TestConvalidation(TransactionCase):
     def test_notice_of_a_subject_convalidated_without_a_grade(self):
         self._teaching_staff()
         self._enroll_and_grade()
-        self._completed(without_grade=True)
+        self._completed(grade_type='without_grade')
         self.assertIn(f"{self.subject.display_name}, without a grade", self._notices(self.teacher).body)
 
     # --- registration number -------------------------------------------------
+
+
+    def test_notice_of_a_subject_convalidated_with_a_fixed_five(self):
+        self._teaching_staff()
+        self._enroll_and_grade()
+        self._completed(grade_type='fixed_five')
+        self.assertIn(f"{self.subject.display_name}, with a fixed 5", self._notices(self.teacher).body)
 
     def test_requests_are_numbered_per_course(self):
         first, second = self._request(), self._request(self.other_subject)
@@ -1224,7 +1272,7 @@ class TestConvalidation(TransactionCase):
         self._enroll_and_grade()
         record = self.env['ems.student.year_record'].generate_for_students(self.student, self.course)
         subject_record = record.subject_record_ids.filtered(lambda line: line.subject_id == self.subject)
-        self._completed(without_grade=True)
+        self._completed(grade_type='without_grade')
         self.assertTrue(subject_record.is_convalidated)
         self.assertEqual(subject_record.state, 'passed')
         self.assertEqual((subject_record.convalidation_grade, subject_record.final_grade), (0, 0))

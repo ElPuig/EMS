@@ -406,7 +406,7 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
             student_notes="Vaig cursar el CFGM de Sistemes microinformàtics i xarxes.")
         decide(review)
         # Issue #580: a module convalidated without a grade.
-        review.line_ids[1].sudo().write({'state': 'granted', 'without_grade': True, 'rejection_reason_id': False})
+        review.line_ids[1].sudo().write({'state': 'granted', 'grade_type': 'without_grade', 'rejection_reason_id': False})
         at_ministry = new_request(self.students[1], subjects[1:2], basis='other')
         at_ministry.sudo().action_send_to_ministry()
         proposed = new_request(self.students[2], subjects[1:])
@@ -414,6 +414,8 @@ class TestDocsScreenshots(DocsScreenshotMixin, HttpCase):
         proposed.with_user(head_of_studies).action_propose()
         resolved = new_request(self.portal_student, subjects[1:])
         decide(resolved)
+        # Issue #738: a module convalidated with a fixed 5, which the resolution states.
+        resolved.line_ids[1].sudo().write({'state': 'granted', 'grade_type': 'fixed_five', 'rejection_reason_id': False})
         resolved.with_user(head_of_studies).action_propose()
         resolved.with_user(director).action_resolve()
 

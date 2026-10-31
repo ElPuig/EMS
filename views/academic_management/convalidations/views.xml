@@ -135,9 +135,10 @@
                                                decoration-success="state == 'granted'"
                                                decoration-danger="state == 'rejected'"/>
                                         <field name="grade"
-                                               invisible="state != 'granted' or without_grade"
+                                               invisible="state != 'granted' or grade_type != 'grade'"
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
-                                        <field name="without_grade" optional="show"
+                                        <!-- Issue #738: the secretariat needs it to register the subject in Esfera. -->
+                                        <field name="grade_type"
                                                invisible="state != 'granted'"
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <field name="rejection_reason_id"
@@ -296,6 +297,10 @@
                     <div class="text-muted" invisible="mode != 'without_grade'">
                         <i class="fa fa-info-circle me-1"/>Without a grade, the resolution and the student's grades
                         show the subject as "Convalidated" (CV), and it does not count towards the average.
+                    </div>
+                    <div class="text-muted" invisible="mode != 'fixed_five'">
+                        <i class="fa fa-info-circle me-1"/>The subject counts as a 5 whatever the previous studies
+                        hold, and the resolution states that the grade is fixed.
                     </div>
                     <footer>
                         <button name="action_grant" type="object" string="Convalidate" class="btn-primary"/>

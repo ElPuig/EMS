@@ -36,7 +36,7 @@
             <field name="name">ems.convalidation.form</field>
             <field name="model">ems.convalidation</field>
             <field name="arch" type="xml">
-                <form string="Convalidation">
+                <form string="Convalidation" class="o_ems_convalidation_form">
                     <header>
                         <div name="ems_actions" string="Actions">
                             <button name="action_propose" type="object" string="Send proposal to the Director"

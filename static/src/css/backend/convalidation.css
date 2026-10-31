@@ -1,0 +1,8 @@
+/* Convalidation request form: the subjects' grade column is centred (issue #738). Odoo
+   right-aligns every numeric column (the header's label span, the cells and the input while
+   editing), and no view attribute changes it. */
+.o_ems_convalidation_form .o_field_widget[name="line_ids"] th[data-name="grade"] .o_list_number_th,
+.o_ems_convalidation_form .o_field_widget[name="line_ids"] td[name="grade"],
+.o_ems_convalidation_form .o_field_widget[name="line_ids"] td[name="grade"] input {
+    text-align: center !important;
+}

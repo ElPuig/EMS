@@ -73,14 +73,14 @@ class EmsAbsencePending(models.Model):
              "the end of the day, the teacher did not check in, or arrived after their first lesson.")
     state = fields.Selection(
         string="Status",
-        selection=[('pending', 'To review'), ('justification_requested', 'Justification requested'),
-                   ('absence_prepared', 'Absence prepared'), ('correction_requested', 'Correction requested'),
+        selection=[('pending', 'To review'), ('justification_requested', 'Action requested'),
+                   ('absence_prepared', 'Justification prepared'), ('correction_requested', 'Correction requested'),
                    ('corrected', 'Check-in corrected'), ('linked', 'Requested'), ('justified', 'Justified'),
                    ('discarded', 'Discarded')],
         default='pending', required=True, readonly=True, copy=False, tracking=True,
         help="To review: the Head of Studies decides what to do with it; the teacher is not told. "
-             "Justification requested: the teacher is reminded to request the absence or a check-in "
-             "correction. Absence prepared: the same, with the absence type already chosen for them. "
+             "Action requested: the teacher is reminded to request the absence or a check-in "
+             "correction. Justification prepared: the same, with the absence request prepared for them. "
              "Correction requested: the teacher's check-in correction waits for a decision. Check-in "
              "corrected: the teacher was at the centre. Requested: the teacher's absence request is "
              "being dealt with. Justified: it was approved. Discarded: by the reviewer, or because "
@@ -89,7 +89,7 @@ class EmsAbsencePending(models.Model):
     # Readonly so that Odoo offers no Archive/Unarchive of its own: Discard is the only way, with
     # its checks and its note (issue #707).
     active = fields.Boolean(default=True, readonly=True, help="Archived when the reviewer discards it.")
-    # Issue #707: "Create absence" prepares the request for the teacher, never files it: only the
+    # Issue #707: "Prepare justification" prepares the request for the teacher, never files it: only the
     # teacher accepts the responsible declaration and sends it.
     leave_type_id = fields.Many2one(
         string="Absence type", comodel_name="hr.leave.type", readonly=True, copy=False,
@@ -319,11 +319,25 @@ class EmsAbsencePending(models.Model):
                            'reminder_date': False, 'escalated': False})
         self._ems_post_review_note(note)
 
+    def _ems_ask_to_act(self, leave_type=None, when=None):
+        """Request action, or Prepare justification with `leave_type` (issue #735): the teacher is
+        asked to regularize these entries, with the absence request prepared for them if a type
+        is given. `when`: the hours chosen, when only part of the entry was."""
+        user = self.env.user.name
+        if leave_type:
+            values = {'state': 'absence_prepared', 'leave_type_id': leave_type.id}
+            note = (_("Justification prepared by %(user)s for %(when)s. The rest is still to review.", user=user, when=when)
+                    if when else _("Justification prepared by %(user)s.", user=user))
+        else:
+            values = {'state': 'justification_requested'}
+            note = (_("Action requested by %(user)s for %(when)s. The rest is still to review.", user=user, when=when)
+                    if when else _("Action requested by %(user)s.", user=user))
+        self._ems_ask_teacher(values, note)
+
     def action_request_justification(self):
-        """The teacher is asked to justify it."""
-        return self._ems_review(lambda absences: absences._ems_ask_teacher(
-            {'state': 'justification_requested'},
-            _("Justification requested by %(user)s.", user=self.env.user.name)))
+        """Request action: the teacher is asked to regularize it, requesting the absence or a
+        check-in correction."""
+        return self._ems_review(lambda absences: absences._ems_ask_to_act())
 
     def _ems_check_correctable(self, absence):
         return absence.date_to > fields.Datetime.now() and _("still going on")
@@ -349,51 +363,57 @@ class EmsAbsencePending(models.Model):
             absences._ems_post_review_note(_("Check-in corrected by %(user)s.", user=self.env.user.name))
         return self._ems_review(apply, self._ems_check_correctable)
 
-    def action_open_correct_check_in(self):
-        """The form's "Correct check-in" (issue #731): asks for the hours the teacher was at the
-        centre, the whole entry by default (ems.absence_pending.check_in_wizard)."""
+    def _ems_open_review_dialog(self, decision, title):
+        """The form's review decisions (issues #731, #735) ask for the hours they apply to, the
+        whole entry by default (ems.absence_pending.review_wizard)."""
         self.ensure_one()
         return {
             'type': 'ir.actions.act_window',
-            'name': _("Correct check-in"),
-            'res_model': 'ems.absence_pending.check_in_wizard',
+            'name': title,
+            'res_model': 'ems.absence_pending.review_wizard',
             'views': [(False, 'form')],
             'target': 'new',
-            'context': {'default_absence_id': self.id, 'default_date_from': self.date_from,
-                        'default_date_to': self.date_to},
+            'context': {'default_absence_id': self.id, 'default_decision': decision,
+                        'default_date_from': self.date_from, 'default_date_to': self.date_to},
         }
 
-    def _ems_correct_check_in(self, start, stop):
-        """Corrects the check-in between `start` and `stop` only: the rest of the entry, before
-        and after, is still to review, as one entry or two (issue #731). The whole entry is the
-        usual correction."""
+    def action_open_request_action(self):
+        return self._ems_open_review_dialog('request', _("Request action"))
+
+    def action_open_prepare_justification(self):
+        return self._ems_open_review_dialog('prepare', _("Prepare justification"))
+
+    def action_open_correct_check_in(self):
+        return self._ems_open_review_dialog('correct', _("Correct check-in"))
+
+    def _ems_review_range(self, decision, start, stop, leave_type=None):
+        """The reviewer's `decision` (request, prepare or correct) on this entry between `start`
+        and `stop` only: the rest, before and after, is still to review, as one entry or two
+        (issues #731, #735). The whole entry is the usual decision."""
         self.ensure_one()
         if start <= self.date_from and stop >= self.date_to:
-            return self.action_correct_check_in()
+            if decision == 'correct':
+                return self.action_correct_check_in()
+            return self._ems_review(lambda absences: absences._ems_ask_to_act(leave_type))
+        user = self.env.user.name
 
         def apply(absence):
             when = _("%(start)s to %(stop)s", start=self._to_local(start).strftime('%H:%M'),
                      stop=self._to_local(stop).strftime('%H:%M'))
-            spans = absence._ems_uncovered_spans()
             rest = [span for span in ((absence.date_from, start), (stop, absence.date_to)) if span[0] < span[1]]
-            # Before the attendances: the check-in review they cause must not touch what is left.
-            absence._ems_split(rest, _("check-in corrected by %(user)s from %(when)s.", user=self.env.user.name, when=when))
-            absence._ems_fill_attendances(spans, start, stop)
-            absence._ems_post_review_note(_("Check-in corrected by %(user)s from %(when)s. The rest is still to review.",
-                                            user=self.env.user.name, when=when))
-        return self._ems_review(apply, self._ems_check_correctable)
-
-    def action_create_absence(self):
-        """Asks for the absence type, then prepares the request for the teacher to send (see the
-        wizard and _ems_prepare_absences)."""
-        return {
-            'type': 'ir.actions.act_window',
-            'name': _("Create absence"),
-            'res_model': 'ems.absence_pending.leave_wizard',
-            'views': [(False, 'form')],
-            'target': 'new',
-            'context': {'default_absence_ids': self.ids},
-        }
+            if decision == 'correct':
+                spans = absence._ems_uncovered_spans()
+                # Before the attendances: the check-in review they cause must not touch what is left.
+                absence._ems_split(rest, _("check-in corrected by %(user)s from %(when)s.", user=user, when=when))
+                absence._ems_fill_attendances(spans, start, stop)
+                absence._ems_post_review_note(_("Check-in corrected by %(user)s from %(when)s. The rest is still to review.",
+                                                user=user, when=when))
+                return
+            # The entry keeps the hours chosen; its copies, the rest, wait for review with their own task.
+            absence._ems_split([(start, stop)] + rest, _("the rest of a decision by %(user)s for %(when)s.",
+                                                         user=user, when=when))
+            absence._ems_ask_to_act(leave_type, when)
+        return self._ems_review(apply, self._ems_check_correctable if decision == 'correct' else None)
 
     def action_discard(self):
         """Closed and archived, nothing else: no message, no attendance, no absence."""
@@ -406,9 +426,7 @@ class EmsAbsencePending(models.Model):
         """The absence request is prepared for the teacher with `leave_type`, never filed: they
         open it from the entry already filled in, check it, accept the responsible declaration and
         send it, which links the two (_link_to_leaves). Reminded until they do."""
-        return self._ems_review(lambda absences: absences._ems_ask_teacher(
-            {'state': 'absence_prepared', 'leave_type_id': leave_type.id},
-            _("Absence prepared by %(user)s.", user=self.env.user.name)))
+        return self._ems_review(lambda absences: absences._ems_ask_to_act(leave_type))
 
     def _ems_uncovered_spans(self, covered=()):
         """[(start, stop)] of this entry's span that none of the teacher's attendances covers, nor
@@ -467,7 +485,7 @@ class EmsAbsencePending(models.Model):
         self.ensure_one()
         if not self.can_request_correction:
             raise UserError(_("A check-in correction can only be requested by the teacher, for a detected absence "
-                              "they were asked to justify, once it is over and while no other one is pending."))
+                              "they were asked to regularize, once it is over and while no other one is pending."))
 
     def action_request_check_in_correction(self):
         """Issue #735: the teacher was at the centre. Opens a correction request of their attendance
@@ -567,7 +585,7 @@ class EmsAbsencePending(models.Model):
         self.ensure_one()
         if not self.can_request:
             # Checked on the server whatever the screen offered (issue #735).
-            raise UserError(_("Only the teacher can request this absence, once asked to justify it and while no "
+            raise UserError(_("Only the teacher can request this absence, once asked to regularize it and while no "
                               "check-in correction of theirs is waiting for a decision."))
         context = {f'default_{field}': value for field, value in self._ems_leave_values().items()}
         if self.state == 'absence_prepared':
@@ -916,7 +934,7 @@ class EmsAbsencePending(models.Model):
             spans = absence._ems_missed_spans()
             if not spans:
                 continue
-            # The stage they had reached: Create absence sets the type, both requests the date.
+            # The stage they had reached: Prepare justification sets the type, both requests the date.
             state = ('absence_prepared' if absence.leave_type_id
                      else 'justification_requested' if absence.justification_date else 'pending')
             # Written without write(): it would mark the entry's tasks done again.

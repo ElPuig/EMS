@@ -493,7 +493,7 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(absence.state, 'justification_requested')
         self.assertEqual(absence.justification_date, self.today)
         self.assertFalse(self._review_activities(absence), 'reviewed: off the task list')
-        self.assertTrue(absence.message_ids.filtered(lambda message: 'Justification requested by' in message.body))
+        self.assertTrue(absence.message_ids.filtered(lambda message: 'Action requested by' in message.body))
         self.assertEqual(self.Pending.with_user(self.teacher_user).search([('id', '=', absence.id)]), absence)
         self.assertEqual(self.env['ems.course']._get_guard_duty_absence_intervals(self.yesterday, self.teacher),
                          {self.teacher.id: [(9.0, 13.0, 'pending')]}, 'still unresolved for the board')
@@ -585,6 +585,60 @@ class TestAbsenceDetection(TransactionCase):
         self.assertEqual(set(parts.mapped('state')), {'pending'})
         self.assertEqual(set(parts.mapped('origin')), {'informed'})
         self.assertEqual(len(self._review_activities(parts - informed)), 1, 'the new part is reviewed too')
+
+    def _review_part(self, absence, method, hour_from, hour_to, **values):
+        """The reviewer's decision on part of the entry, from its form's dialog (issue #735)."""
+        day = self.Pending._to_local(absence.date_from).date()
+        action = getattr(absence.with_user(self.head_of_studies), method)()
+        wizard = self.env[action['res_model']].with_user(self.head_of_studies).with_context(
+            action['context']).create({'date_from': self._utc(day, hour_from), 'date_to': self._utc(day, hour_to), **values})
+        return wizard.action_confirm()
+
+    def test_request_action_on_part_leaves_the_rest_to_review(self):
+        """Issue #735: the teacher is asked about 11:00 to 13:00 only; 9:00 to 11:00 waits for the
+        reviewer, unknown to the teacher."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+
+        self._review_part(absence, 'action_open_request_action', 11.0, 13.0)
+
+        rest = self._detected() - absence
+        self.assertEqual((absence.state, self._hours(absence)), ('justification_requested', (11.0, 13.0)))
+        self.assertTrue(absence.justification_date)
+        self.assertFalse(self._review_activities(absence))
+        self.assertTrue(absence.message_ids.filtered(lambda message: 'Action requested by' in message.body))
+        self.assertEqual((rest.state, self._hours(rest)), ('pending', (9.0, 11.0)))
+        self.assertFalse(rest.justification_date, 'nobody was asked about it')
+        self.assertEqual(self._review_activities(rest).user_id, self.head_of_studies)
+        self.assertTrue(absence.with_user(self.teacher_user).can_request)
+
+    def test_prepare_justification_of_the_middle_splits_it(self):
+        """Issue #735: the absence request is prepared for the hours chosen only."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        justified = self.env.ref('ems.leave_type_justified')
+
+        self._review_part(absence, 'action_open_prepare_justification', 10.0, 11.5, holiday_status_id=justified.id)
+
+        parts = self._detected() - absence
+        self.assertEqual((absence.state, absence.leave_type_id, self._hours(absence)),
+                         ('absence_prepared', justified, (10.0, 11.5)))
+        self.assertEqual((absence._ems_leave_values()['request_hour_from'], absence._ems_leave_values()['request_hour_to']),
+                         (10.0, 11.5), 'the request prepared covers the hours chosen')
+        self.assertEqual(sorted(self._hours(part) for part in parts), [(9.0, 10.0), (11.5, 13.0)])
+        self.assertEqual(set(parts.mapped('state')), {'pending'})
+        self.assertFalse(parts.leave_type_id)
+
+    def test_review_dialog_checks(self):
+        """The hours stay within the entry, and a justification is prepared with a type."""
+        self.Pending._ems_detect_missing_check_ins(self.yesterday)
+        absence = self._detected()
+        with self.assertRaises(ValidationError):
+            self._review_part(absence, 'action_open_request_action', 8.0, 10.0)
+        with self.assertRaises(ValidationError):
+            self._review_part(absence, 'action_open_prepare_justification', 9.0, 10.0)
+        self._review_part(absence, 'action_open_request_action', 9.0, 13.0)
+        self.assertEqual((absence.state, len(self._detected())), ('justification_requested', 1), 'the whole entry, unsplit')
 
     def test_correct_check_in_of_the_whole_entry_from_the_dialog(self):
         self.Pending._ems_detect_missing_check_ins(self.yesterday)

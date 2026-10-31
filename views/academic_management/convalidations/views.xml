@@ -134,12 +134,12 @@
                                         <field name="state" widget="badge" readonly="1"
                                                decoration-success="state == 'granted'"
                                                decoration-danger="state == 'rejected'"/>
-                                        <field name="grade"
-                                               invisible="state != 'granted' or grade_type != 'grade'"
-                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <!-- Issue #738: the secretariat needs it to register the subject in Esfera. -->
                                         <field name="grade_type"
                                                invisible="state != 'granted'"
+                                               readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
+                                        <field name="grade"
+                                               invisible="state != 'granted' or grade_type != 'grade'"
                                                readonly="request_state not in ('pending', 'documentation', 'ministry')"/>
                                         <field name="rejection_reason_id"
                                                invisible="state != 'rejected'"

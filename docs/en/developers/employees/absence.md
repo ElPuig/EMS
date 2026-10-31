@@ -709,11 +709,11 @@ flowchart TB
     pending --> review{"HoS/DHoS<br/>reviews"}
     review -- "Correct check-in" --> corrected
     review -- "Discard" --> discarded
-    review -- "Request justification" --> justif
-    review -- "Create absence (type)" --> prepared
+    review -- "Request action" --> justif
+    review -- "Prepare justification (type)" --> prepared
 
-    justif["<b>Justification requested</b><br/>reminders to the teacher"]
-    prepared["<b>Absence prepared</b><br/>reminders to the teacher"]
+    justif["<b>Action requested</b><br/>reminders to the teacher"]
+    prepared["<b>Justification prepared</b><br/>reminders to the teacher"]
     justif & prepared --> teacher{"Teacher<br/>answers"}
     pending -. "the teacher on their own" .-> teacher
 
@@ -774,8 +774,8 @@ erDiagram
 | `date_from`, `date_to` | Required `Datetime` range (UTC in the database, like every datetime). Default: today 08:00-15:00 in the company's timezone. `date_to > date_from`. Editable while unresolved (`pending`, `justification_requested`, `absence_prepared`) |
 | `origin` | `informed` (default: every entry created by hand) or `check_in`. Readonly |
 | `note` | Optional, for the author's own reference. `groups="ems.group_department_chief,base.group_system"`: the teacher never reads it |
-| `state` | `pending` (*To review*), `justification_requested` (*Justification requested*), `absence_prepared` (*Absence prepared*), `correction_requested` (*Correction requested*: the teacher's check-in correction waits for a decision), `corrected` (*Check-in corrected*), `linked` (*Requested*: the absence request is being dealt with), `justified` (*Justified*: it was approved for good, `validate`), `discarded` (*Discarded*). Stored, not computed from `leave_id`. `pending`, `justification_requested`, `absence_prepared` and `correction_requested` mean "not resolved yet" (`UNRESOLVED_STATES`: the board plans around them); `justification_requested` and `absence_prepared` mean "the teacher has been asked to act" (`ASKED_STATES`: the reminders go on); `linked` and `justified` are `REQUESTED_STATES` |
-| `leave_type_id` | The absence type the reviewer chose with **Create absence**: the teacher's request opens with it |
+| `state` | `pending` (*To review*), `justification_requested` (*Action requested*), `absence_prepared` (*Justification prepared*), `correction_requested` (*Correction requested*: the teacher's check-in correction waits for a decision), `corrected` (*Check-in corrected*), `linked` (*Requested*: the absence request is being dealt with), `justified` (*Justified*: it was approved for good, `validate`), `discarded` (*Discarded*). Stored, not computed from `leave_id`. `pending`, `justification_requested`, `absence_prepared` and `correction_requested` mean "not resolved yet" (`UNRESOLVED_STATES`: the board plans around them); `justification_requested` and `absence_prepared` mean "the teacher has been asked to act" (`ASKED_STATES`: the reminders go on); `linked` and `justified` are `REQUESTED_STATES` |
+| `leave_type_id` | The absence type the reviewer chose with **Prepare justification**: the teacher's request opens with it |
 | `active` | Archived when a person discards the entry (it leaves the default list, still found with the *Archived* filter). A discard by the system (the check-in turned up) leaves it active; the chatter says which of the two it was. `readonly=True`, so Odoo offers no Archive/Unarchive of its own (it only does on an editable `active`): Discard is the only way |
 | `is_own` | Non-stored, `@api.depends_context('uid')`: the teacher reading their own entry. Swaps the status bar for one without the *To review* step, which they never see |
 | `leave_id` | The teacher's own request it was linked to, or the one the reviewer created. `ondelete='set null'` |
@@ -784,7 +784,7 @@ erDiagram
 | `can_request` | Non-stored, `@api.depends_context('uid')`: the user is the teacher and the entry is in `ASKED_STATES`. Shows **Request the absence** |
 | `can_request_correction` | Same, and the entry is over and has no `pending` correction request: shows **Request check-in correction** (issue #735) |
 | `correction_ids` | The teacher's correction requests (`ems.attendance_correction.absence_pending_id`) |
-| `status_path` | Non-stored, `@api.depends_context('uid')`: the steps the status bar shows (`ems_statusbar_path` widget, `static/src/js/backend/statusbar_path_field.js`), comma-separated: *To review* (not for the teacher), then *Justification requested* or *Absence prepared* if the teacher was asked (`justification_date`, `leave_type_id`), then the state; while unresolved, the steps still ahead (issue #735) |
+| `status_path` | Non-stored, `@api.depends_context('uid')`: the steps the status bar shows (`ems_statusbar_path` widget, `static/src/js/backend/statusbar_path_field.js`), comma-separated: *To review* (not for the teacher), then *Action requested* or *Justification prepared* if the teacher was asked (`justification_date`, `leave_type_id`), then the state; while unresolved, the steps still ahead (issue #735) |
 | `can_review`, `can_correct_check_in` | Non-stored, `@api.depends_context('uid')`: the entry is `pending` and the user may review it (below); the second also needs the entry to be over (no check-in can be recorded for a time still to come). Drive the four actions' `invisible=` |
 
 ### Reviewing
@@ -813,7 +813,17 @@ server action bound to the list (an act_window for the wizard). All go through
 rest are skipped, and the user is told how many and why (not waiting for review / not theirs to
 review / still going on). Nothing eligible raises a `UserError` with the same reasons.
 
-1. **Request justification** (`action_request_justification`): `justification_requested`, with
+On the form, the first three ask for the hours first (issues #731, #735): **Request action**,
+**Prepare justification** and **Correct check-in** open `ems.absence_pending.review_wizard`
+(`action_open_request_action`, `action_open_prepare_justification`, `action_open_correct_check_in`,
+all through `_ems_open_review_dialog`), with a `decision`, From/To prefilled with the whole entry
+and constrained within it, and the absence type for *prepare*. `_ems_review_range` applies the
+decision: the whole entry is the usual action below; a part splits the entry first (`_ems_split`),
+then applies the decision to the hours chosen only, the rest staying `pending` with its own review
+task. The list's bulk actions always apply to whole entries. A blue notice at the top of the form
+sums up the four decisions while the entry waits for the user's review (`can_review`).
+
+1. **Request action** (`action_request_justification`, technical name kept): `justification_requested`, with
    `justification_date` = today. From then on it is the circuit issue #696 introduced: the
    teacher is reminded at the start of their working day, every `reminder_days`, and the approver
    gets `ems.mail_activity_absence_not_requested` once `escalation_days` have passed, both counted
@@ -830,17 +840,13 @@ review / still going on). Nothing eligible raises a `UserError` with the same re
    finds the entry and cannot discard it. Not an accepted `ems.attendance_correction`: that model
    is the teacher's own request about an existing attendance (it needs one, and messages its
    author on every decision); `ems_checked_in_by_id` plus the note already say who recorded what.
-   **Part of the entry** (issue #731): on the form the button opens
-   `ems.absence_pending.check_in_wizard` (`action_open_correct_check_in`), From/To prefilled with
-   the whole entry and constrained within it. The whole entry is the correction above; a part
-   (`_ems_correct_check_in`) splits the entry first (`_ems_split`: it keeps what lies before the
-   corrected hours, a copy takes what lies after, both still `pending`, the copy with its own review
-   task), then creates the attendances of the corrected hours only, which no longer overlap either
-   part. The list's bulk action keeps correcting whole entries.
-3. **Create absence** (`ems.absence_pending.leave_wizard`, one required absence type for the whole
-   selection, the same ones a teacher can choose): prepares the request, never files it
-   (`_ems_prepare_absences`). The entry becomes `absence_prepared` with `leave_type_id`, and from
-   there it is the same as **Request justification** (same `justification_date`, same reminders,
+   **Part of the entry** (issue #731): the entry keeps what lies before the corrected hours, a copy
+   takes what lies after, both still `pending`, then the attendances of the corrected hours only
+   are created, which no longer overlap either part.
+3. **Prepare justification** (from the list, `ems.absence_pending.leave_wizard`, one required
+   absence type for the whole selection, the same ones a teacher can choose): prepares the request,
+   never files it (`_ems_prepare_absences`). The entry becomes `absence_prepared` with
+   `leave_type_id`, and from there it is the same as **Request action** (same `justification_date`, same reminders,
    with their own wording telling the teacher a request was prepared for them). The teacher opens
    **Request the absence**, which prefills the type as well as the day and hours, checks it,
    accepts the responsible declaration and sends it; `_link_to_leaves` then links the entry. The
@@ -1082,7 +1088,7 @@ those same three groups.
 | Read the branch's entries | yes | yes | yes | yes | own, once not `pending` |
 | Enter / edit an entry | yes | yes | yes | yes | no |
 | Delete an entry | no | no | no | yes | no |
-| Request justification, Correct check-in, Create absence, Discard | no | yes | yes | yes | no |
+| Request action, Prepare justification, Correct check-in, Discard | no | yes | yes | yes | no |
 | Request the absence | no | no | no | no | own, once asked |
 | Request check-in correction | no | no | no | no | own, once asked and over |
 

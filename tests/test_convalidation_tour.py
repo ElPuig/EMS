@@ -161,6 +161,8 @@ class TestConvalidationTour(HttpCase):
             ('student_id', '=', self.student.id), ('state', '=', 'pending')])
         self.assertEqual(len(submitted), 1)
         self.assertEqual(submitted.basis, 'certificate')
+        self.assertEqual(submitted.line_ids[:1].attendance_choice, 'not_attend')
+        self.assertTrue(submitted.attendance_notice_accepted)
         # The certificate filed with the request, plus the one answered with afterwards.
         self.assertEqual(sorted(submitted.attachment_ids.mapped('name')),
                          ['certificate.pdf', 'reply.pdf'])

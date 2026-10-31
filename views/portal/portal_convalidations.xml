@@ -33,6 +33,9 @@
                         <div t-if="error == 'no_subjects'" class="alert alert-danger mb-3">
                             <i class="fa fa-exclamation-triangle me-1"/> Select at least one subject to convalidate.
                         </div>
+                        <div t-if="error == 'no_notice'" class="alert alert-danger mb-3 o_ems_convalidation_no_notice">
+                            <i class="fa fa-exclamation-triangle me-1"/> Read and accept the attendance notice before submitting the request.
+                        </div>
                         <div t-if="error == 'no_basis'" class="alert alert-danger mb-3">
                             <i class="fa fa-exclamation-triangle me-1"/> Select the grounds for the request.
                         </div>
@@ -90,6 +93,13 @@
                                                             <label class="form-check-label" t-attf-for="subject_#{subject.id}"
                                                                    t-esc="subject.display_name"/>
                                                         </div>
+                                                        <!-- Issue #644: only read for the subjects marked above. -->
+                                                        <select t-attf-name="attendance_#{subject.id}"
+                                                                class="form-select form-select-sm ms-4 mb-2 w-auto o_ems_convalidation_attendance"
+                                                                t-attf-aria-label="Attendance meanwhile: #{subject.display_name}">
+                                                            <option value="attend" selected="selected">I will attend until the resolution</option>
+                                                            <option value="not_attend">I won't attend until the resolution</option>
+                                                        </select>
                                                     </div>
                                                 </t>
                                             </div>
@@ -133,6 +143,18 @@
                                             <div class="mb-3">
                                                 <label class="form-label fw-bold" for="convalidation_notes">Comments <span class="text-muted">(optional)</span></label>
                                                 <textarea id="convalidation_notes" name="student_notes" class="form-control" rows="3" maxlength="2000"/>
+                                            </div>
+                                            <!-- Issue #644: the centre's attendance notice (Settings), to be accepted. -->
+                                            <div class="alert alert-warning mb-3 o_ems_convalidation_attendance_notice">
+                                                <p class="fw-bold mb-1"><i class="fa fa-exclamation-triangle me-1"/>Attendance while the request is resolved</p>
+                                                <div t-out="attendance_notice"/>
+                                                <div class="form-check mt-2">
+                                                    <input class="form-check-input" type="checkbox" id="attendance_notice_accepted"
+                                                           name="attendance_notice_accepted" value="1" required="required"/>
+                                                    <label class="form-check-label fw-bold" for="attendance_notice_accepted">
+                                                        I have read this notice and I accept it <span class="text-danger">*</span>
+                                                    </label>
+                                                </div>
                                             </div>
                                             <button type="submit" class="btn btn-primary">
                                                 <i class="fa fa-paper-plane me-1"/>Submit request
@@ -200,7 +222,13 @@
                                         </thead>
                                         <tbody>
                                             <tr t-foreach="convalidation.line_ids" t-as="line">
-                                                <td class="ps-3" t-esc="line.subject_id.display_name"/>
+                                                <td class="ps-3">
+                                                    <t t-esc="line.subject_id.display_name"/>
+                                                    <!-- Issue #644: the attendance choice made when filing it. -->
+                                                    <div t-if="line.attendance_choice == 'not_attend'" class="small text-muted o_ems_convalidation_not_attending">
+                                                        <i class="fa fa-user-times me-1"/>Not attending until the resolution
+                                                    </div>
+                                                </td>
                                                 <td t-if="official">
                                                     <span t-attf-class="badge #{
                                                         'bg-success' if line.state == 'granted' else

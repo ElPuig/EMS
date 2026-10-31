@@ -28152,3 +28152,175 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:ems.view_withdrawal_expected_wizard_form
 msgid "e.g. The family has told us they are moving abroad."
 msgstr "p. ex. La família ens ha dit que se'n van a viure a l'estranger."
+
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"%(student)s has asked to convalidate these subjects and won't attend them "
+"while the request is processed: they appear in your roll-calls as not "
+"required to attend."
+msgstr ""
+"%(student)s ha demanat convalidar aquests mòduls i no hi assistirà mentre es"
+" tramita la sol·licitud: surt als teus passis de llista com a «no ha "
+"d'assistir»."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"%(student)s's request no longer covers these subjects (refused or "
+"cancelled): they appear in your roll-calls again, and the sessions they were"
+" not required to attend count as absences."
+msgstr ""
+"La sol·licitud de %(student)s ja no inclou aquests mòduls (denegats o "
+"cancel·lada): torna a sortir als teus passis de llista, i les sessions a què"
+" no havia d'assistir compten com a faltes."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Read and accept the "
+"attendance notice before submitting the request."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Llegeix i accepta l'avís "
+"sobre l'assistència abans d'enviar la sol·licitud."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>Attendance while the request "
+"is resolved"
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-1\"/>Assistència mentre es resol la"
+" sol·licitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "<i class=\"fa fa-user-times me-1\"/>Not attending until the resolution"
+msgstr "<i class=\"fa fa-user-times me-1\"/>No hi assisteix fins a la resolució"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"<option value=\"attend\" selected=\"selected\">I will attend until the resolution</option>\n"
+"                                                            <option value=\"not_attend\">I won't attend until the resolution</option>"
+msgstr ""
+"<option value=\"attend\" selected=\"selected\">Hi assistiré fins a la resolució</option>\n"
+"                                                            <option value=\"not_attend\">No hi assistiré fins a la resolució</option>"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/settings/company.py:0
+msgid ""
+"Attendance is compulsory until your request is resolved. For each subject "
+"you can choose not to attend it meanwhile, but if it is not convalidated "
+"those absences will count, and you could lose the right to continuous "
+"assessment (see the centre's organisation and operation rules, NOFC, and the"
+" subject's planning)."
+msgstr ""
+"L'assistència és obligatòria fins que es resolgui la teva sol·licitud. Per a"
+" cada mòdul pots triar no assistir-hi mentrestant, però si no es convalida "
+"aquestes faltes comptaran i podries perdre el dret a l'avaluació contínua "
+"(consulta les normes d'organització i funcionament del centre, NOFC, i la "
+"programació del mòdul)."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__attendance_choice
+msgid "Attendance meanwhile"
+msgstr "Assistència mentrestant"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid "Attendance meanwhile: #{subject.display_name}"
+msgstr "Assistència mentrestant: #{subject.display_name}"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__attendance_notice_accepted
+msgid "Attendance notice accepted"
+msgstr "Avís d'assistència acceptat"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_convalidation__attendance_notice_date
+msgid "Attendance notice accepted on"
+msgstr "Avís d'assistència acceptat el"
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_res_company__convalidation_attendance_notice
+#: model:ir.model.fields,field_description:ems.field_res_config_settings__convalidation_attendance_notice
+msgid "Convalidation Attendance Notice"
+msgstr "Avís d'assistència de les convalidacions"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_attendance_session_line__not_expected_reason__convalidation
+msgid "Convalidation in process"
+msgstr "Convalidació en tràmit"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid "Convalidation in process: not required to attend while it is resolved."
+msgstr "Convalidació en tràmit: no ha d'assistir mentre es resol."
+
+#. module: ems
+#: model:ir.model.fields,field_description:ems.field_ems_attendance_session_line__convalidation_line_id
+msgid "Convalidation request subject"
+msgstr "Mòdul de la sol·licitud de convalidació"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
+msgid ""
+"I have read this notice and I accept it <span class=\"text-danger\">*</span>"
+msgstr "He llegit aquest avís i l'accepto <span class=\"text-danger\">*</span>"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__attendance_choice__attend
+msgid "I will attend"
+msgstr "Hi assistiré"
+
+#. module: ems
+#: model:ir.model.fields.selection,name:ems.selection__ems_convalidation_line__attendance_choice__not_attend
+msgid "I won't attend"
+msgstr "No hi assistiré"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid "Request: attendance notice"
+msgstr "Sol·licitud: avís sobre l'assistència"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.res_config_settings_view_form
+msgid ""
+"Shown on the portal when requesting a convalidation: the applicant must "
+"accept it, and chooses for each subject whether they will attend it until "
+"the resolution. Explain what the centre's rules (NOFC) say about absences if"
+" a subject is refused. Write it in each language families read. Leave it "
+"empty to use the standard text."
+msgstr ""
+"Es mostra al portal en sol·licitar una convalidació: el sol·licitant l'ha "
+"d'acceptar i tria per a cada mòdul si hi assistirà fins a la resolució. "
+"Explica què diuen les normes del centre (NOFC) sobre les faltes si es denega"
+" un mòdul. Escriu-lo en cada idioma que llegeixen les famílies. Deixa'l buit"
+" per fer servir el text estàndard."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/grades/convalidation.py:0
+msgid ""
+"The attendance choice is the applicant's and cannot be changed once the "
+"request is submitted."
+msgstr ""
+"L'elecció sobre l'assistència és del sol·licitant i no es pot canviar un cop"
+" enviada la sol·licitud."
+
+#. module: ems
+#: model:ir.model.fields,help:ems.field_ems_convalidation_line__attendance_choice
+msgid ""
+"What the applicant chose when filing the request: attending the subject "
+"until the resolution, or not (they are then not required to attend it, and "
+"the absences count if it is refused)."
+msgstr ""
+"El que va triar el sol·licitant en presentar la sol·licitud: assistir al "
+"mòdul fins a la resolució o no (en aquest cas no hi ha d'assistir, i les "
+"faltes compten si es denega)."

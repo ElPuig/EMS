@@ -73,6 +73,9 @@
                             <setting string="Resolution: appeal" help="Footer of the resolution saying how and before whom it can be appealed. Write it in Catalan. Leave it empty to use the standard text, which names the competent body only in general terms." id="convalidation_appeal">
                                 <field name="convalidation_appeal_text" placeholder="Standard text"/>
                             </setting>
+                            <setting string="Request: attendance notice" help="Shown on the portal when requesting a convalidation: the applicant must accept it, and chooses for each subject whether they will attend it until the resolution. Explain what the centre's rules (NOFC) say about absences if a subject is refused. Write it in each language families read. Leave it empty to use the standard text." id="convalidation_attendance_notice">
+                                <field name="convalidation_attendance_notice" widget="html" placeholder="Standard text"/>
+                            </setting>
                             <setting string="Resolution: signed by delegation" help="The resolution is signed on the Director's behalf: it says so, and shows the name of whoever actually resolved it instead of the Director's." id="convalidation_sign_by_delegation">
                                 <field name="convalidation_sign_by_delegation"/>
                             </setting>

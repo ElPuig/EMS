@@ -15,9 +15,16 @@
 - Reverting it turns those sessions into absences (justified ones stay justified) without emailing the family; the tutor sees them in their daily summary. Registering the withdrawal clears the mark.
 - The student's teachers and tutor are told in their daily summary when it is marked and when it is reverted.
 
+## Convalidation requests: attending the subjects meanwhile or not:
+
+- When requesting a convalidation from the portal, the applicant must accept an attendance notice (configurable in Settings > Convalidations, with a standard text): attendance is compulsory until the resolution, and absences count if a subject is refused. For each subject they choose "I will attend" (default) or "I won't attend".
+- A subject they won't attend leaves them off its roll-calls ("not required to attend: convalidation in process") while the request is open, and their schedule draws it dashed. Its teachers and the tutor are told in their daily summary.
+- If the subject is refused, the request cancelled or the subject removed from it, those sessions become absences (without emailing the family) and the teachers are told; a convalidated subject stays off.
+
 ## Informative notices to staff wait for the daily summary (ems.info_notice):
 
 - New queue of notices that need no action and aren't urgent (ems.info_notice._ems_queue): they are no longer sent on the spot but in the recipient's next daily summary, grouped by the record (usually a student) they are about. Rule recorded in CLAUDE.md for every new notification to staff.
+- The existing notice telling teachers and the tutor that a student's subjects were convalidated now goes this way too.
 
 # Internal changes
 

@@ -65,6 +65,7 @@ from . import test_employee_autocheckout
 from . import test_daily_summary
 from . import test_attendance_not_expected
 from . import test_withdrawal_expected_tour
+from . import test_convalidation_attendance
 from . import test_public_holiday
 from . import test_public_holiday_tour
 from . import test_user_implied_groups

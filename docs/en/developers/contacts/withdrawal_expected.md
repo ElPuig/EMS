@@ -44,9 +44,11 @@ ribbon widget now shrinks long texts like the native one (`o_medium`/`o_small`).
 
 ### `ems.attendance_session_line` (inherited)
 
-`not_expected_reason` (`Selection`): why the system took the student off the roll-call; empty when
-the teacher did, or when the student is on it. Only lines with a reason are restored when the
-reason is undone.
+`not_expected_reason` (`Selection`): why the system took the student off the roll-call
+(`withdrawal`, or `convalidation` with `convalidation_line_id`, see
+[convalidation.md](../grades/convalidation.md#attendance-while-the-request-is-open)); empty when the
+teacher did, or when the student is on it. Only lines with a reason are restored when the reason is
+undone, by `res.partner._ems_restore_not_expected_lines(domain)`, shared by both.
 
 ---
 

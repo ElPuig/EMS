@@ -82,9 +82,14 @@ class EmsWithdrawalExpectedPartner(models.Model):
         groups_by_subject = defaultdict(lambda: self.env['ems.group'])
         for enrollment in enrollments:
             groups_by_subject[enrollment.subject_id] |= enrollment.group_id | enrollment.slot_ids.group_id
+        # A subject asked about with no enrollment (a convalidation completed before the student
+        # was placed): whoever teaches it in their main group.
+        for subject in (subjects or self.env['ems.subject']) - enrollments.subject_id:
+            groups_by_subject[subject] |= student.main_group_id
+        all_groups = self.env['ems.group'].union(*groups_by_subject.values())
         teachings = self.env['ems.teaching'].sudo().search([
-            ('subject_id', 'in', enrollments.subject_id.ids),
-            ('group_id', 'in', enrollments.group_id.ids + enrollments.slot_ids.group_id.ids),
+            ('subject_id', 'in', list({subject.id for subject in groups_by_subject})),
+            ('group_id', 'in', all_groups.ids), ('active', '=', True),
         ])
         staff = defaultdict(lambda: self.env['ems.subject'])
         for teaching in teachings:
@@ -92,7 +97,7 @@ class EmsWithdrawalExpectedPartner(models.Model):
                 staff[teaching.teacher_id.user_id] |= teaching.subject_id
         tutor_user = (student.tutor_id or student.main_group_id.tutor_id).user_id
         if tutor_user:
-            staff[tutor_user] |= enrollments.subject_id
+            staff[tutor_user] |= self.env['ems.subject'].union(*groups_by_subject)
         return dict(staff)
 
     def _ems_queue_staff_notice(self, compose, subjects=None):

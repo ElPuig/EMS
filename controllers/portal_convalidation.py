@@ -2,7 +2,7 @@
 
 import base64
 
-from odoo import http
+from odoo import fields, http
 from odoo.http import request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
@@ -62,6 +62,7 @@ class EmsPortalConvalidationController(CustomerPortal):
             'requestable_subjects': Convalidation._ems_portal_requestable_subjects(student, study)
             if study else request.env['ems.subject'],
             'convalidations': convalidations,
+            'attendance_notice': company._ems_convalidation_attendance_notice(),
             'basis_options': selections['basis']['selection'],
             'origin_options': selections['prior_studies_origin']['selection'],
             'state_labels': dict(selections['state']['selection']),
@@ -110,6 +111,11 @@ class EmsPortalConvalidationController(CustomerPortal):
         if not files and Convalidation._ems_documents_required(basis, origin):
             return request.redirect(f'{self._redirect}?error=no_documents')
 
+        # Issue #644: the attendance notice must be accepted, and each subject says whether the
+        # student will attend it until the resolution.
+        if not post.get('attendance_notice_accepted'):
+            return request.redirect(f'{self._redirect}?error=no_notice')
+
         requester = request.env.user.partner_id
         convalidation = Convalidation.create({
             'student_id': student.id,
@@ -118,7 +124,12 @@ class EmsPortalConvalidationController(CustomerPortal):
             'basis': basis,
             'prior_studies_origin': origin,
             'student_notes': (post.get('student_notes') or '').strip()[:2000] or False,
-            'line_ids': [(0, 0, {'subject_id': subject.id}) for subject in subjects],
+            'attendance_notice_accepted': True,
+            'attendance_notice_date': fields.Datetime.now(),
+            'line_ids': [(0, 0, {
+                'subject_id': subject.id,
+                'attendance_choice': 'not_attend' if post.get(f'attendance_{subject.id}') == 'not_attend' else 'attend',
+            }) for subject in subjects],
         })
         attachments = self._ems_store_uploads(convalidation, files)
         convalidation.attachment_ids = [(6, 0, attachments.ids)]

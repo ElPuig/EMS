@@ -28184,7 +28184,7 @@ msgid ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/> Read and accept the "
 "attendance notice before submitting the request."
 msgstr ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> Llegeix i accepta l'avís "
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Llegiu i accepteu l'avís "
 "sobre l'assistència abans d'enviar la sol·licitud."
 
 #. module: ems
@@ -28220,10 +28220,10 @@ msgid ""
 "assessment (see the centre's organisation and operation rules, NOFC, and the"
 " subject's planning)."
 msgstr ""
-"L'assistència és obligatòria fins que es resolgui la teva sol·licitud. Per a"
-" cada mòdul pots triar no assistir-hi mentrestant, però si no es convalida "
-"aquestes faltes comptaran i podries perdre el dret a l'avaluació contínua "
-"(consulta les normes d'organització i funcionament del centre, NOFC, i la "
+"L'assistència és obligatòria fins que es resolgui la sol·licitud. Per a cada"
+" mòdul podeu triar no assistir-hi mentrestant, però si no es convalida, "
+"aquestes faltes comptaran i podríeu perdre el dret a l'avaluació contínua "
+"(consulteu les normes d'organització i funcionament del centre, NOFC, i la "
 "programació del mòdul)."
 
 #. module: ems

@@ -28188,8 +28188,8 @@ msgid ""
 "<i class=\"fa fa-exclamation-triangle me-1\"/> Read and accept the "
 "attendance notice before submitting the request."
 msgstr ""
-"<i class=\"fa fa-exclamation-triangle me-1\"/> Lee y acepta el aviso sobre "
-"la asistencia antes de enviar la solicitud."
+"<i class=\"fa fa-exclamation-triangle me-1\"/> Leed y aceptad el aviso sobre"
+" la asistencia antes de enviar la solicitud."
 
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
@@ -28224,11 +28224,11 @@ msgid ""
 "assessment (see the centre's organisation and operation rules, NOFC, and the"
 " subject's planning)."
 msgstr ""
-"La asistencia es obligatoria hasta que se resuelva tu solicitud. Para cada "
-"módulo puedes elegir no asistir mientras tanto, pero si no se convalida esas"
-" faltas contarán y podrías perder el derecho a la evaluación continua "
-"(consulta las normas de organización y funcionamiento del centro, NOFC, y la"
-" programación del módulo)."
+"La asistencia es obligatoria hasta que se resuelva la solicitud. Para cada "
+"módulo podéis elegir no asistir mientras tanto, pero si no se convalida, "
+"esas faltas contarán y podríais perder el derecho a la evaluación continua "
+"(consultad las normas de organización y funcionamiento del centro, NOFC, y "
+"la programación del módulo)."
 
 #. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__attendance_choice

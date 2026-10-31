@@ -8,13 +8,15 @@ import publicWidget from "@web/legacy/js/public/public_widget";
  * unless the studies were passed at this centre - the same rule the server enforces
  * (ems.convalidation._ems_documents_required) whatever the browser sends. Every word shown is in
  * the QWeb template, so it is translated there; this only shows, hides and marks as required,
- * including which documents to attach for the chosen grounds.
+ * including which documents to attach for the chosen grounds, and the attendance choice of each
+ * subject marked (issue #644).
  */
 publicWidget.registry.EmsConvalidationRequestForm = publicWidget.Widget.extend({
     selector: ".o_ems_convalidation_new form",
     events: {
         "change select[name='basis']": "_update",
         "change select[name='prior_studies_origin']": "_update",
+        "change input[name='subject_ids']": "_update",
     },
 
     start() {
@@ -33,6 +35,11 @@ publicWidget.registry.EmsConvalidationRequestForm = publicWidget.Widget.extend({
         this.documents.required = required;
         this.el.querySelector(".o_ems_convalidation_documents_required").classList.toggle("d-none", !required);
         this.el.querySelector(".o_ems_convalidation_documents_optional").classList.toggle("d-none", required);
+        // Issue #644: "I will / I won't attend" only for the subjects marked.
+        for (const subject of this.el.querySelectorAll("input[name='subject_ids']")) {
+            const choice = this.el.querySelector(`select[name='attendance_${subject.value}']`);
+            choice?.classList.toggle("d-none", !subject.checked);
+        }
         // Which documents to attach: only the guidance for these grounds (and origin) is shown.
         for (const guidance of this.el.querySelectorAll(".o_ems_convalidation_guidance")) {
             const matches = guidance.dataset.basis === this.basis.value

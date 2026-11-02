@@ -3,7 +3,6 @@
 from datetime import timedelta
 
 from odoo import api, models
-from odoo.osv.expression import OR
 
 
 class EmsPublicHoliday(models.Model):
@@ -54,12 +53,8 @@ class EmsPublicHoliday(models.Model):
         if not employee_dates:
             return
         attendance_model = self.env['hr.attendance'].sudo()
-        technical_attendances = attendance_model.search([
-            ('in_mode', '=', 'technical'),
-        ] + OR([
-            [('employee_id', '=', employee.id), ('check_in', 'in', [day_start for day_start, _day in dates])]
-            for employee, dates in employee_dates.items()
-        ]))
+        technical_attendances = attendance_model._ems_technical_attendances_on({
+            employee: [day_start for day_start, _day in dates] for employee, dates in employee_dates.items()})
         obsolete = attendance_model
         for attendance in technical_attendances:
             employee = attendance.employee_id

@@ -25,12 +25,14 @@ Aquesta secció conté els manuals per a l'**equip Erasmus+**: la coordinació E
 
 | Menú | Hi trobareu |
 |------|-------------|
-| **Convocatòries** | Convocatòries, Sol·licituds, Classificació, Entrevistes, Valoracions de plans, Reclamacions, Resolucions i Ofertes de plaça |
+| **Convocatòries** | Convocatòries, Sol·licituds, Classificació, Reclamacions, Resolucions i Ofertes de plaça |
 | **Mobilitats** | Mobilitats individuals i Mobilitats de grup |
 | **Gestió econòmica** | Projectes, Factures i Pagaments de beques |
 | **Configuració** | Entitats d'acollida |
 
-Cada persona només veu els menús que li toquen: la Secretaria, per exemple, només veu **Gestió econòmica**. Les entrades personals (**Les meves avaluacions**, **Les meves valoracions de plans**, **Les meves mobilitats de grup**) surten directament a la barra, sense desplegable.
+Cada persona només veu els menús que li toquen: la Secretaria, per exemple, només veu **Gestió econòmica**. Les entrades personals (**Les meves avaluacions**, **Les meves valoracions de plans**, **Les meves mobilitats de grup**) surten directament a la barra, sense desplegable, i cadascuna només la veu qui hi té alguna cosa: qui fa entrevistes veu **Les meves avaluacions**, i qui és del tribunal, **Les meves valoracions de plans**.
+
+**Des de la convocatòria:** el formulari de cada convocatòria té un botó per a cada pas del procés (**Sol·licituds**, **Classificació**, **Entrevistes** o **Valoracions de plans**, **Resolucions**, **Reclamacions**, **Ofertes de plaça** i **Mobilitats**), i cadascun mostra només els registres d'aquesta convocatòria. Les entrevistes i les valoracions dels plans del tribunal només s'obren d'aquesta manera.
 
 ---
 

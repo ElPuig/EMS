@@ -613,18 +613,38 @@ class EmsErasmusCall(models.Model):
         self.ensure_one()
         return self.resolution_ids.filtered(lambda resolution: resolution.state == 'published')
 
-    def action_view_mobilities(self):
+    def _ems_call_action(self, xmlid, call_field='call_id'):
+        """An Erasmus+ list action narrowed to this call: the call's form opens each step of its
+        process (the issue-#682 review), instead of a menu entry per step."""
         self.ensure_one()
-        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_mobility')
-        action['domain'] = [('call_id', '=', self.id)]
+        action = self.env['ir.actions.act_window']._for_xml_id(xmlid)
+        action['domain'] = [(call_field, '=', self.id)]
         return action
 
+    def action_view_mobilities(self):
+        return self._ems_call_action('ems.action_erasmus_mobility')
+
     def action_view_applications(self):
-        self.ensure_one()
-        action = self.env['ir.actions.act_window']._for_xml_id('ems.action_erasmus_application')
-        action['domain'] = [('call_id', '=', self.id)]
+        action = self._ems_call_action('ems.action_erasmus_application')
         action['context'] = {'default_call_id': self.id}
         return action
+
+    def action_view_interviews(self):
+        return self._ems_call_action('ems.action_erasmus_interview', 'application_id.call_id')
+
+    def action_view_plan_ratings(self):
+        return self._ems_call_action('ems.action_erasmus_plan_rating', 'application_id.call_id')
+
+    def action_view_claims(self):
+        return self._ems_call_action('ems.action_erasmus_claim')
+
+    def action_view_resolutions(self):
+        action = self._ems_call_action('ems.action_erasmus_resolution')
+        action['context'] = {'default_call_id': self.id}
+        return action
+
+    def action_view_offers(self):
+        return self._ems_call_action('ems.action_erasmus_offer')
 
     def _ems_set_state(self, from_state, to_state):
         self._ems_check_manager()

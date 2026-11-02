@@ -12,7 +12,7 @@ Solicita un job shadowing, un curso estructurado o una estancia de docencia en e
 
 ## 1. Abrir la convocatoria
 
-Ve a **Erasmus+** en el portal del centro (`/my/erasmus`; el equipo Erasmus comparte el enlace cuando se abre la convocatoria). Verás la convocatoria del personal y sus fechas. Haz clic en **Leer la convocatoria** para descargarla y en **Solicitar** para abrir el formulario.
+Ve a **Erasmus+** en el portal del centro (`/my/erasmus`; el equipo Erasmus comparte el enlace cuando se abre la convocatoria). Desde EMS, haz clic en tu nombre, arriba a la derecha, y en **Mi solicitud Erasmus+**: aparece mientras hay una convocatoria a la que te puedes presentar o tienes una solicitud. Verás la convocatoria del personal y sus fechas. Haz clic en **Leer la convocatoria** para descargarla y en **Solicitar** para abrir el formulario.
 
 ## 2. Rellenar el formulario
 
@@ -35,6 +35,8 @@ No puedes enviarla sin la última movilidad y la fecha de incorporación al cent
 
 ## 3. Seguirla
 
+Arriba de la solicitud, una barra con los pasos de la convocatoria (solicitud, revisión, valoración del plan, resolución, plaza, preparación, estancia y regreso) marca dónde está, y un recuadro debajo dice **qué tienes que hacer ahora** y hasta cuándo, o qué estás esperando. En la página Erasmus+, primero salen tus solicitudes y después las convocatorias abiertas ahora; las demás quedan plegadas en **Otras convocatorias**.
+
 En la misma página ves el estado de tu solicitud, las subsanaciones que te pida el equipo Erasmus (si las hay) y, cuando se publiquen, cada resolución con tu posición y los puntos de cada criterio. Las listas publicadas solo muestran cuatro cifras del documento de identidad, nunca nombres.
 
 Si te seleccionan, **acepta o renuncia a la plaza** en el portal antes del plazo: sin respuesta, se considera que renuncias.
@@ -45,7 +47,7 @@ Cuando aceptas la plaza, la página muestra **Tu movilidad** con tu propuesta, r
 
 **Si cambia más adelante:** una vez validada, si cambian el curso, la entidad de acogida o las fechas (por ejemplo, porque ese mes no se ofrece el curso), abre **Cambiar la actividad o las fechas** en **Tu movilidad** antes de que empiece y envía la nueva propuesta. La dirección la vuelve a validar y, mientras tanto, tu movilidad se mantiene tal como se validó. Si la dirección deja un comentario, lo verás en el correo y en el portal.
 
-Una vez validada, la tarjeta muestra los documentos que hay que entregar antes de salir y a la vuelta (tarjeta sanitaria europea, convenio de subvención, acuerdo de aprendizaje (personal de FP, KA121-VET) o acuerdo de movilidad (educación superior, KA131-HED) firmado por ti, por la coordinación Erasmus y por la entidad de acogida, a la vuelta el documento de movilidad Europass (personal de FP, lo emite el equipo Erasmus; el certificado de estancia o de asistencia solo si hace falta para acreditar las fechas o la actividad) o el certificado de estancia o de asistencia (educación superior), una breve memoria con evidencias en el mes siguiente a la vuelta...), quién firma cada uno y su plazo, y los pasos que hay que seguir (reuniones de preparación, actividades preparadas para tus grupos, informe final, noticia en la web y, si hace falta, compartirla en una reunión). El equipo Erasmus sube el convenio de subvención rellenado (descárgalo, fírmalo y súbelo firmado) y tu póliza de seguro (descárgala). Firma los demás documentos fuera de EMS, adjúntalos y haz clic en **Subir los documentos**.
+Una vez validada, la tarjeta se divide en pestañas y se abre en la que tiene algo pendiente: **Resumen** (la actividad, las fechas y la beca), **Mi expediente** (los documentos, con cuántos faltan), **Pasos**, **Durante la estancia** y **A la vuelta**. Ahí encontrarás los documentos que hay que entregar antes de salir y a la vuelta (tarjeta sanitaria europea, convenio de subvención, acuerdo de aprendizaje (personal de FP, KA121-VET) o acuerdo de movilidad (educación superior, KA131-HED) firmado por ti, por la coordinación Erasmus y por la entidad de acogida, a la vuelta el documento de movilidad Europass (personal de FP, lo emite el equipo Erasmus; el certificado de estancia o de asistencia solo si hace falta para acreditar las fechas o la actividad) o el certificado de estancia o de asistencia (educación superior), una breve memoria con evidencias en el mes siguiente a la vuelta...), quién firma cada uno y su plazo, y los pasos que hay que seguir (reuniones de preparación, actividades preparadas para tus grupos, informe final, noticia en la web y, si hace falta, compartirla en una reunión). El equipo Erasmus sube el convenio de subvención rellenado (descárgalo, fírmalo y súbelo firmado) y tu póliza de seguro (descárgala). Firma los demás documentos fuera de EMS, adjúntalos y haz clic en **Subir los documentos**.
 
 ---
 

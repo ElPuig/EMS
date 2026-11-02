@@ -252,6 +252,17 @@ class TestErasmusPlanRating(ErasmusStaffCase):
         self.staff_call.with_user(self.erasmus_user).action_send_to_panel()
         return applications
 
+    def test_the_call_opens_its_panel_ratings_and_the_panel_its_own_menu(self):
+        """The issue-#682 review: the team opens a call's plan ratings from its form; a panel
+        member gets "My plan ratings" only, never the interviewers' "My evaluations"."""
+        first, *_rest = self._sent_to_panel()
+        action = self.staff_call.with_user(self.erasmus_user).action_view_plan_ratings()
+        self.assertEqual(self.env['ems.erasmus.plan_rating'].search(action['domain']),
+                         self.staff_call.application_ids.plan_rating_ids)
+        self.assertIn(first.plan_rating_ids[:1], self.env['ems.erasmus.plan_rating'].search(action['domain']))
+        self.assertTrue(self.panel_teacher.has_group('ems.group_erasmus_panel'))
+        self.assertFalse(self.panel_teacher.has_group('ems.group_erasmus_evaluator'))
+
     def test_every_panel_member_rates_every_plan_and_candidates_abstain(self):
         first, _second, third = self._sent_to_panel()
         ratings = first.sudo().plan_rating_ids
@@ -502,3 +513,12 @@ class TestPortalErasmusStaff(HttpCase):
         self.assertEqual((application.staff_activity, application.support_needs, application.declared_language_level),
                          ('course', 'Test need', 'c2'))
         self.assertEqual(str(application.declared_last_mobility_date), '2024-03-01')
+
+    def test_backend_user_menu_offers_the_portal_page(self):
+        """The issue-#682 review: the backend's session says who has the portal's Erasmus+ page,
+        for the user menu's "My Erasmus+ application"."""
+        self.authenticate(self.staff_users[0].login, self.staff_users[0].login)
+        self.assertTrue(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_portal'])
+        self.authenticate(self.panel_teacher.login, self.panel_teacher.login)
+        self.assertFalse(self.make_jsonrpc_request('/web/session/get_session_info')['ems_erasmus_portal'],
+                         "No employee file that can apply, no application.")

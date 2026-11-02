@@ -130,7 +130,7 @@ The Head of Studies and the Director read the applications; they write nothing o
 
 | Route | What |
 |---|---|
-| `GET /my/erasmus` | Published calls the student can apply to and their own applications. |
+| `GET /my/erasmus` | The person's own applications, the calls open to them now, and the others folded. |
 | `GET /my/erasmus/call/<id>` | The application form for that call. |
 | `POST /my/erasmus/call/<id>/save` | Save answers and uploads; with `submit`, submit too. |
 | `GET /my/erasmus/call/<id>/rules` | Download the call PDF. |
@@ -141,7 +141,23 @@ eligibility and state itself. The portal home card appears only to students who 
 application or can apply to a published call (`res.partner._ems_erasmus_portal_visible`); families
 do not see it. The portal's top menu has an *Erasmus+* entry under the same rule
 (`views/portal/portal_header.xml`, like *Convalidations*), so a student who cannot apply (PFI, CFGB)
-sees neither. The form never asks whether the student took part in Erasmus+ before: *First
+sees neither.
+
+The page lists the person's own applications first (*My applications*), then the calls they can
+apply to now (*Open calls*), and folds the rest (not open yet, or closed) under *Other calls*. Each
+application, on that page and on its own, shows a step bar and a "what to do now" box, both from
+`ems.erasmus.application._ems_portal_progress()`: eight steps (application, document check,
+interview or plan rating, resolution, place, preparation, stay, return), each `done`, `current`,
+`todo` or `failed` (where an excluded, not submitted, not selected or renounced application ended),
+and the next action with its deadline and colour (`warning` when the person has something to do).
+The state badge is coloured by `PORTAL_STATE_BADGES`. The corrections asked for and the interview
+are in that box (its class keeps `o_ems_erasmus_subsanation` / `o_ems_erasmus_interview`). Once the
+application can no longer change, the call's text and the form fold under *The call and my
+application*; of the published results, the newest is open and the earlier ones folded. A defined
+mobility (preparing or closed) is split into tabs (Summary, My record, Steps, During the stay, On
+return), opened on the one with something to do.
+
+The form never asks whether the student took part in Erasmus+ before: *First
 mobility* (criterion E) is the Erasmus team's, checked against the person's history below.
 
 ## Access control
@@ -162,13 +178,26 @@ Menu *Erasmus+*, in sections like the rest of EMS, each shown only to whoever se
 
 | Section | Entries |
 |---|---|
-| *Calls* | Calls, Applications, Ranking, Interviews, Plan ratings, Claims, Resolutions, Place offers |
+| *Calls* | Calls, Applications, Ranking, Claims, Resolutions, Place offers |
 | *Mobilities* | Individual mobilities, Group mobilities |
 | *Financial management* | Projects, Invoices, Grant payments |
 | *Configuration* | Host entities |
 
 The personal entries (*My evaluations*, *My plan ratings*, *My group mobilities*) stay loose at the
 top: a teacher who only scores interviews or leads a group sees just that, with no extra click.
+Each one has its own hidden group, managed by EMS (`res.users._ems_sync_erasmus_evaluator_group`,
+`_ems_sync_erasmus_group_teacher_group`), so nobody sees an entry with nothing in it: an interviewer
+is in `ems.group_erasmus_evaluator`, a panel member with plans to rate in `ems.group_erasmus_panel`.
+
+The call's form opens each step of its own process with a stat button (`ems.erasmus.call.
+_ems_call_action`, an action narrowed to the call): Applications, Ranking, Interviews (students)
+or Plan ratings (staff), Resolutions, Claims, Place offers and Mobilities. Interviews and Plan
+ratings have no menu entry: they are only reached from their call.
+
+A staff member applies on the portal but works in the backend: the user menu has *My Erasmus+
+application* (`static/src/js/backend/user_menu_erasmus.js`), shown when `session_info`'s
+`ems_erasmus_portal` (`models/erasmus/ir_http.py`, `_ems_erasmus_portal_visible` of an internal
+user) is true.
 
 ### Workflow fields and evidence (audit 2026-10-25)
 
@@ -305,7 +334,8 @@ erDiagram
 `ems.erasmus.interview` and the staff's `ems.erasmus.plan_rating` (phase 4) share the evaluator's
 workflow through the abstract model `ems.erasmus.evaluation` (`models/erasmus/evaluation.py`):
 evaluator, state, submit, reopen, lock at the review deadline or the provisional resolution, the
-evaluator's activity, `ems.group_erasmus_evaluator` membership and the write guard (an evaluator
+evaluator's activity, the evaluator group membership (`ems.group_erasmus_evaluator` for an
+interview, `ems.group_erasmus_panel` for a plan rating) and the write guard (an evaluator
 writes only the rubric `_ems_criteria` and their notes). Each model only adds its rubric.
 
 The Erasmus team sets the interview's date and place on the application (`interview_date`,
@@ -330,6 +360,7 @@ stateDiagram-v2
 - **Evaluators see only their own interviews** (record rule `evaluator_id = user`), never the
   other evaluator's, nor anything else of the application. Being assigned adds them to
   `ems.group_erasmus_evaluator` (*Erasmus+ > My evaluations*); losing every interview removes it.
+  The panel's plan ratings use `ems.group_erasmus_panel` the same way (*My plan ratings*).
 - After the call's `interview_deadline` (label *Score correction deadline*, shared with the plan ratings) the evaluator can no longer change or reopen; the team
   can still reopen, writing a rectification note (`rectification_note`), posted in the chatter.
 - The application's interview score is the mean of the submitted interviews, complete when every
@@ -652,14 +683,14 @@ criterion-5 band too), then the draw the coordinator runs (`action_draw_ties`). 
 
 ### Access (phase 4)
 
-| Model | Erasmus team | Head of Studies / Director | Panel member (`ems.group_erasmus_evaluator`) |
+| Model | Erasmus team | Head of Studies / Director | Panel member (`ems.group_erasmus_panel`) |
 |---|---|---|---|
 | `ems.erasmus.call.panel` | rwcu | r | - |
 | `ems.erasmus.plan_rating` | rwcu | - (unless in the panel) | rw own (rubric, notes) |
 | `ems.erasmus.application.merit` | rwcu | r | - |
 | `ems.erasmus.application.document` | rwcu | r, not confidential | r, `panel_visible` lines of the plans they rate |
 
-Menus *Erasmus+ > Calls > Plan ratings* (team) and *My plan ratings* (evaluators).
+The team opens the plan ratings from the call's *Plan ratings* button; the panel, from *Erasmus+ > My plan ratings*.
 
 ## Mobility preparation (phase 5, #687)
 

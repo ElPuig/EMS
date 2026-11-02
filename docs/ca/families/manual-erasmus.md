@@ -14,7 +14,7 @@ Sol·licita unes pràctiques Erasmus+ a l'estranger i segueix la teva sol·licit
 
 Al portal, fes clic a la targeta **Erasmus+** o a **Erasmus+** al menú de dalt. Totes dues només apareixen quan hi ha una convocatòria a la qual pots presentar-te o quan ja hi has presentat una sol·licitud.
 
-Cada convocatòria mostra les dates i un enllaç per **Llegir la convocatòria**. Llegeix-la abans de sol·licitar: hi trobaràs els requisits, els documents i com s'adjudiquen les places.
+Primer surten les teves sol·licituds, a **Les meves sol·licituds**, i després les convocatòries a les quals et pots presentar ara, a **Convocatòries obertes**. Les que encara no s'han obert o ja s'han tancat queden plegades a **Altres convocatòries**. Cada convocatòria mostra les dates i un enllaç per **Llegir la convocatòria**. Llegeix-la abans de sol·licitar: hi trobaràs els requisits, els documents i com s'adjudiquen les places.
 
 Si aquest curs acumules 3 amonestacions o més, no pots presentar-te (article 6 de la convocatòria): en lloc del botó **Sol·licita** hi veuràs un avís. Si creus que és un error, parla amb l'equip Erasmus.
 
@@ -38,15 +38,15 @@ Fins a la data de tancament encara la pots modificar i tornar a enviar: cada veg
 
 ## 4. Si et demanen esmenes
 
-Si falta un document o cal corregir-lo, rebràs un correu amb la llista i el termini. Obre la teva sol·licitud al portal: els documents que cal corregir surten marcats en vermell. Adjunta els fitxers nous i torna a fer clic a **Envia la sol·licitud**. Si no l'esmenes a temps, la sol·licitud quedarà exclosa.
+Si falta un document o cal corregir-lo, rebràs un correu amb la llista i el termini. Obre la teva sol·licitud al portal: el quadre de dalt t'ho indica, amb el termini, i els documents que cal corregir surten marcats en vermell. Adjunta els fitxers nous i torna a fer clic a **Envia la sol·licitud**. Si no l'esmenes a temps, la sol·licitud quedarà exclosa.
 
 ## 5. L'entrevista
 
-Si la teva sol·licitud és admesa, rebràs un correu amb la data i el lloc de l'entrevista personal, com a mínim 24 hores abans. També els veuràs a la teva sol·licitud al portal. Una part de l'entrevista es fa en anglès. Arriba-hi 15 minuts abans: no presentar-s'hi suposa l'exclusió, excepte per causa de força major justificada.
+Si la teva sol·licitud és admesa, rebràs un correu amb la data i el lloc de l'entrevista personal, com a mínim 24 hores abans. També els veuràs a la teva sol·licitud al portal, al quadre de dalt. Una part de l'entrevista es fa en anglès. Arriba-hi 15 minuts abans: no presentar-s'hi suposa l'exclusió, excepte per causa de força major justificada.
 
 ## 6. Els teus resultats
 
-Quan la Comissió Erasmus+ publica una llista (la llista d'admesos, la resolució provisional, la resolució definitiva), reps un correu amb el teu resultat i el veus a la teva sol·licitud al portal, a **Resultats**: la teva posició a la modalitat, la puntuació total i els punts de cada criteri.
+Quan la Comissió Erasmus+ publica una llista (la llista d'admesos, la resolució provisional, la resolució definitiva), reps un correu amb el teu resultat i el veus a la teva sol·licitud al portal, a **Resultats**: la teva posició a la modalitat, la puntuació total i els punts de cada criteri. El resultat més recent surt obert; fes clic al títol d'un d'anterior per veure'l.
 
 Fes clic a **Mostra la llista publicada** per veure la llista sencera. No hi surten noms: cada persona apareix només amb quatre xifres del document d'identitat, per exemple ***4567**. També la pots descarregar en PDF.
 
@@ -69,7 +69,7 @@ Quan acceptes la plaça, la teva sol·licitud mostra **La teva mobilitat**.
 
 **Una destinació pròpia.** També pots buscar pel teu compte una empresa o entitat d'un altre país Erasmus+. Obre **Proposa la meva pròpia destinació**, omple l'entitat, la persona de contacte, el país, la ciutat i les dates, adjunta el seu **compromís per escrit** d'acollir-te i fes clic a **Envia la proposta**. L'entitat també ha d'escriure a erasmus@elpuig.xeill.net. L'equip Erasmus la valida; si no, rebràs el motiu i podràs triar entre les destinacions del centre.
 
-**Documents i passos.** Quan tens destinació, la targeta mostra el lloc, l'entitat d'acollida i les dates, i també:
+**Documents i passos.** Quan tens destinació, la targeta es divideix en pestanyes i s'obre a la que té alguna cosa pendent: **Resum** (el lloc, l'entitat d'acollida, les dates i la beca), **El meu expedient** (la carta de compromís i els documents, amb un número que indica quants en falten), **Passos** i, més endavant, **Durant l'estada** i **En tornar**. Hi trobaràs:
 
 - Els **documents** que cal lliurar abans de marxar i en tornar, qui ha de **signar** cadascun i el seu termini. El document d'identitat, el compte bancari i les dades personals ja són a l'EMS. Puja la targeta sanitària europea (per les dues cares) tan bon punt la tinguis i, si ets menor, l'autorització de la teva família i l'autorització de sortida a l'estranger tramitada amb els Mossos d'Esquadra: dins del mes següent a tenir la destinació, i en el mateix termini el certificat de l'OLS amb el teu nivell d'anglès. Si et correspon, la documentació d'inclusió (menys oportunitats, beques, necessitats especials): només la veu l'equip Erasmus. En una estada d'educació superior (GS) de 30 dies o menys, també el **component virtual**: un PDF amb la teva preparació, que pots pujar des d'un mes abans de marxar fins al dia abans (informació sobre la ciutat, com aniràs a l'empresa i quant costa el transport, i els exercicis sobre les tecnologies i les tasques de l'empresa d'acollida). El conveni de subvenció i l'acord d'aprenentatge els puja emplenats l'equip Erasmus: descarrega'ls, signa'ls i puja'ls signats (idealment tres mesos abans de marxar, com a màxim un mes abans). L'equip Erasmus també puja la teva pòlissa d'assegurança, perquè la descarreguis, i el certificat d'estada: descarrega'l, fes-lo signar al teu tutor a l'empresa d'acollida en acabar l'estada i puja'l signat dins del mes següent a la tornada. Mentre falti alguna cosa, rebràs un recordatori cada setmana. Signa els documents fora de l'EMS, adjunta la còpia signada i fes clic a **Puja els documents**. Si l'equip Erasmus et demana un canvi, en veuràs el comentari en vermell. Al costat de qui signa cada document veuràs si l'equip Erasmus ja ha comprovat cada signatura (marca verda) o encara no.
 - La **carta de compromís** (annex 3 de la convocatòria): llegeix-la al portal, marca que l'acceptes i fes clic a **Accepta i signa**. L'EMS la guarda signada. Si ets menor, també la signa la teva família: rep un correu i la signa des del seu propi accés al portal, a **Erasmus+**.
@@ -85,7 +85,9 @@ Si et titules aquest curs i fas la mobilitat a l'estiu, mantens l'accés al port
 
 ## 9. Seguir la sol·licitud
 
-La pàgina Erasmus+ mostra l'estat de la teva sol·licitud: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa*, *Exclosa*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaça acceptada* o *Renúncia*, i l'estat de la mobilitat: *Definint la mobilitat*, *En preparació*, *Tancada* o *Cancel·lada*.
+A dalt de la sol·licitud, una barra amb els passos de la convocatòria mostra on és: sol·licitud, revisió, entrevista, resolució, plaça, preparació, estada i retorn. Els passos fets surten marcats, l'actual, destacat i, si la sol·licitud s'ha acabat en un pas (per exemple, si ha quedat exclosa), aquest pas surt amb una creu. A sota, un quadre diu **què has de fer ara** i fins quan (en groc), o què estàs esperant. Quan la sol·licitud ja no es pot canviar, el text de la convocatòria i la sol·licitud tal com la vas enviar queden plegats a **La convocatòria i la meva sol·licitud**, al final.
+
+La pàgina Erasmus+ mostra l'estat de la teva sol·licitud, en color: *Esborrany*, *Enviat*, *Esmena requerida*, *Admesa*, *Exclosa*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaça acceptada* o *Renúncia*, i l'estat de la mobilitat: *Definint la mobilitat*, *En preparació*, *Tancada* o *Cancel·lada*.
 
 Per a qualsevol dubte, escriu a la coordinació Erasmus: **erasmus@elpuig.xeill.net**.
 

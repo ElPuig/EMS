@@ -14,7 +14,7 @@ Solicita unas prácticas Erasmus+ en el extranjero y sigue tu solicitud desde el
 
 En el portal, haz clic en la tarjeta **Erasmus+** o en **Erasmus+** en el menú de arriba. Las dos solo aparecen cuando hay una convocatoria a la que puedes presentarte o cuando ya has presentado una solicitud.
 
-Cada convocatoria muestra las fechas y un enlace para **Leer la convocatoria**. Léela antes de solicitar: encontrarás los requisitos, los documentos y cómo se adjudican las plazas.
+Primero salen tus solicitudes, en **Mis solicitudes**, y después las convocatorias a las que te puedes presentar ahora, en **Convocatorias abiertas**. Las que aún no se han abierto o ya se han cerrado quedan plegadas en **Otras convocatorias**. Cada convocatoria muestra las fechas y un enlace para **Leer la convocatoria**. Léela antes de solicitar: encontrarás los requisitos, los documentos y cómo se adjudican las plazas.
 
 Si este curso acumulas 3 amonestaciones o más, no puedes presentarte (artículo 6 de la convocatoria): en lugar del botón **Solicitar** verás un aviso. Si crees que es un error, habla con el equipo Erasmus.
 
@@ -38,15 +38,15 @@ Hasta la fecha de cierre todavía puedes modificarla y volver a enviarla: cada v
 
 ## 4. Si te piden subsanaciones
 
-Si falta un documento o hay que corregirlo, recibirás un correo con la lista y el plazo. Abre tu solicitud en el portal: los documentos que hay que corregir aparecen marcados en rojo. Adjunta los archivos nuevos y vuelve a hacer clic en **Enviar la solicitud**. Si no la subsanas a tiempo, la solicitud quedará excluida.
+Si falta un documento o hay que corregirlo, recibirás un correo con la lista y el plazo. Abre tu solicitud en el portal: el recuadro de arriba te lo indica, con el plazo, y los documentos que hay que corregir aparecen marcados en rojo. Adjunta los archivos nuevos y vuelve a hacer clic en **Enviar la solicitud**. Si no la subsanas a tiempo, la solicitud quedará excluida.
 
 ## 5. La entrevista
 
-Si tu solicitud es admitida, recibirás un correo con la fecha y el lugar de la entrevista personal, como mínimo 24 horas antes. También los verás en tu solicitud en el portal. Una parte de la entrevista es en inglés. Llega 15 minutos antes: no presentarse supone la exclusión, salvo por causa de fuerza mayor justificada.
+Si tu solicitud es admitida, recibirás un correo con la fecha y el lugar de la entrevista personal, como mínimo 24 horas antes. También los verás en tu solicitud en el portal, en el recuadro de arriba. Una parte de la entrevista es en inglés. Llega 15 minutos antes: no presentarse supone la exclusión, salvo por causa de fuerza mayor justificada.
 
 ## 6. Tus resultados
 
-Cuando la Comisión Erasmus+ publica una lista (la lista de admitidos, la resolución provisional, la resolución definitiva), recibes un correo con tu resultado y lo ves en tu solicitud en el portal, en **Resultados**: tu posición en tu modalidad, tu puntuación total y los puntos de cada criterio.
+Cuando la Comisión Erasmus+ publica una lista (la lista de admitidos, la resolución provisional, la resolución definitiva), recibes un correo con tu resultado y lo ves en tu solicitud en el portal, en **Resultados**: tu posición en tu modalidad, tu puntuación total y los puntos de cada criterio. El resultado más reciente sale abierto; haz clic en el título de uno anterior para verlo.
 
 Haz clic en **Ver la lista publicada** para ver la lista completa. No aparecen nombres: cada persona aparece solo con cuatro cifras de su documento de identidad, por ejemplo ***4567**. También puedes descargarla en PDF.
 
@@ -69,7 +69,7 @@ Cuando aceptas la plaza, tu solicitud muestra **Tu movilidad**.
 
 **Un destino propio.** También puedes buscar por tu cuenta una empresa o entidad de otro país Erasmus+. Abre **Proponer mi propio destino**, rellena la entidad, la persona de contacto, el país, la ciudad y las fechas, adjunta su **compromiso por escrito** de acogerte y haz clic en **Enviar la propuesta**. La entidad también tiene que escribir a erasmus@elpuig.xeill.net. El equipo Erasmus la valida; si no, recibirás el motivo y podrás elegir entre los destinos del centro.
 
-**Documentos y pasos.** Cuando tienes destino, la tarjeta muestra el lugar, la entidad de acogida y las fechas, y también:
+**Documentos y pasos.** Cuando tienes destino, la tarjeta se divide en pestañas y se abre en la que tiene algo pendiente: **Resumen** (el lugar, la entidad de acogida, las fechas y la beca), **Mi expediente** (la carta de compromiso y los documentos, con un número que indica cuántos faltan), **Pasos** y, más adelante, **Durante la estancia** y **A la vuelta**. Ahí encontrarás:
 
 - Los **documentos** que hay que entregar antes de salir y a la vuelta, quién tiene que **firmar** cada uno y su plazo. El documento de identidad, la cuenta bancaria y los datos personales ya están en EMS. Sube la tarjeta sanitaria europea (por las dos caras) en cuanto la tengas y, si eres menor, la autorización de tu familia y la autorización de salida al extranjero tramitada con los Mossos d'Esquadra: dentro del mes siguiente a tener el destino, y en el mismo plazo el certificado del OLS con tu nivel de inglés. Si te corresponde, la documentación de inclusión (menos oportunidades, becas, necesidades especiales): solo la ve el equipo Erasmus. En una estancia de educación superior (GS) de 30 días o menos, también el **componente virtual**: un PDF con tu preparación, que puedes subir desde un mes antes de salir hasta el día antes (información sobre la ciudad, cómo irás a la empresa y cuánto cuesta el transporte, y los ejercicios sobre las tecnologías y las tareas de la empresa de acogida). El convenio de subvención y el acuerdo de aprendizaje los sube rellenados el equipo Erasmus: descárgalos, fírmalos y súbelos firmados (idealmente tres meses antes de salir, como máximo un mes antes). El equipo Erasmus también sube tu póliza de seguro, para que la descargues, y el certificado de estancia: descárgalo, haz que lo firme tu tutor en la empresa de acogida al final de la estancia y súbelo firmado dentro del mes siguiente a la vuelta. Mientras falte algo, recibirás un recordatorio cada semana. Firma los documentos fuera de EMS, adjunta la copia firmada y haz clic en **Subir los documentos**. Si el equipo Erasmus te pide un cambio, verás su comentario en rojo. Junto a quién firma cada documento verás si el equipo Erasmus ya ha comprobado cada firma (marca verde) o aún no.
 - La **carta de compromiso** (anexo 3 de la convocatoria): léela en el portal, marca que la aceptas y haz clic en **Aceptar y firmar**. EMS la guarda firmada. Si eres menor, también la firma tu familia: recibe un correo y la firma desde su propio acceso al portal, en **Erasmus+**.
@@ -85,7 +85,9 @@ Si te titulas este curso y haces la movilidad en verano, mantienes el acceso al 
 
 ## 9. Seguir la solicitud
 
-La página Erasmus+ muestra el estado de tu solicitud: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*, y el estado de la movilidad: *Definiendo la movilidad*, *En preparación*, *Cerrada* o *Cancelada*.
+Arriba de la solicitud, una barra con los pasos de la convocatoria muestra dónde está: solicitud, revisión, entrevista, resolución, plaza, preparación, estancia y regreso. Los pasos hechos salen marcados, el actual, destacado y, si la solicitud terminó en un paso (por ejemplo, si quedó excluida), ese paso sale con una cruz. Debajo, un recuadro dice **qué tienes que hacer ahora** y hasta cuándo (en amarillo), o qué estás esperando. Cuando la solicitud ya no se puede cambiar, el texto de la convocatoria y la solicitud tal como la enviaste quedan plegados en **La convocatoria y mi solicitud**, al final.
+
+La página Erasmus+ muestra el estado de tu solicitud, en color: *Borrador*, *Enviado*, *Subsanación requerida*, *Admitida*, *Excluida*, *Seleccionada*, *Reserva*, *No seleccionada*, *Plaza aceptada* o *Renuncia*, y el estado de la movilidad: *Definiendo la movilidad*, *En preparación*, *Cerrada* o *Cancelada*.
 
 Para cualquier duda, escribe a la coordinación Erasmus: **erasmus@elpuig.xeill.net**.
 

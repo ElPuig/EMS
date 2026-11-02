@@ -7,7 +7,7 @@ from odoo.exceptions import UserError
 from odoo.http import content_disposition, request
 from odoo.addons.portal.controllers.portal import CustomerPortal
 
-from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS
+from odoo.addons.ems.models.erasmus.application import ANSWER_FIELDS, PORTAL_STATE_BADGES
 from odoo.addons.ems.models.erasmus.mobility import PROPOSAL_FIELDS
 
 BOOLEAN_ANSWERS = ('fewer_opportunities', 'image_consent', 'declared_never_staff_mobility')
@@ -39,10 +39,18 @@ class EmsPortalErasmusController(CustomerPortal):
             return request.redirect('/my/home')
         applications = partner._ems_erasmus_applications()
         calls = partner._ems_erasmus_calls() | applications.call_id
+        # The issue-#682 review: the person's own applications first, then the calls they can apply
+        # to now, and the rest (not open yet, or closed) folded away at the end.
+        open_calls = calls.filtered(lambda call: call.is_accepting) - applications.call_id
         values = self._prepare_portal_layout_values()
         values.update({
             'page_name': 'erasmus',
             'calls': calls,
+            'my_calls': applications.call_id,
+            'open_calls': open_calls,
+            'other_calls': calls - applications.call_id - open_calls,
+            'progress': {application.call_id: application._ems_portal_progress() for application in applications},
+            'state_badges': PORTAL_STATE_BADGES,
             # Students' call art. 6: too many conduct warnings this course rule the student out.
             'blocked': calls.filtered(lambda call: call._ems_conduct_blocked(partner)),
             'applications': {application.call_id: application for application in applications},
@@ -96,6 +104,8 @@ class EmsPortalErasmusController(CustomerPortal):
                 request.env)),
             'state_labels': dict(request.env['ems.erasmus.application']._fields['state']._description_selection(
                 request.env)),
+            'state_badges': PORTAL_STATE_BADGES,
+            'progress': application._ems_portal_progress() if application else None,
             'tz': request.env['ems.datetime_utils'].company_tz_name(),
             'error': kwargs.get('error'),
             'saved': kwargs.get('saved'),

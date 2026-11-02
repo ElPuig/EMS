@@ -158,11 +158,24 @@ registry.category("web_tour.tours").add("ems_erasmus_portal_choose", {
             content: "The mobility is in preparation",
         },
         {
-            trigger: ".o_ems_erasmus_mobility_documents .o_ems_erasmus_mobility_document",
-            content: "The documents to hand in are listed",
+            trigger: ".o_ems_erasmus_next.o_ems_erasmus_next_warning",
+            content: "The box on top says what to do now",
         },
         {
-            trigger: ".o_ems_erasmus_mobility_tasks li",
+            trigger: ".o_ems_erasmus_steps .o_ems_erasmus_step_current",
+            content: "The step bar shows where the application is",
+        },
+        {
+            trigger: ".o_ems_erasmus_tab_record.active .o_ems_erasmus_mobility_documents .o_ems_erasmus_mobility_document",
+            content: "The preparation opens on the record, with the documents to hand in",
+        },
+        {
+            trigger: ".o_ems_erasmus_tab_button_steps",
+            content: "Open the steps tab",
+            run: "click",
+        },
+        {
+            trigger: ".o_ems_erasmus_tab_steps.active .o_ems_erasmus_mobility_tasks li",
             content: "And the steps to follow",
         },
     ],

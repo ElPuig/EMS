@@ -229,7 +229,8 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
         with self.assertRaises(AccessError, msg="Nor scores someone else's rating."):
             ratings.filtered(lambda rating: rating.evaluator_id == self.hos)[:1].with_user(self.chief_a).write(
                 {'relevance': '1'})
-        self.assertTrue(self.chief_a.has_group('ems.group_erasmus_evaluator'))
+        self.assertTrue(self.chief_a.has_group('ems.group_erasmus_panel'))
+        self.assertFalse(self.chief_a.has_group('ems.group_erasmus_evaluator'), "No interview to score.")
         for name, (rating, *_rest) in TEACHERS.items():
             self._rate(apps[name], *rating)
         self.assertEqual(apps['best'].plan_score, 2.0)
@@ -366,6 +367,6 @@ class TestErasmusStaffCallEndToEnd(TransactionCase):
             team.document_ids.filtered('attachment_ids').action_mark_valid()
             team.action_admit()
         call.with_user(self.technician).action_send_to_panel()
-        self.assertFalse(self.users['chief'].has_group('ems.group_erasmus_evaluator'), "Nothing to rate.")
+        self.assertFalse(self.users['chief'].has_group('ems.group_erasmus_panel'), "Nothing to rate.")
         self._rate(apps['best'], '1', '0.5')
         self.assertEqual((apps['best'].plan_score, apps['best'].plan_complete), (1.5, True))

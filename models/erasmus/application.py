@@ -2,7 +2,7 @@
 
 import base64
 import io
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 import xlsxwriter
 from pytz import UTC
@@ -29,6 +29,12 @@ STAMPED_FIELDS = ('requirements_check', 'language_level', 'fewer_opportunities_c
 SUBMITTED_STATES = ('submitted', 'subsanation', 'admitted', 'excluded')
 # Application states that compete in the ranking (issue #685): admitted, and the results after it.
 RANKED_STATES = ('admitted', 'selected', 'reserve', 'not_selected', 'accepted', 'renounced')
+# The colour of each state's badge on the portal (the issue-#682 review).
+PORTAL_STATE_BADGES = {
+    'draft': 'secondary', 'submitted': 'info', 'subsanation': 'warning', 'admitted': 'info', 'excluded': 'danger',
+    'not_submitted': 'danger', 'selected': 'success', 'reserve': 'warning', 'not_selected': 'secondary',
+    'accepted': 'success', 'renounced': 'secondary',
+}
 # The criteria and total a resolution freezes on its lines.
 SCORE_FIELDS = ('score_a', 'score_b', 'score_c', 'score_d', 'score_e', 'score_f', 'score_total')
 # Issue #686: the staff call's criteria (art. 11), frozen too.
@@ -823,6 +829,116 @@ class EmsErasmusApplication(models.Model):
         self.ensure_one()
         deadline = self.call_id.subsanation_deadline
         return self.state == 'subsanation' and not (deadline and deadline <= self.call_id._ems_now())
+
+    def _ems_portal_progress(self):
+        """The issue-#682 review: where the applicant is in the call's process, for the portal's
+        step bar, and what they have to do now (or what they are waiting for), with its deadline.
+        Returns {'steps': [(label, status)], 'next': {'text', 'deadline', 'is_date', 'level', 'key'}}, a
+        status being 'done', 'current', 'todo' or 'failed', the deadline a datetime, a date or False,
+        and the level the colour of its box (warning: something to do)."""
+        self.ensure_one()
+        call, state = self.call_id, self.state
+        mobility = self.mobility_ids[:1]
+        today = self.env['ems.datetime_utils'].get_local_today()
+        labels = [_("Application"), _("Document check"), _("Plan rating") if call.audience == 'staff' else _("Interview"),
+                  _("Resolution"), _("Your place"), _("Preparation"), _("Mobility stay"), _("After the stay")]
+        provisional = 'provisional' in call._ems_published_resolutions().mapped('kind')
+        failed = False
+        if state == 'draft':
+            current = 0
+            nxt = ((_("Complete your application and submit it."), call.date_close, 'warning') if call.is_accepting
+                   else (_("The call is not accepting applications."), False, 'secondary'))
+        elif state == 'not_submitted':
+            current, failed = 0, True
+            nxt = (_("The application was not submitted in time."), False, 'secondary')
+        elif state == 'submitted':
+            current = 1
+            nxt = (_("The Erasmus team is reviewing your application."), False, 'info')
+        elif state == 'subsanation':
+            current = 1
+            nxt = (_("Correct the documents marked below."), call.subsanation_deadline, 'warning')
+        elif state == 'excluded':
+            current, failed = 1, True
+            nxt = (_("Your application has been excluded: the reason is in the results below."), False, 'secondary')
+        elif state == 'admitted' and provisional:
+            current = 3
+            nxt = ((_("Check your provisional result. If you disagree, you can claim."), call.claims_deadline, 'warning')
+                   if call.claims_deadline and call.claims_deadline > call._ems_now()
+                   else (_("Waiting for the definitive resolution."), False, 'info'))
+        elif state == 'admitted':
+            current = 2
+            if call.audience == 'staff':
+                nxt = (_("The panel is rating your mobility plan."), False, 'info')
+            elif self.interview_call_date:
+                nxt = (_("Come to your interview%(place)s. Part of it is in English: please arrive 15 minutes "
+                         "early.", place=f" ({self.interview_place})" if self.interview_place else ""),
+                       self.interview_date, 'warning')
+            else:
+                nxt = (_("You will receive an email with the day of your interview."), False, 'info')
+        elif state in ('selected', 'reserve'):
+            current = 4
+            offer = self.offer_ids.filtered(lambda offer: offer.state == 'pending')[:1]
+            if offer:
+                nxt = (_("A place is offered to you: accept it or renounce it."), offer.deadline, 'warning')
+            elif state == 'reserve':
+                nxt = (_("You are on the reserve list: you will receive an email if a place becomes free."), False,
+                       'info')
+            else:
+                nxt = (_("Waiting for the place to be offered to you."), False, 'info')
+        elif state == 'not_selected':
+            current, failed = 3, True
+            nxt = (_("You have not been selected in this call."), False, 'secondary')
+        elif state == 'renounced' or mobility.state == 'cancelled':
+            current, failed = 4 if state == 'renounced' else 5, True
+            nxt = (_("You have renounced the place."), False, 'secondary')
+        elif not mobility or mobility.state == 'choosing':
+            current = 5
+            nxt = self._ems_portal_choosing_next(mobility)
+        elif mobility.state == 'done':
+            current = len(labels)
+            nxt = (_("Your mobility is closed. Thank you for taking part!"), False, 'success')
+        elif mobility.date_end and mobility.date_end < today:
+            current = 7
+            nxt = ((_("Answer the EU Survey and tell us here."), mobility.eu_survey_deadline, 'warning')
+                   if mobility.eu_survey_state == 'pending'
+                   else (_("The Erasmus team will close your mobility once your record is complete."), False, 'info'))
+        elif mobility.date_start and mobility.date_start <= today:
+            current = 6
+            nxt = ((_("Fill in this week's self-assessment."), False, 'warning') if mobility._ems_self_assessments_open()
+                   else (_("Enjoy your stay!"), False, 'success'))
+        else:
+            current = 5
+            nxt = self._ems_portal_preparing_next(mobility)
+        steps = [(label, 'done' if index < current else ('failed' if failed else 'current') if index == current
+                  else 'todo') for index, label in enumerate(labels)]
+        text, deadline, level = nxt
+        # The two moments with their own box before this review keep its class.
+        key = 'subsanation' if state == 'subsanation' else 'interview' if current == 2 and self.interview_call_date \
+            and call.audience == 'student' else ''
+        return {'steps': steps, 'next': {'text': text, 'deadline': deadline, 'level': level, 'key': key,
+                                         'is_date': bool(deadline) and not isinstance(deadline, datetime)}}
+
+    def _ems_portal_choosing_next(self, mobility):
+        """What the applicant does while their mobility is being defined (destination or proposal)."""
+        if mobility.proposal_state == 'pending':
+            return (_("Your proposal is waiting for validation."), False, 'info')
+        if mobility.audience == 'staff':
+            return (_("Complete your proposal with the exact dates and send it."), False, 'warning')
+        if mobility.turn_deadline or mobility.free_choice:
+            return (_("It is your turn: choose your destination."), mobility.turn_deadline, 'warning')
+        return (_("You will receive an email when it is your turn to choose your destination."), False, 'info')
+
+    def _ems_portal_preparing_next(self, mobility):
+        """What the participant does before leaving: the commitment letter, then the missing documents."""
+        if mobility.commitment_pending:
+            return (_("Accept and sign your commitment letter."), False, 'warning')
+        missing = mobility.document_ids.filtered(
+            lambda line: line.is_required and line.file_state in ('missing', 'needs_change'))
+        if missing:
+            deadlines = [line.deadline for line in missing if line.deadline]
+            return (_("Upload the documents still missing from your record (%s).", len(missing)),
+                    min(deadlines) if deadlines else False, 'warning')
+        return (_("Your record is up to date. Get ready for your stay!"), mobility.date_start, 'success')
 
     def _ems_portal_correctable(self):
         """The document lines the applicant can still upload to during subsanation: those the

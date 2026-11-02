@@ -12,7 +12,7 @@ Sol·licita un job shadowing, un curs estructurat o una estada de docència a l'
 
 ## 1. Obrir la convocatòria
 
-Ves a **Erasmus+** al portal del centre (`/my/erasmus`; l'equip Erasmus en comparteix l'enllaç quan s'obre la convocatòria). Hi veus la convocatòria del personal i les dates. Fes clic a **Llegeix la convocatòria** per descarregar-la i a **Sol·licita** per obrir el formulari.
+Ves a **Erasmus+** al portal del centre (`/my/erasmus`; l'equip Erasmus en comparteix l'enllaç quan s'obre la convocatòria). Des de l'EMS, fes clic al teu nom, a dalt a la dreta, i a **La meva sol·licitud Erasmus+**: hi surt mentre hi ha una convocatòria a la qual et pots presentar o tens una sol·licitud. Hi veus la convocatòria del personal i les dates. Fes clic a **Llegeix la convocatòria** per descarregar-la i a **Sol·licita** per obrir el formulari.
 
 ## 2. Omplir el formulari
 
@@ -35,6 +35,8 @@ No la pots enviar sense l'última mobilitat i la data d'incorporació al centre.
 
 ## 3. Seguir-la
 
+A dalt de la sol·licitud, una barra amb els passos de la convocatòria (sol·licitud, revisió, valoració del pla, resolució, plaça, preparació, estada i retorn) marca on és, i un quadre a sota diu **què has de fer ara** i fins quan, o què estàs esperant. A la pàgina Erasmus+, primer surten les teves sol·licituds i després les convocatòries obertes ara; les altres queden plegades a **Altres convocatòries**.
+
 A la mateixa pàgina hi veus l'estat de la sol·licitud, les esmenes que et demani l'equip Erasmus (si n'hi ha) i, quan es publiquin, cada resolució amb la teva posició i els punts de cada criteri. Les llistes publicades només mostren quatre xifres del document d'identitat, mai noms.
 
 Si et seleccionen, **accepta o renuncia a la plaça** al portal abans del termini: sense resposta, es considera que hi renuncies.
@@ -45,7 +47,7 @@ Quan acceptes la plaça, la pàgina mostra **La teva mobilitat** amb la teva pro
 
 **Si canvia més endavant:** un cop validada, si canvien el curs, l'entitat d'acollida o les dates (per exemple, perquè aquell mes no s'ofereix el curs), obre **Canvia l'activitat o les dates** a **La teva mobilitat** abans que comenci i envia la nova proposta. La direcció la torna a validar i, mentrestant, la teva mobilitat es manté tal com es va validar. Si la direcció hi deixa un comentari, el veuràs al correu i al portal.
 
-Un cop validada, la targeta mostra els documents que cal lliurar abans de marxar i en tornar (targeta sanitària europea, conveni de subvenció, acord d'aprenentatge (personal d'FP, KA121-VET) o acord de mobilitat (educació superior, KA131-HED) signat per tu, per la coordinació Erasmus i per l'entitat d'acollida, en tornar el document de mobilitat Europass (personal d'FP, l'emet l'equip Erasmus; el certificat d'estada o d'assistència només si cal per acreditar les dates o l'activitat) o el certificat d'estada o d'assistència (educació superior), una breu memòria amb evidències en el mes següent al retorn...), qui signa cadascun i el seu termini, i els passos que cal seguir (reunions de preparació, activitats preparades per als teus grups, informe final, notícia al web i, si cal, compartir-la en una reunió). L'equip Erasmus puja el conveni de subvenció emplenat (descarrega'l, signa'l i puja'l signat) i la teva pòlissa d'assegurança (descarrega-la). Signa els altres documents fora de l'EMS, adjunta'ls i fes clic a **Puja els documents**.
+Un cop validada, la targeta es divideix en pestanyes i s'obre a la que té alguna cosa pendent: **Resum** (l'activitat, les dates i la beca), **El meu expedient** (els documents, amb quants en falten), **Passos**, **Durant l'estada** i **En tornar**. Hi trobaràs els documents que cal lliurar abans de marxar i en tornar (targeta sanitària europea, conveni de subvenció, acord d'aprenentatge (personal d'FP, KA121-VET) o acord de mobilitat (educació superior, KA131-HED) signat per tu, per la coordinació Erasmus i per l'entitat d'acollida, en tornar el document de mobilitat Europass (personal d'FP, l'emet l'equip Erasmus; el certificat d'estada o d'assistència només si cal per acreditar les dates o l'activitat) o el certificat d'estada o d'assistència (educació superior), una breu memòria amb evidències en el mes següent al retorn...), qui signa cadascun i el seu termini, i els passos que cal seguir (reunions de preparació, activitats preparades per als teus grups, informe final, notícia al web i, si cal, compartir-la en una reunió). L'equip Erasmus puja el conveni de subvenció emplenat (descarrega'l, signa'l i puja'l signat) i la teva pòlissa d'assegurança (descarrega-la). Signa els altres documents fora de l'EMS, adjunta'ls i fes clic a **Puja els documents**.
 
 ---
 

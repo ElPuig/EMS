@@ -13,7 +13,7 @@ class EmsErasmusEvaluation(models.AbstractModel):
     one evaluator scores a rubric (`_ems_criteria`), submits it, and can reopen it until the
     call's review deadline or the provisional resolution; afterwards only the Erasmus team
     reopens it, with a rectification note. Whoever has one assigned is in
-    ems.group_erasmus_evaluator (*Erasmus+ > My evaluations*)."""
+    ems.group_erasmus_evaluator (an interview) or ems.group_erasmus_panel (a plan rating)."""
     _name = 'ems.erasmus.evaluation'
     _description = 'Erasmus+ evaluation'
     _inherit = ['ems.base']
@@ -152,11 +152,12 @@ class ResUsers(models.Model):
     _inherit = 'res.users'
 
     def _ems_sync_erasmus_evaluator_group(self):
-        """*Erasmus+ > My evaluations* is for whoever has an interview (issue #684) or a mobility
-        plan (issue #686) to rate."""
-        group = self.env.ref('ems.group_erasmus_evaluator')
-        assigned = self.env['res.users']
-        for model in ('ems.erasmus.interview', 'ems.erasmus.plan_rating'):
-            assigned |= self.env[model].sudo().search([('evaluator_id', 'in', self.ids)]).evaluator_id
-        (self & (assigned - group.users)).sudo().write({'groups_id': [(4, group.id)]})
-        ((self - assigned) & group.users).sudo().write({'groups_id': [(3, group.id)]})
+        """*Erasmus+ > My evaluations* is for whoever has an interview to score (issue #684), and
+        *Erasmus+ > My plan ratings* for whoever has a staff mobility plan to rate (issue #686): two
+        groups, so nobody sees an entry with nothing in it."""
+        for model, xmlid in (('ems.erasmus.interview', 'ems.group_erasmus_evaluator'),
+                             ('ems.erasmus.plan_rating', 'ems.group_erasmus_panel')):
+            group = self.env.ref(xmlid)
+            assigned = self.env[model].sudo().search([('evaluator_id', 'in', self.ids)]).evaluator_id
+            (self & (assigned - group.users)).sudo().write({'groups_id': [(4, group.id)]})
+            ((self - assigned) & group.users).sudo().write({'groups_id': [(3, group.id)]})

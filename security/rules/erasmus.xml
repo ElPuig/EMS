@@ -54,14 +54,14 @@
         <record id="rule_erasmus_plan_rating_evaluator" model="ir.rule">
             <field name="name">Erasmus plan rating: own (panel member)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_plan_rating"/>
-            <field name="groups" eval="[(4, ref('ems.group_erasmus_evaluator'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_panel'))]"/>
             <field name="domain_force">[('evaluator_id', '=', user.id)]</field>
         </record>
 
         <record id="rule_erasmus_application_document_panel" model="ir.rule">
             <field name="name">Erasmus application document: mobility plan to rate (panel member)</field>
             <field name="model_id" ref="ems.model_ems_erasmus_application_document"/>
-            <field name="groups" eval="[(4, ref('ems.group_erasmus_evaluator'))]"/>
+            <field name="groups" eval="[(4, ref('ems.group_erasmus_panel'))]"/>
             <field name="domain_force">[('call_document_id.panel_visible', '=', True), ('confidential', '=', False),
                                         ('application_id.plan_rating_ids.evaluator_id', '=', user.id)]</field>
         </record>

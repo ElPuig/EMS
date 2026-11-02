@@ -14,7 +14,7 @@ Apply for an Erasmus+ internship abroad and follow your application from the stu
 
 In the portal, click the **Erasmus+** card, or **Erasmus+** in the top menu. Both only appear when there is a call you can apply to, or when you have already applied.
 
-Each call shows its dates and a link to **Read the call**. Read it before applying: it explains the requirements, the documents and how the places are awarded.
+Your applications come first, under **My applications**; then the calls you can apply to now, under **Open calls**. The calls not open yet or already closed are folded under **Other calls**. Each call shows its dates and a link to **Read the call**. Read it before applying: it explains the requirements, the documents and how the places are awarded.
 
 If you have 3 or more conduct warnings this course, you cannot apply (article 6 of the call): instead of the **Apply** button you will see a notice. If you think it is a mistake, talk to the Erasmus team.
 
@@ -38,15 +38,15 @@ Until the closing date you can still change it and submit it again: each time yo
 
 ## 4. If you are asked for corrections
 
-If a document is missing or needs changes, you will receive an email with the list and the deadline. Open your application on the portal: the documents to correct are marked in red. Attach the new files and click **Submit application** again. If you don't correct it in time, the application will be excluded.
+If a document is missing or needs changes, you will receive an email with the list and the deadline. Open your application on the portal: the box at the top says so, with the deadline, and the documents to correct are marked in red. Attach the new files and click **Submit application** again. If you don't correct it in time, the application will be excluded.
 
 ## 5. The interview
 
-If your application is admitted, you will receive an email with the date and place of your personal interview, at least 24 hours ahead. You will also see them on your application in the portal. Part of the interview is in English. Arrive 15 minutes early: not attending excludes you, unless for a justified reason of force majeure.
+If your application is admitted, you will receive an email with the date and place of your personal interview, at least 24 hours ahead. You will also see them on your application in the portal, in the box at the top. Part of the interview is in English. Arrive 15 minutes early: not attending excludes you, unless for a justified reason of force majeure.
 
 ## 6. Your results
 
-When the Erasmus+ Commission publishes a list (the admission list, the provisional resolution, the definitive resolution), you receive an email with your result and you see it on your application in the portal, under **Results**: your position in your modality, your total score and the points of each criterion.
+When the Erasmus+ Commission publishes a list (the admission list, the provisional resolution, the definitive resolution), you receive an email with your result and you see it on your application in the portal, under **Results**: your position in your modality, your total score and the points of each criterion. The newest result is open; click the title of an earlier one to see it.
 
 Click **See the published list** to see the whole list. It does not show names: each person appears only with four digits of their identity document, for example ***4567**. You can also download it as a PDF.
 
@@ -69,7 +69,7 @@ When you accept the place, your application shows **Your mobility**.
 
 **Your own destination.** You can also find a company or entity in another Erasmus+ country yourself. Open **Propose my own destination**, fill in the entity, its contact person, the country, the city and the dates, attach its **written commitment** to take you, and click **Send the proposal**. The entity must also write to erasmus@elpuig.xeill.net. The Erasmus team validates it; if not, you will receive the reason and you can choose among the centre's destinations.
 
-**Documents and steps.** Once you have a destination, the card shows the place, the host entity and the dates, and:
+**Documents and steps.** Once you have a destination, the card is split into tabs and opens on the one with something to do now: **Summary** (the place, the host entity, the dates and your grant), **My record** (the commitment letter and the documents, with a number saying how many are still missing), **Steps**, and later **During the stay** and **On return**. You find there:
 
 - The **documents** to hand in before leaving and on return, who must **sign** each one and its deadline. Your identity document, bank account and personal details are already in EMS. Upload the European Health Insurance Card (both sides) as soon as you have it, and, if you are a minor, your family's authorisation and the authorisation to travel abroad processed with the Mossos d'Esquadra: within a month of getting your destination, and the OLS certificate with your English level in the same time. If it applies to you, the inclusion documentation (fewer opportunities, grants, special needs): only the Erasmus team sees it. In a higher-education (GS) stay of 30 days or fewer, also the **virtual component**: a PDF with your preparation, which you can upload from a month before leaving until the day before (information about the city, how you will get to the company and how much transport costs, and the exercises on the technologies and tasks of the host company). The grant agreement and the learning agreement are uploaded filled in by the Erasmus team: download them, sign them and upload them signed (ideally three months before leaving, a month before at the latest). The Erasmus team also uploads your insurance policy, for you to download, and the certificate of stay: download it, have your tutor at the host company sign it at the end of the stay and upload it signed within a month of your return. While anything is missing you will receive a reminder every week. Sign the documents outside EMS, attach the signed copy and click **Upload the documents**. If the Erasmus team asks for a change, you will see its comment in red. Next to who signs each document you see whether the Erasmus team has already checked each signature (green tick) or not yet.
 - The **commitment letter** (annex 3 of the call): read it on the portal, tick that you accept it and click **Accept and sign**. EMS keeps it signed. If you are a minor, your family signs it too: it receives an email and signs it from its own access to the portal, in **Erasmus+**.
@@ -85,7 +85,9 @@ If you graduate this course and do the mobility in the summer, you keep access t
 
 ## 9. Follow your application
 
-The Erasmus+ page shows the state of your application: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*, and the state of your mobility: *Defining the mobility*, *Preparing*, *Closed* or *Cancelled*.
+At the top of your application, a bar with the steps of the call shows where it is: application, document check, interview, resolution, place, preparation, stay and return. The steps done are ticked, the current one is highlighted and, if the application ended in a step (for example, excluded), that step shows a cross. Below it, a box says **what to do now** and by when (in yellow), or what you are waiting for. Once your application can no longer change, the call's text and the application as you sent it are folded under **The call and my application**, at the end.
+
+The Erasmus+ page shows the state of your application, in colour: *Draft*, *Submitted*, *Corrections requested*, *Admitted*, *Excluded*, *Selected*, *Reserve*, *Not selected*, *Place accepted* or *Renounced*, and the state of your mobility: *Defining the mobility*, *Preparing*, *Closed* or *Cancelled*.
 
 For any question, write to the Erasmus coordination: **erasmus@elpuig.xeill.net**.
 

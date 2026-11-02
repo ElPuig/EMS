@@ -9434,6 +9434,7 @@ msgstr "Enviat"
 msgid "Suggested subject grade applying the planning ponderations."
 msgstr "Nota de l'assignatura suggerida aplicant les ponderacions de la planificació."
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #. module: ems
 #. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
@@ -10790,7 +10791,9 @@ msgstr "Clau d'agrupació"
 msgid "Right"
 msgstr "Dreta"
 
+#: code:addons/ems/models/erasmus/application.py:0
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_internal_conflict_line__resolution model:ir.model.fields,field_description:ems.field_ems_working_schedules_import_wizard_external_conflict_line__resolution
 #: model:ir.model.fields,field_description:ems.field_ems_convalidation_line__state
 #: model_terms:ir.ui.view,arch_db:ems.portal_convalidations
@@ -11210,6 +11213,7 @@ msgstr ""
 msgid "teaching"
 msgstr "ensenyament"
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_call_card
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.attendance_report_group model_terms:ir.ui.view,arch_db:ems.attendance_report_student model_terms:ir.ui.view,arch_db:ems.attendance_report_subject
@@ -28984,6 +28988,7 @@ msgstr ""
 msgid "<i class=\"fa fa-arrow-left me-1\"/>Erasmus+"
 msgstr "<i class=\"fa fa-arrow-left me-1\"/>Erasmus+"
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_call_card
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid "<i class=\"fa fa-calendar me-1\"/> Applications from"
@@ -29038,6 +29043,7 @@ msgstr ""
 msgid "<i class=\"fa fa-file-pdf-o me-1\"/>Read the call"
 msgstr "<i class=\"fa fa-file-pdf-o me-1\"/>Llegeix la convocatòria"
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_call_card
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid "<i class=\"fa fa-folder-open me-1\"/>See my application"
@@ -29048,6 +29054,7 @@ msgstr "<i class=\"fa fa-folder-open me-1\"/>Veure la meva sol·licitud"
 msgid "<i class=\"fa fa-paper-plane me-1\"/>Submit application"
 msgstr "<i class=\"fa fa-paper-plane me-1\"/>Envia la sol·licitud"
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_call_card
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid "<i class=\"fa fa-pencil me-1\"/>Apply"
@@ -29130,10 +29137,12 @@ msgstr "Qualsevol altra cosa que vulguis que sàpiga l'equip Erasmus"
 msgid "Applicant's notes"
 msgstr "Observacions del sol·licitant"
 
+#: code:addons/ems/models/erasmus/application.py:0
+#. module: ems
+#. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_merit__application_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_evaluation__application_id
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_plan_rating__application_id
-#. module: ems
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_document__application_id
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application_grade__application_id
@@ -29781,6 +29790,7 @@ msgstr "L'estat d'una sol·licitud només canvia amb les seves accions."
 msgid "There are no Erasmus+ calls for you right now."
 msgstr "Ara mateix no hi ha cap convocatòria Erasmus+ per a tu."
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_call_card
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/application.py:0
@@ -30227,7 +30237,9 @@ msgstr "Gestió de les dificultats"
 msgid "Has Erasmus+ interviews to score."
 msgstr "Té entrevistes Erasmus+ per puntuar."
 
+#: code:addons/ems/models/erasmus/application.py:0
 #. module: ems
+#. odoo-python
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_application_form
 #: model_terms:ir.ui.view,arch_db:ems.view_erasmus_interview_form
 msgid "Interview"
@@ -30265,6 +30277,7 @@ msgstr "Entrevista, part en anglès"
 msgid "Interview, general part"
 msgstr "Entrevista, part general"
 
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_erasmus_interview
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__interview_ids
@@ -30757,6 +30770,7 @@ msgstr "Recursos"
 msgid "Claim"
 msgstr "Reclamació"
 
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_erasmus_claim
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__claim_ids
@@ -31046,6 +31060,7 @@ msgstr "Plaça acceptada"
 msgid "Place offer"
 msgstr "Oferta de plaça"
 
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #. module: ems
 #: model:ir.actions.act_window,name:ems.action_erasmus_offer
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_application__offer_ids
@@ -31293,6 +31308,8 @@ msgid "Write the response first."
 msgstr "Primer escriu la resposta."
 
 #. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
 msgid "You have renounced the place."
 msgstr "Has renunciat a la plaça."
@@ -31671,6 +31688,7 @@ msgstr "Tribunal"
 msgid "Panel member"
 msgstr "Membre del tribunal"
 
+#: model_terms:ir.ui.view,arch_db:ems.view_erasmus_call_form
 #. module: ems
 #: model:ir.ui.menu,name:ems.menu_erasmus_plan_ratings
 msgid "Plan ratings"
@@ -35233,6 +35251,7 @@ msgstr ""
 "aquest curs tens massa amonestacions (article 6 de la convocatòria). Si "
 "creus que és un error, parla amb l'equip Erasmus."
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_call_card
 #. module: ems
 #: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
 msgid ""
@@ -35678,6 +35697,7 @@ msgstr "Setmana %(week)s (%(start)s - %(end)s)"
 msgid "Week %s"
 msgstr "Setmana %s"
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #. module: ems
 #. odoo-python
 #: code:addons/ems/models/erasmus/project.py:0
@@ -36725,6 +36745,7 @@ msgstr "Documents per revisar"
 msgid "Documents valid"
 msgstr "Documents vàlids"
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #. module: ems
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__stay
 msgid "During the stay"
@@ -36745,6 +36766,7 @@ msgstr "EMS: Erasmus+, tancar la inscripció de les mobilitats de grup"
 msgid "EMS: Erasmus+, group mobility result"
 msgstr "EMS: Erasmus+, resultat de la mobilitat de grup"
 
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_mobility
 #. module: ems
 #. odoo-python
 #: model:ir.model.fields,field_description:ems.field_ems_erasmus_group_mobility__eu_survey_state
@@ -37258,7 +37280,9 @@ msgstr "Final previst"
 msgid "Planned start"
 msgstr "Inici previst"
 
+#: code:addons/ems/models/erasmus/application.py:0
 #. module: ems
+#. odoo-python
 #: model:ir.model.fields.selection,name:ems.selection__ems_erasmus_group_mobility__state__preparation
 msgid "Preparation"
 msgstr "Preparació"
@@ -40449,3 +40473,238 @@ msgstr "Prevista"
 #: model:ir.model.fields,help:ems.field_ems_erasmus_application__erasmus_history_ids
 msgid "What EMS records of this person: earlier years' participations show here once they have been through EMS."
 msgstr "El que l'EMS té registrat d'aquesta persona: les participacions d'anys anteriors hi apareixen un cop han passat per l'EMS."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Document check"
+msgstr "Revisió"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Your place"
+msgstr "Plaça"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Mobility stay"
+msgstr "Estada"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "After the stay"
+msgstr "Retorn"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Plan rating"
+msgstr "Valoració del pla"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "A place is offered to you: accept it or renounce it."
+msgstr "T'oferim una plaça: accepta-la o renuncia-hi."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Accept and sign your commitment letter."
+msgstr "Accepta i signa la teva carta de compromís."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Answer the EU Survey and tell us here."
+msgstr "Respon l'EU Survey i indica-ho aquí."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Check your provisional result. If you disagree, you can claim."
+msgstr "Revisa el teu resultat provisional. Si no hi estàs d'acord, pots reclamar."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+#, python-format
+msgid "Come to your interview%(place)s. Part of it is in English: please arrive 15 minutes early."
+msgstr "Vine a l'entrevista%(place)s. Una part és en anglès: arriba 15 minuts abans."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Complete your application and submit it."
+msgstr "Completa la sol·licitud i envia-la."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Complete your proposal with the exact dates and send it."
+msgstr "Completa la proposta amb les dates exactes i envia-la."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Correct the documents marked below."
+msgstr "Corregeix els documents marcats a sota."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Enjoy your stay!"
+msgstr "Gaudeix de l'estada!"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Fill in this week's self-assessment."
+msgstr "Omple l'autoavaluació d'aquesta setmana."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "It is your turn: choose your destination."
+msgstr "Et toca a tu: tria la destinació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "The Erasmus team is reviewing your application."
+msgstr "L'equip Erasmus està revisant la teva sol·licitud."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "The Erasmus team will close your mobility once your record is complete."
+msgstr "L'equip Erasmus tancarà la teva mobilitat quan l'expedient estigui complet."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "The application was not submitted in time."
+msgstr "La sol·licitud no es va enviar a temps."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "The call is not accepting applications."
+msgstr "La convocatòria no admet sol·licituds."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "The panel is rating your mobility plan."
+msgstr "El tribunal està valorant el teu pla de mobilitat."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+#, python-format
+msgid "Upload the documents still missing from your record (%s)."
+msgstr "Puja els documents que encara falten al teu expedient (%s)."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Waiting for the definitive resolution."
+msgstr "Pendent de la resolució definitiva."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Waiting for the place to be offered to you."
+msgstr "Pendent que t'oferim la plaça."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "You are on the reserve list: you will receive an email if a place becomes free."
+msgstr "Ets a la llista de reserva: rebràs un correu si queda lliure una plaça."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "You have not been selected in this call."
+msgstr "En aquesta convocatòria no has obtingut plaça."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "You will receive an email when it is your turn to choose your destination."
+msgstr "Rebràs un correu quan et toqui triar la destinació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "You will receive an email with the day of your interview."
+msgstr "Rebràs un correu amb el dia de l'entrevista."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Your application has been excluded: the reason is in the results below."
+msgstr "La teva sol·licitud ha quedat exclosa: el motiu és als resultats de sota."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Your mobility is closed. Thank you for taking part!"
+msgstr "La teva mobilitat està tancada. Gràcies per participar-hi!"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Your proposal is waiting for validation."
+msgstr "La teva proposta està pendent de validació."
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/erasmus/application.py:0
+msgid "Your record is up to date. Get ready for your stay!"
+msgstr "El teu expedient està al dia. Prepara't per a l'estada!"
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/user_menu_erasmus.js:0
+msgid "My Erasmus+ application"
+msgstr "La meva sol·licitud Erasmus+"
+
+#. module: ems
+#: model:res.groups,name:ems.group_erasmus_panel
+msgid "Erasmus+ panel member"
+msgstr "Membre del tribunal Erasmus+"
+
+#. module: ems
+#: model:res.groups,comment:ems.group_erasmus_panel
+msgid "Has Erasmus+ staff mobility plans to rate."
+msgstr "Té plans de mobilitat del personal Erasmus+ per valorar."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid "My applications"
+msgstr "Les meves sol·licituds"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid "Open calls"
+msgstr "Convocatòries obertes"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus
+msgid "Other calls ("
+msgstr "Altres convocatòries ("
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_application
+msgid "The call and my application"
+msgstr "La convocatòria i la meva sol·licitud"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.portal_erasmus_progress
+msgid "What to do now:"
+msgstr "Què has de fer ara:"

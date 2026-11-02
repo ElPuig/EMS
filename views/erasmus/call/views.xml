@@ -63,6 +63,22 @@
                             </button>
                             <button name="action_view_ranking" type="object" class="oe_stat_button" icon="fa-trophy"
                                     string="Ranking" invisible="state != 'closed'"/>
+                            <!-- Each step of the call's process, in its order (the issue-#682 review). -->
+                            <button name="action_view_interviews" type="object" class="oe_stat_button" icon="fa-comments"
+                                    string="Interviews" invisible="audience != 'student' or state != 'closed'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_view_plan_ratings" type="object" class="oe_stat_button" icon="fa-star-half-o"
+                                    string="Plan ratings" invisible="audience != 'staff' or state != 'closed'"
+                                    groups="ems.group_erasmus,ems.group_academic_admin"/>
+                            <button name="action_view_resolutions" type="object" class="oe_stat_button" icon="fa-gavel"
+                                    string="Resolutions" invisible="state != 'closed'"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                            <button name="action_view_claims" type="object" class="oe_stat_button" icon="fa-exclamation-circle"
+                                    string="Claims" invisible="state != 'closed'"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
+                            <button name="action_view_offers" type="object" class="oe_stat_button" icon="fa-envelope-open-o"
+                                    string="Place offers" invisible="state != 'closed'"
+                                    groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
                             <button name="action_view_mobilities" type="object" class="oe_stat_button" icon="fa-plane"
                                     string="Mobilities" invisible="not has_final_resolution"/>
                         </div>

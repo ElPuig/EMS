@@ -12,7 +12,7 @@ Apply for a job shadowing, a structured course or a teaching assignment abroad, 
 
 ## 1. Open the call
 
-Go to **Erasmus+** on the school portal (`/my/erasmus`; the Erasmus team shares the link when the call opens). You see the staff call and its dates. Click **Read the call** to download the published call, and **Apply** to open the form.
+Go to **Erasmus+** on the school portal (`/my/erasmus`; the Erasmus team shares the link when the call opens). From EMS, click your name at the top right and **My Erasmus+ application**: it appears while there is a call you can apply to or you have an application. You see the staff call and its dates. Click **Read the call** to download the published call, and **Apply** to open the form.
 
 ## 2. Fill in the form
 
@@ -35,6 +35,8 @@ You can't submit it without your last mobility and the date you joined the centr
 
 ## 3. Follow it
 
+At the top of your application, a bar with the steps of the call (application, document check, plan rating, resolution, place, preparation, stay and return) marks where it is, and a box below it says **what to do now** and by when, or what you are waiting for. On the Erasmus+ page, your applications come first, then the calls open now; the others are folded under **Other calls**.
+
 On the same page you see the state of your application, the corrections the Erasmus team asks for (if any) and, once published, each resolution with your position and the points of every criterion. The published lists show only four digits of the identity document, never names.
 
 If you are selected, **accept or renounce the place** on the portal before the deadline: without an answer, the place is considered renounced.
@@ -45,7 +47,7 @@ When you accept the place, the page shows **Your mobility** with your proposal, 
 
 **If it changes later:** once validated, if the course, the host entity or the dates change (for example, the course is not offered that month), open **Change the activity or the dates** in **Your mobility** before it starts and send the new proposal. The Direction validates it again, and until then your mobility stays as it was validated. If the Direction leaves a comment, you see it in the email and on the portal.
 
-Once validated, the card shows the documents to hand in before leaving and on return (European Health Insurance Card, grant agreement, learning agreement (FP staff, KA121-VET) or mobility agreement (higher education, KA131-HED) signed by you, the Erasmus coordinator and the host entity, on return the Europass mobility document (FP staff, issued by the Erasmus team; the certificate of stay or attendance only if needed to prove the dates or the activity) or the certificate of stay or attendance (higher education), a short report with evidence within a month of your return...), who signs each one and its deadline, and the steps to follow (preparation meetings, activities left for your groups, final report, news item on the website and, if needed, sharing it at a meeting). The Erasmus team uploads the grant agreement filled in (download it, sign it and upload it signed) and your insurance policy (download it). Sign the other documents outside EMS, attach them and click **Upload the documents**.
+Once validated, the card is split into tabs, and opens on the one with something to do: **Summary** (the activity, the dates and the grant), **My record** (the documents, with how many are still missing), **Steps**, **During the stay** and **On return**. It shows the documents to hand in before leaving and on return (European Health Insurance Card, grant agreement, learning agreement (FP staff, KA121-VET) or mobility agreement (higher education, KA131-HED) signed by you, the Erasmus coordinator and the host entity, on return the Europass mobility document (FP staff, issued by the Erasmus team; the certificate of stay or attendance only if needed to prove the dates or the activity) or the certificate of stay or attendance (higher education), a short report with evidence within a month of your return...), who signs each one and its deadline, and the steps to follow (preparation meetings, activities left for your groups, final report, news item on the website and, if needed, sharing it at a meeting). The Erasmus team uploads the grant agreement filled in (download it, sign it and upload it signed) and your insurance policy (download it). Sign the other documents outside EMS, attach them and click **Upload the documents**.
 
 ---
 

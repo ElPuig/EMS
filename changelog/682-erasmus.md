@@ -24,10 +24,18 @@
 
 ## Erasmus+ menus in sections, the portal entry and each person's Erasmus+ history (review by Juan Morote and Fernando Porrino, 2026-11-02):
 
-- The Erasmus+ app's 14 loose menus are grouped like the rest of EMS: Calls (calls, applications, ranking, interviews, plan ratings, claims, resolutions, place offers), Mobilities (individual and group), Financial management (projects, invoices, grant payments) and Configuration (host entities). Each section only shows to whoever sees one of its entries (the Secretary sees only Financial management); the personal entries (My evaluations, My plan ratings, My group mobilities) stay loose on the bar.
+- The Erasmus+ app's 14 loose menus are grouped like the rest of EMS: Calls (calls, applications, ranking, claims, resolutions, place offers), Mobilities (individual and group), Financial management (projects, invoices, grant payments) and Configuration (host entities). Each section only shows to whoever sees one of its entries (the Secretary sees only Financial management); the personal entries (My evaluations, My plan ratings, My group mobilities) stay loose on the bar.
 - The student portal's top menu has an Erasmus+ entry, under the same rule as its card: students who cannot apply (PFI, CFGB) see neither.
 - New read-only Erasmus+ history (ems.erasmus.history, an SQL view over the individual mobilities and the group mobility participants, cancelled and withdrawn ones left out): shown under the academic history on the student form, to the same roles that read that history plus the Erasmus team, and on the application next to First mobility. It holds names, country, city, dates and Planned/Completed only, so no access to the Erasmus+ app is needed.
 - The application form no longer asks the student whether they took part in Erasmus+ before (fields previous_mobility and previous_mobility_details removed, never released): First mobility stays the Erasmus team's, checked against that history from next year on.
+
+## Erasmus+ on the portal shows where each application is and what to do now (review by the Erasmus coordinator, 2026-11-02):
+
+- Each application has a step bar (application, document check, interview or plan rating, resolution, place, preparation, stay, return), with the step where it ended crossed out, and a "what to do now" box with the deadline, which replaces the separate notices for corrections and the interview (ems.erasmus.application._ems_portal_progress).
+- The state badge is coloured (green selected or accepted, amber corrections or reserve, red excluded); the Erasmus+ page lists the person's applications first, then the open calls, and folds the rest under Other calls.
+- Once an application can no longer change, the call's text and the form fold away at the end; of the published results only the newest is open.
+- A defined mobility is split into tabs (Summary, My record with how many documents are missing, Steps, During the stay, On return), opened on the one with something to do.
+- Backend: the user menu has My Erasmus+ application for a staff member with a call to apply to or an application (session_info's ems_erasmus_portal); the call form has buttons to its interviews or plan ratings, resolutions, claims and place offers, so Interviews and Plan ratings leave the menu; an interviewer and a panel member now have separate hidden groups (ems.group_erasmus_panel is new), so each only sees their own My ... entry.
 
 # Fixes
 

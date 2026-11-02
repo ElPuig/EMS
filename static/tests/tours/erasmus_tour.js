@@ -47,6 +47,10 @@ registry.category("web_tour.tours").add("ems_portal_erasmus_apply", {
             trigger: ".o_ems_erasmus_application.o_ems_erasmus_state_submitted",
             content: "It is listed as submitted",
         },
+        {
+            trigger: ".o_ems_erasmus_call .o_ems_erasmus_steps .o_ems_erasmus_step_current",
+            content: "With the step bar of the application",
+        },
     ],
 });
 

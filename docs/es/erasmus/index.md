@@ -25,12 +25,14 @@ Esta sección contiene los manuales para el **equipo Erasmus+**: la coordinació
 
 | Menú | Encontraréis |
 |------|--------------|
-| **Convocatorias** | Convocatorias, Solicitudes, Clasificación, Entrevistas, Valoraciones de planes, Reclamaciones, Resoluciones y Ofertas de plaza |
+| **Convocatorias** | Convocatorias, Solicitudes, Clasificación, Reclamaciones, Resoluciones y Ofertas de plaza |
 | **Movilidades** | Movilidades individuales y Movilidades de grupo |
 | **Gestión económica** | Proyectos, Facturas y Pagos de becas |
 | **Configuración** | Entidades de acogida |
 
-Cada persona solo ve los menús que le tocan: Secretaría, por ejemplo, solo ve **Gestión económica**. Las entradas personales (**Mis evaluaciones**, **Mis valoraciones de planes**, **Mis movilidades de grupo**) salen directamente en la barra, sin desplegable.
+Cada persona solo ve los menús que le tocan: Secretaría, por ejemplo, solo ve **Gestión económica**. Las entradas personales (**Mis evaluaciones**, **Mis valoraciones de planes**, **Mis movilidades de grupo**) salen directamente en la barra, sin desplegable, y cada una solo la ve quien tiene algo en ella: quien hace entrevistas ve **Mis evaluaciones**, y quien es del tribunal, **Mis valoraciones de planes**.
+
+**Desde la convocatoria:** el formulario de cada convocatoria tiene un botón para cada paso del proceso (**Solicitudes**, **Clasificación**, **Entrevistas** o **Valoraciones de planes**, **Resoluciones**, **Reclamaciones**, **Ofertas de plaza** y **Movilidades**), y cada uno muestra solo los registros de esa convocatoria. Las entrevistas y las valoraciones de los planes del tribunal solo se abren de esta manera.
 
 ---
 

@@ -25,12 +25,14 @@ This section contains the manuals for the **Erasmus+ team**: the Erasmus coordin
 
 | Menu | What you find there |
 |------|---------------------|
-| **Calls** | Calls, Applications, Ranking, Interviews, Plan ratings, Claims, Resolutions and Place offers |
+| **Calls** | Calls, Applications, Ranking, Claims, Resolutions and Place offers |
 | **Mobilities** | Individual mobilities and Group mobilities |
 | **Financial management** | Projects, Invoices and Grant payments |
 | **Configuration** | Host entities |
 
-Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. The personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**) are right on the bar, with no dropdown.
+Each person only sees the menus that concern them: the Secretary, for example, only sees **Financial management**. The personal entries (**My evaluations**, **My plan ratings**, **My group mobilities**) are right on the bar, with no dropdown, and each one only shows to whoever has something in it: an interviewer sees **My evaluations**, a member of the panel **My plan ratings**.
+
+**From the call:** the form of a call has a button for each step of its process (**Applications**, **Ranking**, **Interviews** or **Plan ratings**, **Resolutions**, **Claims**, **Place offers** and **Mobilities**), each one showing only that call's records. The interviews and the panel's plan ratings are only reached that way.
 
 ---
 

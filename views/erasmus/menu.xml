@@ -2,10 +2,11 @@
 <odoo>
     <data>
         <!-- Issue #683: the Erasmus team manages calls and applications; the Head of Studies and
-             the Director read the applications. Issue #684: whoever has
-             an interview to score (ems.group_erasmus_evaluator) sees only "My evaluations". -->
+             the Director read the applications. Issue #684: whoever has an interview to score
+             (ems.group_erasmus_evaluator) sees only "My evaluations"; issue #686, a panel member with
+             plans to rate (ems.group_erasmus_panel), only "My plan ratings". -->
         <menuitem name="Erasmus+" sequence="9" id="menu_erasmus"
-                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_secretary,ems.group_academic_admin,ems.group_erasmus_group_teacher"/>
+                  groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_erasmus_evaluator,ems.group_erasmus_panel,ems.group_secretary,ems.group_academic_admin,ems.group_erasmus_group_teacher"/>
 
         <!-- Four sections, like the rest of EMS (the issue-#682 review): the call process, the
              mobilities, the money and the configuration. Each one shows only to whoever sees one of
@@ -28,22 +29,15 @@
                   parent="menu_erasmus_section_calls" action="action_erasmus_ranking"
                   groups="ems.group_erasmus,ems.group_head_of_studies,ems.group_academic_admin"/>
 
-        <menuitem name="Interviews" sequence="4" id="menu_erasmus_interviews"
-                  parent="menu_erasmus_section_calls" action="action_erasmus_interview"
-                  groups="ems.group_erasmus,ems.group_academic_admin"/>
-
         <menuitem name="My evaluations" sequence="1" id="menu_erasmus_my_interviews"
                   parent="menu_erasmus" action="action_erasmus_my_interviews"
                   groups="ems.group_erasmus_evaluator"/>
 
-        <!-- Issue #686: the staff's mobility plans, rated by the call's panel. -->
-        <menuitem name="Plan ratings" sequence="5" id="menu_erasmus_plan_ratings"
-                  parent="menu_erasmus_section_calls" action="action_erasmus_plan_rating"
-                  groups="ems.group_erasmus,ems.group_academic_admin"/>
-
+        <!-- The interviews (issue #684) and the panel's plan ratings (issue #686) belong to one call:
+             the team opens them from the call's form, not from the menu (the issue-#682 review). -->
         <menuitem name="My plan ratings" sequence="2" id="menu_erasmus_my_plan_ratings"
                   parent="menu_erasmus" action="action_erasmus_my_plan_ratings"
-                  groups="ems.group_erasmus_evaluator"/>
+                  groups="ems.group_erasmus_panel"/>
 
         <!-- Issue #685: resolutions, place offers and claims; the Head of Studies and the Director read them. -->
         <menuitem name="Resolutions" sequence="7" id="menu_erasmus_resolutions"

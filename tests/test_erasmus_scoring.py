@@ -249,6 +249,8 @@ class TestErasmusInterview(ErasmusScoringCase):
         group = self.env.ref('ems.group_erasmus_evaluator')
         interview = self._interview(self._admitted(), self.evaluator_1)
         self.assertIn(group, self.evaluator_1.groups_id)
+        self.assertFalse(self.evaluator_1.has_group('ems.group_erasmus_panel'),
+                         "An interview evaluator never sees the panel's entry, with nothing in it.")
         interview.evaluator_id = self.evaluator_2
         self.assertNotIn(group, self.evaluator_1.groups_id)
         self.assertIn(group, self.evaluator_2.groups_id)

@@ -836,6 +836,8 @@ Any change that alters or renames something Odoo identifies by **XML ID** — re
 
 **Merging/rebasing across branches that each add migration scripts:** when two branches developed in parallel each add a `migrations/<version>/{pre,post}-migrate.py`, a naive merge can silently strand one branch's script in an already-released version folder instead of the current unreleased one (exactly what happened when `migrations/18.0.0.20.1/post-migrate.py` was added by a feature branch merged after `18.0.0.20.1` had already been tagged/released — the script would never run on any environment that had already upgraded past that tag). Before finishing any merge that touches `migrations/`: (1) check `git tag` for the most recent released version and confirm every new/changed migration script lives under a version folder *higher* than that tag; (2) if two branches each created their own `migrations/<same-current-version>/{pre,post}-migrate.py`, merge their `migrate()` bodies into one file (e.g. as separate helper functions called from a single `migrate()`) rather than keeping duplicate files or silently dropping one side's script — Odoo only runs one `pre-migrate.py`/`post-migrate.py` per version folder.
 
+**A release ships only migration folders for versions that will exist (developer, 2026-11-02).** When preparing a release, every migration folder an integrated branch created for a version that won't be released (e.g. `18.0.0.43.1`, when the release is `18.0.0.44.0`) is folded into the release version's folder: move its helper functions into that folder's `pre-migrate.py`/`post-migrate.py` (same kind, pre into pre, post into post), call them from its single `migrate()`, and delete the stray folder. Odoo would run it anyway (it runs every folder between the installed and the new version), but the developer considers it an inconsistency: *"no existirá la 43.1 sino la 44"*. Keep the original call order (lower version first), check the changelog doesn't still name the old path, and exercise the merged script before pushing.
+
 ## Resolving merge conflicts
 
 When resolving a merge conflict, never pick a side (ours/theirs) blindly. Before resolving each conflicted hunk:
@@ -1043,7 +1045,9 @@ Run it on the current release branch (e.g. `v18.0.0.29.0`), in this order:
 2. **Merge each issue's branch** (`origin/<issue_number>-<slug>`, after `git fetch origin`) into
    the release branch, **one at a time, in ascending issue-number order**, resolving conflicts per
    "Resolving merge conflicts" above and the multi-branch rule in "Migrations" (merge
-   same-version `pre/post-migrate.py` bodies into one file). Commit each merge before starting the
+   same-version `pre/post-migrate.py` bodies into one file, and fold a folder for a version that
+   won't be released, e.g. `43.1` in release `44.0`, into the release version's one; see "A release
+   ships only migration folders for versions that will exist" in "Migrations"). Commit each merge before starting the
    next one — this routine is an explicit exception to the developer managing commits themselves.
    If a conflict is still ambiguous after reviewing both sides, stop and ask.
 

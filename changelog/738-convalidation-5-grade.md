@@ -13,4 +13,4 @@
 ## Grade type replaces the "without grade" flag on convalidation lines (issue #738):
 
 - `ems.convalidation.line.without_grade` (Boolean) becomes `grade_type` (Selection `GRADE_TYPES`: `grade` / `without_grade` / `fixed_five`), shared with the grant wizard's `mode`; `_ems_resolved_grade()` returns 5 for `fixed_five`, and the teachers' notice items moved to `_ems_notice_item()`.
-- `migrations/18.0.0.43.1/pre-migrate.py` creates and fills `grade_type` from the old column (lines without grade keep it, the rest, NULLs included, become "with grade") and drops `without_grade`. Manifest bumped to 18.0.0.43.1.
+- `migrations/18.0.0.44.0/pre-migrate.py` creates and fills `grade_type` from the old column (lines without grade keep it, the rest, NULLs included, become "with grade") and drops `without_grade`.

@@ -1316,6 +1316,15 @@ needs the repository permission **Pull requests: Read and write** on the `gh` to
 exactly this: editing the PR's description, never merging, closing, commenting on or reviewing
 it without asking.
 
+**Editing an issue's text (developer, 2026-11-02).** *"Tienes permiso explícito para actualizar el
+texto de una issue cuando te lo pedimos (si no la has creado tú) y siempre que lo consideres
+necesario (si la issue la has creado tú)."* An issue someone else created: edit its body only when
+asked. An issue the agent created: edit it whenever it sees fit (e.g. to keep its plan current).
+Read the current body first and keep what is there unless told to replace it; write it with
+`gh api -X PATCH repos/ElPuig/EMS/issues/<n> -F body=@<file>` (not `gh issue edit`, same GraphQL
+error as above), then read it back and compare. This covers the body only: closing, reopening,
+labels, assignees beyond the standing ones, and comments still need asking.
+
 **One file per branch, not one shared file** — deliberate, not just tidiness: every developer's
 own Claude session does the same on their own branch, so `changelog/` ends up with multiple
 independently-named files (one per contributor). A single shared file would conflict on every

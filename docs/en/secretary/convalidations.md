@@ -32,7 +32,7 @@ To see a student's requests, open their record and click the **Convalidations** 
 ## Registering a resolution
 
 1. Open the request.
-2. On the **Resolution** tab, click the file name in the **Resolution** field to open the PDF in a new tab, and check on the **Subjects** tab which modules are convalidated and with which grade.
+2. On the **Resolution** tab, click the file name in the **Resolution** field to open the PDF in a new tab, and check on the **Subjects** tab which modules are convalidated and with which grade. The **Grade type** column tells how each one is convalidated: **With grade**, **Without grade** or **With a fixed 5** (a 5 whatever the previous studies hold); register it in Esfera the same way.
 3. Register the resolution in Esfera.
 4. Click **Registered in Esfera**, at the top of the form, and confirm.
 

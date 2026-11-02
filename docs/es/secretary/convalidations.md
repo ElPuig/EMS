@@ -32,7 +32,7 @@ Para ver las solicitudes de un alumno, abre su ficha y haz clic en el botón **C
 ## Registrar una resolución
 
 1. Abre la solicitud.
-2. En la pestaña **Resolución**, haz clic en el nombre del fichero del campo **Resolución** para abrir el PDF en una pestaña nueva, y comprueba en la pestaña **Asignaturas** qué módulos están convalidados y con qué nota.
+2. En la pestaña **Resolución**, haz clic en el nombre del fichero del campo **Resolución** para abrir el PDF en una pestaña nueva, y comprueba en la pestaña **Asignaturas** qué módulos están convalidados y con qué nota. La columna **Tipo de nota** indica cómo se ha convalidado cada uno: **Con nota**, **Sin nota** o **Con un 5 fijado** (un 5 sea cual sea la nota de los estudios previos); regístralo en Esfera de la misma manera.
 3. Registra la resolución en Esfera.
 4. Haz clic en **Registrada en Esfera**, arriba del formulario, y confirma.
 

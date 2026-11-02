@@ -32,7 +32,7 @@ Per veure les sol·licituds d'un alumne, obre la seva fitxa i fes clic al botó 
 ## Registrar una resolució
 
 1. Obre la sol·licitud.
-2. A la pestanya **Resolució**, fes clic al nom del fitxer del camp **Resolució** per obrir el PDF en una pestanya nova, i comprova a la pestanya **Assignatures** quins mòduls estan convalidats i amb quina nota.
+2. A la pestanya **Resolució**, fes clic al nom del fitxer del camp **Resolució** per obrir el PDF en una pestanya nova, i comprova a la pestanya **Assignatures** quins mòduls estan convalidats i amb quina nota. La columna **Tipus de nota** indica com s'ha convalidat cadascun: **Amb nota**, **Sense nota** o **Amb un 5 fixat** (un 5 sigui quina sigui la nota dels estudis previs); registra'l a Esfera de la mateixa manera.
 3. Registra la resolució a l'Esfera.
 4. Fes clic a **Registrada a Esfera**, a dalt del formulari, i confirma.
 

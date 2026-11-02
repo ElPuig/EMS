@@ -93,3 +93,13 @@ class TestGuardBoardUncheckedTour(HttpCase):
         """Someone else checks the teacher in: the board hears it through the bus and reloads."""
         self.start_tour("/odoo", "ems_guard_board_unchecked_refresh", login=self.guard_user.login)
         self.assertEqual(self._teacher_check_in().ems_checked_in_by_id, self.guard_user)
+
+    def test_a_public_holiday_lists_nobody(self):
+        """Issue #740: today is a public holiday, so nobody is missing even though nobody checked in."""
+        utils = self.env['ems.datetime_utils']
+        self.env['resource.calendar.leaves'].create({
+            'name': 'Tour Holiday',
+            'date_from': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.today, 0.0)),
+            'date_to': utils.datetime_to_odoo(utils.time_float_to_utc_datetime(self.today, 23.9)),
+        })
+        self.start_tour("/odoo", "ems_guard_board_holiday", login=self.teacher_user.login)

@@ -28359,3 +28359,25 @@ msgstr "%(subject)s, convalidat (5)"
 #: model_terms:ir.ui.view,arch_db:ems.report_convalidation_resolution
 msgid "Convalidated (CV)"
 msgstr "Convalidat (CV)"
+
+#. module: ems
+#. odoo-python
+#: code:addons/ems/models/attendance/guard_duty_board.py:0
+msgid "This day is a public holiday (%s): there is nothing to organise."
+msgstr "Aquest dia és festiu (%s): no hi ha res a organitzar."
+
+#. module: ems
+#. odoo-javascript
+#: code:addons/ems/static/src/js/backend/guard_duty_board.js:0
+msgid "Public holiday: %s. Nobody is expected, so nobody is missing."
+msgstr "Dia festiu: %s. No s'espera ningú, així que no falta ningú."
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid "Public holiday:"
+msgstr "Dia festiu:"
+
+#. module: ems
+#: model_terms:ir.ui.view,arch_db:ems.report_guard_duty_board
+msgid ". Nobody is expected, so nobody is missing."
+msgstr ". No s'espera ningú, així que no falta ningú."

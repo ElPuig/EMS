@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
+
 from odoo import api, models
 from odoo.osv.expression import OR
 
@@ -9,6 +11,18 @@ class EmsPublicHoliday(models.Model):
     attendances they make obsolete. See docs/en/developers/employees/absence.md, "Public
     holidays"."""
     _inherit = 'resource.calendar.leaves'
+
+    @api.model
+    def _ems_public_holiday_on(self, day):
+        """The public holiday on `day` (a date of the company's calendar), or an empty recordset:
+        nothing is expected of anybody then (issue #740). One whose hours only touch the day
+        counts too. sudo: whoever asks only learns whether the day is a holiday, and its name."""
+        utils = self.env['ems.datetime_utils']
+        day_start, day_end = (utils.datetime_to_odoo(utils.time_float_to_utc_datetime(when, 0.0))
+                              for when in (day, day + timedelta(days=1)))
+        return self.sudo().search([
+            ('resource_id', '=', False), ('date_from', '<', day_end), ('date_to', '>', day_start)],
+            order='date_from', limit=1)
 
     @api.model_create_multi
     def create(self, vals_list):

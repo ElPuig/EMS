@@ -67,6 +67,7 @@
                                 <style>
                                     .gdb-title { font-size: 20px; margin-bottom: 10px; }
                                     .gdb-shift-title { font-size: 13px; font-weight: 600; margin: 12px 0 4px 0; }
+                                    .gdb-holiday { font-size: 11px; padding: 6px 8px; background: #e8f4f8; border-left: 3px solid #17a2b8; }
                                     .gdb-table { font-size: 10px; table-layout: fixed; margin-bottom: 6px; }
                                     .gdb-table th, .gdb-table td { padding: 4px 6px !important; text-align: center; vertical-align: middle; overflow: hidden; }
                                     .gdb-table td.gdb-time { white-space: nowrap; font-weight: bold; }
@@ -166,10 +167,14 @@
                                         <t t-if="shift == 'morning'">Morning</t>
                                         <t t-else="">Afternoon</t>
                                     </h2>
+                                    <!-- Issue #740: nobody is missing on a public holiday. -->
+                                    <p t-if="data['holiday']" class="gdb-holiday">
+                                        Public holiday: <t t-esc="data['holiday']"/>. Nobody is expected, so nobody is missing.
+                                    </p>
                                     <!-- Both views on the board's real time axis (issue #637): laid out once by
                                          BoardTimeGrid, the same grid the screen renders - a slot refers
                                          to its line by index. -->
-                                    <t t-if="data['lines'] and requested_view == 'table'">
+                                    <t t-if="data['lines'] and requested_view == 'table' and not data['holiday']">
                                         <t t-set="grid" t-value="data['absence_grid']"/>
                                         <table class="table table-bordered gdb-table gdb-duty-table">
                                             <colgroup>
@@ -222,7 +227,7 @@
                                             </tbody>
                                         </table>
                                     </t>
-                                    <t t-elif="data['lines']">
+                                    <t t-elif="data['lines'] and requested_view != 'table'">
                                         <t t-set="grid" t-value="data['schedule_grid']"/>
                                         <table class="table table-bordered gdb-table">
                                             <colgroup>
@@ -285,7 +290,7 @@
                                             </tbody>
                                         </table>
                                     </t>
-                                    <p t-else="">No schedule available.</p>
+                                    <p t-elif="not data['holiday']">No schedule available.</p>
                                 </t>
                             </div>
                         </t>

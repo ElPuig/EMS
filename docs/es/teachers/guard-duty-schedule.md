@@ -108,6 +108,10 @@ Aquí solo se muestra que la persona falta. El tipo de ausencia, el motivo y el 
 
 ---
 
+## Días festivos
+
+Un día festivo del calendario del centro (los de **Ausencias > Configuración > Días festivos**), el horario muestra un aviso con el nombre del festivo. Ese día no se espera a nadie, así que no falta nadie: la **Tabla de ausencias** no aparece, nadie se marca como **Sin fichar** y no se puede cubrir ni organizar nada. En la vista de horario sigue apareciendo el horario habitual, bajo el mismo aviso. El PDF de ese día también lo indica.
+
 ## Docentes que no han fichado
 
 Hoy, en cuanto empieza una clase, si su docente no ha fichado aparece en la **Tabla de ausencias** como una ausencia, para que un docente de guardia la pueda cubrir. Su nombre se muestra en rojo subrayado con puntos y con la etiqueta **Sin fichar**. Lo mismo pasa con un docente de guardia: queda marcado en la columna de guardia y no se le puede enviar a cubrir nada hasta que fiche.
